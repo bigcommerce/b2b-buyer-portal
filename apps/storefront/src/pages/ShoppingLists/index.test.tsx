@@ -274,242 +274,462 @@ it('shows deleted shopping list with "rejected" label', async () => {
   expect(screen.getByText(/Rejected/));
 });
 
-it('hides delete button for shopping lists that are approved or ready for approval', async () => {
-  const approvedStatusCode = 0;
-  const readyForApprovalStatusCode = 40;
-  const customerInfo = {
-    firstName: 'tester',
-    lastName: 'tester',
-    userId: 123,
-    email: 'test@test.com',
-    role: '2',
-  };
-  const approvedShoppingList = buildShoppingListGraphQLResponseNodeWith({
-    name: 'shopping list 1',
-    customerInfo,
-    status: approvedStatusCode,
-  });
-  const readyForApprovalShoppingList = buildShoppingListGraphQLResponseNodeWith({
-    name: 'shopping list 2',
-    customerInfo,
-    status: readyForApprovalStatusCode,
-  });
-  const response = {
-    data: {
-      shoppingLists: {
-        totalCount: 2,
-        pageInfo: { hasNextPage: false, hasPreviousPage: false },
-        edges: [
-          {
-            node: approvedShoppingList,
+describe('when user has "create_shopping_list" permission', () => {
+  describe('when user has "submit_shopping_list_for_approval" permission', () => {
+    it('hides delete button for shopping lists that are approved or ready for approval', async () => {
+      const approvedStatusCode = 0;
+      const readyForApprovalStatusCode = 40;
+      const customerInfo = {
+        firstName: 'tester',
+        lastName: 'tester',
+        userId: 123,
+        email: 'test@test.com',
+        role: '2',
+      };
+      const companyInfoInShoppingList = {
+        companyId: '79',
+        companyName: 'tester company',
+        companyAddress: 'Roundswell Business Park',
+        companyCountry: 'United States',
+        companyState: 'Devon',
+        companyCity: 'city',
+        companyZipCode: 'EX31 3TU',
+        phoneNumber: '123345',
+        bcId: '109',
+      };
+      const approvedShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        name: 'shopping list 1',
+        customerInfo,
+        companyInfo: companyInfoInShoppingList,
+        status: approvedStatusCode,
+      });
+      const readyForApprovalShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        name: 'shopping list 2',
+        customerInfo,
+        status: readyForApprovalStatusCode,
+      });
+      const response = {
+        data: {
+          shoppingLists: {
+            totalCount: 2,
+            pageInfo: { hasNextPage: false, hasPreviousPage: false },
+            edges: [
+              {
+                node: approvedShoppingList,
+              },
+              {
+                node: readyForApprovalShoppingList,
+              },
+            ],
           },
-          {
-            node: readyForApprovalShoppingList,
-          },
+        },
+      };
+
+      server.use(
+        http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
+          HttpResponse.json(response),
+        ),
+      );
+
+      const customer = buildCustomerWith({
+        id: 123,
+        userType: UserTypes.MULTIPLE_B2C,
+      });
+
+      const companyInfo = {
+        id: '79',
+        companyName: 'b2bc',
+        status: CompanyStatus.APPROVED,
+      };
+
+      const companyState = buildCompanyStateWith({
+        customer,
+        companyInfo,
+        permissions: [
+          { code: 'submit_shopping_list_for_approval', permissionLevel: 1 },
+          { code: 'create_shopping_list', permissionLevel: 1 },
         ],
-      },
-    },
-  };
+      });
 
-  server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () => HttpResponse.json(response)),
-  );
+      // It's not ideal that we are mocking the implementation of verifyLevelPermission
+      // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
+      // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
+      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
+        ({ code, companyId, userId }) => {
+          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
+            return true;
+          }
 
-  const customer = buildCustomerWith({
-    id: 123,
-    userType: UserTypes.MULTIPLE_B2C,
+          return false;
+        },
+      );
+
+      renderWithProviders(<ShoppingLists />, {
+        preloadedState: {
+          company: companyState,
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+      expect(screen.getByText('shopping list 1')).toBeInTheDocument();
+      expect(screen.getByText('shopping list 2')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
+    });
+
+    it('allows b2b users to delete their own rejected shopping list', async () => {
+      const rejectedStatusCode = 50;
+      const customerInfo = {
+        firstName: 'tester',
+        lastName: 'tester',
+        userId: 123,
+        email: 'test@test.com',
+        role: '2',
+      };
+      const companyInfoInShoppingList = {
+        companyId: '79',
+        companyName: 'tester company',
+        companyAddress: 'Roundswell Business Park',
+        companyCountry: 'United States',
+        companyState: 'Devon',
+        companyCity: 'city',
+        companyZipCode: 'EX31 3TU',
+        phoneNumber: '123345',
+        bcId: '109',
+      };
+      const rejectedShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        customerInfo,
+        companyInfo: companyInfoInShoppingList,
+        status: rejectedStatusCode,
+      });
+      const response = {
+        data: {
+          shoppingLists: {
+            totalCount: 1,
+            pageInfo: { hasNextPage: false, hasPreviousPage: false },
+            edges: [
+              {
+                node: rejectedShoppingList,
+              },
+            ],
+          },
+        },
+      };
+
+      server.use(
+        http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
+          HttpResponse.json(response),
+        ),
+      );
+
+      const customer = buildCustomerWith({
+        id: 123,
+        userType: UserTypes.MULTIPLE_B2C,
+      });
+
+      const companyInfoInCompanyState = {
+        id: '79',
+        companyName: 'b2bc',
+        status: CompanyStatus.APPROVED,
+      };
+
+      const companyState = buildCompanyStateWith({
+        customer,
+        companyInfo: companyInfoInCompanyState,
+        permissions: [
+          { code: 'submit_shopping_list_for_approval', permissionLevel: 1 },
+          { code: 'create_shopping_list', permissionLevel: 1 },
+        ],
+      });
+
+      // It's not ideal that we are mocking the implementation of verifyLevelPermission
+      // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
+      // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
+      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
+        ({ code, companyId, userId }) => {
+          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
+            return true;
+          }
+
+          return false;
+        },
+      );
+
+      renderWithProviders(<ShoppingLists />, {
+        preloadedState: {
+          company: companyState,
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+    });
+
+    // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
+    // For now we treat Deleted as Rejected so that the shopping lists that were previously rejected remain the same behavior
+    it('allows b2b users to delete their own shopping list in status "Deleted"', async () => {
+      const deletedStatusCode = 20;
+      const customerInfo = {
+        firstName: 'tester',
+        lastName: 'tester',
+        userId: 123,
+        email: 'test@test.com',
+        role: '2',
+      };
+      const companyInfoInShoppingList = {
+        companyId: '79',
+        companyName: 'tester company',
+        companyAddress: 'Roundswell Business Park',
+        companyCountry: 'United States',
+        companyState: 'Devon',
+        companyCity: 'city',
+        companyZipCode: 'EX31 3TU',
+        phoneNumber: '123345',
+        bcId: '109',
+      };
+      const deletedShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        customerInfo,
+        companyInfo: companyInfoInShoppingList,
+        status: deletedStatusCode,
+      });
+      const response = {
+        data: {
+          shoppingLists: {
+            totalCount: 1,
+            pageInfo: { hasNextPage: false, hasPreviousPage: false },
+            edges: [
+              {
+                node: deletedShoppingList,
+              },
+            ],
+          },
+        },
+      };
+
+      server.use(
+        http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
+          HttpResponse.json(response),
+        ),
+      );
+
+      const customer = buildCustomerWith({
+        id: 123,
+        userType: UserTypes.MULTIPLE_B2C,
+      });
+
+      const companyInfoInCompanyState = {
+        id: '79',
+        companyName: 'b2bc',
+        status: CompanyStatus.APPROVED,
+      };
+
+      const companyState = buildCompanyStateWith({
+        customer,
+        companyInfo: companyInfoInCompanyState,
+        permissions: [
+          { code: 'submit_shopping_list_for_approval', permissionLevel: 1 },
+          { code: 'create_shopping_list', permissionLevel: 1 },
+        ],
+      });
+
+      // It's not ideal that we are mocking the implementation of verifyLevelPermission
+      // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
+      // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
+      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
+        ({ code, companyId, userId }) => {
+          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
+            return true;
+          }
+
+          return false;
+        },
+      );
+
+      renderWithProviders(<ShoppingLists />, {
+        preloadedState: {
+          company: companyState,
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+      expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+    });
   });
 
-  const companyInfo = {
-    id: '678',
-    companyName: 'b2bc',
-    status: CompanyStatus.APPROVED,
-  };
+  describe('when user does not have "submit_shopping_list_for_approval" permission', () => {
+    it('shows delete button for shopping lists even if the status is approved or ready for approval', async () => {
+      const approvedStatusCode = 0;
+      const readyForApprovalStatusCode = 40;
+      const customerInfo = {
+        firstName: 'tester',
+        lastName: 'tester',
+        userId: 123,
+        email: 'test@test.com',
+        role: '2',
+      };
+      const companyInfoInShoppingList = {
+        companyId: '79',
+        companyName: 'tester company',
+        companyAddress: 'Roundswell Business Park',
+        companyCountry: 'United States',
+        companyState: 'Devon',
+        companyCity: 'city',
+        companyZipCode: 'EX31 3TU',
+        phoneNumber: '123345',
+        bcId: '109',
+      };
+      const approvedShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        name: 'shopping list 1',
+        customerInfo,
+        companyInfo: companyInfoInShoppingList,
+        status: approvedStatusCode,
+      });
+      const readyForApprovalShoppingList = buildShoppingListGraphQLResponseNodeWith({
+        name: 'shopping list 2',
+        customerInfo,
+        status: readyForApprovalStatusCode,
+      });
+      const response = {
+        data: {
+          shoppingLists: {
+            totalCount: 2,
+            pageInfo: { hasNextPage: false, hasPreviousPage: false },
+            edges: [
+              {
+                node: approvedShoppingList,
+              },
+              {
+                node: readyForApprovalShoppingList,
+              },
+            ],
+          },
+        },
+      };
 
-  const companyState = buildCompanyStateWith({
-    customer,
-    companyInfo,
-    permissions: [{ code: 'submit_shopping_list_for_approval', permissionLevel: 1 }],
+      server.use(
+        http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
+          HttpResponse.json(response),
+        ),
+      );
+
+      const customer = buildCustomerWith({
+        id: 123,
+        userType: UserTypes.MULTIPLE_B2C,
+      });
+
+      const companyInfo = {
+        id: '79',
+        companyName: 'b2bc',
+        status: CompanyStatus.APPROVED,
+      };
+
+      const companyState = buildCompanyStateWith({
+        customer,
+        companyInfo,
+        permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
+      });
+
+      // It's not ideal that we are mocking the implementation of verifyLevelPermission
+      // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
+      // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
+      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
+        ({ code, companyId, userId }) => {
+          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
+            return true;
+          }
+
+          return false;
+        },
+      );
+
+      renderWithProviders(<ShoppingLists />, {
+        preloadedState: {
+          company: companyState,
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+      expect(screen.getByText('shopping list 1')).toBeInTheDocument();
+      expect(screen.getByText('shopping list 2')).toBeInTheDocument();
+
+      const deleteButtons = await screen.findAllByRole('button', { name: /delete/i });
+
+      expect(deleteButtons).toHaveLength(2);
+    });
   });
-
-  renderWithProviders(<ShoppingLists />, {
-    preloadedState: {
-      company: companyState,
-    },
-  });
-
-  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-  expect(screen.getByText('shopping list 1')).toBeInTheDocument();
-  expect(screen.getByText('shopping list 2')).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
 });
 
-it('allows b2b users to delete their own rejected shopping list', async () => {
-  const rejectedStatusCode = 50;
-  const customerInfo = {
-    firstName: 'tester',
-    lastName: 'tester',
-    userId: 123,
-    email: 'test@test.com',
-    role: '2',
-  };
-  const companyInfoInShoppingList = {
-    companyId: '79',
-    companyName: 'tester company',
-    companyAddress: 'Roundswell Business Park',
-    companyCountry: 'United States',
-    companyState: 'Devon',
-    companyCity: 'city',
-    companyZipCode: 'EX31 3TU',
-    phoneNumber: '123345',
-    bcId: '109',
-  };
-  const rejectedShoppingList = buildShoppingListGraphQLResponseNodeWith({
-    customerInfo,
-    companyInfo: companyInfoInShoppingList,
-    status: rejectedStatusCode,
-  });
-  const response = {
-    data: {
-      shoppingLists: {
-        totalCount: 1,
-        pageInfo: { hasNextPage: false, hasPreviousPage: false },
-        edges: [
-          {
-            node: rejectedShoppingList,
-          },
-        ],
+describe('when user does not have "create_shopping_list" permission', () => {
+  it('hides delete button for shopping lists', async () => {
+    const rejectedStatusCode = 50;
+    const customerInfo = {
+      firstName: 'tester',
+      lastName: 'tester',
+      userId: 123,
+      email: 'test@test.com',
+      role: '2',
+    };
+    const companyInfoInShoppingList = {
+      companyId: '79',
+      companyName: 'tester company',
+      companyAddress: 'Roundswell Business Park',
+      companyCountry: 'United States',
+      companyState: 'Devon',
+      companyCity: 'city',
+      companyZipCode: 'EX31 3TU',
+      phoneNumber: '123345',
+      bcId: '109',
+    };
+    const rejectedShoppingList = buildShoppingListGraphQLResponseNodeWith({
+      customerInfo,
+      companyInfo: companyInfoInShoppingList,
+      status: rejectedStatusCode,
+    });
+    const response = {
+      data: {
+        shoppingLists: {
+          totalCount: 1,
+          pageInfo: { hasNextPage: false, hasPreviousPage: false },
+          edges: [
+            {
+              node: rejectedShoppingList,
+            },
+          ],
+        },
       },
-    },
-  };
+    };
 
-  server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () => HttpResponse.json(response)),
-  );
+    server.use(
+      http.post('https://api-b2b.bigcommerce.com/graphql', async () => HttpResponse.json(response)),
+    );
 
-  const customer = buildCustomerWith({
-    id: 123,
-    userType: UserTypes.MULTIPLE_B2C,
-  });
+    const customer = buildCustomerWith({
+      id: 123,
+      userType: UserTypes.MULTIPLE_B2C,
+    });
 
-  const companyInfoInCompanyState = {
-    id: '79',
-    companyName: 'b2bc',
-    status: CompanyStatus.APPROVED,
-  };
+    const companyInfoInCompanyState = {
+      id: '79',
+      companyName: 'b2bc',
+      status: CompanyStatus.APPROVED,
+    };
 
-  const companyState = buildCompanyStateWith({
-    customer,
-    companyInfo: companyInfoInCompanyState,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
+    const companyState = buildCompanyStateWith({
+      customer,
+      companyInfo: companyInfoInCompanyState,
+      permissions: [],
+    });
 
-  // It's not ideal that we are mocking the implementation of verifyLevelPermission
-  // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-  // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-  vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-    ({ code, companyId, userId }) => {
-      if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-        return true;
-      }
-
-      return false;
-    },
-  );
-
-  renderWithProviders(<ShoppingLists />, {
-    preloadedState: {
-      company: companyState,
-    },
-  });
-
-  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-  expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-});
-
-// Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
-// For now we treat Deleted as Rejected so that the shopping lists that were previously rejected remain the same behavior
-it('allows b2b users to delete their own shopping list in status "Deleted"', async () => {
-  const deletedStatusCode = 20;
-  const customerInfo = {
-    firstName: 'tester',
-    lastName: 'tester',
-    userId: 123,
-    email: 'test@test.com',
-    role: '2',
-  };
-  const companyInfoInShoppingList = {
-    companyId: '79',
-    companyName: 'tester company',
-    companyAddress: 'Roundswell Business Park',
-    companyCountry: 'United States',
-    companyState: 'Devon',
-    companyCity: 'city',
-    companyZipCode: 'EX31 3TU',
-    phoneNumber: '123345',
-    bcId: '109',
-  };
-  const deletedShoppingList = buildShoppingListGraphQLResponseNodeWith({
-    customerInfo,
-    companyInfo: companyInfoInShoppingList,
-    status: deletedStatusCode,
-  });
-  const response = {
-    data: {
-      shoppingLists: {
-        totalCount: 1,
-        pageInfo: { hasNextPage: false, hasPreviousPage: false },
-        edges: [
-          {
-            node: deletedShoppingList,
-          },
-        ],
+    renderWithProviders(<ShoppingLists />, {
+      preloadedState: {
+        company: companyState,
       },
-    },
-  };
+    });
 
-  server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () => HttpResponse.json(response)),
-  );
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  const customer = buildCustomerWith({
-    id: 123,
-    userType: UserTypes.MULTIPLE_B2C,
+    expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
   });
-
-  const companyInfoInCompanyState = {
-    id: '79',
-    companyName: 'b2bc',
-    status: CompanyStatus.APPROVED,
-  };
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    companyInfo: companyInfoInCompanyState,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
-  // It's not ideal that we are mocking the implementation of verifyLevelPermission
-  // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-  // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-  vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-    ({ code, companyId, userId }) => {
-      if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-        return true;
-      }
-
-      return false;
-    },
-  );
-
-  renderWithProviders(<ShoppingLists />, {
-    preloadedState: {
-      company: companyState,
-    },
-  });
-
-  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-  expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 });
 
 describe('when user filters shopping lists by status "rejected"', () => {
