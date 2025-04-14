@@ -9,12 +9,21 @@ export interface LineItems {
 
 export interface CreateCartInput {
   createCartInput: {
-    lineItems: [
-      {
-        quatinty: number;
-        productEntityId: number;
+    lineItems: {
+      quantity: number;
+      variantEntityId: number;
+      productEntityId: number;
+      selectedOptions: {
+        textFields: {
+            optionEntityId: number;
+            text: string;
+        }[];
+        multipleChoices: {
+            optionEntityId: number;
+            optionValueEntityId: number;
+        }[];
       },
-    ];
+    }[],
   };
 }
 

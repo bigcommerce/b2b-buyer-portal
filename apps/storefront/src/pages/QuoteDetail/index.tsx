@@ -168,7 +168,7 @@ function QuoteDetail() {
   const b3Lang = useB3Lang();
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
-  const [productList, setProductList] = useState<any>([]);
+  const [productList, setProductList] = useState<any[]>([]);
   const [fileList, setFileList] = useState<any>([]);
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
@@ -354,6 +354,9 @@ function QuoteDetail() {
       });
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
+      if (Array.isArray(productsWithMoreInfo)) {
+        setProductList(productsWithMoreInfo);
+      }
       setQuoteDetail({
         ...quote,
         extraFields: quoteExtraFieldInfos,
@@ -365,7 +368,6 @@ function QuoteDetail() {
         shipping: quote.shippingTotal,
         totalAmount: quote.totalAmount,
       });
-      setProductList(productsWithMoreInfo);
 
       if (Number(quote.shippingTotal) === 0) {
         setQuoteDetailTax(Number(quote.taxTotal));
@@ -582,6 +584,7 @@ function QuoteDetail() {
         role,
         location,
         navigate,
+        productList,
       });
     } finally {
       setQuoteCheckoutLoading(false);
@@ -813,6 +816,7 @@ function QuoteDetail() {
               isAgenting={isAgenting}
               status={quoteDetail.status}
               proceedingCheckoutFn={proceedingCheckoutFn}
+              productList={productList}
             />
           )}
       </Box>
