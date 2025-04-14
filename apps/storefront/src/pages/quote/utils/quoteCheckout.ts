@@ -7,7 +7,7 @@ import {
 } from '@/shared/service/b2b';
 import { createNewCart } from '@/shared/service/bc/graphql/cart';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
-import { setQuoteToStorage } from '@/utils/b3checkout';
+import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { platform } from '@/utils/basicConfig';
 import { newDataCartFromQuote } from '@/utils/cartUtils';
@@ -47,30 +47,35 @@ export const handleQuoteCheckout = async ({
       return;
     }
 
-    if (platform === 'bigcommerce') {
-      const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
-      const date = getSearchVal(location.search, 'date');
-
-      const res = await fn({
-        id: Number(quoteId),
-      });
-
-      setQuoteToStorage(quoteId, date);
-      const {
-        quoteCheckout: {
-          quoteCheckout: { checkoutUrl },
-        },
-      } = res;
-      window.location.href = checkoutUrl;
-      return;
-    }
-
     if (platform === 'catalyst') {
       const cartData = newDataCartFromQuote(productList);
       const { data } = await createNewCart(cartData);
       const { entityId } = data.cart.createCart.cart;
+
       window.location.href = `/checkout?cartId=${entityId}`;
+      return;
     }
+
+    const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
+    const date = getSearchVal(location.search, 'date');
+
+    const res = await fn({
+      id: Number(quoteId),
+    });
+
+    setQuoteToStorage(quoteId, date);
+    const {
+      quoteCheckout: {
+        quoteCheckout: { checkoutUrl, cartId },
+      },
+    } = res;
+
+    if (platform === 'bigcommerce') {
+      window.location.href = checkoutUrl;
+      return;
+    }
+
+    await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string);
   } catch (err) {
     b2bLogger.error(err);
   }
