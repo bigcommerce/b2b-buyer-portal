@@ -215,7 +215,7 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 });
 
 describe('when user approves a shopping list', () => {
-  it('sends a mutation to approve the shopping list', async () => {
+  it('fires a request to update shopping list status to approved', async () => {
     const readyForApprovalStatusCode = 40;
     const customerInfo = {
       firstName: 'tester',
@@ -311,7 +311,7 @@ describe('when user approves a shopping list', () => {
 });
 
 describe('when user rejects a shopping list', () => {
-  it('sends a mutation to reject the shopping list', async () => {
+  it('fires a request to update shopping list status to rejected', async () => {
     const readyForApprovalStatusCode = 40;
     const customerInfo = {
       firstName: 'tester',
