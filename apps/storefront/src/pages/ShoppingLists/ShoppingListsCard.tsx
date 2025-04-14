@@ -67,20 +67,19 @@ function ShoppingListsCard(props: OrderItemCardProps) {
     return false;
   };
 
-  const getDeletePermissions = (status: number) => {
-    if (submitShoppingListPermission) {
-      if (
-        // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
-        // We need to add Deleted here so that the shopping lists that were previously rejected remain the same behavior
-        status === ShoppingListStatus.Deleted ||
-        status === ShoppingListStatus.Draft ||
-        status === ShoppingListStatus.Rejected
-      )
-        return false;
+  const shoppingListCanBeDeleted = (status: number) => {
+    if (!submitShoppingListPermission) {
       return true;
     }
 
-    return false;
+    // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
+    // We need to add Deleted here so that the shopping lists that were previously rejected remain the same behavior
+    const isInDeletableStatus =
+      status === ShoppingListStatus.Deleted ||
+      status === ShoppingListStatus.Draft ||
+      status === ShoppingListStatus.Rejected;
+
+    return isInDeletableStatus;
   };
 
   const navigate = useNavigate();
@@ -216,7 +215,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             >
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
-            {!getDeletePermissions(shoppingList.status) && isCanEditShoppingList && (
+            {shoppingListCanBeDeleted(shoppingList.status) && isCanEditShoppingList && (
               <IconButton
                 aria-label="delete"
                 size="medium"
