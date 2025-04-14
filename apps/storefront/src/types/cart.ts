@@ -15,15 +15,15 @@ export interface CreateCartInput {
       productEntityId: number;
       selectedOptions: {
         textFields: {
-            optionEntityId: number;
-            text: string;
+          optionEntityId: number;
+          text: string;
         }[];
         multipleChoices: {
-            optionEntityId: number;
-            optionValueEntityId: number;
+          optionEntityId: number;
+          optionValueEntityId: number;
         }[];
-      },
-    }[],
+      };
+    }[];
   };
 }
 

@@ -22,7 +22,7 @@ export const handleSplitOptionId = (id: string | number) => {
 const cartLineItems = (products: any) => {
   const items = products.map((product: any) => {
     const { newSelectOptionList, quantity, optionSelections, allOptions = [] } = product;
-    let options = newSelectOptionList || optionSelections;
+    const options = newSelectOptionList || optionSelections;
     const selectedOptions = options.reduce(
       (a: any, c: any) => {
         const optionValue = parseInt(c.optionValue, 10);
@@ -70,48 +70,49 @@ interface QuoteLineItems {
   variantId: number;
   productId: number;
   quantity: number;
-  options: {  
+  options: {
     optionId: number;
     optionValue: string | number;
   }[];
 }
 
-const cartLineItemsForQuote = (products: any[]) => products.map((product: QuoteLineItems) => {
-  const { variantId, productId, quantity, options } = product;
-  return {
-    productEntityId: Number(productId),
-    variantEntityId: Number(variantId),
-    quantity: Number(quantity),
-    selectedOptions: options.reduce(
-      (
-        acc: {
-          textFields: { optionEntityId: number; text: string }[];
-          multipleChoices: { optionEntityId: number; optionValueEntityId: number }[];
+const cartLineItemsForQuote = (products: any[]) =>
+  products.map((product: QuoteLineItems) => {
+    const { variantId, productId, quantity, options } = product;
+    return {
+      productEntityId: Number(productId),
+      variantEntityId: Number(variantId),
+      quantity: Number(quantity),
+      selectedOptions: options.reduce(
+        (
+          acc: {
+            textFields: { optionEntityId: number; text: string }[];
+            multipleChoices: { optionEntityId: number; optionValueEntityId: number }[];
+          },
+          option,
+        ) => {
+          const { optionId, optionValue } = option;
+          if (typeof optionValue === 'string') {
+            acc.textFields.push({
+              optionEntityId: Number(optionId),
+              text: optionValue,
+            });
+          }
+          if (typeof optionValue === 'number') {
+            acc.multipleChoices.push({
+              optionEntityId: Number(optionId),
+              optionValueEntityId: Number(optionValue),
+            });
+          }
+          return acc;
         },
-        option,
-      ) => {
-        const { optionId, optionValue } = option;
-        if (typeof optionValue === 'string') {
-          acc.textFields.push({
-            optionEntityId: Number(optionId),
-            text: optionValue,
-          });
-        }
-        if (typeof optionValue === 'number') {
-          acc.multipleChoices.push({
-            optionEntityId: Number(optionId),
-            optionValueEntityId: Number(optionValue),
-          });
-        }
-        return acc;
-      },
-      {
-        multipleChoices: [],
-        textFields: [],
-      },
-    ),
-  };
-});
+        {
+          multipleChoices: [],
+          textFields: [],
+        },
+      ),
+    };
+  });
 
 export const newDataCart = (productData: any) => ({
   createCartInput: {

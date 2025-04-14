@@ -10,8 +10,8 @@ import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { platform } from '@/utils/basicConfig';
-import { getSearchVal } from '@/utils/loginInfo';
 import { newDataCartFromQuote } from '@/utils/cartUtils';
+import { getSearchVal } from '@/utils/loginInfo';
 
 interface QuoteCheckout {
   role: string | number;
