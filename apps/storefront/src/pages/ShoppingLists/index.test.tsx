@@ -18,6 +18,7 @@ import ShoppingLists from '.';
 
 const { server } = startMockServer();
 
+// TODO: we should use faker to generate random data once faker is in place
 const buildCustomerWith = builder<Customer>(() => ({
   id: 0,
   phoneNumber: '123123',
@@ -31,6 +32,7 @@ const buildCustomerWith = builder<Customer>(() => ({
   companyRoleName: 'Tester',
 }));
 
+// TODO: we should use faker to generate random data once faker is in place
 const buildShoppingListGraphQLResponseNodeWith = builder(() => ({
   id: '123',
   name: 'shopping list 1',
