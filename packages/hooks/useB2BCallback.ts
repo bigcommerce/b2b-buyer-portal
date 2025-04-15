@@ -2,6 +2,7 @@ export type EventType =
   | 'on-quote-create'
   | 'on-add-to-shopping-list'
   | 'on-click-cart-button'
+  | 'on-cart-created'
   | 'on-login'
   | 'on-registered'
   | 'on-logout';

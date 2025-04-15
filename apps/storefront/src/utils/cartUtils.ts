@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
 
 import { LineItems } from './b3Product/b3Product';
+import { dispatchEvent } from '@b3/hooks';
 
 export const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
@@ -153,6 +154,7 @@ export const createNewShoppingCart = async (products: any) => {
   }
   const { entityId } = res.data.cart.createCart.cart;
   Cookies.set('cartId', entityId);
+  dispatchEvent('on-cart-created', { cartId: entityId });
   return res;
 };
 
