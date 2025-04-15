@@ -1,9 +1,9 @@
+import { dispatchEvent } from '@b3/hooks';
 import Cookies from 'js-cookie';
 
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
 
 import { LineItems } from './b3Product/b3Product';
-import { dispatchEvent } from '@b3/hooks';
 
 export const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
