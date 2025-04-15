@@ -47,14 +47,14 @@ export const handleQuoteCheckout = async ({
       return;
     }
 
-    if (platform === 'catalyst') {
-      const cartData = newDataCartFromQuote(productList);
-      const { data } = await createNewCart(cartData);
-      const { entityId } = data.cart.createCart.cart;
+    // if (platform === 'catalyst') {
+    //   const cartData = newDataCartFromQuote(productList);
+    //   const { data } = await createNewCart(cartData);
+    //   const { entityId } = data.cart.createCart.cart;
 
-      window.location.href = `/checkout?cartId=${entityId}`;
-      return;
-    }
+    //   window.location.href = `/checkout?cartId=${entityId}`;
+    //   return;
+    // }
 
     const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
     const date = getSearchVal(location.search, 'date');
@@ -72,6 +72,11 @@ export const handleQuoteCheckout = async ({
 
     if (platform === 'bigcommerce') {
       window.location.href = checkoutUrl;
+      return;
+    }
+
+    if (platform === 'catalyst') {
+      window.location.href = `/checkout?cartId=${cartId}`;
       return;
     }
 
