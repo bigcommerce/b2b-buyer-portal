@@ -4,6 +4,7 @@ import { builder } from 'tests/builder';
 import { CompanyState } from '@/store/slices/company';
 import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
+// TODO: we should use faker to generate random data once faker is in place
 export const buildCompanyStateWith = builder<CompanyState & PersistPartial>(() => ({
   companyInfo: {
     id: '',
