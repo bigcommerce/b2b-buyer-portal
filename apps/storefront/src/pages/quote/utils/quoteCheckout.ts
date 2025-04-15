@@ -5,12 +5,12 @@ import {
   bcQuoteCheckout,
   getBCStorefrontProductSettings,
 } from '@/shared/service/b2b';
-import { createNewCart } from '@/shared/service/bc/graphql/cart';
+// import { createNewCart } from '@/shared/service/bc/graphql/cart';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { platform } from '@/utils/basicConfig';
-import { newDataCartFromQuote } from '@/utils/cartUtils';
+// import { newDataCartFromQuote } from '@/utils/cartUtils';
 import { getSearchVal } from '@/utils/loginInfo';
 
 interface QuoteCheckout {
@@ -28,8 +28,8 @@ export const handleQuoteCheckout = async ({
   location,
   quoteId,
   navigate,
-  productList,
-}: QuoteCheckout) => {
+}: // productList,
+QuoteCheckout) => {
   try {
     store.dispatch(setQuoteDetailToCheckoutUrl(''));
 
