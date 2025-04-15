@@ -48,7 +48,7 @@ function Login(props: PageProps) {
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
   const [flag, setLoginFlag] = useState<LoginFlagType>();
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
-    emailAddress: '',
+    email: '',
     password: '',
   });
   const navigate = useNavigate();
@@ -138,10 +138,7 @@ function Login(props: PageProps) {
   };
 
   const forcePasswordReset = async (email: string, password: string) => {
-    const { errors: bcErrors } = await bcLogin({
-      email,
-      pass: password,
-    });
+    const { errors: bcErrors } = await bcLogin({ email, password });
 
     if (bcErrors?.[0]) {
       const { message } = bcErrors[0];
@@ -176,20 +173,20 @@ function Login(props: PageProps) {
         }
       } catch (error) {
         b2bLogger.error(error);
-        await getForcePasswordReset(data.emailAddress);
+        await getForcePasswordReset(data.email);
       } finally {
         setLoading(false);
       }
     } else {
       try {
         const loginData = {
-          email: data.emailAddress,
+          email: data.email,
           password: data.password,
           storeHash,
           channelId,
         };
 
-        const isForcePasswordReset = await forcePasswordReset(data.emailAddress, data.password);
+        const isForcePasswordReset = await forcePasswordReset(data.email, data.password);
         if (isForcePasswordReset) return;
 
         const {
@@ -213,7 +210,7 @@ function Login(props: PageProps) {
               return;
             }
           }
-          getForcePasswordReset(data.emailAddress);
+          getForcePasswordReset(data.email);
         } else {
           const info = await getCurrentCustomerInfo(token);
 
@@ -252,7 +249,7 @@ function Login(props: PageProps) {
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
 
-  const tip = flag && tipInfo(flag, loginAccount?.emailAddress);
+  const tip = flag && tipInfo(flag, loginAccount?.email);
 
   return (
     <B3Card setOpenPage={setOpenPage}>
