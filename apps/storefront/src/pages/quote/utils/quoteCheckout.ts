@@ -5,12 +5,10 @@ import {
   bcQuoteCheckout,
   getBCStorefrontProductSettings,
 } from '@/shared/service/b2b';
-// import { createNewCart } from '@/shared/service/bc/graphql/cart';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { platform } from '@/utils/basicConfig';
-// import { newDataCartFromQuote } from '@/utils/cartUtils';
 import { getSearchVal } from '@/utils/loginInfo';
 
 interface QuoteCheckout {
@@ -19,7 +17,6 @@ interface QuoteCheckout {
   location: Location;
   quoteId: string;
   navigate?: NavigateFunction;
-  productList: unknown[];
 }
 
 export const handleQuoteCheckout = async ({
@@ -28,8 +25,7 @@ export const handleQuoteCheckout = async ({
   location,
   quoteId,
   navigate,
-}: // productList,
-QuoteCheckout) => {
+}: QuoteCheckout) => {
   try {
     store.dispatch(setQuoteDetailToCheckoutUrl(''));
 
@@ -46,15 +42,6 @@ QuoteCheckout) => {
       navigate('/login');
       return;
     }
-
-    // if (platform === 'catalyst') {
-    //   const cartData = newDataCartFromQuote(productList);
-    //   const { data } = await createNewCart(cartData);
-    //   const { entityId } = data.cart.createCart.cart;
-
-    //   window.location.href = `/checkout?cartId=${entityId}`;
-    //   return;
-    // }
 
     const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
     const date = getSearchVal(location.search, 'date');

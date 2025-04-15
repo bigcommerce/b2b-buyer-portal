@@ -13,11 +13,10 @@ interface QuoteDetailFooterProps {
   isAgenting: boolean;
   status: number;
   proceedingCheckoutFn: () => boolean;
-  productList: unknown[];
 }
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
-  const { quoteId, role, isAgenting, status, proceedingCheckoutFn, productList } = props;
+  const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props;
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const location = useLocation();
@@ -58,7 +57,6 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
             location,
             quoteId,
             navigate,
-            productList,
           });
         }}
         sx={{

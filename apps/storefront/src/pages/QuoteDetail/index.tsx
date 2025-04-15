@@ -584,7 +584,6 @@ function QuoteDetail() {
         role,
         location,
         navigate,
-        productList,
       });
     } finally {
       setQuoteCheckoutLoading(false);
@@ -816,7 +815,6 @@ function QuoteDetail() {
               isAgenting={isAgenting}
               status={quoteDetail.status}
               proceedingCheckoutFn={proceedingCheckoutFn}
-              productList={productList}
             />
           )}
       </Box>
