@@ -52,6 +52,7 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
 
     return {
       ...product,
+      productId: product.productEntityId,
       selectedOptions,
       optionSelections: selectedOptions,
     };
