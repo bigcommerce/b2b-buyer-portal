@@ -45,6 +45,7 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
 
     return {
       ...product,
+      productId: product.productEntityId,
       selectedOptions: selectedOptions?.reduce(
         (accumulator: Record<string, number>, { optionEntityId, optionValueEntityId }) => {
           accumulator[`attribute[${optionEntityId}]`] = optionValueEntityId;
@@ -206,7 +207,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
         },
         shoppingList: {
-          itemFromCurrentPage: [],
+          itemFromCurrentPage: window.b2b?.utils?.shoppingList?.itemFromCurrentPage ?? [],
           addProductFromPage: (item) => {
             window.b2b.utils.shoppingList.itemFromCurrentPage =
               transformOptionSelectionsToAttributes([item]);
