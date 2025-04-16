@@ -62,6 +62,11 @@ export const handleQuoteCheckout = async ({
       return;
     }
 
+    if (platform === 'catalyst') {
+      window.location.href = `/checkout?cartId=${cartId}`;
+      return;
+    }
+
     await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string);
   } catch (err) {
     b2bLogger.error(err);
