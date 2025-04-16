@@ -1,3 +1,4 @@
+import { dispatchEvent } from '@b3/hooks';
 import Cookies from 'js-cookie';
 
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
@@ -100,6 +101,9 @@ export const createNewShoppingCart = async (products: any) => {
   }
   const { entityId } = res.data.cart.createCart.cart;
   Cookies.set('cartId', entityId);
+  dispatchEvent('on-cart-created', {
+    cartId: entityId,
+  });
   return res;
 };
 
