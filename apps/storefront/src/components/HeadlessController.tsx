@@ -41,18 +41,21 @@ interface HeadlessControllerProps {
 
 const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
   items.map((product) => {
-    const { selectedOptions } = product;
-
-    return {
-      ...product,
-      selectedOptions: selectedOptions?.reduce(
+    const selectedOptions =
+      product.selectedOptions?.reduce(
         (accumulator: Record<string, number>, { optionEntityId, optionValueEntityId }) => {
           accumulator[`attribute[${optionEntityId}]`] = optionValueEntityId;
 
           return accumulator;
         },
         {},
-      ),
+      ) ?? {};
+
+    return {
+      ...product,
+      productId: product.productEntityId,
+      selectedOptions,
+      optionSelections: selectedOptions,
     };
   });
 
@@ -206,7 +209,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
         },
         shoppingList: {
-          itemFromCurrentPage: [],
+          itemFromCurrentPage: window.b2b?.utils?.shoppingList?.itemFromCurrentPage ?? [],
           addProductFromPage: (item) => {
             window.b2b.utils.shoppingList.itemFromCurrentPage =
               transformOptionSelectionsToAttributes([item]);
