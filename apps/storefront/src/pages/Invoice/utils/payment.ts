@@ -37,6 +37,11 @@ export const gotoInvoiceCheckoutUrl = async (
     return;
   }
 
+  if (platform === 'catalyst') {
+    window.location.href = `/checkout?cartId=${cartId}`;
+    return;
+  }
+
   try {
     await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl, isReplaceCurrentUrl);
   } catch (e) {
