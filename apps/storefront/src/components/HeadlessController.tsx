@@ -41,22 +41,23 @@ interface HeadlessControllerProps {
 
 const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
   items.map((product) => {
-    const selectedOptions =  product.selectedOptions?.reduce(
-      (accumulator: Record<string, number>, { optionEntityId, optionValueEntityId }) => {
-        accumulator[`attribute[${optionEntityId}]`] = optionValueEntityId;
+    const selectedOptions =
+      product.selectedOptions?.reduce(
+        (accumulator: Record<string, number>, { optionEntityId, optionValueEntityId }) => {
+          accumulator[`attribute[${optionEntityId}]`] = optionValueEntityId;
 
-        return accumulator;
-      },
-      {},
-    ) ?? {};
+          return accumulator;
+        },
+        {},
+      ) ?? {};
 
-  return {
-    ...product,
-    productId: product.productEntityId,
-    selectedOptions,
-    optionSelections: selectedOptions,
-  };
-});
+    return {
+      ...product,
+      productId: product.productEntityId,
+      selectedOptions,
+      optionSelections: selectedOptions,
+    };
+  });
 
 export type ProductMappedAttributes = ReturnType<typeof transformOptionSelectionsToAttributes>;
 
