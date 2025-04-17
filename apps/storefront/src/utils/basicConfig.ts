@@ -3,6 +3,7 @@ export const {
   channel_id: channelId,
   disable_logout_button: disableLogoutButton,
   platform = 'custom',
+  staging_url: stagingUrl,
 } = window.B3.setting;
 
 const generateBcStorefrontAPIBaseUrl = () => {

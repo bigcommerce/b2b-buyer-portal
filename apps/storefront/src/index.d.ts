@@ -31,6 +31,7 @@ declare interface Window {
       environment: import('@/types/global').Environment;
       disable_logout_button?: boolean;
       cart_url?: string;
+      staging_url?: string;
     };
   };
   b2b: {
