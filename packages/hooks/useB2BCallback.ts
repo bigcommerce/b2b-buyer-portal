@@ -3,6 +3,7 @@ export type EventType =
   | 'on-add-to-shopping-list'
   | 'on-click-cart-button'
   | 'on-login'
+  | 'on-cart-created'
   | 'on-registered'
   | 'on-logout';
 
