@@ -84,7 +84,7 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           entryFileNames({ name }) {
-            if (name.includes('headless')) {
+            if (name.includes('headless') || env.VITE_DISABLE_BUILD_HASH) {
               return '[name].js';
             }
 
