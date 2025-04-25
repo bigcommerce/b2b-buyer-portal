@@ -11,7 +11,7 @@ import { AddressItemType } from '../../../types/address';
 
 interface DeleteAddressDialogProps {
   isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  closeDialog: () => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   addressData?: AddressItemType;
   updateAddressList: (isFirst?: boolean) => void;
@@ -22,7 +22,7 @@ interface DeleteAddressDialogProps {
 export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
   const {
     isOpen,
-    setIsOpen,
+    closeDialog,
     addressData,
     updateAddressList,
     setIsLoading,
@@ -40,7 +40,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
 
     try {
       setIsLoading(true);
-      setIsOpen(false);
+      closeDialog();
 
       const { id = '', bcAddressId = '' } = addressData;
 
@@ -69,9 +69,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
       title={b3Lang('addresses.deleteAddressDialog.deleteAddress')}
       leftSizeBtn={b3Lang('addresses.deleteAddressDialog.cancel')}
       rightSizeBtn={b3Lang('addresses.deleteAddressDialog.delete')}
-      handleLeftClick={() => {
-        setIsOpen(false);
-      }}
+      handleLeftClick={closeDialog}
       handRightClick={handleDelete}
       rightStyleBtn={{
         color: '#D32F2F',

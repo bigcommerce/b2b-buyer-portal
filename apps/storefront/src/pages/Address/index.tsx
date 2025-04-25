@@ -18,7 +18,7 @@ import { CustomerRole } from '@/types';
 import { b2bPermissionsMap, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
-import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
+import { AddressItemType, BCAddressItemType } from '../../types/address';
 
 import B3AddressForm from './components/AddressForm';
 import { AddressItemCard } from './components/AddressItemCard';
@@ -33,7 +33,8 @@ const permissionKeys = [
   b2bPermissionsMap.addressesDeleteActionsPermission,
 ];
 interface RefCurrentProps extends HTMLInputElement {
-  handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
+  handleOpenAddEditAddressClick(type: 'add'): void;
+  handleOpenAddEditAddressClick(type: 'edit', data: AddressItemType): void;
 }
 
 type BCAddress = {
@@ -46,6 +47,16 @@ interface FilterSearchProps {
   city?: string;
   search?: string;
 }
+
+type Dialog = 'delete' | 'setDefault';
+
+interface Config {
+  key: string;
+  isEnabled: string;
+}
+const isConfigEnabled = (configs: Config[] | undefined, key: string) => {
+  return (configs ?? []).find((config) => config.key === key)?.isEnabled === '1';
+};
 
 function Address() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -78,11 +89,7 @@ function Address() {
   const companyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : companyInfoId;
 
-  let isBCPermission = false;
-
-  if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
-    isBCPermission = true;
-  }
+  const isBCPermission = !isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting);
 
   useEffect(() => {
     const handleGetAddressFields = async () => {
@@ -101,43 +108,27 @@ function Address() {
     };
 
     handleGetAddressFields();
-    // disabling as we only need to run this once and values at starting render are good enough
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isBCPermission]);
 
-  const defaultParams: FilterSearchProps = {};
   const getAddressList: GetRequestList<FilterSearchProps, AddressItemType> = async (
-    params = defaultParams,
+    params = {},
   ) => {
-    let list = [];
-    let count = 0;
-
     if (!isBCPermission) {
-      const {
-        addresses: { edges: addressList = [], totalCount },
-      } = await getB2BAddress({
-        companyId,
-        ...params,
-      });
+      const { edges = [], totalCount } = await getB2BAddress({ companyId, ...params });
 
-      list = addressList;
-      count = totalCount;
-    } else {
-      const {
-        customerAddresses: { edges: addressList = [], totalCount },
-      } = await getBCCustomerAddress({
-        ...params,
-      });
-
-      list = addressList.map((address: BCAddress) => ({
-        node: convertBCToB2BAddress(address.node),
-      }));
-      count = totalCount;
+      return {
+        edges,
+        totalCount,
+      };
     }
 
+    const { edges = [], totalCount } = await getBCCustomerAddress({ ...params });
+
     return {
-      edges: list,
-      totalCount: count,
+      edges: edges.map((address: BCAddress) => ({
+        node: convertBCToB2BAddress(address.node),
+      })),
+      totalCount,
     };
   };
 
@@ -149,6 +140,7 @@ function Address() {
       });
     }
   };
+
   const handleFilterChange = (values: FilterSearchProps) => {
     setFilterData({
       ...filterData,
@@ -163,8 +155,10 @@ function Address() {
   };
 
   const [editPermission, setEditPermission] = useState(false);
-  const [isOpenSetDefault, setIsOpenSetDefault] = useState(false);
-  const [isOpenDelete, setIsOpenDelete] = useState(false);
+
+  const [openDialog, setOpenDialog] = useState<Dialog>();
+  const closeDialog = () => setOpenDialog(undefined);
+
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
 
   const [isCreatePermission, updateActionsPermission, deleteActionsPermission] =
@@ -192,13 +186,9 @@ function Address() {
             });
           }
 
-          const key = role === 3 ? 'address_sales_rep' : 'address_admin';
-
           const editPermission =
-            (configList || []).find((config: AddressConfigItem) => config.key === 'address_book')
-              ?.isEnabled === '1' &&
-            (configList || []).find((config: AddressConfigItem) => config.key === key)
-              ?.isEnabled === '1';
+            isConfigEnabled(configList, 'address_book') &&
+            isConfigEnabled(configList, role === 3 ? 'address_sales_rep' : 'address_admin');
 
           setEditPermission(editPermission);
         } catch (error) {
@@ -207,15 +197,14 @@ function Address() {
       }
     };
     getEditPermission();
-    // Disabling the next line as dispatch is not required to be in the dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressConfig, updateActionsPermission, isBCPermission, role, selectCompanyHierarchyId]);
+  }, [addressConfig, dispatch, isBCPermission, role, updateActionsPermission]);
 
   const handleCreate = () => {
     if (!editPermission) {
       snackbar.error(b3Lang('addresses.noPermissionToAdd'));
       return;
     }
+
     addEditAddressRef.current?.handleOpenAddEditAddressClick('add');
   };
 
@@ -224,6 +213,7 @@ function Address() {
       snackbar.error(b3Lang('addresses.noPermissionToEdit'));
       return;
     }
+
     addEditAddressRef.current?.handleOpenAddEditAddressClick('edit', row);
   };
 
@@ -232,17 +222,14 @@ function Address() {
       snackbar.error(b3Lang('addresses.noPermissionToEdit'));
       return;
     }
-    setCurrentAddress({
-      ...address,
-    });
-    setIsOpenDelete(true);
+
+    setCurrentAddress({ ...address });
+    setOpenDialog('delete');
   };
 
   const handleSetDefault = (address: AddressItemType) => {
-    setCurrentAddress({
-      ...address,
-    });
-    setIsOpenSetDefault(true);
+    setCurrentAddress({ ...address });
+    setOpenDialog('setDefault');
   };
 
   const AddButtonConfig = useMemo(() => {
@@ -250,10 +237,7 @@ function Address() {
       isEnabled: isBCPermission || (editPermission && isCreatePermission),
       customLabel: b3Lang('addresses.addNewAddress'),
     };
-
-    // ignore b3Lang due it's function that doesn't not depend on any reactive value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editPermission, selectCompanyHierarchyId, isCreatePermission]);
+  }, [b3Lang, editPermission, isBCPermission, isCreatePermission]);
 
   const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
 
@@ -317,8 +301,8 @@ function Address() {
 
         {editPermission && !isBCPermission && (
           <SetDefaultDialog
-            isOpen={isOpenSetDefault}
-            setIsOpen={setIsOpenSetDefault}
+            isOpen={openDialog === 'setDefault'}
+            closeDialog={closeDialog}
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
@@ -327,8 +311,8 @@ function Address() {
         )}
         {editPermission && (
           <DeleteAddressDialog
-            isOpen={isOpenDelete}
-            setIsOpen={setIsOpenDelete}
+            isOpen={openDialog === 'delete'}
+            closeDialog={closeDialog}
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}

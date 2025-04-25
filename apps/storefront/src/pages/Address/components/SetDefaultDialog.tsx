@@ -11,7 +11,7 @@ import { AddressItemType } from '../../../types/address';
 
 interface SetDefaultDialogProps {
   isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  closeDialog: () => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   addressData?: AddressItemType;
   updateAddressList: (isFirst?: boolean) => void;
@@ -19,7 +19,7 @@ interface SetDefaultDialogProps {
 }
 
 export default function SetDefaultDialog(props: SetDefaultDialogProps) {
-  const { isOpen, setIsOpen, setIsLoading, addressData, updateAddressList, companyId } = props;
+  const { isOpen, closeDialog, setIsLoading, addressData, updateAddressList, companyId } = props;
 
   const [isMobile] = useMobile();
 
@@ -54,7 +54,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
   const handleSetDefault = async () => {
     try {
       setIsLoading(true);
-      setIsOpen(false);
+      closeDialog();
 
       await updateB2BAddress({
         ...address,
@@ -75,9 +75,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
       title={b3Lang('addresses.setDefaultDialog.setDefaultAddress')}
       leftSizeBtn={b3Lang('addresses.setDefaultDialog.cancel')}
       rightSizeBtn="set"
-      handleLeftClick={() => {
-        setIsOpen(false);
-      }}
+      handleLeftClick={closeDialog}
       handRightClick={handleSetDefault}
     >
       <Box
