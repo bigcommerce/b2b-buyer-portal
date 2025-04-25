@@ -9,6 +9,7 @@
     "orders",
     "catalyst",
     "carts",
-    "orders"
+    "orders",
+    "addresses"
   ]
 }

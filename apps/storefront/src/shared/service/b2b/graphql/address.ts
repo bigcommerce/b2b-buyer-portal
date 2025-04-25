@@ -263,7 +263,7 @@ const deleteCustomerAddress = (data: CustomFieldItems) => `mutation{
 export const getB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getAddress(data),
-  });
+  }).then((res) => res.addresses);
 
 export const getB2BAddressConfig = () =>
   B3Request.graphqlB2B({
@@ -273,7 +273,7 @@ export const getB2BAddressConfig = () =>
 export const getBCCustomerAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getCustomerAddress(data),
-  });
+  }).then((res) => res.customerAddresses);
 
 export const deleteB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
