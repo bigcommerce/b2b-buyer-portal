@@ -108,3 +108,20 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
 > - `<VITE_ASSETS_ABSOLUTE_PATH>` with the value you used for the environment variable `VITE_ASSETS_ABSOLUTE_PATH` (where your build is hosted)
 > - `REPLACE_WITH_YOUR_STORE_HASH` with your store hash
 > - `REPLACE_WITH_YOUR_CHANNEL_ID` with the headless channel id
+
+
+## Running the project in Catalyst
+
+To integrate the custom Buyer Portal script into your Catalyst storefront, follow these steps:
+
+1. Navigate to the Script File: Open the file located at script-production.tsx within your Catalyst project. You can find this file in the directory structure at https://github.com/bigcommerce/catalyst/blob/integrations/b2b-buyer-portal/core/b2b/script-production.tsx.
+
+2. Clear Existing JSX: Delete all the JSX code returned within the script-production.tsx file.
+
+3. Paste the Headless Script: Go to the Headless Docs at https://github.com/bigcommerce/b2b-buyer-portal/blob/main/docs/headless.md#deploying-the-project and copy the script provided there. Paste this script into the now-empty script-production.tsx return statement.
+
+4. Modify for JSX and Next.js <Script />: You'll need to make adjustments to ensure the pasted script is valid JSX and utilizes Next.js's <Script /> component. This typically involves the following:
+
+  - Wrapping in <Script />: Enclose the entire pasted script within the <Script> component from Next.js.
+
+  - Injecting script values as strings: Identify the necessary dynamic values such as channel_d, store_hash, and any other relevant configuration, they are accessible from the app environment variables.
