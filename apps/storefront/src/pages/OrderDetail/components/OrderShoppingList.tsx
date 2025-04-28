@@ -8,9 +8,9 @@ import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
+import { useShoppingLists } from '@/hooks/dom/useShoppingLists';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { ShoppingListItem } from '@/types/shoppingList';
-import { useShoppingLists } from '@/hooks/dom/useShoppingLists';
 
 interface OrderShoppingListProps {
   isOpen: boolean;
@@ -19,7 +19,6 @@ interface OrderShoppingListProps {
   onClose?: () => void;
   onCreate?: () => void;
   onConfirm?: (id: string) => void;
-  isLoading?: boolean;
   setLoading?: (val: boolean) => void;
 }
 
@@ -50,8 +49,8 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   useEffect(() => {
     if (!isOpen) return;
-    setLoading(isLoading)
-  }, [isB2BUser, isOpen]);
+    setLoading(isLoading);
+  }, [isB2BUser, isOpen, isLoading, setLoading]);
 
   const handleClose = () => {
     onClose();
