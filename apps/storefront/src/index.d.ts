@@ -74,6 +74,7 @@ declare interface Window {
           description: string,
         ) => Promise<{ id: number; name: string; description: string }>;
         getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
+        getLists: () => any[];
       };
       cart: {
         setEntityId: (entityId: string) => void;
