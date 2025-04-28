@@ -8,6 +8,10 @@ export interface ShoppingListItem {
     userId: string;
     email: string;
   };
+  products: {
+    totalCount: number;
+  };
+  approvedFlag: boolean;
   description: string;
   grandTotal: string;
   id: string;

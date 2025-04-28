@@ -20,6 +20,10 @@ type ChannelPlatform =
   | 'wordpress'
   | 'custom';
 
+declare interface ShoppingListItem {
+  node: import('@/types/shoppingList').ShoppingListItem;
+}
+
 declare interface Window {
   tipDispatch: import('@/shared/global/context/config.ts').DispatchProps;
   globalTipDispatch: any;
@@ -74,7 +78,7 @@ declare interface Window {
           description: string,
         ) => Promise<{ id: number; name: string; description: string }>;
         getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
-        getLists: () => any[];
+        getLists: () => ShoppingListItem[];
       };
       cart: {
         setEntityId: (entityId: string) => void;
