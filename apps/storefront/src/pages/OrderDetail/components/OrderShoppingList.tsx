@@ -39,7 +39,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     onConfirm = noop,
     onCreate = noop,
     setLoading = noop,
-    isLoading: isParentLoading
+    isLoading: isParentLoading,
   } = props;
 
   const [activeId, setActiveId] = useState('');
