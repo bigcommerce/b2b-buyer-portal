@@ -20,6 +20,7 @@ interface OrderShoppingListProps {
   onCreate?: () => void;
   onConfirm?: (id: string) => void;
   setLoading?: (val: boolean) => void;
+  isLoading?: boolean;
 }
 
 interface ListItem {
@@ -38,6 +39,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     onConfirm = noop,
     onCreate = noop,
     setLoading = noop,
+    isLoading: isParentLoading
   } = props;
 
   const [activeId, setActiveId] = useState('');
@@ -78,7 +80,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
       handRightClick={handleConfirm}
       rightSizeBtn={confirmText}
     >
-      <B3Spin isSpinning={isLoading} isFlex={false}>
+      <B3Spin isSpinning={isLoading || isParentLoading} isFlex={false}>
         <Box
           sx={
             isMobile
@@ -86,7 +88,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
                   height: '430px',
                 }
               : {
-                  padding: isLoading ? '4rem 0' : 'unset',
+                  padding: isLoading || isParentLoading ? '4rem 0' : 'unset',
                   maxHeight: '430PX',
                 }
           }
