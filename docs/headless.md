@@ -58,6 +58,7 @@ Make sure that you have configured the following `.env` values correctly before 
 
 - `VITE_IS_LOCAL_ENVIRONMENT`: Set this to `FALSE`
 - `VITE_ASSETS_ABSOLUTE_PATH`: Set this to the URL where the assets folder is hosted. **Note that this needs to be the absolute URL to the `/assets` folder location where the build will be served from in production.** Also please include the trailing `/`.
+- `VITE_DISABLE_BUILD_HASH`: Set this to `TRUE` if you want to disable the hash in the build files. This is useful if you want to avoid updating the file names in your headless app everytime you deploy or if you are using a CDN that does not support cache busting with hashes.
 
   For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
 
