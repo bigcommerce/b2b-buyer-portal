@@ -1,3 +1,4 @@
+import { PropsWithChildren } from 'react';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,13 +17,9 @@ import { AddressItemType } from '../../../types/address';
 
 export interface OrderItemCardProps {
   item: AddressItemType;
-  onEdit: (data: AddressItemType) => void;
-  onDelete: (data: AddressItemType) => void;
-  onSetDefault: (data: AddressItemType) => void;
-  editPermission: boolean;
-  isBCPermission: boolean;
-  updateActionsPermission: boolean;
-  deleteActionsPermission: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onSetDefault?: () => void;
 }
 
 interface TagBoxProps {
@@ -47,20 +44,30 @@ const Flex = styled('div')(({ theme }: FlexProps) => ({
   marginTop: theme!.spacing(3),
 }));
 
-export function AddressItemCard(props: OrderItemCardProps) {
-  const {
-    item: addressInfo,
-    onEdit,
-    onDelete,
-    onSetDefault,
-    editPermission: hasPermission,
-    updateActionsPermission = false,
-    deleteActionsPermission = false,
-    isBCPermission,
-  } = props;
+function Tag({ children }: PropsWithChildren) {
+  return (
+    <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
+      {children}
+    </B3Tag>
+  );
+}
 
+function Text({ children }: PropsWithChildren) {
+  return <Typography variant="body1">{children}</Typography>;
+}
+
+export function AddressItemCard({
+  item: addressInfo,
+  onEdit,
+  onDelete,
+  onSetDefault,
+}: OrderItemCardProps) {
   const theme = useTheme();
   const b3Lang = useB3Lang();
+  const hasPermission = Boolean(onEdit || onDelete || onSetDefault);
+
+  const isDefaultShipping = addressInfo.isDefaultShipping === 1;
+  const isDefaultBilling = addressInfo.isDefaultBilling === 1;
 
   return (
     <Card key={addressInfo.id}>
@@ -75,9 +82,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
             variant="h5"
             sx={{
               marginBottom:
-                addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
-                  ? theme.spacing(1)
-                  : theme.spacing(3),
+                isDefaultShipping || isDefaultBilling ? theme.spacing(1) : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
           >
@@ -85,45 +90,31 @@ export function AddressItemCard(props: OrderItemCardProps) {
           </Typography>
         )}
 
-        <TagBox
-          marginBottom={
-            addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
-              ? theme.spacing(3)
-              : 0
-          }
-        >
-          {addressInfo.isDefaultShipping === 1 && (
-            <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              {b3Lang('addresses.addressItemCard.defaultShipping')}
-            </B3Tag>
-          )}
-          {addressInfo.isDefaultBilling === 1 && (
-            <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              {b3Lang('addresses.addressItemCard.defaultBilling')}
-            </B3Tag>
-          )}
+        <TagBox marginBottom={isDefaultShipping || isDefaultBilling ? theme.spacing(3) : 0}>
+          {isDefaultShipping && <Tag>{b3Lang('addresses.addressItemCard.defaultShipping')}</Tag>}
+          {isDefaultBilling && <Tag>{b3Lang('addresses.addressItemCard.defaultBilling')}</Tag>}
         </TagBox>
 
-        <Typography variant="body1">{`${addressInfo.firstName} ${addressInfo.lastName}`}</Typography>
-        <Typography variant="body1">{addressInfo.company || ''}</Typography>
-        <Typography variant="body1">{addressInfo.addressLine1}</Typography>
-        <Typography variant="body1">
-          {addressInfo.addressLine2 === 'undefined' ? '' : addressInfo.addressLine2}
-        </Typography>
-        <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
-        <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
+        <Text>
+          {addressInfo.firstName} {addressInfo.lastName}
+        </Text>
+        <Text>{addressInfo.company || ''}</Text>
+        <Text>{addressInfo.addressLine1}</Text>
+        <Text>{addressInfo.addressLine2 === 'undefined' ? '' : addressInfo.addressLine2}</Text>
+        <Text>
+          {addressInfo.city}, {addressInfo.state} {addressInfo.zipCode}, {addressInfo.country}
+        </Text>
+        <Text>{addressInfo.phoneNumber}</Text>
 
         {hasPermission && (
           <Flex>
-            {!isBCPermission && updateActionsPermission && (
+            {onSetDefault && (
               <CustomButton
                 variant="text"
                 sx={{
                   ml: '-8px',
                 }}
-                onClick={() => {
-                  onSetDefault(addressInfo);
-                }}
+                onClick={onSetDefault}
               >
                 {b3Lang('addresses.addressItemCard.setAsDefault')}
               </CustomButton>
@@ -133,31 +124,17 @@ export function AddressItemCard(props: OrderItemCardProps) {
                 flex: 1,
                 display: 'flex',
                 justifyContent: 'flex-end',
+                gap: '8px',
               }}
             >
-              {(updateActionsPermission || isBCPermission) && (
-                <IconButton
-                  aria-label="edit"
-                  size="small"
-                  sx={{
-                    marginRight: '8px',
-                  }}
-                  onClick={() => {
-                    onEdit(addressInfo);
-                  }}
-                >
+              {onEdit && (
+                <IconButton aria-label="edit" size="small" onClick={onEdit}>
                   <EditIcon fontSize="inherit" />
                 </IconButton>
               )}
 
-              {(deleteActionsPermission || isBCPermission) && (
-                <IconButton
-                  aria-label="delete"
-                  size="small"
-                  onClick={() => {
-                    onDelete(addressInfo);
-                  }}
-                >
+              {onDelete && (
+                <IconButton aria-label="delete" size="small" onClick={onDelete}>
                   <DeleteIcon fontSize="inherit" />
                 </IconButton>
               )}

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
@@ -232,23 +232,21 @@ function Address() {
     setOpenDialog('setDefault');
   };
 
-  const AddButtonConfig = useMemo(() => {
-    return {
-      isEnabled: isBCPermission || (editPermission && isCreatePermission),
-      customLabel: b3Lang('addresses.addNewAddress'),
-    };
-  }, [b3Lang, editPermission, isBCPermission, isCreatePermission]);
+  const addButtonConfig = {
+    isEnabled: isBCPermission || (editPermission && isCreatePermission),
+    customLabel: b3Lang('addresses.addNewAddress'),
+  };
 
-  const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
-
-  translatedFilterFormConfig.map((element: { label: string; idLang: any }) => {
-    const item = element;
-    item.label = b3Lang(element.idLang);
-
-    return element;
-  });
+  const translatedFilterFormConfig = filterFormConfig.map(({ idLang, ...element }) => ({
+    ...element,
+    label: b3Lang(idLang),
+  }));
 
   const currentUseCompanyHierarchyId = Number(selectCompanyHierarchyId) || Number(companyId);
+
+  const canEdit = updateActionsPermission || isBCPermission;
+  const canDelete = deleteActionsPermission || isBCPermission;
+  const canSetDefault = !isBCPermission && updateActionsPermission;
 
   return (
     <B3Spin isSpinning={isRequestLoading}>
@@ -263,7 +261,7 @@ function Address() {
           filterMoreInfo={translatedFilterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtonConfig={AddButtonConfig}
+          customButtonConfig={addButtonConfig}
           handleFilterCustomButtonClick={handleCreate}
         />
         <B3PaginationTable
@@ -280,16 +278,13 @@ function Address() {
             <AddressItemCard
               key={row.id}
               item={row}
-              onEdit={() => handleEdit(row)}
-              onDelete={handleDelete}
-              onSetDefault={handleSetDefault}
-              editPermission={editPermission}
-              updateActionsPermission={updateActionsPermission}
-              deleteActionsPermission={deleteActionsPermission}
-              isBCPermission={isBCPermission}
+              onEdit={canEdit ? () => handleEdit(row) : undefined}
+              onDelete={canDelete ? () => handleDelete(row) : undefined}
+              onSetDefault={canSetDefault ? () => handleSetDefault(row) : undefined}
             />
           )}
         />
+
         <B3AddressForm
           updateAddressList={updateAddressList}
           addressFields={addressFields}
@@ -309,6 +304,7 @@ function Address() {
             companyId={currentUseCompanyHierarchyId}
           />
         )}
+
         {editPermission && (
           <DeleteAddressDialog
             isOpen={openDialog === 'delete'}
