@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
       restoreMocks: true,
       globals: true,
       environment: 'jsdom',
+      globalSetup: './tests/global-setup.ts',
       setupFiles: './tests/setup-test-environment.ts',
       coverage: {
         provider: 'istanbul',

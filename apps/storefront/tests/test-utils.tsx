@@ -6,7 +6,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
-import { AppStore, RootState, setupStore } from '@/store';
+import { AppStore, RootState, setTimeFormat, setupStore, store as storeSingleton } from '@/store';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: Partial<RootState>;
@@ -31,6 +31,13 @@ export const renderWithProviders = (
     store = setupStore(preloadedState),
     ...renderOptions
   } = extendedRenderOptions;
+
+  // `formatCreator` reaches to the store singleton to get the time format
+  // and NOT to the store passed in to the Provider context below
+  // until this is fixed, we need manually sync the time format to the store singleton
+  if (preloadedState.storeInfo?.timeFormat) {
+    storeSingleton.dispatch(setTimeFormat(preloadedState.storeInfo.timeFormat));
+  }
 
   const navigation = vi.fn<[string]>();
 
@@ -63,4 +70,6 @@ export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
 
 export { builder, bulk } from 'tests/builder';
-export { buildCompanyStateWith } from 'tests/storeStateBuilders';
+export * from 'tests/storeStateBuilders';
+export { faker } from '@faker-js/faker';
+export { getUnixTime } from 'date-fns';
