@@ -348,20 +348,13 @@ function AddressForm(
   };
 
   useEffect(() => {
-    const translatedAddressFields = JSON.parse(JSON.stringify(addressFields));
-
-    translatedAddressFields.forEach(
-      (element: { label: string; idLang: string; fieldId: string; default: string }) => {
-        const translatedFieldElement = element;
-        translatedFieldElement.label = b3Lang(element.idLang) || element.label;
-
-        if (!isB2BUser && element.fieldId === 'field_21') {
-          translatedFieldElement.default = '';
-        }
-
-        return element;
-      },
-    );
+    const translatedAddressFields = addressFields.map((element) => {
+      return {
+        ...element,
+        label: b3Lang(element.idLang) || element.label,
+        default: !isB2BUser && element.fieldId === 'field_21' ? '' : element.default,
+      };
+    });
 
     setAllAddressFields(translatedAddressFields);
     const extraFields = addressFields.filter((field: CustomFieldItems) => field.custom);
