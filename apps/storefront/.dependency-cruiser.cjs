@@ -36,7 +36,12 @@ module.exports = {
       },
       module: {
         path: ['^tests/'],
-        pathNot: [testFilesRegex, '\\.d\\.ts$', '^tests/setup-test-environment.ts'],
+        pathNot: [
+          testFilesRegex,
+          '\\.d\\.ts$',
+          '^tests/setup-test-environment.ts',
+          '^tests/global-setup.ts',
+        ],
         numberOfDependentsLessThan: 1,
       },
     },

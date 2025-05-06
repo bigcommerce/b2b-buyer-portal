@@ -485,14 +485,16 @@ const getJuniorPlaceOrder = () => `{
   }
 }`;
 
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
-  ${fn}(
-    companyId: ${companyId},
-    module: ${module},
-  ){
-    results,
+const getCreatedByUser = (companyId: number, module: number, fn: string) => `
+  query GetShoppingListsCreatedByUser {
+    ${fn}(
+      companyId: ${companyId},
+      module: ${module},
+    ){
+      results,
+    }
   }
-}`;
+`;
 
 export const getB2BShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
@@ -634,6 +636,20 @@ export const getB2BJuniorPlaceOrder = () =>
   B3Request.graphqlB2B({
     query: getJuniorPlaceOrder(),
   });
+
+export interface ShoppingListsCreatedByUser {
+  data: {
+    createdByUser: {
+      results: {
+        createdBy: {
+          name: string;
+          email: string;
+        }[];
+        salesRep: unknown[];
+      };
+    };
+  };
+}
 
 export const getShoppingListsCreatedByUser = (companyId: number, module: number) =>
   B3Request.graphqlB2B({
