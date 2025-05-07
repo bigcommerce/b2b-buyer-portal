@@ -19,7 +19,6 @@
   "global.pagination.rowsPerPage": "Rows per page:",
   "global.pagination.perPage": "per page:",
   "global.pagination.cardsPerPage": "Cards per page:",
-  "global.pagination.of": "of",
   "global.createShoppingList.createNew": "Create new",
   "global.createShoppingList.name": "Name",
   "global.createShoppingList.description": "Description",
