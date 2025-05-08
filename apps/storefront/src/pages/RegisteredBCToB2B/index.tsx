@@ -678,6 +678,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
+                    // @ts-expect-error B3CustomForm used to take formFields as any
                     formFields={bcTob2bContactInformation || []}
                     errors={errors}
                     control={control}
@@ -697,6 +698,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
+                    // @ts-expect-error B3CustomForm used to take formFields as any
                     formFields={[...bcTob2bCompanyInformation, ...bcTob2bCompanyExtraFields]}
                     errors={errors}
                     control={control}
@@ -718,6 +720,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
                   </InformationFourLabels>
 
                   <B3CustomForm
+                    // @ts-expect-error B3CustomForm used to take formFields as any
                     formFields={bcTob2bAddressBasicFields}
                     errors={errors}
                     control={control}
