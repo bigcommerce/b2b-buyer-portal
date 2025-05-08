@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
+import { useShoppingLists } from '@/hooks/dom/useShoppingLists';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
 import { addProductsToShoppingList, useAddedToShoppingListAlert } from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
@@ -74,6 +75,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const productList = useAppSelector(formattedQuoteDraftListSelector);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
+  const { list: shoppingLists } = useShoppingLists();
 
   const displayAddedToShoppingListAlert = useAddedToShoppingListAlert();
 
@@ -236,6 +238,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
 
             return shoppingListsCreate.shoppingList;
           },
+          getLists: () => shoppingLists,
           getButtonInfo: () => ({
             ...shoppingListBtnRef.current,
             enabled: shoppingListEnabledRef.current,

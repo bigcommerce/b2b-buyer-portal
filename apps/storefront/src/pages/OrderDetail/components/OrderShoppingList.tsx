@@ -8,10 +8,9 @@ import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
-import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
-import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { ShoppingListItem, ShoppingListStatus } from '@/types/shoppingList';
-import { channelId } from '@/utils';
+import { useShoppingLists } from '@/hooks/dom/useShoppingLists';
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import { ShoppingListItem } from '@/types/shoppingList';
 
 interface OrderShoppingListProps {
   isOpen: boolean;
@@ -20,8 +19,8 @@ interface OrderShoppingListProps {
   onClose?: () => void;
   onCreate?: () => void;
   onConfirm?: (id: string) => void;
-  isLoading?: boolean;
   setLoading?: (val: boolean) => void;
+  isLoading?: boolean;
 }
 
 interface ListItem {
@@ -39,57 +38,21 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     onClose = noop,
     onConfirm = noop,
     onCreate = noop,
-    isLoading = false,
     setLoading = noop,
+    isLoading: isParentLoading,
   } = props;
 
+  const [activeId, setActiveId] = useState('');
+  const { list, isLoading } = useShoppingLists();
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const role = useAppSelector(({ company }) => company.customer.role);
-  const b2bPermissions = useAppSelector(rolePermissionSelector);
-
   const theme = useTheme();
   const [isMobile] = useMobile();
   const primaryColor = theme.palette.primary.main;
 
-  const [list, setList] = useState([]);
-  const [activeId, setActiveId] = useState('');
-
   useEffect(() => {
     if (!isOpen) return;
-    const getList = async () => {
-      setLoading(true);
-      setList([]);
-
-      try {
-        const { edges: list = [] } = isB2BUser
-          ? await getB2BShoppingList()
-          : await getBcShoppingList({ channelId });
-
-        if (!isB2BUser) {
-          setList(list);
-        } else {
-          const { submitShoppingListPermission } = b2bPermissions;
-
-          const newList = list.filter(
-            (item: CustomFieldItems) =>
-              item.node.status ===
-              Number(
-                submitShoppingListPermission
-                  ? ShoppingListStatus.Draft
-                  : ShoppingListStatus.Approved,
-              ),
-          );
-          setList(newList);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getList();
-    // Disabling as the setLoading dispatcher does not need to be here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isOpen, role]);
+    setLoading(isLoading);
+  }, [isB2BUser, isOpen, isLoading, setLoading]);
 
   const handleClose = () => {
     onClose();
@@ -117,7 +80,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
       handRightClick={handleConfirm}
       rightSizeBtn={confirmText}
     >
-      <B3Spin isSpinning={isLoading} isFlex={false}>
+      <B3Spin isSpinning={isLoading || isParentLoading} isFlex={false}>
         <Box
           sx={
             isMobile
@@ -125,7 +88,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
                   height: '430px',
                 }
               : {
-                  padding: isLoading ? '4rem 0' : 'unset',
+                  padding: isLoading || isParentLoading ? '4rem 0' : 'unset',
                   maxHeight: '430PX',
                 }
           }
