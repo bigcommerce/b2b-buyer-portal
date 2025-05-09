@@ -21,7 +21,7 @@ interface Tokens {
   currentCustomerJWT: string;
 }
 
-interface PermissionsCodesProps {
+export interface PermissionsCodesProps {
   code: string;
   permissionLevel: number;
 }

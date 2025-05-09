@@ -1,14 +1,16 @@
 import { mergeWith, range } from 'lodash';
 
-type DeepPartial<T> = unknown extends T
+// Arrays are excluded from the DeepPartialObjects type because they are not merged
+// including can result in the accidental creation of partial objects within arrays
+type DeepPartialObjects<T> = unknown extends T
   ? T
   : T extends object
   ? {
       [P in keyof T]?: T[P] extends Array<infer U>
-        ? Array<DeepPartial<U>>
+        ? Array<U>
         : T[P] extends ReadonlyArray<infer U>
-        ? ReadonlyArray<DeepPartial<U>>
-        : DeepPartial<T[P]>;
+        ? ReadonlyArray<U>
+        : DeepPartialObjects<T[P]>;
     }
   : T;
 
@@ -20,7 +22,7 @@ type NonArray<T> = T extends unknown[] ? never : T;
 
 export const builder =
   <T extends object, O = NonArray<T>>(getDefaults: () => O) =>
-  (overrides: DeepPartial<T> | 'WHATEVER_VALUES'): O =>
+  (overrides: DeepPartialObjects<T> | 'WHATEVER_VALUES'): O =>
     overrides === 'WHATEVER_VALUES'
       ? getDefaults()
       : mergeWith({}, getDefaults(), overrides, mergeCustomizer);

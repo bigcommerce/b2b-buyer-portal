@@ -68,38 +68,40 @@ const getVariantSkuByProductId = (productId: string) => `{
   }
 }`;
 
-const searchProducts = (data: CustomFieldItems) => `{
-  productsSearch (
-    search: "${data.search || ''}"
-    productIds: [${data.productIds || []}]
-    currencyCode: "${data.currencyCode || ''}"
-    companyId: "${data.companyId || ''}"
-    storeHash: "${storeHash}"
-    channelId: ${channelId}
-    customerGroupId: ${data.customerGroupId || 0}
-    ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
-  ){
-    id,
-    name,
-    sku,
-    costPrice,
-    inventoryLevel,
-    inventoryTracking,
-    availability,
-    orderQuantityMinimum,
-    orderQuantityMaximum,
-    variants,
-    currencyCode,
-    imageUrl,
-    modifiers,
-    options,
-    optionsV3,
-    channelId,
-    productUrl,
-    taxClassId,
-    isPriceHidden,
+const searchProducts = (data: CustomFieldItems) => `
+  query SearchProducts {
+    productsSearch (
+      search: "${data.search || ''}"
+      productIds: [${data.productIds || []}]
+      currencyCode: "${data.currencyCode || ''}"
+      companyId: "${data.companyId || ''}"
+      storeHash: "${storeHash}"
+      channelId: ${channelId}
+      customerGroupId: ${data.customerGroupId || 0}
+      ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
+    ){
+      id,
+      name,
+      sku,
+      costPrice,
+      inventoryLevel,
+      inventoryTracking,
+      availability,
+      orderQuantityMinimum,
+      orderQuantityMaximum,
+      variants,
+      currencyCode,
+      imageUrl,
+      modifiers,
+      options,
+      optionsV3,
+      channelId,
+      productUrl,
+      taxClassId,
+      isPriceHidden,
+    }
   }
-}`;
+`;
 
 const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
   productUpload (
@@ -164,6 +166,75 @@ export const getB2BVariantSkuByProductId = (productId: string) =>
   B3Request.graphqlB2B({
     query: getVariantSkuByProductId(productId),
   });
+
+export interface B2BProducts {
+  data: {
+    productsSearch: {
+      id: number;
+      name: string;
+      sku: string;
+      costPrice: string;
+      inventoryLevel: number;
+      inventoryTracking: string;
+      availability: string;
+      orderQuantityMinimum: number;
+      orderQuantityMaximum: number;
+      variants: {
+        variant_id: number;
+        product_id: number;
+        sku: string;
+        option_values: {
+          id: number;
+          label: string;
+          option_id: number;
+          option_display_name: string;
+        }[];
+        calculated_price: number;
+        image_url: string;
+        has_price_list: boolean;
+        bulk_prices: unknown[];
+        purchasing_disabled: boolean;
+        cost_price: number;
+        inventory_level: number;
+        bc_calculated_price: {
+          as_entered: number;
+          tax_inclusive: number;
+          tax_exclusive: number;
+          entered_inclusive: boolean;
+        };
+      }[];
+      currencyCode: string;
+      imageUrl: string;
+      modifiers: unknown[];
+      options: {
+        option_id: number;
+        display_name: string;
+        sort_order: number;
+        is_required: boolean;
+      }[];
+      optionsV3: {
+        id: number;
+        product_id: number;
+        name: string;
+        display_name: string;
+        type: string;
+        sort_order: number;
+        option_values: {
+          id: number;
+          label: string;
+          sort_order: number;
+          value_data: unknown | null;
+          is_default: boolean;
+        }[];
+        config: unknown[];
+      }[];
+      channelId: unknown[];
+      productUrl: string;
+      taxClassId: number;
+      isPriceHidden: boolean;
+    }[];
+  };
+}
 
 export const searchB2BProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
