@@ -62,7 +62,7 @@ interface OptionsProps {
   optionValue: string | number;
 }
 
-export interface LineItems {
+export interface LineItem {
   quantity: number;
   productEntityId: number;
   selectedOptions?: ProductOption[];
@@ -749,10 +749,7 @@ const getSelectedOptions = (
   return newSelectedOptions;
 };
 
-const formatLineItemsToGetPrices = (
-  items: LineItems[],
-  productsSearch: ShoppingListProductItem[],
-) =>
+const formatLineItemsToGetPrices = (items: LineItem[], productsSearch: ShoppingListProductItem[]) =>
   items.reduce(
     (
       formattedLineItems: {
@@ -790,7 +787,7 @@ const formatLineItemsToGetPrices = (
     { items: [], variants: [] },
   );
 const calculateProductsPrice = async (
-  lineItems: LineItems[],
+  lineItems: LineItem[],
   products: ShoppingListProductItem[],
   calculatedValue: CustomFieldItems[] = [],
 ) => {
