@@ -12,6 +12,7 @@ window.B3 = {
     environment: Environment.Local,
   },
 };
+
 beforeEach(() => {
   window.B3 = {
     setting: {
@@ -21,7 +22,11 @@ beforeEach(() => {
       environment: Environment.Local,
     },
   };
+
+  // Required to stop `useMobile` from triggering the mobile layouts in tests
+  vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(1000);
 });
+
 afterEach(() => {
   cleanup();
 });
