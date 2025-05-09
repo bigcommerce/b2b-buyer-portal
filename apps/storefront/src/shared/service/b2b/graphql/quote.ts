@@ -3,46 +3,48 @@ import { channelId, convertArrayToGraphql, convertObjectToGraphql, storeHash } f
 
 import B3Request from '../../request/b3Fetch';
 
-const getQuotesList = (data: CustomFieldItems, type: string) => `{
-  ${type === 'b2b' ? 'quotes' : 'customerQuotes'}(
-    first: ${data.first}
-    offset: ${data.offset}
-    search: "${data.q || ''}"
-    orderBy: "${data?.orderBy || ''}"
-    createdBy: "${data?.createdBy || ''}"
-    email: "${data?.email || ''}"
-    salesRep: "${data?.salesRep || ''}"
-    ${data?.status ? `status: "${data.status}"` : ''}
-    ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
-    ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
-    ${type === 'bc' ? `channelId: ${data?.channelId || 1}` : ''}
-  ) {
-    totalCount,
-    edges {
-      node {
-        id,
-        createdAt,
-        updatedAt,
-        quoteNumber,
-        quoteTitle,
-        referenceNumber,
-        createdBy,
-        expiredAt,
-        expiredAt,
-        discount,
-        grandTotal,
-        currency,
-        status,
-        salesRep,
-        salesRepEmail,
-        orderId,
-        subtotal,
-        totalAmount,
-        taxTotal,
+const getQuotesList = (data: CustomFieldItems, type: string) => `
+  query GetQuotesList {
+    ${type === 'b2b' ? 'quotes' : 'customerQuotes'}(
+      first: ${data.first}
+      offset: ${data.offset}
+      search: "${data.q || ''}"
+      orderBy: "${data?.orderBy || ''}"
+      createdBy: "${data?.createdBy || ''}"
+      email: "${data?.email || ''}"
+      salesRep: "${data?.salesRep || ''}"
+      ${data?.status ? `status: "${data.status}"` : ''}
+      ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
+      ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
+      ${type === 'bc' ? `channelId: ${data?.channelId || 1}` : ''}
+    ) {
+      totalCount,
+      edges {
+        node {
+          id,
+          createdAt,
+          updatedAt,
+          quoteNumber,
+          quoteTitle,
+          referenceNumber,
+          createdBy,
+          expiredAt,
+          expiredAt,
+          discount,
+          grandTotal,
+          currency,
+          status,
+          salesRep,
+          salesRepEmail,
+          orderId,
+          subtotal,
+          totalAmount,
+          taxTotal,
+        }
       }
     }
   }
-}`;
+`;
 
 const getCustomerAddresses = () => `{
   customerAddresses (
@@ -337,14 +339,16 @@ const quoteAttachFileDelete = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
-  ${fn}(
-    companyId: ${companyId},
-    module: ${module},
-  ){
-    results,
+const getCreatedByUser = (companyId: number, module: number, fn: string) => `
+  query GetQuotesCreatedByUser {
+    ${fn}(
+      companyId: ${companyId},
+      module: ${module},
+    ){
+      results,
+    }
   }
-}`;
+`;
 
 const getStorefrontProductSettings = `
 query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
@@ -383,10 +387,49 @@ export const getB2BCustomerAddresses = (companyId: number) =>
     query: getAddresses(companyId),
   });
 
+export interface QuoteEdge {
+  node: {
+    id: string;
+    createdAt: number;
+    updatedAt: number;
+    quoteNumber: string;
+    quoteTitle: string;
+    referenceNumber: string;
+    createdBy: string;
+    expiredAt: number;
+    discount: string;
+    grandTotal: string;
+    currency: {
+      token: string;
+      location: string;
+      currencyCode: string;
+      decimalToken: string;
+      decimalPlaces: number;
+      thousandsToken: string;
+      currencyExchangeRate: string;
+    };
+    status: number;
+    salesRep: string;
+    salesRepEmail: string;
+    orderId: string;
+    subtotal: string;
+    totalAmount: string;
+    taxTotal: string;
+  };
+}
+
+export interface QuotesListB2B {
+  data: { quotes: { totalCount: number; edges: QuoteEdge[] } };
+}
+
 export const getB2BQuotesList = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getQuotesList(data, 'b2b'),
   }).then((res) => res.quotes);
+
+export interface QuotesListBC {
+  data: { customerQuotes: { totalCount: number; edges: QuoteEdge[] } };
+}
 
 export const getBCQuotesList = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({

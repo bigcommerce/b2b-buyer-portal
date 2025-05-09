@@ -181,14 +181,16 @@ const getOrderStatusTypeQl = (fn: string) => `{
   }
 }`;
 
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
-  ${fn}(
-    companyId: ${companyId},
-    module: ${module},
-  ){
-    results,
+const getCreatedByUser = (companyId: number, module: number, fn: string) => `
+  query GetOrdersCreatedByUser {
+    ${fn}(
+      companyId: ${companyId},
+      module: ${module},
+    ){
+      results,
+    }
   }
-}`;
+`;
 
 export const getB2BAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({

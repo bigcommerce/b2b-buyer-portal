@@ -1,4 +1,4 @@
-import { merge, range } from 'lodash';
+import { mergeWith, range } from 'lodash';
 
 type DeepPartial<T> = unknown extends T
   ? T
@@ -12,12 +12,18 @@ type DeepPartial<T> = unknown extends T
     }
   : T;
 
+const mergeCustomizer = <T>(objValue: T, srcValue: T) =>
+  // Replace, rather than merge, arrays for more predictable results
+  Array.isArray(objValue) ? srcValue : undefined;
+
 type NonArray<T> = T extends unknown[] ? never : T;
 
 export const builder =
   <T extends object, O = NonArray<T>>(getDefaults: () => O) =>
   (overrides: DeepPartial<T> | 'WHATEVER_VALUES'): O =>
-    overrides === 'WHATEVER_VALUES' ? getDefaults() : merge({}, getDefaults(), overrides);
+    overrides === 'WHATEVER_VALUES'
+      ? getDefaults()
+      : mergeWith({}, getDefaults(), overrides, mergeCustomizer);
 
 export const bulk = <T extends object>(
   someBuilder: ReturnType<typeof builder<T>>,

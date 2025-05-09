@@ -1,1 +1,2 @@
-export { buildCompanyStateWith } from 'tests/storeStateBuilders/companyStateBuilder';
+export { buildCompanyStateWith } from './companyStateBuilder';
+export { buildStoreInfoStateWith } from './storeInfoStateBuilder';

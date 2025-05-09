@@ -83,7 +83,14 @@ module.exports = {
     'react/require-default-props': 0,
     'import/no-extraneous-dependencies': [
       'error',
-      { devDependencies: ['**/tests/**/*.ts', '**/tests/**/*.tsx'] },
+      {
+        devDependencies: [
+          '**/tests/**/*.ts',
+          '**/tests/**/*.tsx',
+          '**/*.test.ts',
+          '**/*.test.tsx',
+        ],
+      },
     ],
     'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
     'import/prefer-default-export': 'off',
