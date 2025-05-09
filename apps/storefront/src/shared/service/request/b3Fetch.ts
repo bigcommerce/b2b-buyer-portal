@@ -68,7 +68,7 @@ interface B2bGQLResponse {
   }>;
 }
 
-export interface B2BRequest {
+export interface GQLRequest {
   query: string;
   variables?: any;
 }
@@ -78,7 +78,7 @@ const B3Request = {
    * Request to B2B graphql API using B2B token
    */
   graphqlB2B: function post<T = CustomFieldItems>(
-    data: B2BRequest,
+    data: GQLRequest,
     customMessage = false,
   ): Promise<T> {
     const { B2BToken } = store.getState().company.tokens;
@@ -119,7 +119,7 @@ const B3Request = {
    * @deprecated use {@link B3Request.graphqlBCProxy} instead
    * Request to BC graphql API using BC graphql token
    */
-  graphqlBC: function post<T>(data: T): Promise<any> {
+  graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
     const { bcGraphqlToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${bcGraphqlToken}`,
@@ -129,20 +129,17 @@ const B3Request = {
   /**
    * Request to BC graphql API using B2B token
    */
-  graphqlBCProxy: function post<T>(data: T): Promise<any> {
-    let config = {};
+  graphqlBCProxy: function post<T = any>(data: GQLRequest): Promise<T> {
     const { B2BToken } = store.getState().company.tokens;
 
-    if (B2BToken) {
-      config = {
-        Authorization: `Bearer  ${B2BToken}`,
-      };
-    } else {
-      config = {
-        'Store-Hash': storeHash,
-        'BC-Channel-Id': channelId,
-      };
-    }
+    const config = B2BToken
+      ? {
+          Authorization: `Bearer  ${B2BToken}`,
+        }
+      : {
+          'Store-Hash': storeHash,
+          'BC-Channel-Id': channelId,
+        };
 
     return graphqlRequest(RequestType.BCProxyGraphql, data, config);
   },

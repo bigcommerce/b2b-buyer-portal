@@ -9,7 +9,6 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
-import { LineItems } from '@/utils/b3Product/b3Product';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 
 import { getB2BVariantInfoBySkus, getBcVariantInfoBySkus } from '../../../shared/service/b2b';
@@ -173,7 +172,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       const num =
         cartProducts.find(
-          (item: LineItems) =>
+          (item) =>
             item.sku === variantSku &&
             Number(item?.variantEntityId || 0) === Number(variantId || 0),
         )?.quantity || 0;

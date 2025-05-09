@@ -15,7 +15,7 @@ import {
   calculateProductsPrice,
   getCalculatedProductPrice,
   getVariantInfoOOSAndPurchase,
-  LineItems,
+  LineItem,
   validProductQty,
 } from '@/utils/b3Product/b3Product';
 
@@ -166,7 +166,7 @@ const getCartProducts = (lineItems: LineItemsProps) =>
     );
 
 const addProductsToDraftQuote = async (
-  products: LineItems[],
+  products: LineItem[],
   setOpenPage: SetOpenPage,
   cartId?: string,
 ) => {

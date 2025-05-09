@@ -22,10 +22,12 @@ import { QuoteItem } from '@/types/quotes';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
-import { LineItems } from '@/utils/b3Product/b3Product';
+import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
+
+import { getSku } from './getSku';
 
 export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
@@ -39,7 +41,7 @@ interface HeadlessControllerProps {
   setOpenPage: SetOpenPage;
 }
 
-const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
+const transformOptionSelectionsToAttributes = (items: LineItem[]) =>
   items.map((product) => {
     const selectedOptions =
       product.selectedOptions?.reduce(
@@ -139,10 +141,26 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             setOpenPage({ isOpen: true, openUrl });
           }, 0),
         quote: {
-          addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
+          addProductFromPage: async (item) => {
+            const productWithSku = {
+              ...item,
+              sku: await getSku(item),
+            };
+
+            return addProductsToDraftQuote([productWithSku], setOpenPage);
+          },
           addProductsFromCart: addToQuoteFromCookie,
           addProductsFromCartId: addToQuoteFromCart,
-          addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
+          addProducts: async (items: LineItem[]) => {
+            const products = await Promise.all(
+              items.map(async (item) => ({
+                ...item,
+                sku: await getSku(item),
+              })),
+            );
+
+            return addProductsToDraftQuote(products, setOpenPage);
+          },
           getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
