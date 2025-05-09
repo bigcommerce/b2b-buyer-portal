@@ -4,7 +4,7 @@ import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { OrderedProductType, ProductInfoType } from '@/types/gql/graphql';
 import { snackbar } from '@/utils';
-import { LineItems } from '@/utils/b3Product/b3Product';
+import { LineItem } from '@/utils/b3Product/b3Product';
 
 export interface ProductInfo extends OrderedProductType {
   productsSearch: ProductInfoType;
@@ -127,12 +127,12 @@ export const getCartProductInfo = async () => {
   if (cart) {
     const { lineItems } = cart;
     return Object.keys(lineItems).reduce((pre, cru) => {
-      lineItems[cru].forEach((item: LineItems) => {
+      lineItems[cru].forEach((item: LineItem) => {
         pre.push(item);
       });
 
       return pre;
-    }, [] as LineItems[]);
+    }, [] as LineItem[]);
   }
 
   return [];
@@ -142,14 +142,14 @@ export const addCartProductToVerify = async (
   checkedArr: Partial<CheckedProduct>[],
   b3lang: LangFormatFunction,
 ) => {
-  const cartProducts: LineItems[] = await getCartProductInfo();
+  const cartProducts: LineItem[] = await getCartProductInfo();
 
   const addCommonProducts = checkedArr.reduce((pre, checkItem) => {
     const { node } = checkItem;
 
     const num =
       cartProducts.find(
-        (item: LineItems) =>
+        (item: LineItem) =>
           item.sku === node?.sku &&
           Number(item?.variantEntityId || 0) === Number(node?.variantId || 0),
       )?.quantity || 0;

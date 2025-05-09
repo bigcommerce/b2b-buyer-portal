@@ -10,7 +10,7 @@ import {
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
-import { B2BRequest } from '@/shared/service/request/b3Fetch';
+import { GQLRequest } from '@/shared/service/request/b3Fetch';
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
 import * as utilsModule from '@/utils';
 
@@ -753,7 +753,7 @@ describe('when user filters shopping lists by status "rejected"', () => {
       },
     };
 
-    const requestBodies: B2BRequest[] = [];
+    const requestBodies: GQLRequest[] = [];
 
     const responseHandler = vi.fn(async ({ request }) => {
       const body = await request.json();
