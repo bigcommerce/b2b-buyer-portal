@@ -154,137 +154,139 @@ const quoteUpdate = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getQuoteInfo = (data: { id: number; date: string }) => `{
-  quote(
-    id: ${data.id},
-    storeHash: "${storeHash}",
-    date:  "${data?.date || ''}",
-  ) {
-    id,
-    createdAt,
-    updatedAt,
-    quoteNumber,
-    quoteTitle,
-    referenceNumber,
-    userEmail,
-    bcCustomerId,
-    createdBy,
-    expiredAt,
-    companyId {
+const getQuoteInfo = (data: { id: number; date: string }) => `
+  query GetQuoteInfoB2B {
+    quote(
+      id: ${data.id},
+      storeHash: "${storeHash}",
+      date:  "${data?.date || ''}",
+    ) {
       id,
-      companyName,
-      bcGroupName,
-      description,
-      catalogId,
-      companyStatus,
-      addressLine1,
-      addressLine2,
-      city,
-      state,
-      zipCode,
-      country,
+      createdAt,
+      updatedAt,
+      quoteNumber,
+      quoteTitle,
+      referenceNumber,
+      userEmail,
+      bcCustomerId,
+      createdBy,
+      expiredAt,
+      companyId {
+        id,
+        companyName,
+        bcGroupName,
+        description,
+        catalogId,
+        companyStatus,
+        addressLine1,
+        addressLine2,
+        city,
+        state,
+        zipCode,
+        country,
+        extraFields {
+          fieldName,
+          fieldValue,
+        },
+      },
+      salesRepStatus,
+      customerStatus,
+      subtotal,
+      discount,
+      grandTotal,
+      cartId,
+      cartUrl,
+      checkoutUrl,
+      bcOrderId,
+      currency,
+      contactInfo,
+      trackingHistory,
       extraFields {
         fieldName,
         fieldValue,
       },
-    },
-    salesRepStatus,
-    customerStatus,
-    subtotal,
-    discount,
-    grandTotal,
-    cartId,
-    cartUrl,
-    checkoutUrl,
-    bcOrderId,
-    currency,
-    contactInfo,
-    trackingHistory,
-    extraFields {
-      fieldName,
-      fieldValue,
-    },
-    notes,
-    legalTerms,
-    shippingTotal,
-    taxTotal,
-    totalAmount,
-    shippingMethod,
-    billingAddress,
-    oldSalesRepStatus,
-    oldCustomerStatus,
-    recipients,
-    discountType,
-    discountValue,
-    status,
-    company,
-    salesRep,
-    salesRepEmail,
-    orderId,
-    shippingAddress,
-    productsList {
-      productId,
-      sku,
-      basePrice,
-      discount,
-      offeredPrice,
-      quantity,
-      variantId,
-      imageUrl,
-      orderQuantityMaximum,
-      orderQuantityMinimum,
-      productName,
-      purchaseHandled,
-      options,
       notes,
-      costPrice,
-      inventoryTracking,
-      inventoryLevel,
-    },
-    storefrontAttachFiles {
-      id,
-      fileName,
-      fileType,
-      fileUrl,
-      createdBy,
-    },
-    backendAttachFiles {
-      id,
-      fileName,
-      fileType,
-      fileUrl,
-      createdBy,
-    },
-    storeInfo {
-      storeName,
-      storeAddress,
-      storeCountry,
-      storeLogo,
-      storeUrl,
-    },
-    companyInfo {
-      companyId,
-      companyName,
-      companyAddress,
-      companyCountry,
-      companyState,
-      companyCity,
-      companyZipCode,
-      phoneNumber,
-    },
-    salesRepInfo {
-      salesRepName,
+      legalTerms,
+      shippingTotal,
+      taxTotal,
+      totalAmount,
+      shippingMethod,
+      billingAddress,
+      oldSalesRepStatus,
+      oldCustomerStatus,
+      recipients,
+      discountType,
+      discountValue,
+      status,
+      company,
+      salesRep,
       salesRepEmail,
-      salesRepPhoneNumber,
-    },
-    quoteLogo,
-    quoteUrl,
-    channelId,
-    channelName,
-    allowCheckout,
-    displayDiscount,
+      orderId,
+      shippingAddress,
+      productsList {
+        productId,
+        sku,
+        basePrice,
+        discount,
+        offeredPrice,
+        quantity,
+        variantId,
+        imageUrl,
+        orderQuantityMaximum,
+        orderQuantityMinimum,
+        productName,
+        purchaseHandled,
+        options,
+        notes,
+        costPrice,
+        inventoryTracking,
+        inventoryLevel,
+      },
+      storefrontAttachFiles {
+        id,
+        fileName,
+        fileType,
+        fileUrl,
+        createdBy,
+      },
+      backendAttachFiles {
+        id,
+        fileName,
+        fileType,
+        fileUrl,
+        createdBy,
+      },
+      storeInfo {
+        storeName,
+        storeAddress,
+        storeCountry,
+        storeLogo,
+        storeUrl,
+      },
+      companyInfo {
+        companyId,
+        companyName,
+        companyAddress,
+        companyCountry,
+        companyState,
+        companyCity,
+        companyZipCode,
+        phoneNumber,
+      },
+      salesRepInfo {
+        salesRepName,
+        salesRepEmail,
+        salesRepPhoneNumber,
+      },
+      quoteLogo,
+      quoteUrl,
+      channelId,
+      channelName,
+      allowCheckout,
+      displayDiscount,
+    }
   }
-}`;
+`;
 
 const exportQuotePdf = (data: {
   quoteId: number;
@@ -456,6 +458,176 @@ export const updateBCQuote = (data: CustomFieldItems) =>
     query: quoteUpdate(data),
   });
 
+export interface B2BQuoteDetail {
+  data: {
+    quote: {
+      id: string;
+      createdAt: number;
+      updatedAt: number;
+      quoteNumber: string;
+      quoteTitle: string;
+      referenceNumber: string;
+      userEmail: string;
+      bcCustomerId: number;
+      createdBy: string;
+      expiredAt: number;
+      companyId: {
+        id: string;
+        companyName: string;
+        bcGroupName: string;
+        description: string;
+        catalogId: null | string;
+        companyStatus: number;
+        addressLine1: string;
+        addressLine2: string;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        extraFields: any[];
+      };
+      salesRepStatus: number;
+      customerStatus: number;
+      subtotal: string;
+      discount: string;
+      grandTotal: string;
+      cartId: string;
+      cartUrl: string;
+      checkoutUrl: string;
+      bcOrderId: string;
+      currency: {
+        token: string;
+        location: string;
+        currencyCode: string;
+        decimalToken: string;
+        decimalPlaces: number;
+        thousandsToken: string;
+        currencyExchangeRate: string;
+      };
+      contactInfo: {
+        name: string;
+        email: string;
+        companyName: string;
+        phoneNumber: string;
+      };
+      trackingHistory: {
+        date: number;
+        read: boolean;
+        role: string;
+        message: string;
+      }[];
+      extraFields: unknown[];
+      notes: string;
+      legalTerms: string;
+      shippingTotal: string;
+      taxTotal: string;
+      totalAmount: string;
+      shippingMethod: {
+        id: string;
+        cost: number;
+        type: string;
+        imageUrl: string;
+        description: string;
+        transitTime: string;
+        additionalDescription: string;
+      };
+      billingAddress: {
+        city: string;
+        label: string;
+        state: string;
+        address: string;
+        country: string;
+        zipCode: string;
+        lastName: string;
+        addressId: string;
+        apartment: string;
+        firstName: string;
+        phoneNumber: string;
+        addressLabel: string;
+      };
+      oldSalesRepStatus: null | number;
+      oldCustomerStatus: null | number;
+      recipients: unknown[];
+      discountType: number;
+      discountValue: string;
+      status: number;
+      company: string;
+      salesRep: string;
+      salesRepEmail: string;
+      orderId: string;
+      shippingAddress: {
+        city: string;
+        label: string;
+        state: string;
+        address: string;
+        country: string;
+        zipCode: string;
+        lastName: string;
+        addressId: string;
+        apartment: string;
+        firstName: string;
+        phoneNumber: string;
+        addressLabel: string;
+      };
+      productsList: {
+        productId: string;
+        sku: string;
+        basePrice: string;
+        discount: string;
+        offeredPrice: string;
+        quantity: number;
+        variantId: number;
+        imageUrl: string;
+        orderQuantityMaximum: number;
+        orderQuantityMinimum: number;
+        productName: string;
+        purchaseHandled: boolean;
+        options: {
+          type: string;
+          optionId: number;
+          optionName: string;
+          optionLabel: string;
+          optionValue: string;
+        }[];
+        notes: string;
+        costPrice: string;
+        inventoryTracking: string;
+        inventoryLevel: number;
+      }[];
+      storefrontAttachFiles: unknown[];
+      backendAttachFiles: unknown[];
+      storeInfo: {
+        storeName: string;
+        storeAddress: string;
+        storeCountry: string;
+        storeLogo: string;
+        storeUrl: string;
+      };
+      companyInfo: {
+        companyId: string;
+        companyName: string;
+        companyAddress: string;
+        companyCountry: string;
+        companyState: string;
+        companyCity: string;
+        companyZipCode: string;
+        phoneNumber: string;
+      };
+      salesRepInfo: {
+        salesRepName: null | string;
+        salesRepEmail: null | string;
+        salesRepPhoneNumber: null | string;
+      };
+      quoteLogo: string;
+      quoteUrl: string;
+      channelId: null | number;
+      channelName: string;
+      allowCheckout: boolean;
+      displayDiscount: boolean;
+    };
+  };
+}
+
 export const getB2BQuoteDetail = (data: { id: number; date: string }) =>
   B3Request.graphqlB2B({
     query: getQuoteInfo(data),
@@ -516,6 +688,12 @@ export const getBCStorefrontProductSettings = () =>
     query: getStorefrontProductSettings,
     variables: { storeHash, channelId },
   });
+
+export interface QuoteExtraFieldsConfig {
+  data: {
+    quoteExtraFieldsConfig: unknown[];
+  };
+}
 
 export const getQuoteExtraFieldsConfig = (): Promise<QuoteExtraFieldsType> =>
   B3Request.graphqlB2B({
