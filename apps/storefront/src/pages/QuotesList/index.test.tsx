@@ -19,13 +19,6 @@ import { CompanyStatus, UserTypes } from '@/types';
 
 import QuotesList from './index';
 
-// Required to stop the view using the mobile layout
-// which often switches to different, non-semantic elements
-vitest.mock('@/hooks', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/hooks')>()),
-  useMobile: () => [false],
-}));
-
 const buildShoppingListsCreatedByUserWith = builder<ShoppingListsCreatedByUser>(() => ({
   data: { createdByUser: { results: { createdBy: [], salesRep: [] } } },
 }));
