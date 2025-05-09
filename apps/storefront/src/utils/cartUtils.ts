@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
 
-import { LineItems } from './b3Product/b3Product';
+import { LineItem } from './b3Product/b3Product';
 
 export const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
@@ -118,7 +118,7 @@ export const updateCart = async (cartInfo: any, productData: any) => {
   return res;
 };
 
-export const callCart = async (lineItems: LineItems[] | CustomFieldItems[]) => {
+export const callCart = async (lineItems: LineItem[] | CustomFieldItems[]) => {
   const cartInfo = await getCart();
 
   const res = cartInfo?.data?.site?.cart

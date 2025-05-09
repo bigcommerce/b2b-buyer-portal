@@ -53,6 +53,7 @@ function QuoteSubmissionResponse({
         {messageArr.map((item) => {
           return (
             <Typography
+              key={item}
               variant="subtitle2"
               sx={{
                 marginTop: '1rem',
