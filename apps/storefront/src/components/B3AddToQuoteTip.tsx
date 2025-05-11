@@ -27,6 +27,7 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
         onClick={() => gotoQuoteDraft()}
         variant="text"
         sx={{
+          textWrap: 'nowrap',
           color: '#ffffff',
           padding: 0,
         }}

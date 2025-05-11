@@ -29,6 +29,7 @@ export function useAddedToShoppingListAlert() {
           <Box
             sx={{
               mr: '15px',
+              mb: '8px',
             }}
           >
             {b3Lang('pdp.notification.productsAdded')}
@@ -37,8 +38,11 @@ export function useAddedToShoppingListAlert() {
             onClick={() => gotoShoppingDetail(id)}
             variant="text"
             sx={{
+              textWrap: 'nowrap',
               color: '#ffffff',
               padding: 0,
+              mx: 3,
+              my: 3,
             }}
           >
             {b3Lang('pdp.notification.viewShoppingList')}
