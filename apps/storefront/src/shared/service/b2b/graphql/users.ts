@@ -3,53 +3,55 @@ import { UserTypes } from '@/types';
 import { convertArrayToGraphql, storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const getUsersQl = (data: CustomFieldItems) => `{
-  users (
-    first: ${data.first}
-    search: "${data.q || ''}"
-    offset: ${data.offset}
-    companyId: ${data.companyId}
-    ${data.companyRoleId === '' ? '' : `companyRoleId: ${data.companyRoleId}`}
-  ){
-    totalCount,
-    pageInfo{
-      hasNextPage,
-      hasPreviousPage,
-    },
-    edges{
-      node{
-        id,
-        createdAt,
-        updatedAt,
-        firstName,
-        lastName,
-        email,
-        phone,
-        bcId,
-        role,
-        uuid,
-        extraFields{
-          fieldName
-          fieldValue
-        }
-        companyRoleId,
-        companyRoleName,
-        masqueradingCompanyId,
-        companyInfo {
-          companyId,
-          companyName,
-          companyAddress,
-          companyCountry,
-          companyState,
-          companyCity,
-          companyZipCode,
-          phoneNumber,
+const getUsersQl = (data: CustomFieldItems) => `
+  query GetUsers {
+    users (
+      first: ${data.first}
+      search: "${data.q || ''}"
+      offset: ${data.offset}
+      companyId: ${data.companyId}
+      ${data.companyRoleId === '' ? '' : `companyRoleId: ${data.companyRoleId}`}
+    ){
+      totalCount,
+      pageInfo{
+        hasNextPage,
+        hasPreviousPage,
+      },
+      edges{
+        node{
+          id,
+          createdAt,
+          updatedAt,
+          firstName,
+          lastName,
+          email,
+          phone,
           bcId,
-        },
+          role,
+          uuid,
+          extraFields{
+            fieldName
+            fieldValue
+          }
+          companyRoleId,
+          companyRoleName,
+          masqueradingCompanyId,
+          companyInfo {
+            companyId,
+            companyName,
+            companyAddress,
+            companyCountry,
+            companyState,
+            companyCity,
+            companyZipCode,
+            phoneNumber,
+            bcId,
+          },
+        }
       }
     }
   }
-}`;
+`;
 
 const addOrUpdateUsersQl = (data: CustomFieldItems) => `mutation{
   ${data?.userId ? 'userUpdate' : 'userCreate'} (
@@ -114,25 +116,82 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   }
 }`;
 
-const getUserExtraFields = () => `{
-  userExtraFields {
-    fieldName
-    fieldType
-    isRequired
-    defaultValue
-    maximumLength
-    numberOfRows
-    maximumValue
-    listOfValue
-    visibleToEnduser
-    labelName
+const getUserExtraFields = () => `
+  query GetUserExtraFields {
+    userExtraFields {
+      fieldName
+      fieldType
+      isRequired
+      defaultValue
+      maximumLength
+      numberOfRows
+      maximumValue
+      listOfValue
+      visibleToEnduser
+      labelName
+    }
   }
-}`;
+`;
+
+export interface UsersResponse {
+  data: {
+    users: {
+      totalCount: number;
+      pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean };
+      edges: Array<{
+        node: {
+          id: string;
+          createdAt: number;
+          updatedAt: number;
+          firstName: string;
+          lastName: string;
+          email: string;
+          phone: string;
+          bcId: number;
+          role: number;
+          uuid: string | null;
+          extraFields: { fieldName: string; fieldValue: string }[];
+          companyRoleId: number;
+          companyRoleName: string;
+          masqueradingCompanyId: string | null;
+          companyInfo: {
+            companyId: string;
+            companyName: string;
+            companyAddress: string;
+            companyCountry: string;
+            companyState: string;
+            companyCity: string;
+            companyZipCode: string;
+            phoneNumber: string;
+            bcId: string;
+          };
+        };
+      }>;
+    };
+  };
+}
 
 export const getUsers = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getUsersQl(data),
   });
+
+export interface UserExtraFieldsInfoResponse {
+  data: {
+    userExtraFields: Array<{
+      fieldName: string;
+      fieldType: number;
+      isRequired: boolean;
+      defaultValue: string | null;
+      maximumLength: string | null;
+      numberOfRows: number | null;
+      maximumValue: string | null;
+      listOfValue: string[] | null;
+      visibleToEnduser: boolean;
+      labelName: string;
+    }>;
+  };
+}
 
 export const getUsersExtraFieldsInfo = () =>
   B3Request.graphqlB2B({
