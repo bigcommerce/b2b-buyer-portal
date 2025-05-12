@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
 import { AppStore, RootState, setTimeFormat, setupStore, store as storeSingleton } from '@/store';
+import { setPermissionModules } from '@/store/slices/company';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: Partial<RootState>;
@@ -37,6 +38,11 @@ export const renderWithProviders = (
   // until this is fixed, we need manually sync the time format to the store singleton
   if (preloadedState.storeInfo?.timeFormat) {
     storeSingleton.dispatch(setTimeFormat(preloadedState.storeInfo.timeFormat));
+  }
+
+  // As above, `validatePermissionWithComparisonType` reaches to the store singleton
+  if (preloadedState.company?.permissions) {
+    storeSingleton.dispatch(setPermissionModules(preloadedState.company.permissions));
   }
 
   const navigation = vi.fn<[string]>();
