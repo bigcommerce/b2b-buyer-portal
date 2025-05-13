@@ -53,36 +53,40 @@ const getUsersQl = (data: CustomFieldItems) => `
   }
 `;
 
-const addOrUpdateUsersQl = (data: CustomFieldItems) => `mutation{
-  ${data?.userId ? 'userUpdate' : 'userCreate'} (
-    userData: {
-      companyId: ${data.companyId}
-      ${data?.email ? `email: "${data.email}"` : ''}
-      firstName: "${data.firstName || ''}"
-      lastName: "${data.lastName || ''}"
-      phone: "${data.phone || ''}"
-      ${data?.companyRoleId ? `companyRoleId: ${data.companyRoleId}` : ''}
-      ${data?.userId ? `userId: ${data.userId}` : ''}
-      ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
-      extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
-      ${data?.companyRoleName ? `companyRoleName: ${data.companyRoleName}` : ''}
-    }
-  ){
-    user{
-      id,
-      bcId,
+const addOrUpdateUsersQl = (data: CustomFieldItems) => `
+  mutation ${data?.userId ? 'UpdateUser' : 'CreateUser'} {
+    ${data?.userId ? 'userUpdate' : 'userCreate'} (
+      userData: {
+        companyId: ${data.companyId}
+        ${data?.email ? `email: "${data.email}"` : ''}
+        firstName: "${data.firstName || ''}"
+        lastName: "${data.lastName || ''}"
+        phone: "${data.phone || ''}"
+        ${data?.companyRoleId ? `companyRoleId: ${data.companyRoleId}` : ''}
+        ${data?.userId ? `userId: ${data.userId}` : ''}
+        ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
+        extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
+        ${data?.companyRoleName ? `companyRoleName: ${data.companyRoleName}` : ''}
+      }
+    ){
+      user{
+        id,
+        bcId,
+      }
     }
   }
-}`;
+`;
 
-const deleteUsersQl = (data: CustomFieldItems) => `mutation{
-  userDelete (
-    companyId: ${data.companyId}
-    userId: ${data.userId}
-  ){
-    message
+const deleteUsersQl = (data: CustomFieldItems) => `
+  mutation DeleteUser {
+    userDelete (
+      companyId: ${data.companyId}
+      userId: ${data.userId}
+    ) {
+      message
+    }
   }
-}`;
+`;
 
 const checkUserB2BEmail = (data: CustomFieldItems) => `{
   userEmailCheck (
