@@ -116,8 +116,7 @@ const B3Request = {
     });
   },
   /**
-   * @deprecated use {@link B3Request.graphqlBCProxy} instead
-   * Request to BC graphql API using BC graphql token
+   * Request used in stencil store to call bigcommerce graphql storefront api
    */
   graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
     const { bcGraphqlToken } = store.getState().company.tokens;
@@ -127,7 +126,7 @@ const B3Request = {
     return graphqlRequest(RequestType.BCGraphql, data, config);
   },
   /**
-   * Request to BC graphql API using B2B token
+   * Request used in headless context to talk to the bigcommerce graphql storefront api via proxy
    */
   graphqlBCProxy: function post<T = any>(data: GQLRequest): Promise<T> {
     const { B2BToken } = store.getState().company.tokens;

@@ -1,6 +1,7 @@
 import B3Request from '../../request/b3Fetch';
+import { platform } from '@/utils';
 
-const BcCurrencies = () => `{
+const bcCurrencies = `query {
   site{
     currencies{
       edges{
@@ -14,8 +15,12 @@ const BcCurrencies = () => `{
 }`;
 
 const getActiveBcCurrency = () =>
-  B3Request.graphqlBCProxy({
-    query: BcCurrencies(),
-  });
+  platform === 'bigcommerce'
+    ? B3Request.graphqlBC({
+        query: bcCurrencies,
+      })
+    : B3Request.graphqlBCProxy({
+        query: bcCurrencies,
+      });
 
 export default getActiveBcCurrency;
