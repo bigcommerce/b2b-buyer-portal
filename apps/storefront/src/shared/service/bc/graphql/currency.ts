@@ -1,4 +1,5 @@
 import { platform } from '@/utils';
+
 import B3Request from '../../request/b3Fetch';
 
 const bcCurrencies = `query {
