@@ -170,15 +170,14 @@ const addProductsToDraftQuote = async (
   setOpenPage: SetOpenPage,
   cartId?: string,
 ) => {
-  // filter products with SKU
+  // filter out products without SKU or variantId
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantEntityId, productEntityId }) => {
-      const validId =
-        !Number.isNaN(Number(variantEntityId)) || !Number.isNaN(Number(productEntityId));
-
-      return sku || validId;
-    },
+    ({ sku, variantEntityId }) => sku || !Number.isNaN(Number(variantEntityId)),
   );
+
+  if (productsWithSKUOrVariantId.length === 0) {
+    throw new Error('No products with SKU or variantId found');
+  }
 
   const companyInfoId = store.getState().company.companyInfo.id;
   const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id;
