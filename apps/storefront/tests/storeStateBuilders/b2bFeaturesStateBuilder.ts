@@ -6,13 +6,13 @@ import { MasqueradeCompany } from '@/store/slices/b2bFeatures';
 
 export const buildB2BFeaturesStateWith = builder<MasqueradeCompany & PersistPartial>(() => ({
   masqueradeCompany: {
-    id: faker.number.int({ min: 0, max: 100 }),
+    id: faker.number.int(),
     isAgenting: faker.datatype.boolean(),
     companyName: faker.company.name(),
-    customerGroupId: faker.number.int({ min: 0, max: 100 }),
+    customerGroupId: faker.number.int(),
   },
   _persist: {
-    version: faker.number.int({ min: 1, max: 100 }),
+    version: faker.number.int({ min: 1 }),
     rehydrated: faker.datatype.boolean(),
   },
 }));
