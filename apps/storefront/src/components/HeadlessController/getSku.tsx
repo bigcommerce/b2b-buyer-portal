@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import B3Request from '@/shared/service/request/b3Fetch';
+import { platform } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
 
 const Options = z.array(
@@ -20,8 +21,17 @@ interface ProductsWithOptionSelections {
   };
 }
 
+const graphqlRequest: typeof B3Request.graphqlBC | typeof B3Request.graphqlBCProxy = ({
+  query,
+  variables,
+}) => {
+  return platform === 'bigcommerce'
+    ? B3Request.graphqlBC({ query, variables })
+    : B3Request.graphqlBCProxy({ query, variables });
+};
+
 export const getSku = async ({ selectedOptions, productEntityId }: LineItem): Promise<string> => {
-  const { data } = await B3Request.graphqlBCProxy<ProductsWithOptionSelections>({
+  const { data } = await graphqlRequest<ProductsWithOptionSelections>({
     query: `
     query ProductsWithOptionSelections (
       $productId: Int!,
