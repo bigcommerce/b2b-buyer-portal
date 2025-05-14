@@ -17,6 +17,7 @@ import {
   isB2BUserSelector,
   useAppDispatch,
   useAppSelector,
+  useAppStore,
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
@@ -68,6 +69,7 @@ const Manager = new CallbackManager();
 
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
+  const store = useAppStore();
 
   const { state: globalState } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -202,14 +204,17 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           getB2BToken: () => B2BToken,
           setMasqueradeCompany: (companyId) => {
             if (typeof customerRef.current.b2bId !== 'number') return;
-            startMasquerade({
-              companyId,
-              customerId: customerIdRef.current,
-            });
+            startMasquerade(
+              {
+                companyId,
+                customerId: customerIdRef.current,
+              },
+              store,
+            );
           },
           endMasquerade: () => {
             if (typeof customerRef.current.b2bId !== 'number') return;
-            endMasquerade();
+            endMasquerade(store);
           },
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (token: string) => {
@@ -219,7 +224,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           logout: async () => {
             try {
               if (isAgenting) {
-                await endMasquerade();
+                await endMasquerade(store);
               }
             } catch (e) {
               b2bLogger.error(e);
