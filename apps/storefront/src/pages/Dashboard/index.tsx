@@ -11,7 +11,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
@@ -44,6 +44,7 @@ function useData() {
 
 function Dashboard(props: PageProps) {
   const showPageMask = usePageMask();
+  const store = useAppStore();
 
   const { salesRepCompanyId, b2bId, customerId } = useData();
 
@@ -80,7 +81,7 @@ function Dashboard(props: PageProps) {
     try {
       setIsRequestLoading(true);
       if (typeof b2bId === 'number') {
-        await startMasquerade({ customerId, companyId });
+        await startMasquerade({ customerId, companyId }, store);
       }
 
       setOpenPage({
@@ -100,7 +101,7 @@ function Dashboard(props: PageProps) {
     try {
       showPageMask(true);
       if (typeof b2bId === 'number') {
-        await endMasquerade();
+        await endMasquerade(store);
       }
       setFilterData({
         ...filterData,

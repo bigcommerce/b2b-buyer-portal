@@ -12,6 +12,7 @@
     "orders",
     "addresses",
     "headless",
-    "user-management"
+    "user-management",
+    "dashboard"
   ]
 }
