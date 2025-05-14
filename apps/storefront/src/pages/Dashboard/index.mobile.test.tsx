@@ -11,7 +11,6 @@ import {
   startMockServer,
   userEvent,
   waitFor,
-  within,
 } from 'tests/test-utils';
 
 import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
@@ -55,6 +54,10 @@ const buildAgentInfoWith = builder<AgentInfo>(() => ({
   },
 }));
 
+beforeEach(() => {
+  vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
+});
+
 describe('when the user is associated with a company', () => {
   const companyWithB2B = buildCompanyStateWith({
     customer: {
@@ -63,37 +66,17 @@ describe('when the user is associated with a company', () => {
     },
   });
 
-  const preloadedState = { company: companyWithB2B };
-
-  it('displays a table with headings for each key attribute of a company', async () => {
-    server.use(
-      graphql.query('SuperAdminCompanies', () =>
-        HttpResponse.json(buildCompanyListWith('WHATEVER_VALUES')),
-      ),
-    );
-
-    renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, { preloadedState });
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
-    });
-
-    const table = screen.getByRole('table');
-
-    expect(within(table).getByRole('columnheader', { name: /Company/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Email/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Action/ })).toBeInTheDocument();
-  });
+  const preloadedState = Object.freeze({ company: companyWithB2B });
 
   it('lists all the companies associated with the user', async () => {
     const acmeInc = buildCompanyEdgeWith({ node: { companyName: 'Acme Inc' } });
     const wayneIndustries = buildCompanyEdgeWith({ node: { companyName: 'Wayne Industries' } });
 
-    const getCompanies = vi.fn().mockReturnValue(
-      buildCompanyListWith({
-        data: { superAdminCompanies: { edges: [acmeInc, wayneIndustries], totalCount: 2 } },
-      }),
-    );
+    const companyList = buildCompanyListWith({
+      data: { superAdminCompanies: { edges: [acmeInc, wayneIndustries], totalCount: 2 } },
+    });
+
+    const getCompanies = vi.fn().mockReturnValue(companyList);
 
     server.use(
       graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
@@ -105,13 +88,13 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
-    expect(screen.getByRole('row', { name: /Acme Inc/ })).toBeInTheDocument();
-    expect(screen.getByRole('row', { name: /Wayne Industries/ })).toBeInTheDocument();
+    expect(screen.getByText(/Acme Inc/)).toBeInTheDocument();
+    expect(screen.getByText(/Wayne Industries/)).toBeInTheDocument();
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('superAdminId: 882288'));
   });
 
-  it('lists all the details associated with a company', async () => {
+  it('lists all the details for companies associated with the user', async () => {
     const acmeInc = buildCompanyEdgeWith({
       node: {
         companyName: 'Acme Inc',
@@ -119,11 +102,11 @@ describe('when the user is associated with a company', () => {
       },
     });
 
-    const getCompanies = vi.fn().mockReturnValue(
-      buildCompanyListWith({
-        data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
-      }),
-    );
+    const companyList = buildCompanyListWith({
+      data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+    });
+
+    const getCompanies = vi.fn().mockReturnValue(companyList);
 
     server.use(
       graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
@@ -135,45 +118,11 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
-    const rowOfAcmeInc = screen.getByRole('row', { name: /Acme Inc/ });
-
-    expect(screen.getByRole('row', { name: /Acme Inc/ })).toBeInTheDocument();
-
-    expect(within(rowOfAcmeInc).getByRole('cell', { name: /Acme Inc/ })).toBeInTheDocument();
-    expect(within(rowOfAcmeInc).getByRole('cell', { name: /nfo@acme.com/ })).toBeInTheDocument();
-
-    const actionButton = within(rowOfAcmeInc).getByRole('button');
-
-    await userEvent.click(actionButton);
-
-    const masqueradeMenuItem = screen.getByRole('menuitem', { name: /Masquerade/ });
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(masqueradeMenuItem).not.toBeInTheDocument();
+    expect(screen.getByText(/Acme Inc/)).toBeInTheDocument();
+    expect(screen.getByText(/info@acme.com/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Masquerade/ })).toBeInTheDocument();
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('superAdminId: 882288'));
-  });
-
-  it('sorts the list by company by default', async () => {
-    const getCompanies = vi.fn().mockReturnValue(buildCompanyListWith('WHATEVER_VALUES'));
-
-    server.use(
-      graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
-    );
-
-    renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, { preloadedState });
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
-    });
-
-    const companyColumnHeader = screen.getByRole('columnheader', { name: /Company/ });
-
-    expect(companyColumnHeader).toHaveAttribute('aria-sort', 'ascending');
-    expect(getCompanies).toHaveBeenLastCalledWith(
-      expect.stringContaining('orderBy: "companyName"'),
-    );
   });
 
   it('allows users to search', async () => {
@@ -189,14 +138,11 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
+    const monstersInc = buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } });
+
     getCompanies.mockReturnValue(
       buildCompanyListWith({
-        data: {
-          superAdminCompanies: {
-            edges: [buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } })],
-            totalCount: 1,
-          },
-        },
+        data: { superAdminCompanies: { edges: [monstersInc], totalCount: 1 } },
       }),
     );
 
@@ -205,51 +151,22 @@ describe('when the user is associated with a company', () => {
     await userEvent.type(searchBox, 'monsters');
 
     await waitFor(() => {
-      expect(screen.getByRole('row', { name: /Monsters Inc/ })).toBeInTheDocument();
+      expect(screen.getByText(/Monsters Inc/)).toBeInTheDocument();
     });
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('search: "monsters"'));
   });
 
-  it('allows user to sort the list', async () => {
-    const getCompanies = vi.fn().mockReturnValue(buildCompanyListWith('WHATEVER_VALUES'));
-
-    server.use(
-      graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
-    );
-
-    renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, { preloadedState });
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
-    });
-
-    getCompanies.mockReturnValue(
-      buildCompanyListWith({
-        data: {
-          superAdminCompanies: {
-            edges: [buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } })],
-            totalCount: 1,
-          },
-        },
-      }),
-    );
-
-    const companyColumnHeader = screen.getByRole('columnheader', { name: /Company/ });
-    const emailColumnHeader = screen.getByRole('columnheader', { name: /Email/ });
-
-    await userEvent.click(within(emailColumnHeader).getByRole('button'));
-
-    expect(emailColumnHeader).toHaveAttribute('aria-sort', 'descending');
-    expect(companyColumnHeader).not.toHaveAttribute('aria-sort');
-
-    expect(getCompanies).toHaveBeenLastCalledWith(
-      expect.stringContaining('orderBy: "-companyEmail"'),
-    );
-  });
-
   it('allows user to change the number of rows per page', async () => {
-    const getCompanies = vi.fn().mockReturnValue(buildCompanyListWith('WHATEVER_VALUES'));
+    const getCompanies = vi.fn().mockReturnValue(
+      buildCompanyListWith({
+        data: {
+          superAdminCompanies: {
+            edges: bulk(buildCompanyEdgeWith, 'WHATEVER_VALUES').times(10),
+          },
+        },
+      }),
+    );
 
     server.use(
       graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
@@ -265,14 +182,13 @@ describe('when the user is associated with a company', () => {
       buildCompanyListWith({
         data: {
           superAdminCompanies: {
-            edges: [buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } })],
-            totalCount: 1,
+            edges: bulk(buildCompanyEdgeWith, 'WHATEVER_VALUES').times(20),
           },
         },
       }),
     );
 
-    const rowsPerPageSelect = screen.getByRole('combobox', { name: /Rows per page/ });
+    const rowsPerPageSelect = screen.getByRole('combobox', { name: /per page:/ });
 
     await userEvent.click(rowsPerPageSelect);
 
@@ -281,7 +197,7 @@ describe('when the user is associated with a company', () => {
     await userEvent.click(option);
 
     await waitFor(() => {
-      expect(screen.getByRole('row', { name: /Monsters Inc/ })).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: /Masquerade/ })).toHaveLength(20);
     });
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('first: 20'));
@@ -290,7 +206,12 @@ describe('when the user is associated with a company', () => {
   it('can go to the next page', async () => {
     const getCompanies = vi.fn().mockReturnValue(
       buildCompanyListWith({
-        data: { superAdminCompanies: { totalCount: 100 } },
+        data: {
+          superAdminCompanies: {
+            edges: bulk(buildCompanyEdgeWith, 'WHATEVER_VALUES').times(10),
+            totalCount: 100,
+          },
+        },
       }),
     );
 
@@ -304,22 +225,19 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
+    const monstersInc = buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } });
+
     getCompanies.mockReturnValue(
       buildCompanyListWith({
-        data: {
-          superAdminCompanies: {
-            edges: [buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } })],
-            totalCount: 100,
-          },
-        },
+        data: { superAdminCompanies: { edges: [monstersInc], totalCount: 100 } },
       }),
     );
 
-    const nextPageButton = screen.getByRole('button', { name: /next page/ });
+    const nextPageButton = screen.getByRole('button', { name: /Go to next page/ });
     await userEvent.click(nextPageButton);
 
     await waitFor(() => {
-      expect(screen.getByRole('row', { name: /Monsters Inc/ })).toBeInTheDocument();
+      expect(screen.getByText(/Monsters Inc/)).toBeInTheDocument();
     });
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('offset: 10'));
@@ -329,7 +247,12 @@ describe('when the user is associated with a company', () => {
   it('can go to the previous page', async () => {
     const getCompanies = vi.fn().mockReturnValue(
       buildCompanyListWith({
-        data: { superAdminCompanies: { totalCount: 100 } },
+        data: {
+          superAdminCompanies: {
+            edges: bulk(buildCompanyEdgeWith, 'WHATEVER_VALUES').times(10),
+            totalCount: 100,
+          },
+        },
       }),
     );
 
@@ -343,24 +266,22 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
+    const nextPageButton = screen.getByRole('button', { name: /Go to next page/ });
+    await userEvent.click(nextPageButton);
+
+    const monstersInc = buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } });
+
     getCompanies.mockReturnValue(
       buildCompanyListWith({
-        data: {
-          superAdminCompanies: {
-            edges: [buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } })],
-            totalCount: 100,
-          },
-        },
+        data: { superAdminCompanies: { edges: [monstersInc], totalCount: 100 } },
       }),
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /next page/ }));
-
-    const prevPageButton = screen.getByRole('button', { name: /previous page/ });
+    const prevPageButton = screen.getByRole('button', { name: /Go to previous page/ });
     await userEvent.click(prevPageButton);
 
     await waitFor(() => {
-      expect(screen.getByRole('row', { name: /Monsters Inc/ })).toBeInTheDocument();
+      expect(screen.getByText(/Monsters Inc/)).toBeInTheDocument();
     });
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
@@ -375,27 +296,27 @@ describe('when the user is associated with a company', () => {
       },
     });
 
-    const beginMasquerade = vi.fn().mockReturnValue({});
-    const getAgentInfo = vi.fn().mockReturnValue(
-      buildAgentInfoWith({
-        data: {
-          superAdminMasquerading: {
-            id: '123',
-            customerGroupId: 42,
-            companyName: 'Acme Inc as returned from the AgentInfo query',
-          },
-        },
+    const getCompanyList = vi.fn().mockReturnValue(
+      buildCompanyListWith({
+        data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
       }),
     );
 
+    const masqueradingAgentInfo = buildAgentInfoWith({
+      data: {
+        superAdminMasquerading: {
+          id: '123',
+          customerGroupId: 42,
+          companyName: 'Foo Bar',
+        },
+      },
+    });
+
+    const beginMasquerade = vi.fn().mockReturnValue({});
+    const getAgentInfo = vi.fn().mockReturnValue(masqueradingAgentInfo);
+
     server.use(
-      graphql.query('SuperAdminCompanies', () =>
-        HttpResponse.json(
-          buildCompanyListWith({
-            data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
-          }),
-        ),
-      ),
+      graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanyList(query))),
       graphql.mutation('BeginMasquerade', ({ query }) => HttpResponse.json(beginMasquerade(query))),
       graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
     );
@@ -410,17 +331,14 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
-    const row = screen.getByRole('row', { name: /Acme Inc/ });
-
-    await userEvent.click(within(row).getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Masquerade/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Masquerade/ }));
 
     await waitFor(() => {
-      expect(within(row).getByText(/Selected/)).toBeInTheDocument();
+      expect(screen.getByText(/Selected/)).toBeInTheDocument();
     });
 
     expect(store.getState().b2bFeatures.masqueradeCompany).toEqual({
-      companyName: 'Acme Inc as returned from the AgentInfo query',
+      companyName: 'Foo Bar',
       customerGroupId: 42,
       id: '123',
       isAgenting: true,
@@ -443,24 +361,23 @@ describe('when the user is associated with a company', () => {
       },
     });
 
+    const endMasquerade = vi.fn().mockReturnValue({});
+    const getCompanyList = vi.fn().mockReturnValue(
+      buildCompanyListWith({
+        data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+      }),
+    );
+
+    server.use(
+      graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanyList(query))),
+      graphql.mutation('EndMasquerade', ({ query }) => HttpResponse.json(endMasquerade(query))),
+    );
+
     const b2bFeaturesMasqueradingAcmeInc = buildB2BFeaturesStateWith({
       masqueradeCompany: {
         id: 996,
       },
     });
-
-    const endMasquerade = vi.fn().mockReturnValue({});
-
-    server.use(
-      graphql.query('SuperAdminCompanies', () =>
-        HttpResponse.json(
-          buildCompanyListWith({
-            data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
-          }),
-        ),
-      ),
-      graphql.mutation('EndMasquerade', ({ query }) => HttpResponse.json(endMasquerade(query))),
-    );
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
       preloadedState: { ...preloadedState, b2bFeatures: b2bFeaturesMasqueradingAcmeInc },
@@ -470,15 +387,12 @@ describe('when the user is associated with a company', () => {
       expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
-    const row = screen.getByRole('row', { name: /Acme Inc/ });
+    expect(screen.getByText(/Selected/)).toBeInTheDocument();
 
-    expect(within(row).getByText(/Selected/)).toBeInTheDocument();
-
-    await userEvent.click(within(row).getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitem', { name: /End Masquerade/ }));
+    await userEvent.click(screen.getByRole('button', { name: /End Masquerade/ }));
 
     await waitFor(() => {
-      expect(within(row).queryByText(/Selected/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Selected/)).not.toBeInTheDocument();
     });
 
     expect(endMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 996'));
@@ -492,12 +406,16 @@ describe('when the user is associated with a company', () => {
   });
 
   describe('when the user has no associated companies', () => {
-    const emptyCompanyList = buildCompanyListWith({
-      data: { superAdminCompanies: { edges: [], totalCount: 0 } },
-    });
+    it('displays a message of -no data-', async () => {
+      const getCompanies = vi.fn().mockReturnValue(
+        buildCompanyListWith({
+          data: { superAdminCompanies: { edges: [], totalCount: 0 } },
+        }),
+      );
 
-    it('displays a message of -no data- and the table is not present', async () => {
-      server.use(graphql.query('SuperAdminCompanies', () => HttpResponse.json(emptyCompanyList)));
+      server.use(
+        graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanies(query))),
+      );
 
       renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, { preloadedState });
 
@@ -506,14 +424,13 @@ describe('when the user is associated with a company', () => {
       });
 
       expect(screen.getByText(/No data/)).toBeInTheDocument();
-      expect(screen.queryByRole('table')).not.toBeInTheDocument();
     });
   });
 });
 
 describe('when the user is a personal customer', () => {
   // we might want to disable the page altogether
-  it('displays a message of -no data- and the table is not present', async () => {
+  it('displays a message of -no data-', async () => {
     const personalCustomer = buildCompanyStateWith({
       customer: {
         b2bId: undefined,
@@ -529,6 +446,5 @@ describe('when the user is a personal customer', () => {
     });
 
     expect(screen.getByText(/No data/)).toBeInTheDocument();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });
