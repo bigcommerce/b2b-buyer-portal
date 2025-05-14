@@ -50,7 +50,20 @@ const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutati
 	}
 }`;
 
-const getAgentInfoQl = (customerId: string | number) => `{
+export interface AgentInfo {
+  data: {
+    superAdminMasquerading: {
+      companyName: string;
+      bcGroupName: string;
+      customerGroupId: number;
+      companyStatus: number;
+      id: string;
+    };
+  };
+}
+
+const getAgentInfoQl = (customerId: string | number) => `
+query AgentInfo {
 	superAdminMasquerading(customerId: ${customerId}) {
 		companyName,
 		bcGroupName,
@@ -60,7 +73,26 @@ const getAgentInfoQl = (customerId: string | number) => `{
 	}
 }`;
 
-const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
+export interface CompanyEdge {
+  node: {
+    companyId: number;
+    id: string;
+    companyName: string;
+    companyEmail: string;
+  };
+}
+
+export interface Company {
+  data: {
+    superAdminCompanies: {
+      edges: CompanyEdge[];
+      totalCount: number;
+    };
+  };
+}
+
+const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `
+query SuperAdminCompanies {
 	superAdminCompanies(
 		superAdminId: ${id}
 		first: ${params.first}
@@ -80,7 +112,8 @@ const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
 	}
 }`;
 
-const superAdminBeginMasqueradeQl = (companyId: number) => `mutation {
+const superAdminBeginMasqueradeQl = (companyId: number) => `
+mutation BeginMasquerade {
 	superAdminBeginMasquerade(
 		companyId: ${companyId}
 	) {
@@ -91,7 +124,8 @@ const superAdminBeginMasqueradeQl = (companyId: number) => `mutation {
 	}
 }`;
 
-const superAdminEndMasqueradeQl = (companyId: number) => `mutation {
+const superAdminEndMasqueradeQl = (companyId: number) => `
+mutation EndMasquerade {
 	superAdminEndMasquerade(
 		companyId: ${companyId}
 	) {
