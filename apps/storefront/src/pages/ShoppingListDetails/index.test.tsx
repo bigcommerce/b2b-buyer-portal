@@ -1,7 +1,10 @@
+import { useParams } from 'react-router-dom';
 import {
   buildCompanyStateWith,
   builder,
-  http,
+  bulk,
+  faker,
+  graphql,
   HttpResponse,
   renderWithProviders,
   screen,
@@ -10,126 +13,125 @@ import {
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
-import { GQLRequest } from '@/shared/service/request/b3Fetch';
-import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
-import * as utilsModule from '@/utils';
+import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
+import { CompanyStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
 
+vitest.mock('react-router-dom', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react-router-dom')>()),
+  useParams: vitest.fn(),
+}));
+
 const { server } = startMockServer();
 
-// TODO: we should use faker to generate random data once faker is in place
-const buildCustomerWith = builder<Customer>(() => ({
-  id: 0,
-  phoneNumber: '123123',
-  firstName: 'test',
-  lastName: 'test',
-  emailAddress: 'test@bc.com',
-  customerGroupId: 123,
-  role: CustomerRole.GUEST,
-  userType: UserTypes.DOES_NOT_EXIST,
-  loginType: LoginTypes.WAITING_LOGIN,
-  companyRoleName: 'Tester',
+type ShoppingListProductEdge =
+  CustomerShoppingListB2B['data']['shoppingList']['products']['edges'][number];
+
+const buildShoppingListProductEdgeWith = builder<ShoppingListProductEdge>(() => ({
+  node: {
+    id: faker.number.int().toString(),
+    createdAt: faker.date.past().getTime(),
+    updatedAt: faker.date.recent().getTime(),
+    productId: faker.number.int(),
+    variantId: faker.number.int(),
+    quantity: faker.number.int({ min: 1, max: 10 }),
+    productName: faker.commerce.productName(),
+    optionList: JSON.stringify([
+      { option_id: faker.string.numeric(), option_value: faker.word.sample() },
+    ]),
+    itemId: faker.number.int(),
+    baseSku: faker.string.alphanumeric(5),
+    variantSku: faker.string.alphanumeric(5),
+    basePrice: faker.commerce.price(),
+    discount: faker.commerce.price(),
+    tax: faker.commerce.price(),
+    enteredInclusive: faker.datatype.boolean(),
+    productUrl: faker.internet.url(),
+    primaryImage: faker.image.url(),
+    productNote: faker.lorem.sentence(),
+  },
 }));
 
-// TODO: we should use faker to generate random data once faker is in place
-const buildShoppingListGraphQLResponseWith = builder(() => ({
-  id: '4',
-  createdAt: 1744278967,
-  updatedAt: 1744279004,
-  name: 'Shopping List 1',
-  description: 'Shopping List 1 description',
-  status: 0,
-  reason: null,
-  customerInfo: {
-    firstName: 'fn',
-    lastName: 'ln',
-    userId: 87,
-    email: 'test@bc.com',
-    role: '2',
-  },
-  isOwner: true,
-  grandTotal: '109',
-  totalDiscount: '0',
-  totalTax: '0',
-  isShowGrandTotal: false,
-  channelId: null,
-  channelName: '',
-  approvedFlag: true,
-  companyInfo: {
-    companyId: '79',
-    companyName: 'BC',
-    companyAddress: 'Pitt street',
-    companyCountry: 'Australia',
-    companyState: 'NSW',
-    companyCity: 'Sydney',
-    companyZipCode: '2000',
-    phoneNumber: '123456',
-    bcId: '109',
-  },
-  products: {
-    totalCount: 1,
-    edges: [
-      {
-        node: {
-          id: '3',
-          createdAt: 1744278982,
-          updatedAt: 1744278982,
-          productId: 80,
-          variantId: 64,
-          quantity: 1,
-          productName: '[Sample] Orbit Terrarium - Large',
-          optionList: '[]',
-          itemId: 3,
-          baseSku: 'OTL',
-          variantSku: 'OTL',
-          basePrice: '109',
-          discount: '0',
-          tax: '0',
-          enteredInclusive: false,
-          productUrl: '/orbit-terrarium-large/',
-          primaryImage: '',
-          productNote: '',
+const buildShoppingListGraphQLResponseWith = builder<CustomerShoppingListB2B>(() => {
+  const shoppingListProductEdges = bulk(buildShoppingListProductEdgeWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 1, max: 12 }),
+  );
+
+  return {
+    data: {
+      shoppingList: {
+        id: faker.number.int().toString(),
+        createdAt: faker.date.past().getTime(),
+        updatedAt: faker.date.recent().getTime(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        status: faker.helpers.arrayElement([0, 20, 30, 40, 50]),
+        reason: faker.lorem.sentence(),
+        customerInfo: {
+          firstName: faker.person.firstName(),
+          lastName: faker.person.lastName(),
+          userId: faker.number.int(),
+          email: faker.internet.email(),
+          role: faker.string.alpha(),
+        },
+        isOwner: faker.datatype.boolean(),
+        grandTotal: faker.commerce.price(),
+        totalDiscount: faker.commerce.price(),
+        totalTax: faker.commerce.price(),
+        isShowGrandTotal: faker.datatype.boolean(),
+        channelId: faker.number.int().toString(),
+        channelName: faker.company.name(),
+        approvedFlag: faker.datatype.boolean(),
+        companyInfo: {
+          companyId: faker.number.int().toString(),
+          companyName: faker.company.name(),
+          companyAddress: faker.location.streetAddress(),
+          companyCountry: faker.location.country(),
+          companyState: faker.location.state(),
+          companyCity: faker.location.city(),
+          companyZipCode: faker.location.zipCode(),
+          phoneNumber: faker.phone.number(),
+          bcId: faker.number.int().toString(),
+        },
+        products: {
+          totalCount: faker.number.int({ min: shoppingListProductEdges.length }),
+          edges: shoppingListProductEdges,
         },
       },
-    ],
-  },
-}));
+    },
+  };
+});
 
-afterEach(() => {
-  vi.restoreAllMocks();
+const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
+  companyInfo: { status: CompanyStatus.APPROVED },
+  customer: { userType: UserTypes.MULTIPLE_B2C },
+  permissions: [
+    { code: 'create_shopping_list', permissionLevel: 1 },
+    { code: 'approve_draft_shopping_list', permissionLevel: 1 },
+  ],
 });
 
 it('shows "Add to list" panel for draft shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const draftStatusCode = 30;
-  const draftShoppingList = buildShoppingListGraphQLResponseWith({
-    status: draftStatusCode,
-  });
-  const shoppingListResponse = {
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
     data: {
-      customerShoppingList: draftShoppingList,
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: draftStatusCode,
+      },
     },
-  };
+  });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -139,35 +141,25 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
 });
 
 it('hides "Add to list" panel from b2b users for rejected shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const rejectedStatusCode = 50;
-  const rejectedShoppingList = buildShoppingListGraphQLResponseWith({
-    status: rejectedStatusCode,
-  });
-  const shoppingListResponse = {
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
     data: {
-      customerShoppingList: rejectedShoppingList,
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: rejectedStatusCode,
+      },
     },
-  };
+  });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -179,35 +171,25 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
 // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
 // For now we treat Deleted as Rejected so that the shopping lists that were previously rejected remain the same behavior
 it('hides "Add to list" panel from b2b users for deleted shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const deletedStatusCode = 20;
-  const deletedShoppingList = buildShoppingListGraphQLResponseWith({
-    status: deletedStatusCode,
-  });
-  const shoppingListResponse = {
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
     data: {
-      customerShoppingList: deletedShoppingList,
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: deletedStatusCode,
+      },
     },
-  };
+  });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -218,82 +200,35 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 
 describe('when user approves a shopping list', () => {
   it('fires a request to update shopping list status to approved', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const readyForApprovalStatusCode = 40;
-    const customerInfo = {
-      firstName: 'tester',
-      lastName: 'tester',
-      userId: 123,
-      email: 'test@test.com',
-      role: '2',
-    };
-    const companyInfoInShoppingList = {
-      companyId: '79',
-      companyName: 'BC',
-      companyAddress: 'Pitt street',
-      companyCountry: 'Australia',
-      companyState: 'NSW',
-      companyCity: 'Sydney',
-      companyZipCode: '2000',
-      phoneNumber: '123456',
-      bcId: '109',
-    };
-    const readyForApprovalShoppingList = buildShoppingListGraphQLResponseWith({
-      companyInfo: companyInfoInShoppingList,
-      customerInfo,
-      status: readyForApprovalStatusCode,
+    const approvedStatusCode = 0;
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode } },
     });
 
-    const shoppingListResponse = {
-      data: {
-        shoppingList: readyForApprovalShoppingList,
-      },
-    };
+    const updateB2BShoppingListVariablesSpy = vi.fn();
 
-    const requestBodies: GQLRequest[] = [];
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
+        updateB2BShoppingListVariablesSpy(variables);
 
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(shoppingListResponse);
-    });
-
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
-
-    // It's not ideal that we are mocking the implementation of verifyLevelPermission
-    // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-    // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-    vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-      ({ code, companyId, userId }) => {
-        if (code === 'approve_draft_shopping_list' && companyId === 79 && userId === 123) {
-          return true;
-        }
-
-        return false;
-      },
+        return HttpResponse.json({
+          data: {
+            shoppingListsUpdate: {
+              ...shoppingListResponse.data.shoppingList,
+              status: approvedStatusCode,
+            },
+          },
+        });
+      }),
+      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
-    const customer = buildCustomerWith({
-      id: 123,
-      userType: UserTypes.MULTIPLE_B2C,
-    });
-
-    const companyInfoInCompanyState = {
-      id: '79',
-      companyName: 'b2bc',
-      status: CompanyStatus.APPROVED,
-    };
-
-    const companyState = buildCompanyStateWith({
-      customer,
-      companyInfo: companyInfoInCompanyState,
-      permissions: [{ code: 'approve_draft_shopping_list', permissionLevel: 1 }],
-    });
-
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: companyState,
-      },
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -302,94 +237,48 @@ describe('when user approves a shopping list', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: /approve/i }));
 
-    const shoppingListsUpdateMutationBody = requestBodies.find((body) =>
-      body.query.includes('mutation'),
+    expect(updateB2BShoppingListVariablesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 272989,
+        shoppingListData: expect.objectContaining({ status: approvedStatusCode }),
+      }),
     );
-    const shoppingListsUpdateMutationVariables = shoppingListsUpdateMutationBody?.variables;
-
-    expect(shoppingListsUpdateMutationVariables).toBeDefined();
-    expect(shoppingListsUpdateMutationVariables.shoppingListData).toHaveProperty('status', 0);
   });
 });
 
 describe('when user rejects a shopping list', () => {
   it('fires a request to update shopping list status to rejected', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const readyForApprovalStatusCode = 40;
-    const customerInfo = {
-      firstName: 'tester',
-      lastName: 'tester',
-      userId: 123,
-      email: 'test@test.com',
-      role: '2',
-    };
-    const companyInfoInShoppingList = {
-      companyId: '79',
-      companyName: 'BC',
-      companyAddress: 'Pitt street',
-      companyCountry: 'Australia',
-      companyState: 'NSW',
-      companyCity: 'Sydney',
-      companyZipCode: '2000',
-      phoneNumber: '123456',
-      bcId: '109',
-    };
-    const readyForApprovalShoppingList = buildShoppingListGraphQLResponseWith({
-      companyInfo: companyInfoInShoppingList,
-      customerInfo,
-      status: readyForApprovalStatusCode,
-    });
-
-    const shoppingListResponse = {
+    const rejectedStatusCode = 50;
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
       data: {
-        shoppingList: readyForApprovalShoppingList,
+        shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
       },
-    };
-
-    const requestBodies: GQLRequest[] = [];
-
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(shoppingListResponse);
     });
 
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
+    const updateB2BShoppingListVariablesSpy = vi.fn();
 
-    // It's not ideal that we are mocking the implementation of verifyLevelPermission
-    // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-    // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-    vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-      ({ code, companyId, userId }) => {
-        if (code === 'approve_draft_shopping_list' && companyId === 79 && userId === 123) {
-          return true;
-        }
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
+        updateB2BShoppingListVariablesSpy(variables);
 
-        return false;
-      },
+        return HttpResponse.json({
+          data: {
+            shoppingListsUpdate: {
+              ...shoppingListResponse.data.shoppingList,
+              status: rejectedStatusCode,
+            },
+          },
+        });
+      }),
+      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
-    const customer = buildCustomerWith({
-      id: 123,
-      userType: UserTypes.MULTIPLE_B2C,
-    });
-
-    const companyInfoInCompanyState = {
-      id: '79',
-      companyName: 'b2bc',
-      status: CompanyStatus.APPROVED,
-    };
-
-    const companyState = buildCompanyStateWith({
-      customer,
-      companyInfo: companyInfoInCompanyState,
-      permissions: [{ code: 'approve_draft_shopping_list', permissionLevel: 1 }],
-    });
-
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: companyState,
-      },
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -398,12 +287,11 @@ describe('when user rejects a shopping list', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: /reject/i }));
 
-    const shoppingListsUpdateMutationBody = requestBodies.find((body) =>
-      body.query.includes('mutation'),
+    expect(updateB2BShoppingListVariablesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 272989,
+        shoppingListData: expect.objectContaining({ status: rejectedStatusCode }),
+      }),
     );
-    const shoppingListsUpdateMutationVariables = shoppingListsUpdateMutationBody?.variables;
-
-    expect(shoppingListsUpdateMutationVariables).toBeDefined();
-    expect(shoppingListsUpdateMutationVariables.shoppingListData).toHaveProperty('status', 50);
   });
 });
