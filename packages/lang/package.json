@@ -18,6 +18,6 @@
     "@types/react": "^18.3.3",
     "eslint": "^8.2.0",
     "eslint-config-bc": "*",
-    "typescript": "^4.7.4"
+    "typescript": "^5.8.3"
   }
 }

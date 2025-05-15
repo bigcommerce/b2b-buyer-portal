@@ -14,7 +14,7 @@
   "devDependencies": {
     "@b3/tsconfig": "*",
     "eslint": "^8.2.0",
-    "typescript": "^4.7.4",
-    "eslint-config-bc": "*"
+    "eslint-config-bc": "*",
+    "typescript": "^5.8.3"
   }
 }

@@ -10,5 +10,8 @@
   "files": [
     "base.json",
     "react-library.json"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }
