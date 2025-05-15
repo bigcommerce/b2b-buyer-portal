@@ -70,7 +70,7 @@ export const renderWithProviders = (
 };
 
 export { startMockServer } from './mockServer';
-export { http, HttpResponse } from 'msw';
+export { graphql, http, HttpResponse } from 'msw';
 export { assertQueryParams } from './assertQueryParams';
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
