@@ -2,6 +2,8 @@ import { useParams } from 'react-router-dom';
 import {
   buildCompanyStateWith,
   builder,
+  bulk,
+  faker,
   http,
   HttpResponse,
   renderWithProviders,
@@ -24,73 +26,83 @@ vitest.mock('react-router-dom', async (importOriginal) => ({
 
 const { server } = startMockServer();
 
-// TODO: we should use faker to generate random data once faker is in place
-const buildShoppingListGraphQLResponseWith = builder<CustomerShoppingListB2B>(() => ({
-  data: {
-    shoppingList: {
-      id: '4',
-      createdAt: 1744278967,
-      updatedAt: 1744279004,
-      name: 'Shopping List 1',
-      description: 'Shopping List 1 description',
-      status: 0,
-      reason: null,
-      customerInfo: {
-        firstName: 'fn',
-        lastName: 'ln',
-        userId: 87,
-        email: 'test@bc.com',
-        role: '2',
-      },
-      isOwner: true,
-      grandTotal: '109',
-      totalDiscount: '0',
-      totalTax: '0',
-      isShowGrandTotal: false,
-      channelId: null,
-      channelName: '',
-      approvedFlag: true,
-      companyInfo: {
-        companyId: '79',
-        companyName: 'BC',
-        companyAddress: 'Pitt street',
-        companyCountry: 'Australia',
-        companyState: 'NSW',
-        companyCity: 'Sydney',
-        companyZipCode: '2000',
-        phoneNumber: '123456',
-        bcId: '109',
-      },
-      products: {
-        totalCount: 1,
-        edges: [
-          {
-            node: {
-              id: '3',
-              createdAt: 1744278982,
-              updatedAt: 1744278982,
-              productId: 80,
-              variantId: 64,
-              quantity: 1,
-              productName: '[Sample] Orbit Terrarium - Large',
-              optionList: '[]',
-              itemId: 3,
-              baseSku: 'OTL',
-              variantSku: 'OTL',
-              basePrice: '109',
-              discount: '0',
-              tax: '0',
-              enteredInclusive: false,
-              productUrl: '/orbit-terrarium-large/',
-              primaryImage: '',
-              productNote: '',
-            },
-          },
-        ],
-      },
-    },
+type ShoppingListProductEdge =
+  CustomerShoppingListB2B['data']['shoppingList']['products']['edges'][number];
+
+const buildShoppingListProductEdgeWith = builder<ShoppingListProductEdge>(() => ({
+  node: {
+    id: faker.number.int().toString(),
+    createdAt: faker.date.past().getTime(),
+    updatedAt: faker.date.recent().getTime(),
+    productId: faker.number.int(),
+    variantId: faker.number.int(),
+    quantity: faker.number.int({ min: 1, max: 10 }),
+    productName: faker.commerce.productName(),
+    optionList: JSON.stringify([
+      { option_id: faker.string.numeric(), option_value: faker.word.sample() },
+    ]),
+    itemId: faker.number.int(),
+    baseSku: faker.string.alphanumeric(5),
+    variantSku: faker.string.alphanumeric(5),
+    basePrice: faker.commerce.price(),
+    discount: faker.commerce.price(),
+    tax: faker.commerce.price(),
+    enteredInclusive: faker.datatype.boolean(),
+    productUrl: faker.internet.url(),
+    primaryImage: faker.image.url(),
+    productNote: faker.lorem.sentence(),
   },
 }));
+
+const buildShoppingListGraphQLResponseWith = builder<CustomerShoppingListB2B>(() => {
+  const shoppingListProductEdges = bulk(buildShoppingListProductEdgeWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 1, max: 12 }),
+  );
+
+  return {
+    data: {
+      shoppingList: {
+        id: faker.number.int().toString(),
+        createdAt: faker.date.past().getTime(),
+        updatedAt: faker.date.recent().getTime(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        status: faker.helpers.arrayElement([0, 20, 30, 40, 50]),
+        reason: faker.lorem.sentence(),
+        customerInfo: {
+          firstName: faker.person.firstName(),
+          lastName: faker.person.lastName(),
+          userId: faker.number.int(),
+          email: faker.internet.email(),
+          role: faker.string.alpha(),
+        },
+        isOwner: faker.datatype.boolean(),
+        grandTotal: faker.commerce.price(),
+        totalDiscount: faker.commerce.price(),
+        totalTax: faker.commerce.price(),
+        isShowGrandTotal: faker.datatype.boolean(),
+        channelId: faker.number.int().toString(),
+        channelName: faker.company.name(),
+        approvedFlag: faker.datatype.boolean(),
+        companyInfo: {
+          companyId: faker.number.int().toString(),
+          companyName: faker.company.name(),
+          companyAddress: faker.location.streetAddress(),
+          companyCountry: faker.location.country(),
+          companyState: faker.location.state(),
+          companyCity: faker.location.city(),
+          companyZipCode: faker.location.zipCode(),
+          phoneNumber: faker.phone.number(),
+          bcId: faker.number.int().toString(),
+        },
+        products: {
+          totalCount: faker.number.int({ min: shoppingListProductEdges.length }),
+          edges: shoppingListProductEdges,
+        },
+      },
+    },
+  };
+});
 
 const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
   companyInfo: { status: CompanyStatus.APPROVED },
@@ -106,7 +118,12 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
 
   const draftStatusCode = 30;
   const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-    data: { shoppingList: { status: draftStatusCode } },
+    data: {
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: draftStatusCode,
+      },
+    },
   });
 
   server.use(
@@ -130,7 +147,12 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
 
   const rejectedStatusCode = 50;
   const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-    data: { shoppingList: { status: rejectedStatusCode } },
+    data: {
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: rejectedStatusCode,
+      },
+    },
   });
 
   server.use(
@@ -156,7 +178,12 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 
   const deletedStatusCode = 20;
   const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-    data: { shoppingList: { status: deletedStatusCode } },
+    data: {
+      shoppingList: {
+        name: 'Shopping List 1',
+        status: deletedStatusCode,
+      },
+    },
   });
 
   server.use(
@@ -181,7 +208,9 @@ describe('when user approves a shopping list', () => {
 
     const readyForApprovalStatusCode = 40;
     const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: { shoppingList: { status: readyForApprovalStatusCode } },
+      data: {
+        shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
+      },
     });
 
     const requestBodies: GQLRequest[] = [];
@@ -221,7 +250,9 @@ describe('when user rejects a shopping list', () => {
 
     const readyForApprovalStatusCode = 40;
     const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: { shoppingList: { status: readyForApprovalStatusCode } },
+      data: {
+        shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
+      },
     });
 
     const requestBodies: GQLRequest[] = [];
