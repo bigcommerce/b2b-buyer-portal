@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
-import config from '@b3/global-b3';
+import { setElementsListenersConfig } from '@b3/global-b3';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
@@ -141,13 +141,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             const openUrl = page.startsWith('/') ? page : HeadlessRoutes[page];
             setOpenPage({ isOpen: true, openUrl });
           }, 0),
-        updateDomConfig: (newConfigs: Record<string, string>) => {
-          const keys = Object.keys(newConfigs);
-          keys.forEach((key: string) => {
-            if (key in config) {
-              config[key as keyof typeof config] = newConfigs[key];
-            }
-          });
+        setB3ConfigEventListeners: (newConfigs: Record<string, string>) => {
+          setElementsListenersConfig(newConfigs);
         },
         quote: {
           addProductFromPage: async (item) => {

@@ -36,7 +36,8 @@ const themeOtherElementConfig = () => {
   }
 }
 
-const config = {
+
+let config = {
   'dom.registerElement':
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
   'dom.registerUrl': '/register',
@@ -56,6 +57,10 @@ const config = {
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   ...themeOtherElementConfig(),
+}
+
+export const setElementsListenersConfig = (newConfig: Record<string, string>) => {
+  config = {...config, ...newConfig}
 }
 
 export default config
