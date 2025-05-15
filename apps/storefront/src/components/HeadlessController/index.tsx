@@ -141,7 +141,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             const openUrl = page.startsWith('/') ? page : HeadlessRoutes[page];
             setOpenPage({ isOpen: true, openUrl });
           }, 0),
-        setB3ConfigEventListeners: (key: string, value: string) => {
+        setConfig: (key: string, value: string) => {
           setElementsListenersConfig(key, value);
         },
         quote: {

@@ -40,7 +40,7 @@ declare interface Window {
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void;
       getRoutes: () => import('@/shared/routeList').BuyerPortalRoute[];
-      setB3ConfigEventListeners: (key: string, value: string) => void;
+      setConfig: (key: string, value: string) => void;
       quote: {
         addProductFromPage: (item: import('@/utils').LineItems) => void;
         addProductsFromCart: () => Promise<void>;
