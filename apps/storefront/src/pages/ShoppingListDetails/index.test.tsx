@@ -11,6 +11,7 @@ import {
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
+import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { GQLRequest } from '@/shared/service/request/b3Fetch';
 import { CompanyStatus, UserTypes } from '@/types';
 
@@ -24,66 +25,70 @@ vitest.mock('react-router-dom', async (importOriginal) => ({
 const { server } = startMockServer();
 
 // TODO: we should use faker to generate random data once faker is in place
-const buildShoppingListGraphQLResponseWith = builder(() => ({
-  id: '4',
-  createdAt: 1744278967,
-  updatedAt: 1744279004,
-  name: 'Shopping List 1',
-  description: 'Shopping List 1 description',
-  status: 0,
-  reason: null,
-  customerInfo: {
-    firstName: 'fn',
-    lastName: 'ln',
-    userId: 87,
-    email: 'test@bc.com',
-    role: '2',
-  },
-  isOwner: true,
-  grandTotal: '109',
-  totalDiscount: '0',
-  totalTax: '0',
-  isShowGrandTotal: false,
-  channelId: null,
-  channelName: '',
-  approvedFlag: true,
-  companyInfo: {
-    companyId: '79',
-    companyName: 'BC',
-    companyAddress: 'Pitt street',
-    companyCountry: 'Australia',
-    companyState: 'NSW',
-    companyCity: 'Sydney',
-    companyZipCode: '2000',
-    phoneNumber: '123456',
-    bcId: '109',
-  },
-  products: {
-    totalCount: 1,
-    edges: [
-      {
-        node: {
-          id: '3',
-          createdAt: 1744278982,
-          updatedAt: 1744278982,
-          productId: 80,
-          variantId: 64,
-          quantity: 1,
-          productName: '[Sample] Orbit Terrarium - Large',
-          optionList: '[]',
-          itemId: 3,
-          baseSku: 'OTL',
-          variantSku: 'OTL',
-          basePrice: '109',
-          discount: '0',
-          tax: '0',
-          enteredInclusive: false,
-          productUrl: '/orbit-terrarium-large/',
-          primaryImage: '',
-          productNote: '',
-        },
+const buildShoppingListGraphQLResponseWith = builder<CustomerShoppingListB2B>(() => ({
+  data: {
+    shoppingList: {
+      id: '4',
+      createdAt: 1744278967,
+      updatedAt: 1744279004,
+      name: 'Shopping List 1',
+      description: 'Shopping List 1 description',
+      status: 0,
+      reason: null,
+      customerInfo: {
+        firstName: 'fn',
+        lastName: 'ln',
+        userId: 87,
+        email: 'test@bc.com',
+        role: '2',
       },
-    ],
+      isOwner: true,
+      grandTotal: '109',
+      totalDiscount: '0',
+      totalTax: '0',
+      isShowGrandTotal: false,
+      channelId: null,
+      channelName: '',
+      approvedFlag: true,
+      companyInfo: {
+        companyId: '79',
+        companyName: 'BC',
+        companyAddress: 'Pitt street',
+        companyCountry: 'Australia',
+        companyState: 'NSW',
+        companyCity: 'Sydney',
+        companyZipCode: '2000',
+        phoneNumber: '123456',
+        bcId: '109',
+      },
+      products: {
+        totalCount: 1,
+        edges: [
+          {
+            node: {
+              id: '3',
+              createdAt: 1744278982,
+              updatedAt: 1744278982,
+              productId: 80,
+              variantId: 64,
+              quantity: 1,
+              productName: '[Sample] Orbit Terrarium - Large',
+              optionList: '[]',
+              itemId: 3,
+              baseSku: 'OTL',
+              variantSku: 'OTL',
+              basePrice: '109',
+              discount: '0',
+              tax: '0',
+              enteredInclusive: false,
+              productUrl: '/orbit-terrarium-large/',
+              primaryImage: '',
+              productNote: '',
+            },
+          },
+        ],
+      },
+    },
   },
 }));
 
@@ -100,12 +105,9 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
   const draftStatusCode = 30;
-  const draftShoppingList = buildShoppingListGraphQLResponseWith({
-    status: draftStatusCode,
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+    data: { shoppingList: { status: draftStatusCode } },
   });
-  const shoppingListResponse = {
-    data: { shoppingList: draftShoppingList },
-  };
 
   server.use(
     http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
@@ -127,12 +129,9 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
   const rejectedStatusCode = 50;
-  const rejectedShoppingList = buildShoppingListGraphQLResponseWith({
-    status: rejectedStatusCode,
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+    data: { shoppingList: { status: rejectedStatusCode } },
   });
-  const shoppingListResponse = {
-    data: { shoppingList: rejectedShoppingList },
-  };
 
   server.use(
     http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
@@ -156,12 +155,9 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
   const deletedStatusCode = 20;
-  const deletedShoppingList = buildShoppingListGraphQLResponseWith({
-    status: deletedStatusCode,
+  const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+    data: { shoppingList: { status: deletedStatusCode } },
   });
-  const shoppingListResponse = {
-    data: { shoppingList: deletedShoppingList },
-  };
 
   server.use(
     http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
@@ -184,33 +180,9 @@ describe('when user approves a shopping list', () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const readyForApprovalStatusCode = 40;
-    const customerInfo = {
-      firstName: 'tester',
-      lastName: 'tester',
-      userId: 123,
-      email: 'test@test.com',
-      role: '2',
-    };
-    const companyInfoInShoppingList = {
-      companyId: '79',
-      companyName: 'BC',
-      companyAddress: 'Pitt street',
-      companyCountry: 'Australia',
-      companyState: 'NSW',
-      companyCity: 'Sydney',
-      companyZipCode: '2000',
-      phoneNumber: '123456',
-      bcId: '109',
-    };
-    const readyForApprovalShoppingList = buildShoppingListGraphQLResponseWith({
-      companyInfo: companyInfoInShoppingList,
-      customerInfo,
-      status: readyForApprovalStatusCode,
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { status: readyForApprovalStatusCode } },
     });
-
-    const shoppingListResponse = {
-      data: { shoppingList: readyForApprovalShoppingList },
-    };
 
     const requestBodies: GQLRequest[] = [];
 
@@ -248,33 +220,9 @@ describe('when user rejects a shopping list', () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const readyForApprovalStatusCode = 40;
-    const customerInfo = {
-      firstName: 'tester',
-      lastName: 'tester',
-      userId: 123,
-      email: 'test@test.com',
-      role: '2',
-    };
-    const companyInfoInShoppingList = {
-      companyId: '79',
-      companyName: 'BC',
-      companyAddress: 'Pitt street',
-      companyCountry: 'Australia',
-      companyState: 'NSW',
-      companyCity: 'Sydney',
-      companyZipCode: '2000',
-      phoneNumber: '123456',
-      bcId: '109',
-    };
-    const readyForApprovalShoppingList = buildShoppingListGraphQLResponseWith({
-      companyInfo: companyInfoInShoppingList,
-      customerInfo,
-      status: readyForApprovalStatusCode,
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { status: readyForApprovalStatusCode } },
     });
-
-    const shoppingListResponse = {
-      data: { shoppingList: readyForApprovalShoppingList },
-    };
 
     const requestBodies: GQLRequest[] = [];
 

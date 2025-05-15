@@ -182,6 +182,71 @@ const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
   }
 }`;
 
+export interface CustomerShoppingListB2B {
+  data: {
+    shoppingList: {
+      id: string;
+      createdAt: number;
+      updatedAt: number;
+      name: string;
+      description: string;
+      status: number;
+      reason: string | null;
+      customerInfo: {
+        firstName: string;
+        lastName: string;
+        userId: number;
+        email: string;
+        role: string;
+      };
+      isOwner: boolean;
+      grandTotal: string;
+      totalDiscount: string;
+      totalTax: string;
+      isShowGrandTotal: boolean;
+      channelId: string | null;
+      channelName: string;
+      approvedFlag: boolean;
+      companyInfo: {
+        companyId: string;
+        companyName: string;
+        companyAddress: string;
+        companyCountry: string;
+        companyState: string;
+        companyCity: string;
+        companyZipCode: string;
+        phoneNumber: string;
+        bcId: string;
+      };
+      products: {
+        totalCount: number;
+        edges: Array<{
+          node: {
+            id: string;
+            createdAt: number;
+            updatedAt: number;
+            productId: number;
+            variantId: number;
+            quantity: number;
+            productName: string;
+            optionList: string;
+            itemId: number;
+            baseSku: string;
+            variantSku: string;
+            basePrice: string;
+            discount: string;
+            tax: string;
+            enteredInclusive: boolean;
+            productUrl: string;
+            primaryImage: string;
+            productNote: string;
+          };
+        }>;
+      };
+    };
+  };
+}
+
 const getShoppingListDetails = (data: CustomFieldItems) => `{
   shoppingList (
     id: ${data.id}
