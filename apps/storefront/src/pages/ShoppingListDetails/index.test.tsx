@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import {
   buildCompanyStateWith,
   builder,
@@ -15,6 +16,11 @@ import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/
 import * as utilsModule from '@/utils';
 
 import ShoppingListDetailsContent from '.';
+
+vitest.mock('react-router-dom', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react-router-dom')>()),
+  useParams: vitest.fn(),
+}));
 
 const { server } = startMockServer();
 
@@ -101,6 +107,8 @@ afterEach(() => {
 });
 
 it('shows "Add to list" panel for draft shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const draftStatusCode = 30;
   const draftShoppingList = buildShoppingListGraphQLResponseWith({
     status: draftStatusCode,
@@ -139,6 +147,8 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
 });
 
 it('hides "Add to list" panel from b2b users for rejected shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const rejectedStatusCode = 50;
   const rejectedShoppingList = buildShoppingListGraphQLResponseWith({
     status: rejectedStatusCode,
@@ -179,6 +189,8 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
 // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
 // For now we treat Deleted as Rejected so that the shopping lists that were previously rejected remain the same behavior
 it('hides "Add to list" panel from b2b users for deleted shopping lists', async () => {
+  vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
   const deletedStatusCode = 20;
   const deletedShoppingList = buildShoppingListGraphQLResponseWith({
     status: deletedStatusCode,
@@ -218,6 +230,8 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 
 describe('when user approves a shopping list', () => {
   it('fires a request to update shopping list status to approved', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const readyForApprovalStatusCode = 40;
     const customerInfo = {
       firstName: 'tester',
@@ -314,6 +328,8 @@ describe('when user approves a shopping list', () => {
 
 describe('when user rejects a shopping list', () => {
   it('fires a request to update shopping list status to rejected', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const readyForApprovalStatusCode = 40;
     const customerInfo = {
       firstName: 'tester',
