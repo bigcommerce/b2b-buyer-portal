@@ -58,10 +58,7 @@ const config: Record<string, string> = {
   ...themeOtherElementConfig(),
 }
 
-export const setElementsListenersConfig = (
-  key: string,
-  value: string
-) => {
+export const setElementsListenersConfig = (key: string, value: string) => {
   if (key in config) {
     config[key] = value
   }
