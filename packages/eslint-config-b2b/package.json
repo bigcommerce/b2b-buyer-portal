@@ -28,6 +28,7 @@
     "eslint-plugin-testing-library": "^6.2.2"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.10.3"
+    "@rushstack/eslint-patch": "^1.10.3",
+    "typescript": "^5.8.3"
   }
 }
