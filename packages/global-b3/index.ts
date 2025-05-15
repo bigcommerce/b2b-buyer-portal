@@ -36,6 +36,7 @@ const themeOtherElementConfig = () => {
   }
 }
 
+// eslint-disable-next-line prefer-const
 let config = {
   'dom.registerElement':
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
