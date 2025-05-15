@@ -36,8 +36,7 @@ const themeOtherElementConfig = () => {
   }
 }
 
-// eslint-disable-next-line prefer-const
-let config = {
+const config: Record<string, string> = {
   'dom.registerElement':
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
   'dom.registerUrl': '/register',
@@ -60,10 +59,12 @@ let config = {
 }
 
 export const setElementsListenersConfig = (
-  newConfig: Record<string, string>
+  key: string,
+  value: string
 ) => {
-  config = { ...config, ...newConfig }
+  if (key in config) {
+    config[key] = value
+  }
 }
 
-// eslint-disable-next-line prefer-const
 export default config
