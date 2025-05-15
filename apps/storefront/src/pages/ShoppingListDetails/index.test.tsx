@@ -5,7 +5,6 @@ import {
   bulk,
   faker,
   graphql,
-  http,
   HttpResponse,
   renderWithProviders,
   screen,
@@ -15,7 +14,6 @@ import {
 } from 'tests/test-utils';
 
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
-import { GQLRequest } from '@/shared/service/request/b3Fetch';
 import { CompanyStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
@@ -205,22 +203,28 @@ describe('when user approves a shopping list', () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const readyForApprovalStatusCode = 40;
+    const approvedStatusCode = 0;
     const shoppingListResponse = buildShoppingListGraphQLResponseWith({
       data: { shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode } },
     });
 
-    const requestBodies: GQLRequest[] = [];
-
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(shoppingListResponse);
-    });
+    const updateB2BShoppingListVariablesSpy = vi.fn();
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler),
+      graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
+        updateB2BShoppingListVariablesSpy(variables);
+
+        return HttpResponse.json({
+          data: {
+            shoppingListsUpdate: {
+              ...shoppingListResponse.data.shoppingList,
+              status: approvedStatusCode,
+            },
+          },
+        });
+      }),
+      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -233,13 +237,12 @@ describe('when user approves a shopping list', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: /approve/i }));
 
-    const shoppingListsUpdateMutationBody = requestBodies.find((body) =>
-      body.query.includes('mutation'),
+    expect(updateB2BShoppingListVariablesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 272989,
+        shoppingListData: expect.objectContaining({ status: approvedStatusCode }),
+      }),
     );
-    const shoppingListsUpdateMutationVariables = shoppingListsUpdateMutationBody?.variables;
-
-    expect(shoppingListsUpdateMutationVariables).toBeDefined();
-    expect(shoppingListsUpdateMutationVariables.shoppingListData).toHaveProperty('status', 0);
   });
 });
 
@@ -248,24 +251,30 @@ describe('when user rejects a shopping list', () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const readyForApprovalStatusCode = 40;
+    const rejectedStatusCode = 50;
     const shoppingListResponse = buildShoppingListGraphQLResponseWith({
       data: {
         shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
       },
     });
 
-    const requestBodies: GQLRequest[] = [];
-
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(shoppingListResponse);
-    });
+    const updateB2BShoppingListVariablesSpy = vi.fn();
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler),
+      graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
+        updateB2BShoppingListVariablesSpy(variables);
+
+        return HttpResponse.json({
+          data: {
+            shoppingListsUpdate: {
+              ...shoppingListResponse.data.shoppingList,
+              status: rejectedStatusCode,
+            },
+          },
+        });
+      }),
+      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -278,12 +287,11 @@ describe('when user rejects a shopping list', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: /reject/i }));
 
-    const shoppingListsUpdateMutationBody = requestBodies.find((body) =>
-      body.query.includes('mutation'),
+    expect(updateB2BShoppingListVariablesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 272989,
+        shoppingListData: expect.objectContaining({ status: rejectedStatusCode }),
+      }),
     );
-    const shoppingListsUpdateMutationVariables = shoppingListsUpdateMutationBody?.variables;
-
-    expect(shoppingListsUpdateMutationVariables).toBeDefined();
-    expect(shoppingListsUpdateMutationVariables.shoppingListData).toHaveProperty('status', 50);
   });
 });

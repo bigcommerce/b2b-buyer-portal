@@ -117,16 +117,16 @@ const getShoppingListInfo = `shoppingList {
   },
 }`;
 
-const updateShoppingList = (
-  fn: string,
-) => `mutation($id: Int!, $shoppingListData: ShoppingListsInputType!){
-  ${fn}(
-    id: $id
-    shoppingListData: $shoppingListData
-  ) {
-    ${getShoppingListInfo}
+const updateShoppingList = (fn: string) => `
+  mutation UpdateB2BShoppingList ($id: Int!, $shoppingListData: ShoppingListsInputType!) {
+    ${fn}(
+      id: $id
+      shoppingListData: $shoppingListData
+    ) {
+      ${getShoppingListInfo}
+    }
   }
-}`;
+`;
 
 const createShoppingList = (fn: string) => `mutation($shoppingListData: ShoppingListsInputType!){
   ${fn}(
