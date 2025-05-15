@@ -80,7 +80,11 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         ? document.querySelectorAll(config['dom.registerElement'])
         : [],
     );
-    const allOtherArr = Array.from(document.querySelectorAll(config['dom.allOtherElement']));
+    const allOtherArr = Array.from(
+      config['dom.allOtherElement'].length > 0
+        ? document.querySelectorAll(config['dom.allOtherElement'])
+        : [],
+    );
 
     if (registerArr.length || allOtherArr.length) {
       const handleTriggerClick = (e: MouseEvent) => {
