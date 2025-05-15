@@ -87,10 +87,6 @@ const buildShoppingListGraphQLResponseWith = builder(() => ({
   },
 }));
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
-
 const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
   companyInfo: { status: CompanyStatus.APPROVED },
   customer: { userType: UserTypes.MULTIPLE_B2C },
