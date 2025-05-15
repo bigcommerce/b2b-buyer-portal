@@ -75,7 +75,11 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
   };
 
   useLayoutEffect(() => {
-    const registerArr = Array.from(config['dom.registerElement'].length > 0 ? document.querySelectorAll(config['dom.registerElement']) : []);
+    const registerArr = Array.from(
+      config['dom.registerElement'].length > 0
+        ? document.querySelectorAll(config['dom.registerElement'])
+        : [],
+    );
     const allOtherArr = Array.from(document.querySelectorAll(config['dom.allOtherElement']));
 
     if (registerArr.length || allOtherArr.length) {
