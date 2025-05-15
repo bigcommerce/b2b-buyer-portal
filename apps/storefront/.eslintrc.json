@@ -1,6 +1,19 @@
 {
   "extends": ["b2b"],
+
   "overrides": [
+    {
+      "files": ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "name": "msw",
+            "message": "Please import from tests/test-utils"
+          }
+        ]
+      }
+    },
     {
       "files": ["src/pages/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
       "rules": {
