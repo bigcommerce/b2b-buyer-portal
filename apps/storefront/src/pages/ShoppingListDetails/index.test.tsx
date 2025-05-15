@@ -12,8 +12,7 @@ import {
 } from 'tests/test-utils';
 
 import { GQLRequest } from '@/shared/service/request/b3Fetch';
-import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
-import * as utilsModule from '@/utils';
+import { CompanyStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
 
@@ -23,20 +22,6 @@ vitest.mock('react-router-dom', async (importOriginal) => ({
 }));
 
 const { server } = startMockServer();
-
-// TODO: we should use faker to generate random data once faker is in place
-const buildCustomerWith = builder<Customer>(() => ({
-  id: 0,
-  phoneNumber: '123123',
-  firstName: 'test',
-  lastName: 'test',
-  emailAddress: 'test@bc.com',
-  customerGroupId: 123,
-  role: CustomerRole.GUEST,
-  userType: UserTypes.DOES_NOT_EXIST,
-  loginType: LoginTypes.WAITING_LOGIN,
-  companyRoleName: 'Tester',
-}));
 
 // TODO: we should use faker to generate random data once faker is in place
 const buildShoppingListGraphQLResponseWith = builder(() => ({
@@ -106,6 +91,15 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
+  companyInfo: { status: CompanyStatus.APPROVED },
+  customer: { userType: UserTypes.MULTIPLE_B2C },
+  permissions: [
+    { code: 'create_shopping_list', permissionLevel: 1 },
+    { code: 'approve_draft_shopping_list', permissionLevel: 1 },
+  ],
+});
+
 it('shows "Add to list" panel for draft shopping lists', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -114,9 +108,7 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
     status: draftStatusCode,
   });
   const shoppingListResponse = {
-    data: {
-      customerShoppingList: draftShoppingList,
-    },
+    data: { shoppingList: draftShoppingList },
   };
 
   server.use(
@@ -125,19 +117,8 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
     ),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -154,9 +135,7 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
     status: rejectedStatusCode,
   });
   const shoppingListResponse = {
-    data: {
-      customerShoppingList: rejectedShoppingList,
-    },
+    data: { shoppingList: rejectedShoppingList },
   };
 
   server.use(
@@ -165,19 +144,8 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
     ),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -196,9 +164,7 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
     status: deletedStatusCode,
   });
   const shoppingListResponse = {
-    data: {
-      customerShoppingList: deletedShoppingList,
-    },
+    data: { shoppingList: deletedShoppingList },
   };
 
   server.use(
@@ -207,19 +173,8 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
     ),
   );
 
-  const customer = buildCustomerWith({
-    userType: UserTypes.B2B_SUPER_ADMIN,
-  });
-
-  const companyState = buildCompanyStateWith({
-    customer,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
-  });
-
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-    preloadedState: {
-      company: companyState,
-    },
+    preloadedState: { company: b2bCompanyWithShoppingListPermissions },
   });
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -258,9 +213,7 @@ describe('when user approves a shopping list', () => {
     });
 
     const shoppingListResponse = {
-      data: {
-        shoppingList: readyForApprovalShoppingList,
-      },
+      data: { shoppingList: readyForApprovalShoppingList },
     };
 
     const requestBodies: GQLRequest[] = [];
@@ -274,40 +227,8 @@ describe('when user approves a shopping list', () => {
 
     server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
 
-    // It's not ideal that we are mocking the implementation of verifyLevelPermission
-    // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-    // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-    vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-      ({ code, companyId, userId }) => {
-        if (code === 'approve_draft_shopping_list' && companyId === 79 && userId === 123) {
-          return true;
-        }
-
-        return false;
-      },
-    );
-
-    const customer = buildCustomerWith({
-      id: 123,
-      userType: UserTypes.MULTIPLE_B2C,
-    });
-
-    const companyInfoInCompanyState = {
-      id: '79',
-      companyName: 'b2bc',
-      status: CompanyStatus.APPROVED,
-    };
-
-    const companyState = buildCompanyStateWith({
-      customer,
-      companyInfo: companyInfoInCompanyState,
-      permissions: [{ code: 'approve_draft_shopping_list', permissionLevel: 1 }],
-    });
-
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: companyState,
-      },
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
@@ -356,9 +277,7 @@ describe('when user rejects a shopping list', () => {
     });
 
     const shoppingListResponse = {
-      data: {
-        shoppingList: readyForApprovalShoppingList,
-      },
+      data: { shoppingList: readyForApprovalShoppingList },
     };
 
     const requestBodies: GQLRequest[] = [];
@@ -372,40 +291,8 @@ describe('when user rejects a shopping list', () => {
 
     server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
 
-    // It's not ideal that we are mocking the implementation of verifyLevelPermission
-    // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
-    // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-    vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-      ({ code, companyId, userId }) => {
-        if (code === 'approve_draft_shopping_list' && companyId === 79 && userId === 123) {
-          return true;
-        }
-
-        return false;
-      },
-    );
-
-    const customer = buildCustomerWith({
-      id: 123,
-      userType: UserTypes.MULTIPLE_B2C,
-    });
-
-    const companyInfoInCompanyState = {
-      id: '79',
-      companyName: 'b2bc',
-      status: CompanyStatus.APPROVED,
-    };
-
-    const companyState = buildCompanyStateWith({
-      customer,
-      companyInfo: companyInfoInCompanyState,
-      permissions: [{ code: 'approve_draft_shopping_list', permissionLevel: 1 }],
-    });
-
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: companyState,
-      },
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
