@@ -4,6 +4,7 @@ import {
   builder,
   bulk,
   faker,
+  graphql,
   http,
   HttpResponse,
   renderWithProviders,
@@ -127,9 +128,8 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
   });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -156,9 +156,8 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
   });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -187,9 +186,8 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
   });
 
   server.use(
-    http.post('https://api-b2b.bigcommerce.com/graphql', async () =>
-      HttpResponse.json(shoppingListResponse),
-    ),
+    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -208,9 +206,7 @@ describe('when user approves a shopping list', () => {
 
     const readyForApprovalStatusCode = 40;
     const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
-      },
+      data: { shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode } },
     });
 
     const requestBodies: GQLRequest[] = [];
@@ -222,7 +218,10 @@ describe('when user approves a shopping list', () => {
       return HttpResponse.json(shoppingListResponse);
     });
 
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler),
+    );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
       preloadedState: { company: b2bCompanyWithShoppingListPermissions },
@@ -264,7 +263,10 @@ describe('when user rejects a shopping list', () => {
       return HttpResponse.json(shoppingListResponse);
     });
 
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler),
+    );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
       preloadedState: { company: b2bCompanyWithShoppingListPermissions },

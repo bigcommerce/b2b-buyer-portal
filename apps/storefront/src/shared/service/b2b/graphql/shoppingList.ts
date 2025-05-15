@@ -247,75 +247,77 @@ export interface CustomerShoppingListB2B {
   };
 }
 
-const getShoppingListDetails = (data: CustomFieldItems) => `{
-  shoppingList (
-    id: ${data.id}
-  ) {
-    id,
-    createdAt,
-    updatedAt,
-    name,
-    description,
-    status,
-    reason,
-    customerInfo {
-      firstName,
-      lastName,
-      userId,
-      email,
-      role,
-    },
-    isOwner,
-    grandTotal,
-    totalDiscount,
-    totalTax,
-    isShowGrandTotal,
-    channelId,
-    channelName,
-    approvedFlag,
-    companyInfo {
-      companyId,
-      companyName,
-      companyAddress,
-      companyCountry,
-      companyState,
-      companyCity,
-      companyZipCode,
-      phoneNumber,
-      bcId,
-    },
-    products (
-      offset: ${data.offset || 0}
-      first: ${data.first || 100},
-      search: "${data.search || ''}",
-      orderBy: "${data?.orderBy || '-updatedAt'}"
+const getShoppingListDetails = (data: CustomFieldItems) => `
+  query B2BShoppingListDetails {
+    shoppingList (
+      id: ${data.id}
     ) {
-      totalCount,
-      edges {
-        node {
-          id,
-          createdAt,
-          updatedAt,
-          productId,
-          variantId,
-          quantity,
-          productName,
-          optionList,
-          itemId,
-          baseSku,
-          variantSku,
-          basePrice,
-          discount,
-          tax,
-          enteredInclusive,
-          productUrl,
-          primaryImage,
-          productNote,
+      id,
+      createdAt,
+      updatedAt,
+      name,
+      description,
+      status,
+      reason,
+      customerInfo {
+        firstName,
+        lastName,
+        userId,
+        email,
+        role,
+      },
+      isOwner,
+      grandTotal,
+      totalDiscount,
+      totalTax,
+      isShowGrandTotal,
+      channelId,
+      channelName,
+      approvedFlag,
+      companyInfo {
+        companyId,
+        companyName,
+        companyAddress,
+        companyCountry,
+        companyState,
+        companyCity,
+        companyZipCode,
+        phoneNumber,
+        bcId,
+      },
+      products (
+        offset: ${data.offset || 0}
+        first: ${data.first || 100},
+        search: "${data.search || ''}",
+        orderBy: "${data?.orderBy || '-updatedAt'}"
+      ) {
+        totalCount,
+        edges {
+          node {
+            id,
+            createdAt,
+            updatedAt,
+            productId,
+            variantId,
+            quantity,
+            productName,
+            optionList,
+            itemId,
+            baseSku,
+            variantSku,
+            basePrice,
+            discount,
+            tax,
+            enteredInclusive,
+            productUrl,
+            primaryImage,
+            productNote,
+          }
         }
       }
     }
   }
-}`;
+`;
 
 const addItemsToShoppingList = (data: CustomFieldItems) => `mutation {
   shoppingListsItemsCreate(
