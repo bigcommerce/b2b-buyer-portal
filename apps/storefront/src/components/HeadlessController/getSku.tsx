@@ -30,7 +30,10 @@ const graphqlRequest: typeof B3Request.graphqlBC | typeof B3Request.graphqlBCPro
     : B3Request.graphqlBCProxy({ query, variables });
 };
 
-export const getSku = async ({ selectedOptions, productEntityId }: LineItem): Promise<string> => {
+export const getSku = async ({
+  selectedOptions = [],
+  productEntityId,
+}: LineItem): Promise<string> => {
   const { data } = await graphqlRequest<ProductsWithOptionSelections>({
     query: `
     query ProductsWithOptionSelections (
