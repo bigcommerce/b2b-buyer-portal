@@ -32,8 +32,8 @@
       "files": [
         "src/pages/AccountSetting/index.tsx",
         "src/pages/AccountSetting/utils.ts",
-        "src/pages/Address/components/AddressForm.tsx",
-        "src/pages/Address/index.tsx",
+        "src/pages/AddressList/components/AddressForm.tsx",
+        "src/pages/AddressList/index.tsx",
         "src/pages/Invoice/InvoiceItemCard.tsx",
         "src/pages/Login/config.ts",
         "src/pages/OrderDetail/components/OrderDialog.tsx",

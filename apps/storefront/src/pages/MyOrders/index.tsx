@@ -1,7 +1,5 @@
 import Order from '../order/Order';
 
-function MyOrder() {
+export default function MyOrders() {
   return <Order />;
 }
-
-export default MyOrder;
