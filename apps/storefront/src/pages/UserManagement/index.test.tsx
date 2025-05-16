@@ -2,6 +2,7 @@ import { graphql, HttpResponse } from 'msw';
 import {
   buildCompanyStateWith,
   builder,
+  bulk,
   faker,
   renderWithProviders,
   screen,
@@ -11,6 +12,8 @@ import {
   within,
 } from 'tests/test-utils';
 
+import B3LayoutTip from '@/components/layout/B3LayoutTip';
+import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { UserExtraFieldsInfoResponse, UsersResponse } from '@/shared/service/b2b/graphql/users';
 
 import UserManagement from './index';
@@ -100,7 +103,7 @@ const companyWithAllUserPermissions = buildCompanyStateWith({
     { code: 'update_user', permissionLevel: 3 },
     { code: 'delete_user', permissionLevel: 3 },
   ],
-  companyHierarchyInfo: { selectCompanyHierarchyId: '123' },
+  companyHierarchyInfo: { selectCompanyHierarchyId: '776775' },
 });
 
 const preloadedState = { company: companyWithAllUserPermissions };
@@ -196,6 +199,132 @@ it('displays users with custom roles', async () => {
   expect(screen.getByText('Junior Assistant to the Regional Manager')).toBeInTheDocument();
 });
 
+describe('when there is a next page of results, the user click "Go to next page" and the results load successfully', () => {
+  it('displays the next page of results', async () => {
+    const firstElevenUsers = bulk(buildUserEdgeWith, 'WHATEVER_VALUES').times(11);
+    const troyMcClure = buildUserEdgeWith({ node: { firstName: 'Troy', lastName: 'McClure' } });
+    const usersPageOne = buildUsersResponseWith({
+      data: {
+        users: {
+          totalCount: 13,
+          pageInfo: { hasNextPage: true, hasPreviousPage: false },
+          edges: [...firstElevenUsers, troyMcClure],
+        },
+      },
+    });
+
+    const sallyCinnamon = buildUserEdgeWith({ node: { firstName: 'Sally', lastName: 'Cinnamon' } });
+    const usersPageTwo = buildUsersResponseWith({
+      data: {
+        users: {
+          totalCount: 13,
+          pageInfo: { hasNextPage: false, hasPreviousPage: true },
+          edges: [sallyCinnamon],
+        },
+      },
+    });
+
+    const getUsersResponse = vi
+      .fn<unknown[], UsersResponse>()
+      .mockReturnValue(buildUsersResponseWith(usersPageOne));
+
+    const getUsersQuerySpy = vi.fn();
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', ({ query }) => {
+        getUsersQuerySpy(query);
+
+        return HttpResponse.json(getUsersResponse());
+      }),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    const troyMcClureHeading = await screen.findByRole('heading', { name: 'Troy McClure' });
+
+    expect(troyMcClureHeading).toBeInTheDocument();
+
+    getUsersResponse.mockReturnValue(buildUsersResponseWith(usersPageTwo));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    expect(await screen.findByRole('heading', { name: 'Sally Cinnamon' })).toBeInTheDocument();
+    expect(troyMcClureHeading).not.toBeInTheDocument();
+
+    // once queries/mutations are changed to use real graphql variables,
+    // we can spy on the request "variables" instead of this hacky string matching
+    expect(getUsersQuerySpy).toHaveBeenCalledWith(expect.stringContaining('offset: 12'));
+  });
+});
+
+describe('when there is a previous page of results, the user click "Go to previous page" and the results load successfully', () => {
+  it('displays the previous page of results', async () => {
+    const firstElevenUsers = bulk(buildUserEdgeWith, 'WHATEVER_VALUES').times(11);
+    const troyMcClure = buildUserEdgeWith({ node: { firstName: 'Troy', lastName: 'McClure' } });
+    const usersPageOne = buildUsersResponseWith({
+      data: {
+        users: {
+          totalCount: 13,
+          pageInfo: { hasNextPage: true, hasPreviousPage: false },
+          edges: [...firstElevenUsers, troyMcClure],
+        },
+      },
+    });
+
+    const sallyCinnamon = buildUserEdgeWith({ node: { firstName: 'Sally', lastName: 'Cinnamon' } });
+    const usersPageTwo = buildUsersResponseWith({
+      data: {
+        users: {
+          totalCount: 13,
+          pageInfo: { hasNextPage: false, hasPreviousPage: true },
+          edges: [sallyCinnamon],
+        },
+      },
+    });
+
+    const getUsersResponse = vi
+      .fn<unknown[], UsersResponse>()
+      .mockReturnValue(buildUsersResponseWith(usersPageOne));
+
+    const getUsersQuerySpy = vi.fn();
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', ({ query }) => {
+        getUsersQuerySpy(query);
+
+        return HttpResponse.json(getUsersResponse());
+      }),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    getUsersResponse.mockReturnValue(buildUsersResponseWith(usersPageTwo));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Go to next page' }));
+
+    const sallyCinnamonHeading = await screen.findByRole('heading', { name: 'Sally Cinnamon' });
+
+    expect(sallyCinnamonHeading).toBeInTheDocument();
+
+    getUsersResponse.mockReturnValue(buildUsersResponseWith(usersPageOne));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to previous page' }));
+
+    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+    expect(sallyCinnamonHeading).not.toBeInTheDocument();
+
+    // once queries/mutations are changed to use real graphql variables,
+    // we can spy on the request "variables" instead of this hacky string matching
+    expect(getUsersQuerySpy).toHaveBeenCalledWith(expect.stringContaining('offset: 0'));
+  });
+});
+
 describe('when the user clicks on the "edit" button for a user', () => {
   it('opens the "Edit User" modal', async () => {
     const troyMcClure = buildUserEdgeWith({
@@ -237,6 +366,77 @@ describe('when the user clicks on the "edit" button for a user', () => {
     expect(within(modal).getByRole('textbox', { name: 'First name' })).toHaveValue('Troy');
     expect(within(modal).getByRole('textbox', { name: 'Last name' })).toHaveValue('McClure');
     expect(within(modal).getByRole('textbox', { name: 'Phone number' })).toHaveValue('04747665241');
+  });
+});
+
+describe('when a user is updated, the user clicks "save user" and the save succeeds', () => {
+  it('closes the "Edit User" modal and displays a success message', async () => {
+    const troyMcClure = buildUserEdgeWith({
+      node: {
+        id: '667668',
+        firstName: 'Troy',
+        lastName: 'McClure',
+      },
+    });
+    const garyMcClure = buildUserEdgeWith({ node: { ...troyMcClure.node, firstName: 'Gary' } });
+
+    const getUsersResponse = vi
+      .fn<unknown[], UsersResponse>()
+      .mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } }));
+
+    const updateUserQuerySpy = vi.fn();
+
+    server.use(
+      graphql.mutation('UpdateUser', ({ query }) => {
+        updateUserQuerySpy(query);
+
+        return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
+      }),
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(getUsersResponse())),
+    );
+
+    renderWithProviders(
+      // This can be rolled into "renderWithProviders" once
+      // we fix ShoppingListDetails/index.test.tsx
+      <DynamicallyVariableProvider>
+        <B3LayoutTip />
+        <UserManagement />
+      </DynamicallyVariableProvider>,
+      { preloadedState },
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+
+    // the 0th edit button is the search filter button
+    await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
+
+    const modal = await screen.findByRole('dialog');
+
+    const firstNameField = within(modal).getByRole('textbox', { name: 'First name' });
+
+    await userEvent.clear(firstNameField);
+    await userEvent.type(firstNameField, 'Gary');
+
+    getUsersResponse.mockReturnValue(
+      buildUsersResponseWith({ data: { users: { edges: [garyMcClure] } } }),
+    );
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    const alert = await screen.findByRole('alert');
+
+    expect(within(alert).getByText('update user successfully')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Troy McClure' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Gary McClure' })).toBeInTheDocument();
+
+    // once queries/mutations are changed to use real graphql variables,
+    // we can spy on the request "variables" instead of this hacky string matching
+    expect(updateUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('firstName: "Gary"'));
   });
 });
 
@@ -320,5 +520,63 @@ describe('when the "Delete User" modal is open and the user clicks "cancel"', ()
     await userEvent.click(within(modal).getByRole('button', { name: 'cancel' }));
 
     await waitFor(() => expect(modal).not.toBeInTheDocument());
+  });
+});
+
+describe('when the user confirms the deletion of a user and the delete succeeds', () => {
+  it('closes the "Delete User" modal and no longer displays the deleted user', async () => {
+    const troyMcClure = buildUserEdgeWith({
+      node: { id: '993994', firstName: 'Troy', lastName: 'McClure' },
+    });
+
+    const getUsersResponse = vi
+      .fn<unknown[], UsersResponse>()
+      .mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } }));
+
+    const deleteUserQuerySpy = vi.fn();
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(getUsersResponse())),
+      graphql.mutation('DeleteUser', ({ query }) => {
+        deleteUserQuerySpy(query);
+
+        return HttpResponse.json({ data: { userDelete: { message: 'Success' } } });
+      }),
+    );
+
+    renderWithProviders(
+      // This can be rolled into "renderWithProviders" once
+      // we fix ShoppingListDetails/index.test.tsx
+      <DynamicallyVariableProvider>
+        <B3LayoutTip />
+        <UserManagement />
+      </DynamicallyVariableProvider>,
+      { preloadedState },
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'delete' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    getUsersResponse.mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [] } } }));
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'delete' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    const alert = await screen.findByRole('alert');
+
+    expect(within(alert).getByText('User deleted successfully')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Troy McClure' })).not.toBeInTheDocument();
+
+    // once queries/mutations are changed to use real graphql variables,
+    // we can spy on the request "variables" instead of this hacky string matching
+    expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('userId: 993994'));
+    expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('companyId: 776775'));
   });
 });
