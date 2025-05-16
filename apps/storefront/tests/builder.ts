@@ -21,8 +21,8 @@ const mergeCustomizer = <T>(objValue: T, srcValue: T) =>
 type NonArray<T> = T extends unknown[] ? never : T;
 
 export const builder =
-  <T extends object, O = NonArray<T>>(getDefaults: () => O) =>
-  (overrides: DeepPartialObjects<T> | 'WHATEVER_VALUES'): O =>
+  <T extends object>(getDefaults: () => NonArray<T>) =>
+  (overrides: DeepPartialObjects<T> | 'WHATEVER_VALUES'): T =>
     overrides === 'WHATEVER_VALUES'
       ? getDefaults()
       : mergeWith({}, getDefaults(), overrides, mergeCustomizer);
