@@ -140,6 +140,7 @@ export function ForgotPassword({
             {b3Lang('forgotPassword.requestEmail')}
           </Typography>
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={forgotPasswordFields}
             errors={errors}
             control={control}

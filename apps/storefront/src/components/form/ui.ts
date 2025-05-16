@@ -1,46 +1,49 @@
-import { Control } from 'react-hook-form';
+import {
+  Control,
+  FieldErrors,
+  FieldValues,
+  UseFormGetValues,
+  UseFormSetError,
+  UseFormSetValue,
+} from 'react-hook-form';
+
+import { MultiTextFieldProps } from './B2BControlMultiTextField';
+import { AutocompleteProps } from './B3ControlAutocomplete';
+import { CheckboxFieldProps } from './B3ControlCheckbox';
+import { FileUploadProps } from './B3ControlFileUpload';
+import { PickerFieldProps } from './B3ControlPicker';
+import { ProductRadioProps } from './B3ControlProductRadio';
+import { RadioGroupFieldProps } from './B3ControlRadioGroup';
+import { RectangleProps } from './B3ControlRectangle';
+import { SelectFieldProps } from './B3ControlSelect';
+import { SwatchRadioProps } from './B3ControlSwatchRadio';
+import { TextFieldProps } from './B3ControlTextField';
 
 namespace Form {
-  export interface B3CustomFormValue {
-    name: string;
-    fieldType: string;
-    xs: number & undefined;
-    [key: string]: string | number | Array<number | string>;
-  }
+  type SpecificB3CustomFormValue<T extends FieldValues> =
+    | (MultiTextFieldProps<T> & { fieldType: 'multiInputText' })
+    | (RadioGroupFieldProps<T> & { fieldType: 'radio' })
+    | (CheckboxFieldProps<T> & { fieldType: 'checkbox' })
+    | TextFieldProps<T>
+    | (SelectFieldProps<T> & { fieldType: 'dropdown' })
+    | (PickerFieldProps<T> & { fieldType: 'date' })
+    | (FileUploadProps<T> & { fieldType: 'files' })
+    | (RectangleProps<T> & { fieldType: 'rectangle' })
+    | (ProductRadioProps<T> & { fieldType: 'productRadio' })
+    | (SwatchRadioProps<T> & { fieldType: 'swatch' })
+    | (AutocompleteProps<T> & { fieldType: 'roleAutocomplete' });
 
-  export interface B3CustomFormProps {
-    formFields?: {}[];
-    [key: string]: any;
-  }
+  export type B3CustomFormValue<T extends FieldValues> = SpecificB3CustomFormValue<T> & {
+    xs?: number;
+  };
 
-  export interface B3UIProps {
-    control?: Control<B3CustomFormValue>;
-    [key: string]: any;
-  }
-
-  export interface RadopGroupListProps {
-    value: string;
-    label: string;
-    [key: string]: string;
-  }
-
-  export interface ProductRadioGroupListProps {
-    value: string;
-    label: string;
-    image?: {
-      alt: string;
-      data: string;
-    };
-  }
-
-  export interface SwatchRadioGroupListProps {
-    value: string;
-    label: string;
-    colors?: string[];
-    image?: {
-      alt?: string;
-      data?: string;
-    };
+  export interface B3CustomFormProps<T extends FieldValues> {
+    formFields?: B3CustomFormValue<T>[];
+    errors: FieldErrors<T>;
+    control?: Control<T>;
+    getValues: UseFormGetValues<T>;
+    setValue: UseFormSetValue<T>;
+    setError?: UseFormSetError<T>;
   }
 }
 

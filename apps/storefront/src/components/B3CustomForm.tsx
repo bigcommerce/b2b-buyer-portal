@@ -1,3 +1,4 @@
+import { FieldValues } from 'react-hook-form';
 import { Grid } from '@mui/material';
 
 import B3UI from './form/ui';
@@ -15,19 +16,22 @@ import {
   B3ControlTextField,
 } from './form';
 
-export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
+export default function B3CustomForm<T extends FieldValues>(props: B3UI.B3CustomFormProps<T>) {
   const { formFields, errors, control, getValues, setValue, setError } = props;
 
-  const renderFormFields = (fields: any) =>
-    fields.map((field: B3UI.B3CustomFormValue) => {
+  const renderFormFields = (fields: B3UI.B3CustomFormValue<T>[]) =>
+    fields.map((field) => {
       const { fieldType } = field;
       return (
         <Grid item key={field.name} xs={field.xs || 6} id="b3-customForm-id-name">
           <>
-            {['text', 'number', 'password', 'multiline'].includes(fieldType) && (
+            {(fieldType === 'text' ||
+              fieldType === 'number' ||
+              fieldType === 'password' ||
+              fieldType === 'multiline') && (
               <B3ControlTextField {...field} {...props} errors={errors} control={control} />
             )}
-            {['checkbox'].includes(fieldType) && (
+            {fieldType === 'checkbox' && (
               <B3ControlCheckbox
                 {...field}
                 errors={errors}
@@ -35,13 +39,13 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 getValues={getValues}
               />
             )}
-            {['radio'].includes(fieldType) && (
+            {fieldType === 'radio' && (
               <B3ControlRadioGroup {...field} errors={errors} control={control} />
             )}
-            {['dropdown'].includes(fieldType) && (
+            {fieldType === 'dropdown' && (
               <B3ControlSelect {...field} errors={errors} control={control} setValue={setValue} />
             )}
-            {['date'].includes(fieldType) && (
+            {fieldType === 'date' && (
               <B3ControlPicker
                 {...field}
                 errors={errors}
@@ -50,7 +54,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 getValues={getValues}
               />
             )}
-            {['files'].includes(fieldType) && (
+            {fieldType === 'files' && (
               <B3ControlFileUpload
                 {...field}
                 errors={errors}
@@ -59,31 +63,16 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 setError={setError}
               />
             )}
-            {['rectangle'].includes(fieldType) && (
-              <B3ControlRectangle
-                {...field}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-              />
+            {fieldType === 'rectangle' && (
+              <B3ControlRectangle {...field} errors={errors} control={control} />
             )}
-            {['productRadio'].includes(fieldType) && (
-              <B3ControlProductRadio
-                {...field}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-              />
+            {fieldType === 'productRadio' && (
+              <B3ControlProductRadio {...field} errors={errors} control={control} />
             )}
-            {['swatch'].includes(fieldType) && (
-              <B3ControlSwatchRadio
-                {...field}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-              />
+            {fieldType === 'swatch' && (
+              <B3ControlSwatchRadio {...field} errors={errors} control={control} />
             )}
-            {['roleAutocomplete'].includes(fieldType) && (
+            {fieldType === 'roleAutocomplete' && (
               <B3ControlAutocomplete
                 {...field}
                 errors={errors}
@@ -92,7 +81,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 getValues={getValues}
               />
             )}
-            {['multiInputText'].includes(fieldType) && (
+            {fieldType === 'multiInputText' && (
               <B2BControlMultiTextField
                 {...props}
                 {...field}
