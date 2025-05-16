@@ -117,16 +117,16 @@ const getShoppingListInfo = `shoppingList {
   },
 }`;
 
-const updateShoppingList = (
-  fn: string,
-) => `mutation($id: Int!, $shoppingListData: ShoppingListsInputType!){
-  ${fn}(
-    id: $id
-    shoppingListData: $shoppingListData
-  ) {
-    ${getShoppingListInfo}
+const updateShoppingList = (fn: string) => `
+  mutation UpdateB2BShoppingList ($id: Int!, $shoppingListData: ShoppingListsInputType!) {
+    ${fn}(
+      id: $id
+      shoppingListData: $shoppingListData
+    ) {
+      ${getShoppingListInfo}
+    }
   }
-}`;
+`;
 
 const createShoppingList = (fn: string) => `mutation($shoppingListData: ShoppingListsInputType!){
   ${fn}(
@@ -182,75 +182,142 @@ const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
   }
 }`;
 
-const getShoppingListDetails = (data: CustomFieldItems) => `{
-  shoppingList (
-    id: ${data.id}
-  ) {
-    id,
-    createdAt,
-    updatedAt,
-    name,
-    description,
-    status,
-    reason,
-    customerInfo {
-      firstName,
-      lastName,
-      userId,
-      email,
-      role,
-    },
-    isOwner,
-    grandTotal,
-    totalDiscount,
-    totalTax,
-    isShowGrandTotal,
-    channelId,
-    channelName,
-    approvedFlag,
-    companyInfo {
-      companyId,
-      companyName,
-      companyAddress,
-      companyCountry,
-      companyState,
-      companyCity,
-      companyZipCode,
-      phoneNumber,
-      bcId,
-    },
-    products (
-      offset: ${data.offset || 0}
-      first: ${data.first || 100},
-      search: "${data.search || ''}",
-      orderBy: "${data?.orderBy || '-updatedAt'}"
+export interface CustomerShoppingListB2B {
+  data: {
+    shoppingList: {
+      id: string;
+      createdAt: number;
+      updatedAt: number;
+      name: string;
+      description: string;
+      status: number;
+      reason: string | null;
+      customerInfo: {
+        firstName: string;
+        lastName: string;
+        userId: number;
+        email: string;
+        role: string;
+      };
+      isOwner: boolean;
+      grandTotal: string;
+      totalDiscount: string;
+      totalTax: string;
+      isShowGrandTotal: boolean;
+      channelId: string | null;
+      channelName: string;
+      approvedFlag: boolean;
+      companyInfo: {
+        companyId: string;
+        companyName: string;
+        companyAddress: string;
+        companyCountry: string;
+        companyState: string;
+        companyCity: string;
+        companyZipCode: string;
+        phoneNumber: string;
+        bcId: string;
+      };
+      products: {
+        totalCount: number;
+        edges: Array<{
+          node: {
+            id: string;
+            createdAt: number;
+            updatedAt: number;
+            productId: number;
+            variantId: number;
+            quantity: number;
+            productName: string;
+            optionList: string;
+            itemId: number;
+            baseSku: string;
+            variantSku: string;
+            basePrice: string;
+            discount: string;
+            tax: string;
+            enteredInclusive: boolean;
+            productUrl: string;
+            primaryImage: string;
+            productNote: string;
+          };
+        }>;
+      };
+    };
+  };
+}
+
+const getShoppingListDetails = (data: CustomFieldItems) => `
+  query B2BShoppingListDetails {
+    shoppingList (
+      id: ${data.id}
     ) {
-      totalCount,
-      edges {
-        node {
-          id,
-          createdAt,
-          updatedAt,
-          productId,
-          variantId,
-          quantity,
-          productName,
-          optionList,
-          itemId,
-          baseSku,
-          variantSku,
-          basePrice,
-          discount,
-          tax,
-          enteredInclusive,
-          productUrl,
-          primaryImage,
-          productNote,
+      id,
+      createdAt,
+      updatedAt,
+      name,
+      description,
+      status,
+      reason,
+      customerInfo {
+        firstName,
+        lastName,
+        userId,
+        email,
+        role,
+      },
+      isOwner,
+      grandTotal,
+      totalDiscount,
+      totalTax,
+      isShowGrandTotal,
+      channelId,
+      channelName,
+      approvedFlag,
+      companyInfo {
+        companyId,
+        companyName,
+        companyAddress,
+        companyCountry,
+        companyState,
+        companyCity,
+        companyZipCode,
+        phoneNumber,
+        bcId,
+      },
+      products (
+        offset: ${data.offset || 0}
+        first: ${data.first || 100},
+        search: "${data.search || ''}",
+        orderBy: "${data?.orderBy || '-updatedAt'}"
+      ) {
+        totalCount,
+        edges {
+          node {
+            id,
+            createdAt,
+            updatedAt,
+            productId,
+            variantId,
+            quantity,
+            productName,
+            optionList,
+            itemId,
+            baseSku,
+            variantSku,
+            basePrice,
+            discount,
+            tax,
+            enteredInclusive,
+            productUrl,
+            primaryImage,
+            productNote,
+          }
         }
       }
     }
   }
-}`;
+`;
 
 const addItemsToShoppingList = (data: CustomFieldItems) => `mutation {
   shoppingListsItemsCreate(
