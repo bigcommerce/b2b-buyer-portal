@@ -10,6 +10,7 @@ import {
   screen,
   startMockServer,
   userEvent,
+  waitFor,
   within,
 } from 'tests/test-utils';
 
@@ -268,6 +269,307 @@ describe('when the user is a B2B customer', () => {
 
     const rowOfEveryHat = within(table).getByRole('row', { name: /Every Hat/ });
     expect(within(rowOfEveryHat).getByText('Expired')).toBeInTheDocument();
+  });
+
+  describe('when the user enters a search term', () => {
+    it('displays the quotes that match the search term', async () => {
+      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks' } });
+      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser' } });
+
+      const allQuotes = buildQuotesListB2BWith({
+        data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
+      });
+
+      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+
+      const getQuotesListQuerySpy = vitest.fn();
+
+      server.use(
+        graphql.query('GetQuotesList', ({ query }) => {
+          getQuotesListQuerySpy(query);
+
+          return HttpResponse.json(getQuotesList());
+        }),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      const searchField = await screen.findByPlaceholderText('Search');
+      const table = await screen.findByRole('table');
+
+      expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
+      expect(within(table).getByRole('row', { name: /Some Trouser/ })).toBeInTheDocument();
+
+      getQuotesList.mockReturnValue(
+        buildQuotesListB2BWith({
+          data: { quotes: { totalCount: 1, edges: [manySocks] } },
+        }),
+      );
+
+      await userEvent.type(searchField, 'Many Socks');
+
+      await waitFor(() =>
+        expect(within(table).queryByRole('row', { name: /Some Trouser/ })).not.toBeInTheDocument(),
+      );
+
+      expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
+
+      expect(getQuotesListQuerySpy).toHaveBeenCalledWith(
+        expect.stringContaining('search: "Many Socks"'),
+      );
+    });
+  });
+
+  describe('when the user clears an existing search term', () => {
+    it('displays all quotes', async () => {
+      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks' } });
+      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser' } });
+
+      const allQuotes = buildQuotesListB2BWith({
+        data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
+      });
+
+      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+
+      const getQuotesListQuerySpy = vitest.fn();
+
+      server.use(
+        graphql.query('GetQuotesList', ({ query }) => {
+          getQuotesListQuerySpy(query);
+
+          return HttpResponse.json(getQuotesList());
+        }),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      const searchField = await screen.findByPlaceholderText('Search');
+      const table = await screen.findByRole('table');
+
+      getQuotesList.mockReturnValue(
+        buildQuotesListB2BWith({
+          data: { quotes: { totalCount: 1, edges: [manySocks] } },
+        }),
+      );
+
+      await userEvent.type(searchField, 'Many Socks');
+
+      await waitFor(() =>
+        expect(within(table).queryByRole('row', { name: /Some Trouser/ })).not.toBeInTheDocument(),
+      );
+
+      getQuotesList.mockReturnValue(buildQuotesListB2BWith(allQuotes));
+
+      await userEvent.click(screen.getByTestId('ClearIcon'));
+
+      await waitFor(() =>
+        expect(within(table).getByRole('row', { name: /Some Trouser/ })).toBeInTheDocument(),
+      );
+
+      expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
+
+      expect(getQuotesListQuerySpy).toHaveBeenLastCalledWith(expect.stringContaining('search: ""'));
+    });
+  });
+
+  describe('when the user filters the quotes by status', () => {
+    it('displays the quotes that match the selected status', async () => {
+      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
+      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
+
+      const allQuotes = buildQuotesListB2BWith({
+        data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
+      });
+
+      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesListQuerySpy = vitest.fn();
+
+      server.use(
+        graphql.query('GetQuotesList', ({ query }) => {
+          getQuotesListQuerySpy(query);
+
+          return HttpResponse.json(getQuotesList());
+        }),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      const table = await screen.findByRole('table');
+
+      expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
+      expect(within(table).getByRole('row', { name: /Some Trouser/ })).toBeInTheDocument();
+
+      // the filter button is called "edit" for some unknown reason
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+      const filterModal = await screen.findByRole('dialog', { name: 'Filters' });
+
+      // selects (comboboxes) are not currently selectable by label
+      const quoteStatusSelect = within(filterModal).getAllByRole('combobox')[0];
+
+      await userEvent.click(quoteStatusSelect);
+
+      await userEvent.click(screen.getByRole('option', { name: 'Open' }));
+
+      getQuotesList.mockReturnValue(
+        buildQuotesListB2BWith({
+          data: { quotes: { totalCount: 1, edges: [someTrousers] } },
+        }),
+      );
+
+      await userEvent.click(within(filterModal).getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() =>
+        expect(within(table).queryByRole('row', { name: /Many Socks/ })).not.toBeInTheDocument(),
+      );
+
+      expect(within(table).getByRole('row', { name: /Some Trouser/ })).toBeInTheDocument();
+
+      expect(getQuotesListQuerySpy).toHaveBeenLastCalledWith(
+        expect.stringContaining('status: "1"'),
+      );
+    });
+  });
+
+  describe('when filters are applied and the user clicks "Clear Filters" button', () => {
+    it('displays all quotes and does not display the "Clear Filters" button', async () => {
+      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
+      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
+
+      const allQuotes = buildQuotesListB2BWith({
+        data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
+      });
+
+      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesListQuerySpy = vitest.fn();
+
+      server.use(
+        graphql.query('GetQuotesList', ({ query }) => {
+          getQuotesListQuerySpy(query);
+
+          return HttpResponse.json(getQuotesList());
+        }),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      // the filter button is called "edit" for some unknown reason
+      await userEvent.click(await screen.findByRole('button', { name: 'edit' }));
+
+      const filterModal = await screen.findByRole('dialog', { name: 'Filters' });
+
+      // selects (comboboxes) are not currently selectable by label
+      const quoteStatusSelect = within(filterModal).getAllByRole('combobox')[0];
+
+      await userEvent.click(quoteStatusSelect);
+
+      await userEvent.click(screen.getByRole('option', { name: 'Open' }));
+
+      getQuotesList.mockReturnValue(
+        buildQuotesListB2BWith({
+          data: { quotes: { totalCount: 1, edges: [someTrousers] } },
+        }),
+      );
+
+      await userEvent.click(within(filterModal).getByRole('button', { name: 'Apply' }));
+
+      const table = await screen.findByRole('table');
+
+      await waitFor(() =>
+        expect(within(table).queryByRole('row', { name: /Many Socks/ })).not.toBeInTheDocument(),
+      );
+
+      // the filter button is called "clear-edit" for some unknown reason
+      const clearFiltersButton = screen.getByRole('button', { name: 'clear-edit' });
+
+      getQuotesList.mockReturnValue(buildQuotesListB2BWith(allQuotes));
+
+      await userEvent.click(clearFiltersButton);
+
+      await waitFor(() => expect(clearFiltersButton).not.toBeInTheDocument());
+      expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
+      expect(within(table).getByRole('row', { name: /Some Trouser/ })).toBeInTheDocument();
+
+      expect(getQuotesListQuerySpy).toHaveBeenLastCalledWith(
+        expect.not.stringContaining('status: "1"'),
+      );
+    });
+  });
+
+  describe('when the user click to filter by "Created by"', () => {
+    it('displays a list of user options to filter by', async () => {
+      const samShopper = { name: 'Sam Shopper', email: 'sam.shopper@acme.com' };
+      const fredSalesman = { name: 'Fred Salesman', email: 'fred.salesman@acme.com' };
+      const shoppingListsCreatedByUser = buildShoppingListsCreatedByUserWith({
+        data: {
+          createdByUser: { results: { createdBy: [samShopper, fredSalesman] } },
+        },
+      });
+
+      server.use(
+        graphql.query('GetQuotesList', () =>
+          HttpResponse.json(buildQuotesListB2BWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(shoppingListsCreatedByUser),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      // the filter button is called "edit" for some unknown reason
+      await userEvent.click(await screen.findByRole('button', { name: 'edit' }));
+
+      const filterModal = await screen.findByRole('dialog', { name: 'Filters' });
+
+      // selects (comboboxes) are not currently selectable by label
+      const createdByStatusSelect = within(filterModal).getAllByRole('combobox')[1];
+
+      await userEvent.click(createdByStatusSelect);
+
+      expect(
+        screen.getByRole('option', { name: 'Sam Shopper (sam.shopper@acme.com)' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: 'Fred Salesman (fred.salesman@acme.com)' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when the "Filters" modal is open and the user clicks "Cancel"', () => {
+    it('closes the modal', async () => {
+      server.use(
+        graphql.query('GetQuotesList', () =>
+          HttpResponse.json(buildQuotesListB2BWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<QuotesList />, { preloadedState });
+
+      // the filter button is called "edit" for some unknown reason
+      await userEvent.click(await screen.findByRole('button', { name: 'edit' }));
+
+      const filterModal = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(filterModal).getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => expect(filterModal).not.toBeInTheDocument());
+    });
   });
 
   describe('when the user has no quotes', () => {
