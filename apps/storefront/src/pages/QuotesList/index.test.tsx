@@ -1,4 +1,3 @@
-import { graphql, HttpResponse } from 'msw';
 import {
   buildCompanyStateWith,
   builder,
@@ -6,6 +5,8 @@ import {
   bulk,
   faker,
   getUnixTime,
+  graphql,
+  HttpResponse,
   renderWithProviders,
   screen,
   startMockServer,

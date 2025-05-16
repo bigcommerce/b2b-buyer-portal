@@ -1,11 +1,12 @@
 import { useParams } from 'react-router-dom';
-import { graphql, HttpResponse } from 'msw';
 import {
   buildCompanyStateWith,
   builder,
   buildStoreInfoStateWith,
   faker,
   getUnixTime,
+  graphql,
+  HttpResponse,
   renderWithProviders,
   screen,
   startMockServer,

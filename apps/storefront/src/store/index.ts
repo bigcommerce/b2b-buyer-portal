@@ -40,6 +40,9 @@ export function setupStore(preloadedState?: Partial<RootState>) {
   });
 }
 
+/**
+ * @deprecated use `useAppStore` instead
+ */
 export const store = setupStore();
 
 export type RootState = ReturnType<typeof reducer>;
