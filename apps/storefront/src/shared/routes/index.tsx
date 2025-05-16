@@ -21,8 +21,8 @@ import {
 import { allLegacyPermission, denyInvoiceRoles } from './config';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
-const AddressList = lazy(() => import('@/pages/Address'));
-const CompanyOrderList = lazy(() => import('@/pages/CompanyOrder'));
+const AddressList = lazy(() => import('@/pages/AddressList'));
+const CompanyOrderList = lazy(() => import('@/pages/CompanyOrderList'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -30,26 +30,26 @@ const Invoice = lazy(() => import('@/pages/Invoice'));
 const InvoicePayment = lazy(() => import('@/pages/InvoicePayment'));
 const Login = lazy(() => import('@/pages/Login'));
 const OrderDetail = lazy(() => import('@/pages/OrderDetail'));
-const OrderList = lazy(() => import('@/pages/MyOrder'));
+const MyOrders = lazy(() => import('@/pages/MyOrders'));
 const PDP = lazy(() => import('@/pages/PDP'));
 const QuickOrder = lazy(() => import('@/pages/QuickOrder'));
 const QuoteDetail = lazy(() => import('@/pages/QuoteDetail'));
 const QuoteDraft = lazy(() => import('@/pages/QuoteDraft'));
-const Quotes = lazy(() => import('@/pages/QuotesList'));
+const QuotesList = lazy(() => import('@/pages/QuotesList'));
 const Registered = lazy(() => import('@/pages/Registered'));
 const RegisteredBCToB2B = lazy(() => import('@/pages/RegisteredBCToB2B'));
-const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
+const ShoppingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 const CompanyHierarchy = lazy(() => import('@/pages/CompanyHierarchy'));
 
 const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement>> = {
   '/dashboard': Dashboard,
-  '/orders': OrderList,
+  '/orders': MyOrders,
   '/company-orders': CompanyOrderList,
   '/invoice': Invoice,
-  '/quotes': Quotes,
-  '/shoppingLists': ShippingLists,
+  '/quotes': QuotesList,
+  '/shoppingLists': ShoppingLists,
   '/purchased-products': QuickOrder,
   '/orderDetail/:id': OrderDetail,
   '/addresses': AddressList,

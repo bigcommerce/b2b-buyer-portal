@@ -1,7 +1,5 @@
 import Order from '../order/Order';
 
-function CompanyOrder() {
+export default function CompanyOrderList() {
   return <Order isCompanyOrder />;
 }
-
-export default CompanyOrder;

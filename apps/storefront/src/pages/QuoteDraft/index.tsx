@@ -49,7 +49,7 @@ import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
-import { convertBCToB2BAddress } from '../Address/shared/config';
+import { convertBCToB2BAddress } from '../AddressList/shared/config';
 import { type PageProps } from '../PageProps';
 import AddToQuote from '../quote/components/AddToQuote';
 import ContactInfo from '../quote/components/ContactInfo';
