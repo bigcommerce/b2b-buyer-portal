@@ -13,6 +13,7 @@ import {
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
+import { SearchB2BProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { CompanyStatus, UserTypes } from '@/types';
 
@@ -112,6 +113,79 @@ const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
   ],
 });
 
+const buildSearchProductsResponseWith = builder<SearchB2BProductsResponse>(() => ({
+  data: {
+    productsSearch: [
+      {
+        id: faker.number.int(),
+        name: faker.commerce.productName(),
+        sku: faker.number.int().toString(),
+        costPrice: faker.commerce.price(),
+        inventoryLevel: faker.number.int(),
+        inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'variant']),
+        availability: faker.helpers.arrayElement(['available', 'unavailable']),
+        orderQuantityMinimum: faker.number.int(),
+        orderQuantityMaximum: faker.number.int(),
+        variants: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+          variant_id: faker.number.int({ min: 1, max: 10000 }),
+          product_id: faker.number.int(),
+          sku: faker.number.int().toString(),
+          option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+            id: faker.number.int(),
+            label: faker.commerce.productAdjective(),
+            option_id: faker.number.int(),
+            option_display_name: faker.commerce.productMaterial(),
+          })),
+          calculated_price: Number(faker.commerce.price()),
+          image_url: faker.image.url(),
+          has_price_list: faker.datatype.boolean(),
+          bulk_prices: [],
+          purchasing_disabled: faker.datatype.boolean(),
+          cost_price: Number(faker.commerce.price()),
+          inventory_level: faker.number.int(),
+          bc_calculated_price: {
+            as_entered: Number(faker.commerce.price()),
+            tax_inclusive: Number(faker.commerce.price()),
+            tax_exclusive: Number(faker.commerce.price()),
+            entered_inclusive: faker.datatype.boolean(),
+          },
+        })),
+        currencyCode: faker.finance.currencyCode(),
+        imageUrl: faker.image.url(),
+        modifiers: [],
+        options: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+          option_id: faker.number.int(),
+          display_name: faker.commerce.productMaterial(),
+          sort_order: faker.number.int(),
+          is_required: faker.datatype.boolean(),
+        })),
+        optionsV3: [
+          {
+            id: faker.number.int(),
+            product_id: faker.number.int(),
+            name: faker.commerce.productMaterial(),
+            display_name: faker.commerce.productMaterial(),
+            type: faker.helpers.arrayElement(['rectangles', 'swatch']),
+            sort_order: faker.number.int(),
+            option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+              id: faker.number.int(),
+              label: faker.commerce.productAdjective(),
+              sort_order: faker.number.int(),
+              value_data: null,
+              is_default: faker.datatype.boolean(),
+            })),
+            config: [],
+          },
+        ],
+        channelId: [],
+        productUrl: faker.internet.url(),
+        taxClassId: faker.number.int(),
+        isPriceHidden: faker.datatype.boolean(),
+      },
+    ],
+  },
+}));
+
 it('shows "Add to list" panel for draft shopping lists', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -127,7 +201,9 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
 
   server.use(
     graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
+    graphql.query('SearchProducts', () =>
+      HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+    ),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -155,7 +231,9 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
 
   server.use(
     graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
+    graphql.query('SearchProducts', () =>
+      HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+    ),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -185,7 +263,9 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 
   server.use(
     graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-    graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
+    graphql.query('SearchProducts', () =>
+      HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+    ),
   );
 
   renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -212,6 +292,9 @@ describe('when user approves a shopping list', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
       graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
         updateB2BShoppingListVariablesSpy(variables);
 
@@ -224,7 +307,6 @@ describe('when user approves a shopping list', () => {
           },
         });
       }),
-      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -262,6 +344,9 @@ describe('when user rejects a shopping list', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
       graphql.mutation('UpdateB2BShoppingList', ({ variables }) => {
         updateB2BShoppingListVariablesSpy(variables);
 
@@ -274,7 +359,6 @@ describe('when user rejects a shopping list', () => {
           },
         });
       }),
-      graphql.operation(() => HttpResponse.json({ errors: [{ message: 'API not mocked' }] })),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {

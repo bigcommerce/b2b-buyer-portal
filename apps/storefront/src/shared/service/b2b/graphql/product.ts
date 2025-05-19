@@ -236,6 +236,75 @@ export interface B2BProducts {
   };
 }
 
+export interface SearchB2BProductsResponse {
+  data: {
+    productsSearch: Array<{
+      id: number;
+      name: string;
+      sku: string;
+      costPrice: string;
+      inventoryLevel: number;
+      inventoryTracking: string;
+      availability: string;
+      orderQuantityMinimum: number;
+      orderQuantityMaximum: number;
+      variants: Array<{
+        variant_id: number;
+        product_id: number;
+        sku: string;
+        option_values: Array<{
+          id: number;
+          label: string;
+          option_id: number;
+          option_display_name: string;
+        }>;
+        calculated_price: number;
+        image_url: string;
+        has_price_list: boolean;
+        bulk_prices: Array<unknown>;
+        purchasing_disabled: boolean;
+        cost_price: number;
+        inventory_level: number;
+        bc_calculated_price: {
+          as_entered: number;
+          tax_inclusive: number;
+          tax_exclusive: number;
+          entered_inclusive: boolean;
+        };
+      }>;
+      currencyCode: string;
+      imageUrl: string;
+      modifiers: Array<unknown>;
+      options: Array<{
+        option_id: number;
+        display_name: string;
+        sort_order: number;
+        is_required: boolean;
+      }>;
+      optionsV3: Array<{
+        id: number;
+        product_id: number;
+        name: string;
+        display_name: string;
+        type: string;
+        sort_order: number;
+        option_values: Array<{
+          id: number;
+          label: string;
+          sort_order: number;
+          value_data: unknown;
+          is_default: boolean;
+        }>;
+        config: Array<unknown>;
+      }>;
+      channelId: Array<unknown>;
+      productUrl: string;
+      taxClassId: number;
+      isPriceHidden: boolean;
+    }>;
+  };
+}
+
 export const searchB2BProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
