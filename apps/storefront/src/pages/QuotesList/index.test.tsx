@@ -317,7 +317,7 @@ describe('when the user is a B2B customer', () => {
 
       expect(within(table).getByRole('row', { name: /Many Socks/ })).toBeInTheDocument();
 
-      expect(getQuotesListQuerySpy).toHaveBeenCalledWith(
+      expect(getQuotesListQuerySpy).toHaveBeenLastCalledWith(
         expect.stringContaining('search: "Many Socks"'),
       );
     });
