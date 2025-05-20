@@ -112,7 +112,7 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
 > - `REPLACE_WITH_YOUR_CHANNEL_ID` with the headless channel id
 
 
-## Running the project in Catalyst
+## Deploying the project in Catalyst
 
 To integrate the custom Buyer Portal script into your Catalyst storefront, follow these steps:
 
