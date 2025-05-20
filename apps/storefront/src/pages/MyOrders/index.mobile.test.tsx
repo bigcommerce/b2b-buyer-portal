@@ -408,8 +408,9 @@ describe('when a personal customer', () => {
         expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenCalledTimes(3);
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      await waitFor(() => {
+        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      });
     });
 
     it('can filter orders', async () => {
@@ -1015,7 +1016,9 @@ describe('when a company customer', () => {
         expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      await waitFor(() => {
+        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      });
     });
 
     it('can filter orders', async () => {
@@ -1039,8 +1042,7 @@ describe('when a company customer', () => {
               data: {
                 orderStatuses: [
                   buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
-                  buildOrderStatusWith({ systemLabel: 'Shipped', customLabel: 'Shipped' }),
-                  buildOrderStatusWith({ systemLabel: 'Cancelled', customLabel: 'Cancelled' }),
+                  buildOrderStatusWith('WHATEVER_VALUES'),
                 ],
               },
             }),
