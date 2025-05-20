@@ -63,6 +63,8 @@ Make sure that you have configured the following `.env` values correctly before 
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
+### Pasting the auto-loader scripts
+
 Once you have uploaded the contents of the `dist` folder to your hosting provider, you will need to include a reference to the scripts in your headless site as well. It should look something like this:
 
 ```html
@@ -116,12 +118,23 @@ To integrate the custom Buyer Portal script into your Catalyst storefront, follo
 
 1. Navigate to the Script File: Open the file located at script-production.tsx within your Catalyst project. You can find this file in the directory structure at https://github.com/bigcommerce/catalyst/blob/integrations/b2b-buyer-portal/core/b2b/script-production.tsx.
 
-2. Clear Existing JSX: Delete all the JSX code returned within the script-production.tsx file.
+2. Clear Existing JSX: Delete all the JSX code returned within the script-production.tsx component file.
 
-3. Paste the Headless Script: Go to the Headless Docs at https://github.com/bigcommerce/b2b-buyer-portal/blob/main/docs/headless.md#deploying-the-project and copy the script provided there. Paste this script into the now-empty script-production.tsx return statement.
+3. Paste the script and modify for JSX and Next.js `<Script/>` tag: You'll need to make adjustments to ensure the [auto-loader scripts](#pasting-the-script) have valid JSX and utilizes Next.js's Script component. This typically involves the following:
 
-4. Modify for JSX and Next.js <Script />: You'll need to make adjustments to ensure the pasted script is valid JSX and utilizes Next.js's <Script /> component. This typically involves the following:
+    - Wrapping in `<Script />`: Enclose the entire pasted script within the Script component from Next.js.
 
-  - Wrapping in <Script />: Enclose the entire pasted script within the <Script> component from Next.js.
+    - Injecting script values as strings: Identify the necessary dynamic values such as channel_id, store_hash, and any other relevant configuration, they are accessible from the app environment variables. For example:
 
-  - Injecting script values as strings: Identify the necessary dynamic values such as channel_d, store_hash, and any other relevant configuration, they are accessible from the app environment variables.
+    ```javascript
+    <Script>
+    {"""
+      window.b3CheckoutConfig = {
+        routes: {
+          dashboard: '/account',
+        },
+      }
+      // ...rest
+    """}
+    </Script>
+    ```
