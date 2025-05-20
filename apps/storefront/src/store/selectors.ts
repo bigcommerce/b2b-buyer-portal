@@ -44,13 +44,17 @@ export const isAgentingSelector = createSelector(
   (b2bFeatures) => b2bFeatures.masqueradeCompany.isAgenting,
 );
 
-export const isB2BUserSelector = createSelector(
-  companySelector,
-  (company) =>
-    (company.customer.userType === UserTypes.MULTIPLE_B2C &&
-      company.companyInfo.status === CompanyStatus.APPROVED) ||
-    Number(company.customer.role) === CustomerRole.SUPER_ADMIN,
-);
+export const isB2BUserSelector = createSelector(companySelector, (company) => {
+  if (Number(company.customer.role) === CustomerRole.SUPER_ADMIN) {
+    return true;
+  }
+
+  if (company.customer.userType === UserTypes.MULTIPLE_B2C) {
+    return company.companyInfo.status === CompanyStatus.APPROVED;
+  }
+
+  return false;
+});
 
 interface OptionList {
   optionId: string;

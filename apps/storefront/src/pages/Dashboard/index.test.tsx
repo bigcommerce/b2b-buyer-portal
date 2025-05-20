@@ -80,9 +80,13 @@ describe('when the user is associated with a company', () => {
 
     const table = screen.getByRole('table');
 
-    expect(within(table).getByRole('columnheader', { name: /Company/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Email/ })).toBeInTheDocument();
-    expect(within(table).getByRole('columnheader', { name: /Action/ })).toBeInTheDocument();
+    const columnHeaders = within(table).getAllByRole('columnheader');
+
+    expect(columnHeaders.map((header) => header.textContent)).toEqual([
+      'Company',
+      'Email',
+      'Action',
+    ]);
   });
 
   it('lists all the companies associated with the user', async () => {
