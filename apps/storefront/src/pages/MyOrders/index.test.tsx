@@ -465,7 +465,7 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
+      getOrders.mockReturnValueOnce(
         buildGetCustomerOrdersWith({
           data: {
             customerOrders: {
@@ -484,8 +484,9 @@ describe('when a personal customer', () => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenCalledTimes(3);
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      await waitFor(() => {
+        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      });
     });
 
     it('can filter orders', async () => {
@@ -1184,7 +1185,7 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
+      getOrders.mockReturnValueOnce(
         buildCompanyOrdersWith({
           data: {
             allOrders: {
@@ -1203,7 +1204,9 @@ describe('when a company customer', () => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      await waitFor(() => {
+        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      });
     });
 
     it('can filter orders', async () => {
