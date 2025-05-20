@@ -137,7 +137,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     }
     setFilterData(search);
     setIsAutoRefresh(true);
-    if (role === 100) return;
+    // TODO: Guest customer should not be able to see the order list
+    if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
       const createdByUsers =

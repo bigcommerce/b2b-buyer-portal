@@ -17,7 +17,101 @@ const companyInfo = `
   }
 `;
 
-const allOrders = (data: CustomFieldItems, fn: string) => `{
+export type CustomerOrderNode = {
+  node: {
+    orderId?: string;
+    createdAt: number;
+    updatedAt: number;
+    totalIncTax?: number;
+    currencyCode?: string;
+    usdIncTax?: number;
+    money?: unknown;
+    items?: number;
+    cartId?: string;
+    userId: number;
+    poNumber?: string;
+    referenceNumber?: string;
+    status: string;
+    customStatus?: string;
+    statusCode: number;
+    isArchived?: boolean;
+    isInvoiceOrder: 'A_0' | 'A_1';
+    invoiceId?: string;
+    invoiceNumber?: string;
+    invoiceStatus?: string;
+    ipStatus?: 'A_0' | 'A_1' | 'A_2';
+    flag?: 'A_0' | 'A_1' | 'A_2' | 'A_3';
+    billingName?: string;
+    companyName?: string;
+    firstName?: string;
+    lastName?: string;
+    merchantEmail?: string;
+  };
+};
+
+export interface GetCustomerOrders {
+  data: {
+    customerOrders: {
+      totalCount: number;
+      pageInfo: {
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+      };
+      edges: Array<CustomerOrderNode>;
+    };
+  };
+}
+
+export type CompanyOrderNode = {
+  node: {
+    orderId?: string;
+    createdAt: number;
+    updatedAt: number;
+    totalIncTax?: number;
+    currencyCode?: string;
+    usdIncTax?: number;
+    money?: unknown;
+    items?: number;
+    cartId?: string;
+    userId: number;
+    poNumber?: string;
+    referenceNumber?: string;
+    status: string;
+    customStatus?: string;
+    statusCode: number;
+    isArchived?: boolean;
+    isInvoiceOrder: 'A_0' | 'A_1';
+    invoiceId?: string;
+    invoiceNumber?: string;
+    invoiceStatus?: string;
+    ipStatus?: 'A_0' | 'A_1' | 'A_2';
+    flag?: 'A_0' | 'A_1' | 'A_2' | 'A_3';
+    billingName?: string;
+    companyName?: string;
+    firstName?: string;
+    lastName?: string;
+    merchantEmail?: string;
+    companyInfo?: {
+      companyName: string;
+    };
+  };
+};
+
+export interface GetCompanyOrders {
+  data: {
+    allOrders: {
+      totalCount: number;
+      pageInfo: {
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+      };
+      edges: Array<CustomerOrderNode>;
+    };
+  };
+}
+
+const allOrders = (data: CustomFieldItems, fn: 'allOrders' | 'customerOrders') => `
+query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   ${fn}(
     search: "${data.q || ''}"
     status: "${data?.statusCode || ''}"
@@ -173,7 +267,26 @@ const orderDetail = (id: number, fn: string) => `{
   }
 }`;
 
-const getOrderStatusTypeQl = (fn: string) => `{
+export interface CustomerOrderStatus {
+  systemLabel: string;
+  customLabel: string;
+  statusCode: string;
+}
+
+export interface CustomerOrderStatues {
+  data: {
+    bcOrderStatuses: CustomerOrderStatus[];
+  };
+}
+
+export interface CompanyOrderStatuses {
+  data: {
+    orderStatuses: CustomerOrderStatus[];
+  };
+}
+
+const getOrderStatusTypeQl = (fn: 'orderStatuses' | 'bcOrderStatuses') => `
+query ${fn === 'orderStatuses' ? 'GetOrderStatuses' : 'GetCustomerOrderStatuses'} {
   ${fn} {
     systemLabel,
     customLabel,
