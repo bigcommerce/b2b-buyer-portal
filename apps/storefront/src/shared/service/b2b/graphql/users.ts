@@ -88,27 +88,29 @@ const deleteUsersQl = (data: CustomFieldItems) => `
   }
 `;
 
-const checkUserB2BEmail = (data: CustomFieldItems) => `{
-  userEmailCheck (
-    email: "${data.email}"
-    companyId: ${data.companyId || null}
-    storeHash: "${storeHash}"
-    channelId: ${data.channelId || null}
-  ){
-    userType,
-    userInfo{
-      id
-      email
-      firstName
-      lastName
-      phoneNumber
-      role
-      companyName
-      originChannelId
-      forcePasswordReset
+const checkUserB2BEmail = (data: CustomFieldItems) => `
+  query UserEmailCheck {
+    userEmailCheck (
+      email: "${data.email}"
+      companyId: ${data.companyId || null}
+      storeHash: "${storeHash}"
+      channelId: ${data.channelId || null}
+    ){
+      userType,
+      userInfo{
+        id
+        email
+        firstName
+        lastName
+        phoneNumber
+        role
+        companyName
+        originChannelId
+        forcePasswordReset
+      }
     }
   }
-}`;
+`;
 
 const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   customerEmailCheck (
@@ -211,6 +213,25 @@ export const deleteUsers = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: deleteUsersQl(data),
   });
+
+export interface UserEmailCheckResponse {
+  data: {
+    userEmailCheck: {
+      userType: UserTypes;
+      userInfo: {
+        id: string | null;
+        email: string | null;
+        firstName: string | null;
+        lastName: string | null;
+        phoneNumber: string | null;
+        role: string | null;
+        companyName: string | null;
+        originChannelId: string | null;
+        forcePasswordReset: boolean | null;
+      };
+    };
+  };
+}
 
 export const checkUserEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({

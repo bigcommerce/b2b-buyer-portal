@@ -14,7 +14,13 @@ import {
 
 import B3LayoutTip from '@/components/layout/B3LayoutTip';
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
-import { UserExtraFieldsInfoResponse, UsersResponse } from '@/shared/service/b2b/graphql/users';
+import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermissions';
+import {
+  UserEmailCheckResponse,
+  UserExtraFieldsInfoResponse,
+  UsersResponse,
+} from '@/shared/service/b2b/graphql/users';
+import { UserTypes } from '@/types';
 
 import UserManagement from './index';
 
@@ -95,6 +101,53 @@ const buildUsersResponseWith = builder<UsersResponse>(() => {
     },
   };
 });
+
+type CompanyRoleEdge = CompanyRolesResponse['data']['companyRoles']['edges'][number];
+
+const buildCompanyRoleEdgeWith = builder<CompanyRoleEdge>(() => ({
+  node: {
+    id: faker.number.int().toString(),
+    name: faker.lorem.words(2),
+    roleLevel: faker.number.int(),
+    roleType: faker.number.int(),
+  },
+}));
+
+const buildCompanyRolesResponseWith = builder<CompanyRolesResponse>(() => {
+  const numberOfEdges = faker.number.int({ min: 0, max: 10 });
+
+  return {
+    data: {
+      companyRoles: {
+        edges: bulk(buildCompanyRoleEdgeWith, 'WHATEVER_VALUES').times(numberOfEdges),
+        totalCount: faker.number.int({ min: numberOfEdges }),
+        pageInfo: {
+          hasNextPage: faker.datatype.boolean(),
+          hasPreviousPage: faker.datatype.boolean(),
+        },
+      },
+    },
+  };
+});
+
+const buildUserEmailCheckResponseWith = builder<UserEmailCheckResponse>(() => ({
+  data: {
+    userEmailCheck: {
+      userType: faker.helpers.enumValue(UserTypes),
+      userInfo: {
+        id: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+        phoneNumber: null,
+        role: null,
+        companyName: null,
+        originChannelId: null,
+        forcePasswordReset: null,
+      },
+    },
+  },
+}));
 
 const companyWithAllUserPermissions = buildCompanyStateWith({
   companyInfo: { id: '82828' },
@@ -393,7 +446,7 @@ describe('when a user is updated, the user clicks "save user" and the save succe
         return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
       }),
       graphql.query('GetUserExtraFields', () =>
-        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildUserExtraFieldsResponseWith({ data: { userExtraFields: [] } })),
       ),
       graphql.query('GetUsers', () => HttpResponse.json(getUsersResponse())),
     );
@@ -578,5 +631,192 @@ describe('when the user confirms the deletion of a user and the delete succeeds'
     // we can spy on the request "variables" instead of this hacky string matching
     expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('userId: 993994'));
     expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('companyId: 776775'));
+  });
+});
+
+describe('when the user clicks "Add new user"', () => {
+  it('displays the "Add new user" modal with all fields empty', async () => {
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByRole('heading', { name: 'Add new user' })).toBeInTheDocument();
+
+    expect(within(modal).getByRole('combobox', { name: 'User role' })).toHaveValue('');
+
+    const emailField = within(modal).getByRole('textbox', { name: 'Email' });
+    expect(emailField).toHaveValue('');
+    expect(emailField).not.toBeDisabled();
+
+    expect(within(modal).getByRole('textbox', { name: 'First name' })).toHaveValue('');
+    expect(within(modal).getByRole('textbox', { name: 'Last name' })).toHaveValue('');
+    expect(within(modal).getByRole('textbox', { name: 'Phone number' })).toHaveValue('');
+  });
+});
+
+describe('when a user is added, the user clicks "save user" and the save succeeds', () => {
+  it('closes the "Add new user" modal and displays a success message', async () => {
+    const adminRole = buildCompanyRoleEdgeWith({ node: { name: 'Admin', id: '9979' } });
+
+    const createUserQuerySpy = vi.fn();
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith({ data: { userExtraFields: [] } })),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+      graphql.query('CompanyRoles', () =>
+        HttpResponse.json(
+          buildCompanyRolesResponseWith({ data: { companyRoles: { edges: [adminRole] } } }),
+        ),
+      ),
+      graphql.query('UserEmailCheck', () =>
+        HttpResponse.json(
+          buildUserEmailCheckResponseWith({
+            data: { userEmailCheck: { userType: UserTypes.DOES_NOT_EXIST } },
+          }),
+        ),
+      ),
+      graphql.mutation('CreateUser', ({ query }) => {
+        createUserQuerySpy(query);
+
+        return HttpResponse.json({ data: { userCreate: { user: { id: '11028125', bcId: 13 } } } });
+      }),
+    );
+
+    renderWithProviders(
+      // This can be rolled into "renderWithProviders" once
+      // we fix ShoppingListDetails/index.test.tsx
+      <DynamicallyVariableProvider>
+        <B3LayoutTip />
+        <UserManagement />
+      </DynamicallyVariableProvider>,
+      { preloadedState },
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    await userEvent.click(within(modal).getByRole('combobox', { name: 'User role' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'Admin' }));
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'First name' }), 'Gary');
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'Last name' }), 'McClure');
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Email' }),
+      'gary.mcclure@acme.com',
+    );
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Phone number' }),
+      '04747665241',
+    );
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    const alert = await screen.findByRole('alert');
+
+    expect(within(alert).getByText('User added successfully')).toBeInTheDocument();
+
+    // once queries/mutations are changed to use real graphql variables,
+    // we can spy on the request "variables" instead of this hacky string matching
+    expect(createUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('companyId: 776775'));
+    expect(createUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('firstName: "Gary"'));
+    expect(createUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('lastName: "McClure"'));
+    expect(createUserQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('email: "gary.mcclure@acme.com"'),
+    );
+    expect(createUserQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('phone: "04747665241"'),
+    );
+    expect(createUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('companyRoleId: 9979'));
+  });
+});
+
+describe('when a user is added, the user clicks "save user", but the email address is already taken', () => {
+  it('displays an error explaining that the email is taken', async () => {
+    const adminRole = buildCompanyRoleEdgeWith({ node: { name: 'Admin' } });
+    const userTakenResponse = buildUserEmailCheckResponseWith({
+      data: { userEmailCheck: { userType: UserTypes.CURRENT_B2B_COMPANY } },
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+      graphql.query('CompanyRoles', () =>
+        HttpResponse.json(
+          buildCompanyRolesResponseWith({ data: { companyRoles: { edges: [adminRole] } } }),
+        ),
+      ),
+      graphql.query('UserEmailCheck', () => HttpResponse.json(userTakenResponse)),
+    );
+
+    renderWithProviders(
+      // This can be rolled into "renderWithProviders" once
+      // we fix ShoppingListDetails/index.test.tsx
+      <DynamicallyVariableProvider>
+        <B3LayoutTip />
+        <UserManagement />
+      </DynamicallyVariableProvider>,
+      { preloadedState },
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    await userEvent.click(within(modal).getByRole('combobox', { name: 'User role' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'Admin' }));
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'First name' }), 'Gary');
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'Last name' }), 'McClure');
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Email' }),
+      'gary.mcclure@acme.com',
+    );
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Phone number' }),
+      '04747665241',
+    );
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    expect(
+      await within(modal).findByText('This user already exists in this company.'),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('when the "Add new user" modal is open and the user clicks "Cancel"', () => {
+  it('does not display the "Add new user" modal', async () => {
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith({ data: { userExtraFields: [] } })),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByRole('heading', { name: 'Add new user' })).toBeInTheDocument();
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'cancel' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
   });
 });
