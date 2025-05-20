@@ -3,9 +3,22 @@ import { clearCompanySlice } from '@/store/slices/company';
 
 import b2bVerifyBcLoginStatus from './b2bVerifyBcLoginStatus';
 import b2bLogger from './b3Logger';
+import { B3SStorage } from './b3Storage';
 
 export const logoutSession = () => {
   store.dispatch(clearCompanySlice());
+  // B2B-2958 clear "all possible" storage keys
+  B3SStorage.delete('salesRepCompanyId')
+  B3SStorage.delete('isAgenting');
+  B3SStorage.delete('isB2BUser');
+  B3SStorage.delete('isShowBlockPendingAccountOrderCreationTip');
+  B3SStorage.delete('blockPendingAccountOrderCreation');
+  B3SStorage.delete('blockPendingAccountViewPrice');
+  B3SStorage.delete('cartToQuoteId');
+  B3SStorage.delete('prevPath');
+  B3SStorage.delete('loginCustomer');
+  B3SStorage.delete('showInclusiveTaxPrice');
+  B3SStorage.delete('bcLanguage');
 };
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
