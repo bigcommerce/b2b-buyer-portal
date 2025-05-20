@@ -20,7 +20,6 @@ function MessageAlert({
   return (
     <Alert
       sx={{
-        width: '320px',
         alignItems: 'center',
         '& button[title="Close"]': {
           display: msg.isClose ? 'block' : 'none',
@@ -29,6 +28,7 @@ function MessageAlert({
 
         '& .MuiAlert-message': {
           overflow: 'unset',
+          whiteSpace: 'nowrap',
         },
       }}
       variant="filled"
