@@ -1,8 +1,8 @@
 aliases:
   - &node_executor
-      executor:
-        name: node/node
-        node-version: "18.20"
+    executor:
+      name: node/node
+      node-version: '18.20'
 
 version: 2.1
 
@@ -14,13 +14,12 @@ orbs:
 jobs:
   test:
     <<: *node_executor
-    parallelism: 2
     resource_class: medium+
     steps:
       - ci/pre-setup
       - node/yarn-install
       - run:
-          name: "Run unit tests for core package"
+          name: 'Run unit tests for core package'
           command: |
             yarn test
 
@@ -31,7 +30,7 @@ jobs:
       - ci/pre-setup
       - node/yarn-install
       - run:
-          name: "Run lint"
+          name: 'Run lint'
           command: yarn run lint
 
   build_and_push:
@@ -42,13 +41,13 @@ jobs:
       - node/yarn-install
       - ci/gcloud_login
       - run:
-          name: "Build distribution files"
+          name: 'Build distribution files'
           command: |
-             yarn build:production
-             mv apps/storefront/dist ${CIRCLE_SHA1}
-             mv config ${CIRCLE_SHA1}
-             tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
-             ./google-cloud-sdk/bin/gsutil cp ${CIRCLE_SHA1}.tar.gz gs://bigcommerce-common-deployment-artifact-gcs-storage/b2b-buyer-portal/${CIRCLE_SHA1}.tar.gz
+            yarn build:production
+            mv apps/storefront/dist ${CIRCLE_SHA1}
+            mv config ${CIRCLE_SHA1}
+            tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
+            ./google-cloud-sdk/bin/gsutil cp ${CIRCLE_SHA1}.tar.gz gs://bigcommerce-common-deployment-artifact-gcs-storage/b2b-buyer-portal/${CIRCLE_SHA1}.tar.gz
 
 workflows:
   version: 2
@@ -59,15 +58,15 @@ workflows:
       - lint
       - ci/validate-commits
       - build_and_push:
-          context: "GCR + Artifact Bucket Access"
+          context: 'GCR + Artifact Bucket Access'
       - ci/notify-success:
-          context: "GCR + Artifact Bucket Access"
+          context: 'GCR + Artifact Bucket Access'
           requires:
             - build_and_push
             - ci/validate-commits
             - lint
             - test
       - security/scan:
-          name: "Gitleaks secrets scan"
+          name: 'Gitleaks secrets scan'
           context: org-global
-          GITLEAKS_BLOCK: "false"
+          GITLEAKS_BLOCK: 'false'

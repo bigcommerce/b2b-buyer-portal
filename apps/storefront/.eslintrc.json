@@ -1,5 +1,14 @@
 {
   "extends": ["b2b"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "name": "lodash",
+        "message": "Please import from lodash-es"
+      }
+    ]
+  },
 
   "overrides": [
     {

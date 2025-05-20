@@ -8,7 +8,6 @@ export * from './slices/quoteInfo';
 export * from './slices/storeInfo';
 
 import { configureStore } from '@reduxjs/toolkit';
-import { cloneDeep } from 'lodash';
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
 import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 
@@ -36,7 +35,7 @@ export const middlewareOptions = {
 export function setupStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer,
-    preloadedState: cloneDeep(preloadedState),
+    preloadedState,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
   });
 }

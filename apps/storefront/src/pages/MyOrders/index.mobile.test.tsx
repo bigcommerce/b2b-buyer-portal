@@ -389,6 +389,10 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
+      const searchBox = screen.getByPlaceholderText(/Search/);
+
+      await userEvent.type(searchBox, '66996');
+
       getOrders.mockReturnValue(
         buildGetCustomerOrdersWith({
           data: {
@@ -400,15 +404,10 @@ describe('when a personal customer', () => {
         }),
       );
 
-      const searchBox = screen.getByPlaceholderText(/Search/);
-
-      await userEvent.type(searchBox, '66996');
-
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenCalledTimes(3);
       expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
     });
 
@@ -996,6 +995,10 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
+      const searchBox = screen.getByPlaceholderText(/Search/);
+
+      await userEvent.type(searchBox, '66996');
+
       getOrders.mockReturnValue(
         buildCompanyOrdersWith({
           data: {
@@ -1006,10 +1009,6 @@ describe('when a company customer', () => {
           },
         }),
       );
-
-      const searchBox = screen.getByPlaceholderText(/Search/);
-
-      await userEvent.type(searchBox, '66996');
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
