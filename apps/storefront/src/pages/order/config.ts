@@ -146,19 +146,5 @@ export const getInitFilter = (
   return isB2BUser ? b2bFilterSearch : bcFilterSearch;
 };
 
-export const currencySymbol = (currencyItem: string) => {
-  try {
-    if (currencyItem) {
-      const currencyToken = JSON.parse(JSON.parse(currencyItem))?.currency_token || '';
-
-      return currencyToken;
-    }
-
-    return '';
-  } catch (e) {
-    return '';
-  }
-};
-
 export const getOrderStatusText = (status: number | string, getOrderStatuses: any) =>
   getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || '';
