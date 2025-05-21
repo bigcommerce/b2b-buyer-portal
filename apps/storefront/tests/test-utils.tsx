@@ -69,6 +69,20 @@ export const renderWithProviders = (
   };
 };
 
+export function stringContainingAll(...substrings: string[]) {
+  return {
+    asymmetricMatch(received: string) {
+      return substrings.every((sub) => received.includes(sub));
+    },
+    toString() {
+      return 'stringContainingAll';
+    },
+    getExpectedType() {
+      return 'string';
+    },
+  };
+}
+
 export { startMockServer } from './mockServer';
 export { graphql, http, HttpResponse } from 'msw';
 export { assertQueryParams } from './assertQueryParams';

@@ -10,11 +10,13 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import {
   CompanyOrderNode,
@@ -280,7 +282,11 @@ describe('when a personal customer', () => {
     });
 
     it('sorts orders by ID by default', async () => {
-      const getOrders = vi.fn().mockReturnValue(buildGetCustomerOrdersWith('WHATEVER_VALUES'));
+      const getOrders = vi.fn();
+
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "-bcOrderId"'))
+        .thenReturn(buildGetCustomerOrdersWith('WHATEVER_VALUES'));
 
       server.use(
         graphql.query('GetCustomerOrders', ({ query }) => HttpResponse.json(getOrders(query))),
@@ -294,8 +300,6 @@ describe('when a personal customer', () => {
       const orderHeader = within(table).getByRole('columnheader', { name: 'Order' });
 
       expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
-
-      expect(getOrders).toHaveBeenCalledWith(expect.stringContaining('orderBy: "-bcOrderId"'));
     });
 
     it('sorts orders by different columns', async () => {
@@ -314,16 +318,18 @@ describe('when a personal customer', () => {
 
       expect(createdOnHeader).not.toHaveAttribute('aria-sort');
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "createdAt"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(within(createdOnHeader).getByRole('button'));
 
@@ -332,8 +338,6 @@ describe('when a personal customer', () => {
       });
 
       expect(createdOnHeader).toHaveAttribute('aria-sort', 'ascending');
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('orderBy: "createdAt"'));
     });
 
     it('can change the number of rows per page', async () => {
@@ -347,16 +351,18 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 20', 'offset: 0'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('combobox', { name: /Rows per page/ }));
       await userEvent.click(screen.getByRole('option', { name: '20' }));
@@ -364,9 +370,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 20'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
     });
 
     it('can go to the next page', async () => {
@@ -388,16 +391,18 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 100,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 10', 'offset: 10'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 100,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
       await userEvent.click(nextPageButton);
@@ -405,9 +410,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 10'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 10'));
     });
 
     it('can go to the previous page', async () => {
@@ -432,16 +434,18 @@ describe('when a personal customer', () => {
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
       await userEvent.click(nextPageButton);
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 100,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 10', 'offset: 0'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 100,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const previousPageButton = screen.getByRole('button', { name: /previous page/ });
       await userEvent.click(previousPageButton);
@@ -449,9 +453,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 10'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
     });
 
     it('can search for orders', async () => {
@@ -465,16 +466,18 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValueOnce(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('search: "66996"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const searchBox = screen.getByPlaceholderText(/Search/);
 
@@ -482,10 +485,6 @@ describe('when a personal customer', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
       });
     });
 
@@ -523,16 +522,24 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(
+          stringContainingAll(
+            'status: "Pending"',
+            'beginDateAt: "2022-11-15"',
+            'endDateAt: "2022-11-26"',
+          ),
+        )
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -555,14 +562,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('status: "Pending"'));
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('beginDateAt: "2022-11-15"'),
-      );
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('endDateAt: "2022-11-26"'),
-      );
     });
 
     it('can filter orders based on dates', async () => {
@@ -578,16 +577,18 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('beginDateAt: "2022-11-15"', 'endDateAt: "2022-11-26"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -604,13 +605,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('beginDateAt: "2022-11-15"'),
-      );
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('endDateAt: "2022-11-26"'),
-      );
     });
 
     it('can filter orders based on custom status labels', async () => {
@@ -644,16 +638,18 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildGetCustomerOrdersWith({
-          data: {
-            customerOrders: {
-              totalCount: 1,
-              edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('status: "Pending"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 1,
+                edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -670,8 +666,6 @@ describe('when a personal customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('status: "Pending"'));
     });
 
     it('navigates to the order details page when clicking on a row', async () => {
@@ -1012,9 +1006,13 @@ describe('when a company customer', () => {
     });
 
     it('sorts orders by ID by default', async () => {
-      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
+      const getOrders = vi.fn();
 
       server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
+
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "-bcOrderId"'))
+        .thenReturn(buildCompanyOrdersWith('WHATEVER_VALUES'));
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
@@ -1024,8 +1022,6 @@ describe('when a company customer', () => {
       const orderHeader = within(table).getByRole('columnheader', { name: 'Order' });
 
       expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
-
-      expect(getOrders).toHaveBeenCalledWith(expect.stringContaining('orderBy: "-bcOrderId"'));
     });
 
     it('sorts orders by different columns', async () => {
@@ -1042,16 +1038,18 @@ describe('when a company customer', () => {
 
       expect(createdOnHeader).not.toHaveAttribute('aria-sort');
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "createdAt"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(within(createdOnHeader).getByRole('button'));
 
@@ -1060,8 +1058,6 @@ describe('when a company customer', () => {
       });
 
       expect(createdOnHeader).toHaveAttribute('aria-sort', 'ascending');
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('orderBy: "createdAt"'));
     });
 
     it('can change the number of rows per page', async () => {
@@ -1073,16 +1069,18 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 20', 'offset: 0'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('combobox', { name: /Rows per page/ }));
       await userEvent.click(screen.getByRole('option', { name: '20' }));
@@ -1090,9 +1088,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 20'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
     });
 
     it('can go to the next page', async () => {
@@ -1112,16 +1107,18 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 100,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 10', 'offset: 10'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 100,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
       await userEvent.click(nextPageButton);
@@ -1129,9 +1126,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 10'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 10'));
     });
 
     it('can go to the previous page', async () => {
@@ -1154,16 +1148,18 @@ describe('when a company customer', () => {
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
       await userEvent.click(nextPageButton);
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 100,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('first: 10', 'offset: 0'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 100,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const previousPageButton = screen.getByRole('button', { name: /previous page/ });
       await userEvent.click(previousPageButton);
@@ -1171,9 +1167,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('first: 10'));
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
     });
 
     it('can search for orders', async () => {
@@ -1185,16 +1178,18 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValueOnce(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('search: "66996"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       const searchBox = screen.getByPlaceholderText(/Search/);
 
@@ -1202,10 +1197,6 @@ describe('when a company customer', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
       });
     });
 
@@ -1244,16 +1235,24 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(
+          stringContainingAll(
+            'status: "Pending"',
+            'beginDateAt: "2022-11-15"',
+            'endDateAt: "2022-11-26"',
+          ),
+        )
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -1274,14 +1273,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('status: "Pending"'));
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('beginDateAt: "2022-11-15"'),
-      );
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('endDateAt: "2022-11-26"'),
-      );
     });
 
     it('can filter orders based on dates', async () => {
@@ -1295,16 +1286,18 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('beginDateAt: "2022-11-15"', 'endDateAt: "2022-11-26"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -1321,13 +1314,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('beginDateAt: "2022-11-15"'),
-      );
-      expect(getOrders).toHaveBeenLastCalledWith(
-        expect.stringContaining('endDateAt: "2022-11-26"'),
-      );
     });
 
     it('can filter orders based on custom status labels', async () => {
@@ -1361,16 +1347,18 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+      when(getOrders)
+        .calledWith(stringContainingAll('status: "Pending"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -1385,8 +1373,6 @@ describe('when a company customer', () => {
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
-
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('status: "Pending"'));
     });
 
     it('navigates to the order details page when clicking on a row', async () => {
