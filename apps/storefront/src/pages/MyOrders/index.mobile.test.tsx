@@ -26,6 +26,7 @@ import {
   GetCustomerOrders,
 } from '@/shared/service/b2b/graphql/orders';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import * as graphqlOrdersModule from '@/shared/service/b2b/graphql/orders';
 
 import MyOrders from '.';
 
@@ -390,17 +391,17 @@ describe('when a personal customer', () => {
     });
 
     it('can search for orders', async () => {
-      const getOrders = vi.fn().mockReturnValue(buildGetCustomerOrdersWith('WHATEVER_VALUES'));
+      const getOrders = vitest.spyOn(graphqlOrdersModule, 'getBCAllOrders');
 
-      server.use(
-        graphql.query('GetCustomerOrders', ({ query }) => HttpResponse.json(getOrders(query))),
+      getOrders.mockResolvedValue(
+        buildGetCustomerOrdersWith('WHATEVER_VALUES').data.customerOrders,
       );
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
+      getOrders.mockResolvedValue(
         buildGetCustomerOrdersWith({
           data: {
             customerOrders: {
@@ -408,7 +409,7 @@ describe('when a personal customer', () => {
               edges: [buildCustomerOrderNodeWith({ node: { orderId: '66996' } })],
             },
           },
-        }),
+        }).data.customerOrders,
       );
 
       const searchBox = screen.getByPlaceholderText(/Search/);
@@ -420,7 +421,7 @@ describe('when a personal customer', () => {
       });
 
       expect(getOrders).toHaveBeenCalledTimes(3);
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      expect(getOrders).toHaveBeenLastCalledWith(expect.objectContaining({ q: '66996' }));
     });
 
     it('can filter orders', async () => {
@@ -1015,16 +1016,17 @@ describe('when a company customer', () => {
       expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('offset: 0'));
     });
 
+    // this one
     it('can search for orders', async () => {
-      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
+      const getOrders = vitest.spyOn(graphqlOrdersModule, 'getB2BAllOrders');
 
-      server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
+      getOrders.mockResolvedValue(buildCompanyOrdersWith('WHATEVER_VALUES').data.allOrders);
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      getOrders.mockReturnValue(
+      getOrders.mockResolvedValue(
         buildCompanyOrdersWith({
           data: {
             allOrders: {
@@ -1032,7 +1034,7 @@ describe('when a company customer', () => {
               edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
             },
           },
-        }),
+        }).data.allOrders,
       );
 
       const searchBox = screen.getByPlaceholderText(/Search/);
@@ -1043,7 +1045,7 @@ describe('when a company customer', () => {
         expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(getOrders).toHaveBeenLastCalledWith(expect.stringContaining('search: "66996"'));
+      expect(getOrders).toHaveBeenLastCalledWith(expect.objectContaining({ q: '66996' }));
     });
 
     it('can filter orders', async () => {
