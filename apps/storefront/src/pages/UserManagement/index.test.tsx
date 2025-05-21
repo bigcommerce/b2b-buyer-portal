@@ -821,3 +821,171 @@ describe('when the "Add new user" modal is open and the user clicks "Cancel"', (
     await waitFor(() => expect(modal).not.toBeInTheDocument());
   });
 });
+
+describe('when the "Add new user" modal is open', () => {
+  it('displays custom text fields', async () => {
+    const customTextField = buildUserExtraFieldWith({
+      fieldName: 'Custom text field',
+      labelName: 'Custom text field',
+      fieldType: 0,
+      defaultValue: 'Some short amount of text',
+      visibleToEnduser: true,
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customTextField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    // regex used to be agnostic of required/optional, required adds a " *"
+    expect(within(modal).getByRole('textbox', { name: /Custom text field/ })).toHaveValue(
+      'Some short amount of text',
+    );
+  });
+
+  it('displays custom dropdown fields', async () => {
+    const customSelectField = buildUserExtraFieldWith({
+      fieldName: 'Custom dropdown field',
+      labelName: 'Custom dropdown field',
+      fieldType: 3,
+      defaultValue: 'Option B',
+      listOfValue: ['Option A', 'Option B', 'Option C'],
+      visibleToEnduser: true,
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customSelectField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    // resorting to getByText as our crude, custom comboboxes are not working with getByRole
+    expect(within(modal).getByText(/Custom dropdown field/)).toBeInTheDocument();
+    expect(within(modal).getByText('Option B')).toBeInTheDocument();
+  });
+
+  it('displays custom number fields', async () => {
+    const customNumberField = buildUserExtraFieldWith({
+      fieldName: 'Custom number field',
+      labelName: 'Custom number field',
+      fieldType: 2,
+      defaultValue: '333',
+      visibleToEnduser: true,
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customNumberField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByRole('spinbutton', { name: /Custom number field/ })).toHaveValue(333);
+  });
+
+  it('displays custom multiline fields', async () => {
+    const customMultilineField = buildUserExtraFieldWith({
+      fieldName: 'Custom multiline field',
+      labelName: 'Custom multiline field',
+      fieldType: 1,
+      numberOfRows: 5,
+      defaultValue: 'Multiline\nworks just fine',
+      visibleToEnduser: true,
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customMultilineField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    const customMultilineFieldLabel = within(modal).getByRole('textbox', {
+      name: /Custom multiline field/,
+    });
+    expect(customMultilineFieldLabel).toHaveValue('Multiline\nworks just fine');
+    expect(customMultilineFieldLabel).toHaveAttribute('rows', '5');
+  });
+});
+
+describe('when the "Edit user" modal is open and the user has a custom field value', () => {
+  it("displays the value from the user and not the custom field's defaults", async () => {
+    const customTextField = buildUserExtraFieldWith({
+      fieldName: 'Custom text field',
+      labelName: 'Custom text field',
+      fieldType: 0,
+      defaultValue: 'Some short amount of text',
+      visibleToEnduser: true,
+    });
+
+    const troyMcClure = buildUserEdgeWith({
+      node: {
+        firstName: 'Troy',
+        lastName: 'McClure',
+        extraFields: [{ fieldName: customTextField.fieldName, fieldValue: 'Troy says hello' }],
+      },
+    });
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customTextField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () =>
+        HttpResponse.json(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } })),
+      ),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+
+    // the 0th edit button is the search filter button
+    await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
+
+    const modal = await screen.findByRole('dialog');
+
+    // regex used to be agnostic of required/optional, required adds a " *"
+    const customTextFieldLabel = within(modal).getByRole('textbox', {
+      name: /Custom text field/,
+    });
+    expect(customTextFieldLabel).toHaveValue('Troy says hello');
+    expect(customTextFieldLabel).not.toHaveValue('Some short amount of text');
+  });
+});

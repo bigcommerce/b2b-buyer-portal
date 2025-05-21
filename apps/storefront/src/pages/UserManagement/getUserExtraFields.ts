@@ -66,7 +66,7 @@ const handleConversionExtraItemFormat = (userExtraFields: B2bExtraFieldsProps[])
         case 'number':
           currentItems.max = item.maximumValue || '';
           break;
-        case 'mutiline':
+        case 'multiline':
           currentItems.rows = item.numberOfRows || '';
           break;
         default:
