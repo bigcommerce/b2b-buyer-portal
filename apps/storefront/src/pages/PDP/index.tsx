@@ -1,4 +1,4 @@
-import { lazy, useContext, useState } from 'react';
+import { lazy, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
@@ -156,6 +156,10 @@ function PDP() {
   const displayAddedToShoppingListAlert = useAddedToShoppingListAlert();
 
   const navigate = useNavigate();
+
+  useEffect(() => () => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleShoppingClose = () => {
     setOpenShoppingList(false);
