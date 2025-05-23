@@ -4,6 +4,8 @@ import { Environment } from '@/types';
 
 import '@testing-library/jest-dom/vitest';
 
+vi.mock('@/store');
+
 window.B3 = {
   setting: {
     channel_id: 1,

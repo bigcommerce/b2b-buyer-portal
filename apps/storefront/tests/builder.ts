@@ -1,4 +1,4 @@
-import { mergeWith, range } from 'lodash';
+import { mergeWith, range } from 'lodash-es';
 
 // Arrays are excluded from the DeepPartialObjects type because they are not merged
 // including can result in the accidental creation of partial objects within arrays

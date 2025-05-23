@@ -1,6 +1,14 @@
 {
   "extends": ["b2b"],
-
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "name": "lodash",
+        "message": "Import from lodash-es"
+      }
+    ]
+  },
   "overrides": [
     {
       "files": ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
@@ -9,7 +17,7 @@
           "error",
           {
             "name": "msw",
-            "message": "Please import from tests/test-utils"
+            "message": "Import from tests/test-utils"
           }
         ]
       }

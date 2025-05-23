@@ -6,8 +6,8 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
-import { AppStore, RootState, setTimeFormat, setupStore, store as storeSingleton } from '@/store';
-import { setPermissionModules } from '@/store/slices/company';
+import { AppStore, RootState, setupStore } from '@/store';
+import * as storeModule from '@/store';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: Partial<RootState>;
@@ -33,20 +33,9 @@ export const renderWithProviders = (
     ...renderOptions
   } = extendedRenderOptions;
 
-  // `formatCreator` reaches to the store singleton to get the time format
-  // and NOT to the store passed in to the Provider context below
-  // until this is fixed, we need manually sync the time format to the store singleton
-  if (preloadedState.storeInfo?.timeFormat) {
-    storeSingleton.dispatch(setTimeFormat(preloadedState.storeInfo.timeFormat));
-  }
-
-  // As above, `validatePermissionWithComparisonType` reaches to the store singleton
-  if (preloadedState.company?.permissions) {
-    storeSingleton.dispatch(setPermissionModules(preloadedState.company.permissions));
-  }
+  vi.spyOn(storeModule, 'store', 'get').mockReturnValue(store);
 
   const navigation = vi.fn<[string]>();
-
   function Wrapper({ children }: PropsWithChildren) {
     return (
       <Suspense fallback="test-loading">
