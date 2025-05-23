@@ -11,15 +11,17 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
-import { getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
+import { getActiveCurrencyInfo, serialize, ValidationError } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
+import { addProductsToShoppingListErrorHandler } from './addProductsToShoppingListErrorHandler';
 import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
 
 export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+export { addProductsToShoppingListErrorHandler } from './addProductsToShoppingListErrorHandler';
 
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
@@ -50,7 +52,6 @@ export const addProductsToShoppingList = async ({
 
   const productsInfo = conversionProductsList(productsSearch);
   const products = [];
-  let isError = false;
 
   for (let index = 0; index < productsInfo.length; index += 1) {
     const { allOptions: requiredOptions, variants } = productsInfo[index];
@@ -66,11 +67,7 @@ export const addProductsToShoppingList = async ({
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
-      isError = true;
-      globalSnackbar.error(message, {
-        isClose: true,
-      });
-      break;
+      throw new ValidationError(message);
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
@@ -81,8 +78,6 @@ export const addProductsToShoppingList = async ({
       optionList: newOptionLists,
     });
   }
-
-  if (isError) return;
 
   const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
@@ -173,9 +168,9 @@ function PDP() {
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addToShoppingList({ shoppingListId, product }).then(() =>
-        displayAddedToShoppingListAlert(shoppingListId),
-      );
+      await addToShoppingList({ shoppingListId, product })
+        .then(() => displayAddedToShoppingListAlert(shoppingListId))
+        .catch(addProductsToShoppingListErrorHandler);
 
       handleShoppingClose();
     } finally {

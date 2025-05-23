@@ -30,6 +30,7 @@ import {
   convertObjectToGraphql,
 } from './graphqlDataConvert';
 import { memoWithGenerics } from './memoWithGenerics';
+import ValidationError from './validationError';
 import { validatorRules } from './validatorRules';
 
 export * from './basicConfig';
@@ -77,6 +78,7 @@ export {
   showPageMask,
   snackbar,
   validatorRules,
+  ValidationError,
   handleGetCorrespondingCurrencyToken,
   forwardRefWithGenerics,
   memoWithGenerics,

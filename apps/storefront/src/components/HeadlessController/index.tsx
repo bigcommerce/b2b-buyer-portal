@@ -5,7 +5,11 @@ import Cookies from 'js-cookie';
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
-import { addProductsToShoppingList, useAddedToShoppingListAlert } from '@/pages/PDP';
+import {
+  addProductsToShoppingList,
+  addProductsToShoppingListErrorHandler,
+  useAddedToShoppingListAlert,
+} from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -254,7 +258,9 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               items: transformOptionSelectionsToAttributes(items),
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
-            }).then(() => displayAddedToShoppingListAlert(shoppingListId.toString())),
+            })
+              .then(() => displayAddedToShoppingListAlert(shoppingListId.toString()))
+              .catch(addProductsToShoppingListErrorHandler),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({
               data: { name, description },
