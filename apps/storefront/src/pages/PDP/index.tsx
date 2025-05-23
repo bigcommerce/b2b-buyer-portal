@@ -11,14 +11,13 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
-import { getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
+import { getActiveCurrencyInfo, globalSnackbar, serialize, ValidationError } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
 import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
-import { ValidationError } from '@/utils';
 
 export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
 
@@ -66,7 +65,7 @@ export const addProductsToShoppingList = async ({
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
-      return Promise.reject(new ValidationError(message));
+      throw new ValidationError(message);
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
