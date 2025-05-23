@@ -81,7 +81,7 @@ module.exports = {
       comment: ' Do no import dev dependencies from production files',
       from: {
         path: '^src',
-        pathNot: testFilesRegex,
+        pathNot: [testFilesRegex, '__mocks__'],
       },
       to: {
         dependencyTypes: ['npm-dev'],
