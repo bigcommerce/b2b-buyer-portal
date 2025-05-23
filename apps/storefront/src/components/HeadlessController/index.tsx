@@ -10,7 +10,7 @@ import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutesWithoutComponent } from '@/shared/routeList';
-import { superAdminCompanies } from '@/shared/service/b2b';
+import { getB2BShoppingList, getBcShoppingList, superAdminCompanies } from '@/shared/service/b2b';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
   formattedQuoteDraftListSelector,
@@ -21,6 +21,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
+import { channelId } from '@/utils';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
@@ -267,6 +268,13 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             ...shoppingListBtnRef.current,
             enabled: shoppingListEnabledRef.current,
           }),
+          getLists: async () => {
+            const { edges: list = [] } = isB2BUser
+              ? await getB2BShoppingList()
+              : await getBcShoppingList({ channelId });
+
+            return list;
+          },
         },
         cart: {
           setEntityId: (entityId) => {
