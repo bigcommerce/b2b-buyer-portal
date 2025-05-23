@@ -21,17 +21,17 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
+import { ValidationError } from '@/utils';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
+import { globalSnackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
-import { globalSnackbar } from '@/utils/b3Tip';
 
 import { getSku } from './getSku';
-import { ValidationError } from '@/utils';
 
 export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {

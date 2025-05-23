@@ -1,35 +1,8 @@
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 import { builder } from 'tests/builder';
-import { faker } from 'tests/test-utils';
 
 import { CompanyState } from '@/store/slices/company';
-import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
-
-export const buildCustomerWith = builder<Customer>(() => ({
-  id: faker.number.int(),
-  phoneNumber: faker.phone.number(),
-  firstName: faker.person.firstName(),
-  lastName: faker.person.lastName(),
-  emailAddress: faker.internet.email(),
-  customerGroupId: faker.number.int(),
-  role: faker.helpers.arrayElement([
-    CustomerRole.SUPER_ADMIN,
-    CustomerRole.ADMIN,
-    CustomerRole.B2C,
-    CustomerRole.JUNIOR_BUYER,
-  ]),
-  userType: faker.helpers.arrayElement([
-    UserTypes.B2B_SUPER_ADMIN,
-    UserTypes.B2C,
-    UserTypes.CURRENT_B2B_COMPANY,
-  ]),
-  loginType: faker.helpers.arrayElement([
-    LoginTypes.FIRST_LOGIN,
-    LoginTypes.GENERAL_LOGIN,
-    LoginTypes.WAITING_LOGIN,
-  ]),
-  companyRoleName: faker.lorem.word(),
-}));
+import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 // TODO: we should use faker to generate random data once faker is in place
 export const buildCompanyStateWith = builder<CompanyState & PersistPartial>(() => ({
@@ -38,7 +11,6 @@ export const buildCompanyStateWith = builder<CompanyState & PersistPartial>(() =
     companyName: '',
     status: CompanyStatus.DEFAULT,
   },
-  // TODO: need to replace it with buildCustomerWith
   customer: {
     id: 0,
     phoneNumber: '',

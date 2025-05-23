@@ -1,18 +1,45 @@
 import {
+  buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
-  buildCompanyStateWith,
+  faker,
   renderWithProviders,
   screen,
-  waitForElementToBeRemoved,
-  buildCustomerWith,
-  faker,
   userEvent,
+  waitForElementToBeRemoved,
 } from 'tests/test-utils';
-import PDP from '.';
-import { CustomerRole, ShoppingListStatus } from '@/types';
-import { globalSnackbar } from '@/utils/b3Tip';
+
 import * as graphqlModule from '@/shared/service/b2b';
+import { Customer, CustomerRole, LoginTypes, ShoppingListStatus, UserTypes } from '@/types';
+import { globalSnackbar } from '@/utils/b3Tip';
+
+import PDP from '.';
+
+const buildCustomerWith = builder<Customer>(() => ({
+  id: faker.number.int(),
+  phoneNumber: faker.phone.number(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  emailAddress: faker.internet.email(),
+  customerGroupId: faker.number.int(),
+  role: faker.helpers.arrayElement([
+    CustomerRole.SUPER_ADMIN,
+    CustomerRole.ADMIN,
+    CustomerRole.B2C,
+    CustomerRole.JUNIOR_BUYER,
+  ]),
+  userType: faker.helpers.arrayElement([
+    UserTypes.B2B_SUPER_ADMIN,
+    UserTypes.B2C,
+    UserTypes.CURRENT_B2B_COMPANY,
+  ]),
+  loginType: faker.helpers.arrayElement([
+    LoginTypes.FIRST_LOGIN,
+    LoginTypes.GENERAL_LOGIN,
+    LoginTypes.WAITING_LOGIN,
+  ]),
+  companyRoleName: faker.lorem.word(),
+}));
 
 const buildShoppingListGraphQLResponseNodeWith = builder(() => ({
   id: faker.string.uuid(),
