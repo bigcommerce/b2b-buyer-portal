@@ -5,7 +5,9 @@ export type EventType =
   | 'on-login'
   | 'on-cart-created'
   | 'on-registered'
-  | 'on-logout';
+  | 'on-logout'
+  | 'on-start-masquerade'
+  | 'on-end-masquerade';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Args = Record<string, any>;
