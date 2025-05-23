@@ -31,6 +31,7 @@ import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 import { globalSnackbar } from '@/utils/b3Tip';
 
 import { getSku } from './getSku';
+import { ValidationError } from '@/utils';
 
 export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
@@ -257,7 +258,11 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               customerGroupId: customerRef.current.customerGroupId,
             })
               .then(() => displayAddedToShoppingListAlert(shoppingListId.toString()))
-              .catch(({ message }) => {
+              .catch((error) => {
+                const message =
+                  error instanceof ValidationError
+                    ? error.message
+                    : 'Something went wrong. Please try again.';
                 globalSnackbar.error(message, {
                   isClose: true,
                 });

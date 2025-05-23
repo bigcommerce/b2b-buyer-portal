@@ -18,6 +18,7 @@ import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
 import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+import { ValidationError } from '@/utils';
 
 export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
 
@@ -65,7 +66,7 @@ export const addProductsToShoppingList = async ({
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
-      return Promise.reject(new Error(message));
+      return Promise.reject(new ValidationError(message));
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
@@ -169,7 +170,11 @@ function PDP() {
       setIsRequestLoading(true);
       await addToShoppingList({ shoppingListId, product })
         .then(() => displayAddedToShoppingListAlert(shoppingListId))
-        .catch(({ message }) => {
+        .catch((error) => {
+          const message =
+            error instanceof ValidationError
+              ? error.message
+              : 'Something went wrong. Please try again.';
           globalSnackbar.error(message, {
             isClose: true,
           });
