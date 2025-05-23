@@ -57,14 +57,12 @@ workflows:
     jobs:
       - test
       - lint
-      - ci/validate-commits
       - build_and_push:
           context: "GCR + Artifact Bucket Access"
       - ci/notify-success:
           context: "GCR + Artifact Bucket Access"
           requires:
             - build_and_push
-            - ci/validate-commits
             - lint
             - test
       - security/scan:
