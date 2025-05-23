@@ -14,7 +14,6 @@ orbs:
 jobs:
   test:
     <<: *node_executor
-    parallelism: 2
     resource_class: medium+
     steps:
       - ci/pre-setup
