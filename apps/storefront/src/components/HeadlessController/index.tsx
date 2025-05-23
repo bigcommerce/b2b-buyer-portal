@@ -28,6 +28,7 @@ import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
+import { globalSnackbar } from '@/utils/b3Tip';
 
 import { getSku } from './getSku';
 
@@ -254,7 +255,13 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               items: transformOptionSelectionsToAttributes(items),
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
-            }).then(() => displayAddedToShoppingListAlert(shoppingListId.toString())),
+            })
+              .then(() => displayAddedToShoppingListAlert(shoppingListId.toString()))
+              .catch(({ message }) => {
+                globalSnackbar.error(message, {
+                  isClose: true,
+                });
+              }),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({
               data: { name, description },

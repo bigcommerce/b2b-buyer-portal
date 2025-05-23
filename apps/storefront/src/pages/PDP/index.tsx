@@ -50,7 +50,6 @@ export const addProductsToShoppingList = async ({
 
   const productsInfo = conversionProductsList(productsSearch);
   const products = [];
-  let isError = false;
 
   for (let index = 0; index < productsInfo.length; index += 1) {
     const { allOptions: requiredOptions, variants } = productsInfo[index];
@@ -66,11 +65,7 @@ export const addProductsToShoppingList = async ({
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
-      isError = true;
-      globalSnackbar.error(message, {
-        isClose: true,
-      });
-      break;
+      return Promise.reject(new Error(message));
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
@@ -81,8 +76,6 @@ export const addProductsToShoppingList = async ({
       optionList: newOptionLists,
     });
   }
-
-  if (isError) return;
 
   const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
@@ -174,9 +167,13 @@ function PDP() {
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addToShoppingList({ shoppingListId, product }).then(() =>
-        displayAddedToShoppingListAlert(shoppingListId),
-      );
+      await addToShoppingList({ shoppingListId, product })
+        .then(() => displayAddedToShoppingListAlert(shoppingListId))
+        .catch(({ message }) => {
+          globalSnackbar.error(message, {
+            isClose: true,
+          });
+        });
 
       handleShoppingClose();
     } finally {
