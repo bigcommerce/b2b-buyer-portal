@@ -157,14 +157,8 @@ function PDP() {
 
   const navigate = useNavigate();
 
-  useEffect(
-    () => () => {
-      window.scrollTo(0, 0);
-    },
-    [],
-  );
-
   const handleShoppingClose = () => {
+    window.scrollTo(0, 0);
     setOpenShoppingList(false);
     setIsOpenCreateShopping(false);
     navigate('/');
