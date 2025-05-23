@@ -11,15 +11,17 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
-import { getActiveCurrencyInfo, globalSnackbar, serialize, ValidationError } from '@/utils';
+import { getActiveCurrencyInfo, serialize, ValidationError } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
+import { addProductsToShoppingListErrorHandler } from './addProductsToShoppingListErrorHandler';
 import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
 
 export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+export { addProductsToShoppingListErrorHandler } from './addProductsToShoppingListErrorHandler';
 
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
@@ -168,15 +170,7 @@ function PDP() {
       setIsRequestLoading(true);
       await addToShoppingList({ shoppingListId, product })
         .then(() => displayAddedToShoppingListAlert(shoppingListId))
-        .catch((error) => {
-          const message =
-            error instanceof ValidationError
-              ? error.message
-              : 'Something went wrong. Please try again.';
-          globalSnackbar.error(message, {
-            isClose: true,
-          });
-        });
+        .catch(addProductsToShoppingListErrorHandler);
 
       handleShoppingClose();
     } finally {

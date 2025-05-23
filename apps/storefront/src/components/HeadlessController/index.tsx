@@ -5,7 +5,11 @@ import Cookies from 'js-cookie';
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
-import { addProductsToShoppingList, useAddedToShoppingListAlert } from '@/pages/PDP';
+import {
+  addProductsToShoppingList,
+  addProductsToShoppingListErrorHandler,
+  useAddedToShoppingListAlert,
+} from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -21,13 +25,11 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
-import { ValidationError } from '@/utils';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
-import { globalSnackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
@@ -258,15 +260,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               customerGroupId: customerRef.current.customerGroupId,
             })
               .then(() => displayAddedToShoppingListAlert(shoppingListId.toString()))
-              .catch((error) => {
-                const message =
-                  error instanceof ValidationError
-                    ? error.message
-                    : 'Something went wrong. Please try again.';
-                globalSnackbar.error(message, {
-                  isClose: true,
-                });
-              }),
+              .catch(addProductsToShoppingListErrorHandler),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({
               data: { name, description },
