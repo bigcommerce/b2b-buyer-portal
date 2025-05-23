@@ -1,10 +1,11 @@
+import { dispatchEvent } from '@b3/hooks';
+
 import {
   getAgentInfo,
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b';
 import { AppStore, clearMasqueradeCompany, MasqueradeCompany, setMasqueradeCompany } from '@/store';
-import { dispatchEvent } from '@b3/hooks';
 
 interface StartMasqueradeParams {
   companyId: number;
@@ -37,7 +38,7 @@ export const startMasquerade = async (
   dispatchEvent('on-start-masquerade', {
     masqueradeCustomer: customerId,
     masqueradeCompany,
-  })
+  });
 };
 
 export const endMasquerade = async (store: AppStore) => {
@@ -50,5 +51,5 @@ export const endMasquerade = async (store: AppStore) => {
   store.dispatch(clearMasqueradeCompany());
   dispatchEvent('on-end-masquerade', {
     masqueradeCompany,
-  })
+  });
 };
