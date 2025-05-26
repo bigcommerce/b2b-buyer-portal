@@ -1,3 +1,4 @@
+import { PersistPartial } from 'redux-persist/es/persistReducer';
 import {
   buildCompanyStateWith,
   builder,
@@ -15,6 +16,7 @@ import {
 
 import { QuoteEdge, QuotesListB2B, QuotesListBC } from '@/shared/service/b2b/graphql/quote';
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
+import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
 
 import QuotesList from './index';
@@ -44,7 +46,7 @@ const buildQuoteEdgeWith = builder<QuoteEdge>(() => ({
       thousandsToken: faker.string.symbol(),
       currencyExchangeRate: faker.finance.amount(),
     },
-    status: faker.helpers.arrayElement([0, 1, 4, 5]),
+    status: faker.helpers.arrayElement([1, 4, 5]),
     salesRep: faker.person.fullName(),
     salesRepEmail: faker.internet.email(),
     orderId: faker.string.uuid(),
@@ -68,6 +70,91 @@ const buildQuotesListBCWith = builder<QuotesListBC>(() => {
   return { data: { customerQuotes: { totalCount, edges } } };
 });
 
+type QuoteItem = QuoteInfoState['draftQuoteList'][number];
+
+const productSearchItem = builder<QuoteItem['node']['productsSearch']>(() => ({
+  id: faker.number.int(),
+  name: faker.commerce.productName(),
+  sku: faker.string.uuid(),
+  base_price: faker.commerce.price(),
+  costPrice: faker.commerce.price(),
+  channelId: [faker.number.int()],
+  selectOptions: faker.commerce.productAdjective(),
+  inventoryLevel: faker.number.int(),
+  inventoryTracking: faker.helpers.arrayElement(['none', 'product', 'variant']),
+  availability: faker.helpers.arrayElement(['in stock', 'out of stock', 'preorder']),
+  orderQuantityMinimum: faker.number.int(),
+  orderQuantityMaximum: faker.number.int(),
+  variants: [],
+  currencyCode: faker.finance.currencyCode(),
+  imageUrl: faker.image.url(),
+  modifiers: [],
+  options: [],
+  optionsV3: [],
+  allOptions: [],
+  productUrl: faker.internet.url(),
+  quantity: faker.number.int(),
+  product_options: [],
+}));
+
+const buildDraftQuoteItemWith = builder<QuoteItem>(() => ({
+  node: {
+    id: faker.string.uuid(),
+    productId: faker.number.int(),
+    productName: faker.commerce.productName(),
+    quantity: faker.number.int({ min: 1, max: 100 }),
+    basePrice: faker.number.int(),
+    optionList: faker.lorem.word(),
+    taxPrice: faker.number.int(),
+    calculatedValue: {},
+    productsSearch: productSearchItem('WHATEVER_VALUES'),
+  },
+}));
+
+type Address =
+  | QuoteInfoState['draftQuoteInfo']['billingAddress']
+  | QuoteInfoState['draftQuoteInfo']['shippingAddress'];
+
+const buildAddressWith = builder<Address>(() => ({
+  companyName: faker.company.name(),
+  city: faker.location.city(),
+  label: faker.lorem.word(),
+  state: faker.location.state(),
+  address: faker.location.streetAddress(),
+  country: faker.location.country(),
+  zipCode: faker.location.zipCode(),
+  lastName: faker.person.lastName(),
+  addressId: faker.number.int(),
+  apartment: faker.location.secondaryAddress(),
+  firstName: faker.person.firstName(),
+  phoneNumber: faker.phone.number(),
+  addressLabel: faker.lorem.word(),
+}));
+
+const buildQuoteInfoStateWith = builder<QuoteInfoState & PersistPartial>(() => ({
+  draftQuoteList: bulk(buildDraftQuoteItemWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 1, max: 12 }),
+  ),
+  draftQuoteInfo: {
+    userId: faker.number.int(),
+    contactInfo: {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      companyName: faker.company.name(),
+      phoneNumber: faker.phone.number(),
+    },
+    shippingAddress: buildAddressWith('WHATEVER_VALUES'),
+    billingAddress: buildAddressWith('WHATEVER_VALUES'),
+    fileInfo: [],
+    note: faker.lorem.sentence(),
+    referenceNumber: faker.number.int().toString(),
+    extraFields: [],
+    recipients: [],
+  },
+  quoteDetailToCheckoutUrl: faker.internet.url(),
+  _persist: { version: 1, rehydrated: true },
+}));
+
 const { server } = startMockServer();
 
 beforeEach(() => {
@@ -79,7 +166,7 @@ const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display:
 describe('when the user is a B2B customer', () => {
   const approvedB2BCompany = buildCompanyStateWith({
     companyInfo: { status: CompanyStatus.APPROVED },
-    customer: { userType: UserTypes.MULTIPLE_B2C },
+    customer: { userType: UserTypes.MULTIPLE_B2C, firstName: 'John', lastName: 'Doe' },
   });
 
   const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
@@ -203,15 +290,11 @@ describe('when the user is a B2B customer', () => {
     });
   });
 
-  describe('when clicking on "view" within the draft quote', () => {
-    // A user can only ever have one draft quote at a time
-    it('navigates to the quote draft page', async () => {
-      const workInProgress = buildQuoteEdgeWith({
-        node: { quoteTitle: 'Work in Progress', status: 0 },
-      });
-
+  describe('when the user has a draft quote', () => {
+    it('displays the draft quote details at the top of the list', async () => {
+      const someSavedQuote = buildQuoteEdgeWith({ node: { quoteNumber: '123456789' } });
       const quotesListB2B = buildQuotesListB2BWith({
-        data: { quotes: { totalCount: 3, edges: [workInProgress] } },
+        data: { quotes: { totalCount: 1, edges: [someSavedQuote] } },
       });
 
       server.use(
@@ -221,7 +304,65 @@ describe('when the user is a B2B customer', () => {
         ),
       );
 
-      const { navigation } = renderWithProviders(<QuotesList />, { preloadedState });
+      const someDraftQuoteItem = buildDraftQuoteItemWith({
+        node: { basePrice: 23, taxPrice: 0, quantity: 2 },
+      });
+      const anotherDraftQuoteItem = buildDraftQuoteItemWith({
+        node: { basePrice: 77, taxPrice: 0, quantity: 2 },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteList: [someDraftQuoteItem, anotherDraftQuoteItem],
+      });
+
+      renderWithProviders(<QuotesList />, {
+        preloadedState: { ...preloadedState, quoteInfo },
+      });
+
+      const allHeadings = await screen.findAllByRole('heading');
+
+      const headingOfDraftQuote = screen.getByRole('heading', { name: '—' });
+      const headingOfSomeSavedQuote = screen.getByRole('heading', { name: '123456789' });
+
+      expect(allHeadings[0]).toBe(headingOfDraftQuote);
+      expect(allHeadings[1]).toBe(headingOfSomeSavedQuote);
+
+      // Custom matcher to match text even if it is broken up by multiple elements
+      const textContent = (content: string) => (_: string, element: Element | null) =>
+        element?.textContent === content;
+
+      expect(screen.getByText('Draft')).toBeInTheDocument();
+      expect(screen.getByText(textContent('Title:—'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Sales rep:—'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Created by:John Doe'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Date created:—'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Last update:—'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Expiration date:—'))).toBeInTheDocument();
+      expect(screen.getByText(textContent('Subtotal:$200.00'))).toBeInTheDocument();
+    });
+  });
+
+  describe('when clicking on the row of the draft quote', () => {
+    // A user can only ever have one draft quote at a time
+    it('navigates to the quote draft page', async () => {
+      server.use(
+        graphql.query('GetQuotesList', () =>
+          HttpResponse.json(
+            buildQuotesListB2BWith({ data: { quotes: { totalCount: 0, edges: [] } } }),
+          ),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      });
+
+      const { navigation } = renderWithProviders(<QuotesList />, {
+        preloadedState: { ...preloadedState, quoteInfo },
+      });
 
       await userEvent.click(await screen.findByText('VIEW'));
 
