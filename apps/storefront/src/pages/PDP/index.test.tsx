@@ -229,10 +229,9 @@ describe('when a product without a required variant is added to a shopping list'
     await userEvent.click(screen.getByText('Test Shopping List 1'));
     await userEvent.click(screen.getByText('OK'));
 
-    expect(globalSnackbar.error).toHaveBeenCalledWith(
-      'Please fill out product options first.',
-      expect.anything(),
-    );
+    expect(globalSnackbar.error).toHaveBeenCalledWith('Please fill out product options first.', {
+      isClose: true,
+    });
 
     expect(globalSnackbar.success).not.toHaveBeenCalled();
   });
@@ -560,9 +559,8 @@ describe('when an unexpected error occurred during adding a product to shopping 
     await userEvent.click(screen.getByText('Test Shopping List 1'));
     await userEvent.click(screen.getByText('OK'));
 
-    expect(globalSnackbar.error).toHaveBeenCalledWith(
-      'Something went wrong. Please try again.',
-      expect.anything(),
-    );
+    expect(globalSnackbar.error).toHaveBeenCalledWith('Something went wrong. Please try again.', {
+      isClose: true,
+    });
   });
 });
