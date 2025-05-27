@@ -11,6 +11,7 @@ import {
   useAddedToShoppingListAlert,
 } from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
+import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutesWithoutComponent } from '@/shared/routeList';
@@ -35,7 +36,6 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { getSku } from './getSku';
-import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 
 export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
