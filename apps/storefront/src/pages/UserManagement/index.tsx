@@ -212,11 +212,8 @@ function UserManagement() {
         />
         <B3PaginationTable
           ref={paginationTableRef}
-          columnItems={[]}
-          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}
           searchParams={filterSearch || {}}
-          isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           renderItem={(row) => (
