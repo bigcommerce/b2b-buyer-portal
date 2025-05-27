@@ -31,6 +31,7 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { getSku } from './getSku';
+import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 
 export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
@@ -273,7 +274,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               ? await getB2BShoppingList()
               : await getBcShoppingList({ channelId });
 
-            return list;
+            return list.map(({ node }: { node: ShoppingListsItemsProps }) => node);
           },
         },
         cart: {
