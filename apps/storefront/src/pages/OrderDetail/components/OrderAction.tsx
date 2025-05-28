@@ -214,8 +214,8 @@ function OrderCard(props: OrderCardProps) {
           />
         )}
 
-        <ItemContainer key={key} nameKey={symbol[key]}>
-          <p id="item-name-key">{key}</p>
+        <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
+          <p id="item-name-key">{key}</p>{' '}
           {displayAsNegativeNumber.includes(symbol[key]) ? (
             <p>
               {infos?.money
