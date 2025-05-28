@@ -45,84 +45,33 @@ export type GetRequestList<Params, Item extends object> =
   | GetRequestListAsync<Params, Item>;
 
 interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
-  tableFixed?: boolean;
   columnItems?: TableColumnItem<Row>[];
-  tableHeaderHide?: boolean;
-  itemSpacing?: number;
-  itemXs?: number;
-  rowsPerPageOptions?: number[];
-  showPagination?: boolean;
   renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
-  CollapseComponent?: FC<{ row: Row }>;
-  isCustomRender?: boolean;
-  noDataText?: string;
-  tableKey?: string;
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading?: (bool: boolean) => void;
-  showCheckbox?: boolean;
-  showSelectAllCheckbox?: boolean;
-  selectedSymbol?: string;
-  isSelectOtherPageCheckbox?: boolean;
-  showBorder?: boolean;
-  getSelectCheckbox?: (arr: Array<string | number>) => void;
-  hover?: boolean;
-  labelRowsPerPage?: string;
-  itemIsMobileSpacing?: number;
-  disableCheckbox?: boolean;
-  applyAllDisableCheckbox?: boolean;
   onClickRow?: (row: Row, index?: number) => void;
-  showRowsPerPageOptions?: boolean;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
-  pageType?: string;
   isAutoRefresh?: boolean;
 }
 
 function PaginationTable<GetRequestListParams, Row extends object>(
   {
     columnItems,
-    isCustomRender = false,
-    tableKey,
-    renderItem,
-    noDataText = '',
-    tableFixed = false,
-    tableHeaderHide = false,
-    rowsPerPageOptions = [10, 20, 30],
-    itemSpacing = 2,
-    itemXs = 4,
     getRequestList,
     searchParams,
     requestLoading,
-    showCheckbox = false,
-    showSelectAllCheckbox = false,
-    selectedSymbol = 'id',
-    isSelectOtherPageCheckbox = false,
-    showBorder = true,
-    getSelectCheckbox,
-    hover = false,
-    labelRowsPerPage = '',
-    itemIsMobileSpacing = 2,
-    disableCheckbox = false,
-    onClickRow,
-    showPagination = true,
-    showRowsPerPageOptions = true,
-    CollapseComponent,
-    applyAllDisableCheckbox = true,
-    sortDirection = 'asc',
-    sortByFn = () => {},
-    orderBy = '',
-    pageType = '',
     isAutoRefresh = true,
+    sortDirection = 'asc',
+    orderBy = '',
+    sortByFn = () => {},
+    renderItem,
+    onClickRow,
   }: B3PaginationTableProps<GetRequestListParams, Row>,
   ref?: Ref<unknown>,
 ) {
-  const initPagination = {
-    offset: 0,
-    first: rowsPerPageOptions[0],
-  };
-
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -132,11 +81,12 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   const [loading, setLoading] = useState<boolean>();
 
-  const [pagination, setPagination] = useState<TablePagination>(initPagination);
+  const [pagination, setPagination] = useState<TablePagination>({
+    offset: 0,
+    first: 10,
+  });
 
   const [count, setAllCount] = useState<number>(0);
-
-  const [isAllSelect, setAllSelect] = useState<boolean>(false);
 
   const [cacheAllList, setCacheAllList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
 
@@ -156,8 +106,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         const option = isNodeWrapper(item) ? item.node : item;
         const isExist = cacheAllList.some((cache) => {
           const cacheOption = isNodeWrapper(cache) ? cache.node : cache;
-          // @ts-expect-error typed previously as an any
-          return cacheOption[selectedSymbol] === option[selectedSymbol];
+          return cacheOption.id === option.id;
         });
 
         if (!isExist) {
@@ -167,7 +116,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
       setCacheAllList(copyCacheAllList);
     },
-    [cacheAllList, selectedSymbol],
+    [cacheAllList],
   );
 
   const fetchList = useCallback(
@@ -204,7 +153,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
         cacheList(edges);
 
-        if (!isSelectOtherPageCheckbox) setSelectCheckbox([]);
+        setSelectCheckbox([]);
 
         if (!b3Pagination) {
           setPagination({
@@ -221,14 +170,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         if (requestLoading) requestLoading(false);
       }
     },
-    [
-      cacheList,
-      getRequestList,
-      isSelectOtherPageCheckbox,
-      pagination.first,
-      requestLoading,
-      searchParams,
-    ],
+    [cacheList, getRequestList, pagination.first, requestLoading, searchParams],
   );
 
   const refresh = useCallback(() => {
@@ -243,19 +185,12 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         if (isAutoRefresh) fetchList(pagination, true);
         selectCompanyHierarchyIdCache.current = selectCompanyHierarchyId;
       } else {
-        if (isAutoRefresh && pageType === 'orderListPage') fetchList(pagination, true);
+        if (isAutoRefresh) fetchList(pagination, true);
         fetchList();
       }
     }
     // ignore pageType because is not a reactive value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchList, searchParams, selectCompanyHierarchyId, pagination, isAutoRefresh]);
-
-  useEffect(() => {
-    if (getSelectCheckbox) getSelectCheckbox(selectCheckbox);
-    // disabling as getSelectCheckbox will trigger rerenders if the user passes a function that is not memoized
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectCheckbox, list]);
 
   const handlePaginationChange = async (pagination: TablePagination) => {
     await fetchList(pagination);
@@ -291,23 +226,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
     [getList, getCacheList, getSelectedValue, refresh],
   );
 
-  const getCurrentAllItemsSelect = useCallback(() => {
-    if (!selectCheckbox.length) return false;
-    return list.every((item) => {
-      const option = isNodeWrapper(item) ? item.node : item;
-
-      // @ts-expect-error typed previously as an any
-      return selectCheckbox.includes(option[selectedSymbol]);
-    });
-  }, [list, selectCheckbox, selectedSymbol]);
-
-  useEffect(() => {
-    if (isSelectOtherPageCheckbox) {
-      const flag = getCurrentAllItemsSelect();
-      setAllSelect(flag);
-    }
-  }, [selectCheckbox, pagination, isSelectOtherPageCheckbox, getCurrentAllItemsSelect]);
-
   const handleSelectAllItems = () => {
     const singlePageCheckbox = () => {
       if (selectCheckbox.length === list.length) {
@@ -317,51 +235,15 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         list.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
           if (option) {
-            if (pageType === 'shoppingListDetailsTable') {
-              selects.push(
-                // @ts-expect-error typed previously as an any
-                option.quantity > 0 || !option.disableCurrentCheckbox ? option[selectedSymbol] : '',
-              );
-            } else {
-              // @ts-expect-error typed previously as an any
-              selects.push(option[selectedSymbol]);
-            }
+            // @ts-expect-error typed previously as an any
+            selects.push(option.id);
           }
         });
         setSelectCheckbox(selects);
       }
     };
 
-    const otherPageCheckbox = () => {
-      const flag = getCurrentAllItemsSelect();
-
-      const newSelectCheckbox = [...selectCheckbox];
-      if (flag) {
-        list.forEach((item) => {
-          const option = isNodeWrapper(item) ? item.node : item;
-          // @ts-expect-error typed previously as an any
-          const index = newSelectCheckbox.findIndex((item) => item === option[selectedSymbol]);
-          newSelectCheckbox.splice(index, 1);
-        });
-      } else {
-        list.forEach((item: PossibleNodeWrapper<Row>) => {
-          const option = isNodeWrapper(item) ? item.node : item;
-          // @ts-expect-error typed previously as an any
-          if (!selectCheckbox.includes(option[selectedSymbol])) {
-            // @ts-expect-error typed previously as an any
-            newSelectCheckbox.push(option[selectedSymbol]);
-          }
-        });
-      }
-
-      setSelectCheckbox(newSelectCheckbox);
-    };
-
-    if (isSelectOtherPageCheckbox) {
-      otherPageCheckbox();
-    } else {
-      singlePageCheckbox();
-    }
+    singlePageCheckbox();
   };
 
   const handleSelectOneItem = (id: string | number) => {
@@ -377,39 +259,39 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   return (
     <B3Table
-      hover={hover}
+      hover
       columnItems={columnItems || []}
       listItems={list}
       pagination={tablePagination}
-      rowsPerPageOptions={rowsPerPageOptions}
+      rowsPerPageOptions={[10, 20, 30]}
       onPaginationChange={handlePaginationChange}
-      isCustomRender={isCustomRender}
+      isCustomRender={false}
       isInfiniteScroll={isMobile}
       isLoading={loading}
       renderItem={renderItem}
-      tableFixed={tableFixed}
-      tableHeaderHide={tableHeaderHide}
-      itemSpacing={itemSpacing}
-      itemXs={itemXs}
-      noDataText={noDataText}
-      tableKey={tableKey}
-      itemIsMobileSpacing={itemIsMobileSpacing}
-      showCheckbox={showCheckbox}
-      showSelectAllCheckbox={showSelectAllCheckbox}
-      disableCheckbox={disableCheckbox}
-      selectedSymbol={selectedSymbol}
-      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
-      isAllSelect={isAllSelect}
+      tableFixed={false}
+      tableHeaderHide={false}
+      itemSpacing={2}
+      itemXs={4}
+      noDataText=""
+      tableKey="orderId"
+      itemIsMobileSpacing={2}
+      showCheckbox={false}
+      showSelectAllCheckbox={false}
+      disableCheckbox={false}
+      selectedSymbol="id"
+      isSelectOtherPageCheckbox={false}
+      isAllSelect={false}
       selectCheckbox={selectCheckbox}
       handleSelectAllItems={handleSelectAllItems}
       handleSelectOneItem={handleSelectOneItem}
-      showBorder={showBorder}
-      labelRowsPerPage={labelRowsPerPage}
+      showBorder
+      labelRowsPerPage=""
       onClickRow={onClickRow}
-      showPagination={showPagination}
-      showRowsPerPageOptions={showRowsPerPageOptions}
-      CollapseComponent={CollapseComponent}
-      applyAllDisableCheckbox={applyAllDisableCheckbox}
+      showPagination
+      showRowsPerPageOptions
+      CollapseComponent={undefined}
+      applyAllDisableCheckbox
       sortDirection={sortDirection}
       sortByFn={sortByFn}
       orderBy={orderBy}
