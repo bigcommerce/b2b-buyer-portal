@@ -1,4 +1,4 @@
-import { Dispatch, DragEvent, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import styled from '@emotion/styled';
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
@@ -20,16 +20,16 @@ import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';
 import B3Spin from '../spin/B3Spin';
 
-import B3UploadLoadding from './B3UploadLoadding';
+import B3UploadLoading from './B3UploadLoading';
 import BulkUploadTable from './BulkUploadTable';
-import { parseEmptyData, ParseEmptyDataProps, removeEmptyRow } from './utils';
+import { isFileExtension, parseEmptyData, ParseEmptyDataProps, removeEmptyRow } from './utils';
 
 interface B3UploadProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   bulkUploadTitle?: string;
   addBtnText?: string;
-  handleAddToList: (validProduct: CustomFieldItems) => void;
+  handleAddToList: (validProduct: CustomFieldItems) => Promise<void>;
   setProductData?: (product: CustomFieldItems) => void;
   isLoading?: boolean;
   isToCart?: boolean;
@@ -62,7 +62,7 @@ export default function B3Upload(props: B3UploadProps) {
     setIsOpen,
     bulkUploadTitle = 'Bulk upload',
     addBtnText = 'add to list',
-    handleAddToList = () => {},
+    handleAddToList = async () => {},
     setProductData = () => {},
     isLoading = false,
     isToCart = false,
@@ -88,16 +88,24 @@ export default function B3Upload(props: B3UploadProps) {
   const currency = useAppSelector(defaultCurrencyInfoSelector);
   const { currency_code: currencyCode } = currency as Currency;
 
-  const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {
-    const { size, type } = rejectedFile;
+  const getRejectMessage = (
+    rejectedFile: File,
+    acceptedFileTypes: string[],
+    maxFileSize: number,
+  ) => {
+    const { name, size, type } = rejectedFile;
 
-    let isAcceptFileType = false;
-    acceptedFiles.forEach((acceptedFileType: string) => {
-      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
+    const isAcceptedFileType = acceptedFileTypes.some((fileType) => {
+      if (isFileExtension(fileType)) {
+        return name.toLowerCase().endsWith(fileType);
+      }
+
+      return type === fileType;
     });
 
     let message = '';
-    if (!isAcceptFileType) {
+
+    if (!isAcceptedFileType) {
       message = "Table structure is wrong. Please download sample and follow it's structure.";
       setFileErrorText(message);
       return message;
@@ -113,19 +121,11 @@ export default function B3Upload(props: B3UploadProps) {
   };
 
   const getFileLimitExceedMessage = () => {
-    setFileErrorText('Maximum file size 50MB');
-    return '';
-  };
+    const message = 'Only one file can be uploaded at a time.';
 
-  const handleVerificationFile = (size: number, type: string): string => {
-    if (type !== 'text/csv') {
-      return "Table structure is wrong. Please download sample and follow it's structure.";
-    }
+    setFileErrorText(message);
 
-    if (size > 1024 * 1024 * 50) {
-      return 'Maximum file size 50MB';
-    }
-    return '';
+    return message;
   };
 
   const handleBulkUploadCSV = async (parseData: ParseEmptyDataProps[]) => {
@@ -159,12 +159,6 @@ export default function B3Upload(props: B3UploadProps) {
 
   const parseFile: (file: File) => Promise<ParseEmptyDataProps[]> = (file) =>
     new Promise((resolve, reject) => {
-      const errorText = handleVerificationFile(file?.size, file?.type);
-
-      if (errorText) {
-        reject(new Error(errorText));
-        return;
-      }
       const reader = new FileReader();
 
       reader.addEventListener('load', async (b: any) => {
@@ -200,7 +194,6 @@ export default function B3Upload(props: B3UploadProps) {
     });
 
   const handleChange = async (files: File[]) => {
-    // init loadding end
     const file = files.length > 0 ? files[0] : null;
 
     if (file) {
@@ -208,7 +201,7 @@ export default function B3Upload(props: B3UploadProps) {
         const parseData = await parseFile(file);
         if (parseData.length) {
           setFileErrorText('');
-          setStep('loadding');
+          setStep('loading');
           setFileName(file.name);
           await handleBulkUploadCSV(parseData);
         }
@@ -247,18 +240,6 @@ export default function B3Upload(props: B3UploadProps) {
     }
   };
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const files = [...e.dataTransfer.files];
-    handleChange(files);
-  };
-
   const content = (
     <Box
       sx={{
@@ -268,6 +249,7 @@ export default function B3Upload(props: B3UploadProps) {
         transform: 'translate(-50%, -50%)',
         top: '50%',
         left: '50%',
+        pointerEvents: 'none',
       }}
     >
       <Grid
@@ -279,8 +261,6 @@ export default function B3Upload(props: B3UploadProps) {
         sx={{
           marginTop: '12px',
         }}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
       >
         <div>
           <Grid display="flex" justifyContent="center" xs={12}>
@@ -345,7 +325,7 @@ export default function B3Upload(props: B3UploadProps) {
         </Grid>
 
         <Grid display="flex" justifyContent="center" xs={12}>
-          <CustomButton variant="outlined" onClick={openFile} className="test-buttomn">
+          <CustomButton variant="outlined" onClick={openFile} sx={{ pointerEvents: 'auto' }}>
             Upload file
           </CustomButton>
         </Grid>
@@ -416,14 +396,14 @@ export default function B3Upload(props: B3UploadProps) {
               showAlerts={false}
               dropzoneText=""
               maxFileSize={50 * 1024 * 1024}
-              acceptedFiles={['text/csv']}
+              acceptedFiles={['text/csv', '.csv']}
               getDropRejectMessage={getRejectMessage}
               getFileLimitExceedMessage={getFileLimitExceedMessage}
             />
           </FileUploadContainer>
         )}
 
-        {step === 'loadding' && <B3UploadLoadding step={step} />}
+        {step === 'loading' && <B3UploadLoading step={step} />}
         <B3Spin isSpinning={isLoading} spinningHeight="auto">
           {step === 'end' && (
             <BulkUploadTable setStep={setStep} fileDatas={fileDatas} fileName={fileName} />

@@ -26,3 +26,7 @@ export const parseEmptyData = (arr: string[]): ParseEmptyDataProps[] => {
   }
   return [];
 };
+
+export const isFileExtension = (fileType: string): fileType is `.${string}` => {
+  return fileType.startsWith('.');
+};
