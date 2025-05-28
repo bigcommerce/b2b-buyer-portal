@@ -6,8 +6,6 @@ import { Box } from '@mui/material';
 import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
-import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
 import {
   getB2BAllOrders,
@@ -22,6 +20,8 @@ import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
+import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
+import { TableColumnItem } from './table/B3Table';
 import {
   defaultSortKey,
   FilterSearchProps,
