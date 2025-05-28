@@ -32,11 +32,11 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
   );
 }
 
-interface B3UploadLoaddingProps {
+interface B3UploadLoadingProps {
   step: string;
 }
 
-export default function B3UploadLoadding(props: B3UploadLoaddingProps) {
+export default function B3UploadLoading(props: B3UploadLoadingProps) {
   const { step } = props;
   const [progress, setProgress] = useState<number>(0);
 
