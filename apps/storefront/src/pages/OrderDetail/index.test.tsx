@@ -334,8 +334,19 @@ describe('when a personal customer visits an order', () => {
   });
 
   it('renders the order details', async () => {
+    const mikeWazowskiAddress = buildShippingAddressWith({
+      first_name: 'Mike',
+      last_name: 'Wazowski',
+      company: 'Monsters Inc.',
+      street_1: '1200 Scare Floor',
+      zip: '48123',
+      city: 'Monstropolis',
+      state: 'Monstana',
+      country: 'USA',
+    });
+
     const screamCanister = buildProductWith({
-      order_address_id: 1,
+      order_address_id: mikeWazowskiAddress.id,
       name: 'Scream Canister',
       sku: 'MI-SCREAM-001',
       quantity: 443,
@@ -352,18 +363,6 @@ describe('when a personal customer visits an order', () => {
           display_value: 'Red',
         }),
       ],
-    });
-
-    const mikeWazowskiAddress = buildShippingAddressWith({
-      id: 1,
-      first_name: 'Mike',
-      last_name: 'Wazowski',
-      company: 'Monsters Inc.',
-      street_1: '1200 Scare Floor',
-      zip: '48123',
-      city: 'Monstropolis',
-      state: 'Monstana',
-      country: 'USA',
     });
 
     server.use(
@@ -420,18 +419,7 @@ describe('when a personal customer visits an order', () => {
   });
 
   it('renders multiple addresses', async () => {
-    const physicalProduct1 = buildProductWith({
-      order_address_id: 1,
-      type: 'physical',
-    });
-
-    const physicalProduct2 = buildProductWith({
-      order_address_id: 2,
-      type: 'physical',
-    });
-
     const mikeWazowskiAddress = buildShippingAddressWith({
-      id: 1,
       first_name: 'Mike',
       last_name: 'Wazowski',
       company: 'Monsters Inc.',
@@ -443,7 +431,6 @@ describe('when a personal customer visits an order', () => {
     });
 
     const jamesSullivanAddress = buildShippingAddressWith({
-      id: 2,
       first_name: 'James',
       last_name: 'Sullivan',
       company: 'Monsters Inc.',
@@ -452,6 +439,16 @@ describe('when a personal customer visits an order', () => {
       city: 'Salem',
       state: 'Monstana',
       country: 'USA',
+    });
+
+    const physicalProduct1 = buildProductWith({
+      order_address_id: mikeWazowskiAddress.id,
+      type: 'physical',
+    });
+
+    const physicalProduct2 = buildProductWith({
+      order_address_id: jamesSullivanAddress.id,
+      type: 'physical',
     });
 
     server.use(
@@ -503,8 +500,10 @@ describe('when a personal customer visits an order', () => {
 
   describe('when the order is not fully shipped', () => {
     it('renders a -not shipped products- section', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
       const screamCanister = buildProductWith({
-        order_address_id: 1,
+        order_address_id: address.id,
         name: 'Scream Canister',
         quantity: 1,
         quantity_shipped: 0,
@@ -512,7 +511,7 @@ describe('when a personal customer visits an order', () => {
       });
 
       const laughCanister = buildProductWith({
-        order_address_id: 1,
+        order_address_id: address.id,
         name: 'Laugh Canister',
         quantity: 1,
         quantity_shipped: 0,
@@ -520,7 +519,7 @@ describe('when a personal customer visits an order', () => {
       });
 
       const doorStationPanel = buildProductWith({
-        order_address_id: 1,
+        order_address_id: address.id,
         name: 'Door Station Panel',
         quantity: 1,
         quantity_shipped: 0,
@@ -540,7 +539,7 @@ describe('when a personal customer visits an order', () => {
               data: {
                 customerOrder: {
                   money: euro,
-                  shippingAddress: [buildShippingAddressWith({ id: 1 })],
+                  shippingAddress: [address],
                   products: [screamCanister, laughCanister, doorStationPanel],
                 },
               },
@@ -563,9 +562,11 @@ describe('when a personal customer visits an order', () => {
 
   describe('when part of the order is shipped', () => {
     it('renders a -shipped products- section', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
       const screamCanister = buildProductWith({
         id: 577,
-        order_address_id: 1,
+        order_address_id: address.id,
         name: 'Scream Canister',
         sku: 'MI-SCREAM-001',
         price_ex_tax: '333.00',
@@ -577,7 +578,7 @@ describe('when a personal customer visits an order', () => {
 
       const laughCanister = buildProductWith({
         id: 499,
-        order_address_id: 1,
+        order_address_id: address.id,
         name: 'Laugh Canister',
         sku: 'MI-LAUGH-002',
         price_ex_tax: '123.00',
@@ -585,6 +586,34 @@ describe('when a personal customer visits an order', () => {
         quantity_shipped: 21,
         product_options: [],
         type: 'physical',
+      });
+
+      const dhlShipmentOfAllLaughCanistersToAddress1 = buildShipmentWith({
+        id: 1,
+        date_created: '21 May 2022',
+        shipping_method: 'Free Shipping',
+        shipping_provider_display_name: 'DHL',
+        order_address_id: address.id,
+        items: [
+          {
+            quantity: laughCanister.quantity_shipped,
+            order_product_id: laughCanister.id,
+          },
+        ],
+      });
+
+      const uspsShipmentOfAllScreamCanistersToAddress1 = buildShipmentWith({
+        id: 2,
+        date_created: '12 June 2022',
+        shipping_method: 'Express Shipping',
+        shipping_provider_display_name: 'USPS',
+        order_address_id: address.id,
+        items: [
+          {
+            quantity: screamCanister.quantity_shipped,
+            order_product_id: screamCanister.id,
+          },
+        ],
       });
 
       server.use(
@@ -601,37 +630,10 @@ describe('when a personal customer visits an order', () => {
                 customerOrder: {
                   money: euro,
                   shipments: [
-                    buildShipmentWith({
-                      id: 1,
-                      date_created: '21 May 2022',
-                      shipping_method: 'Free Shipping',
-                      shipping_provider_display_name: 'DHL',
-                      order_address_id: 1,
-                      items: [
-                        {
-                          quantity: 55,
-                          order_product_id: 499,
-                        },
-                      ],
-                    }),
-                    buildShipmentWith({
-                      id: 2,
-                      date_created: '12 June 2022',
-                      shipping_method: 'Express Shipping',
-                      shipping_provider_display_name: 'USPS',
-                      order_address_id: 1,
-                      items: [
-                        {
-                          quantity: 21,
-                          order_product_id: 577,
-                        },
-                      ],
-                    }),
+                    dhlShipmentOfAllLaughCanistersToAddress1,
+                    uspsShipmentOfAllScreamCanistersToAddress1,
                   ],
-                  shippingAddress: [
-                    buildShippingAddressWith({ id: 1 }),
-                    buildShippingAddressWith({ id: 2 }),
-                  ],
+                  shippingAddress: [address, buildShippingAddressWith('WHATEVER_VALUES')],
                   products: [screamCanister, laughCanister],
                 },
               },
