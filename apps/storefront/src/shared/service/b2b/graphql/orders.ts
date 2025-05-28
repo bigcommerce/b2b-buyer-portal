@@ -1,4 +1,4 @@
-import { B2BOrderData, OrderStatusItem } from '@/types';
+import { B2BOrderData, MoneyFormat, OrderStatusItem } from '@/types';
 
 import { convertArrayToGraphql } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
@@ -166,7 +166,132 @@ query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   }
 }`;
 
-const orderDetail = (id: number, fn: string) => `{
+export type CustomerOrderShippingAddress = {
+  id: number;
+  zip: string;
+  city: string;
+  email: string;
+  phone: string;
+  state: string;
+  company: string;
+  country: string;
+  cost_tax: string;
+  order_id: number;
+  street_1: string;
+  street_2: string;
+  base_cost: string;
+  last_name: string;
+  first_name: string;
+  cost_ex_tax: string;
+  items_total: number;
+  cost_inc_tax: string;
+  country_iso2: string;
+  items_shipped: number;
+  shipping_method: string;
+  shipping_zone_id: number;
+  cost_tax_class_id: number;
+  handling_cost_tax: string;
+  base_handling_cost: string;
+  shipping_zone_name: string;
+  handling_cost_ex_tax: string;
+  handling_cost_inc_tax: string;
+  handling_cost_tax_class_id: number;
+};
+
+export type OrderProduct = {
+  id: number;
+  sku: string;
+  name: string;
+  imageUrl: string;
+  quantity: number;
+  base_price: string;
+  productUrl: string;
+  variant_id: number;
+  price_ex_tax: string;
+  price_inc_tax: string;
+  product_options: Array<{
+    option_id: number;
+    display_name: string;
+    display_value: string;
+  }>;
+  order_address_id: number;
+  quantity_shipped: number;
+  type: 'physical' | 'digital';
+};
+
+export interface Shipment {
+  id: number;
+  shipping_method: string;
+  shipping_provider_display_name: string;
+  date_created: string;
+  items: {
+    quantity: number;
+    order_product_id: number;
+  }[];
+  order_address_id: number;
+  tracking_number: string;
+  tracking_link: string;
+  generated_tracking_link: string;
+}
+
+interface OrderHistoryEvent {
+  id: number;
+  eventType: number;
+  status: string;
+  createdAt: number;
+}
+
+export interface GetCustomerOrder {
+  data: {
+    customerOrder: {
+      id: string;
+      dateCreated: number;
+      firstName: string;
+      lastName: string;
+      poNumber?: string;
+      shippingAddress: CustomerOrderShippingAddress[];
+      coupons: [];
+      money?: MoneyFormat;
+
+      paymentMethod: string;
+
+      status: string;
+
+      totalTax: number;
+      totalExTax: number;
+      discountAmount: number;
+      handlingCostExTax: number;
+      subtotalExTax: number;
+      shippingCostExTax: number;
+
+      companyInfo: {
+        companyId: null;
+      };
+
+      shipments: false | Shipment[];
+
+      products: OrderProduct[];
+      billingAddress: {
+        email: string;
+        first_name: string;
+        last_name: string;
+        phone: string;
+        company: string;
+        street_1: string;
+        street_2: string;
+        zip: string;
+        city: string;
+        state: string;
+        country: string;
+      };
+
+      orderHistoryEvent?: OrderHistoryEvent[];
+    };
+  };
+}
+
+const orderDetail = (id: number, fn: 'order' | 'customerOrder') => `
+query ${fn === 'order' ? 'GetOrder' : 'GetCustomerOrder'} {
   ${fn}(
     id: ${id}
   ){

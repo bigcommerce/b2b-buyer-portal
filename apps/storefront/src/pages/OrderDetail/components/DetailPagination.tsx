@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
@@ -56,6 +56,8 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
   let searchParams = {
     offset: 0,
   };
+
+  const id = useId();
 
   if (localtion?.state) {
     const state = localtion.state as LocationState;
@@ -143,9 +145,10 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
   };
 
   const index = listIndex + 1;
-
   return (
     <Box
+      role="navigation"
+      aria-labelledby={id}
       sx={{
         display: 'flex',
         color,
@@ -153,6 +156,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     >
       {!isMobile && (
         <Box
+          id={id}
           sx={{
             display: 'flex',
             alignItems: 'center',

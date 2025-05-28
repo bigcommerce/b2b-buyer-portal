@@ -1,4 +1,4 @@
-import { PropsWithChildren, Suspense } from 'react';
+import { ComponentProps, PropsWithChildren, Suspense, useContext, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { LangProvider } from '@b3/lang';
@@ -6,11 +6,15 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
+import { GlobalContext, GlobalProvider } from '@/shared/global';
+import { GlobalState } from '@/shared/global/context/config';
 import { AppStore, RootState, setupStore } from '@/store';
 import * as storeModule from '@/store';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
+  initialGlobalContext?: Partial<GlobalState>;
   preloadedState?: Partial<RootState>;
+  initialEntries?: ComponentProps<typeof MemoryRouter>['initialEntries'];
   store?: AppStore;
 }
 
@@ -23,12 +27,24 @@ function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock<[string]
   return <>{children}</>;
 }
 
+function MockGlobalProvider({ payload }: { payload: Partial<GlobalState> }) {
+  const { dispatch } = useContext(GlobalContext);
+
+  useEffect(() => {
+    dispatch({ type: 'common', payload });
+  }, [payload, dispatch]);
+
+  return null;
+}
+
 export const renderWithProviders = (
   ui: React.ReactElement,
   extendedRenderOptions: Partial<ExtendedRenderOptions> = {},
 ) => {
   const {
     preloadedState = {},
+    initialGlobalContext = {},
+    initialEntries,
     store = setupStore(preloadedState),
     ...renderOptions
   } = extendedRenderOptions;
@@ -39,13 +55,16 @@ export const renderWithProviders = (
   function Wrapper({ children }: PropsWithChildren) {
     return (
       <Suspense fallback="test-loading">
-        <Provider store={store}>
-          <LangProvider>
-            <MemoryRouter>
-              <NavigationSpy spy={navigation}>{children}</NavigationSpy>
-            </MemoryRouter>
-          </LangProvider>
-        </Provider>
+        <GlobalProvider>
+          <MockGlobalProvider payload={initialGlobalContext} />
+          <Provider store={store}>
+            <LangProvider>
+              <MemoryRouter initialEntries={initialEntries}>
+                <NavigationSpy spy={navigation}>{children}</NavigationSpy>
+              </MemoryRouter>
+            </LangProvider>
+          </Provider>
+        </GlobalProvider>
       </Suspense>
     );
   }
