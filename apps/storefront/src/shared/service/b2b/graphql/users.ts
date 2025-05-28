@@ -178,7 +178,7 @@ export interface UsersResponse {
 }
 
 export const getUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2B<UsersResponse>({
     query: getUsersQl(data),
   });
 
