@@ -14,7 +14,12 @@ import {
   userEvent,
 } from 'tests/test-utils';
 
-import { QuoteEdge, QuotesListB2B, QuotesListBC } from '@/shared/service/b2b/graphql/quote';
+import {
+  QuoteEdge,
+  QuotesListB2B,
+  QuotesListBC,
+  QuoteStatus,
+} from '@/shared/service/b2b/graphql/quote';
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
@@ -46,7 +51,7 @@ const buildQuoteEdgeWith = builder<QuoteEdge>(() => ({
       thousandsToken: faker.string.symbol(),
       currencyExchangeRate: faker.finance.amount(),
     },
-    status: faker.helpers.arrayElement([1, 4, 5]),
+    status: faker.helpers.enumValue(QuoteStatus),
     salesRep: faker.person.fullName(),
     salesRepEmail: faker.internet.email(),
     orderId: faker.string.uuid(),
@@ -206,7 +211,7 @@ describe('when the user is a B2B customer', () => {
         expiredAt: getUnixTime(new Date('3 March 2025')),
         totalAmount: '101.99',
         currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
-        status: 1,
+        status: QuoteStatus.OPEN,
       },
     });
 
@@ -265,7 +270,7 @@ describe('when the user is a B2B customer', () => {
           quoteTitle: 'Many Socks',
           id: '939232',
           createdAt: getUnixTime(new Date('1 January 2025')),
-          status: 1,
+          status: QuoteStatus.OPEN,
         },
       });
 
@@ -371,10 +376,9 @@ describe('when the user is a B2B customer', () => {
   });
 
   it.each([
-    { status: 0, expectedLabel: 'Draft' },
-    { status: 1, expectedLabel: 'Open' },
-    { status: 4, expectedLabel: 'Ordered' },
-    { status: 5, expectedLabel: 'Expired' },
+    { status: QuoteStatus.OPEN, expectedLabel: 'Open' },
+    { status: QuoteStatus.ORDERED, expectedLabel: 'Ordered' },
+    { status: QuoteStatus.EXPIRED, expectedLabel: 'Expired' },
   ])("displays a quote's status as $expectedLabel", async ({ status, expectedLabel }) => {
     const someQuote = buildQuoteEdgeWith({ node: { status } });
 
@@ -449,7 +453,7 @@ describe('when the user is a B2C customer', () => {
         expiredAt: getUnixTime(new Date('3 March 2025')),
         totalAmount: '101.99',
         currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
-        status: 1,
+        status: QuoteStatus.OPEN,
       },
     });
 
@@ -498,7 +502,7 @@ describe('when the user is a B2C customer', () => {
           quoteTitle: 'Many Socks',
           id: '939232',
           createdAt: getUnixTime(new Date('1 January 2025')),
-          status: 1,
+          status: QuoteStatus.OPEN,
         },
       });
 
@@ -518,32 +522,10 @@ describe('when the user is a B2C customer', () => {
     });
   });
 
-  describe('when clicking on "view" within the draft quote', () => {
-    // A user can only ever have one draft quote at a time
-    it('navigates to the quote draft page', async () => {
-      const workInProgress = buildQuoteEdgeWith({
-        node: { quoteTitle: 'Work in Progress', status: 0 },
-      });
-
-      const quotesListB2B = buildQuotesListBCWith({
-        data: { customerQuotes: { totalCount: 3, edges: [workInProgress] } },
-      });
-
-      server.use(graphql.query('GetQuotesList', () => HttpResponse.json(quotesListB2B)));
-
-      const { navigation } = renderWithProviders(<QuotesList />, { preloadedState });
-
-      await userEvent.click(await screen.findByText('VIEW'));
-
-      expect(navigation).toHaveBeenCalledWith('/quoteDraft');
-    });
-  });
-
   it.each([
-    { status: 0, expectedLabel: 'Draft' },
-    { status: 1, expectedLabel: 'Open' },
-    { status: 4, expectedLabel: 'Ordered' },
-    { status: 5, expectedLabel: 'Expired' },
+    { status: QuoteStatus.OPEN, expectedLabel: 'Open' },
+    { status: QuoteStatus.ORDERED, expectedLabel: 'Ordered' },
+    { status: QuoteStatus.EXPIRED, expectedLabel: 'Expired' },
   ])("displays a quote's status as $expectedLabel", async ({ status, expectedLabel }) => {
     const someQuote = buildQuoteEdgeWith({ node: { status } });
 

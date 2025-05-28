@@ -389,6 +389,12 @@ export const getB2BCustomerAddresses = (companyId: number) =>
     query: getAddresses(companyId),
   });
 
+export enum QuoteStatus {
+  OPEN = 1,
+  ORDERED = 4,
+  EXPIRED = 5,
+}
+
 export interface QuoteEdge {
   node: {
     id: string;
@@ -410,7 +416,7 @@ export interface QuoteEdge {
       thousandsToken: string;
       currencyExchangeRate: string;
     };
-    status: number;
+    status: QuoteStatus;
     salesRep: string;
     salesRepEmail: string;
     orderId: string;
