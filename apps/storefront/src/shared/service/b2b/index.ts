@@ -123,6 +123,7 @@ import {
   deleteUsers,
   getUsers,
   getUsersExtraFieldsInfo,
+  GetUsersVariables,
 } from './graphql/users';
 
 export {
@@ -229,6 +230,7 @@ export {
   getTaxZoneRates,
   getUserCompany,
   getUsers,
+  type GetUsersVariables,
   getUsersExtraFieldsInfo,
   getProductPricing,
   guestProductsBulkUploadCSV,
