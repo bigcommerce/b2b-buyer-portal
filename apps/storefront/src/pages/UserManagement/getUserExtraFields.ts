@@ -29,7 +29,7 @@ const FIELD_TYPE = {
   1: 'multiline',
   2: 'number',
   3: 'dropdown',
-};
+} as const;
 
 const handleConversionExtraItemFormat = (userExtraFields: B2bExtraFieldsProps[]) => {
   const formattedUserExtraFields: FormattedItemsProps[] = userExtraFields.map(
