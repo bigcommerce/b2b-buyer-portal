@@ -293,14 +293,14 @@ describe.each([
         .fn<unknown[], UsersResponse>()
         .mockReturnValue(buildUsersResponseWith(usersPageOne));
 
-      const getUsersQuerySpy = vi.fn();
+      const getUsersVariablesSpy = vi.fn();
 
       server.use(
         graphql.query('GetUserExtraFields', () =>
           HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
         ),
-        graphql.query('GetUsers', ({ query }) => {
-          getUsersQuerySpy(query);
+        graphql.query('GetUsers', ({ variables }) => {
+          getUsersVariablesSpy(variables);
 
           return HttpResponse.json(getUsersResponse());
         }),
@@ -321,7 +321,7 @@ describe.each([
 
       // once queries/mutations are changed to use real graphql variables,
       // we can spy on the request "variables" instead of this hacky string matching
-      expect(getUsersQuerySpy).toHaveBeenCalledWith(expect.stringContaining('offset: 12'));
+      expect(getUsersVariablesSpy).toHaveBeenCalledWith(expect.objectContaining({ offset: 12 }));
     });
   });
 
@@ -356,14 +356,14 @@ describe.each([
         .fn<unknown[], UsersResponse>()
         .mockReturnValue(buildUsersResponseWith(usersPageOne));
 
-      const getUsersQuerySpy = vi.fn();
+      const getUsersVariablesSpy = vi.fn();
 
       server.use(
         graphql.query('GetUserExtraFields', () =>
           HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
         ),
-        graphql.query('GetUsers', ({ query }) => {
-          getUsersQuerySpy(query);
+        graphql.query('GetUsers', ({ variables }) => {
+          getUsersVariablesSpy(variables);
 
           return HttpResponse.json(getUsersResponse());
         }),
@@ -388,7 +388,7 @@ describe.each([
 
       // once queries/mutations are changed to use real graphql variables,
       // we can spy on the request "variables" instead of this hacky string matching
-      expect(getUsersQuerySpy).toHaveBeenCalledWith(expect.stringContaining('offset: 0'));
+      expect(getUsersVariablesSpy).toHaveBeenCalledWith(expect.objectContaining({ offset: 0 }));
     });
   });
 

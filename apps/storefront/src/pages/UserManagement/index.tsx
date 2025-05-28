@@ -7,7 +7,7 @@ import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
-import { deleteUsers, getUsers } from '@/shared/service/b2b';
+import { deleteUsers, getUsers, GetUsersVariables } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
@@ -15,7 +15,7 @@ import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import B3AddEditUser from './AddEditUser';
-import { FilterProps, getFilterMoreList, UsersList } from './config';
+import { getFilterMoreList, UsersList } from './config';
 import { UserItemCard } from './UserItemCard';
 
 interface RefCurrentProps extends HTMLInputElement {
@@ -85,6 +85,8 @@ function UserManagement() {
   const [paginationTableRef] = useTableRef();
 
   const initSearch = {
+    first: 12,
+    offset: 0,
     search: '',
     companyRoleId: '',
     companyId,
@@ -92,13 +94,13 @@ function UserManagement() {
   };
   const filterMoreInfo = getFilterMoreList(b3Lang);
 
-  const [filterSearch, setFilterSearch] = useState<Partial<FilterProps>>(initSearch);
+  const [filterSearch, setFilterSearch] = useState<GetUsersVariables>(initSearch);
 
   const [translatedFilterInfo, setTranslatedFilterInfo] =
     useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
-  const fetchList: GetRequestList<Partial<FilterProps>, UsersList> = async (params) => {
+  const fetchList: GetRequestList<GetUsersVariables, UsersList> = async (params) => {
     const data = await getUsers(params);
 
     const {

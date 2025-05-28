@@ -3,14 +3,14 @@ import { UserTypes } from '@/types';
 import { convertArrayToGraphql, storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const getUsersQl = (data: CustomFieldItems) => `
-  query GetUsers {
+const getUsersQl = `
+  query GetUsers($first: Int!, $offset: Int!, $q: String, $companyId: Int!, $companyRoleId: Decimal) {
     users (
-      first: ${data.first}
-      search: "${data.q || ''}"
-      offset: ${data.offset}
-      companyId: ${data.companyId}
-      ${data.companyRoleId === '' ? '' : `companyRoleId: ${data.companyRoleId}`}
+      first: $first
+      search: $q
+      offset: $offset
+      companyId: $companyId
+      companyRoleId: $companyRoleId
     ){
       totalCount,
       pageInfo{
@@ -177,9 +177,23 @@ export interface UsersResponse {
   };
 }
 
-export const getUsers = (data: CustomFieldItems) =>
+export interface GetUsersVariables {
+  first: number;
+  offset: number;
+  q?: string;
+  companyId: number | string;
+  companyRoleId?: number | string;
+}
+
+export const getUsers = (data: GetUsersVariables) =>
   B3Request.graphqlB2B<UsersResponse>({
-    query: getUsersQl(data),
+    query: getUsersQl,
+    variables: {
+      ...data,
+      q: data.q || '',
+      companyId: Number(data.companyId),
+      companyRoleId: Number(data.companyRoleId) || undefined,
+    },
   });
 
 export interface UserExtraFieldsInfoResponse {
