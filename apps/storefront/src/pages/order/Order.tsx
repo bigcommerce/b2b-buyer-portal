@@ -214,7 +214,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     });
   };
 
-  const columnAllItems: TableColumnItem<ListItem>[] = [
+  const columnAllItems = [
     {
       key: 'orderId',
       title: b3Lang('orders.order'),
@@ -275,20 +275,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       width: '10%',
       isSortable: true,
     },
-  ];
+  ] as const satisfies TableColumnItem<ListItem>[];
 
   const getColumnItems = () => {
-    const getNewColumnItems = columnAllItems.filter((item: { key: string }) => {
+    const getNewColumnItems = columnAllItems.filter((item) => {
       const { key } = item;
       if (!isB2BUser && key === 'companyName') return false;
       if ((!isB2BUser || (Number(role) === 3 && !isAgenting)) && key === 'placedBy') return false;
-      if (key === 'companyId' && isB2BUser && (Number(role) !== 3 || isAgenting)) return false;
-      if (
-        (key === 'companyId' || key === 'placedBy') &&
-        !(Number(role) === 3 && !isAgenting) &&
-        !isCompanyOrder
-      )
+
+      if (key === 'placedBy' && !(Number(role) === 3 && !isAgenting) && !isCompanyOrder) {
         return false;
+      }
       return true;
     });
 
