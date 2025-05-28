@@ -16,7 +16,12 @@ import {
   within,
 } from 'tests/test-utils';
 
-import { QuoteEdge, QuotesListB2B, QuotesListBC } from '@/shared/service/b2b/graphql/quote';
+import {
+  QuoteEdge,
+  QuotesListB2B,
+  QuotesListBC,
+  QuoteStatus,
+} from '@/shared/service/b2b/graphql/quote';
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
@@ -48,7 +53,7 @@ const buildQuoteEdgeWith = builder<QuoteEdge>(() => ({
       thousandsToken: faker.string.symbol(),
       currencyExchangeRate: faker.finance.amount(),
     },
-    status: faker.helpers.arrayElement([1, 4, 5]),
+    status: faker.helpers.enumValue(QuoteStatus),
     salesRep: faker.person.fullName(),
     salesRepEmail: faker.internet.email(),
     orderId: faker.string.uuid(),
@@ -210,7 +215,7 @@ describe('when the user is a B2B customer', () => {
         expiredAt: getUnixTime(new Date('3 March 2025')),
         totalAmount: '101.99',
         currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
-        status: 1,
+        status: QuoteStatus.OPEN,
       },
     });
 
@@ -273,7 +278,7 @@ describe('when the user is a B2B customer', () => {
           quoteTitle: 'Many Socks',
           id: '939232',
           createdAt: getUnixTime(new Date('1 January 2025')),
-          status: 1,
+          status: QuoteStatus.OPEN,
         },
       });
       const someQuote = buildQuoteEdgeWith('WHATEVER_VALUES');
@@ -395,13 +400,18 @@ describe('when the user is a B2B customer', () => {
   });
 
   it('displays the current status of each quote', async () => {
-    const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
-    const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
-    const oneShirt = buildQuoteEdgeWith({ node: { quoteTitle: 'One Shirt', status: 4 } });
-    const everyHat = buildQuoteEdgeWith({ node: { quoteTitle: 'Every Hat', status: 5 } });
+    const someTrousers = buildQuoteEdgeWith({
+      node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
+    });
+    const oneShirt = buildQuoteEdgeWith({
+      node: { quoteTitle: 'One Shirt', status: QuoteStatus.ORDERED },
+    });
+    const everyHat = buildQuoteEdgeWith({
+      node: { quoteTitle: 'Every Hat', status: QuoteStatus.EXPIRED },
+    });
 
     const quotesListB2B = buildQuotesListB2BWith({
-      data: { quotes: { totalCount: 4, edges: [manySocks, someTrousers, oneShirt, everyHat] } },
+      data: { quotes: { totalCount: 4, edges: [someTrousers, oneShirt, everyHat] } },
     });
 
     server.use(
@@ -414,9 +424,6 @@ describe('when the user is a B2B customer', () => {
     renderWithProviders(<QuotesList />, { preloadedState });
 
     const table = await screen.findByRole('table');
-
-    const rowOfManySocks = within(table).getByRole('row', { name: /Many Socks/ });
-    expect(within(rowOfManySocks).getByText('Draft')).toBeInTheDocument();
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
@@ -537,8 +544,12 @@ describe('when the user is a B2B customer', () => {
 
   describe('when the user filters the quotes by status', () => {
     it('displays the quotes that match the selected status', async () => {
-      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
-      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
+      const manySocks = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Many Socks', status: QuoteStatus.EXPIRED },
+      });
+      const someTrousers = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
+      });
 
       const allQuotes = buildQuotesListB2BWith({
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
@@ -599,8 +610,12 @@ describe('when the user is a B2B customer', () => {
 
   describe('when filters are applied and the user clicks "Clear Filters" button', () => {
     it('displays all quotes and does not display the "Clear Filters" button', async () => {
-      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
-      const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
+      const manySocks = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Many Socks', status: QuoteStatus.EXPIRED },
+      });
+      const someTrousers = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
+      });
 
       const allQuotes = buildQuotesListB2BWith({
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
@@ -791,7 +806,7 @@ describe('when the user is a B2C customer', () => {
         expiredAt: getUnixTime(new Date('3 March 2025')),
         totalAmount: '101.99',
         currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
-        status: 1,
+        status: QuoteStatus.OPEN,
       },
     });
 
@@ -844,7 +859,7 @@ describe('when the user is a B2C customer', () => {
           quoteTitle: 'Many Socks',
           id: '939232',
           createdAt: getUnixTime(new Date('1 January 2025')),
-          status: 1,
+          status: QuoteStatus.OPEN,
         },
       });
       const someQuote = buildQuoteEdgeWith('WHATEVER_VALUES');
@@ -868,42 +883,20 @@ describe('when the user is a B2C customer', () => {
     });
   });
 
-  describe('when clicking on the row of the draft quote', () => {
-    // A user can only ever have one draft quote at a time
-    it('navigates to the quote draft page', async () => {
-      const workInProgress = buildQuoteEdgeWith({
-        node: { quoteTitle: 'Work in Progress', status: 0 },
-      });
-      const someQuote = buildQuoteEdgeWith('WHATEVER_VALUES');
-      const anotherQuote = buildQuoteEdgeWith('WHATEVER_VALUES');
-
-      const quotesListBC = buildQuotesListBCWith({
-        data: {
-          customerQuotes: { totalCount: 3, edges: [someQuote, workInProgress, anotherQuote] },
-        },
-      });
-
-      server.use(graphql.query('GetQuotesList', () => HttpResponse.json(quotesListBC)));
-
-      const { navigation } = renderWithProviders(<QuotesList />, { preloadedState });
-
-      const table = await screen.findByRole('table');
-
-      await userEvent.click(within(table).getByRole('row', { name: /Work in Progress/ }));
-
-      expect(navigation).toHaveBeenCalledWith('/quoteDraft');
-    });
-  });
-
   it('displays the current status of each quote', async () => {
-    const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
-    const someTrousers = buildQuoteEdgeWith({ node: { quoteTitle: 'Some Trouser', status: 1 } });
-    const oneShirt = buildQuoteEdgeWith({ node: { quoteTitle: 'One Shirt', status: 4 } });
-    const everyHat = buildQuoteEdgeWith({ node: { quoteTitle: 'Every Hat', status: 5 } });
+    const someTrousers = buildQuoteEdgeWith({
+      node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
+    });
+    const oneShirt = buildQuoteEdgeWith({
+      node: { quoteTitle: 'One Shirt', status: QuoteStatus.ORDERED },
+    });
+    const everyHat = buildQuoteEdgeWith({
+      node: { quoteTitle: 'Every Hat', status: QuoteStatus.EXPIRED },
+    });
 
     const quotesListBC = buildQuotesListBCWith({
       data: {
-        customerQuotes: { totalCount: 4, edges: [manySocks, someTrousers, oneShirt, everyHat] },
+        customerQuotes: { totalCount: 4, edges: [someTrousers, oneShirt, everyHat] },
       },
     });
 
@@ -912,9 +905,6 @@ describe('when the user is a B2C customer', () => {
     renderWithProviders(<QuotesList />, { preloadedState });
 
     const table = await screen.findByRole('table');
-
-    const rowOfManySocks = within(table).getByRole('row', { name: /Many Socks/ });
-    expect(within(rowOfManySocks).getByText('Draft')).toBeInTheDocument();
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
@@ -1029,9 +1019,11 @@ describe('when the user is a B2C customer', () => {
 
   describe('when the user filters the quotes by status', () => {
     it('displays the quotes that match the selected status', async () => {
-      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
+      const manySocks = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Many Socks', status: QuoteStatus.EXPIRED },
+      });
       const someTrousers = buildQuoteEdgeWith({
-        node: { quoteTitle: 'Some Trouser', status: 1 },
+        node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
       });
 
       const allQuotes = buildQuotesListBCWith({
@@ -1090,9 +1082,11 @@ describe('when the user is a B2C customer', () => {
 
   describe('when filters are applied and the user clicks "Clear Filters" button', () => {
     it('displays all quotes and does not display the "Clear Filters" button', async () => {
-      const manySocks = buildQuoteEdgeWith({ node: { quoteTitle: 'Many Socks', status: 0 } });
+      const manySocks = buildQuoteEdgeWith({
+        node: { quoteTitle: 'Many Socks', status: QuoteStatus.EXPIRED },
+      });
       const someTrousers = buildQuoteEdgeWith({
-        node: { quoteTitle: 'Some Trouser', status: 1 },
+        node: { quoteTitle: 'Some Trouser', status: QuoteStatus.OPEN },
       });
 
       const allQuotes = buildQuotesListBCWith({
