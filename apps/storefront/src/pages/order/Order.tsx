@@ -387,13 +387,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
         <B3PaginationTable
           columnItems={columnItems}
-          rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}
           searchParams={filterData || {}}
-          isCustomRender={false}
           requestLoading={setIsRequestLoading}
-          tableKey="orderId"
-          pageType="orderListPage"
           isAutoRefresh={isAutoRefresh}
           sortDirection={order}
           orderBy={orderBy}
@@ -413,7 +409,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               goToDetail(item, index);
             }
           }}
-          hover
         />
       </Box>
     </B3Spin>
