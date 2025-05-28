@@ -130,7 +130,7 @@ export const initState: GlobalState = {
 };
 
 export interface GlobalAction {
-  type: string;
+  type: 'common' | 'tip';
   payload: Partial<GlobalState>;
 }
 
