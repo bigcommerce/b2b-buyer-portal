@@ -227,6 +227,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       title: b3Lang('orders.order'),
       width: '10%',
       isSortable: true,
+      render: ({ orderId }) => orderId,
     },
     {
       key: 'companyName',
@@ -251,10 +252,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         money
           ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
           : currencyFormat(totalIncTax),
+      align: 'right',
       width: '8%',
-      style: {
-        textAlign: 'right',
-      },
       isSortable: true,
     },
     {
