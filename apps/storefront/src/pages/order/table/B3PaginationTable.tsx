@@ -35,7 +35,7 @@ export type GetRequestList<Params, Item extends object> =
   | GetRequestListSync<Params, Item>
   | GetRequestListAsync<Params, Item>;
 
-interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
+interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'orderId', string>> {
   columnItems?: TableColumnItem<Row>[];
   renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
@@ -48,7 +48,7 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
   isAutoRefresh?: boolean;
 }
 
-function PaginationTable<GetRequestListParams, Row extends object>({
+function PaginationTable<GetRequestListParams, Row extends Record<'orderId', string>>({
   columnItems,
   getRequestList,
   searchParams,
@@ -169,7 +169,6 @@ function PaginationTable<GetRequestListParams, Row extends object>({
         fetchList();
       }
     }
-    // ignore pageType because is not a reactive value
   }, [fetchList, searchParams, selectCompanyHierarchyId, pagination, isAutoRefresh]);
 
   const handlePaginationChange = async (pagination: TablePagination) => {
