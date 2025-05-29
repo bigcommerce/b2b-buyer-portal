@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import Cookies from 'js-cookie';
 
 import { usePageMask } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -11,15 +13,13 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
+import { deleteCart } from '@/shared/service/bc';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
-import B3Dialog from '@/components/B3Dialog';
-import Cookies from 'js-cookie';
-import { deleteCart } from '@/shared/service/bc';
 
 interface ListItem {
   [key: string]: string;
@@ -138,7 +138,7 @@ function Dashboard(props: PageProps) {
   };
 
   const handleModalConfirm = () => {
-    const cartId = Cookies.get('cartId')
+    const cartId = Cookies.get('cartId');
 
     startActing(Number(tempCompanyId))
       .then(() => deleteCart(cartId as string))
@@ -147,7 +147,7 @@ function Dashboard(props: PageProps) {
         store.dispatch(setCartNumber(0));
         handleClose();
       });
-  }
+  };
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
