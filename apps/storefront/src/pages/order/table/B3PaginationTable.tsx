@@ -1,5 +1,4 @@
 import {
-  FC,
   ReactElement,
   Ref,
   useCallback,
@@ -226,26 +225,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
     [getList, getCacheList, getSelectedValue, refresh],
   );
 
-  const handleSelectAllItems = () => {
-    const singlePageCheckbox = () => {
-      if (selectCheckbox.length === list.length) {
-        setSelectCheckbox([]);
-      } else {
-        const selects: Array<string | number> = [];
-        list.forEach((item) => {
-          const option = isNodeWrapper(item) ? item.node : item;
-          if (option) {
-            // @ts-expect-error typed previously as an any
-            selects.push(option.id);
-          }
-        });
-        setSelectCheckbox(selects);
-      }
-    };
-
-    singlePageCheckbox();
-  };
-
   const handleSelectOneItem = (id: string | number) => {
     const selects = [...selectCheckbox];
     const index = selects.indexOf(id);
@@ -259,39 +238,16 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   return (
     <B3Table
-      hover
       columnItems={columnItems || []}
       listItems={list}
       pagination={tablePagination}
-      rowsPerPageOptions={[10, 20, 30]}
       onPaginationChange={handlePaginationChange}
-      isCustomRender={false}
       isInfiniteScroll={isMobile}
       isLoading={loading}
       renderItem={renderItem}
-      tableFixed={false}
-      tableHeaderHide={false}
-      itemSpacing={2}
-      itemXs={4}
-      noDataText=""
-      tableKey="orderId"
-      itemIsMobileSpacing={2}
-      showCheckbox={false}
-      showSelectAllCheckbox={false}
-      disableCheckbox={false}
-      selectedSymbol="id"
-      isSelectOtherPageCheckbox={false}
-      isAllSelect={false}
       selectCheckbox={selectCheckbox}
-      handleSelectAllItems={handleSelectAllItems}
       handleSelectOneItem={handleSelectOneItem}
-      showBorder
-      labelRowsPerPage=""
       onClickRow={onClickRow}
-      showPagination
-      showRowsPerPageOptions
-      CollapseComponent={undefined}
-      applyAllDisableCheckbox
       sortDirection={sortDirection}
       sortByFn={sortByFn}
       orderBy={orderBy}
