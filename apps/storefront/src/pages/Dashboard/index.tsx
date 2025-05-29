@@ -137,6 +137,18 @@ function Dashboard(props: PageProps) {
     setOpenModal(false);
   };
 
+  const handleModalConfirm = () => {
+    const cartId = Cookies.get('cartId')
+
+    startActing(Number(tempCompanyId))
+      .then(() => deleteCart(cartId as string))
+      .then(() => Cookies.remove('cartId'))
+      .finally(() => {
+        store.dispatch(setCartNumber(0));
+        handleClose();
+      });
+  }
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'companyName',
@@ -249,16 +261,7 @@ function Dashboard(props: PageProps) {
         maxWidth={false}
         loading={isRequestLoading}
         handleLeftClick={handleClose}
-        handRightClick={() => {
-          const cartId = Cookies.get('cartId')
-          startActing(Number(tempCompanyId))
-            .then(() => deleteCart(cartId as string))
-            .then(() => Cookies.remove('cartId'))
-            .finally(() => {
-              store.dispatch(setCartNumber(0));
-              handleClose();
-            });
-        }}
+        handRightClick={handleModalConfirm}
         dialogWidth="480px"
         dialogSx={{
           '& .MuiPaper-elevation': {
