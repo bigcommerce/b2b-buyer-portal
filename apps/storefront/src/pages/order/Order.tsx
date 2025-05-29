@@ -182,9 +182,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-    // disabling as we only need to run this once and values at starting render are good enough
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectCompanyHierarchyId]);
+  }, [
+    b3Lang,
+    companyId,
+    currentCompanyId,
+    isAgenting,
+    isB2BUser,
+    isCompanyOrder,
+    role,
+    selectCompanyHierarchyId,
+  ]);
 
   const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = async (params) => {
     const { edges = [], totalCount } = isB2BUser
@@ -226,26 +233,24 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       title: b3Lang('orders.company'),
       width: '10%',
       isSortable: false,
-      render: (item: ListItem) => {
-        const { companyInfo } = item;
-
+      render: ({ companyInfo }) => {
         return <Box>{companyInfo?.companyName || '–'}</Box>;
       },
     },
     {
       key: 'poNumber',
       title: b3Lang('orders.poReference'),
-      render: (item: ListItem) => <Box>{item.poNumber ? item.poNumber : '–'}</Box>,
+      render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'totalIncTax',
       title: b3Lang('orders.grandTotal'),
-      render: (item: ListItem) =>
-        item?.money
-          ? ordersCurrencyFormat(JSON.parse(JSON.parse(item.money)), item.totalIncTax)
-          : currencyFormat(item.totalIncTax),
+      render: ({ money, totalIncTax }) =>
+        money
+          ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
+          : currencyFormat(totalIncTax),
       width: '8%',
       style: {
         textAlign: 'right',
@@ -255,8 +260,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'status',
       title: b3Lang('orders.orderStatus'),
-      render: (item: ListItem) => (
-        <OrderStatus text={getOrderStatusText(item.status, getOrderStatuses)} code={item.status} />
+      render: ({ status }) => (
+        <OrderStatus text={getOrderStatusText(status, getOrderStatuses)} code={status} />
       ),
       width: '10%',
       isSortable: true,
@@ -264,14 +269,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'placedBy',
       title: b3Lang('orders.placedBy'),
-      render: (item: ListItem) => `${item.firstName} ${item.lastName}`,
+      render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'createdAt',
       title: b3Lang('orders.createdOn'),
-      render: (item: ListItem) => `${displayFormat(Number(item.createdAt))}`,
+      render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
       width: '10%',
       isSortable: true,
     },
