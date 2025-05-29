@@ -19,6 +19,7 @@ import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
 import B3Dialog from '@/components/B3Dialog';
 import Cookies from 'js-cookie';
+import { deleteCart } from '@/shared/service/bc';
 
 interface ListItem {
   [key: string]: string;
@@ -249,7 +250,9 @@ function Dashboard(props: PageProps) {
         loading={isRequestLoading}
         handleLeftClick={handleClose}
         handRightClick={() => {
+          const cartId = Cookies.get('cartId')
           startActing(Number(tempCompanyId))
+            .then(() => deleteCart(cartId as string))
             .then(() => Cookies.remove('cartId'))
             .finally(() => {
               store.dispatch(setCartNumber(0));
