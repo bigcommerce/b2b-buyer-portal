@@ -6,13 +6,7 @@ import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
 import { memoWithGenerics } from '@/utils';
 
-import {
-  B3Table,
-  isNodeWrapper,
-  PossibleNodeWrapper,
-  TableColumnItem,
-  WithRowControls,
-} from './B3Table';
+import { B3Table, isNodeWrapper, TableColumnItem, WithRowControls } from './B3Table';
 
 export interface TablePagination {
   offset: number;
@@ -20,20 +14,13 @@ export interface TablePagination {
 }
 
 interface GetRequestListResult<T extends object> {
-  edges: PossibleNodeWrapper<T>[];
+  edges: T[];
   totalCount: number;
 }
 
-type GetRequestListSync<Params, Item extends object> = (
-  params: Params,
-) => GetRequestListResult<Item>;
-type GetRequestListAsync<Params, Item extends object> = (
+export type GetRequestList<Params, Item extends object> = (
   params: Params,
 ) => Promise<GetRequestListResult<Item>>;
-
-export type GetRequestList<Params, Item extends object> =
-  | GetRequestListSync<Params, Item>
-  | GetRequestListAsync<Params, Item>;
 
 interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'orderId', string>> {
   columnItems?: TableColumnItem<Row>[];
@@ -74,14 +61,14 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
 
   const [count, setAllCount] = useState<number>(0);
 
-  const [cacheAllList, setCacheAllList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
+  const [cacheAllList, setCacheAllList] = useState<WithRowControls<Row>[]>([]);
 
   const [list, setList] = useState<WithRowControls<Row>[]>([]);
 
   const [isMobile] = useMobile();
 
   const cacheList = useCallback(
-    (edges: PossibleNodeWrapper<WithRowControls<Row>>[]) => {
+    (edges: WithRowControls<Row>[]) => {
       if (!cacheAllList.length) setCacheAllList(edges);
 
       const copyCacheAllList = [...cacheAllList];
@@ -132,7 +119,7 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
         const requestList = await getRequestList(params);
         const { edges, totalCount } = requestList;
 
-        setList(edges.map((row) => (isNodeWrapper(row) ? row.node : row)));
+        setList(edges);
 
         cacheList(edges);
 
