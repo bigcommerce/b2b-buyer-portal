@@ -404,11 +404,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               isCompanyOrder={isCompanyOrder}
             />
           )}
-          onClickRow={(item, index) => {
-            if (index !== undefined) {
-              goToDetail(item, index);
-            }
-          }}
+          onClickRow={(item, index) => goToDetail(item, index)}
         />
       </Box>
     </B3Spin>

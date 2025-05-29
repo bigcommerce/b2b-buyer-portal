@@ -58,7 +58,7 @@ interface RowProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   node: WithRowControls<Row>;
   index: number;
-  onClickRow: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index: number) => void;
   clickableRowStyles?: { [key: string]: string };
 }
 
@@ -104,7 +104,7 @@ interface TableProps<Row extends OrderIdRow> {
   pagination?: Pagination;
   renderItem?: (row: Row, index?: number) => ReactElement;
   isInfiniteScroll?: boolean;
-  onClickRow: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
