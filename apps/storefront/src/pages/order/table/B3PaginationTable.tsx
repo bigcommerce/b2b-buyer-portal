@@ -41,7 +41,7 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'order
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading?: (bool: boolean) => void;
-  onClickRow?: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
@@ -108,7 +108,7 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
   const fetchList = useCallback(
     async (b3Pagination?: TablePagination, isRefresh?: boolean) => {
       try {
-        if (cache?.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
+        if (cache.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
           return;
         }
         cache.current = searchParams;
