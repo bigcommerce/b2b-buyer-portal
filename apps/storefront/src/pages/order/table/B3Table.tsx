@@ -41,7 +41,11 @@ export interface Pagination {
   count: number;
 }
 
-export interface TableColumnItem<Row> {
+interface OrderIdRow {
+  orderId: string;
+}
+
+export interface TableColumnItem<Row extends OrderIdRow> {
   key: string;
   title: string;
   width?: string;
@@ -50,7 +54,7 @@ export interface TableColumnItem<Row> {
   isSortable?: boolean;
 }
 
-interface RowProps<Row> {
+interface RowProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   node: WithRowControls<Row>;
   index: number;
@@ -62,7 +66,13 @@ const MOUSE_POINTER_STYLE = {
   cursor: 'pointer',
 };
 
-function Row<Row>({ columnItems, node, index, clickableRowStyles, onClickRow }: RowProps<Row>) {
+function Row<Row extends OrderIdRow>({
+  columnItems,
+  node,
+  index,
+  clickableRowStyles,
+  onClickRow,
+}: RowProps<Row>) {
   return (
     <TableRow
       hover
@@ -87,7 +97,7 @@ function Row<Row>({ columnItems, node, index, clickableRowStyles, onClickRow }: 
   );
 }
 
-interface TableProps<Row> {
+interface TableProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
   onPaginationChange?: (pagination: Pagination) => void;
@@ -95,14 +105,13 @@ interface TableProps<Row> {
   renderItem?: (row: Row, index?: number) => ReactElement;
   isInfiniteScroll?: boolean;
   isLoading?: boolean;
-  setNeedUpdate?: (boolean: boolean) => void;
   onClickRow?: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
 }
 
-export function B3Table<Row>({
+export function B3Table<Row extends OrderIdRow>({
   columnItems,
   listItems = [],
   pagination = {
@@ -114,7 +123,6 @@ export function B3Table<Row>({
   renderItem,
   isInfiniteScroll = false,
   isLoading = false,
-  setNeedUpdate = () => {},
   onClickRow,
   sortDirection = 'asc',
   sortByFn,
@@ -148,8 +156,6 @@ export function B3Table<Row>({
       ...pagination,
       offset: page * first,
     });
-
-    setNeedUpdate(true);
   };
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -169,8 +175,7 @@ export function B3Table<Row>({
               const node = isNodeWrapper(row) ? row.node : row;
 
               return (
-                // @ts-expect-error typed previously as an any
-                <Grid item xs={12} key={`${node.orderId + index}`}>
+                <Grid item xs={12} key={node.orderId}>
                   {node && renderItem && renderItem(node, index)}
                 </Grid>
               );
@@ -251,8 +256,7 @@ export function B3Table<Row>({
 
                   return (
                     <Row
-                      // @ts-expect-error typed previously as an any
-                      key={`row-${node.orderId + index}`}
+                      key={`row-${node.orderId}`}
                       columnItems={columnItems}
                       node={node}
                       index={index}
