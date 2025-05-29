@@ -58,7 +58,7 @@ interface RowProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   node: WithRowControls<Row>;
   index: number;
-  onClickRow?: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index?: number) => void;
   clickableRowStyles?: { [key: string]: string };
 }
 
@@ -76,7 +76,7 @@ function Row<Row extends OrderIdRow>({
   return (
     <TableRow
       hover
-      onClick={() => onClickRow?.(node, index)}
+      onClick={() => onClickRow(node, index)}
       sx={clickableRowStyles}
       data-testid="tableBody-Row"
     >
@@ -84,10 +84,10 @@ function Row<Row extends OrderIdRow>({
         <TableCell
           key={column.title}
           sx={{
-            ...column?.style,
+            ...column.style,
             borderBottom: '1px solid rgba(224, 224, 224, 1)',
           }}
-          data-testid={column?.key ? `tableBody-${column?.key}` : ''}
+          data-testid={column.key ? `tableBody-${column.key}` : ''}
         >
           {/* @ts-expect-error typed previously as an any */}
           {column.render ? column.render(node, index) : node[column.key]}
@@ -105,7 +105,7 @@ interface TableProps<Row extends OrderIdRow> {
   renderItem?: (row: Row, index?: number) => ReactElement;
   isInfiniteScroll?: boolean;
   isLoading?: boolean;
-  onClickRow?: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
@@ -176,7 +176,7 @@ export function B3Table<Row extends OrderIdRow>({
 
               return (
                 <Grid item xs={12} key={node.orderId}>
-                  {node && renderItem && renderItem(node, index)}
+                  {renderItem && renderItem(node, index)}
                 </Grid>
               );
             })}
@@ -224,16 +224,16 @@ export function B3Table<Row extends OrderIdRow>({
                       key={column.title}
                       width={column.width}
                       sx={
-                        column?.style
+                        column.style
                           ? {
                               ...column.style,
                             }
                           : {}
                       }
                       sortDirection={column.key === orderBy ? sortDirection : false}
-                      data-testid={column?.key ? `tableHead-${column?.key}` : ''}
+                      data-testid={column.key ? `tableHead-${column.key}` : ''}
                     >
-                      {column?.isSortable ? (
+                      {column.isSortable ? (
                         <TableSortLabel
                           active={column.key === orderBy}
                           direction={column.key === orderBy ? sortDirection : 'desc'}
