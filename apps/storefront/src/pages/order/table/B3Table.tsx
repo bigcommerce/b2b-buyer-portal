@@ -3,7 +3,6 @@ import { useB3Lang } from '@b3/lang';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
-  Box,
   Card,
   Checkbox,
   Collapse,
@@ -54,50 +53,6 @@ export interface TableColumnItem<Row> {
   render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
-}
-
-interface TableProps<Row> {
-  tableFixed?: boolean;
-  tableHeaderHide?: boolean;
-  columnItems: TableColumnItem<Row>[];
-  listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
-  itemSpacing?: number;
-  itemIsMobileSpacing?: number;
-  itemXs?: number;
-  onPaginationChange?: (pagination: Pagination) => void;
-  pagination?: Pagination;
-  rowsPerPageOptions?: number[];
-  showPagination?: boolean;
-  renderItem?: (
-    row: Row,
-    index?: number,
-    checkBox?: (disable?: boolean) => ReactElement,
-  ) => ReactElement;
-  CollapseComponent?: FC<{ row: Row }>;
-  isCustomRender?: boolean;
-  isInfiniteScroll?: boolean;
-  isLoading?: boolean;
-  noDataText?: string;
-  tableKey?: string;
-  showCheckbox?: boolean;
-  showSelectAllCheckbox?: boolean;
-  setNeedUpdate?: (boolean: boolean) => void;
-  handleSelectAllItems?: () => void;
-  handleSelectOneItem?: (id: number | string) => void;
-  hover?: boolean;
-  showBorder?: boolean;
-  selectedSymbol?: string;
-  selectCheckbox?: Array<number | string>;
-  labelRowsPerPage?: string;
-  disableCheckbox?: boolean;
-  applyAllDisableCheckbox?: boolean;
-  onClickRow?: (row: Row, index?: number) => void;
-  showRowsPerPageOptions?: boolean;
-  isSelectOtherPageCheckbox?: boolean;
-  isAllSelect?: boolean;
-  sortDirection?: 'asc' | 'desc';
-  sortByFn?: (e: { key: string }) => void;
-  orderBy?: string;
 }
 
 interface RowProps<Row> {
@@ -209,8 +164,28 @@ function Row<Row>({
   );
 }
 
+interface TableProps<Row> {
+  columnItems: TableColumnItem<Row>[];
+  listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
+  onPaginationChange?: (pagination: Pagination) => void;
+  pagination?: Pagination;
+  renderItem?: (
+    row: Row,
+    index?: number,
+    checkBox?: (disable?: boolean) => ReactElement,
+  ) => ReactElement;
+  isInfiniteScroll?: boolean;
+  isLoading?: boolean;
+  setNeedUpdate?: (boolean: boolean) => void;
+  handleSelectOneItem?: (id: number | string) => void;
+  selectCheckbox?: Array<number | string>;
+  onClickRow?: (row: Row, index?: number) => void;
+  sortDirection?: 'asc' | 'desc';
+  sortByFn?: (e: { key: string }) => void;
+  orderBy?: string;
+}
+
 export function B3Table<Row>({
-  tableFixed = true,
   columnItems,
   listItems = [],
   pagination = {
@@ -219,39 +194,19 @@ export function B3Table<Row>({
     first: 10,
   },
   onPaginationChange = () => {},
-  rowsPerPageOptions = [10, 20, 50],
-  showPagination = true,
   renderItem,
-  isCustomRender = false,
   isInfiniteScroll = false,
   isLoading = false,
-  itemSpacing = 2,
-  itemIsMobileSpacing = 2,
-  itemXs = 4,
-  noDataText,
-  tableHeaderHide = false,
-  tableKey,
-  showCheckbox = false,
-  showSelectAllCheckbox = false,
   setNeedUpdate = () => {},
-  handleSelectAllItems,
   handleSelectOneItem,
-  hover = false,
-  showBorder = true,
-  selectedSymbol = 'id',
-  isSelectOtherPageCheckbox = false,
-  isAllSelect = false,
   selectCheckbox = [],
-  labelRowsPerPage = '',
-  disableCheckbox = false,
   onClickRow,
-  showRowsPerPageOptions = true,
-  CollapseComponent,
-  applyAllDisableCheckbox = true,
   sortDirection = 'asc',
   sortByFn,
   orderBy = '',
 }: TableProps<Row>) {
+  const rowsPerPageOptions = [10, 20, 30];
+
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
@@ -294,174 +249,97 @@ export function B3Table<Row>({
     <>
       {isInfiniteScroll && (
         <>
-          {showSelectAllCheckbox && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Checkbox
-                checked={
-                  isSelectOtherPageCheckbox
-                    ? isAllSelect
-                    : selectCheckbox.length === listItems.length
-                }
-                onChange={handleSelectAllItems}
-                disabled={disableCheckbox}
-              />
-              Select all
-            </Box>
-          )}
-          <Grid container spacing={itemIsMobileSpacing}>
+          <Grid container spacing={2}>
             {listItems.map((row, index) => {
               const node = isNodeWrapper(row) ? row.node : row;
 
               const checkBox = (disable = false) => (
                 <Checkbox
                   // @ts-expect-error typed previously as an any
-                  checked={selectCheckbox.includes(node[selectedSymbol])}
+                  checked={selectCheckbox.includes(node.id)}
                   onChange={() => {
                     // @ts-expect-error typed previously as an any
-                    if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
+                    if (handleSelectOneItem) handleSelectOneItem(node.id);
                   }}
-                  disabled={disable || disableCheckbox}
+                  disabled={disable || false}
                 />
               );
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={12} key={`${node[tableKey || 'id'] + index}`}>
+                <Grid item xs={12} key={`${node['orderId' || 'id'] + index}`}>
                   {node && renderItem && renderItem(node, index, checkBox)}
                 </Grid>
               );
             })}
           </Grid>
-          {showPagination && (
-            <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.perPage')}
-              component="div"
-              sx={{
+          <TablePagination
+            rowsPerPageOptions={rowsPerPageOptions}
+            labelRowsPerPage={b3Lang('global.pagination.perPage')}
+            component="div"
+            sx={{
+              color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
+              marginTop: '1.5rem',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
+              '& svg': {
                 color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
-                marginTop: '1.5rem',
-                '::-webkit-scrollbar': {
-                  display: 'none',
-                },
-                '& svg': {
-                  color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
-                },
-              }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
+              },
+            }}
+            count={count}
+            rowsPerPage={first}
+            page={first === 0 ? 0 : offset / first}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </>
       )}
-      {!isInfiniteScroll && isCustomRender && (
-        <>
-          <Grid container spacing={itemSpacing}>
-            {listItems.map((row, index) => {
-              const node = isNodeWrapper(row) ? row.node : row;
-
-              return (
-                // @ts-expect-error typed previously as an any
-                <Grid item xs={itemXs} key={`${node[tableKey || 'id'] + index}`}>
-                  {node && renderItem && renderItem(node, index)}
-                </Grid>
-              );
-            })}
-          </Grid>
-          {showPagination && (
-            <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.cardsPerPage')}
-              component="div"
-              sx={{
-                color: customColor,
-                marginTop: '1.5rem',
-                '::-webkit-scrollbar': {
-                  display: 'none',
-                },
-                '& svg': {
-                  color: customColor,
-                },
-              }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
-        </>
-      )}
-      {!isInfiniteScroll && !isCustomRender && (
+      {!isInfiniteScroll && (
         <Card
           sx={{
             height: '100%',
-            boxShadow: showBorder
-              ? '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)'
-              : 'none',
+            boxShadow:
+              '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
           }}
         >
           <TableContainer>
             <Table
               sx={{
-                tableLayout: tableFixed ? 'fixed' : 'initial',
+                tableLayout: 'initial',
               }}
             >
-              {!tableHeaderHide && (
-                <TableHead>
-                  <TableRow data-testid="tableHead-Row">
-                    {showSelectAllCheckbox && (
-                      <TableCell key="showSelectAllCheckbox">
-                        <Checkbox
-                          checked={
-                            isSelectOtherPageCheckbox
-                              ? isAllSelect
-                              : selectCheckbox.length === listItems.length
-                          }
-                          onChange={handleSelectAllItems}
-                          disabled={disableCheckbox}
-                        />
-                      </TableCell>
-                    )}
-                    {CollapseComponent && <TableCell width="2%" />}
-
-                    {columnItems.map((column) => (
-                      <TableCell
-                        key={column.title}
-                        width={column.width}
-                        sx={
-                          column?.style
-                            ? {
-                                ...column.style,
-                              }
-                            : {}
-                        }
-                        sortDirection={column.key === orderBy ? sortDirection : false}
-                        data-testid={column?.key ? `tableHead-${column?.key}` : ''}
-                      >
-                        {column?.isSortable ? (
-                          <TableSortLabel
-                            active={column.key === orderBy}
-                            direction={column.key === orderBy ? sortDirection : 'desc'}
-                            hideSortIcon={column.key !== orderBy}
-                            onClick={() => sortByFn && sortByFn(column)}
-                          >
-                            {column.title}
-                          </TableSortLabel>
-                        ) : (
-                          column.title
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-              )}
+              <TableHead>
+                <TableRow data-testid="tableHead-Row">
+                  {columnItems.map((column) => (
+                    <TableCell
+                      key={column.title}
+                      width={column.width}
+                      sx={
+                        column?.style
+                          ? {
+                              ...column.style,
+                            }
+                          : {}
+                      }
+                      sortDirection={column.key === orderBy ? sortDirection : false}
+                      data-testid={column?.key ? `tableHead-${column?.key}` : ''}
+                    >
+                      {column?.isSortable ? (
+                        <TableSortLabel
+                          active={column.key === orderBy}
+                          direction={column.key === orderBy ? sortDirection : 'desc'}
+                          hideSortIcon={column.key !== orderBy}
+                          onClick={() => sortByFn && sortByFn(column)}
+                        >
+                          {column.title}
+                        </TableSortLabel>
+                      ) : (
+                        column.title
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
 
               <TableBody>
                 {listItems.map((row, index) => {
@@ -472,51 +350,49 @@ export function B3Table<Row>({
                   return (
                     <Row
                       // @ts-expect-error typed previously as an any
-                      key={`row-${node[tableKey || 'id'] + index}`}
+                      key={`row-${node['orderId' || 'id'] + index}`}
                       columnItems={columnItems}
                       node={node}
                       index={index}
-                      showCheckbox={showCheckbox}
+                      showCheckbox={false}
                       selectCheckbox={selectCheckbox}
-                      selectedSymbol={selectedSymbol}
-                      disableCheckbox={disableCheckbox}
-                      applyAllDisableCheckbox={applyAllDisableCheckbox}
-                      showBorder={showBorder}
+                      selectedSymbol="id"
+                      disableCheckbox={false}
+                      applyAllDisableCheckbox
+                      showBorder
                       handleSelectOneItem={handleSelectOneItem}
                       clickableRowStyles={clickableRowStyles}
                       lastItemBorderBottom={lastItemBorderBottom}
-                      hover={hover}
-                      tableKey={tableKey}
+                      hover
+                      tableKey="orderId"
                       onClickRow={onClickRow}
-                      CollapseComponent={CollapseComponent}
+                      CollapseComponent={undefined}
                     />
                   );
                 })}
               </TableBody>
             </Table>
           </TableContainer>
-          {showPagination && (
-            <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.rowsPerPage')}
-              component="div"
-              sx={{
-                marginTop: '1.5rem',
-                '::-webkit-scrollbar': {
-                  display: 'none',
-                },
-              }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
+          <TablePagination
+            rowsPerPageOptions={rowsPerPageOptions}
+            labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
+            component="div"
+            sx={{
+              marginTop: '1.5rem',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
+            }}
+            count={count}
+            rowsPerPage={first}
+            page={first === 0 ? 0 : offset / first}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Card>
       )}
     </>
   ) : (
-    <B3NoData isLoading={isLoading} text={noDataText} />
+    <B3NoData isLoading={isLoading} text="" />
   );
 }
