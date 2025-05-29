@@ -1,18 +1,10 @@
-import {
-  ReactElement,
-  Ref,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import isEmpty from 'lodash-es/isEmpty';
 import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
-import { forwardRefWithGenerics, memoWithGenerics } from '@/utils';
+import { memoWithGenerics } from '@/utils';
 
 import {
   B3Table,
@@ -56,21 +48,18 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
   isAutoRefresh?: boolean;
 }
 
-function PaginationTable<GetRequestListParams, Row extends object>(
-  {
-    columnItems,
-    getRequestList,
-    searchParams,
-    requestLoading,
-    isAutoRefresh = true,
-    sortDirection = 'asc',
-    orderBy = '',
-    sortByFn = () => {},
-    renderItem,
-    onClickRow,
-  }: B3PaginationTableProps<GetRequestListParams, Row>,
-  ref?: Ref<unknown>,
-) {
+function PaginationTable<GetRequestListParams, Row extends object>({
+  columnItems,
+  getRequestList,
+  searchParams,
+  requestLoading,
+  isAutoRefresh = true,
+  sortDirection = 'asc',
+  orderBy = '',
+  sortByFn = () => {},
+  renderItem,
+  onClickRow,
+}: B3PaginationTableProps<GetRequestListParams, Row>) {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -90,8 +79,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   const [cacheAllList, setCacheAllList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
 
   const [list, setList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
-
-  const [selectCheckbox, setSelectCheckbox] = useState<Array<string | number>>([]);
 
   const [isMobile] = useMobile();
 
@@ -152,8 +139,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
         cacheList(edges);
 
-        setSelectCheckbox([]);
-
         if (!b3Pagination) {
           setPagination({
             first: pagination.first,
@@ -171,10 +156,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
     },
     [cacheList, getRequestList, pagination.first, requestLoading, searchParams],
   );
-
-  const refresh = useCallback(() => {
-    fetchList(pagination, true);
-  }, [fetchList, pagination]);
 
   useEffect(() => {
     const isChangeCompany =
@@ -201,41 +182,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
     count,
   };
 
-  const getSelectedValue = useCallback(
-    () => ({
-      selectCheckbox,
-    }),
-    [selectCheckbox],
-  );
-
-  const getList = useCallback(() => list, [list]);
-
-  const getCacheList = useCallback(() => cacheAllList, [cacheAllList]);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      getSelectedValue,
-      setList,
-      setCacheAllList,
-      getList,
-      getCacheList,
-      refresh,
-    }),
-    [getList, getCacheList, getSelectedValue, refresh],
-  );
-
-  const handleSelectOneItem = (id: string | number) => {
-    const selects = [...selectCheckbox];
-    const index = selects.indexOf(id);
-    if (index !== -1) {
-      selects.splice(index, 1);
-    } else {
-      selects.push(id);
-    }
-    setSelectCheckbox(selects);
-  };
-
   return (
     <B3Table
       columnItems={columnItems || []}
@@ -245,8 +191,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
       isInfiniteScroll={isMobile}
       isLoading={loading}
       renderItem={renderItem}
-      selectCheckbox={selectCheckbox}
-      handleSelectOneItem={handleSelectOneItem}
       onClickRow={onClickRow}
       sortDirection={sortDirection}
       sortByFn={sortByFn}
@@ -255,6 +199,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   );
 }
 
-const B3PaginationTable = memoWithGenerics(forwardRefWithGenerics(PaginationTable));
+const B3PaginationTable = memoWithGenerics(PaginationTable);
 
 export { B3PaginationTable };
