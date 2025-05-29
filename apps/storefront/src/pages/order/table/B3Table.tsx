@@ -1,11 +1,7 @@
-import { ChangeEvent, FC, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
+import { ChangeEvent, MouseEvent, ReactElement, ReactNode, useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
   Card,
-  Checkbox,
-  Collapse,
   Grid,
   Table,
   TableBody,
@@ -15,7 +11,6 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -56,111 +51,39 @@ export interface TableColumnItem<Row> {
 }
 
 interface RowProps<Row> {
-  CollapseComponent?: FC<{ row: Row }>;
   columnItems: TableColumnItem<Row>[];
   node: WithRowControls<Row>;
   index: number;
-  showBorder?: boolean;
-  showCheckbox?: boolean;
-  selectedSymbol?: string;
-  selectCheckbox?: Array<number | string>;
-  disableCheckbox?: boolean;
-  applyAllDisableCheckbox?: boolean;
-  handleSelectOneItem?: (id: number | string) => void;
-  tableKey?: string;
   onClickRow?: (row: Row, index?: number) => void;
-  hover?: boolean;
   clickableRowStyles?: { [key: string]: string };
-  lastItemBorderBottom: string;
 }
 
 const MOUSE_POINTER_STYLE = {
   cursor: 'pointer',
 };
 
-function Row<Row>({
-  columnItems,
-  node,
-  index,
-  showCheckbox,
-  selectCheckbox = [],
-  selectedSymbol,
-  disableCheckbox,
-  showBorder,
-  handleSelectOneItem,
-  clickableRowStyles,
-  lastItemBorderBottom,
-  tableKey,
-  onClickRow,
-  hover,
-  CollapseComponent,
-  applyAllDisableCheckbox,
-}: RowProps<Row>) {
-  const { isCollapse = false, disableCurrentCheckbox } = node;
-
-  const [open, setOpen] = useState<boolean>(isCollapse || false);
-
+function Row<Row>({ columnItems, node, index, clickableRowStyles, onClickRow }: RowProps<Row>) {
   return (
-    <>
-      <TableRow
-        // @ts-expect-error typed previously as an any
-        key={`${node[tableKey || 'id'] + index}`}
-        hover={hover}
-        onClick={() => onClickRow?.(node, index)}
-        sx={clickableRowStyles}
-        data-testid="tableBody-Row"
-      >
-        {showCheckbox && selectedSymbol && (
-          <TableCell
-            key={`showItemCheckbox-${node.id}`}
-            sx={{
-              borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
-            }}
-          >
-            <Checkbox
-              // @ts-expect-error typed previously as an any
-              checked={selectCheckbox.includes(node[selectedSymbol])}
-              onChange={() => {
-                // @ts-expect-error typed previously as an any
-                if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
-              }}
-              disabled={applyAllDisableCheckbox ? disableCheckbox : disableCurrentCheckbox}
-            />
-          </TableCell>
-        )}
-
-        {CollapseComponent && (
-          <TableCell>
-            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-              {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
-            </IconButton>
-          </TableCell>
-        )}
-
-        {columnItems.map((column) => (
-          <TableCell
-            key={column.title}
-            sx={{
-              ...column?.style,
-              borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
-            }}
-            data-testid={column?.key ? `tableBody-${column?.key}` : ''}
-          >
-            {/* @ts-expect-error typed previously as an any */}
-            {column.render ? column.render(node, index) : node[column.key]}
-          </TableCell>
-        ))}
-      </TableRow>
-      {CollapseComponent && (
-        <TableRow>
-          <TableCell style={{ padding: 0 }} colSpan={24}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <CollapseComponent row={node} />
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      )}
-    </>
+    <TableRow
+      hover
+      onClick={() => onClickRow?.(node, index)}
+      sx={clickableRowStyles}
+      data-testid="tableBody-Row"
+    >
+      {columnItems.map((column) => (
+        <TableCell
+          key={column.title}
+          sx={{
+            ...column?.style,
+            borderBottom: '1px solid rgba(224, 224, 224, 1)',
+          }}
+          data-testid={column?.key ? `tableBody-${column?.key}` : ''}
+        >
+          {/* @ts-expect-error typed previously as an any */}
+          {column.render ? column.render(node, index) : node[column.key]}
+        </TableCell>
+      ))}
+    </TableRow>
   );
 }
 
@@ -169,16 +92,10 @@ interface TableProps<Row> {
   listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
   onPaginationChange?: (pagination: Pagination) => void;
   pagination?: Pagination;
-  renderItem?: (
-    row: Row,
-    index?: number,
-    checkBox?: (disable?: boolean) => ReactElement,
-  ) => ReactElement;
+  renderItem?: (row: Row, index?: number) => ReactElement;
   isInfiniteScroll?: boolean;
   isLoading?: boolean;
   setNeedUpdate?: (boolean: boolean) => void;
-  handleSelectOneItem?: (id: number | string) => void;
-  selectCheckbox?: Array<number | string>;
   onClickRow?: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
@@ -198,8 +115,6 @@ export function B3Table<Row>({
   isInfiniteScroll = false,
   isLoading = false,
   setNeedUpdate = () => {},
-  handleSelectOneItem,
-  selectCheckbox = [],
   onClickRow,
   sortDirection = 'asc',
   sortByFn,
@@ -253,21 +168,10 @@ export function B3Table<Row>({
             {listItems.map((row, index) => {
               const node = isNodeWrapper(row) ? row.node : row;
 
-              const checkBox = (disable = false) => (
-                <Checkbox
-                  // @ts-expect-error typed previously as an any
-                  checked={selectCheckbox.includes(node.id)}
-                  onChange={() => {
-                    // @ts-expect-error typed previously as an any
-                    if (handleSelectOneItem) handleSelectOneItem(node.id);
-                  }}
-                  disabled={disable || false}
-                />
-              );
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={12} key={`${node['orderId' || 'id'] + index}`}>
-                  {node && renderItem && renderItem(node, index, checkBox)}
+                <Grid item xs={12} key={`${node.orderId + index}`}>
+                  {node && renderItem && renderItem(node, index)}
                 </Grid>
               );
             })}
@@ -345,28 +249,15 @@ export function B3Table<Row>({
                 {listItems.map((row, index) => {
                   const node = isNodeWrapper(row) ? row.node : row;
 
-                  const lastItemBorderBottom =
-                    index === listItems.length - 1 ? '1px solid rgba(224, 224, 224, 1)' : 'none';
                   return (
                     <Row
                       // @ts-expect-error typed previously as an any
-                      key={`row-${node['orderId' || 'id'] + index}`}
+                      key={`row-${node.orderId + index}`}
                       columnItems={columnItems}
                       node={node}
                       index={index}
-                      showCheckbox={false}
-                      selectCheckbox={selectCheckbox}
-                      selectedSymbol="id"
-                      disableCheckbox={false}
-                      applyAllDisableCheckbox
-                      showBorder
-                      handleSelectOneItem={handleSelectOneItem}
                       clickableRowStyles={clickableRowStyles}
-                      lastItemBorderBottom={lastItemBorderBottom}
-                      hover
-                      tableKey="orderId"
                       onClickRow={onClickRow}
-                      CollapseComponent={undefined}
                     />
                   );
                 })}
