@@ -13,13 +13,13 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
-import { deleteCart } from '@/shared/service/bc';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
 
 interface ListItem {
   [key: string]: string;
@@ -141,7 +141,7 @@ function Dashboard(props: PageProps) {
     const cartId = Cookies.get('cartId');
 
     startActing(Number(tempCompanyId))
-      .then(() => deleteCart(cartId as string))
+      .then(() => deleteCart({ deleteCartInput: { cartEntityId: cartId as string } }))
       .then(() => Cookies.remove('cartId'))
       .finally(() => {
         store.dispatch(setCartNumber(0));
