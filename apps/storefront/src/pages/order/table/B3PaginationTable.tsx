@@ -40,7 +40,7 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'order
   renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
-  requestLoading?: (bool: boolean) => void;
+  requestLoading: (bool: boolean) => void;
   onClickRow: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
@@ -66,8 +66,6 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
   const selectCompanyHierarchyIdCache = useRef(selectCompanyHierarchyId);
 
   const cache = useRef<GetRequestListParams | null>(null);
-
-  const [loading, setLoading] = useState<boolean>();
 
   const [pagination, setPagination] = useState<TablePagination>({
     offset: 0,
@@ -113,8 +111,7 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
         }
         cache.current = searchParams;
 
-        setLoading(true);
-        if (requestLoading) requestLoading(true);
+        requestLoading(true);
         const { createdBy = '' } = searchParams;
 
         const getEmailReg = /\((.+)\)/g;
@@ -147,11 +144,9 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
         }
 
         setAllCount(totalCount);
-        setLoading(false);
-        if (requestLoading) requestLoading(false);
+        requestLoading(false);
       } catch (e) {
-        setLoading(false);
-        if (requestLoading) requestLoading(false);
+        requestLoading(false);
       }
     },
     [cacheList, getRequestList, pagination.first, requestLoading, searchParams],
@@ -188,7 +183,6 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
       pagination={tablePagination}
       onPaginationChange={handlePaginationChange}
       isInfiniteScroll={isMobile}
-      isLoading={loading}
       renderItem={renderItem}
       onClickRow={onClickRow}
       sortDirection={sortDirection}

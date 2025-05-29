@@ -104,7 +104,6 @@ interface TableProps<Row extends OrderIdRow> {
   pagination?: Pagination;
   renderItem?: (row: Row, index?: number) => ReactElement;
   isInfiniteScroll?: boolean;
-  isLoading?: boolean;
   onClickRow: (row: Row, index?: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
@@ -122,7 +121,6 @@ export function B3Table<Row extends OrderIdRow>({
   onPaginationChange = () => {},
   renderItem,
   isInfiniteScroll = false,
-  isLoading = false,
   onClickRow,
   sortDirection = 'asc',
   sortByFn,
@@ -146,9 +144,7 @@ export function B3Table<Row extends OrderIdRow>({
   const clickableRowStyles = typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined;
 
   const handlePaginationChange = (pagination: Pagination) => {
-    if (!isLoading) {
-      onPaginationChange(pagination);
-    }
+    onPaginationChange(pagination);
   };
 
   const handleChangePage = (_: MouseEvent<HTMLButtonElement> | null, page: number) => {
@@ -288,6 +284,6 @@ export function B3Table<Row extends OrderIdRow>({
       )}
     </>
   ) : (
-    <B3NoData isLoading={isLoading} text="" />
+    <B3NoData />
   );
 }
