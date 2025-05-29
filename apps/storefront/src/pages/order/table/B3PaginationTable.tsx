@@ -41,7 +41,7 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'order
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading: (bool: boolean) => void;
-  onClickRow: (row: Row, index?: number) => void;
+  onClickRow: (row: Row, index: number) => void;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
