@@ -31,8 +31,6 @@ export const isNodeWrapper = <T extends object>(
 
 export type WithRowControls<T> = T & {
   id?: string | number;
-  isCollapse?: boolean;
-  disableCurrentCheckbox?: boolean;
 };
 
 export interface Pagination {
@@ -48,49 +46,35 @@ interface OrderIdRow {
 export interface TableColumnItem<Row extends OrderIdRow> {
   key: string;
   title: string;
+  align?: 'right';
   width?: string;
-  render?: (row: Row, index: number) => ReactNode;
-  style?: { [key: string]: string };
+  render: (row: Row) => ReactNode;
   isSortable?: boolean;
 }
 
 interface RowProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   node: WithRowControls<Row>;
-  index: number;
-  onClickRow: (row: Row, index: number) => void;
-  clickableRowStyles?: { [key: string]: string };
+  onClickRow: () => void;
 }
 
-const MOUSE_POINTER_STYLE = {
-  cursor: 'pointer',
-};
-
-function Row<Row extends OrderIdRow>({
-  columnItems,
-  node,
-  index,
-  clickableRowStyles,
-  onClickRow,
-}: RowProps<Row>) {
+function Row<Row extends OrderIdRow>({ columnItems, node, onClickRow }: RowProps<Row>) {
   return (
     <TableRow
       hover
-      onClick={() => onClickRow(node, index)}
-      sx={clickableRowStyles}
+      onClick={onClickRow}
+      sx={{
+        cursor: 'pointer',
+      }}
       data-testid="tableBody-Row"
     >
       {columnItems.map((column) => (
         <TableCell
+          align={column.align ?? 'left'}
           key={column.title}
-          sx={{
-            ...column.style,
-            borderBottom: '1px solid rgba(224, 224, 224, 1)',
-          }}
           data-testid={column.key ? `tableBody-${column.key}` : ''}
         >
-          {/* @ts-expect-error typed previously as an any */}
-          {column.render ? column.render(node, index) : node[column.key]}
+          {column.render(node)}
         </TableCell>
       ))}
     </TableRow>
@@ -141,7 +125,6 @@ export function B3Table<Row extends OrderIdRow>({
   const b3Lang = useB3Lang();
 
   const { offset, count, first } = pagination;
-  const clickableRowStyles = typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined;
 
   const handlePaginationChange = (pagination: Pagination) => {
     onPaginationChange(pagination);
@@ -219,13 +202,7 @@ export function B3Table<Row extends OrderIdRow>({
                     <TableCell
                       key={column.title}
                       width={column.width}
-                      sx={
-                        column.style
-                          ? {
-                              ...column.style,
-                            }
-                          : {}
-                      }
+                      align={column.align ?? 'left'}
                       sortDirection={column.key === orderBy ? sortDirection : false}
                       data-testid={column.key ? `tableHead-${column.key}` : ''}
                     >
@@ -255,9 +232,7 @@ export function B3Table<Row extends OrderIdRow>({
                       key={`row-${node.orderId}`}
                       columnItems={columnItems}
                       node={node}
-                      index={index}
-                      clickableRowStyles={clickableRowStyles}
-                      onClickRow={onClickRow}
+                      onClickRow={() => onClickRow(node, index)}
                     />
                   );
                 })}
