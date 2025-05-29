@@ -77,11 +77,15 @@ const addOrUpdateUsersQl = (data: CustomFieldItems) => `
   }
 `;
 
-const deleteUsersQl = (data: CustomFieldItems) => `
-  mutation DeleteUser {
+interface DeleteUsersResponse {
+  data: { userDelete: { message: string } };
+}
+
+const deleteUsersQl = `
+  mutation DeleteUser($companyId: Int!, $userId: Int!) {
     userDelete (
-      companyId: ${data.companyId}
-      userId: ${data.userId}
+      companyId: $companyId
+      userId: $userId
     ) {
       message
     }
@@ -223,9 +227,18 @@ export const addOrUpdateUsers = (data: CustomFieldItems) =>
     query: addOrUpdateUsersQl(data),
   });
 
-export const deleteUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: deleteUsersQl(data),
+interface DeleteUsersVariables {
+  companyId: string | number;
+  userId: string | number;
+}
+
+export const deleteUsers = (variables: DeleteUsersVariables) =>
+  B3Request.graphqlB2B<DeleteUsersResponse>({
+    query: deleteUsersQl,
+    variables: {
+      companyId: Number(variables.companyId),
+      userId: Number(variables.userId),
+    },
   });
 
 export interface UserEmailCheckResponse {

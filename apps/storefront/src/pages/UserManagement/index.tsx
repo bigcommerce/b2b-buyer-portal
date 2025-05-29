@@ -173,13 +173,13 @@ function UserManagement() {
     setDeleteOpen(false);
   };
 
-  const handleDeleteUserClick = async (row: UsersList | undefined) => {
-    if (!row) return;
+  const handleDeleteUserClick = async (userToDelete?: { id: string | number }) => {
+    if (!userToDelete) return;
     try {
       setIsRequestLoading(true);
       handleCancelClick();
       await deleteUsers({
-        userId: row.id || '',
+        userId: userToDelete.id || '',
         companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
