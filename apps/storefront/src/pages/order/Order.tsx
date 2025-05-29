@@ -399,16 +399,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
           renderItem={(row, index) => (
-            <OrderItemCard
-              key={row.orderId}
-              item={row}
-              index={index}
-              allTotal={allTotal}
-              filterData={filterData}
-              isCompanyOrder={isCompanyOrder}
-            />
+            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
           )}
-          onClickRow={(item, index) => goToDetail(item, index)}
+          onClickRow={goToDetail}
         />
       </Box>
     </B3Spin>
