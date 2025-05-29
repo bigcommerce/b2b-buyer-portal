@@ -385,6 +385,8 @@ export default function QuickAdd(props: AddToListContentProps) {
 
           updateList();
         }
+      } catch (error: unknown) {
+        snackbar.error((error as Error).message);
       } finally {
         setIsLoading(false);
       }
