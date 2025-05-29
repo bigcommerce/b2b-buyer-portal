@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 import {
   buildCompanyStateWith,
@@ -389,6 +390,15 @@ describe('when the user is associated with a company', () => {
         },
       }),
     );
+    const deleteCartReturn = vi.fn().mockReturnValue({
+      data: {
+        cart: {
+          deleteCart: {
+            deletedCartEntityId: '1',
+          },
+        },
+      },
+    });
 
     server.use(
       graphql.query('SuperAdminCompanies', () =>
@@ -400,8 +410,10 @@ describe('when the user is associated with a company', () => {
       ),
       graphql.mutation('BeginMasquerade', ({ query }) => HttpResponse.json(beginMasquerade(query))),
       graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
+      graphql.mutation('deleteCart', ({ query }) => HttpResponse.json(deleteCartReturn(query))),
     );
 
+    Cookies.set('cartId', '1');
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {
@@ -416,6 +428,7 @@ describe('when the user is associated with a company', () => {
 
     await userEvent.click(within(row).getByRole('button'));
     await userEvent.click(screen.getByRole('menuitem', { name: /Masquerade/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Continue/ }));
 
     await waitFor(() => {
       expect(within(row).getByText(/Selected/)).toBeInTheDocument();
@@ -430,6 +443,7 @@ describe('when the user is associated with a company', () => {
 
     expect(beginMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 123'));
     expect(getAgentInfo).toHaveBeenLastCalledWith(expect.stringContaining('customerId: 789'));
+    expect(deleteCartReturn).toHaveBeenCalled();
 
     expect(setOpenPageSpy).toHaveBeenLastCalledWith({
       isOpen: true,

@@ -13,13 +13,13 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
-import { deleteCart } from '@/shared/service/bc/graphql/cart';
 
 interface ListItem {
   [key: string]: string;
