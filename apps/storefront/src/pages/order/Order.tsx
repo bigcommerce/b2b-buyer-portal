@@ -21,7 +21,7 @@ import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
-import { TableColumnItem } from './table/B3Table';
+import { PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   defaultSortKey,
   FilterSearchProps,
@@ -95,9 +95,9 @@ function useData() {
     isAgenting,
     isB2BUser,
     orderSubViewPermission,
-    selectCompanyHierarchyId,
+    selectCompanyHierarchyId: Number(selectCompanyHierarchyId),
     isEnabledCompanyHierarchy,
-    currentCompanyId,
+    currentCompanyId: Number(currentCompanyId),
     companyId,
   };
 }
@@ -133,7 +133,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser);
     if (isB2BUser) {
-      search.companyIds = [Number(selectCompanyHierarchyId) || Number(currentCompanyId)];
+      search.companyIds = [selectCompanyHierarchyId || currentCompanyId];
     }
     setFilterData(search);
     setIsAutoRefresh(true);
@@ -200,8 +200,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     setAllTotal(totalCount);
     setIsAutoRefresh(false);
+
     return {
-      edges,
+      edges: edges.map((row: PossibleNodeWrapper<object>) => ('node' in row ? row.node : row)),
       totalCount,
     };
   };
