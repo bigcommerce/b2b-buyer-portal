@@ -83,10 +83,10 @@ function Row<Row extends OrderIdRow>({ columnItems, node, onClickRow }: RowProps
 
 interface TableProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
-  listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
+  listItems: WithRowControls<Row>[];
   onPaginationChange?: (pagination: Pagination) => void;
   pagination?: Pagination;
-  renderItem?: (row: Row, index?: number) => ReactElement;
+  renderItem: (row: Row, index: number) => ReactElement;
   isInfiniteScroll?: boolean;
   onClickRow: (row: Row, index: number) => void;
   sortDirection?: 'asc' | 'desc';
@@ -151,11 +151,9 @@ export function B3Table<Row extends OrderIdRow>({
         <>
           <Grid container spacing={2}>
             {listItems.map((row, index) => {
-              const node = isNodeWrapper(row) ? row.node : row;
-
               return (
-                <Grid item xs={12} key={node.orderId}>
-                  {renderItem && renderItem(node, index)}
+                <Grid item xs={12} key={row.orderId}>
+                  {renderItem(row, index)}
                 </Grid>
               );
             })}

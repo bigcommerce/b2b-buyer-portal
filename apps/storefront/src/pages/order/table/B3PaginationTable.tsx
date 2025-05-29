@@ -37,7 +37,7 @@ export type GetRequestList<Params, Item extends object> =
 
 interface B3PaginationTableProps<GetRequestListParams, Row extends Record<'orderId', string>> {
   columnItems?: TableColumnItem<Row>[];
-  renderItem?: (row: Row, index?: number) => ReactElement;
+  renderItem: (row: Row, index: number) => ReactElement;
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading: (bool: boolean) => void;
@@ -76,7 +76,7 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
 
   const [cacheAllList, setCacheAllList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
 
-  const [list, setList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
+  const [list, setList] = useState<WithRowControls<Row>[]>([]);
 
   const [isMobile] = useMobile();
 
@@ -132,7 +132,7 @@ function PaginationTable<GetRequestListParams, Row extends Record<'orderId', str
         const requestList = await getRequestList(params);
         const { edges, totalCount } = requestList;
 
-        setList(edges);
+        setList(edges.map((row) => (isNodeWrapper(row) ? row.node : row)));
 
         cacheList(edges);
 
