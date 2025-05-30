@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import Cookies from 'js-cookie';
 
 import { usePageMask } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -11,7 +13,8 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
-import { useAppSelector, useAppStore } from '@/store';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
+import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
@@ -52,6 +55,8 @@ function Dashboard(props: PageProps) {
   const b3Lang = useB3Lang();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [tempCompanyId, setTempCompanyId] = useState(1);
+  const [openModal, setOpenModal] = useState(false);
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -128,6 +133,22 @@ function Dashboard(props: PageProps) {
     });
   };
 
+  const handleClose = () => {
+    setOpenModal(false);
+  };
+
+  const handleModalConfirm = () => {
+    const cartId = Cookies.get('cartId');
+
+    startActing(Number(tempCompanyId))
+      .then(() => deleteCart({ deleteCartInput: { cartEntityId: cartId as string } }))
+      .then(() => Cookies.remove('cartId'))
+      .finally(() => {
+        store.dispatch(setCartNumber(0));
+        handleClose();
+      });
+  };
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'companyName',
@@ -163,7 +184,15 @@ function Dashboard(props: PageProps) {
         return (
           <ActionMenuCell
             label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => startActing(Number(companyId))}
+            onClick={() => {
+              const cartId = Cookies.get('cartId');
+              if (cartId) {
+                setOpenModal(true);
+                setTempCompanyId(Number(companyId));
+              } else {
+                startActing(Number(companyId));
+              }
+            }}
           />
         );
       },
@@ -224,6 +253,47 @@ function Dashboard(props: PageProps) {
           }}
         />
       </Box>
+      <B3Dialog
+        isOpen={openModal}
+        rightSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.continue')}
+        title={b3Lang('dashboard.startMasqueradeModal.title')}
+        leftSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.cancel')}
+        maxWidth={false}
+        loading={isRequestLoading}
+        handleLeftClick={handleClose}
+        handRightClick={handleModalConfirm}
+        dialogWidth="480px"
+        dialogSx={{
+          '& .MuiPaper-elevation': {
+            '& h2': {
+              border: 'unset',
+              color: '#000000',
+            },
+            '& div': {
+              border: 'unset',
+            },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            maxHeight: '600px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              color: '#000000',
+              fontSize: '14px',
+              fontWeight: 400,
+            }}
+          >
+            {b3Lang('dashboard.startMasqueradeModal.message')}
+          </Box>
+        </Box>
+      </B3Dialog>
     </B3Spin>
   );
 }
