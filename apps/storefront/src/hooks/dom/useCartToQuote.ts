@@ -10,6 +10,7 @@ import {
 import { CART_URL, CHECKOUT_URL } from '@/constants';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
+import { CompanyStatus } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { B3SStorage, globalSnackbar } from '@/utils';
 
@@ -57,6 +58,12 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
   const checkIsInPage = (url: string) => window.location.href.includes(url);
 
   const { pathname } = window.location;
+
+  useEffect(() => {
+    if (checkIsInPage(CHECKOUT_URL) && companyStatus === CompanyStatus.REJECTED) {
+      globalSnackbar.error('Your business account has been rejected. Ordering is disabled.');
+    }
+  }, [pathname, companyStatus]);
 
   useEffect(() => {
     const showPendingAccountTip = () => {

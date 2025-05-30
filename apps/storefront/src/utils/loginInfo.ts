@@ -179,6 +179,12 @@ export const getCompanyInfo = async (
 
   store.dispatch(setCompanyStatus(companyInfo.companyStatus));
 
+  if (companyInfo.companyStatus === CompanyStatus.REJECTED) {
+    sessionStorage.setItem('b2b-blockRejectedAccountOrderCreation', JSON.stringify(true));
+  } else {
+    sessionStorage.removeItem('b2b-blockRejectedAccountOrderCreation');
+  }
+
   const blockPendingAccountOrderCreation = B3SStorage.get('blockPendingAccountOrderCreation');
   const noNewSFPlaceOrders =
     blockPendingAccountOrderCreation && companyInfo.companyStatus === CompanyStatus.PENDING;
