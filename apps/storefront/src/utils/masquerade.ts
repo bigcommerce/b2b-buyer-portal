@@ -1,3 +1,5 @@
+import { dispatchEvent } from '@b3/hooks';
+
 import {
   getAgentInfo,
   superAdminBeginMasquerade,
@@ -33,6 +35,10 @@ export const startMasquerade = async (
   };
 
   store.dispatch(setMasqueradeCompany(masqueradeCompany));
+  dispatchEvent('on-start-masquerade', {
+    masqueradeCustomer: customerId,
+    masqueradeCompany,
+  });
 };
 
 export const endMasquerade = async (store: AppStore) => {
@@ -43,4 +49,7 @@ export const endMasquerade = async (store: AppStore) => {
   await superAdminEndMasquerade(salesRepCompanyId);
 
   store.dispatch(clearMasqueradeCompany());
+  dispatchEvent('on-end-masquerade', {
+    masqueradeCompany,
+  });
 };
