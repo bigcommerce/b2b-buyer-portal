@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -22,11 +21,8 @@ interface ListItem {
 }
 
 export interface OrderItemCardProps {
-  allTotal: number;
-  filterData: any;
-  index?: number;
+  goToDetail: () => void;
   item: ListItem;
-  isCompanyOrder: boolean;
 }
 
 const Flex = styled('div')(() => ({
@@ -37,28 +33,10 @@ const Flex = styled('div')(() => ({
   },
 }));
 
-export function OrderItemCard({
-  item,
-  allTotal,
-  filterData,
-  index = 0,
-  isCompanyOrder,
-}: OrderItemCardProps) {
+export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
   const theme = useTheme();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const customer = useAppSelector(({ company }) => company.customer);
-  const navigate = useNavigate();
-
-  const goToDetail = (item: ListItem) => {
-    navigate(`/orderDetail/${item.orderId}`, {
-      state: {
-        currentIndex: index || 0,
-        searchParams: filterData,
-        totalCount: allTotal,
-        isCompanyOrder,
-      },
-    });
-  };
 
   const getName = (item: ListItem) => {
     if (isB2BUser) {
@@ -69,12 +47,7 @@ export function OrderItemCard({
 
   return (
     <Card key={item.orderId}>
-      <CardContent
-        sx={{
-          color: 'rgba(0, 0, 0, 0.6)',
-        }}
-        onClick={() => goToDetail(item)}
-      >
+      <CardContent sx={{ color: 'rgba(0, 0, 0, 0.6)' }} onClick={goToDetail}>
         <Flex className="between-flex">
           <Box
             sx={{

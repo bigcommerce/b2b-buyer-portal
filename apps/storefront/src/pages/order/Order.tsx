@@ -6,8 +6,6 @@ import { Box } from '@mui/material';
 import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
-import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
 import {
   getB2BAllOrders,
@@ -22,6 +20,8 @@ import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
+import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
+import { PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   defaultSortKey,
   FilterSearchProps,
@@ -95,9 +95,9 @@ function useData() {
     isAgenting,
     isB2BUser,
     orderSubViewPermission,
-    selectCompanyHierarchyId,
+    selectCompanyHierarchyId: Number(selectCompanyHierarchyId),
     isEnabledCompanyHierarchy,
-    currentCompanyId,
+    currentCompanyId: Number(currentCompanyId),
     companyId,
   };
 }
@@ -133,7 +133,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser);
     if (isB2BUser) {
-      search.companyIds = [Number(selectCompanyHierarchyId) || Number(currentCompanyId)];
+      search.companyIds = [selectCompanyHierarchyId || currentCompanyId];
     }
     setFilterData(search);
     setIsAutoRefresh(true);
@@ -182,9 +182,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-    // disabling as we only need to run this once and values at starting render are good enough
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectCompanyHierarchyId]);
+  }, [
+    b3Lang,
+    companyId,
+    currentCompanyId,
+    isAgenting,
+    isB2BUser,
+    isCompanyOrder,
+    role,
+    selectCompanyHierarchyId,
+  ]);
 
   const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = async (params) => {
     const { edges = [], totalCount } = isB2BUser
@@ -193,8 +200,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     setAllTotal(totalCount);
     setIsAutoRefresh(false);
+
     return {
-      edges,
+      edges: edges.map((row: PossibleNodeWrapper<object>) => ('node' in row ? row.node : row)),
       totalCount,
     };
   };
@@ -220,43 +228,40 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       title: b3Lang('orders.order'),
       width: '10%',
       isSortable: true,
+      render: ({ orderId }) => orderId,
     },
     {
       key: 'companyName',
       title: b3Lang('orders.company'),
       width: '10%',
       isSortable: false,
-      render: (item: ListItem) => {
-        const { companyInfo } = item;
-
+      render: ({ companyInfo }) => {
         return <Box>{companyInfo?.companyName || '–'}</Box>;
       },
     },
     {
       key: 'poNumber',
       title: b3Lang('orders.poReference'),
-      render: (item: ListItem) => <Box>{item.poNumber ? item.poNumber : '–'}</Box>,
+      render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'totalIncTax',
       title: b3Lang('orders.grandTotal'),
-      render: (item: ListItem) =>
-        item?.money
-          ? ordersCurrencyFormat(JSON.parse(JSON.parse(item.money)), item.totalIncTax)
-          : currencyFormat(item.totalIncTax),
+      render: ({ money, totalIncTax }) =>
+        money
+          ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
+          : currencyFormat(totalIncTax),
+      align: 'right',
       width: '8%',
-      style: {
-        textAlign: 'right',
-      },
       isSortable: true,
     },
     {
       key: 'status',
       title: b3Lang('orders.orderStatus'),
-      render: (item: ListItem) => (
-        <OrderStatus text={getOrderStatusText(item.status, getOrderStatuses)} code={item.status} />
+      render: ({ status }) => (
+        <OrderStatus text={getOrderStatusText(status, getOrderStatuses)} code={status} />
       ),
       width: '10%',
       isSortable: true,
@@ -264,14 +269,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'placedBy',
       title: b3Lang('orders.placedBy'),
-      render: (item: ListItem) => `${item.firstName} ${item.lastName}`,
+      render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'createdAt',
       title: b3Lang('orders.createdOn'),
-      render: (item: ListItem) => `${displayFormat(Number(item.createdAt))}`,
+      render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
       width: '10%',
       isSortable: true,
     },
@@ -387,33 +392,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
         <B3PaginationTable
           columnItems={columnItems}
-          rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}
           searchParams={filterData || {}}
-          isCustomRender={false}
           requestLoading={setIsRequestLoading}
-          tableKey="orderId"
-          pageType="orderListPage"
           isAutoRefresh={isAutoRefresh}
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
           renderItem={(row, index) => (
-            <OrderItemCard
-              key={row.orderId}
-              item={row}
-              index={index}
-              allTotal={allTotal}
-              filterData={filterData}
-              isCompanyOrder={isCompanyOrder}
-            />
+            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
           )}
-          onClickRow={(item, index) => {
-            if (index !== undefined) {
-              goToDetail(item, index);
-            }
-          }}
-          hover
+          onClickRow={goToDetail}
         />
       </Box>
     </B3Spin>
