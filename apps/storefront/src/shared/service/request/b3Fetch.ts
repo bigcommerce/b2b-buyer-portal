@@ -73,14 +73,18 @@ export interface GQLRequest {
   variables?: any;
 }
 
+interface DataWrapper {
+  data: unknown;
+}
+
 const B3Request = {
   /**
    * Request to B2B graphql API using B2B token
    */
-  graphqlB2B: function post<T = CustomFieldItems>(
+  graphqlB2B: function post<T extends DataWrapper | CustomFieldItems = CustomFieldItems>(
     data: GQLRequest,
     customMessage = false,
-  ): Promise<T> {
+  ): Promise<T extends DataWrapper ? T['data'] : T> {
     const { B2BToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${B2BToken}`,
