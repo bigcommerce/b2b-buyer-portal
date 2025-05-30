@@ -1,4 +1,5 @@
 const testFilesRegex = '(/|\\.)(spec|test)\\.(js|ts|tsx|jsx)$';
+const pocFilesRegex = '(/|\\.)(poc)\\.(js|ts|tsx|jsx)$';
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
@@ -9,12 +10,13 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^src/',
-        pathNot: [testFilesRegex],
+        pathNot: [testFilesRegex, pocFilesRegex],
       },
       module: {
         path: '^src/',
         pathNot: [
           testFilesRegex,
+          pocFilesRegex,
           '\\.d\\.ts$',
           '__mocks__',
           '.eslintrc.json',
