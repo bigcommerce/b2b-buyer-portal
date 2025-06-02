@@ -26,6 +26,24 @@ interface RoleProps {
   role: string;
   companyRoleId: string | number;
 }
+
+function useData() {
+  const fetchList: GetRequestList<GetUsersVariables, UsersList> = async (params) => {
+    const data = await getUsers(params);
+
+    const {
+      users: { edges, totalCount },
+    } = data;
+
+    return {
+      edges,
+      totalCount,
+    };
+  };
+
+  return { fetchList };
+}
+
 function UserManagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
@@ -100,18 +118,7 @@ function UserManagement() {
     useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
-  const fetchList: GetRequestList<GetUsersVariables, UsersList> = async (params) => {
-    const data = await getUsers(params);
-
-    const {
-      users: { edges, totalCount },
-    } = data;
-
-    return {
-      edges,
-      totalCount,
-    };
-  };
+  const { fetchList } = useData();
 
   const initSearchList = () => {
     paginationTableRef.current?.refresh();
