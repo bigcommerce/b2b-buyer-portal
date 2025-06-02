@@ -192,7 +192,10 @@ export const getUsers = (data: GetUsersVariables) =>
       ...data,
       q: data.q || '',
       companyId: Number(data.companyId),
-      companyRoleId: data.companyRoleId !== undefined ? Number(data.companyRoleId) : undefined,
+      companyRoleId:
+        data.companyRoleId !== undefined && data.companyRoleId !== ''
+          ? Number(data.companyRoleId)
+          : undefined,
     },
   });
 

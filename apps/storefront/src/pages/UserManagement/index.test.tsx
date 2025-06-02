@@ -238,6 +238,35 @@ describe.each([
     expect(screen.getByText('Junior buyer')).toBeInTheDocument();
   });
 
+  it('does not apply any filters by default', async () => {
+    const getUsersVariablesSpy = vi.fn();
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetUsers', ({ variables }) => {
+        getUsersVariablesSpy(variables);
+
+        return HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'));
+      }),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await waitFor(() =>
+      expect(getUsersVariablesSpy).toHaveBeenCalledWith({
+        first: 12,
+        offset: 0,
+        search: '',
+        companyId: 82828,
+        q: '',
+        createdBy: '',
+        email: '',
+        companyRoleId: undefined,
+      }),
+    );
+  });
+
   it('displays users with custom roles', async () => {
     const joeSwanson = buildUserEdgeWith({
       node: {
