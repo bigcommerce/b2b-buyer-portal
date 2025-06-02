@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
+import { z, ZodError } from 'zod';
 
 import { usePageMask } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -56,7 +57,7 @@ function Dashboard(props: PageProps) {
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [tempCompanyId, setTempCompanyId] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
+  const [cartEntityId, setCartEntityId] = useState<string>('');
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -87,6 +88,13 @@ function Dashboard(props: PageProps) {
       setIsRequestLoading(true);
       if (typeof b2bId === 'number') {
         await startMasquerade({ customerId, companyId }, store);
+      }
+
+      if (cartEntityId) {
+        await deleteCart({ deleteCartInput: { cartEntityId } });
+        Cookies.remove('cartId');
+        store.dispatch(setCartNumber(0));
+        setCartEntityId('');
       }
 
       setOpenPage({
@@ -133,20 +141,16 @@ function Dashboard(props: PageProps) {
     });
   };
 
-  const handleClose = () => {
-    setOpenModal(false);
-  };
-
-  const handleModalConfirm = () => {
-    const cartId = Cookies.get('cartId');
-
-    startActing(Number(tempCompanyId))
-      .then(() => deleteCart({ deleteCartInput: { cartEntityId: cartId as string } }))
-      .then(() => Cookies.remove('cartId'))
-      .finally(() => {
-        store.dispatch(setCartNumber(0));
-        handleClose();
-      });
+  const onStartMasquerade = (companyId: number) => {
+    try {
+      const cartEntityId = z.string().parse(Cookies.get('cartId'));
+      setCartEntityId(cartEntityId);
+      setTempCompanyId(companyId);
+    } catch (e) {
+      if (e instanceof ZodError) {
+        startActing(companyId);
+      }
+    }
   };
 
   const columnItems: TableColumnItem<ListItem>[] = [
@@ -184,15 +188,7 @@ function Dashboard(props: PageProps) {
         return (
           <ActionMenuCell
             label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => {
-              const cartId = Cookies.get('cartId');
-              if (cartId) {
-                setOpenModal(true);
-                setTempCompanyId(Number(companyId));
-              } else {
-                startActing(Number(companyId));
-              }
-            }}
+            onClick={() => onStartMasquerade(Number(companyId))}
           />
         );
       },
@@ -253,48 +249,73 @@ function Dashboard(props: PageProps) {
           }}
         />
       </Box>
-      <B3Dialog
-        isOpen={openModal}
-        rightSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.continue')}
-        title={b3Lang('dashboard.startMasqueradeModal.title')}
-        leftSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.cancel')}
-        maxWidth={false}
-        loading={isRequestLoading}
-        handleLeftClick={handleClose}
-        handRightClick={handleModalConfirm}
-        dialogWidth="480px"
-        dialogSx={{
-          '& .MuiPaper-elevation': {
-            '& h2': {
-              border: 'unset',
-              color: '#000000',
-            },
-            '& div': {
-              border: 'unset',
-            },
+      <ConfirmMasqueradeDialog
+        isOpen={Boolean(cartEntityId)}
+        isRequestLoading={isRequestLoading}
+        handleClose={() => setCartEntityId('')}
+        handleConfirm={() => startActing(tempCompanyId)}
+      />
+    </B3Spin>
+  );
+}
+
+interface ConfirmMasqueradeDialogProps {
+  isOpen: boolean;
+  isRequestLoading: boolean;
+  handleClose: () => void;
+  handleConfirm: () => void;
+}
+
+function ConfirmMasqueradeDialog({
+  isOpen,
+  isRequestLoading,
+  handleClose,
+  handleConfirm,
+}: ConfirmMasqueradeDialogProps) {
+  const b3Lang = useB3Lang();
+
+  return (
+    <B3Dialog
+      isOpen={isOpen}
+      rightSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.continue')}
+      title={b3Lang('dashboard.startMasqueradeModal.title')}
+      leftSizeBtn={b3Lang('dashboard.startMasqueradeModal.actions.cancel')}
+      maxWidth={false}
+      loading={isRequestLoading}
+      handleLeftClick={handleClose}
+      handRightClick={handleConfirm}
+      dialogWidth="480px"
+      dialogSx={{
+        '& .MuiPaper-elevation': {
+          '& h2': {
+            border: 'unset',
+            color: '#000000',
           },
+          '& div': {
+            border: 'unset',
+          },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          maxHeight: '600px',
         }}
       >
         <Box
           sx={{
-            maxHeight: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            color: '#000000',
+            fontSize: '14px',
+            fontWeight: 400,
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              flex: 1,
-              color: '#000000',
-              fontSize: '14px',
-              fontWeight: 400,
-            }}
-          >
-            {b3Lang('dashboard.startMasqueradeModal.message')}
-          </Box>
+          {b3Lang('dashboard.startMasqueradeModal.message')}
         </Box>
-      </B3Dialog>
-    </B3Spin>
+      </Box>
+    </B3Dialog>
   );
 }
 
