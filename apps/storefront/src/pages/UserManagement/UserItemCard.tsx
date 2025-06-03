@@ -11,7 +11,7 @@ import { B3Tag } from '@/components';
 import { verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
-import { getUserRole, UsersList } from './config';
+import { getUserRole } from './config';
 
 interface RoleListProps {
   label: string;
@@ -22,10 +22,24 @@ interface RoleListProps {
   name: string;
 }
 
+interface User {
+  id: string;
+  companyRoleName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyInfo: {
+    companyId: string;
+  };
+}
+
+export type Edit = (id: string) => void;
+export type Delete = (id: string) => void;
+
 export interface OrderItemCardProps {
-  item: UsersList;
-  onEdit: (data: UsersList) => void;
-  onDelete: (data: UsersList) => void;
+  item: User;
+  onEdit: Edit;
+  onDelete: Delete;
 }
 
 const Flex = styled('div')(() => ({
@@ -133,21 +147,13 @@ export function UserItemCard(props: OrderItemCardProps) {
                 sx={{
                   marginRight: '8px',
                 }}
-                onClick={() => {
-                  onEdit(userInfo);
-                }}
+                onClick={() => onEdit(userInfo.id)}
               >
                 <EditIcon fontSize="inherit" />
               </IconButton>
             )}
             {deleteActionsPermission && (
-              <IconButton
-                aria-label="delete"
-                size="small"
-                onClick={() => {
-                  onDelete(userInfo);
-                }}
-              >
+              <IconButton aria-label="delete" size="small" onClick={() => onDelete(userInfo.id)}>
                 <DeleteIcon fontSize="inherit" />
               </IconButton>
             )}

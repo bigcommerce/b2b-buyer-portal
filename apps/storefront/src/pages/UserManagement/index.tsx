@@ -16,8 +16,8 @@ import { getUsers, GetUsersVariables } from './getUsers';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
 import B3AddEditUser, { HandleOpenAddEditUserClick } from './AddEditUser';
-import { getFilterMoreList, UsersList } from './config';
-import { UserItemCard } from './UserItemCard';
+import { getFilterMoreList } from './config';
+import { Delete, Edit, UserItemCard } from './UserItemCard';
 
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditUserClick: HandleOpenAddEditUserClick;
@@ -28,8 +28,17 @@ interface RoleProps {
   companyRoleId: string | number;
 }
 
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyRoleName: string;
+  companyInfo: { companyId: string };
+}
+
 function useData() {
-  const fetchList: GetRequestList<GetUsersVariables, UsersList> = async (params) => {
+  const fetchList: GetRequestList<GetUsersVariables, User> = async (params) => {
     const data = await getUsers(params);
 
     const {
@@ -50,21 +59,7 @@ function UserManagement() {
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
 
-  const [userItem, setUserItem] = useState<UsersList>({
-    createdAt: 0,
-    email: '',
-    firstName: '',
-    id: '',
-    lastName: '',
-    phone: '',
-    role: 0,
-    updatedAt: 0,
-    extraFields: [],
-    companyRoleName: '',
-    companyRoleId: '',
-    masqueradingCompanyId: '',
-    companyInfo: null,
-  });
+  const [userId, setUserId] = useState<string>();
   const b3Lang = useB3Lang();
 
   const [isMobile] = useMobile();
@@ -168,12 +163,12 @@ function UserManagement() {
     addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'add' });
   };
 
-  const handleEdit = (userInfo: UsersList) => {
-    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'edit', id: userInfo.id });
+  const handleEdit: Edit = (id) => {
+    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'edit', id });
   };
 
-  const handleDelete = (row: UsersList) => {
-    setUserItem(row);
+  const handleDelete: Delete = (id) => {
+    setUserId(id);
     setDeleteOpen(true);
   };
 
@@ -181,13 +176,16 @@ function UserManagement() {
     setDeleteOpen(false);
   };
 
-  const handleDeleteUserClick = async (row: UsersList | undefined) => {
-    if (!row) return;
+  const handleDeleteUserClick = async (userId?: string) => {
+    if (!userId) {
+      return;
+    }
+
     try {
       setIsRequestLoading(true);
       handleCancelClick();
       await deleteUsers({
-        userId: row.id || '',
+        userId,
         companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
@@ -227,12 +225,7 @@ function UserManagement() {
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           renderItem={(row) => (
-            <UserItemCard
-              key={row.id || ''}
-              item={row}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <UserItemCard key={row.id} item={row} onEdit={handleEdit} onDelete={handleDelete} />
           )}
         />
         <B3AddEditUser
@@ -247,7 +240,7 @@ function UserManagement() {
           rightSizeBtn={b3Lang('userManagement.delete')}
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
-          row={userItem}
+          row={userId}
           rightStyleBtn={{
             color: '#D32F2F',
           }}
