@@ -42,6 +42,7 @@ export { default as hideStorefrontElement } from './b3HideStorefrontElement';
 
 export * from './b3Company';
 export * from './b3CheckPermissions';
+export { isKeyOf } from './isKeyOf';
 
 export {
   b2bPrintInvoice,
