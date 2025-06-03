@@ -3,56 +3,6 @@ import { UserTypes } from '@/types';
 import { convertArrayToGraphql, storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const getUsersQl = `
-  query GetUsers($first: Int!, $offset: Int!, $q: String, $companyId: Int!, $companyRoleId: Decimal) {
-    users (
-      first: $first
-      search: $q
-      offset: $offset
-      companyId: $companyId
-      companyRoleId: $companyRoleId
-    ){
-      totalCount,
-      pageInfo{
-        hasNextPage,
-        hasPreviousPage,
-      },
-      edges{
-        node{
-          id,
-          createdAt,
-          updatedAt,
-          firstName,
-          lastName,
-          email,
-          phone,
-          bcId,
-          role,
-          uuid,
-          extraFields{
-            fieldName
-            fieldValue
-          }
-          companyRoleId,
-          companyRoleName,
-          masqueradingCompanyId,
-          companyInfo {
-            companyId,
-            companyName,
-            companyAddress,
-            companyCountry,
-            companyState,
-            companyCity,
-            companyZipCode,
-            phoneNumber,
-            bcId,
-          },
-        }
-      }
-    }
-  }
-`;
-
 const addOrUpdateUsersQl = (data: CustomFieldItems) => `
   mutation ${data?.userId ? 'UpdateUser' : 'CreateUser'} {
     ${data?.userId ? 'userUpdate' : 'userCreate'} (
@@ -176,28 +126,6 @@ export interface UsersResponse {
     };
   };
 }
-
-export interface GetUsersVariables {
-  first: number;
-  offset: number;
-  q?: string;
-  companyId: number | string;
-  companyRoleId?: number | string;
-}
-
-export const getUsers = (data: GetUsersVariables) =>
-  B3Request.graphqlB2B<UsersResponse>({
-    query: getUsersQl,
-    variables: {
-      ...data,
-      q: data.q || '',
-      companyId: Number(data.companyId),
-      companyRoleId:
-        data.companyRoleId !== undefined && data.companyRoleId !== ''
-          ? Number(data.companyRoleId)
-          : undefined,
-    },
-  });
 
 export interface UserExtraFieldsInfoResponse {
   data: {
