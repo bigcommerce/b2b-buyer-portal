@@ -8,7 +8,7 @@ import B3Dialog from '@/components/B3Dialog';
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
-import { channelId, snackbar } from '@/utils';
+import { channelId, isKeyOf, snackbar } from '@/utils';
 
 import {
   emailError,
@@ -16,17 +16,32 @@ import {
   FilterProps,
   getUsersFiles,
   UsersFilesProps,
-  UsersList,
 } from './config';
+import { getUser } from './getUser';
 import getB2BUserExtraFields from './getUserExtraFields';
 
+export type HandleOpenAddEditUserClick = (
+  options: { type: 'add' } | { type: 'edit'; userId: string },
+) => Promise<void>;
+
 interface AddEditUserProps {
-  companyId: string | number;
+  companyId: string;
   renderList: () => void;
 }
 
 interface SelectedDataProps {
   [key: string]: string | number;
+}
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  companyRoleId: number;
+  companyRoleName?: string;
+  extraFields: { fieldName: string; fieldValue: string }[];
 }
 
 function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unknown> | undefined) {
@@ -35,7 +50,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
 
-  const [editData, setEditData] = useState<UsersList | null>(null);
+  const [editData, setEditData] = useState<User>();
 
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false);
 
@@ -91,7 +106,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
         const newItem = item;
 
         if (type === 'edit' && editData) {
-          setValue(item.name, editData[item.name]);
+          setValue(item.name, isKeyOf(editData, item.name) ? editData[item.name] : undefined);
         }
 
         return newItem;
@@ -194,14 +209,17 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
     })();
   };
 
-  const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
+  const handleOpenAddEditUserClick: HandleOpenAddEditUserClick = async (options) => {
+    const { type } = options;
     const usersFiles = getUsersFiles(
       type,
       b3Lang,
-      type === 'edit' ? b2bId === Number(data.id) : false,
+      type === 'edit' ? b2bId === Number(options.userId) : false,
     );
 
     if (type === 'edit') {
+      const { userId } = options;
+      const data = await getUser({ userId, companyId });
       const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || [];
       let newData = data;
       if (extrafieldsInfo && extrafieldsInfo.length > 0) {
@@ -217,7 +235,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
         };
       }
 
-      setEditData(newData);
+      setEditData({ id: userId, ...newData });
 
       const companyRoleItem: UsersFilesProps | null =
         usersFiles.find((item) => item.name === 'companyRoleId') || null;

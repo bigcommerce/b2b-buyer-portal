@@ -14,39 +14,35 @@ import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
-import B3AddEditUser from './AddEditUser';
-import { getFilterMoreList, UsersList } from './config';
+import B3AddEditUser, { HandleOpenAddEditUserClick } from './AddEditUser';
+import { getFilterMoreList } from './config';
 import { getUsers, GetUsersVariables } from './getUsers';
-import { UserItemCard } from './UserItemCard';
+import { Delete, Edit, UserItemCard } from './UserItemCard';
 
 interface RefCurrentProps extends HTMLInputElement {
-  handleOpenAddEditUserClick: (type: string, data?: UsersList) => void;
+  handleOpenAddEditUserClick: HandleOpenAddEditUserClick;
 }
 
 interface RoleProps {
   role: string;
   companyRoleId: string | number;
 }
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  companyRoleName: string;
+  companyInfo: { companyId: string };
+}
+
 function UserManagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
 
-  const [userItem, setUserItem] = useState<UsersList>({
-    createdAt: 0,
-    email: '',
-    firstName: '',
-    id: '',
-    lastName: '',
-    phone: '',
-    role: 0,
-    updatedAt: 0,
-    extraFields: [],
-    companyRoleName: '',
-    companyRoleId: '',
-    masqueradingCompanyId: '',
-    companyInfo: null,
-  });
+  const [userId, setUserId] = useState<string>();
   const b3Lang = useB3Lang();
 
   const [isMobile] = useMobile();
@@ -101,7 +97,7 @@ function UserManagement() {
     useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
-  const fetchList: GetRequestList<GetUsersVariables, UsersList> = async (params) => {
+  const fetchList: GetRequestList<GetUsersVariables, User> = async (params) => {
     const data = await getUsers(params);
 
     const {
@@ -158,15 +154,15 @@ function UserManagement() {
   };
 
   const handleAddUserClick = () => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('add');
+    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'add' });
   };
 
-  const handleEdit = (userInfo: UsersList) => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('edit', userInfo);
+  const handleEdit: Edit = (userId) => {
+    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'edit', userId });
   };
 
-  const handleDelete = (row: UsersList) => {
-    setUserItem(row);
+  const handleDelete: Delete = (id) => {
+    setUserId(id);
     setDeleteOpen(true);
   };
 
@@ -174,13 +170,16 @@ function UserManagement() {
     setDeleteOpen(false);
   };
 
-  const handleDeleteUserClick = async (row: UsersList | undefined) => {
-    if (!row) return;
+  const handleDeleteUserClick = async (userId?: string) => {
+    if (!userId) {
+      return;
+    }
+
     try {
       setIsRequestLoading(true);
       handleCancelClick();
       await deleteUsers({
-        userId: row.id || '',
+        userId,
         companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
@@ -220,16 +219,11 @@ function UserManagement() {
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           renderItem={(row) => (
-            <UserItemCard
-              key={row.id || ''}
-              item={row}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <UserItemCard key={row.id} item={row} onEdit={handleEdit} onDelete={handleDelete} />
           )}
         />
         <B3AddEditUser
-          companyId={selectCompanyHierarchyId || companyId}
+          companyId={`${selectCompanyHierarchyId || companyId}`}
           renderList={initSearchList}
           ref={addEditUserRef}
         />
@@ -240,7 +234,7 @@ function UserManagement() {
           rightSizeBtn={b3Lang('userManagement.delete')}
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
-          row={userItem}
+          row={userId}
           rightStyleBtn={{
             color: '#D32F2F',
           }}
