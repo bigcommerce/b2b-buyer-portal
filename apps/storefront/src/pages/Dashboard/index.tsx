@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
-import { z, ZodError } from 'zod';
 
 import { usePageMask } from '@/components';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
@@ -56,8 +55,9 @@ function Dashboard(props: PageProps) {
   const b3Lang = useB3Lang();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
-  const [tempCompanyId, setTempCompanyId] = useState(1);
-  const [cartEntityId, setCartEntityId] = useState<string>('');
+  const [confirmMasquerade, setConfirmMasquerade] = useState<{ companyId: number } | undefined>(
+    undefined,
+  );
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -90,11 +90,11 @@ function Dashboard(props: PageProps) {
         await startMasquerade({ customerId, companyId }, store);
       }
 
+      const cartEntityId = Cookies.get('cartId');
       if (cartEntityId) {
         await deleteCart({ deleteCartInput: { cartEntityId } });
         Cookies.remove('cartId');
         store.dispatch(setCartNumber(0));
-        setCartEntityId('');
       }
 
       setOpenPage({
@@ -142,14 +142,12 @@ function Dashboard(props: PageProps) {
   };
 
   const onStartMasquerade = (companyId: number) => {
-    try {
-      const cartEntityId = z.string().parse(Cookies.get('cartId'));
-      setCartEntityId(cartEntityId);
-      setTempCompanyId(companyId);
-    } catch (e) {
-      if (e instanceof ZodError) {
-        startActing(companyId);
-      }
+    const cartId = Cookies.get('cartId');
+
+    if (cartId) {
+      setConfirmMasquerade({ companyId });
+    } else {
+      startActing(companyId);
     }
   };
 
@@ -250,10 +248,15 @@ function Dashboard(props: PageProps) {
         />
       </Box>
       <ConfirmMasqueradeDialog
-        isOpen={Boolean(cartEntityId)}
+        isOpen={confirmMasquerade !== undefined}
         isRequestLoading={isRequestLoading}
-        handleClose={() => setCartEntityId('')}
-        handleConfirm={() => startActing(tempCompanyId)}
+        handleClose={() => setConfirmMasquerade(undefined)}
+        handleConfirm={async () => {
+          if (confirmMasquerade) {
+            await startActing(confirmMasquerade?.companyId);
+            setConfirmMasquerade(undefined);
+          }
+        }}
       />
     </B3Spin>
   );
