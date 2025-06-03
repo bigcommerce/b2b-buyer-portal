@@ -1,0 +1,9403 @@
+"""
+Exposes a URL that specifies the behavior of this scalar.
+"""
+directive @specifiedBy(
+  """
+  The URL that specifies the behavior of this scalar.
+  """
+  url: String!
+) on SCALAR
+
+type AccountFormFieldsType implements Node {
+  """
+  Unique ID of this company
+  """
+  id: ID!
+
+  """
+  The created at of this field
+  """
+  createdAt: Int
+
+  """
+  The updated at of this field
+  """
+  updatedAt: Int
+
+  """
+  The form type of this field
+  """
+  formType: Int
+
+  """
+  The field from of this field
+  """
+  fieldFrom: Int
+
+  """
+  The field ID of this field
+  """
+  fieldId: String
+
+  """
+  The field index of this field
+  """
+  fieldIndex: Int
+
+  """
+  Is this field custom
+  """
+  custom: Boolean
+
+  """
+  The group ID of this field
+  """
+  groupId: Int
+
+  """
+  The group name of this field
+  """
+  groupName: String
+
+  """
+  Is this field required
+  """
+  isRequired: Boolean
+
+  """
+  Is this field visible
+  """
+  visible: Boolean
+
+  """
+  The label name of this field
+  """
+  labelName: String
+
+  """
+  The field name of this field
+  """
+  fieldName: String
+
+  """
+  The field type of this field
+  """
+  fieldType: String
+
+  """
+  The value configs of this field
+  """
+  valueConfigs: GenericScalar
+}
+
+type AccountSettingType {
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  Company for user
+  """
+  company: String
+
+  """
+  User phone number
+  """
+  phoneNumber: String
+
+  """
+  User email
+  """
+  email: String
+
+  """
+  List of address form fields
+  """
+  formFields: [FormFieldsType]
+
+  """
+  User role. Required. 0 - Admin, 1 - Senior Buyer, 2 - Junior Buyer
+  """
+  role: Int
+
+  """
+  extra fields of this user
+  """
+  extraFields: [UserExtraFieldsValueType]
+
+  """
+  Company user role id
+  """
+  companyRoleId: Int
+
+  """
+  Company user role name
+  """
+  companyRoleName: String
+}
+
+"""
+Create a company address.
+Requires a B2B Token.
+"""
+type AddressCreate {
+  address: AddressType
+}
+
+"""
+Delete a company address.
+Requires a B2B Token.
+"""
+type AddressDelete {
+  message: String
+}
+
+input AddressExtraFieldInputType {
+  """
+  The extra field name. Required
+  """
+  fieldName: String!
+
+  """
+  The extra field value. Required
+  """
+  fieldValue: String!
+}
+
+type AddressExtraFieldType {
+  """
+  The extra field name
+  """
+  fieldName: String
+
+  """
+  The extra field value
+  """
+  fieldValue: String
+}
+
+input AddressFormFieldsInputType {
+  """
+  The name of address form fields. Required
+  """
+  name: String!
+
+  """
+  The value of address form fields. Required
+  """
+  value: GenericScalar!
+}
+
+type AddressFormFieldsType {
+  """
+  The form field name. Required
+  """
+  name: String!
+
+  """
+  The value of address form fields. Required
+  """
+  value: GenericScalar!
+
+  """
+  The Customer Address ID.
+  """
+  addressId: String
+}
+
+input AddressInputType {
+  """
+  The id of company. Required
+  """
+  companyId: Int!
+
+  """
+  The first name of address. Required
+  """
+  firstName: String!
+
+  """
+  The last name of address. Required
+  """
+  lastName: String!
+
+  """
+  The address line 1. Required
+  """
+  addressLine1: String!
+
+  """
+  The address line 2
+  """
+  addressLine2: String = ""
+
+  """
+  The full country name. Required
+  """
+  country: String!
+
+  """
+  The iso2 code of country, like US. Required
+  """
+  countryCode: String!
+
+  """
+  The full state name, required when the country has states in the bigcommerce country data.
+  """
+  state: String = ""
+
+  """
+  The iso2 code of state
+  """
+  stateCode: String = ""
+
+  """
+  The city name. Required
+  """
+  city: String!
+
+  """
+  The zip code. Required
+  """
+  zipCode: String!
+
+  """
+  The phone number
+  """
+  phoneNumber: String = ""
+
+  """
+  Is this address used for shipping. 1 means true, 0 means false
+  """
+  isShipping: Int = 0
+
+  """
+  Is this address used for billing. 1 means true, 0 means false
+  """
+  isBilling: Int = 0
+
+  """
+  Is this address is the default shipping address.1 means true, 0 means false
+  """
+  isDefaultShipping: Int = 0
+
+  """
+  Is this address is the default billing address.1 means true, 0 means false
+  """
+  isDefaultBilling: Int = 0
+
+  """
+  The address label
+  """
+  label: String = ""
+
+  """
+  The uuid of address
+  """
+  uuid: String = ""
+
+  """
+  The extra fields
+  """
+  extraFields: [AddressExtraFieldInputType] = []
+
+  """
+  The address company
+  """
+  company: String
+}
+
+type AddressStoreConfigType {
+  """
+  The key of store config.Required
+  """
+  key: String
+
+  """
+  The enabled of store config.Required
+  """
+  isEnabled: String
+}
+
+type AddressType implements Node {
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+  firstName: String!
+  lastName: String!
+
+  """
+  Is this address used for shipping. 1 means true, 0 means false
+  """
+  isShipping: Int
+
+  """
+  Is this address used for billing. 1 means true, 0 means false
+  """
+  isBilling: Int
+  addressLine1: String
+  addressLine2: String
+  address: String
+  city: String!
+  state: String
+  stateCode: String
+  country: String!
+  countryCode: String
+  zipCode: String
+  phoneNumber: String
+  isActive: Int!
+  label: String
+
+  """
+  The company of address
+  """
+  company: String
+
+  """
+  The uuid of address
+  """
+  uuid: String
+
+  """
+  List of address extra fields
+  """
+  extraFields: [AddressExtraFieldType]
+
+  """
+  Is this address is the default shipping address.1 means true, 0 means false
+  """
+  isDefaultShipping: Int
+
+  """
+  Is this address is the default billing address.1 means true, 0 means false
+  """
+  isDefaultBilling: Int
+
+  """
+  Company information of address
+  """
+  companyInfo: CompanyInfoType
+}
+
+type AddressTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [AddressTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type AddressTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: AddressType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Update a company address.
+Requires a B2B Token.
+"""
+type AddressUpdate {
+  address: AddressType
+}
+
+input AddressUpdateType {
+  """
+  The id of company. Required
+  """
+  companyId: Int!
+
+  """
+  The first name of address. Required
+  """
+  firstName: String!
+
+  """
+  The last name of address. Required
+  """
+  lastName: String!
+
+  """
+  The address line 1. Required
+  """
+  addressLine1: String!
+
+  """
+  The address line 2
+  """
+  addressLine2: String = ""
+
+  """
+  The full country name. Required
+  """
+  country: String!
+
+  """
+  The iso2 code of country, like US. Required
+  """
+  countryCode: String!
+
+  """
+  The full state name, required when the country has states in the bigcommerce country data.
+  """
+  state: String = ""
+
+  """
+  The iso2 code of state
+  """
+  stateCode: String = ""
+
+  """
+  The city name. Required
+  """
+  city: String!
+
+  """
+  The zip code. Required
+  """
+  zipCode: String!
+
+  """
+  The phone number
+  """
+  phoneNumber: String = ""
+
+  """
+  Is this address used for shipping. 1 means true, 0 means false
+  """
+  isShipping: Int = 0
+
+  """
+  Is this address used for billing. 1 means true, 0 means false
+  """
+  isBilling: Int = 0
+
+  """
+  Is this address is the default shipping address.1 means true, 0 means false
+  """
+  isDefaultShipping: Int = 0
+
+  """
+  Is this address is the default billing address.1 means true, 0 means false
+  """
+  isDefaultBilling: Int = 0
+
+  """
+  The address label
+  """
+  label: String = ""
+
+  """
+  The uuid of address
+  """
+  uuid: String = ""
+
+  """
+  The extra fields
+  """
+  extraFields: [AddressExtraFieldInputType] = []
+
+  """
+  The address company
+  """
+  company: String
+
+  """
+  The id of address. Required
+  """
+  addressId: Int!
+}
+
+type AuthRolePermissionType {
+  """
+  The permission code
+  """
+  code: String
+
+  """
+  The permission level
+  """
+  permissionLevel: Int
+}
+
+type BaseShoppingListItem implements Node {
+  id: ID!
+  createdAt: Int
+  updatedAt: Int
+
+  """
+  Product ID
+  """
+  productId: Int
+
+  """
+  Product variant id
+  """
+  variantId: Int
+
+  """
+  Quantity
+  """
+  quantity: Int
+
+  """
+  SKU name
+  """
+  productSku: String
+
+  """
+  Product option list
+  """
+  optionList: GenericScalar
+
+  """
+  Shopping list item ID
+  """
+  itemId: Int
+
+  """
+  Product note
+  """
+  productNote: String
+}
+
+type BaseShoppingListItemCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [BaseShoppingListItemCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type BaseShoppingListItemCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: BaseShoppingListItem!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+input BcCartInputType {
+  """
+  Invoice items you want to pay.
+  This field is required
+  """
+  lineItems: [InvoiceLineItemsInputType]!
+
+  """
+  Currency code like USD.
+  This field is required
+  """
+  currency: String!
+
+  """
+  The payment details.
+  This field is required
+  """
+  details: GenericScalar!
+}
+
+type BCInfomation {
+  """
+  BundleB2b company name
+  """
+  customerName: String
+
+  """
+  BC customer group ID
+  """
+  bcId: Int
+
+  """
+  BC customer group name
+  """
+  bcGroupName: String
+
+  """
+  BC customer group site url
+  """
+  bcUrl: String
+}
+
+type BcOrderAllowMethodsType {
+  """
+  List of BC allow methods
+  """
+  allowMethods: [String]
+}
+
+type BcOrderType {
+  """
+  The ID of the order.
+  """
+  id: ID!
+
+  """
+  The order's company name
+  """
+  companyName: String
+
+  """
+  The order owner's first name
+  """
+  firstName: String
+
+  """
+  The order owner's last name
+  """
+  lastName: String
+
+  """
+  The status will include one of the (string, optiona) - values defined under Order Statuses
+  """
+  status: String
+
+  """
+  The order owner's id
+  """
+  customerId: Int
+
+  """
+  The custom status of the order
+  """
+  customStatus: String
+
+  """
+  The date the order was created, formatted in the RFC-2822 standard.
+  """
+  dateCreated: String
+
+  """
+  representing the last modification of the order.
+  """
+  dateModified: String
+
+  """
+  representing the date of shipment.
+  """
+  dateShipped: String
+
+  """
+  The staus ID of the order.
+  """
+  statusId: Int
+
+  """
+  Override value for subtotal excluding tax.
+  """
+  subtotalExTax: String
+
+  """
+  Override value for subtotal including tax.
+  """
+  subtotalIncTax: String
+
+  """
+  subtotal tax
+  """
+  subtotalTax: String
+
+  """
+  The value of the base shipping cost.
+  """
+  baseShippingCost: String
+
+  """
+  The value of shipping cost, excluding tax.
+  """
+  shippingCostExTax: String
+
+  """
+  The value of shipping cost, including tax.
+  """
+  shippingCostIncTax: String
+
+  """
+  shipping cost tax
+  """
+  shippingCostTax: String
+
+  """
+  Shipping-cost tax class.
+  """
+  shippingCostTaxClassId: String
+
+  """
+  The value of the base handling cost
+  """
+  baseHandlingCost: String
+
+  """
+  The value of the handling cost, excluding tax.
+  """
+  handlingCostExTax: String
+
+  """
+  The value of the handling cost, including tax.
+  """
+  handlingCostIncTax: String
+
+  """
+  handling cost tax
+  """
+  handlingCostTax: String
+
+  """
+  Value ignored if automatic tax is enabled on the store.
+  """
+  handlingCostTaxClassId: Int
+
+  """
+  The value of the base wrapping cost.
+  """
+  baseWrappingCost: String
+
+  """
+  The value of the wrapping cost, excluding tax.
+  """
+  wrappingCostExTax: String
+
+  """
+  The value of the wrapping cost, including tax.
+  """
+  wrappingCostIncTax: String
+
+  """
+  wrapping cost tax
+  """
+  wrappingCostTax: String
+
+  """
+  Value ignored if automatic tax is enabled on the store.
+  """
+  wrappingCostTaxClassId: Int
+
+  """
+  Override value for the total, excluding tax.
+  """
+  totalExTax: String
+
+  """
+  Override value for the total, including tax.
+  """
+  totalIncTax: String
+
+  """
+  total tax
+  """
+  totalTax: String
+
+  """
+  The total number of items in the order.
+  """
+  itemsTotal: Int
+
+  """
+  The number of items that have been shipped.
+  """
+  itemsShipped: Int
+
+  """
+  The payment method for this order. Can be one of the following: Manual, Credit Card, cash, Test Payment Gateway, etc.
+  """
+  paymentMethod: String
+
+  """
+  The external Transaction ID/Payment ID within this order’s payment provider
+  """
+  paymentProviderId: String
+
+  """
+  payment status
+  """
+  paymentStatus: String
+
+  """
+  The amount refunded from this transaction.
+  """
+  refundedAmount: String
+
+  """
+  Whether this is an order for digital products.
+  """
+  orderIsDigital: Boolean
+
+  """
+  Represents the store credit that the shopper has redeemed on this individual order.
+  """
+  storeCreditAmount: String
+
+  """
+  gift certificate amount
+  """
+  giftCertificateAmount: String
+
+  """
+  IPv4 Address of the customer, if known
+  """
+  ipAddress: String
+
+  """
+  The full name of the country where the customer made the purchase, based on the IP.
+  """
+  geoipCountry: String
+
+  """
+  The country where the customer made the purchase, in ISO2 format, based on the IP
+  """
+  geoipCountryIso2: String
+
+  """
+  The display currency ID.
+  """
+  currencyId: Int
+
+  """
+  The currency code of the display currency used to present prices on the storefront.
+  """
+  currencyCode: String
+
+  """
+  The exchange rate between the store’s default currency and the display currency.
+  """
+  currencyExchangeRate: String
+
+  """
+  The transactional currency ID
+  """
+  defaultCurrencyId: Int
+
+  """
+  The currency code of the transactional currency the shopper pays in
+  """
+  defaultCurrencyCode: String
+
+  """
+  Any additional notes for staff.
+  """
+  staffNotes: String
+
+  """
+  Message that the customer entered
+  """
+  customerMessage: String
+
+  """
+  Amount of discount for this transaction.
+  """
+  discountAmount: String
+
+  """
+  coupon discount value
+  """
+  couponDiscount: String
+
+  """
+  The number of shipping addresses associated with this transaction.
+  """
+  shippingAddressCount: Int
+
+  """
+  Indicates whether the order was deleted (archived).
+  """
+  isDeleted: Boolean
+
+  """
+  If the order was placed through eBay, the eBay order number will be included. Otherwise, the value will be 0.
+  """
+  ebayOrderId: String
+
+  """
+  The cart ID from which this order originated,
+  """
+  cartId: String
+
+  """
+  IPv6 Address of the customer, if known.
+  """
+  ipAddressV6: String
+
+  """
+  Indicates whether the shopper has selected an opt-in check box (on the checkout page) to receive emails.
+  """
+  isEmailOptIn: Boolean
+
+  """
+  PO number of the order
+  """
+  poNumber: String
+
+  """
+  default currency code
+  """
+  storeDefaultCurrencyCode: String
+
+  """
+  store default to transactional exchange_rate
+  """
+  storeDefaultToTransactionalExchangeRate: String
+
+  """
+  The customer’s locale
+  """
+  customerLocale: String
+
+  """
+  Shows where the order originated. The channel_id will default to 1.
+  """
+  channelId: String
+
+  """
+  Orders submitted via the store’s website will include a www value.
+  """
+  orderSource: String
+
+  """
+  This value identifies an external system that generated the order and submitted it to BigCommerce via the Orders API
+  """
+  externalSource: String
+
+  """
+  credit card type
+  """
+  creditCardType: String
+
+  """
+  ID of the order in another system.
+  """
+  externalId: String
+
+  """
+  external merchant id
+  """
+  externalMerchantId: String
+
+  """
+  BasicTaxProvider - Tax is set to manual.
+  """
+  taxProviderId: String
+
+  """
+  whether can return
+  """
+  canReturn: Boolean
+
+  """
+  Order owner's email
+  """
+  createdEmail: String
+
+  """
+  Order products
+  """
+  products: GenericScalar
+
+  """
+  Order coupons
+  """
+  coupons: GenericScalar
+
+  """
+  extra fields set by b3
+  """
+  extraFields: GenericScalar
+
+  """
+  Order's billing address
+  """
+  billingAddress: GenericScalar
+
+  """
+  Order's shipping address
+  """
+  shippingAddresses: GenericScalar
+
+  """
+  Order's shipping address
+  """
+  shippingAddress: GenericScalar
+
+  """
+  Order's shipments
+  """
+  shipments: GenericScalar
+
+  """
+  extra int 1
+  """
+  extraInt1: Int
+
+  """
+  extra int 2
+  """
+  extraInt2: Int
+
+  """
+  extra int 3
+  """
+  extraInt3: Int
+
+  """
+  extra int 4
+  """
+  extraInt4: Int
+
+  """
+  extra int 5
+  """
+  extraInt5: Int
+
+  """
+  extra str 1
+  """
+  extraStr1: String
+
+  """
+  extra str 2
+  """
+  extraStr2: String
+
+  """
+  extra str 3
+  """
+  extraStr3: String
+
+  """
+  extra str 4
+  """
+  extraStr4: String
+
+  """
+  extra str 5
+  """
+  extraStr5: String
+
+  """
+  extra text
+  """
+  extraText: String
+
+  """
+  extra info
+  """
+  extraInfo: GenericScalar
+
+  """
+  Currency info of order
+  """
+  money: GenericScalar
+
+  """
+  Reference number of order
+  """
+  referenceNumber: String
+
+  """
+  Indicate if order is in Invoice
+  """
+  isInvoiceOrder: Int
+
+  """
+  update time
+  """
+  updatedAt: String
+
+  """
+  external order id
+  """
+  externalOrderId: String
+
+  """
+  invoice status
+  """
+  ipStatus: Int
+
+  """
+  invoice id
+  """
+  invoiceId: Int
+
+  """
+  order's history event
+  """
+  orderHistoryEvent: [OrderHistoryEventType]
+
+  """
+  Company information of order
+  """
+  companyInfo: CompanyInfoType
+}
+
+input BillingAddressInputType {
+  country: String
+  state: String
+  city: String
+  zipCode: String
+  address: String
+  apartment: String
+  addressId: Int
+  firstName: String
+  lastName: String
+  addressLine1: String
+  addressLine2: String
+  phoneNumber: String
+  label: String
+  extraFields: [QuoteAddressExtraFieldsInputType]
+  companyName: String
+}
+
+type BulkPricingType {
+  """
+  The minimum quantity required to trigger this bulk pricing discount.
+  """
+  minimum: Int
+
+  """
+  The maximum quantity (or 0 for unlimited) to trigger this bulk pricing discount.
+  """
+  maximum: Int
+
+  """
+  The discount amount for this bulk pricing discount.
+  """
+  discountAmount: Float
+
+  """
+  The type of discount for this bulk pricing discount. Allowed: price | percent | fixed
+  """
+  discountType: String
+
+  """
+  Formats the bulk_pricing.discount_amount into the tax price amounts.
+  """
+  taxDiscountAmount: [PriceType]
+}
+
+type CatalogQuickProductType {
+  """
+  The is stock of inventory tracking.Required
+  """
+  isStock: String
+
+  """
+  The stock of inventory tracking.Required
+  """
+  stock: Int
+
+  """
+  The price of the product as seen on the storefront.Required
+  """
+  calculatedPrice: String
+
+  """
+  The image URL path of product.Required
+  """
+  imageUrl: String
+
+  """
+  The id of product.Required
+  """
+  productId: String
+
+  """
+  The variant id of product.Required
+  """
+  variantId: String
+
+  """
+  The base sku of product.Required
+  """
+  baseSku: String
+
+  """
+  The name of product.Required
+  """
+  productName: String
+
+  """
+  The categories of product
+  """
+  categories: [JSONString]
+
+  """
+  The option of product
+  """
+  option: [GenericScalar]
+
+  """
+  Whether the product should be displayed to customers.1 means true, 0 means false.Required
+  """
+  isVisible: String
+
+  """
+  The minimum quantity in an order.Required
+  """
+  minQuantity: Int
+
+  """
+  The maximum quantity in an order.Required
+  """
+  maxQuantity: Int
+
+  """
+  The modifiers sku of product
+  """
+  modifiers: [GenericScalar]
+
+  """
+  Whether this variant will  be purchasable on the storefront
+  """
+  purchasingDisabled: String
+
+  """
+  The variant sku of product
+  """
+  variantSku: String
+}
+
+type CatalogsVariantType {
+  """
+  The sku of product.Required
+  """
+  sku: String
+
+  """
+  The variant id  of product.Required
+  """
+  variantId: Int
+}
+
+type CheckoutConfigType {
+  """
+  The name of store config.Required
+  """
+  configName: String
+
+  """
+  The id of store config.Required
+  """
+  id: Int
+
+  """
+  The value of store config.Required
+  """
+  value: String
+
+  """
+  The type of store config.Required
+  """
+  type: String
+}
+
+input CheckoutLoginType {
+  """
+  BC cart id for checkout. Required
+  """
+  cartId: String!
+}
+
+type CheckoutResultLoginType {
+  """
+  Redirect URL to login into checkout
+  """
+  redirectUrl: String
+}
+
+input CompanyAddressExtraField {
+  fieldName: String!
+  fieldValue: String!
+}
+
+input CompanyAttachedFile {
+  """
+  file url of this attached
+  """
+  fileUrl: String!
+
+  """
+  file name of this attached
+  """
+  fileName: String!
+
+  """
+  file type of this attached
+  """
+  fileType: String!
+
+  """
+  file size of this attached
+  """
+  fileSize: String
+}
+
+"""
+Create a company using a customer id.
+"""
+type CompanyCreate {
+  company: CompanyType
+}
+
+type CompanyCreditConfigType {
+  """
+  Is company credit enabled
+  """
+  creditEnabled: Boolean
+
+  """
+  Currency code of credit available credit
+  """
+  creditCurrency: String
+
+  """
+  The available credit value
+  """
+  availableCredit: Float
+
+  """
+  Disable via PO Payment when credit value is exceed
+  """
+  limitPurchases: Boolean
+
+  """
+  Prevent all company users from making purchase
+  """
+  creditHold: Boolean
+
+  """
+  All currency info, contains currency symbol, decimal place, etc.
+  """
+  currency: GenericScalar
+}
+
+type CompanyEmailUserInfoType {
+  """
+  Unique user ID
+  """
+  id: Int
+
+  """
+  User's first name
+  """
+  firstName: String
+
+  """
+  User's last name
+  """
+  lastName: String
+
+  """
+  User's phone number
+  """
+  phoneNumber: String
+
+  """
+  User role
+  """
+  role: Int
+
+  """
+  User company role
+  """
+  companyRoleId: Int
+
+  """
+  User company role name
+  """
+  companyRoleName: String
+
+  """
+  User's email
+  """
+  email: String
+
+  """
+  Is user's password reset on login
+  """
+  forcePasswordReset: Boolean
+}
+
+type CompanyEmailValidateType {
+  """
+  Is valid of this email
+  """
+  isValid: Boolean
+  userInfo: CompanyEmailUserInfoType
+}
+
+input CompanyExtraField {
+  fieldName: String!
+  fieldValue: String!
+}
+
+type CompanyInfoType {
+  companyId: String
+  companyName: String
+  companyAddress: String
+  companyCountry: String
+  companyState: String
+  companyCity: String
+  companyZipCode: String
+  phoneNumber: String
+  bcId: String
+}
+
+input CompanyInputType {
+  """
+  The store hash.
+  This field is required.
+  """
+  storeHash: String!
+
+  """
+  Company admin manager's customer user ID in BigCommerce.
+  This field is required.
+  """
+  customerId: String!
+
+  """
+  Company name.
+  This field is required.
+  """
+  companyName: String!
+
+  """
+  Company email
+  """
+  companyEmail: String
+
+  """
+  Company address line.
+  This field is required.
+  """
+  addressLine1: String!
+
+  """
+  Another company address line
+  """
+  addressLine2: String
+
+  """
+  City where company is located.
+  This field is required.
+  """
+  city: String!
+
+  """
+  Company phone number.
+  """
+  companyPhoneNumber: String
+
+  """
+  Country where company is located.
+  This field is required.
+  """
+  country: String!
+
+  """
+  State where company is located.
+  This field is required.
+  """
+  state: String!
+
+  """
+  Zip Code for the company.
+  This field is required.
+  """
+  zipCode: String!
+
+  """
+  extra fields of this company
+  """
+  extraFields: [CompanyExtraField]
+
+  """
+  attach file list of this company
+  """
+  fileList: [CompanyAttachedFile]
+
+  """
+  user extra fields
+  """
+  userExtraFields: [CompanyUserExtraField]
+
+  """
+  Admin user's channel ID of this company
+  """
+  channelId: Int
+
+  """
+  extra fields of this address
+  """
+  addressExtraFields: [CompanyAddressExtraField]
+}
+
+type CompanyPaymentTermsType {
+  """
+  The company payment terms is enabled.
+  """
+  isEnabled: Boolean
+
+  """
+  The company payment terms. If isEnabled is false, this value is the store default payment terms.
+  """
+  paymentTerms: Int
+}
+
+type CompanyPermissionsType implements Node {
+  """
+  ID of the permission
+  """
+  id: ID!
+
+  """
+  Permissions name
+  """
+  name: String
+
+  """
+  Permissions description
+  """
+  description: String
+
+  """
+  Whether the permission is custom
+  """
+  isCustom: Boolean
+
+  """
+  Permissions code
+  """
+  code: String
+
+  """
+  The name of the module to which the permission belongs
+  """
+  moduleName: String
+}
+
+type CompanyRolePermissionsType implements Node {
+  """
+  ID of the permission
+  """
+  id: ID!
+
+  """
+  Permissions name
+  """
+  name: String
+
+  """
+  Whether the permission is custom
+  """
+  isCustom: Boolean
+
+  """
+  Permissions code
+  """
+  code: String
+
+  """
+  Permissions description.
+    1 is user level, 2 is company level
+  """
+  permissionLevel: Int
+}
+
+type CompanyRolesType implements Node {
+  """
+  ID of the role
+  """
+  id: ID!
+
+  """
+  Role name
+  """
+  name: String
+
+  """
+  Role type.
+   1 is predefined, 2 is custom
+  """
+  roleType: Int
+
+  """
+  Role level.
+   1 is store level
+  """
+  roleLevel: Int
+}
+
+type CompanyRolesTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [CompanyRolesTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type CompanyRolesTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: CompanyRolesType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+type CompanyRoleType implements Node {
+  """
+  ID of the role
+  """
+  id: ID!
+
+  """
+  Role name
+  """
+  name: String
+
+  """
+  Role type.
+   1 is predefined, 2 is custom
+  """
+  roleType: Int
+
+  """
+  Role level.
+   1 is store level
+  """
+  roleLevel: Int
+
+  """
+  Permissions of the role
+  """
+  permissions: [CompanyRolePermissionsType]
+}
+
+type CompanySubsidiariesType {
+  """
+  Company ID
+  """
+  companyId: Int
+
+  """
+  Company name
+  """
+  companyName: String
+
+  """
+  Parent company ID
+  """
+  parentCompanyId: Int
+
+  """
+  Parent company name
+  """
+  parentCompanyName: String
+
+  """
+  Is this company user has this channels
+  """
+  channelFlag: Boolean
+}
+
+type CompanyType implements Node {
+  """
+  Unique ID of this company
+  """
+  id: ID!
+
+  """
+  Company name
+  """
+  companyName: String
+
+  """
+  The group name in BigCommerce's group. which must be unique
+  """
+  bcGroupName: String
+
+  """
+  A brief introduction to the company
+  """
+  description: String
+
+  """
+  Prices list ID of this company
+  """
+  catalogId: String
+
+  """
+  Company status
+  """
+  companyStatus: Int
+
+  """
+  Company address line 1
+  """
+  addressLine1: String
+
+  """
+  Company address line 2
+  """
+  addressLine2: String
+
+  """
+  Company city
+  """
+  city: String
+
+  """
+  Company state
+  """
+  state: String
+
+  """
+  Zip code of company city
+  """
+  zipCode: String
+
+  """
+  Company country
+  """
+  country: String
+
+  """
+  extra fields of this company
+  """
+  extraFields: [ExtraFieldsValueType]
+
+  """
+  Company customer group id
+  """
+  customerGroupId: Int
+}
+
+input CompanyUserExtraField {
+  fieldName: String!
+  fieldValue: String!
+}
+
+type CompanyUserInfoType {
+  """
+  The user type of current email. 1 means user does't exist.             2 means
+  the user exists in BigCommerce.             3 means the user exists in BundleB2B.
+  """
+  userType: Int
+  userInfo: CompanyEmailUserInfoType
+}
+
+input ContactInfoInputType {
+  name: String!
+  email: String!
+  companyName: String
+  phoneNumber: String
+}
+
+type CountryType {
+  """
+  The id of country
+  """
+  id: String
+
+  """
+  The country name
+  """
+  countryName: String
+
+  """
+  The country iso2 code
+  """
+  countryCode: String
+
+  """
+  List of states
+  """
+  states: [StatesType]
+}
+
+"""
+Create a BC cart for invoice payment.
+Only Admin and Super Admin can create cart.
+Requires a B2B Token.
+"""
+type CreateBcCartMutation {
+  result: PaymentBcCartType
+}
+
+type CreateByType {
+  results: GenericScalar
+}
+
+type Currencies {
+  """
+  The id of store currency.Required
+  """
+  id: String
+
+  """
+  Whether is default store currency.Required
+  """
+  is_default: Boolean
+
+  """
+  The last update of store currency.Required
+  """
+  last_updated: String
+
+  """
+  The iso2 code of country, like US
+  """
+  country_iso2: String
+
+  """
+  The default country code of store currency
+  """
+  default_for_country_codes: [String]
+
+  """
+  The currency code of store currency
+  """
+  currency_code: String
+
+  """
+  The currency exchange rate of store currency.Required
+  """
+  currency_exchange_rate: String
+
+  """
+  The name of store currency.Required
+  """
+  name: String
+
+  """
+  The token of store currency.Required
+  """
+  token: String
+
+  """
+  The auto update of store currency.Required
+  """
+  auto_update: Boolean
+
+  """
+  Specifies whether this currency’s symbol appears to the “left” or “right” of the numeric amount
+  """
+  token_location: String
+
+  """
+  The decimal token of store currency.Required
+  """
+  decimal_token: String
+
+  """
+  Symbol used as the thousands separator in this currency
+  """
+  thousands_token: String
+
+  """
+  The decimal places of store currency.Required
+  """
+  decimal_places: Int
+
+  """
+  Store currency Whether is enabled.Required
+  """
+  enabled: Boolean
+
+  """
+  Store currency Whether is transactional.Required
+  """
+  is_transactional: Boolean
+}
+
+scalar CurrencyDecimalPlaces
+
+input CurrencyInputType {
+  """
+  Currency rate
+  """
+  currencyExchangeRate: String
+
+  """
+  Currency token, such as $
+  """
+  token: String
+
+  """
+  Currency token position, left or right
+  """
+  location: String
+
+  """
+  Decimal separator
+  """
+  decimalToken: String
+
+  """
+  Number of decimal places
+  """
+  decimalPlaces: CurrencyDecimalPlaces
+
+  """
+  Thousands separator
+  """
+  thousandsToken: String
+
+  """
+  Currency code
+  """
+  currencyCode: String
+}
+
+type CustomerAccountSettingsType {
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  Company for user
+  """
+  company: String
+
+  """
+  User phone number
+  """
+  phoneNumber: String
+
+  """
+  User email
+  """
+  email: String
+
+  """
+  List of address form fields
+  """
+  formFields: [FormFieldsType]
+}
+
+"""
+Create a customer address.
+Requires a BC Token.
+"""
+type CustomerAddressCreate {
+  address: CustomerAddressType
+}
+
+"""
+Delete a customer address.
+Requires a BC Token.
+"""
+type CustomerAddressDelete {
+  message: String
+}
+
+type CustomerAddressesType {
+  """
+  The first name of the customer address
+  """
+  firstName: String
+
+  """
+  The last name of the customer address
+  """
+  lastName: String
+
+  """
+  The company of the customer address.
+  """
+  company: String
+
+  """
+  The address 1 line.
+  """
+  address1: String
+
+  """
+  The address 2 line.
+  """
+  address2: String
+
+  """
+  The city of the customer address.
+  """
+  city: String
+
+  """
+  The state or province of the customer address.
+  """
+  stateOrProvince: String
+
+  """
+  The postal code of the customer address.
+  """
+  postalCode: String
+
+  """
+  The country code of the customer address.
+  """
+  countryCode: String
+
+  """
+  The phone number of the customer address.
+  """
+  phone: String
+
+  """
+  The address type. Residential or Commercial.
+  """
+  addressType: String
+
+  """
+  The id of the customer.
+  """
+  customerId: Int
+
+  """
+  The id of the customer address.
+  """
+  id: Int
+
+  """
+  The country of the customer address.
+  """
+  country: String
+
+  """
+  Array of form fields.
+  """
+  formFields: [FormFieldsType]
+}
+
+input CustomerAddressInputType {
+  """
+  The first name of address. Required
+  """
+  firstName: String!
+
+  """
+  The last name of address. Required
+  """
+  lastName: String!
+
+  """
+  The company of address.
+  """
+  company: String
+
+  """
+  The address line 1. Required
+  """
+  address1: String!
+
+  """
+  The address line 2
+  """
+  address2: String
+
+  """
+  The city name. Required
+  """
+  city: String!
+
+  """
+  The phone of address.
+  """
+  phone: String
+
+  """
+  The state or province name spelled out in full. Required when the country has states in the bigcommerce country data.
+  """
+  stateOrProvince: String = ""
+
+  """
+  The iso2 code of country, like US. Required
+  """
+  countryCode: String!
+
+  """
+  The postal code of address. Required
+  """
+  postalCode: String!
+
+  """
+  The address type. Residential or Commercial
+  """
+  addressType: String
+
+  """
+  Form fields
+  """
+  formFields: [AddressFormFieldsInputType] = []
+}
+
+type CustomerAddressType implements Node {
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+  firstName: String!
+  lastName: String!
+  company: String!
+  bcAddressId: Int!
+  address1: String!
+  address2: String!
+  city: String!
+  stateOrProvince: String!
+  postalCode: String!
+  country: String!
+  countryCode: String!
+  phone: String!
+  addressType: String!
+
+  """
+  List of address form fields
+  """
+  formFields: [AddressFormFieldsType]
+}
+
+type CustomerAddressTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [CustomerAddressTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type CustomerAddressTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: CustomerAddressType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Update a customer address.
+Requires a BC Token.
+"""
+type CustomerAddressUpdate {
+  address: CustomerAddressType
+}
+
+input CustomerAddressUpdateType {
+  """
+  The first name of address. Required
+  """
+  firstName: String!
+
+  """
+  The last name of address. Required
+  """
+  lastName: String!
+
+  """
+  The company of address.
+  """
+  company: String
+
+  """
+  The address line 1. Required
+  """
+  address1: String!
+
+  """
+  The address line 2
+  """
+  address2: String
+
+  """
+  The city name. Required
+  """
+  city: String!
+
+  """
+  The phone of address.
+  """
+  phone: String
+
+  """
+  The state or province name spelled out in full. Required when the country has states in the bigcommerce country data.
+  """
+  stateOrProvince: String = ""
+
+  """
+  The iso2 code of country, like US. Required
+  """
+  countryCode: String!
+
+  """
+  The postal code of address. Required
+  """
+  postalCode: String!
+
+  """
+  The address type. Residential or Commercial
+  """
+  addressType: String
+
+  """
+  Form fields
+  """
+  formFields: [AddressFormFieldsInputType] = []
+
+  """
+  The bc id of address. Required
+  """
+  bcAddressId: Int!
+}
+
+type CustomerAttributeType {
+  """
+  The id of the customer attribute.
+  """
+  id: Int
+
+  """
+  The attribute id.
+  """
+  attributeId: Int
+
+  """
+  The attribute value.
+  """
+  attributeValue: String
+
+  """
+  The id of the customer.
+  """
+  customerId: Int
+
+  """
+  The date the customer attribute was created.
+  """
+  dateCreated: String
+
+  """
+  The date the customer attribute was modified.
+  """
+  dateModified: String
+}
+
+input CustomerAuthenticationInputType {
+  """
+  If true, this customer will be forced to change password on next login.
+  """
+  forcePasswordReset: Boolean
+
+  """
+  New password for the customer.
+  """
+  newPassword: String
+}
+
+type CustomerAuthenticationType {
+  """
+  If true, this customer will be forced to change password on next login.
+  """
+  forcePasswordReset: Boolean
+}
+
+"""
+Create a new Bigcommerce customer
+"""
+type CustomerCreate {
+  customer: CustomerType
+}
+
+type CustomerEmailCheckType {
+  """
+  1: not exist; 2: exist in BC; 3: exist in BC other channel;
+  """
+  userType: Int
+}
+
+type CustomerInfo {
+  firstName: String
+  lastName: String
+  userId: Int
+  email: String
+
+  """
+  User role. 0: Admin,1:Senior Buyer, 2: Junior Buyer, 3: Sales Rep
+  """
+  role: String
+}
+
+type CustomerInfoType {
+  """
+  The user type of current email. 1 means user doesn't exist.             2
+  means the user exists in BigCommerce.             3 means the user exists in BundleB2B.
+  """
+  userType: Int
+  userInfo: CompanyEmailUserInfoType
+
+  """
+  User permissions
+  """
+  permissions: [AuthRolePermissionType]
+}
+
+input CustomerInputType {
+  """
+  The store hash.
+  This field is required
+  """
+  storeHash: String!
+
+  """
+  The email of the customer.
+  This field is required
+  """
+  email: String!
+
+  """
+  The first name of the customer.
+  This field is required
+  """
+  firstName: String!
+
+  """
+  The last name of the customer.
+  This field is required
+  """
+  lastName: String!
+
+  """
+  The company of the customer.
+  """
+  company: String
+
+  """
+  The phone number of the customer.
+  """
+  phone: String
+
+  """
+  The notes of the customer.
+  """
+  notes: String
+
+  """
+  Array of customer addresses. Limited to 10.
+  """
+  addresses: [CustomerAddressInputType]
+
+  """
+  Customer authentication information.
+  """
+  authentication: CustomerAuthenticationInputType = null
+
+  """
+  It determines if the customer is signed up to receive either product review or
+  abandoned cart emails or receive both emails.
+  """
+  acceptsProductReviewAbandonedCartEmails: Boolean
+
+  """
+  Channel ID of the customer that has created the form.
+  """
+  originChannelId: Int
+
+  """
+  Array of channels the customer can access.
+  """
+  channelIds: [Int]
+
+  """
+  Array of form fields.
+  """
+  formFields: [FormFieldsInputType]
+
+  """
+  If true, this customer will be triggered to receive account created notification.
+  """
+  triggerAccountCreatedNotification: Boolean
+}
+
+type CustomerShoppingListIdNameType implements Node {
+  id: ID!
+  name: String
+}
+
+type CustomerShoppingListPageType implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the shopping list
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the shopping list
+  """
+  updatedAt: Int
+
+  """
+  Shopping list name
+  """
+  name: String
+
+  """
+  Shopping list description
+  """
+  description: String
+
+  """
+  Shopping list reason
+  """
+  reason: String
+
+  """
+  products of shopping list
+  """
+  products(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): BaseShoppingListItemCountableConnection
+
+  """
+  The channel id of the shopping list
+  """
+  channelId: Int
+
+  """
+  The channel name of the shopping list
+  """
+  channelName: String
+}
+
+type CustomerShoppingListPageTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [CustomerShoppingListPageTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type CustomerShoppingListPageTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: CustomerShoppingListPageType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Create a shopping list.
+Requires a BC Token.
+"""
+type CustomerShoppingListsCreate {
+  shoppingList: CustomerShoppingListType
+}
+
+"""
+Delete a shopping list.
+Requires a BC Token.
+"""
+type CustomerShoppingListsDelete {
+  message: String
+}
+
+"""
+Duplicate a shopping list.
+Requires a BC Token.
+"""
+type CustomerShoppingListsDuplicate {
+  shoppingList: CustomerShoppingListType
+}
+
+input CustomerShoppingListsInputType {
+  """
+  Shopping list name.
+  This field is required.
+  """
+  name: String!
+
+  """
+  Shopping list description.
+  This field is required.
+  """
+  description: String!
+
+  """
+  Filter by BC channel id. Supported in MSF stores
+  """
+  channelId: Int
+}
+
+"""
+Add items to an existed shopping list.
+Requires a BC Token.
+"""
+type CustomerShoppingListsItemsCreate {
+  shoppingListsItems: [ShoppingListItem]
+}
+
+"""
+Delete shopping list item using shoppingListId and itemId.
+Requires a BC Token.
+"""
+type CustomerShoppingListsItemsDelete {
+  message: String
+}
+
+"""
+Update shopping lists items.
+Requires a BC Token.
+"""
+type CustomerShoppingListsItemsUpdate {
+  shoppingListsItem: ShoppingListItem
+}
+
+"""
+Update a shopping list.
+Requires a BC Token.
+"""
+type CustomerShoppingListsUpdate {
+  shoppingList: CustomerShoppingListType
+}
+
+type CustomerShoppingListType implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the shopping list
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the shopping list
+  """
+  updatedAt: Int
+
+  """
+  Shopping list name
+  """
+  name: String
+
+  """
+  Shopping list description
+  """
+  description: String
+
+  """
+  Shopping list reason
+  """
+  reason: String
+
+  """
+  grand total amount of shopping list
+  """
+  grandTotal: String
+
+  """
+  Total discount of shopping list
+  """
+  totalDiscount: String
+
+  """
+  Total tax of shopping list
+  """
+  totalTax: String
+
+  """
+  If show grand total amount of shopping list
+  """
+  isShowGrandTotal: Boolean
+
+  """
+  products of shopping list
+  """
+  products(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): ShoppingListItemCountableConnection
+
+  """
+  The channel id of the shopping list
+  """
+  channelId: Int
+
+  """
+  The channel name of the shopping list
+  """
+  channelName: String
+}
+
+type CustomerStoreCreditAmountsType {
+  """
+  The amount of the store credit.
+  """
+  amount: Float
+}
+
+input CustomerStoreFrontTokenInputType {
+  """
+  The store hash.
+  This field is required.
+  """
+  storeHash: String!
+
+  """
+  The id of the channel.
+  This field is required
+  """
+  channelId: Int!
+
+  """
+  The expiration time of the token.
+  This field is required
+  """
+  expiresAt: Int!
+
+  """
+  List of allowed domains for Cross-Origin Request Sharing.
+  This field is required
+  """
+  allowedCorsOrigins: [String]!
+}
+
+"""
+Create a new Bigcommerce customer subscriber
+"""
+type CustomerSubscribersCreate {
+  customerSubscribers: CustomerSubscribersType
+}
+
+input CustomerSubscribersInputType {
+  """
+  The store hash.
+  This field is required.
+  """
+  storeHash: String!
+
+  """
+  The email of the subscriber. Must be unique.
+  """
+  email: String!
+
+  """
+  The first name of the subscriber.
+  """
+  firstName: String
+
+  """
+  The last name of the subscriber.
+  """
+  lastName: String
+
+  """
+  The source of the subscriber. Values are: storefront, order, or custom.
+  """
+  source: String
+
+  """
+  The ID of the source order, if source was an order.
+  """
+  orderId: Int
+
+  """
+  The channel ID where the subscriber was created.
+  """
+  channelId: Int
+}
+
+type CustomerSubscribersType {
+  """
+  The email of the subscriber. Must be unique.
+  """
+  email: String
+
+  """
+  The first name of the subscriber.
+  """
+  firstName: String
+
+  """
+  The last name of the subscriber.
+  """
+  lastName: String
+
+  """
+  The source of the subscriber. Values are: storefront, order, or custom.
+  """
+  source: String
+
+  """
+  The ID of the source order, if source was an order.
+  """
+  orderId: Int
+
+  """
+  The channel ID where the subscriber was created.
+  """
+  channelId: Int
+
+  """
+  The ID of the subscriber.
+  """
+  id: Int
+
+  """
+  The date the subscriber was created.
+  """
+  dateCreated: String
+
+  """
+  The date the subscriber was modified.
+  """
+  dateModified: String
+
+  """
+  Shows what active subscriptions a shopper may have. If the consents array is
+  empty, the user has unsubscribed or didn’t enable the newsletter subscription
+  checkbox during checkout.
+  """
+  consents: [String]
+}
+
+type CustomerType {
+  """
+  The id of the customer.
+  """
+  id: Int
+
+  """
+  The email of the customer.
+  """
+  email: String
+
+  """
+  The first name of the customer.
+  """
+  firstName: String
+
+  """
+  The last name of the customer.
+  """
+  lastName: String
+
+  """
+  The company of the customer.
+  """
+  company: String
+
+  """
+  The phone number of the customer.
+  """
+  phone: String
+
+  """
+  The notes of the customer.
+  """
+  notes: String
+
+  """
+  The tax exempt category of the customer.
+  """
+  taxExemptCategory: String
+
+  """
+  The IP address from which this customer was registered.
+  """
+  registrationIpAddress: String
+
+  """
+  ID of the group which this customer belongs to.
+  """
+  customerGroupId: Int
+
+  """
+  The date on which the customer was modified.
+  """
+  dateModified: String
+
+  """
+  The date on which the customer was created.
+  """
+  dateCreated: String
+
+  """
+  Total number of customer addresses.
+  """
+  addressCount: Int
+
+  """
+  Total number of customer attributes.
+  """
+  attributeCount: Int
+
+  """
+  Customer authentication information.
+  """
+  authentication: CustomerAuthenticationType
+
+  """
+  Array of customer addresses. Limited to 10.
+  """
+  addresses: [CustomerAddressesType]
+
+  """
+  Array of customer attributes. Limited to 10
+  """
+  attributes: [CustomerAttributeType]
+
+  """
+  Array of form fields.
+  """
+  formFields: [FormFieldsType]
+
+  """
+  Store credit.
+  """
+  storeCreditAmounts: [CustomerStoreCreditAmountsType]
+
+  """
+  Determines if the customer is signed up to receive either product review or abandoned cart emails or receive both emails.
+  """
+  acceptsProductReviewAbandonedCartEmails: Boolean
+
+  """
+  Channel ID of the customer that has created the form.
+  """
+  originChannelId: Int
+
+  """
+  Array of channels the customer can access.
+  """
+  channelIds: [Int]
+}
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+"""
+The `Decimal` scalar type represents a python Decimal.
+"""
+scalar Decimal
+
+type ExtraFieldsConfigType {
+  """
+  Field name that config in you store
+  """
+  fieldName: String
+
+  """
+  Field type of the extra field.0 means text type. 1 means textarea type. 2 means number type. 3 means dropdown type.
+  """
+  fieldType: Int
+
+  """
+  Is this field is required
+  """
+  isRequired: Boolean
+
+  """
+  Default value of this field.
+  """
+  defaultValue: String
+
+  """
+  The maximum length of the value of this field. fieldType == 0
+  """
+  maximumLength: String
+
+  """
+  The maximum number of rows of the value of this field. fieldType == 1
+  """
+  numberOfRows: String
+
+  """
+  Maximum value of the field value. fieldType == 2
+  """
+  maximumValue: String
+
+  """
+  List of all optional values for the field value. fieldType == 3
+  """
+  listOfValue: [String]
+
+  """
+  Is this field visible to end user
+  """
+  visibleToEnduser: Boolean
+
+  """
+  The label name of the field.
+  """
+  labelName: String
+}
+
+type ExtraFieldsValueType {
+  """
+  The field name of extra field
+  """
+  fieldName: String
+
+  """
+  The field value of extra field
+  """
+  fieldValue: String
+}
+
+"""
+Finish invoice payment using BC order.
+Only Admin and Super Admin can pay.
+Requires a B2B Token.
+"""
+type FinishBcPayMutation {
+  """
+  The invoice pay result
+  """
+  result: GenericScalar
+}
+
+input FormFieldsInputType {
+  """
+  The name of address form fields. Required
+  """
+  name: String!
+
+  """
+  The value of address form fields. Required
+  """
+  value: GenericScalar!
+}
+
+type FormFieldsType {
+  """
+  The form field name. Required
+  """
+  name: String!
+
+  """
+  The value of address form fields. Required
+  """
+  value: GenericScalar!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+input InputAccountType {
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  User phone number
+  """
+  phoneNumber: String
+
+  """
+  User email
+  """
+  email: String
+
+  """
+  Current password.
+  This field is required.
+  """
+  currentPassword: String!
+
+  """
+  New password
+  """
+  newPassword: String
+
+  """
+  Confirm password
+  """
+  confirmPassword: String
+
+  """
+  Form fields
+  """
+  formFields: [FormFieldsInputType] = []
+
+  """
+  company id.
+  This field is required.
+  """
+  companyId: Int!
+
+  """
+  user extra fields
+  """
+  extraFields: [UserExtraField]
+}
+
+input InputCustomerAccountType {
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  User phone number
+  """
+  phoneNumber: String
+
+  """
+  User email
+  """
+  email: String
+
+  """
+  Current password.
+  This field is required.
+  """
+  currentPassword: String!
+
+  """
+  New password
+  """
+  newPassword: String
+
+  """
+  Confirm password
+  """
+  confirmPassword: String
+
+  """
+  Form fields
+  """
+  formFields: [FormFieldsInputType] = []
+
+  """
+  Company for user
+  """
+  company: String
+}
+
+type InvoiceBalanceType {
+  """
+  The code of balance
+  """
+  code: String
+
+  """
+  The value of balance
+  """
+  value: String
+}
+
+type InvoiceCustomerInformationType {
+  """
+  The ID of company.
+  """
+  companyId: String
+
+  """
+  The name of company.
+  """
+  companyName: String
+
+  """
+  The ID of payer.
+  """
+  payerId: String
+
+  """
+  The username of payer.
+  """
+  payerName: String
+}
+
+type InvoiceExtraFieldsType {
+  """
+  The field name of extra field
+  """
+  fieldName: String
+
+  """
+  The field value of extra field
+  """
+  fieldValue: String
+}
+
+input InvoiceFilterDataType {
+  """
+  query
+  """
+  search: String
+
+  """
+  The invoice number of the invoice
+  """
+  invoiceNumber: String
+
+  """
+  The order number of the invoice
+  """
+  orderNumber: String
+
+  """
+  Create date timestamp begin at
+  """
+  beginDateAt: Int
+
+  """
+  Create date timestamp end at
+  """
+  endDateAt: Int
+
+  """
+  The status of the invoice
+  """
+  status: [Int]
+
+  """
+  The invoice id list
+  """
+  idIn: String
+
+  """
+  order by
+  """
+  orderBy: String
+
+  """
+  The company id list
+  """
+  companyIds: [Int] = []
+}
+
+input InvoiceLineItemsInputType {
+  """
+  The id of invoice.
+  This field is required
+  """
+  invoiceId: Int!
+
+  """
+  The amount of invoice you want to pay.
+  This field is required
+  """
+  amount: String!
+}
+
+"""
+Download invoice pdf file by invoice id.
+Requires a B2B Token.
+"""
+type invoicePdf {
+  """
+  The pdf file url
+  """
+  url: String
+}
+
+"""
+Export invoice csv file.
+Requires a B2B Token.
+"""
+type invoicesExport {
+  """
+  The export file url.
+  """
+  url: String
+}
+
+type InvoiceStatsType {
+  """
+  The total balance of invoice.
+  """
+  totalBalance: Float
+
+  """
+  Amount not paid when the invoice is due.
+  """
+  overDueBalance: Float
+
+  """
+  Has due invoice?
+  """
+  hasDueInvoice: Boolean
+
+  """
+  Has over due invoice?
+  """
+  hasOverDueInvoice: Boolean
+}
+
+type InvoiceStoreInfoType {
+  """
+  BC store name
+  """
+  name: String
+
+  """
+  BC store primary contact’s first name
+  """
+  firstName: String
+
+  """
+  BC store primary contact’s last name
+  """
+  lastName: String
+
+  """
+  BC store display address
+  """
+  address: String
+
+  """
+  Country where the store is located
+  """
+  country: String
+
+  """
+  Country code where the store is located
+  """
+  countryCode: String
+
+  """
+  BC store display phone number
+  """
+  phone: String
+
+  """
+  Email address of the store administrator/owner
+  """
+  adminEmail: String
+}
+
+type InvoiceType implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the invoice
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the invoice
+  """
+  updatedAt: Int
+
+  """
+  The store's store hash
+  """
+  storeHash: String
+
+  """
+  The customer id of the invoice
+  """
+  customerId: String
+
+  """
+  The external id of the invoice
+  """
+  externalId: String
+
+  """
+  The external customer id of the invoice
+  """
+  externalCustomerId: String
+
+  """
+  The invoice number of the invoice
+  """
+  invoiceNumber: String
+
+  """
+  The type of the invoice
+  """
+  type: String
+
+  """
+  The due date of the invoice
+  """
+  dueDate: Int
+
+  """
+  The status of the invoice. (0: open, 1: partial paid, 2: completed)
+  """
+  status: Int
+
+  """
+  The order number of the invoice
+  """
+  orderNumber: String
+
+  """
+  The purchase order number of the invoice
+  """
+  purchaseOrderNumber: String
+
+  """
+  The details of the invoice
+  """
+  details: GenericScalar
+
+  """
+  The pending payment count of the invoice
+  """
+  pendingPaymentCount: Int
+
+  """
+  The source of the invoice
+  """
+  source: Int
+
+  """
+  The original balance of the invoice
+  """
+  originalBalance: InvoiceBalanceType
+
+  """
+  The open balance of the invoice
+  """
+  openBalance: InvoiceBalanceType
+
+  """
+  Can this invoice allow payment
+  """
+  notAllowedPay: Int
+
+  """
+  The information of the invoice
+  """
+  bcInformation: BCInfomation
+
+  """
+  The extra fields of the invoice
+  """
+  extraFields: [InvoiceExtraFieldsType]
+
+  """
+  The time offset
+  """
+  timeOffset: Int
+
+  """
+  The store information
+  """
+  storeInfo: InvoiceStoreInfoType
+
+  """
+  The channel id of the invoice
+  """
+  channelId: Int
+
+  """
+  The channel name of the invoice
+  """
+  channelName: String
+
+  """
+  Company information of invoice
+  """
+  companyInfo: CompanyInfoType
+
+  """
+  The order user id
+  """
+  orderUserId: Int
+}
+
+type InvoiceTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [InvoiceTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type InvoiceTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: InvoiceType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+type Mutation {
+  """
+  CSV Upload.
+  Requires either a B2B or BC Token.
+  """
+  productUpload(
+    """
+    The product list to upload.
+    This field is required.
+    """
+    productListData: ProductUploadInputType!
+  ): ProductsUpload
+
+  """
+  CSV Upload for anon
+  Doesn't require a Token.
+  """
+  productAnonUpload(
+    productListData: ProductAnonUploadInputType
+  ): ProductsAnonUpload
+
+  """
+  Update Account Settings.
+  Requires a B2B Token.
+  """
+  updateAccountSettings(
+    """
+    The account information to update.
+    This field is required.
+    """
+    updateData: InputAccountType!
+  ): UpdateAccount
+
+  """
+  Update Customer Account Settings.
+  Requires a BC Token.
+  """
+  updateCustomerAccountSettings(
+    updateData: InputCustomerAccountType
+  ): UpdateCustomerAccount
+
+  """
+  Download invoice pdf file by invoice id.
+  Requires a B2B Token.
+  """
+  invoicePdf(
+    """
+    The invoice id.
+    This field is required.
+    """
+    invoiceId: Int!
+    isPayNow: Boolean
+  ): invoicePdf
+
+  """
+  Export invoice csv file.
+  Requires a B2B Token.
+  """
+  invoicesExport(
+    invoiceFilterData: InvoiceFilterDataType
+
+    """
+    The language of the exported file.
+    """
+    lang: String
+  ): invoicesExport
+
+  """
+  Create a BC cart for invoice payment.
+  Only Admin and Super Admin can create cart.
+  Requires a B2B Token.
+  """
+  invoiceCreateBcCart(
+    """
+    information for the cart.
+    This field is required.
+    """
+    bcCartData: BcCartInputType!
+  ): CreateBcCartMutation
+
+  """
+  Finish invoice payment using BC order.
+  Only Admin and Super Admin can pay.
+  Requires a B2B Token.
+  """
+  invoiceFinishBcPayment(
+    """
+    The comment for the payment.
+    """
+    comment: String
+
+    """
+    The BC order id.
+    This field is required
+    """
+    orderId: Int!
+  ): FinishBcPayMutation
+
+  """
+  Create an order in the BigCommerce store.
+  Requires a B2B Token.
+  """
+  createOrder(
+    """
+    The order to create.
+    This field is required.
+    """
+    createData: OrderCreateInputType!
+  ): OrderCreate
+
+  """
+  Create a shopping list.
+  Requires a B2B Token.
+  """
+  shoppingListsCreate(
+    """
+    The shopping list details.
+    This field is required.
+    """
+    shoppingListData: ShoppingListsInputType!
+  ): ShoppingListsCreate
+
+  """
+  Update a shopping list.
+  Requires a B2B Token.
+  """
+  shoppingListsUpdate(
+    id: Int
+    shoppingListData: ShoppingListsInputType
+  ): ShoppingListsUpdate
+
+  """
+  Delete a shopping list.
+  Requires a B2B Token.
+  """
+  shoppingListsDelete(
+    """
+    The shopping list id.
+    This field is required.
+    """
+    id: Int!
+  ): ShoppingListsDelete
+
+  """
+  Duplicate a shopping list.
+  Requires a B2B Token.
+  """
+  shoppingListsDuplicate(
+    """
+    Sample shopping list id.
+    This field is required.
+    """
+    sampleShoppingListId: Int!
+
+    """
+    Details of the shopping list.
+    This field is required.
+    """
+    shoppingListData: ShoppingListsDuplicateInputType!
+  ): ShoppingListsDuplicate
+
+  """
+  Add items to an existed shopping list.
+  Requires a B2B Token.
+  """
+  shoppingListsItemsCreate(
+    """
+    The list of items to be created.
+    This field is required.
+    """
+    items: [ShoppingListsItemsInputType]!
+
+    """
+    The shopping list id.
+    This field is required.
+    """
+    shoppingListId: Int!
+  ): ShoppingListsItemsCreate
+
+  """
+  Update shopping lists items.
+  Requires a B2B Token.
+  """
+  shoppingListsItemsUpdate(
+    """
+    The item details.
+    This field is required.
+    """
+    itemData: ShoppingListsItemsUpdateInputType!
+
+    """
+    Shopping list item ID field.
+    This field is required.
+    """
+    itemId: Int!
+
+    """
+    Shopping list ID field.
+    This field is required.
+    """
+    shoppingListId: Int!
+  ): ShoppingListsItemsUpdate
+
+  """
+  Delete shopping list item using shoppingListId and itemId.
+  Requires a B2B Token.
+  """
+  shoppingListsItemsDelete(
+    """
+    Shopping list item ID field.
+    This field is required.
+    """
+    itemId: Int!
+
+    """
+    Shopping list ID field.
+    This field is required.
+    """
+    shoppingListId: Int!
+  ): ShoppingListsItemsDelete
+
+  """
+  Create a shopping list.
+  Requires a BC Token.
+  """
+  customerShoppingListsCreate(
+    """
+    The details of the shopping list.
+    This field is required.
+    """
+    shoppingListData: CustomerShoppingListsInputType!
+  ): CustomerShoppingListsCreate
+
+  """
+  Update a shopping list.
+  Requires a BC Token.
+  """
+  customerShoppingListsUpdate(
+    """
+    The shopping list id.
+    This field is required.
+    """
+    id: Int!
+
+    """
+    The shopping list details.
+    This field is required.
+    """
+    shoppingListData: CustomerShoppingListsInputType!
+  ): CustomerShoppingListsUpdate
+
+  """
+  Delete a shopping list.
+  Requires a BC Token.
+  """
+  customerShoppingListsDelete(
+    """
+    The shopping list id.
+    This field is required.
+    """
+    id: Int!
+  ): CustomerShoppingListsDelete
+
+  """
+  Duplicate a shopping list.
+  Requires a BC Token.
+  """
+  customerShoppingListsDuplicate(
+    """
+    Sample shopping list id.
+    This field is required.
+    """
+    sampleShoppingListId: Int!
+
+    """
+    The details of the shopping list.
+    This field is required.
+    """
+    shoppingListData: ShoppingListsDuplicateInputType!
+  ): CustomerShoppingListsDuplicate
+
+  """
+  Add items to an existed shopping list.
+  Requires a BC Token.
+  """
+  customerShoppingListsItemsCreate(
+    items: [ShoppingListsItemsInputType]
+    shoppingListId: Int
+  ): CustomerShoppingListsItemsCreate
+
+  """
+  Update shopping lists items.
+  Requires a BC Token.
+  """
+  customerShoppingListsItemsUpdate(
+    """
+    The item details.
+    This field is required.
+    """
+    itemData: ShoppingListsItemsUpdateInputType!
+
+    """
+    Shopping list item ID field.
+    This field is required.
+    """
+    itemId: Int!
+
+    """
+    Shopping list ID field.
+    This field is required.
+    """
+    shoppingListId: Int!
+  ): CustomerShoppingListsItemsUpdate
+
+  """
+  Delete shopping list item using shoppingListId and itemId.
+  Requires a BC Token.
+  """
+  customerShoppingListsItemsDelete(
+    """
+    The item to delete.
+    This field is required.
+    """
+    itemId: Int!
+
+    """
+    The shopping list id.
+    This field is required.
+    """
+    shoppingListId: Int!
+  ): CustomerShoppingListsItemsDelete
+
+  """
+  Create a new quote.
+  Requires B2B or BC token only if store has disabled guest quotes
+  """
+  quoteCreate(
+    """
+    A quote object.
+    This field is required.
+    """
+    quoteData: QuoteInputType!
+  ): QuoteCreate
+
+  """
+  Update a Quote.
+  Requires either B2B or BC Token.
+  """
+  quoteUpdate(
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    id: Int!
+
+    """
+    A quote object including its id.
+    This field is required.
+    """
+    quoteData: QuoteUpdateInputType!
+  ): QuoteUpdate
+
+  """
+  Get the checkout information for a quote.
+  Requires a B2B token for B2B and B2C users
+  Token is not required for guest users, but store must allow guest quotes.
+  """
+  quoteCheckout(
+    """
+    Unique quote id.
+    This field is required.
+    """
+    id: Int!
+
+    """
+    Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): QuoteCheckout
+
+  """
+  Ordered a quote.
+  Requires either B2B or BC Token.
+  """
+  quoteOrdered(
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    id: Int!
+
+    """
+    The data for the order.
+    This field is required.
+    """
+    orderedData: QuoteOrderedInputType!
+  ): QuoteOrdered
+
+  """
+  Send a Quote Email.
+  Requires either B2B or BC Token.
+  """
+  quoteEmail(
+    """
+    The email and quote to send.
+    This field is required.
+    """
+    emailData: QuoteEmailInputType!
+  ): QuoteEmail
+
+  """
+  This API is deprecated, please use QuoteFrontendPdf. Export a quote to PDF.
+  Requires either B2B or BC Token.
+  """
+  quotePdfExport(
+    """
+    Quote currency.
+    This field is required.
+    """
+    currency: QuoteCurrencyInputType!
+
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    quoteId: Int!
+
+    """
+    Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): QuotePdfExport
+
+  """
+  Delete Attachment from a quote.
+  Requires either B2B or BC Token.
+  """
+  quoteAttachFileDelete(
+    """
+    Quote file ID.
+    This field is required.
+    """
+    fileId: Int!
+
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    quoteId: Int!
+  ): QuoteAttachmentDelete
+
+  """
+  Create attachment for a quote.
+  Requires either B2B or BC Token.
+  """
+  quoteAttachFileCreate(
+    """
+    List of files added by customer
+    """
+    fileList: [QuoteFileListInputType]
+
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    quoteId: Int!
+  ): QuoteAttachmentCreate
+
+  """
+  Export a quote PDF.
+  """
+  quoteFrontendPdf(
+    """
+    Created time of quote, timestamp.
+    This field is required.
+    """
+    createdAt: Int!
+
+    """
+    If true, response will be a preview of the PDF, else a url of PDF file
+    """
+    isPreview: Boolean
+
+    """
+    Language of quote.
+    This field is required.
+    """
+    lang: String!
+
+    """
+    Unique quote ID.
+    This field is required.
+    """
+    quoteId: Int!
+
+    """
+    Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): QuoteFrontendPdf
+
+  """
+  Begin a masquerade using a super admin user.
+  Requires a B2B Token.
+  """
+  superAdminBeginMasquerade(
+    """
+    The company id.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    The user id.
+    This field is not used and will be deprecated soon.
+    """
+    userId: Int
+  ): SuperAdminBeginMasquerade
+
+  """
+  End a masquerade using a super admin user.
+  Requires a B2B Token.
+  """
+  superAdminEndMasquerade(
+    """
+    The company id.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    The user id.
+    This field is not used and will be deprecated soon.
+    """
+    userId: Int
+  ): SuperAdminEndMasquerade
+
+  """
+  Create a company using a customer id.
+  """
+  companyCreate(companyData: CompanyInputType): CompanyCreate
+
+  """
+  Login to a store with Bigcommerce user email and password.
+  Doesn't require a Token.
+  """
+  login(
+    """
+    An object with a store hash, email and password.
+    This field is required.
+    """
+    loginData: UserLoginType!
+  ): UserLogin
+
+  """
+  Login to checkout for a given cart.
+  Requires a B2B token.
+  """
+  checkoutLogin(
+    """
+    An object cart id for checkout.
+    This field is required.
+    """
+    cartData: CheckoutLoginType!
+  ): UserCheckoutLogin
+
+  """
+  Authorize using a Bigcommerce token.
+  """
+  authorization(
+    """
+    An object with a bigcommerce token and channel id.
+    This field is required.
+    """
+    authData: UserAuthType!
+  ): UserAuthorization
+
+  """
+  Create a company user.
+  Requires a B2B Token.
+  """
+  userCreate(
+    """
+    An object with user data.
+    This field is required.
+    """
+    userData: UserInputType!
+  ): UserCreate
+
+  """
+  Update a company user.
+  Requires a B2B Token.
+  """
+  userUpdate(
+    """
+    An object with user data including its id.
+    This field is required.
+    """
+    userData: UserUpdateInputType!
+  ): UserUpdate
+
+  """
+  Delete a company user.
+  Requires a B2B Token.
+  """
+  userDelete(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    The id of the user.
+    This field is required.
+    """
+    userId: Int!
+  ): UserDelete
+
+  """
+  Creates a Storefront API token.
+  Doesn't require a Token.
+  """
+  storeFrontToken(
+    """
+    An object with storefront token data.
+    This field is required.
+    """
+    storeFrontTokenData: CustomerStoreFrontTokenInputType!
+  ): UserStoreFrontToken
+
+  """
+  Create a new Bigcommerce customer
+  """
+  customerCreate(
+    """
+    An object with customer data.
+    This field is required.
+    """
+    customerData: CustomerInputType!
+  ): CustomerCreate
+
+  """
+  Create a new Bigcommerce customer subscriber
+  """
+  customerSubscribersCreate(
+    """
+    An object with customer subscribers data.
+    This field is required.
+    """
+    subscribersData: CustomerSubscribersInputType!
+  ): CustomerSubscribersCreate
+
+  """
+  Begin masquerading a company
+  """
+  userMasqueradingCompanyBegin(
+    """
+    The company id.
+    This field is required.
+    """
+    companyId: Int!
+  ): UserMasqueradingCompanyBegin
+
+  """
+  End masquerading a company
+  """
+  userMasqueradingCompanyEnd: UserMasqueradingCompanyEnd
+
+  """
+  Create a company address.
+  Requires a B2B Token.
+  """
+  addressCreate(
+    """
+    A company address object.
+    This field is required.
+    """
+    addressData: AddressInputType!
+  ): AddressCreate
+
+  """
+  Update a company address.
+  Requires a B2B Token.
+  """
+  addressUpdate(
+    """
+    A company address object including its id.
+    This field is required.
+    """
+    addressData: AddressUpdateType!
+  ): AddressUpdate
+
+  """
+  Delete a company address.
+  Requires a B2B Token.
+  """
+  addressDelete(
+    """
+    The address id.
+    This field is required
+    """
+    addressId: Int!
+
+    """
+    The company id for the address.
+    This field is required
+    """
+    companyId: Int!
+  ): AddressDelete
+
+  """
+  Create a customer address.
+  Requires a BC Token.
+  """
+  customerAddressCreate(
+    """
+    A customer address object.
+    This field is required.
+    """
+    addressData: CustomerAddressInputType!
+  ): CustomerAddressCreate
+
+  """
+  Update a customer address.
+  Requires a BC Token.
+  """
+  customerAddressUpdate(
+    """
+    A customer address object including its id.
+    This field is required.
+    """
+    addressData: CustomerAddressUpdateType!
+  ): CustomerAddressUpdate
+
+  """
+  Delete a customer address.
+  Requires a BC Token.
+  """
+  customerAddressDelete(
+    """
+    The customer id of the address.
+    This field is required
+    """
+    bcAddressId: Int!
+  ): CustomerAddressDelete
+}
+
+"""
+An object with an ID
+"""
+interface Node {
+  """
+  The ID of the object
+  """
+  id: ID!
+}
+
+"""
+Create an order in the BigCommerce store.
+Requires a B2B Token.
+"""
+type OrderCreate {
+  orderId: Int
+}
+
+input OrderCreateInputType {
+  """
+  Unique order ID in BigCommerce store
+  """
+  bcOrderId: Int!
+
+  """
+  PO number
+  """
+  poNumber: String
+
+  """
+  Reference number
+  """
+  referenceNumber: String
+
+  """
+  If save order comment, default value is 1
+  """
+  isSaveOrderComment: String = "1"
+
+  """
+  Order extra int field 1
+  """
+  extraInt1: Int
+
+  """
+  Order extra int field 2
+  """
+  extraInt2: Int
+
+  """
+  Order extra int field 3
+  """
+  extraInt3: Int
+
+  """
+  Order extra int field 4
+  """
+  extraInt4: Int
+
+  """
+  Order extra int field 5
+  """
+  extraInt5: Int
+
+  """
+  Order extra str field 1
+  """
+  extraStr1: String
+
+  """
+  Order extra str field 2
+  """
+  extraStr2: String
+
+  """
+  Order extra str field 3
+  """
+  extraStr3: String
+
+  """
+  Order extra str field 4
+  """
+  extraStr4: String
+
+  """
+  Order extra str field 5
+  """
+  extraStr5: String
+
+  """
+  Order extra text
+  """
+  extraText: String
+
+  """
+  Order extra info
+  """
+  extraInfo: String
+
+  """
+  Order extra fields
+  """
+  extraFields: GenericScalar
+}
+
+type OrderedProductType implements Node {
+  """
+  The ID of the object
+  """
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+
+  """
+  product name
+  """
+  productName: String!
+
+  """
+  product brand name
+  """
+  productBrandName: String
+  variantSku: String
+
+  """
+  product id
+  """
+  productId: String!
+
+  """
+  product variant id
+  """
+  variantId: String!
+
+  """
+  product option list
+  """
+  optionList: GenericScalar
+
+  """
+  product ordered times
+  """
+  orderedTimes: String!
+  firstOrderedAt: Int!
+  lastOrderedAt: Int!
+
+  """
+  Items count when last ordered
+  """
+  lastOrderedItems: String!
+  companyId: CompanyType
+
+  """
+  orders info
+  """
+  ordersInfo: GenericScalar
+
+  """
+  product id
+  """
+  orderProductId: String!
+
+  """
+  product sku
+  """
+  sku: String!
+
+  """
+  product last ordered timestamp
+  """
+  lastOrdered: String!
+
+  """
+  option selections
+  """
+  optionSelections: GenericScalar
+
+  """
+  Image url of product
+  """
+  imageUrl: String
+
+  """
+  The BundleB2B channel id
+  """
+  channelId: Int
+
+  """
+  The channel name
+  """
+  channelName: String
+
+  """
+  Product base SKU
+  """
+  baseSku: String
+
+  """
+  Product base price
+  """
+  basePrice: String
+
+  """
+  Product discount
+  """
+  discount: String
+
+  """
+  Product tax
+  """
+  tax: String
+
+  """
+  Product entered inclusive
+  """
+  enteredInclusive: Boolean
+
+  """
+  Product url
+  """
+  productUrl: String
+}
+
+type OrderedProductTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [OrderedProductTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type OrderedProductTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: OrderedProductType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+type OrderHistoryEventType {
+  """
+  event id
+  """
+  id: Int
+
+  """
+  event type
+  """
+  eventType: Int
+
+  """
+  order status
+  """
+  status: String
+
+  """
+  event extra fields
+  """
+  extraFields: GenericScalar
+
+  """
+  The creation timestamp of this event
+  """
+  createdAt: Int
+}
+
+type OrderProductType {
+  """
+  Product notes
+  """
+  notes: String
+
+  """
+  Product quantity in this order
+  """
+  quantity: String
+
+  """
+  Unique order product ID
+  """
+  productId: String
+
+  """
+  Unique variant ID
+  """
+  variantId: String
+
+  """
+  Product option list
+  """
+  optionList: GenericScalar
+}
+
+"""
+An enumeration.
+"""
+enum OrdersOrdersCreatedFromChoices {
+  """
+  B2B
+  """
+  A_0
+
+  """
+  Webhook
+  """
+  A_1
+
+  """
+  IO
+  """
+  A_2
+
+  """
+  Buyer portal sync
+  """
+  A_3
+
+  """
+  Webhook to B2B
+  """
+  A_4
+}
+
+"""
+An enumeration.
+"""
+enum OrdersOrdersFlagChoices {
+  """
+  Created
+  """
+  A_0
+
+  """
+  Edited
+  """
+  A_1
+
+  """
+  Canceled
+  """
+  A_2
+
+  """
+  Edit checked
+  """
+  A_3
+}
+
+"""
+An enumeration.
+"""
+enum OrdersOrdersIpStatusChoices {
+  """
+  Open
+  """
+  A_0
+
+  """
+  Invoiced
+  """
+  A_1
+
+  """
+  Completed
+  """
+  A_2
+}
+
+"""
+An enumeration.
+"""
+enum OrdersOrdersIsInvoiceOrderChoices {
+  """
+  N
+  """
+  A_0
+
+  """
+  Y
+  """
+  A_1
+}
+
+type OrderStatusType {
+  """
+  The system label of order status.Required
+  """
+  systemLabel: String
+
+  """
+  The custom label of order status.Required
+  """
+  customLabel: String
+
+  """
+  The status code of order status.Required
+  """
+  statusCode: String
+}
+
+type OrderType implements Node {
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+  bcOrderId: Int!
+  bcCustomerId: Int
+  companyId: CompanyType
+  totalIncTax: Float
+  currencyCode: String
+  usdIncTax: Float
+  money: JSONString
+  items: Int
+  cartId: String
+  userId: Int!
+  poNumber: String
+  referenceNumber: String
+  status: String!
+  customStatus: String
+  statusCode: Int!
+  isArchived: Boolean
+  isInvoiceOrder: OrdersOrdersIsInvoiceOrderChoices!
+  invoiceId: String
+  invoiceNumber: String
+  invoiceStatus: String
+  ipStatus: OrdersOrdersIpStatusChoices
+  flag: OrdersOrdersFlagChoices
+  billingName: String
+  merchantEmail: String
+  extraInt1: Int
+  extraInt2: Int
+  extraInt3: Int
+  extraInt4: Int
+  extraInt5: Int
+  extraStr1: String
+  extraStr2: String
+  extraStr3: String
+  extraStr4: String
+  extraStr5: String
+  extraText: JSONString
+  extraInfo: JSONString
+  bcOrderInfos: JSONString!
+  shippingAddress: JSONString!
+  shipments: JSONString!
+  products: JSONString!
+  customer: JSONString!
+  createdFrom: OrdersOrdersCreatedFromChoices
+  customOrderStatus: String
+
+  """
+  order's company name
+  """
+  companyName: String
+
+  """
+  order status
+  """
+  orderStatus: String
+
+  """
+  order owner's first name
+  """
+  firstName: String
+
+  """
+  order owner's last name
+  """
+  lastName: String
+
+  """
+  Order bc id
+  """
+  orderId: String
+
+  """
+  The BundleB2B channel id
+  """
+  channelId: Int
+
+  """
+  The channel name
+  """
+  channelName: String
+
+  """
+  Company information of order
+  """
+  companyInfo: CompanyInfoType
+}
+
+type OrderTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [OrderTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type OrderTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: OrderType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """
+  When paginating forwards, are there more items?
+  """
+  hasNextPage: Boolean!
+
+  """
+  When paginating backwards, are there more items?
+  """
+  hasPreviousPage: Boolean!
+
+  """
+  When paginating backwards, the cursor to continue.
+  """
+  startCursor: String
+
+  """
+  When paginating forwards, the cursor to continue.
+  """
+  endCursor: String
+}
+
+type PaymentBcCartType {
+  """
+  The BC checkout url
+  """
+  checkoutUrl: String
+
+  """
+  The BC cart id
+  """
+  cartId: String
+}
+
+type PaymentFeesType {
+  """
+  The payment fees
+  """
+  paymentFees: GenericScalar
+}
+
+type PaymentModuleType {
+  """
+  The payment module name
+  """
+  moduleName: String
+
+  """
+  The payment module value
+  """
+  value: GenericScalar
+}
+
+type PaymentRelatedCartType {
+  """
+  The BC cart id
+  """
+  cartId: String
+
+  """
+  The BC cart url
+  """
+  cartUrl: String
+}
+
+type PriceDisplaySettingsType {
+  """
+  show prices as tax inclusive to shoppers matched with this tax zone
+  """
+  showInclusive: Boolean
+
+  """
+  show prices as tax inclusive matched with this tax zone
+  """
+  showBothOnDetailView: Boolean
+
+  """
+  show prices as tax inclusive matched with this tax zone
+  """
+  showBothOnListView: Boolean
+}
+
+type PriceRangeType {
+  """
+  The price for a product, including estimates for tax.
+  """
+  minimum: PriceType
+
+  """
+  The price for a product, including estimates for tax.
+  """
+  maximum: PriceType
+}
+
+type PriceType {
+  """
+  The price provided by the merchant, as entered in their catalog/price list; may include or exclude tax.
+  """
+  asEntered: Float
+
+  """
+  Determines whether the as_entered price is inclusive or exclusive of tax, based on the store's tax jurisdiction.
+  """
+  enteredInclusive: Boolean
+
+  """
+  The estimated tax-exclusive price for this product based on the provided customer group.
+  """
+  taxExclusive: Float
+
+  """
+  The estimated tax-inclusive price for this product based on the provided customer group.
+  """
+  taxInclusive: Float
+}
+
+input PricingProductItemInputType {
+  """
+  The (required) product ID of the item.
+  """
+  productId: Int!
+
+  """
+  The (optional) variant ID of the item.
+  """
+  variantId: Int
+
+  """
+  The option configuration of the product (optional); might be partially configured for estimates.
+  """
+  options: [PricingProductItemOptionsInputType]
+}
+
+input PricingProductItemOptionsInputType {
+  """
+  The ID of the variant option or modifier option that is being configured for this product.
+  """
+  optionId: Int
+
+  """
+  The ID of the value matching the option that's being configured.
+  """
+  valueId: Int
+}
+
+type PricingProductItemOptionsType {
+  """
+  The ID of the variant option or modifier option that is being configured for this product.
+  """
+  optionId: Int
+
+  """
+  The ID of the value matching the option that's being configured.
+  """
+  valueId: Int
+}
+
+type PricingProductType {
+  """
+  The product ID of the item.
+  """
+  productId: Int
+
+  """
+  The variant ID of the item.
+  """
+  variantId: Int
+
+  """
+  The optional product option configuration for this generated price.
+  """
+  options: [PricingProductItemOptionsType]
+
+  """
+  You can use the original details of the request to identify the exact product variant and fetch prices.
+  """
+  referenceRequest: ReferenceRequestType
+
+  """
+  The (optional) RRP/retail price configured for this product and used for price comparison and storefront display purposes.
+  """
+  retailPrice: PriceType
+
+  """
+  The merchant-entered sale price for a product overwrites the default price. The sale_price is optional.
+  """
+  salePrice: PriceType
+
+  """
+  The minimum advertised price (MAP) you can display on a storefront. A value
+  supplied by the merchant and used for display purposes.
+  """
+  minimumAdvertisedPrice: PriceType
+
+  """
+  The amount that merchants save, determined by the difference between retail_price and calculated_price
+  """
+  saved: PriceType
+
+  """
+  The merchant-entered price for a product, which could include or exclude tax.
+  When creating a product, you must define the price, which serves as the default price.
+  """
+  price: PriceType
+
+  """
+  The shopper price for a product, which includes modifier, option, and option
+  set rules. The calculated_price may include or exclude estimates for tax.
+  """
+  calculatedPrice: PriceType
+
+  """
+  The minimum and maximum price that will typically apply to this product. Only
+  used for complex products (products with variants).
+  """
+  priceRange: PriceRangeType
+
+  """
+  The productʼs variants that will typically apply to this product.
+  """
+  retailPriceRange: PriceRangeType
+
+  """
+  The bulk pricing rules that apply to this product.
+  """
+  bulkPricing: [BulkPricingType]
+}
+
+input ProductAnonUploadInputType {
+  """
+  Product List
+  """
+  productList: [ProductListType]
+
+  """
+  The currency code of the display currency used to present prices.
+  """
+  currencyCode: String
+
+  """
+  The channel ID of store
+  """
+  channelId: Int
+
+  """
+  If can be add products to shopping cart
+  """
+  isToCart: Boolean
+
+  """
+  With modifiers in response
+  """
+  withModifiers: Boolean = false
+
+  """
+  The store hash
+  """
+  storeHash: String!
+}
+
+type ProductInfoType {
+  """
+  The id of product
+  """
+  id: Int
+
+  """
+  The name of product
+  """
+  name: String
+
+  """
+  The sku id of product
+  """
+  sku: String
+
+  """
+  cost price
+  """
+  costPrice: String
+
+  """
+  The inventory warning level of product
+  """
+  inventoryLevel: Int
+
+  """
+  The inventory tracking of product
+  """
+  inventoryTracking: String
+
+  """
+  Availability of the product
+  """
+  availability: String
+
+  """
+  The minimum quantity in an order
+  """
+  orderQuantityMinimum: Int
+
+  """
+  The maximum quantity in an order
+  """
+  orderQuantityMaximum: Int
+
+  """
+  The all variants of product
+  """
+  variants: [GenericScalar]
+
+  """
+  The currency code of the display currency used to present prices.
+  """
+  currencyCode: String
+
+  """
+  The images url of product
+  """
+  imageUrl: String
+
+  """
+  The modifiers sku of product
+  """
+  modifiers: [GenericScalar]
+
+  """
+  The options of product
+  """
+  options: [GenericScalar]
+
+  """
+  The options of product form v3 version API
+  """
+  optionsV3: [GenericScalar]
+
+  """
+  The channel ID of store
+  """
+  channelId: [Int]
+
+  """
+  The product url
+  """
+  productUrl: String
+
+  """
+  The tax class id of product
+  """
+  taxClassId: Int
+
+  """
+  Indicating that whether the product's price should be shown on the product page.
+  """
+  isPriceHidden: Boolean
+}
+
+input ProductInputType {
+  """
+  Product ID
+  """
+  productId: Int!
+
+  """
+  Product SKU
+  """
+  sku: String!
+
+  """
+  Base price of this product
+  """
+  basePrice: Decimal!
+
+  """
+  Discount of this product
+  """
+  discount: Decimal!
+
+  """
+  The discounted price must be passed on
+  """
+  offeredPrice: Decimal!
+
+  """
+  Quantity of the product
+  """
+  quantity: Int!
+
+  """
+  Variant SKU ID
+  """
+  variantId: Int!
+
+  """
+  Product image URL
+  """
+  imageUrl: String!
+
+  """
+  Product name
+  """
+  productName: String!
+
+  """
+  Options of the product
+  """
+  options: [ProductOptionInputType]
+}
+
+input ProductInventoryInputType {
+  """
+  The product id of product
+  """
+  productId: Int!
+
+  """
+  The variant id of product
+  """
+  variantId: Int
+
+  """
+  The quantity
+  """
+  quantity: Int
+}
+
+type ProductInventoryType {
+  """
+  The id of product
+  """
+  productId: Int
+
+  """
+  The variant id of product
+  """
+  variantId: Int
+
+  """
+  If can be purchased
+  """
+  quantity: Int
+
+  """
+  The modifiers sku of product
+  """
+  modifiers: [GenericScalar]
+
+  """
+  The inventory tracking of product
+  """
+  productInventoryTracking: String
+
+  """
+  The inventory level of product
+  """
+  productInventoryLevel: Int
+
+  """
+  The inventory warning level of product
+  """
+  productInventoryWarningLevel: Int
+
+  """
+  The inventory level of product variant
+  """
+  variantInventoryLevel: Int
+
+  """
+  The inventory warning level of product variant
+  """
+  variantInventoryWarningLevel: Int
+
+  """
+  If can be purchased
+  """
+  purchasingDisabled: Boolean
+
+  """
+  if product is visible
+  """
+  isVisible: Boolean
+}
+
+input ProductListType {
+  """
+  The sku of product
+  """
+  sku: String
+
+  """
+  The quantity
+  """
+  qty: String
+}
+
+input ProductOptionInputType {
+  optionId: Int
+  optionValue: String
+  optionLabel: String
+  optionName: String
+  type: String
+}
+
+type ProductPurchasableType {
+  """
+  The availability of product
+  """
+  availability: String
+
+  """
+  The inventory level of product
+  """
+  inventoryLevel: Int
+
+  """
+  The inventory tracking of product
+  """
+  inventoryTracking: String
+
+  """
+  The purchasing disabled of variant
+  """
+  purchasingDisabled: Boolean
+}
+
+scalar ProductQuantity
+
+"""
+CSV Upload for anon
+Doesn't require a Token.
+"""
+type ProductsAnonUpload {
+  result: ProductUploadType
+}
+
+"""
+CSV Upload.
+Requires either a B2B or BC Token.
+"""
+type ProductsUpload {
+  result: ProductUploadType
+}
+
+type ProductType {
+  """
+  Product ID
+  """
+  productId: String
+
+  """
+  Product SKU
+  """
+  sku: String
+
+  """
+  Base price of this product
+  """
+  basePrice: String
+
+  """
+  Discount of this product
+  """
+  discount: String
+
+  """
+  The discounted price must be passed on
+  """
+  offeredPrice: String
+
+  """
+  Quantity of the product
+  """
+  quantity: Int
+
+  """
+  Variant SKU ID
+  """
+  variantId: Int
+
+  """
+  Product image URL
+  """
+  imageUrl: String
+
+  """
+  The maximum quantity for this order
+  """
+  orderQuantityMaximum: Int
+
+  """
+  The minimum quantity for this order
+  """
+  orderQuantityMinimum: Int
+
+  """
+  Product name
+  """
+  productName: String
+
+  """
+  Options of the product
+  """
+  options: GenericScalar
+
+  """
+  Notes of the product
+  """
+  notes: String
+
+  """
+  Whether the product is handled by sales rep, if product is out of stock
+  """
+  purchaseHandled: Boolean
+
+  """
+  The cost price of the product
+  """
+  costPrice: String
+
+  """
+  The type of inventory tracking for the product
+  """
+  inventoryTracking: String
+
+  """
+  Current inventory level of the product
+  """
+  inventoryLevel: Int
+
+  """
+  The product url
+  """
+  productUrl: String
+
+  """
+  Product type
+  """
+  type: String
+
+  """
+  Whether the product has free shipping
+  """
+  isFreeShipping: Boolean
+
+  """
+  Whether the product is available for purchase
+  """
+  availability: String
+
+  """
+  Indicating that this product's price should be shown on the product page
+  """
+  isPriceHidden: Boolean
+
+  """
+  Whether the variant is available for purchase
+  """
+  purchasingDisabled: Boolean
+}
+
+input ProductUploadInputType {
+  """
+  Product List
+  """
+  productList: [ProductListType]
+
+  """
+  The currency code of the display currency used to present prices.
+  """
+  currencyCode: String
+
+  """
+  The channel ID of store
+  """
+  channelId: Int
+
+  """
+  If can be add products to shopping cart
+  """
+  isToCart: Boolean
+
+  """
+  With modifiers in response
+  """
+  withModifiers: Boolean = false
+}
+
+type ProductUploadType {
+  """
+  The url of error csv
+  """
+  errorFile: String
+
+  """
+  The list of valid csv
+  """
+  errorProduct: GenericScalar
+
+  """
+  The valid of valid csv
+  """
+  validProduct: GenericScalar
+
+  """
+  The url of stock error csv
+  """
+  stockErrorFile: String
+
+  """
+  The valid of valid csv
+  """
+  stockErrorSkus: GenericScalar
+}
+
+type ProductVariantInfoType {
+  """
+  The id of product
+  """
+  productId: Int
+
+  """
+  The variant id of product
+  """
+  variantId: Int
+
+  """
+  The company ID
+  """
+  companyId: Int
+
+  """
+  The channel ID of store
+  """
+  channelId: [Int]
+
+  """
+  The store hash
+  """
+  storeHash: String
+
+  """
+  The sku of product
+  """
+  sku: String
+
+  """
+  The images url of product
+  """
+  imageUrl: String
+
+  """
+  If has price list
+  """
+  hasPriceList: Boolean
+
+  """
+  The bulk price
+  """
+  bulkPrices: [String]
+
+  """
+  If can be purchased
+  """
+  purchasingDisabled: Boolean
+
+  """
+  cost price
+  """
+  costPrice: String
+
+  """
+  The inventory warning level of product
+  """
+  inventoryLevel: Int
+
+  """
+  The modifiers sku of product
+  """
+  modifiers: [GenericScalar]
+
+  """
+  if product is visible
+  """
+  isAvailable: Boolean
+
+  """
+  The price of the product as seen on the storefront
+  """
+  calculatedPrice: String
+
+  """
+  The currency code of the display currency used to present prices.
+  """
+  currencyCode: String
+
+  """
+  The options of product
+  """
+  optionValues: [GenericScalar]
+
+  """
+  Availability of the product
+  """
+  availability: String
+
+  """
+  Indicating that whether the product's price should be shown on the product page.
+  """
+  isPriceHidden: Boolean
+}
+
+input ProductVariantInputType {
+  """
+  The product id of product
+  """
+  productId: Int!
+
+  """
+  The variant id of product
+  """
+  variantId: Int!
+}
+
+type Query {
+  """
+  Get company roles, which can be searched by name, code.
+  Requires a B2B Token.
+  """
+  companyRoles(
+    """
+    ID of the company, optional
+    """
+    companyId: Int
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+  ): CompanyRolesTypeCountableConnection
+
+  """
+  Get company role detail, contains permissions of the role.
+  Requires a B2B Token.
+  """
+  companyRole(
+    """
+    ID of the company, optional
+    """
+    companyId: Int
+
+    """
+    ID of the role, required
+    """
+    roleId: Int!
+  ): CompanyRoleType
+
+  """
+  Get all company permissions.
+  Requires a B2B Token.
+  """
+  companyPermissions: [CompanyPermissionsType]
+
+  """
+  Details of account settings.
+  Requires a B2B Token.
+  """
+  accountSettings(
+    """
+    The id of the company.
+    This field is required
+    """
+    companyId: Int!
+  ): AccountSettingType
+
+  """
+  Details of account settings.
+  Requires a BC Token.
+  """
+  customerAccountSettings: CustomerAccountSettingsType
+
+  """
+  Get the list of invoices.
+  Requires IP authentication.
+  """
+  invoices(
+    """
+    Filter by one or more company IDs.
+    """
+    companyIds: [Int] = []
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    invoiceNumber: String
+    type: String
+    orderNumber: String
+    purchaseOrderNumber: String
+    externalCustomerId: String
+    storeHash: String
+    externalId: String
+    status: [String]
+    beginDateAt: Decimal
+    endDateAt: Decimal
+    idIn: String
+    beginDueDateAt: Decimal
+    endDueDateAt: Decimal
+  ): InvoiceTypeCountableConnection
+
+  """
+  Get the details of an invoice.
+  Requires IP authentication.
+  """
+  invoice(
+    """
+    The invoice id.
+    This field is required.
+    """
+    invoiceId: Int!
+  ): InvoiceType
+
+  """
+  Get the stats of an invoice.
+  Requires IP authentication.
+  """
+  invoiceStats(
+    """
+    The invoice status.
+    (0-open, 1-partial paid, 2-completed).
+    This field is required.
+    """
+    status: Int!
+
+    """
+    Filter by one or more company IDs.
+    """
+    companyIds: [Int] = []
+
+    """
+    The decimal places, not required
+    """
+    decimalPlaces: Int
+  ): InvoiceStatsType
+
+  """
+  Get the company and customer information of an invoice.
+  Requires IP authentication.
+  """
+  invoiceCustomerInformation: InvoiceCustomerInformationType
+
+  """
+  List of invoice payment modules.
+  Requires a B2B Token.
+  """
+  invoicePaymentModules: [PaymentModuleType]
+
+  """
+  Information of BC allow methods.
+  Requires a B2B Token.
+  """
+  invoiceBcOrderAllowMethods: BcOrderAllowMethodsType
+
+  """
+  Information of an invoice payment related BC cart.
+  Requires a B2B Token.
+  """
+  invoicePaymentBcCart(
+    """
+    Invoice payment id.
+    This field is required.
+    """
+    paymentId: Int!
+  ): PaymentRelatedCartType
+
+  """
+  Invoice payment fees.
+  Requires a B2B Token.
+  """
+  invoicePaymentFees: PaymentFeesType
+
+  """
+  A list of receipts.
+  Requires IP authentication.
+  """
+  receipts(
+    """
+    The payment status
+    """
+    paymentStatus: [Int]
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): ReceiptTypeCountableConnection
+
+  """
+  The details of a receipt.
+  Requires IP authentication.
+  """
+  receipt(
+    """
+    The receipt id.
+    This field is required.
+    """
+    id: Int!
+  ): ReceiptType
+
+  """
+  List of all the receipt lines.
+  Requires IP authentication.
+  """
+  allReceiptLines(
+    """
+    The payment status.
+    """
+    paymentStatus: [Int]
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    invoiceId: String
+  ): ReceiptLinesTypeCountableConnection
+
+  """
+  The details of a receipt line.
+  Requires IP authentication.
+  """
+  receiptLine(
+    """
+    The receipt line id.
+    This field is required.
+    """
+    id: Int!
+  ): ReceiptLinesType
+
+  """
+  List of receipt lines for the specified receipt.
+  Requires IP authentication.
+  """
+  receiptLines(
+    """
+    The receipt id.
+    This field is required
+    """
+    receiptId: Int!
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    invoiceId: String
+  ): ReceiptLinesTypeCountableConnection
+
+  """
+  Get an order details.
+  Requires a B2B Token.
+  """
+  order(
+    """
+    The order id.
+    This field is required.
+    """
+    id: Int!
+  ): BcOrderType
+
+  """
+  Get orders.
+  Requires a B2B Token.
+  """
+  allOrders(
+    """
+    Filter by one or more company IDs.
+    """
+    companyIds: [Int] = []
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    q: String
+    companyId: Decimal
+    bcOrderId: Decimal
+    poNumber: String
+    extraInt1: Decimal
+    extraInt2: Decimal
+    extraInt3: Decimal
+    extraInt4: Decimal
+    extraInt5: Decimal
+    extraStr1: String
+    extraStr2: String
+    extraStr3: String
+    extraStr4: String
+    extraStr5: String
+    beginDateAt: Date
+    endDateAt: Date
+    companyName: String
+    search: String
+    status: String
+    email: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    extraStr1_In: String
+    isShowMy: String
+    createdBy: String
+  ): OrderTypeCountableConnection
+
+  """
+  Get a list of the products in an order.
+  Requires a B2B Token.
+  """
+  orderProducts(
+    """
+    The BC order id.
+    This field is required.
+    """
+    bcOrderId: Int!
+  ): [OrderProductType]
+
+  """
+  Get an ordered list of the products.
+  Requires a B2B or BC Token.
+  """
+  orderedProducts(
+    """
+    Filter by BC channel id. Supported in MSF stores
+    """
+    channelId: Int = null
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    q: String
+    productId: Decimal
+    beginDateAt: Date
+    endDateAt: Date
+    minOrderedTimes: Decimal
+    maxOrderedTimes: Decimal
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): OrderedProductTypeCountableConnection
+
+  """
+  Get a list of orders for a BC customer.
+  Requires a BC Token.
+  """
+  customerOrders(
+    """
+    Filter by BC channel id. Supported in MSF stores
+    """
+    channelId: Int = null
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    q: String
+    companyId: Decimal
+    bcOrderId: Decimal
+    poNumber: String
+    extraInt1: Decimal
+    extraInt2: Decimal
+    extraInt3: Decimal
+    extraInt4: Decimal
+    extraInt5: Decimal
+    extraStr1: String
+    extraStr2: String
+    extraStr3: String
+    extraStr4: String
+    extraStr5: String
+    beginDateAt: Date
+    endDateAt: Date
+    companyName: String
+    search: String
+    status: String
+    email: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    extraStr1_In: String
+    isShowMy: String
+    createdBy: String
+  ): OrderTypeCountableConnection
+
+  """
+  Get the details of a BC customer's order.
+  Requires a BC Token.
+  """
+  customerOrder(
+    """
+    The order id.
+    This field is required.
+    """
+    id: Int!
+  ): BcOrderType
+
+  """
+  Get orders created by a company.
+  Requires a B2B Token.
+  """
+  createdByUser(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    (0-order, 1-shopping list, 2-quotes).
+    This field is required.
+    """
+    module: Int!
+  ): CreateByType
+
+  """
+  Get all the shopping lists.
+  Requires a B2B Token.
+  """
+  shoppingLists(
+    isShowMy: Boolean
+    isDefault: Boolean
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+    status: [Int]
+
+    """
+    Ordering
+    """
+    orderBy: String
+    createdBy: String
+    email: String
+  ): ShoppingListPageTypeCountableConnection
+
+  """
+  Get a shopping list by id.
+  Requires a B2B Token.
+  """
+  shoppingList(
+    """
+    Shopping list id.
+    This field is required.
+    """
+    id: Int!
+  ): ShoppingListType
+
+  """
+  Get all the shopping lists that contains both id and name.
+  Requires a B2B Token.
+  """
+  shoppingListsIdName: [ShoppingListIdNameType]
+
+  """
+  Get all the shopping lists.
+  Requires a BC Token.
+  """
+  customerShoppingLists(
+    """
+    Filter by BC channel id. Supported in MSF stores
+    """
+    channelId: Int = null
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): CustomerShoppingListPageTypeCountableConnection
+
+  """
+  Get a the shopping list by ID.
+  Requires a BC Token.
+  """
+  customerShoppingList(
+    """
+    Shopping list id.
+    This field is required.
+    """
+    id: Int!
+  ): CustomerShoppingListType
+
+  """
+  Get all the shopping lists that contains both ID and name.
+  Requires a BC Token.
+  """
+  customerShoppingListsIdName(
+    """
+    Filter by BC channel id. Supported in MSF stores
+    """
+    channelId: Int = null
+  ): [CustomerShoppingListIdNameType]
+
+  """
+  Get extra fields configurations of a company.
+  Doesn't require a Token.
+  """
+  companyExtraFields(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): [ExtraFieldsConfigType]
+
+  """
+  Get a company details by user id.
+  Requires a B2B Token.
+  """
+  userCompany(
+    """
+    BundleB2B user id.
+    This field is required.
+    """
+    userId: Int!
+  ): CompanyType
+
+  """
+  Check if a user email can be used for the current company.
+  Doesn't require a Token.
+  """
+  companyValidateEmail(
+    """
+    The Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Email address of the user.
+    This field is required.
+    """
+    email: String!
+
+    """
+    The user role.
+    (0-Admin, 1-Senior Buyer, 2-Junior Buyer, 3-Sales Rep).
+    This field is required.
+    """
+    role: Int!
+
+    """
+    Store Channel ID
+    """
+    channelId: Int
+  ): CompanyEmailValidateType
+
+  """
+  This API is deprecated, use 'userEmailCheck' instead.
+  Get the information of a user.
+  Doesn't require a Token.
+  """
+  companyUserInfo(
+    """
+    The Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Email address of the user.
+    This field is required.
+    """
+    email: String!
+
+    """
+    BC customer id
+    """
+    customerId: Int
+  ): CompanyUserInfoType
+
+  """
+  Get a list of form fields for an account.
+  Doesn't require a Token.
+  """
+  accountFormFields(
+    """
+    The Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The form type.
+    This field is required.
+    """
+    formType: Int!
+  ): [AccountFormFieldsType]
+
+  """
+  Get company credit config.
+  Requires a B2B Token.
+  """
+  companyCreditConfig(
+    """
+    If true, it will return the masquerading company credit config
+    """
+    isMasqueradingCompany: Boolean
+  ): CompanyCreditConfigType
+
+  """
+  Get company payment terms.
+  Requires a B2B Token.
+  """
+  companyPaymentTerms(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+  ): CompanyPaymentTermsType
+
+  """
+  Get all subsidiaries of your company.
+  Requires a B2B Token.
+  """
+  companySubsidiaries: [CompanySubsidiariesType]
+
+  """
+  Get a list of companies by super admin.
+  Requires a B2B token.
+  """
+  superAdminCompanies(
+    """
+    Unique ID of a super admin.
+    This field is required.
+    """
+    superAdminId: Int!
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): SuperAdminCompanyTypeCountableConnection
+
+  """
+  Get the masquerading company of a customer.
+  Requires a B2B token.
+  """
+  superAdminMasquerading(
+    """
+    Unique ID of a customer in BigCommerce.
+    This field is required.
+    """
+    customerId: Int!
+  ): CompanyType
+
+  """
+  Get the list of quotes.
+  Requires a B2B Token.
+  """
+  quotes(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    quoteNumber: String
+    company: String
+    salesRep: String
+    status: Decimal
+    quoteTitle: String
+    createdBy: String
+    dateCreatedBeginAt: Date
+    dateCreatedEndAt: Date
+    dateUpdatedBeginAt: Date
+    dateUpdatedEndAt: Date
+    dateExpiredBeginAt: Date
+    dateExpiredEndAt: Date
+    email: String
+  ): QuoteTypeCountableConnection
+
+  """
+  Get the list of quotes for a customer.
+  Requires a BC Token.
+  """
+  customerQuotes(
+    """
+    BC channel id
+    """
+    channelId: Int
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    quoteNumber: String
+    company: String
+    salesRep: String
+    status: Decimal
+    quoteTitle: String
+    createdBy: String
+    dateCreatedBeginAt: Date
+    dateCreatedEndAt: Date
+    dateUpdatedBeginAt: Date
+    dateUpdatedEndAt: Date
+    dateExpiredBeginAt: Date
+    dateExpiredEndAt: Date
+    email: String
+  ): QuoteTypeCountableConnection
+
+  """
+  Get the details of a quote.
+  Requires a B2B token for B2B and B2C users
+  """
+  quote(
+    """
+    Unique quote id.
+    This field is required.
+    """
+    id: Int!
+
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Quote create date as a timestamp.
+    This field is required.
+    """
+    date: String!
+  ): QuoteType
+
+  """
+  Get the store information of a quote.
+  Requires a B2B Token.
+  """
+  quoteUserStoreInfo(
+    """
+    The Store hash.
+    """
+    storeHash: String
+
+    """
+    The company id.
+    """
+    companyId: Int
+
+    """
+    Sales Rep id.
+    """
+    salesRepId: Int
+  ): StoreUserInfo
+
+  """
+  Get the quote configurations of a store.
+  Doesn't require a Token.
+  """
+  quoteConfig(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): QuoteConfigType
+
+  """
+  Get the extra fields configurations for a quote.
+  """
+  quoteExtraFieldsConfig(
+    """
+    Store hash.
+    """
+    storeHash: String
+
+    """
+    Channel id.
+    """
+    channelId: Int
+  ): [QuoteExtraFieldsType]
+
+  """
+  List of company users.
+  Requires a B2B Token.
+  """
+  users(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    email: String
+    firstName: String
+    lastName: String
+    role: Decimal
+    search: String
+    companyRoleId: Decimal
+  ): UserTypeCountableConnection
+
+  """
+  Details of a company user.
+  Requires a B2B Token.
+  """
+  user(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    The id of the user.
+    This field is required.
+    """
+    userId: Int!
+  ): UserType
+
+  """
+  Check if a user email exists in B2B or BC, supports multi-storefront.
+  Requires a B2B Token.
+  """
+  userEmailCheck(
+    """
+    User email to verify.
+    This field is required.
+    """
+    email: String!
+
+    """
+    The id of the company.
+    """
+    companyId: Int = null
+
+    """
+    The store hash.
+    """
+    storeHash: String = ""
+
+    """
+    BC channel id.
+    """
+    channelId: Int = null
+  ): UserEmailCheckType
+
+  """
+  Check if a customer email exists in BC, supports multi-storefront.
+  Doesn't require a Token.
+  """
+  customerEmailCheck(
+    """
+    User email to verify.
+    This field is required.
+    """
+    email: String!
+
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    BC channel id.
+    """
+    channelId: Int = null
+  ): CustomerEmailCheckType
+
+  """
+  Get extra fields configurations of a user.
+  Requires a B2B Token.
+  """
+  userExtraFields: [ExtraFieldsConfigType]
+
+  """
+  Get current user details.
+  Requires a B2B Token.
+  """
+  currentUser: UserType
+
+  """
+  Retrieves customer info, type and permissions.
+  Requires a B2B Token.
+  """
+  customerInfo: CustomerInfoType
+
+  """
+  Retrives force password reset state for the user.
+  Doesn't require a Token.
+  """
+  userLoginState(
+    """
+    The Store Hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Email address of the user.
+    This field is required.
+    """
+    email: String!
+  ): UserLoginState
+
+  """
+  Get the masquerading company info of a user.
+  Requires a B2B Token.
+  """
+  userMasqueradingCompany: CompanyInfoType
+
+  """
+  A B2B store orders statuses.
+  Requires a B2B Token.
+  """
+  orderStatuses: [OrderStatusType]
+
+  """
+  BC customer get order statuses of a store.
+  Requires a BC Token.
+  """
+  bcOrderStatuses: [OrderStatusType]
+
+  """
+  The currencies configured for a store.
+  Doesn't require a Token.
+  """
+  currencies(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The channel ID of a store.
+    This field is required.
+    """
+    channelId: String!
+  ): StoreCurrencies
+
+  """
+  The auto loader of a store.
+  Doesn't require a Token.
+  """
+  autoLoader(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): StoreAutoLoaderType
+
+  """
+  The limitations details of a store.
+  Doesn't require a Token.
+  """
+  storeLimitations(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Number between 1 and 6.
+    This field is required.
+    """
+    limitationType: Int!
+  ): StoreLimitationsType
+
+  """
+  Basic information about the store.
+  Doesn't require a Token.
+  """
+  storeBasicInfo(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The BC channel ID.
+    """
+    bcChannelId: Int
+  ): StoreBasicInfoType
+
+  """
+  Get storefront scripts.
+  Requires either a storeHash or the siteUrl.
+  Doesn't require a Token.
+  """
+  storefrontScript(
+    """
+    The store hash.
+    """
+    storeHash: String
+
+    """
+    The channel ID of a store.
+    """
+    channelId: Int
+
+    """
+    Site url
+    """
+    siteUrl: String
+  ): StorefrontScriptType
+
+  """
+  Get storefront default language.
+  """
+  storefrontDefaultLanguage(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The channel ID of a store.
+    This field is required.
+    """
+    channelId: Int!
+  ): StorefrontLanguageType
+
+  """
+  Get storefront product settings.
+  """
+  storefrontProductSettings(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The channel ID of a storefront.
+    """
+    channelId: Int
+  ): StorefrontProductSettingType
+
+  """
+  The switch status of the store configurations.
+  Requires a B2B Token.
+  """
+  storeConfigSwitchStatus(
+    """
+    Key can be either 'email_notifications' or 'interval_quantity'.
+    This field is required.
+    """
+    key: String!
+  ): StoreConfigType
+
+  """
+  The checkout configurations of a store.
+  Requires a B2B Token.
+  """
+  storeCheckoutConfig: [CheckoutConfigType]
+
+  """
+  The storefront configurations of a store.
+  Doesn't require a Token.
+  """
+  storefrontConfig(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): StoreFrontConfigType
+
+  """
+  The new storefront configurations.
+  Doesn't require a Token.
+  """
+  storefrontConfigs(
+    """
+    The store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    Bigcommerce channel id
+    """
+    channelId: Int
+
+    """
+    config key list
+    """
+    keys: [String]
+  ): [StorefrontConfigType]
+
+  """
+  Information on a product variants.
+  Requires a B2B Token.
+  """
+  productVariantsInfo(
+    """
+    The id of the product.
+    This field is required.
+    """
+    productId: String!
+  ): [CatalogsVariantType]
+
+  """
+  information on the variants of a product.
+  Doesn't require a Token.
+  """
+  variantSku(
+    """
+    Store hash.
+    This field is required.
+    """
+    storeHash: String!
+
+    """
+    The sku of the products.
+    This field is required.
+    """
+    variantSkus: [String]!
+
+    """
+    The currency code of the product
+    """
+    currencyCode: String
+
+    """
+    Filter by BC channel id. Supported in MSF stores
+    """
+    channelId: Int = null
+  ): [CatalogQuickProductType]
+
+  """
+  Inventory information for a product.
+  Requires a B2B Token.
+  """
+  productsInventory(
+    """
+    A list of products.
+    This field is required, but may be an empty list.
+    """
+    products: [ProductInventoryInputType]!
+  ): [ProductInventoryType]
+
+  """
+  Inventory information for a product.
+  Requires a B2B Token.
+  Needs at least one parameter.
+  """
+  productsLoad(
+    """
+    The currency code of product.
+    This field is required.
+    """
+    currencyCode: String!
+
+    """
+    A list of products.
+    This field is required.
+    """
+    productList: [ProductVariantInputType]!
+
+    """
+    The company Id
+    """
+    companyId: String
+  ): [ProductVariantInfoType]
+
+  """
+  search products by name,sku,id.
+  Doesn't require a Token.
+  """
+  productsSearch(
+    """
+    Store hash.
+    """
+    storeHash: String
+
+    """
+    Store channel ID
+    """
+    channelId: Int
+
+    """
+    search product name or sku
+    """
+    search: String
+
+    """
+    product id list
+    """
+    productIds: [Int]
+
+    """
+    The currency code of product
+    """
+    currencyCode: String
+
+    """
+    The company Id
+    """
+    companyId: String
+
+    """
+    The offset of pagination
+    """
+    offset: Int
+
+    """
+    The limit of pagination
+    """
+    limit: Int
+
+    """
+    the customer group id
+    """
+    customerGroupId: Int
+
+    """
+    Show all products, contains non-purchasable products
+    """
+    showAllProducts: Boolean
+    categoryFilter: Boolean
+  ): [ProductInfoType]
+
+  """
+  Get the tax zone information.
+  Doesn't require a Token.
+  """
+  taxZoneRates(
+    """
+    Store hash.
+    This field is required.
+    """
+    storeHash: String!
+  ): [TaxZoneRateType]
+  productPurchasable(
+    """
+    Store hash.
+    """
+    storeHash: String
+
+    """
+    Product ID.
+    """
+    productId: Int
+
+    """
+    Variant sku
+    """
+    sku: String
+
+    """
+    Is product or variant
+    """
+    isProduct: Boolean
+  ): ProductPurchasableType
+
+  """
+  Calculate batch pricing for products for a specific channel, currency, and customer group.
+  """
+  priceProducts(
+    """
+    Store hash.
+    """
+    storeHash: String
+
+    """
+    The channel ID that pricing evaluates within.
+    """
+    channelId: Int
+
+    """
+    The currency code of prices this request returns.
+    This field is required.
+    """
+    currencyCode: String!
+
+    """
+    The customer group ID that's relevant for any customer group pricing, tax values, etc.
+    """
+    customerGroupId: Int
+
+    """
+    The items for which to fetch prices.
+    This field is required.
+    """
+    items: [PricingProductItemInputType]!
+  ): [PricingProductType]
+
+  """
+  The list of addresses registered to the company.
+  Requires a B2B Token.
+  """
+  addresses(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+    firstName: String
+    lastName: String
+    address: String
+    country: String
+    state: String
+    city: String
+    label: String
+    uuid: String
+    isShipping: Decimal
+    isBilling: Decimal
+    company: String
+  ): AddressTypeCountableConnection
+
+  """
+  Details of the company address selected.
+  Requires a B2B Token.
+  """
+  address(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+
+    """
+    The id of the address.
+    This field is required.
+    """
+    addressId: Int!
+  ): AddressType
+
+  """
+  List of countries and states in the country.
+  Doesn't require a Token.
+  """
+  countries(
+    """
+    Store hash
+    """
+    storeHash: String
+  ): [CountryType]
+
+  """
+  Details of the company's default shipping address.
+  Requires a B2B Token.
+  """
+  defaultShippingAddress(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+  ): AddressType
+
+  """
+  Details of the company's default billing address.
+  Requires a B2B Token.
+  """
+  defaultBillingAddress(
+    """
+    The id of the company.
+    This field is required.
+    """
+    companyId: Int!
+  ): AddressType
+
+  """
+  The list of addresses registered to the user.
+  Requires a BC Token.
+  """
+  customerAddresses(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+    firstName: String
+    lastName: String
+    country: String
+    stateOrProvince: String
+    city: String
+    company: String
+  ): CustomerAddressTypeCountableConnection
+
+  """
+  Details of the user address selected.
+  Requires a BC Token.
+  """
+  customerAddress(
+    """
+    The id of address. Required
+    """
+    addressId: Int!
+  ): CustomerAddressType
+
+  """
+  Address configurations for the store.
+  Doesn't require a Token.
+  """
+  addressConfig(
+    """
+    Store Hash
+    """
+    storeHash: String!
+  ): [AddressStoreConfigType]
+
+  """
+  Get address extra fields in the company configurations.
+  Doesn't require a Token.
+  """
+  addressExtraFields(
+    """
+    Store hash
+    """
+    storeHash: String!
+  ): [ExtraFieldsConfigType]
+}
+
+input QuoteAddressExtraFieldsInputType {
+  fieldName: String
+  fieldValue: String
+}
+
+type QuoteAttachFiles {
+  id: Int
+  fileName: String
+  fileType: String
+  fileUrl: String
+  createdBy: String
+}
+
+"""
+Create attachment for a quote.
+Requires either B2B or BC Token.
+"""
+type QuoteAttachmentCreate {
+  attachFiles: [QuoteAttachFiles]
+}
+
+"""
+Delete Attachment from a quote.
+Requires either B2B or BC Token.
+"""
+type QuoteAttachmentDelete {
+  message: String
+}
+
+"""
+Get the checkout information for a quote.
+Requires a B2B token for B2B and B2C users
+Token is not required for guest users, but store must allow guest quotes.
+"""
+type QuoteCheckout {
+  quoteCheckout: QuoteCheckoutType
+}
+
+type QuoteCheckoutType {
+  checkoutUrl: String
+  cartId: String
+  cartUrl: String
+}
+
+type QuoteConfigType {
+  switchStatus: [QuoteSwitchConfigType]
+  otherConfigs: [QuoteOtherConfigType]
+}
+
+"""
+Create a new quote.
+Requires B2B or BC token only if store has disabled guest quotes
+"""
+type QuoteCreate {
+  quote: QuoteType
+}
+
+input QuoteCurrencyInputType {
+  """
+  The exchange rate between the store’s default currency and the display currency.
+  """
+  currencyExchangeRate: String!
+
+  """
+  Currency token
+  """
+  token: String
+}
+
+"""
+Send a Quote Email.
+Requires either B2B or BC Token.
+"""
+type QuoteEmail {
+  message: String
+}
+
+input QuoteEmailInputType {
+  """
+  The quote ID you want to use
+  """
+  email: String!
+
+  """
+  Which email you want to send
+  """
+  quoteId: Int!
+}
+
+input QuoteExtraFieldsInputType {
+  id: Int
+  fieldName: String
+  value: String
+}
+
+type QuoteExtraFieldsType {
+  """
+  Field name that config in you store
+  """
+  fieldName: String
+
+  """
+  Field type of the extra field.0 means text type. 1 means textarea type. 2 means number type. 3 means dropdown type.
+  """
+  fieldType: Int
+
+  """
+  Is this field is required
+  """
+  isRequired: Boolean
+
+  """
+  Default value of this field.
+  """
+  defaultValue: String
+
+  """
+  The maximum length of the value of this field. fieldType == 0
+  """
+  maximumLength: String
+
+  """
+  The maximum number of rows of the value of this field. fieldType == 1
+  """
+  numberOfRows: String
+
+  """
+  Maximum value of the field value. fieldType == 2
+  """
+  maximumValue: String
+
+  """
+  List of all optional values for the field value. fieldType == 3
+  """
+  listOfValue: [String]
+
+  """
+  Is this field visible to end user
+  """
+  visibleToEnduser: Boolean
+
+  """
+  The label name of the field.
+  """
+  labelName: String
+  id: ID
+  fieldCategory: String
+  isUnique: Boolean
+  valueConfigs: GenericScalar
+}
+
+type QuoteExtraFieldsValueType {
+  fieldName: String
+  fieldValue: String
+}
+
+input QuoteFileListInputType {
+  id: Int
+  fileUrl: String!
+  fileName: String!
+  fileType: String!
+  fileSize: Int
+}
+
+"""
+Export a quote PDF.
+"""
+type QuoteFrontendPdf {
+  url: String
+  content: String
+}
+
+input QuoteInputType {
+  """
+  Notes of the quote
+  """
+  notes: String
+
+  """
+  Legal terms of the quote
+  """
+  legalTerms: String
+
+  """
+  Total amount of the quote
+  """
+  totalAmount: Decimal
+
+  """
+  Message of the quote
+  """
+  message: String
+
+  """
+  Subtotal amount of the quote.
+  This field is required.
+  """
+  subtotal: Decimal!
+
+  """
+  Discount applied to the quote.
+  This field is required.
+  """
+  discount: Decimal!
+
+  """
+  Grand total amount of the quote.
+  This field is required.
+  """
+  grandTotal: Decimal!
+
+  """
+  Reference number of the quote
+  """
+  referenceNumber: String
+
+  """
+  User email of the quote
+  """
+  userEmail: String
+
+  """
+  Expiration date for the quote
+  """
+  expiredAt: String
+
+  """
+  Title of the quote
+  """
+  quoteTitle: String
+
+  """
+  Shipping address of the quote.
+  This field is required, even if its an empty object.
+  """
+  shippingAddress: ShippingAddressInputType!
+
+  """
+  Billing address of the quote.
+  This field is required, even if its an empty object.
+  """
+  billingAddress: BillingAddressInputType!
+
+  """
+  Contact info of the quote.
+  This field is required.
+  """
+  contactInfo: ContactInfoInputType!
+
+  """
+  Company ID of the quote
+  """
+  companyId: Int
+
+  """
+  Currency type for the quote.
+  This field is required, even if its an empty object.
+  """
+  currency: CurrencyInputType!
+
+  """
+  Store hash.
+  This field is required.
+  """
+  storeHash: String!
+
+  """
+  The list of products to be included in the quote.
+  This field is required.
+  """
+  productList: [ProductInputType]!
+
+  """
+  Shipping total amount of the quote
+  """
+  shippingTotal: Decimal
+
+  """
+  total tax amount of the quote
+  """
+  taxTotal: Decimal
+
+  """
+  Shipping method of the quote
+  """
+  shippingMethod: GenericScalar
+
+  """
+  Extra fields of the quote
+  """
+  extraFields: [QuoteExtraFieldsInputType]
+
+  """
+  recipients of the quote
+  """
+  recipients: [GenericScalar]
+
+  """
+  Discount type the quote
+  """
+  discountType: Int
+
+  """
+  Discount value of the quote
+  """
+  discountValue: Decimal
+
+  """
+  File list of the quote
+  """
+  fileList: [QuoteFileListInputType]
+
+  """
+  The channel ID of the quote
+  """
+  channelId: Int
+}
+
+"""
+Ordered a quote.
+Requires either B2B or BC Token.
+"""
+type QuoteOrdered {
+  message: String
+}
+
+input QuoteOrderedInputType {
+  """
+  Unique order ID
+  """
+  orderId: String!
+
+  """
+  Store Hash
+  """
+  storeHash: String!
+
+  """
+  Shipping total price
+  """
+  shippingTotal: Decimal!
+
+  """
+  Tax total price
+  """
+  taxTotal: Decimal!
+  shippingMethod: ShippingMethodInputType!
+}
+
+type QuoteOtherConfigType {
+  """
+  key of a config
+  """
+  key: String
+
+  """
+  config value
+  """
+  value: String
+}
+
+"""
+This API is deprecated, please use QuoteFrontendPdf. Export a quote to PDF.
+Requires either B2B or BC Token.
+"""
+type QuotePdfExport {
+  url: String
+}
+
+type QuoteSwitchConfigType {
+  """
+  key of a config
+  """
+  key: String
+
+  """
+  Is enabled for a config
+  """
+  isEnabled: String
+}
+
+type QuoteType implements Node {
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+
+  """
+  Quote number
+  """
+  quoteNumber: String
+
+  """
+  Title of the quote
+  """
+  quoteTitle: String
+
+  """
+  Reference number of a quote
+  """
+  referenceNumber: String
+  userEmail: String
+  bcCustomerId: Int
+
+  """
+  Created by user of the quote
+  """
+  createdBy: String
+  createdByEmail: String
+  expiredAt: Int
+  companyId: CompanyType
+  salesRepStatus: Int!
+  customerStatus: Int!
+
+  """
+  subtotal amount of the quote
+  """
+  subtotal: String
+
+  """
+  discount amount of the quote
+  """
+  discount: String
+
+  """
+  Grand total amount of the quote
+  """
+  grandTotal: String
+  cartId: String
+  cartUrl: String
+  checkoutUrl: String
+
+  """
+  BC order ID of the quote
+  """
+  bcOrderId: String
+
+  """
+  Currency information of the quote
+  """
+  currency: GenericScalar
+
+  """
+  Contact info of the quote
+  """
+  contactInfo: GenericScalar
+
+  """
+  Tracking history of the quote
+  """
+  trackingHistory: GenericScalar
+
+  """
+  Extra fields of the quote
+  """
+  extraFields: [QuoteExtraFieldsValueType]
+
+  """
+  Notes of the quote
+  """
+  notes: String
+
+  """
+  Legal terms of the quote
+  """
+  legalTerms: String
+
+  """
+  Shipping total of the quote
+  """
+  shippingTotal: String
+
+  """
+  total tax amount of the quote
+  """
+  taxTotal: String
+
+  """
+  total amount of the quote
+  """
+  totalAmount: String
+
+  """
+  Shipping method of the quote
+  """
+  shippingMethod: GenericScalar
+
+  """
+  Billing address of the quote
+  """
+  billingAddress: GenericScalar
+  oldSalesRepStatus: Int
+  oldCustomerStatus: Int
+
+  """
+  Recipients of the quote
+  """
+  recipients: GenericScalar
+
+  """
+  Discount type of the quote
+  """
+  discountType: Int
+
+  """
+  Discount value of the quote
+  """
+  discountValue: String
+  pdfTemplate: String
+  pdfLang: String
+  displayDiscount: Boolean
+  allowCheckout: Boolean
+
+  """
+  Status of the quote
+  """
+  status: Int
+
+  """
+  Company name of the quote
+  """
+  company: String
+
+  """
+  Sales Rep name of the quote
+  """
+  salesRep: String
+
+  """
+  Sales Rep email of the quote
+  """
+  salesRepEmail: String
+
+  """
+  order ID of the quote
+  """
+  orderId: String
+
+  """
+  Shipping address of the quote
+  """
+  shippingAddress: GenericScalar
+
+  """
+  Products list of the quote
+  """
+  productsList: [ProductType]
+
+  """
+  Storefront attach files of the quote
+  """
+  storefrontAttachFiles: [QuoteAttachFiles]
+
+  """
+  Backend attach files of the quote
+  """
+  backendAttachFiles: [QuoteAttachFiles]
+
+  """
+  Store information
+  """
+  storeInfo: StoreInfoType
+
+  """
+  Company information
+  """
+  companyInfo: CompanyInfoType
+
+  """
+  Sales rep information
+  """
+  salesRepInfo: salesRepInfoType
+
+  """
+  logo of the quote
+  """
+  quoteLogo: String
+
+  """
+  url of the quote
+  """
+  quoteUrl: String
+
+  """
+  The channel id of the quote
+  """
+  channelId: Int
+
+  """
+  The channel name of the quote
+  """
+  channelName: String
+}
+
+type QuoteTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [QuoteTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type QuoteTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: QuoteType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Update a Quote.
+Requires either B2B or BC Token.
+"""
+type QuoteUpdate {
+  quote: QuoteType
+}
+
+input QuoteUpdateInputType {
+  """
+  Store hash
+  """
+  storeHash: String!
+
+  """
+  Text info from comments
+  """
+  message: String
+
+  """
+  User email
+  """
+  userEmail: String!
+
+  """
+  last message timestamp
+  """
+  lastMessage: Int
+}
+
+type ReceiptLinesType implements Node {
+  id: ID!
+
+  """
+  The create at of receipt lines.Required
+  """
+  createdAt: Int
+
+  """
+  The update at of receipt lines.Required
+  """
+  updatedAt: Int
+
+  """
+  The store hash of store.Required
+  """
+  storeHash: String
+
+  """
+  The customer id of receipt lines.Required
+  """
+  customerId: Int
+
+  """
+  The external id of receipt lines
+  """
+  externalId: Int
+
+  """
+  The external customer id of receipt lines
+  """
+  externalCustomerId: Int
+
+  """
+  The id of receipt lines.Required
+  """
+  receiptId: Int
+
+  """
+  The invoice id of receipt lines.Required
+  """
+  invoiceId: Int
+  amountCode: String
+
+  """
+  The amount of receipt lines.Required
+  """
+  amount: GenericScalar
+
+  """
+  The payment status of receipt lines.Required
+  """
+  paymentStatus: Int
+
+  """
+  The payment type of receipt lines.Required
+  """
+  paymentType: String
+
+  """
+  The invoice number of receipt lines.Required
+  """
+  invoiceNumber: String
+
+  """
+  The payment id of receipt lines.Required
+  """
+  paymentId: Int
+
+  """
+  The transaction type of receipt lines.Required
+  """
+  transactionType: String
+
+  """
+  The reference number of receipt lines.Required
+  """
+  referenceNumber: String
+
+  """
+  Company information of receipt lines
+  """
+  companyInfo: CompanyInfoType
+}
+
+type ReceiptLinesTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [ReceiptLinesTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type ReceiptLinesTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: ReceiptLinesType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+type ReceiptType implements Node {
+  id: ID!
+
+  """
+  The create at of receipt.Required
+  """
+  createdAt: Int
+
+  """
+  The update at of receipt.Required
+  """
+  updatedAt: Int
+
+  """
+  The store hash of store.Required
+  """
+  storeHash: String
+
+  """
+  The customer id of receipt.Required
+  """
+  customerId: Int
+
+  """
+  The external id of receipt
+  """
+  externalId: Int
+
+  """
+  The external customer id of receipt
+  """
+  externalCustomerId: Int
+  totalCode: String
+  totalAmount: Decimal
+
+  """
+  The payer name of receipt.Required
+  """
+  payerName: String
+
+  """
+  The payer customer id of receipt.Required
+  """
+  payerCustomerId: String
+
+  """
+  The details of receipt
+  """
+  details: GenericScalar
+
+  """
+  The payment id of receipt.Required
+  """
+  paymentId: Int
+
+  """
+  The transaction type of receipt.Required
+  """
+  transactionType: String
+  paymentType: String
+
+  """
+  The reference number of receipt.Required
+  """
+  referenceNumber: String
+  receiptLineSet(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+    invoiceId: String
+  ): ReceiptLinesTypeCountableConnection!
+
+  """
+  The total of receipt.Required
+  """
+  total: GenericScalar
+}
+
+type ReceiptTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [ReceiptTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type ReceiptTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: ReceiptType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+type ReferenceRequestType {
+  """
+  The (required) product ID of the item.
+  """
+  productId: Int!
+
+  """
+  The (optional) variant ID of the item.
+  """
+  variantId: Int
+
+  """
+  The option configuration of the product (optional); might be partially configured for estimates.
+  """
+  options: [PricingProductItemOptionsType]
+}
+
+type salesRepInfoType {
+  salesRepName: String
+  salesRepEmail: String
+  salesRepPhoneNumber: String
+}
+
+input ShippingAddressInputType {
+  country: String
+  state: String
+  city: String
+  zipCode: String
+  address: String
+  apartment: String
+  addressId: Int
+  firstName: String
+  lastName: String
+  addressLine1: String
+  addressLine2: String
+  phoneNumber: String
+  label: String
+  extraFields: [QuoteAddressExtraFieldsInputType]
+  shippingCity: String
+  shippingZipCode: String
+  companyName: String
+}
+
+input ShippingMethodInputType {
+  id: String!
+  type: String!
+  description: String!
+  imageUrl: String!
+  transitTime: String!
+  cost: Float!
+  additionalDescription: String!
+}
+
+type ShoppingListIdNameType implements Node {
+  id: ID!
+  name: String
+  status: Int!
+}
+
+type ShoppingListItem implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the shopping list
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the shopping list
+  """
+  updatedAt: Int
+
+  """
+  Product ID
+  """
+  productId: Int
+
+  """
+  Product variant id
+  """
+  variantId: Int
+
+  """
+  Quantity
+  """
+  quantity: Int
+
+  """
+  Product option list
+  """
+  optionList: GenericScalar
+
+  """
+  Product name
+  """
+  productName: String
+
+  """
+  Shopping list item ID
+  """
+  itemId: Int
+
+  """
+  Product base SKU
+  """
+  baseSku: String
+
+  """
+  SKU name
+  """
+  variantSku: String
+
+  """
+  Product base price
+  """
+  basePrice: String
+
+  """
+  Product discount
+  """
+  discount: String
+
+  """
+  Product tax
+  """
+  tax: String
+
+  """
+  Product entered inclusive
+  """
+  enteredInclusive: Boolean
+
+  """
+  Product url
+  """
+  productUrl: String
+
+  """
+  Product primary image url
+  """
+  primaryImage: String
+  sortOrder: Int
+
+  """
+  Product note
+  """
+  productNote: String
+}
+
+type ShoppingListItemCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [ShoppingListItemCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type ShoppingListItemCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: ShoppingListItem!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+type ShoppingListPageType implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the shopping list
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the shopping list
+  """
+  updatedAt: Int
+
+  """
+  Shopping list name
+  """
+  name: String
+
+  """
+  Shopping list description
+  """
+  description: String
+
+  """
+  Shopping list reason
+  """
+  reason: String
+
+  """
+  Shopping list status. 0: Approved 20: Deleted 30: Draft 40: Ready for approval 50:Rejected
+  """
+  status: Int
+
+  """
+  Has the shopping list been submitted for approval
+  """
+  approvedFlag: Boolean
+
+  """
+  Shopping list customer information
+  """
+  customerInfo: CustomerInfo
+
+  """
+  If owner of shopping list
+  """
+  isOwner: Boolean
+
+  """
+  products of shopping list
+  """
+  products(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): BaseShoppingListItemCountableConnection
+
+  """
+  The channel id of the shopping list
+  """
+  channelId: Int
+
+  """
+  The channel name of the shopping list
+  """
+  channelName: String
+
+  """
+  Company information of shopping list
+  """
+  companyInfo: CompanyInfoType
+}
+
+type ShoppingListPageTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [ShoppingListPageTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type ShoppingListPageTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: ShoppingListPageType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Create a shopping list.
+Requires a B2B Token.
+"""
+type ShoppingListsCreate {
+  shoppingList: ShoppingListType
+}
+
+"""
+Delete a shopping list.
+Requires a B2B Token.
+"""
+type ShoppingListsDelete {
+  message: String
+}
+
+"""
+Duplicate a shopping list.
+Requires a B2B Token.
+"""
+type ShoppingListsDuplicate {
+  shoppingList: ShoppingListType
+}
+
+input ShoppingListsDuplicateInputType {
+  name: String!
+  description: String!
+}
+
+input ShoppingListsInputType {
+  """
+  Shopping list name
+  """
+  name: String!
+
+  """
+  Shopping list description
+  """
+  description: String!
+
+  """
+  0: Approved 20: Deleted 30: Draft 40: Ready for approval 50:Rejected
+  """
+  status: Int!
+
+  """
+  Shopping list company id
+  """
+  companyId: Int
+}
+
+"""
+Add items to an existed shopping list.
+Requires a B2B Token.
+"""
+type ShoppingListsItemsCreate {
+  shoppingListsItems: [ShoppingListItem]
+}
+
+"""
+Delete shopping list item using shoppingListId and itemId.
+Requires a B2B Token.
+"""
+type ShoppingListsItemsDelete {
+  message: String
+}
+
+input ShoppingListsItemsInputType {
+  """
+  Product ID
+  """
+  productId: Int!
+
+  """
+  Product SKU ID
+  """
+  variantId: Int!
+
+  """
+  Quantity of product in shopping list
+  """
+  quantity: ProductQuantity!
+
+  """
+  Product option of shopping list item
+  """
+  optionList: [ShoppingListsItemsOptionInputType]
+
+  """
+  Sort order
+  """
+  sortOrder: Int
+
+  """
+  Product note
+  """
+  productNote: String
+}
+
+input ShoppingListsItemsOptionInputType {
+  optionId: String!
+  optionValue: GenericScalar!
+}
+
+"""
+Update shopping lists items.
+Requires a B2B Token.
+"""
+type ShoppingListsItemsUpdate {
+  shoppingListsItem: ShoppingListItem
+}
+
+input ShoppingListsItemsUpdateInputType {
+  """
+  Product SKU ID
+  """
+  variantId: Int
+
+  """
+  Quantity of product in shopping list
+  """
+  quantity: ProductQuantity
+
+  """
+  Product option of shopping list item
+  """
+  optionList: [ShoppingListsItemsOptionInputType]
+
+  """
+  Sort order
+  """
+  sortOrder: Int
+
+  """
+  Product note
+  """
+  productNote: String
+}
+
+"""
+Update a shopping list.
+Requires a B2B Token.
+"""
+type ShoppingListsUpdate {
+  shoppingList: ShoppingListType
+}
+
+type ShoppingListType implements Node {
+  id: ID!
+
+  """
+  The created timestamp of the shopping list
+  """
+  createdAt: Int
+
+  """
+  The updated timestamp of the shopping list
+  """
+  updatedAt: Int
+
+  """
+  Shopping list name
+  """
+  name: String
+
+  """
+  Shopping list description
+  """
+  description: String
+
+  """
+  Shopping list reason
+  """
+  reason: String
+
+  """
+  Shopping list status. 0: Approved 20: Deleted 30: Draft 40: Ready for approval 50:Rejected
+  """
+  status: Int
+
+  """
+  Has the shopping list been submitted for approval
+  """
+  approvedFlag: Boolean
+
+  """
+  Shopping list customer information
+  """
+  customerInfo: CustomerInfo
+
+  """
+  If owner of shopping list
+  """
+  isOwner: Boolean
+
+  """
+  grand total amount of shopping list
+  """
+  grandTotal: String
+
+  """
+  Total discount of shopping list
+  """
+  totalDiscount: String
+
+  """
+  Total tax of shopping list
+  """
+  totalTax: String
+
+  """
+  If show grand total amount of shopping list
+  """
+  isShowGrandTotal: Boolean
+
+  """
+  products of shopping list
+  """
+  products(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    search: String
+
+    """
+    Ordering
+    """
+    orderBy: String
+  ): ShoppingListItemCountableConnection
+
+  """
+  The channel id of the shopping list
+  """
+  channelId: Int
+
+  """
+  The channel name of the shopping list
+  """
+  channelName: String
+
+  """
+  Company information of shopping list
+  """
+  companyInfo: CompanyInfoType
+}
+
+type StatesType {
+  """
+  The state name
+  """
+  stateName: String
+
+  """
+  The state iso2 code
+  """
+  stateCode: String
+}
+
+type StoreAutoLoaderType {
+  """
+  The storefront ulr of auto loader
+  """
+  storefrontUrl: String
+
+  """
+  The checkout ulr of auto loader
+  """
+  checkoutUrl: String
+}
+
+type StoreBasicInfoType {
+  storeName: String
+  storeAddress: String
+  storeCountry: String
+  storeLogo: String
+  storeUrl: String
+
+  """
+  The store sites of store
+  """
+  storeSites: [StoreSitesType]
+  timeFormat: StoreTimeFormatType
+
+  """
+  Whether multi storefront is enabled or not
+  """
+  multiStorefrontEnabled: Boolean
+}
+
+type StoreConfigType {
+  """
+  The id of store config.Required
+  """
+  id: String
+
+  """
+  The key of store config.Required
+  """
+  key: String
+
+  """
+  The enabled of store config.Required
+  """
+  isEnabled: String
+}
+
+type StoreCurrencies {
+  currencies: [Currencies]
+
+  """
+  channel currencies options list
+  """
+  channelCurrencies: GenericScalar
+  enteredInclusiveTax: Boolean
+}
+
+type StoreFrontConfigsType {
+  """
+  The account settings config of storefront.True is enable,False id disabled.Required
+  """
+  accountSettings: Boolean
+
+  """
+  The address book config of storefront.True is enable,False id disabled.Required
+  """
+  addressBook: Boolean
+
+  """
+  The buy again  config of storefront.True is enable,False id disabled.Required
+  """
+  buyAgain: Boolean
+
+  """
+  The dashboard  config of storefront.True is enable,False id disabled.Required
+  """
+  dashboard: Boolean
+
+  """
+  The invoice config of storefront.True is enable,False id disabled.Required
+  """
+  invoice: StoreFrontInvoiceConfigType
+
+  """
+  The message config of storefront.True is enable,False id disabled.Required
+  """
+  messages: Boolean
+
+  """
+  The orders config of storefront.True is enable,False id disabled.Required
+  """
+  orders: Boolean
+
+  """
+  The quick order pad config of storefront.True is enable,False id disabled.Required
+  """
+  quickOrderPad: Boolean
+
+  """
+  The quotes config of storefront.True is enable,False id disabled.Required
+  """
+  quotes: Boolean
+
+  """
+  The recently viewed config of storefront.True is enable,False id disabled.Required
+  """
+  recentlyViewed: Boolean
+
+  """
+  The returns config of storefront.True is enable,False id disabled.Required
+  """
+  returns: Boolean
+
+  """
+  The shopping lists  config of storefront.True is enable,False id disabled.Required
+  """
+  shoppingLists: Boolean
+
+  """
+  The tpa config of storefront.True is enable,False id disabled.Required
+  """
+  tradeProfessionalApplication: Boolean
+
+  """
+  The user management  config of storefront.True is enable,False id disabled.Required
+  """
+  userManagement: Boolean
+
+  """
+  The wish lists  config of storefront.True is enable,False id disabled.Required
+  """
+  wishLists: Boolean
+}
+
+type StorefrontConfigType {
+  """
+  The key of the config
+  """
+  key: String
+
+  """
+  The value of the config
+  """
+  value: String
+
+  """
+  detail data of the config
+  """
+  extraFields: GenericScalar
+}
+
+type StoreFrontConfigType {
+  """
+  The config of store config.Required
+  """
+  config: StoreFrontConfigsType
+
+  """
+  The id of storefront config.Required
+  """
+  configId: Int
+}
+
+type StoreFrontInvoiceConfigType {
+  """
+  The value of store invoice config.Required
+  """
+  value: Boolean
+
+  """
+  The enabled status of store invoice config.Required
+  """
+  enabledStatus: Boolean
+}
+
+type StorefrontLanguageType {
+  language: String
+}
+
+type StorefrontProductSettingType {
+  showProductPrice: Boolean
+  showProductSku: Boolean
+  showProductWeight: Boolean
+  showProductBrand: Boolean
+  showProductShipping: Boolean
+  showProductRating: Boolean
+  showAddToCartLink: Boolean
+  defaultPreorderMessage: String
+  showBreadcrumbsProductPages: String
+  showAddToCartQtyBox: Boolean
+  showAddToWishlist: Boolean
+  hidePriceFromGuests: Boolean
+}
+
+type StorefrontScriptType {
+  storeHash: String
+  channelId: Int
+  script: String
+}
+
+type StoreInfoType {
+  storeName: String
+  storeAddress: String
+  storeCountry: String
+  storeLogo: String
+  storeUrl: String
+}
+
+type StoreLimitationsType {
+  """
+  The can create of store limitations
+  """
+  canCreate: Boolean
+
+  """
+  Whether has limitation of store
+  """
+  hasLimitation: Boolean
+
+  """
+  The limitation  count of store limitations
+  """
+  limitationCount: Int
+
+  """
+  The limitation  type of store limitations
+  """
+  limitationType: Int
+
+  """
+  The limitation  type name of store limitations
+  """
+  limitationTypeName: String
+
+  """
+  The resource count of store limitations
+  """
+  resourceCount: Int
+}
+
+type StoreSitesType {
+  """
+  The id of store channel in BC
+  """
+  channelId: Int
+
+  """
+  The urls of store channel
+  """
+  urls: [String]
+
+  """
+  The icon of store channel
+  """
+  iconUrl: String
+
+  """
+  The channel is enabled in BC or not
+  """
+  isEnabled: Boolean
+
+  """
+  The channel is enabled in BundleB2B or not
+  """
+  b2bEnabled: Boolean
+
+  """
+  The id of store channel in BundleB2B
+  """
+  b3ChannelId: Int
+
+  """
+  The logo of channel configured in BundleB2B
+  """
+  channelLogo: String
+
+  """
+  The type of store channel
+  """
+  type: String
+
+  """
+  The name of the platform for the channel
+  """
+  platform: String
+
+  """
+  Version of current translation document
+  """
+  translationVersion: Int
+}
+
+type StoreTimeFormatType {
+  """
+  string that defines dates’ display format
+  """
+  display: String
+
+  """
+  string that defines the CSV export format for orders, customers, and products
+  """
+  export: String
+
+  """
+  string that defines dates’ extended-display format
+  """
+  extendedDisplay: String
+
+  """
+  negative or positive number, identifying the offset from UTC/GMT
+  """
+  offset: Int
+}
+
+type StoreUserInfo {
+  storeInfo: StoreInfoType
+  companyInfo: CompanyInfoType
+  salesRepInfo: salesRepInfoType
+}
+
+type SuperAdminBeginMasquerade {
+  userInfo: UserInfoType
+}
+
+type SuperAdminCompanyExtraFieldsValueType {
+  fieldName: String
+  fieldValue: String
+}
+
+type SuperAdminCompanyType implements Node {
+  """
+  Company ID of the company
+  """
+  companyId: Int
+
+  """
+  The ID of the object
+  """
+  id: ID!
+
+  """
+  Company name
+  """
+  companyName: String
+
+  """
+  Company BC customer group name
+  """
+  bcGroupName: String
+
+  """
+  Admin user name of the company
+  """
+  companyAdminName: String
+
+  """
+  Email of the company
+  """
+  companyEmail: String
+
+  """
+  Extra field list of the company
+  """
+  extraFields: [SuperAdminCompanyExtraFieldsValueType]
+}
+
+type SuperAdminCompanyTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [SuperAdminCompanyTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type SuperAdminCompanyTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: SuperAdminCompanyType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Super admin end masquerade,
+Requires a B2B Token.
+"""
+type SuperAdminEndMasquerade {
+  message: String
+}
+
+type TaxClassRateType {
+  """
+  The rate of tax class
+  """
+  rate: Float
+
+  """
+  The id of tax class
+  """
+  taxClassId: Int
+}
+
+type TaxRateType {
+  """
+  The id of tax rate
+  """
+  id: Int
+
+  """
+  The name of tax rate
+  """
+  name: String
+
+  """
+  The enabled of tax rate
+  """
+  enabled: Boolean
+
+  """
+  The priority of tax rate
+  """
+  priority: Int
+
+  """
+  The class rates of tax rate
+  """
+  classRates: [TaxClassRateType]
+}
+
+type TaxZoneRateType {
+  """
+  The id of tax zone
+  """
+  id: Int
+
+  """
+  The name of tax zone
+  """
+  name: String
+
+  """
+  The enabled of tax zone
+  """
+  enabled: Boolean
+
+  """
+  The shopper target settings of tax zone
+  """
+  shopperTargetSettings: TaxZoneShopperTargetType
+  rates: [TaxRateType]
+
+  """
+  Store displays prices to shoppers matched with this tax zone.
+  """
+  priceDisplaySettings: PriceDisplaySettingsType
+}
+
+type TaxZoneShopperTargetLocationType {
+  """
+  The country code
+  """
+  countryCode: String
+
+  """
+  The subdivision codes
+  """
+  subdivisionCodes: [String]
+
+  """
+  The postal codes
+  """
+  postalCodes: [String]
+}
+
+type TaxZoneShopperTargetType {
+  locations: [TaxZoneShopperTargetLocationType]
+
+  """
+  The customer group id list
+  """
+  customerGroups: [Int]
+}
+
+"""
+Update Account Settings.
+Requires a B2B Token.
+"""
+type UpdateAccount {
+  result: AccountSettingType
+}
+
+"""
+Update Customer Account Settings.
+Requires a BC Token.
+"""
+type UpdateCustomerAccount {
+  result: CustomerAccountSettingsType
+}
+
+"""
+Authorize using a Bigcommerce token.
+"""
+type UserAuthorization {
+  result: UserAuthResultType
+}
+
+type UserAuthResultType {
+  """
+  The BundleB2B token
+  """
+  token: String
+
+  """
+  The user info
+  """
+  user: UserType
+
+  """
+  The user's login type
+  """
+  loginType: Int
+
+  """
+  Storefront login token for Headless API
+  """
+  storefrontLoginToken: String
+
+  """
+  The user's permissions
+  """
+  permissions: [AuthRolePermissionType]
+}
+
+input UserAuthType {
+  """
+  The Bigcommerce token
+  """
+  bcToken: String!
+
+  """
+  The Bigcommerce channel id
+  """
+  channelId: Int = 1
+}
+
+"""
+Login to checkout for a given cart.
+Requires a B2B token.
+"""
+type UserCheckoutLogin {
+  result: CheckoutResultLoginType
+}
+
+"""
+Create a company user.
+Requires a B2B Token.
+"""
+type UserCreate {
+  user: UserType
+}
+
+"""
+Delete a company user.
+Requires a B2B Token.
+"""
+type UserDelete {
+  message: String
+}
+
+type UserEmailCheckInfoType {
+  """
+  User id
+  """
+  id: Int
+
+  """
+  User email
+  """
+  email: String
+
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  Phone number
+  """
+  phoneNumber: String
+
+  """
+  User role
+  """
+  role: Int
+
+  """
+  Company name
+  """
+  companyName: String
+
+  """
+  Origin BC channel id
+  """
+  originChannelId: Int
+
+  """
+  Is user's password reset on login
+  """
+  forcePasswordReset: Boolean
+}
+
+type UserEmailCheckType {
+  """
+  1: not exist; 2: exist in BC; 3: exist more than one in BC; 4: exist in B3
+  other company; 5: exist in B3 current company; 6: exist in B3 as super admin;
+  7: exist in B3 current company other channel;
+  """
+  userType: Int
+  userInfo: UserEmailCheckInfoType
+}
+
+input UserExtraField {
+  fieldName: String!
+  fieldValue: String!
+}
+
+type UserExtraFieldsValueType {
+  """
+  The field name of extra field
+  """
+  fieldName: String
+
+  """
+  The field value of extra field
+  """
+  fieldValue: String
+}
+
+type UserInfoType {
+  email: String
+  firstName: String
+  lastName: String
+  phoneNumber: String
+}
+
+input UserInputType {
+  """
+  The id of the company.
+  This field is required
+  """
+  companyId: Int!
+
+  """
+  User email.
+  This field is required
+  """
+  email: String!
+
+  """
+  User first name.
+  This field is required
+  """
+  firstName: String!
+
+  """
+  User last name.
+  This field is required
+  """
+  lastName: String!
+
+  """
+  User phone number
+  """
+  phone: String = ""
+
+  """
+  User role.
+  (0-Admin, 1-Senior Buyer, 2-Junior Buyer).
+  """
+  role: Int
+
+  """
+  User company role id.
+  """
+  companyRoleId: Int
+
+  """
+  The uuid of user
+  """
+  uuid: String = ""
+
+  """
+  Send welcome email to user.
+  True or False
+  """
+  acceptEmail: Boolean = null
+
+  """
+  user extra fields
+  """
+  extraFields: [UserExtraField]
+
+  """
+  Used for MSF store.
+  Add current channel to user if email exists.
+  """
+  addChannel: Boolean = false
+}
+
+"""
+Login to a store with Bigcommerce user email and password.
+Doesn't require a Token.
+"""
+type UserLogin {
+  result: UserAuthResultType
+}
+
+type UserLoginState {
+  """
+  Force password reset state for the user.
+  """
+  forcePasswordReset: Boolean
+}
+
+input UserLoginType {
+  """
+  The store hash of Bigcommerce store. Required
+  """
+  storeHash: String!
+
+  """
+  The Bigcommerce user email. Required
+  """
+  email: String!
+
+  """
+  The Bigcommerce password. Required
+  """
+  password: String!
+
+  """
+  The Bigcommerce channel id
+  """
+  channelId: Int = 1
+
+  """
+  Redirect URL for storefront login token
+  """
+  redirectUrl: String = "#/orders"
+}
+
+"""
+Begin masquerading a company
+"""
+type UserMasqueradingCompanyBegin {
+  userMasqueradingCompanyBegin: CompanyInfoType
+}
+
+"""
+End masquerading a company
+"""
+type UserMasqueradingCompanyEnd {
+  message: String
+}
+
+"""
+Creates a Storefront API token.
+Doesn't require a Token.
+"""
+type UserStoreFrontToken {
+  token: String
+}
+
+type UserType implements Node {
+  id: ID!
+  createdAt: Int!
+  updatedAt: Int!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String
+  bcId: Int!
+  role: Int!
+  masqueradingCompanyId: Int
+
+  """
+  The uuid of user
+  """
+  uuid: String
+
+  """
+  extra fields of this user
+  """
+  extraFields: [UserExtraFieldsValueType]
+
+  """
+  User company role
+  """
+  companyRoleId: Int
+
+  """
+  User company role name
+  """
+  companyRoleName: String
+
+  """
+  Company information of user
+  """
+  companyInfo: CompanyInfoType
+}
+
+type UserTypeCountableConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  edges: [UserTypeCountableEdge!]!
+
+  """
+  A total count of items in the collection.
+  """
+  totalCount: Int
+}
+
+type UserTypeCountableEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: UserType!
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Update a company user.
+Requires a B2B Token.
+"""
+type UserUpdate {
+  user: UserType
+}
+
+input UserUpdateInputType {
+  """
+  The id of company.
+  This field is required.
+  """
+  companyId: Int!
+
+  """
+  The id of user.
+  This field is required.
+  """
+  userId: Int!
+
+  """
+  User first name
+  """
+  firstName: String
+
+  """
+  User last name
+  """
+  lastName: String
+
+  """
+  User phone number
+  """
+  phone: String
+
+  """
+  User role.
+  (0-Admin, 1-Senior Buyer, 2-Junior Buyer).
+  """
+  role: Int
+
+  """
+  User company role
+  """
+  companyRoleId: Int
+
+  """
+  The uuid of user
+  """
+  uuid: String
+
+  """
+  user extra fields
+  """
+  extraFields: [UserExtraField]
+}
