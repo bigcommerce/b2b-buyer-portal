@@ -12,11 +12,11 @@ import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
-import { getUsers, GetUsersVariables } from './getUsers';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
 import B3AddEditUser from './AddEditUser';
 import { getFilterMoreList, UsersList } from './config';
+import { getUsers, GetUsersVariables } from './getUsers';
 import { UserItemCard } from './UserItemCard';
 
 interface RefCurrentProps extends HTMLInputElement {
