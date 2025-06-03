@@ -232,7 +232,7 @@ function Dashboard(props: PageProps) {
               : {
                   label: b3Lang('dashboard.masqueradeAction'),
                   onClick: () => {
-                    startActing(Number(companyId));
+                    onStartMasquerade(Number(companyId));
                   },
                 };
 
