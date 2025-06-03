@@ -16,17 +16,32 @@ import {
   FilterProps,
   getUsersFiles,
   UsersFilesProps,
-  UsersList,
 } from './config';
 import getB2BUserExtraFields from './getUserExtraFields';
+import { getUser } from './getUser';
+
+export type HandleOpenAddEditUserClick = (
+  options: { type: 'add' } | { type: 'edit'; id: string },
+) => Promise<void>;
 
 interface AddEditUserProps {
-  companyId: string | number;
+  companyId: string;
   renderList: () => void;
 }
 
 interface SelectedDataProps {
   [key: string]: string | number;
+}
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  companyRoleId: number;
+  companyRoleName?: string;
+  extraFields: { fieldName: string; fieldValue: string }[];
 }
 
 function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unknown> | undefined) {
@@ -35,7 +50,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
 
-  const [editData, setEditData] = useState<UsersList | null>(null);
+  const [editData, setEditData] = useState<User>();
 
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false);
 
@@ -87,11 +102,14 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
   useEffect(() => {
     if (open) {
+      // Loosening types to allow for the setValues call to remain unchanged
+      const looseEditData: Record<string, User[keyof User]> = { ...editData };
+
       const newUsersFiles = usersFiles.map((item: UsersFilesProps) => {
         const newItem = item;
 
-        if (type === 'edit' && editData) {
-          setValue(item.name, editData[item.name]);
+        if (type === 'edit') {
+          setValue(item.name, looseEditData[item.name]);
         }
 
         return newItem;
@@ -194,14 +212,16 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
     })();
   };
 
-  const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
+  const handleOpenAddEditUserClick: HandleOpenAddEditUserClick = async (options) => {
+    const { type } = options;
     const usersFiles = getUsersFiles(
       type,
       b3Lang,
-      type === 'edit' ? b2bId === Number(data.id) : false,
+      type === 'edit' ? b2bId === Number(options.id) : false,
     );
 
     if (type === 'edit') {
+      const data = await getUser({ userId: options.id, companyId });
       const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || [];
       let newData = data;
       if (extrafieldsInfo && extrafieldsInfo.length > 0) {
@@ -217,7 +237,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
         };
       }
 
-      setEditData(newData);
+      setEditData({ id: options.id, ...newData });
 
       const companyRoleItem: UsersFilesProps | null =
         usersFiles.find((item) => item.name === 'companyRoleId') || null;

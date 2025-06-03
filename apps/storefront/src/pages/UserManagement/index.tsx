@@ -15,12 +15,12 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getUsers, GetUsersVariables } from './getUsers';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
-import B3AddEditUser from './AddEditUser';
+import B3AddEditUser, { HandleOpenAddEditUserClick } from './AddEditUser';
 import { getFilterMoreList, UsersList } from './config';
 import { UserItemCard } from './UserItemCard';
 
 interface RefCurrentProps extends HTMLInputElement {
-  handleOpenAddEditUserClick: (type: string, data?: UsersList) => void;
+  handleOpenAddEditUserClick: HandleOpenAddEditUserClick;
 }
 
 interface RoleProps {
@@ -165,11 +165,11 @@ function UserManagement() {
   };
 
   const handleAddUserClick = () => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('add');
+    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'add' });
   };
 
   const handleEdit = (userInfo: UsersList) => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('edit', userInfo);
+    addEditUserRef.current?.handleOpenAddEditUserClick({ type: 'edit', id: userInfo.id });
   };
 
   const handleDelete = (row: UsersList) => {
@@ -236,7 +236,7 @@ function UserManagement() {
           )}
         />
         <B3AddEditUser
-          companyId={selectCompanyHierarchyId || companyId}
+          companyId={`${selectCompanyHierarchyId || companyId}`}
           renderList={initSearchList}
           ref={addEditUserRef}
         />
