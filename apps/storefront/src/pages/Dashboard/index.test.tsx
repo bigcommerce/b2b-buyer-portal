@@ -10,10 +10,12 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
 import { CompanyStatus } from '@/types';
@@ -65,6 +67,10 @@ describe('when the user is associated with a company', () => {
   });
 
   const preloadedState = { company: companyWithB2B };
+
+  beforeEach(() => {
+    Cookies.remove('cartId');
+  });
 
   it('displays a table with headings for each key attribute of a company', async () => {
     server.use(
@@ -390,15 +396,9 @@ describe('when the user is associated with a company', () => {
         },
       }),
     );
-    const deleteCartReturn = vi.fn().mockReturnValue({
-      data: {
-        cart: {
-          deleteCart: {
-            deletedCartEntityId: '1',
-          },
-        },
-      },
-    });
+    const deleteCartReturn = vi.fn().mockReturnValue({});
+
+    when(deleteCartReturn).calledWith(stringContainingAll('deletedCartEntityId: 1')).thenReturn({});
 
     server.use(
       graphql.query('SuperAdminCompanies', () =>
@@ -443,7 +443,6 @@ describe('when the user is associated with a company', () => {
 
     expect(beginMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 123'));
     expect(getAgentInfo).toHaveBeenLastCalledWith(expect.stringContaining('customerId: 789'));
-    expect(deleteCartReturn).toHaveBeenCalled();
 
     expect(setOpenPageSpy).toHaveBeenLastCalledWith({
       isOpen: true,
