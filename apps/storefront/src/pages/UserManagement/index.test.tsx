@@ -19,8 +19,9 @@ import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermis
 import {
   UserEmailCheckResponse,
   UserExtraFieldsInfoResponse,
-  UsersResponse,
 } from '@/shared/service/b2b/graphql/users';
+import { UsersResponse } from './getUsers';
+import { UserResponse } from './getUser';
 import { UserTypes } from '@/types';
 
 import UserManagement from './index';
@@ -52,37 +53,23 @@ const buildUserExtraFieldsResponseWith = builder<UserExtraFieldsInfoResponse>(()
   },
 }));
 
-type UserEdge = UsersResponse['data']['users']['edges'][number];
+namespace GetUsers {
+  export type UserEdge = UsersResponse['data']['users']['edges'][number];
+}
 
-const buildUserEdgeWith = builder<UserEdge>(() => ({
+const buildUserEdgeWith = builder<GetUsers.UserEdge>(() => ({
   node: {
     id: faker.string.uuid(),
-    createdAt: faker.date.past().getTime(),
-    updatedAt: faker.date.recent().getTime(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     email: faker.internet.email(),
-    phone: faker.phone.number(),
-    bcId: faker.number.int(),
-    role: faker.number.int({ min: 0, max: 2 }),
-    uuid: faker.datatype.boolean() ? faker.string.uuid() : null,
     extraFields: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
       fieldName: faker.lorem.words(3),
       fieldValue: faker.word.sample(),
     })),
-    companyRoleId: faker.number.int(),
     companyRoleName: faker.lorem.words(2),
-    masqueradingCompanyId: faker.datatype.boolean() ? faker.string.uuid() : null,
     companyInfo: {
       companyId: faker.string.uuid(),
-      companyName: faker.company.name(),
-      companyAddress: faker.location.streetAddress(),
-      companyCountry: faker.location.country(),
-      companyState: faker.location.state(),
-      companyCity: faker.location.city(),
-      companyZipCode: faker.location.zipCode(),
-      phoneNumber: faker.phone.number(),
-      bcId: faker.string.numeric(),
     },
   },
 }));
@@ -92,16 +79,29 @@ const buildUsersResponseWith = builder<UsersResponse>(() => {
     buildUserEdgeWith('WHATEVER_VALUES'),
   );
 
-  return {
-    data: {
-      users: {
-        totalCount: edges.length,
-        pageInfo: { hasNextPage: false, hasPreviousPage: false },
-        edges,
-      },
-    },
-  };
+  return { data: { users: { totalCount: edges.length, edges } } };
 });
+
+namespace GetUser {
+  export type User = UserResponse['data']['user'];
+}
+
+const buildUserWith = builder<GetUser.User>(() => ({
+  id: faker.string.uuid(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  email: faker.internet.email(),
+  phone: faker.phone.number(),
+  companyRoleId: faker.number.int(),
+  extraFields: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
+    fieldName: faker.lorem.words(3),
+    fieldValue: faker.word.sample(),
+  })),
+}));
+
+const buildUserResponseWith = builder<UserResponse>(() => ({
+  data: { user: buildUserWith('WHATEVER_VALUES') },
+}));
 
 type CompanyRoleEdge = CompanyRolesResponse['data']['companyRoles']['edges'][number];
 
@@ -299,7 +299,6 @@ describe.each([
         data: {
           users: {
             totalCount: 13,
-            pageInfo: { hasNextPage: true, hasPreviousPage: false },
             edges: [...firstElevenUsers, troyMcClure],
           },
         },
@@ -312,7 +311,6 @@ describe.each([
         data: {
           users: {
             totalCount: 13,
-            pageInfo: { hasNextPage: false, hasPreviousPage: true },
             edges: [sallyCinnamon],
           },
         },
@@ -362,7 +360,6 @@ describe.each([
         data: {
           users: {
             totalCount: 13,
-            pageInfo: { hasNextPage: true, hasPreviousPage: false },
             edges: [...firstElevenUsers, troyMcClure],
           },
         },
@@ -375,7 +372,6 @@ describe.each([
         data: {
           users: {
             totalCount: 13,
-            pageInfo: { hasNextPage: false, hasPreviousPage: true },
             edges: [sallyCinnamon],
           },
         },
@@ -423,14 +419,14 @@ describe.each([
 
   describe('when the user clicks on the "edit" button for a user', () => {
     it('opens the "Edit User" modal', async () => {
-      const troyMcClure = buildUserEdgeWith({
-        node: {
-          firstName: 'Troy',
-          lastName: 'McClure',
-          email: 'troy.mcclure@acme.org',
-          companyRoleName: 'Junior Buyer',
-          phone: '04747665241',
-        },
+      const troyMcClureSummary = buildUserEdgeWith({
+        node: { firstName: 'Troy', lastName: 'McClure' },
+      });
+      const troyMcClureDetails = buildUserWith({
+        ...troyMcClureSummary.node,
+        email: 'troy.mcclure@acme.org',
+        companyRoleName: 'Junior Buyer',
+        phone: '04747665241',
       });
 
       server.use(
@@ -438,7 +434,12 @@ describe.each([
           HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
         ),
         graphql.query('GetUsers', () =>
-          HttpResponse.json(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } })),
+          HttpResponse.json(
+            buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
+          ),
+        ),
+        graphql.query('GetUser', () =>
+          HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
         ),
       );
 
@@ -471,18 +472,21 @@ describe.each([
 
   describe('when a user is updated, the user clicks "save user" and the save succeeds', () => {
     it('closes the "Edit User" modal and displays a success message', async () => {
-      const troyMcClure = buildUserEdgeWith({
-        node: {
-          id: '667668',
-          firstName: 'Troy',
-          lastName: 'McClure',
-        },
+      const troyMcClureSummary = buildUserEdgeWith({
+        node: { id: '667668', firstName: 'Troy', lastName: 'McClure' },
       });
-      const garyMcClure = buildUserEdgeWith({ node: { ...troyMcClure.node, firstName: 'Gary' } });
+
+      const troyMcClureDetails = buildUserWith({ ...troyMcClureSummary.node });
+
+      const garyMcClureSummary = buildUserEdgeWith({
+        node: { ...troyMcClureSummary.node, firstName: 'Gary' },
+      });
 
       const getUsersResponse = vi
         .fn<unknown[], UsersResponse>()
-        .mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } }));
+        .mockReturnValue(
+          buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
+        );
 
       const updateUserQuerySpy = vi.fn();
 
@@ -496,6 +500,9 @@ describe.each([
           HttpResponse.json(buildUserExtraFieldsResponseWith({ data: { userExtraFields: [] } })),
         ),
         graphql.query('GetUsers', () => HttpResponse.json(getUsersResponse())),
+        graphql.query('GetUser', () =>
+          HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
+        ),
       );
 
       renderWithProviders(
@@ -521,7 +528,7 @@ describe.each([
       await userEvent.type(firstNameField, 'Gary');
 
       getUsersResponse.mockReturnValue(
-        buildUsersResponseWith({ data: { users: { edges: [garyMcClure] } } }),
+        buildUsersResponseWith({ data: { users: { edges: [garyMcClureSummary] } } }),
       );
 
       await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
@@ -551,6 +558,7 @@ describe.each([
         graphql.query('GetUsers', () =>
           HttpResponse.json(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } })),
         ),
+        graphql.query('GetUser', () => HttpResponse.json(buildUserResponseWith('WHATEVER_VALUES'))),
       );
 
       renderWithProviders(<UserManagement />, { preloadedState });
@@ -1014,12 +1022,13 @@ describe('when the "Edit user" modal is open and the user has a custom field val
       visibleToEnduser: true,
     });
 
-    const troyMcClure = buildUserEdgeWith({
-      node: {
-        firstName: 'Troy',
-        lastName: 'McClure',
-        extraFields: [{ fieldName: customTextField.fieldName, fieldValue: 'Troy says hello' }],
-      },
+    const troyMcClureSummary = buildUserEdgeWith({
+      node: { firstName: 'Troy', lastName: 'McClure' },
+    });
+
+    const troyMcClureDetails = buildUserWith({
+      ...troyMcClureSummary.node,
+      extraFields: [{ fieldName: customTextField.fieldName, fieldValue: 'Troy says hello' }],
     });
 
     server.use(
@@ -1029,7 +1038,12 @@ describe('when the "Edit user" modal is open and the user has a custom field val
         ),
       ),
       graphql.query('GetUsers', () =>
-        HttpResponse.json(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } })),
+        HttpResponse.json(
+          buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
+        ),
+      ),
+      graphql.query('GetUser', () =>
+        HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
       ),
     );
 
