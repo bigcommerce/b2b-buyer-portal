@@ -121,9 +121,7 @@ import {
   checkUserBCEmail,
   checkUserEmail,
   deleteUsers,
-  getUsers,
   getUsersExtraFieldsInfo,
-  GetUsersVariables,
 } from './graphql/users';
 
 export {
@@ -229,8 +227,6 @@ export {
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
   getUserCompany,
-  getUsers,
-  type GetUsersVariables,
   getUsersExtraFieldsInfo,
   getProductPricing,
   guestProductsBulkUploadCSV,
