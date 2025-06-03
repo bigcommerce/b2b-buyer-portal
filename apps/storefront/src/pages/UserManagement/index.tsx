@@ -6,12 +6,13 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
-import { deleteUsers, getUsers, GetUsersVariables } from '@/shared/service/b2b';
+import { deleteUsers } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
+import { getUsers, GetUsersVariables } from './getUsers';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
 import B3AddEditUser from './AddEditUser';
