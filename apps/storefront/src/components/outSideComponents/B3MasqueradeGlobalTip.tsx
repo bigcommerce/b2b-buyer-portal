@@ -1,10 +1,11 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import GroupIcon from '@mui/icons-material/Group';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
+import Cookies from 'js-cookie';
 
 import {
   CHECKOUT_URL,
@@ -14,6 +15,7 @@ import {
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
+import { ConfirmMasqueradeDialog } from '@/pages/Dashboard/components/ConfirmMasqueradeDialog';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
@@ -35,24 +37,47 @@ interface B3MasqueradeGlobalTipProps {
 
 const bottomHeightPage = ['shoppingList/', 'purchased-products'];
 
-export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps) {
-  const { isOpen, setOpenPage } = props;
-  const dispatch = useAppDispatch();
+function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-
-  const { hash, href } = window.location;
-
-  const b3Lang = useB3Lang();
-
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext);
+
+  return {
+    customerId,
+    b2bId,
+    salesRepCompanyId,
+    salesRepCompanyName,
+    isAgenting,
+    masqueradeButton,
+    cartNumber,
+  };
+}
+
+export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps) {
+  const { isOpen, setOpenPage } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [confirmEndActing, setConfirmEndActing] = useState(false);
+  const dispatch = useAppDispatch();
+  const {
+    customerId,
+    b2bId,
+    salesRepCompanyId,
+    salesRepCompanyName,
+    isAgenting,
+    masqueradeButton,
+    cartNumber,
+  } = useData();
+  const { hash, href } = window.location;
+
+  const b3Lang = useB3Lang();
 
   const {
     text = '',
@@ -85,15 +110,27 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
         openUrl: '/dashboard?closeMasquerade=1',
       });
     } else {
+      setIsLoading(true);
       if (typeof b2bId === 'number') {
         await superAdminEndMasquerade(Number(salesRepCompanyId));
       }
 
+      setIsLoading(false);
       dispatch(clearMasqueradeCompany());
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
       });
+    }
+  };
+
+  const onEndActing = () => {
+    const cartId = Cookies.get('cartId');
+
+    if (cartId && cartNumber > 0) {
+      setConfirmEndActing(true);
+    } else {
+      endActing();
     }
   };
 
@@ -168,7 +205,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
               ...customStyles,
               ...MUIMediaStyle,
             }}
-            onClick={() => endActing()}
+            onClick={onEndActing}
             variant="contained"
             startIcon={<GroupIcon />}
           >
@@ -234,7 +271,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
                       fontSize: '13px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => endActing()}
+                    onClick={onEndActing}
                   >
                     {buttonLabel}
                   </Box>
@@ -318,7 +355,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
                     fontSize: '13px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => endActing()}
+                  onClick={onEndActing}
                 >
                   {buttonLabel}
                 </Box>
@@ -401,7 +438,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
                   fontSize: '13px',
                   cursor: 'pointer',
                 }}
-                onClick={() => endActing()}
+                onClick={onEndActing}
               >
                 {buttonLabel}
               </Box>
@@ -409,6 +446,18 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
           </Box>
         </Snackbar>
       )}
+      <ConfirmMasqueradeDialog
+        title={b3Lang('dashboard.masqueradeModal.title.end')}
+        isOpen={confirmEndActing}
+        isRequestLoading={isLoading}
+        handleClose={() => setConfirmEndActing(false)}
+        handleConfirm={() => {
+          if (confirmEndActing) {
+            endActing();
+            setConfirmEndActing(false);
+          }
+        }}
+      />
     </>
   );
 }

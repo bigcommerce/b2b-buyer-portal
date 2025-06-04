@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import { usePageMask } from '@/components';
+import { ConfirmMasqueradeDialog } from '@/components/ConfirmMasqueradeDialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -16,7 +17,6 @@ import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
-import { ConfirmMasqueradeDialog } from './components/ConfirmMasqueradeDialog';
 import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
@@ -38,26 +38,27 @@ const rowsPerPage = [10, 20, 30];
 function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const salesRepCompanyId = Number(
     useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id),
   );
 
-  return { salesRepCompanyId, b2bId, customerId };
+  return { salesRepCompanyId, b2bId, customerId, cartNumber };
 }
 
 function Dashboard(props: PageProps) {
   const showPageMask = usePageMask();
   const store = useAppStore();
 
-  const { salesRepCompanyId, b2bId, customerId } = useData();
+  const { salesRepCompanyId, b2bId, customerId, cartNumber } = useData();
 
   const { setOpenPage } = props;
   const b3Lang = useB3Lang();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
-  const [confirmMasquerade, setConfirmMasquerade] = useState<{ companyId: number } | undefined>(
-    undefined,
-  );
+  const [confirmMasquerade, setConfirmMasquerade] = useState<
+    { companyId: number; type: 'start' | 'end' } | undefined
+  >(undefined);
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -141,13 +142,21 @@ function Dashboard(props: PageProps) {
     });
   };
 
-  const onStartMasquerade = (companyId: number) => {
+  const onMasquerade = async ({
+    companyId,
+    type,
+  }: {
+    companyId: number;
+    type: 'start' | 'end';
+  }) => {
     const cartId = Cookies.get('cartId');
 
-    if (cartId) {
-      setConfirmMasquerade({ companyId });
+    if (cartId && cartNumber > 0) {
+      setConfirmMasquerade({ companyId, type });
+    } else if (type === 'start') {
+      await startActing(companyId);
     } else {
-      startActing(companyId);
+      await endActing();
     }
   };
 
@@ -178,7 +187,7 @@ function Dashboard(props: PageProps) {
           return (
             <ActionMenuCell
               label={b3Lang('dashboard.endMasqueradeAction')}
-              onClick={() => endActing()}
+              onClick={() => onMasquerade({ companyId: Number(companyId), type: 'end' })}
             />
           );
         }
@@ -186,7 +195,7 @@ function Dashboard(props: PageProps) {
         return (
           <ActionMenuCell
             label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => onStartMasquerade(Number(companyId))}
+            onClick={() => onMasquerade({ companyId: Number(companyId), type: 'start' })}
           />
         );
       },
@@ -225,15 +234,11 @@ function Dashboard(props: PageProps) {
             const action = isSelected
               ? {
                   label: b3Lang('dashboard.endMasqueradeAction'),
-                  onClick: () => {
-                    endActing();
-                  },
+                  onClick: () => onMasquerade({ companyId: Number(companyId), type: 'end' }),
                 }
               : {
                   label: b3Lang('dashboard.masqueradeAction'),
-                  onClick: () => {
-                    onStartMasquerade(Number(companyId));
-                  },
+                  onClick: () => onMasquerade({ companyId: Number(companyId), type: 'start' }),
                 };
 
             return (
@@ -248,14 +253,27 @@ function Dashboard(props: PageProps) {
         />
       </Box>
       <ConfirmMasqueradeDialog
+        title={
+          confirmMasquerade?.type === 'end'
+            ? b3Lang('dashboard.masqueradeModal.title.end')
+            : b3Lang('dashboard.masqueradeModal.title.start')
+        }
         isOpen={confirmMasquerade !== undefined}
         isRequestLoading={isRequestLoading}
         handleClose={() => setConfirmMasquerade(undefined)}
-        handleConfirm={async () => {
-          if (confirmMasquerade) {
-            await startActing(confirmMasquerade?.companyId);
+        handleConfirm={() => {
+          if (!confirmMasquerade) {
             setConfirmMasquerade(undefined);
+            return;
           }
+
+          if (confirmMasquerade.type === 'start') {
+            startActing(confirmMasquerade?.companyId);
+          } else {
+            endActing();
+          }
+
+          setConfirmMasquerade(undefined);
         }}
       />
     </B3Spin>
