@@ -19,7 +19,7 @@ import { ConfirmMasqueradeDialog } from '@/pages/Dashboard/components/ConfirmMas
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
-import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
+import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
 
 import {
   getContrastColor,
@@ -116,6 +116,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       }
 
       setIsLoading(false);
+      dispatch(setCartNumber(0))
       dispatch(clearMasqueradeCompany());
       setOpenPage({
         isOpen: true,
