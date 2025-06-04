@@ -117,6 +117,7 @@ function Dashboard(props: PageProps) {
       if (typeof b2bId === 'number') {
         await endMasquerade(store);
       }
+      store.dispatch(setCartNumber(0))
       setFilterData({
         ...filterData,
       });
