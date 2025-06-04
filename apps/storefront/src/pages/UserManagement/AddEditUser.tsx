@@ -5,7 +5,8 @@ import concat from 'lodash-es/concat';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
-import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b';
+import { checkUserEmail } from '@/shared/service/b2b';
+import { addOrUpdateUsers } from './addOrUpdateUsers';
 import { useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
 import { channelId, isKeyOf, snackbar } from '@/utils';
