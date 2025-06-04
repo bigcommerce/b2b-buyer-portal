@@ -116,7 +116,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       }
 
       setIsLoading(false);
-      dispatch(setCartNumber(0))
+      dispatch(setCartNumber(0));
       dispatch(clearMasqueradeCompany());
       setOpenPage({
         isOpen: true,
