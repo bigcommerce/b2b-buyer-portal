@@ -25,6 +25,15 @@ interface ListItem {
   [key: string]: string;
 }
 
+type ConfirmState =
+  | {
+      type: 'start';
+      companyId: number;
+    }
+  | {
+      type: 'end';
+    };
+
 export const defaultSortKey = 'companyName';
 
 export const sortKeys = {
@@ -56,9 +65,7 @@ function Dashboard(props: PageProps) {
   const b3Lang = useB3Lang();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
-  const [confirmMasquerade, setConfirmMasquerade] = useState<
-    { companyId: number; type: 'start' | 'end' } | undefined
-  >(undefined);
+  const [confirmMasquerade, setConfirmMasquerade] = useState<ConfirmState>();
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -143,19 +150,21 @@ function Dashboard(props: PageProps) {
     });
   };
 
-  const onMasquerade = async ({
-    companyId,
-    type,
-  }: {
-    companyId: number;
-    type: 'start' | 'end';
-  }) => {
+  const onStartMasquerade = async (companyId: number) => {
     const cartId = Cookies.get('cartId');
 
     if (cartId && cartNumber > 0) {
-      setConfirmMasquerade({ companyId, type });
-    } else if (type === 'start') {
+      setConfirmMasquerade({ type: 'start', companyId });
+    } else {
       await startActing(companyId);
+    }
+  };
+
+  const onEndMasquerade = async () => {
+    const cartId = Cookies.get('cartId');
+
+    if (cartId && cartNumber > 0) {
+      setConfirmMasquerade({ type: 'end' });
     } else {
       await endActing();
     }
@@ -188,7 +197,7 @@ function Dashboard(props: PageProps) {
           return (
             <ActionMenuCell
               label={b3Lang('dashboard.endMasqueradeAction')}
-              onClick={() => onMasquerade({ companyId: Number(companyId), type: 'end' })}
+              onClick={() => onEndMasquerade()}
             />
           );
         }
@@ -196,7 +205,7 @@ function Dashboard(props: PageProps) {
         return (
           <ActionMenuCell
             label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => onMasquerade({ companyId: Number(companyId), type: 'start' })}
+            onClick={() => onStartMasquerade(Number(companyId))}
           />
         );
       },
@@ -235,11 +244,11 @@ function Dashboard(props: PageProps) {
             const action = isSelected
               ? {
                   label: b3Lang('dashboard.endMasqueradeAction'),
-                  onClick: () => onMasquerade({ companyId: Number(companyId), type: 'end' }),
+                  onClick: () => onEndMasquerade(),
                 }
               : {
                   label: b3Lang('dashboard.masqueradeAction'),
-                  onClick: () => onMasquerade({ companyId: Number(companyId), type: 'start' }),
+                  onClick: () => onStartMasquerade(Number(companyId)),
                 };
 
             return (
@@ -262,16 +271,15 @@ function Dashboard(props: PageProps) {
         isOpen={confirmMasquerade !== undefined}
         isRequestLoading={isRequestLoading}
         handleClose={() => setConfirmMasquerade(undefined)}
-        handleConfirm={() => {
+        handleConfirm={async () => {
           if (!confirmMasquerade) {
-            setConfirmMasquerade(undefined);
             return;
           }
 
           if (confirmMasquerade.type === 'start') {
-            startActing(confirmMasquerade?.companyId);
+            await startActing(confirmMasquerade.companyId);
           } else {
-            endActing();
+            await endActing();
           }
 
           setConfirmMasquerade(undefined);
