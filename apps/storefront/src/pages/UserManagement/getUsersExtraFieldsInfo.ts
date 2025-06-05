@@ -1,6 +1,6 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 
-const getUserExtraFields = () => `
+const getUserExtraFields = `
   query GetUserExtraFields {
     userExtraFields {
       fieldName
@@ -21,7 +21,7 @@ export interface UserExtraFieldsInfoResponse {
   data: {
     userExtraFields: Array<{
       fieldName: string;
-      fieldType: number;
+      fieldType: 0 | 1 | 2 | 3;
       isRequired: boolean;
       defaultValue: string | null;
       maximumLength: string | null;
@@ -35,6 +35,4 @@ export interface UserExtraFieldsInfoResponse {
 }
 
 export const getUsersExtraFieldsInfo = () =>
-  B3Request.graphqlB2B({
-    query: getUserExtraFields(),
-  });
+  B3Request.graphqlB2B<UserExtraFieldsInfoResponse>({ query: getUserExtraFields });

@@ -30,7 +30,7 @@ type UserExtraField = UserExtraFieldsInfoResponse['data']['userExtraFields'][num
 
 const buildUserExtraFieldWith = builder<UserExtraField>(() => ({
   fieldName: faker.lorem.words(3),
-  fieldType: faker.number.int(),
+  fieldType: faker.helpers.arrayElement([0, 1, 2, 3]),
   isRequired: faker.datatype.boolean(),
   defaultValue: faker.word.sample(),
   maximumLength: faker.number.int({ min: 1, max: 100 }).toString(),
