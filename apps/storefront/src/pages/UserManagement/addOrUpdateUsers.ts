@@ -1,22 +1,11 @@
 import B3Request from '@/shared/service/request/b3Fetch';
-import { convertArrayToGraphql } from '@/utils';
 
-const addOrUpdateUsersQl = (data: CustomFieldItems) => `
-  mutation ${data?.userId ? 'UpdateUser' : 'CreateUser'} {
-    ${data?.userId ? 'userUpdate' : 'userCreate'} (
-      userData: {
-        companyId: ${data.companyId}
-        ${data?.email ? `email: "${data.email}"` : ''}
-        firstName: "${data.firstName || ''}"
-        lastName: "${data.lastName || ''}"
-        phone: "${data.phone || ''}"
-        ${data?.companyRoleId ? `companyRoleId: ${data.companyRoleId}` : ''}
-        ${data?.userId ? `userId: ${data.userId}` : ''}
-        ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
-        extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
-        ${data?.companyRoleName ? `companyRoleName: ${data.companyRoleName}` : ''}
-      }
-    ){
+const toNumberSafely = (value?: number | string): number | undefined =>
+  value !== undefined && value !== '' ? Number(value) : undefined;
+
+const addUserQl = `
+  mutation CreateUser ($userData: UserInputType!) {
+    userCreate ( userData: $userData ){
       user{
         id,
         bcId,
@@ -25,7 +14,47 @@ const addOrUpdateUsersQl = (data: CustomFieldItems) => `
   }
 `;
 
-export const addOrUpdateUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: addOrUpdateUsersQl(data),
+const updateUserQl = `
+  mutation UpdateUser ($userData: UserUpdateInputType!) {
+    userUpdate ( userData: $userData ){
+      user{
+        id,
+        bcId,
+      }
+    }
+  }
+`;
+
+interface AddOrUpdateUsersVariables {
+  userId?: number | string;
+  companyId?: number | string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  companyRoleId?: number | string;
+  addChannel?: boolean;
+  companyRoleName?: string;
+  extraFields?: { fieldName: string; fieldValue: string }[];
+}
+
+export const addOrUpdateUsers = (data: AddOrUpdateUsersVariables) => {
+  const userData = {
+    userId: toNumberSafely(data.userId),
+    companyId: toNumberSafely(data.companyId),
+    companyRoleId: toNumberSafely(data.companyRoleId),
+    // not simply spreading data as the form is also including extraFields duplicated inline
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: data.phone,
+    addChannel: data.addChannel,
+    companyRoleName: data.companyRoleName,
+    extraFields: data.extraFields,
+  };
+
+  return B3Request.graphqlB2B({
+    query: userData.userId !== undefined ? updateUserQl : addUserQl,
+    variables: { userData },
   });
+};
