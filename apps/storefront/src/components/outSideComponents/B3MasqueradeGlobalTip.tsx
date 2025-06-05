@@ -18,6 +18,7 @@ import useStorageState from '@/hooks/useStorageState';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
+import { deleteCart } from '@/shared/service/bc';
 import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
 
 import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
@@ -116,8 +117,13 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
         await superAdminEndMasquerade(Number(salesRepCompanyId));
       }
 
+      const cartId = Cookies.get('cartId');
+      if (confirmEndActing && cartId) {
+        await deleteCart(cartId);
+        dispatch(setCartNumber(0));
+      }
+
       setIsLoading(false);
-      dispatch(setCartNumber(0));
       dispatch(clearMasqueradeCompany());
       setOpenPage({
         isOpen: true,
@@ -126,13 +132,13 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     }
   };
 
-  const onEndActing = () => {
+  const onEndActing = async () => {
     const cartId = Cookies.get('cartId');
 
     if (cartId && cartNumber > 0) {
       setConfirmEndActing(true);
     } else {
-      endActing();
+      await endActing();
     }
   };
 
@@ -453,11 +459,9 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
         isOpen={confirmEndActing}
         isRequestLoading={isLoading}
         handleClose={() => setConfirmEndActing(false)}
-        handleConfirm={() => {
-          if (confirmEndActing) {
-            endActing();
-            setConfirmEndActing(false);
-          }
+        handleConfirm={async () => {
+          await endActing();
+          setConfirmEndActing(false);
         }}
       />
     </>
