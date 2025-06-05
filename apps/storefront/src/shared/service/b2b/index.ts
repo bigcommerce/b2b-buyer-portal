@@ -116,12 +116,7 @@ import {
   updateBcShoppingList,
   updateBcShoppingListsItem,
 } from './graphql/shoppingList';
-import {
-  checkUserBCEmail,
-  checkUserEmail,
-  deleteUsers,
-  getUsersExtraFieldsInfo,
-} from './graphql/users';
+import { checkUserBCEmail, checkUserEmail, deleteUsers } from './graphql/users';
 
 export {
   getB2BAccountSettings,
@@ -225,7 +220,6 @@ export {
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
   getUserCompany,
-  getUsersExtraFieldsInfo,
   getProductPricing,
   guestProductsBulkUploadCSV,
   quoteDetailAttachFileCreate,
