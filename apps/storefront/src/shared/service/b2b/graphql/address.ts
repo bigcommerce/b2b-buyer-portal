@@ -2,7 +2,13 @@ import { convertArrayToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
-const getAddressConfig = () => `{
+export interface AddressConfig {
+  key: string;
+  isEnabled: '1' | '0';
+}
+
+const getAddressConfig = () => `
+query AddressConfig {
   addressConfig (
     storeHash: "${storeHash}"
   ){
