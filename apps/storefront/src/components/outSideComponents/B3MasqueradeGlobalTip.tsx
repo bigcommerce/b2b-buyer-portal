@@ -120,6 +120,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       const cartId = Cookies.get('cartId');
       if (confirmEndActing && cartId) {
         await deleteCart(cartId);
+        Cookies.remove('cartId');
         dispatch(setCartNumber(0));
       }
 
