@@ -14,14 +14,12 @@ import {
 } from 'tests/test-utils';
 
 import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermissions';
-import {
-  UserEmailCheckResponse,
-  UserExtraFieldsInfoResponse,
-} from '@/shared/service/b2b/graphql/users';
+import { UserEmailCheckResponse } from '@/shared/service/b2b/graphql/users';
 import { UserTypes } from '@/types';
 
 import { UserResponse } from './getUser';
 import { UsersResponse } from './getUsers';
+import { UserExtraFieldsInfoResponse } from './getUsersExtraFieldsInfo';
 import UserManagement from './index';
 
 const { server } = startMockServer();
