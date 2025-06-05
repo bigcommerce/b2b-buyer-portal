@@ -15,6 +15,10 @@ import { globalSnackbar } from '@/utils/b3Tip';
 
 import PDP from '.';
 
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockReturnValue();
+});
+
 const buildCustomerWith = builder<Customer>(() => ({
   id: faker.number.int(),
   phoneNumber: faker.phone.number(),
@@ -234,6 +238,7 @@ describe('when a product without a required variant is added to a shopping list'
     });
 
     expect(globalSnackbar.success).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
 
@@ -405,6 +410,7 @@ describe('when a product with required variants is added to a shopping list', ()
       'Products were added to your shopping list',
       expect.anything(),
     );
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
 
@@ -562,5 +568,6 @@ describe('when an unexpected error occurred during adding a product to shopping 
     expect(globalSnackbar.error).toHaveBeenCalledWith('Something went wrong. Please try again.', {
       isClose: true,
     });
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
