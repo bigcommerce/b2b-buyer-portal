@@ -1,31 +1,7 @@
 import { UserTypes } from '@/types';
 
-import { convertArrayToGraphql, storeHash } from '../../../../utils';
+import { storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
-
-const addOrUpdateUsersQl = (data: CustomFieldItems) => `
-  mutation ${data?.userId ? 'UpdateUser' : 'CreateUser'} {
-    ${data?.userId ? 'userUpdate' : 'userCreate'} (
-      userData: {
-        companyId: ${data.companyId}
-        ${data?.email ? `email: "${data.email}"` : ''}
-        firstName: "${data.firstName || ''}"
-        lastName: "${data.lastName || ''}"
-        phone: "${data.phone || ''}"
-        ${data?.companyRoleId ? `companyRoleId: ${data.companyRoleId}` : ''}
-        ${data?.userId ? `userId: ${data.userId}` : ''}
-        ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
-        extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
-        ${data?.companyRoleName ? `companyRoleName: ${data.companyRoleName}` : ''}
-      }
-    ){
-      user{
-        id,
-        bcId,
-      }
-    }
-  }
-`;
 
 const deleteUsersQl = (data: CustomFieldItems) => `
   mutation DeleteUser {
@@ -147,11 +123,6 @@ export interface UserExtraFieldsInfoResponse {
 export const getUsersExtraFieldsInfo = () =>
   B3Request.graphqlB2B({
     query: getUserExtraFields(),
-  });
-
-export const addOrUpdateUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: addOrUpdateUsersQl(data),
   });
 
 export const deleteUsers = (data: CustomFieldItems) =>
