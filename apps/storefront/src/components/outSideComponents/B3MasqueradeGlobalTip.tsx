@@ -15,11 +15,12 @@ import {
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
-import { ConfirmMasqueradeDialog } from '@/pages/Dashboard/components/ConfirmMasqueradeDialog';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
+
+import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
 
 import {
   getContrastColor,
