@@ -18,7 +18,7 @@ import useStorageState from '@/hooks/useStorageState';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
-import { deleteCart } from '@/shared/service/bc';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
 
 import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
@@ -119,7 +119,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
 
       const cartId = Cookies.get('cartId');
       if (confirmEndActing && cartId) {
-        await deleteCart(cartId);
+        await deleteCart({ deleteCartInput: { cartEntityId: cartId } });
         Cookies.remove('cartId');
         dispatch(setCartNumber(0));
       }

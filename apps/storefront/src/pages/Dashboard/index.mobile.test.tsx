@@ -1,7 +1,9 @@
+import Cookies from 'js-cookie';
 import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   bulk,
   faker,
   graphql,
@@ -9,9 +11,11 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
 import { CompanyStatus } from '@/types';
@@ -314,6 +318,9 @@ describe('when the user is associated with a company', () => {
 
     const beginMasquerade = vi.fn().mockReturnValue({});
     const getAgentInfo = vi.fn().mockReturnValue(masqueradingAgentInfo);
+    const deleteCartReturn = vi.fn().mockReturnValue({});
+
+    when(deleteCartReturn).calledWith(stringContainingAll('deletedCartEntityId: 1')).thenReturn({});
 
     server.use(
       graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanyList(query))),
@@ -321,10 +328,16 @@ describe('when the user is associated with a company', () => {
       graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
     );
 
+    Cookies.set('cartId', '1');
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {
-      preloadedState,
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({
+          cartNumber: 1,
+        }),
+      },
     });
 
     await waitFor(() => {
@@ -332,6 +345,7 @@ describe('when the user is associated with a company', () => {
     });
 
     await userEvent.click(screen.getByRole('button', { name: /Masquerade/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Continue/ }));
 
     await waitFor(() => {
       expect(screen.getByText(/Selected/)).toBeInTheDocument();
