@@ -1,4 +1,4 @@
-import { getUsersExtraFieldsInfo } from '@/shared/service/b2b';
+import { getUsersExtraFieldsInfo } from './getUsersExtraFieldsInfo';
 import b2bLogger from '@/utils/b3Logger';
 
 interface B2bExtraFieldsProps {
