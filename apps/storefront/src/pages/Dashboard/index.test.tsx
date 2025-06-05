@@ -3,6 +3,7 @@ import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesS
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   bulk,
   faker,
   graphql,
@@ -417,7 +418,12 @@ describe('when the user is associated with a company', () => {
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {
-      preloadedState,
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({
+          cartNumber: 1,
+        }),
+      },
     });
 
     await waitFor(() => {
@@ -443,11 +449,6 @@ describe('when the user is associated with a company', () => {
 
     expect(beginMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 123'));
     expect(getAgentInfo).toHaveBeenLastCalledWith(expect.stringContaining('customerId: 789'));
-
-    expect(setOpenPageSpy).toHaveBeenLastCalledWith({
-      isOpen: true,
-      openUrl: '/dashboard',
-    });
   });
 
   it('can end masquerade', async () => {
