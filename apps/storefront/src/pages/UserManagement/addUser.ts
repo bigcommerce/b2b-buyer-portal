@@ -6,31 +6,22 @@ const toNumberSafely = (value?: number | string): number | undefined =>
 const addUserQl = `
   mutation CreateUser ($userData: UserInputType!) {
     userCreate ( userData: $userData ){
-      user{
-        id,
-        bcId,
+      user {
+        id
       }
     }
   }
 `;
 
-const updateUserQl = `
-  mutation UpdateUser ($userData: UserUpdateInputType!) {
-    userUpdate ( userData: $userData ){
-      user{
-        id,
-        bcId,
-      }
-    }
-  }
-`;
+interface AddUserResponse {
+  data: { userCreate: { user: { id: number } } };
+}
 
-interface AddOrUpdateUsersVariables {
-  userId?: number | string;
-  companyId?: number | string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
+interface AddUserVariables {
+  companyId: number | string;
+  email: string;
+  firstName: string;
+  lastName: string;
   phone?: string;
   companyRoleId?: number | string;
   addChannel?: boolean;
@@ -38,9 +29,8 @@ interface AddOrUpdateUsersVariables {
   extraFields?: { fieldName: string; fieldValue: string }[];
 }
 
-export const addOrUpdateUsers = (data: AddOrUpdateUsersVariables) => {
+export const addUser = (data: AddUserVariables) => {
   const userData = {
-    userId: toNumberSafely(data.userId),
     companyId: toNumberSafely(data.companyId),
     companyRoleId: toNumberSafely(data.companyRoleId),
     // not simply spreading data as the form is also including extraFields duplicated inline
@@ -53,8 +43,5 @@ export const addOrUpdateUsers = (data: AddOrUpdateUsersVariables) => {
     extraFields: data.extraFields,
   };
 
-  return B3Request.graphqlB2B({
-    query: userData.userId !== undefined ? updateUserQl : addUserQl,
-    variables: { userData },
-  });
+  return B3Request.graphqlB2B<AddUserResponse>({ query: addUserQl, variables: { userData } });
 };

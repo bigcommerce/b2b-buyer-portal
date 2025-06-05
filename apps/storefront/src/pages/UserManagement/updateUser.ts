@@ -3,31 +3,23 @@ import B3Request from '@/shared/service/request/b3Fetch';
 const toNumberSafely = (value?: number | string): number | undefined =>
   value !== undefined && value !== '' ? Number(value) : undefined;
 
-const addUserQl = `
-  mutation CreateUser ($userData: UserInputType!) {
-    userCreate ( userData: $userData ){
-      user{
-        id,
-        bcId,
-      }
-    }
-  }
-`;
-
 const updateUserQl = `
   mutation UpdateUser ($userData: UserUpdateInputType!) {
-    userUpdate ( userData: $userData ){
-      user{
-        id,
-        bcId,
+    userUpdate ( userData: $userData ) {
+      user {
+        id
       }
     }
   }
 `;
 
-interface AddOrUpdateUsersVariables {
-  userId?: number | string;
-  companyId?: number | string;
+interface UpdateUserResponse {
+  data: { userUpdate: { user: { id: number } } };
+}
+
+interface UpdateUserVariables {
+  userId: number | string;
+  companyId: number | string;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -38,7 +30,7 @@ interface AddOrUpdateUsersVariables {
   extraFields?: { fieldName: string; fieldValue: string }[];
 }
 
-export const addOrUpdateUsers = (data: AddOrUpdateUsersVariables) => {
+export const updateUser = (data: UpdateUserVariables) => {
   const userData = {
     userId: toNumberSafely(data.userId),
     companyId: toNumberSafely(data.companyId),
@@ -53,8 +45,5 @@ export const addOrUpdateUsers = (data: AddOrUpdateUsersVariables) => {
     extraFields: data.extraFields,
   };
 
-  return B3Request.graphqlB2B({
-    query: userData.userId !== undefined ? updateUserQl : addUserQl,
-    variables: { userData },
-  });
+  return B3Request.graphqlB2B<UpdateUserResponse>({ query: updateUserQl, variables: { userData } });
 };
