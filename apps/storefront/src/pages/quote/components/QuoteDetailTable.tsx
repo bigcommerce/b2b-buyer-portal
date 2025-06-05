@@ -53,7 +53,8 @@ interface SearchProps {
 
 interface OptionProps {
   optionId: number;
-  optionLabel: string;
+  optionLabel?: string;
+  optionType: string;
   optionName: string;
   optionValue: string | number;
 }
@@ -180,16 +181,16 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 <Box>
                   {optionsValue.map(
                     (option: OptionProps) =>
-                      option.optionLabel && (
+                      option.optionName && (
                         <Typography
                           sx={{
                             fontSize: '0.75rem',
                             lineHeight: '1.5',
                             color: '#455A64',
                           }}
-                          key={`${option.optionName}_${option.optionLabel}`}
+                          key={`${option.optionName}_${option.optionValue}`}
                         >
-                          {`${option.optionName}: ${option.optionLabel}`}
+                          {`${option.optionName}: ${option.optionValue}`}
                         </Typography>
                       ),
                   )}
