@@ -117,7 +117,6 @@ import {
   updateBcShoppingListsItem,
 } from './graphql/shoppingList';
 import {
-  addOrUpdateUsers,
   checkUserBCEmail,
   checkUserEmail,
   deleteUsers,
@@ -143,7 +142,6 @@ export {
 export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickOrder';
 
 export {
-  addOrUpdateUsers,
   addProductToBcShoppingList,
   addProductToShoppingList,
   B2BProductsBulkUploadCSV,

@@ -5,11 +5,12 @@ import concat from 'lodash-es/concat';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
-import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b';
+import { checkUserEmail } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
 import { channelId, isKeyOf, snackbar } from '@/utils';
 
+import { addUser } from './addUser';
 import {
   emailError,
   ExtraFieldsProps,
@@ -19,6 +20,7 @@ import {
 } from './config';
 import { getUser } from './getUser';
 import getB2BUserExtraFields from './getUserExtraFields';
+import { updateUser } from './updateUser';
 
 export type HandleOpenAddEditUserClick = (
   options: { type: 'add' } | { type: 'edit'; userId: string },
@@ -189,15 +191,20 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
               email: data.email,
             });
           }
+
+          // @ts-expect-error params is currently too un-type-safe, needs fixing
+          await addUser(params);
         }
 
         if (type === 'edit') {
           params.userId = editData?.id || '';
           message = b3Lang('userManagement.updateUserSuccessfully');
           delete params.email;
+
+          // @ts-expect-error params is currently too un-type-safe, needs fixing
+          await updateUser(params);
         }
 
-        await addOrUpdateUsers(params);
         handleCancelClick();
 
         snackbar.success(message);
