@@ -6,6 +6,8 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
+import B3LayoutTip from '@/components/layout/B3LayoutTip';
+import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { GlobalContext, GlobalProvider } from '@/shared/global';
 import { GlobalState } from '@/shared/global/context/config';
 import { AppStore, RootState, setupStore } from '@/store';
@@ -59,9 +61,12 @@ export const renderWithProviders = (
           <MockGlobalProvider payload={initialGlobalContext} />
           <Provider store={store}>
             <LangProvider>
-              <MemoryRouter initialEntries={initialEntries}>
-                <NavigationSpy spy={navigation}>{children}</NavigationSpy>
-              </MemoryRouter>
+              <DynamicallyVariableProvider>
+                <B3LayoutTip />
+                <MemoryRouter initialEntries={initialEntries}>
+                  <NavigationSpy spy={navigation}>{children}</NavigationSpy>
+                </MemoryRouter>
+              </DynamicallyVariableProvider>
             </LangProvider>
           </Provider>
         </GlobalProvider>
