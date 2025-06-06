@@ -6,7 +6,6 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
-import { deleteUser } from './deleteUser';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
@@ -16,6 +15,7 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
 import B3AddEditUser, { HandleOpenAddEditUserClick } from './AddEditUser';
 import { getFilterMoreList } from './config';
+import { deleteUser } from './deleteUser';
 import { getUsers, GetUsersVariables } from './getUsers';
 import { Delete, Edit, UserItemCard } from './UserItemCard';
 
