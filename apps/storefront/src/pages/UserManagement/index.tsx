@@ -6,7 +6,7 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
-import { deleteUsers } from '@/shared/service/b2b';
+import { deleteUsers } from './deleteUser';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
