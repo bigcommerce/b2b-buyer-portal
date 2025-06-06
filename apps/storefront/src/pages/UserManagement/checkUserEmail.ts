@@ -2,52 +2,39 @@ import B3Request from '@/shared/service/request/b3Fetch';
 import { UserTypes } from '@/types';
 import { storeHash } from '@/utils';
 
-const checkUserB2BEmail = (data: CustomFieldItems) => `
-  query UserEmailCheck {
-    userEmailCheck (
-      email: "${data.email}"
-      companyId: ${data.companyId || null}
-      storeHash: "${storeHash}"
-      channelId: ${data.channelId || null}
-    ){
+const toNumberSafely = (value?: number | string): number | undefined =>
+  value !== undefined && value !== '' ? Number(value) : undefined;
+
+const checkUserB2BEmail = `
+  query UserEmailCheck ($email: String!, $companyId: Int, $storeHash: String!, $channelId: Int) {
+    userEmailCheck ( email: $email, companyId: $companyId, storeHash: $storeHash, channelId: $channelId ){
       userType,
-      userInfo{
-        id
-        email
-        firstName
-        lastName
-        phoneNumber
-        role
+      userInfo {
         companyName
-        originChannelId
-        forcePasswordReset
       }
     }
   }
 `;
 
 export interface UserEmailCheckResponse {
-  data: {
-    userEmailCheck: {
-      userType: UserTypes;
-      userInfo: {
-        id: string | null;
-        email: string | null;
-        firstName: string | null;
-        lastName: string | null;
-        phoneNumber: string | null;
-        role: string | null;
-        companyName: string | null;
-        originChannelId: string | null;
-        forcePasswordReset: boolean | null;
-      };
-    };
-  };
+  data: { userEmailCheck: { userType: UserTypes; userInfo: { companyName: string | null } } };
 }
 
-export const checkUserEmail = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: checkUserB2BEmail(data),
+interface CheckUserEmailVariables {
+  email: string;
+  companyId?: number | string;
+  channelId?: number | string;
+}
+
+export const checkUserEmail = (variables: CheckUserEmailVariables) =>
+  B3Request.graphqlB2B<UserEmailCheckResponse>({
+    query: checkUserB2BEmail,
+    variables: {
+      email: variables.email,
+      companyId: toNumberSafely(variables.companyId),
+      channelId: toNumberSafely(variables.channelId),
+      storeHash,
+    },
   }).then((res) => ({
     ...res.userEmailCheck,
     isValid: res.userEmailCheck.userType === UserTypes.DOES_NOT_EXIST,
