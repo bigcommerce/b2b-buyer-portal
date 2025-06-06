@@ -13,8 +13,6 @@ import {
   within,
 } from 'tests/test-utils';
 
-import B3LayoutTip from '@/components/layout/B3LayoutTip';
-import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermissions';
 import {
   UserEmailCheckResponse,
@@ -503,15 +501,7 @@ describe.each([
         ),
       );
 
-      renderWithProviders(
-        // This can be rolled into "renderWithProviders" once
-        // we fix ShoppingListDetails/index.test.tsx
-        <DynamicallyVariableProvider>
-          <B3LayoutTip />
-          <UserManagement />
-        </DynamicallyVariableProvider>,
-        { preloadedState },
-      );
+      renderWithProviders(<UserManagement />, { preloadedState });
 
       expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
 
@@ -653,15 +643,7 @@ describe.each([
         }),
       );
 
-      renderWithProviders(
-        // This can be rolled into "renderWithProviders" once
-        // we fix ShoppingListDetails/index.test.tsx
-        <DynamicallyVariableProvider>
-          <B3LayoutTip />
-          <UserManagement />
-        </DynamicallyVariableProvider>,
-        { preloadedState },
-      );
+      renderWithProviders(<UserManagement />, { preloadedState });
 
       expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
 
@@ -752,15 +734,7 @@ describe.each([
         }),
       );
 
-      renderWithProviders(
-        // This can be rolled into "renderWithProviders" once
-        // we fix ShoppingListDetails/index.test.tsx
-        <DynamicallyVariableProvider>
-          <B3LayoutTip />
-          <UserManagement />
-        </DynamicallyVariableProvider>,
-        { preloadedState },
-      );
+      renderWithProviders(<UserManagement />, { preloadedState });
 
       await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
 
@@ -828,15 +802,7 @@ describe.each([
         graphql.query('UserEmailCheck', () => HttpResponse.json(userTakenResponse)),
       );
 
-      renderWithProviders(
-        // This can be rolled into "renderWithProviders" once
-        // we fix ShoppingListDetails/index.test.tsx
-        <DynamicallyVariableProvider>
-          <B3LayoutTip />
-          <UserManagement />
-        </DynamicallyVariableProvider>,
-        { preloadedState },
-      );
+      renderWithProviders(<UserManagement />, { preloadedState });
 
       await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
 
