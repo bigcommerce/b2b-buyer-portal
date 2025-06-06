@@ -637,15 +637,15 @@ describe.each([
         .fn<unknown[], UsersResponse>()
         .mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } }));
 
-      const deleteUserQuerySpy = vi.fn();
+      const deleteUserVariablesSpy = vi.fn();
 
       server.use(
         graphql.query('GetUserExtraFields', () =>
           HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
         ),
         graphql.query('GetUsers', () => HttpResponse.json(getUsersResponse())),
-        graphql.mutation('DeleteUser', ({ query }) => {
-          deleteUserQuerySpy(query);
+        graphql.mutation('DeleteUser', ({ variables }) => {
+          deleteUserVariablesSpy(variables);
 
           return HttpResponse.json({ data: { userDelete: { message: 'Success' } } });
         }),
@@ -678,10 +678,7 @@ describe.each([
       expect(within(alert).getByText('User deleted successfully')).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Troy McClure' })).not.toBeInTheDocument();
 
-      // once queries/mutations are changed to use real graphql variables,
-      // we can spy on the request "variables" instead of this hacky string matching
-      expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('userId: 993994'));
-      expect(deleteUserQuerySpy).toHaveBeenCalledWith(expect.stringContaining('companyId: 776775'));
+      expect(deleteUserVariablesSpy).toHaveBeenCalledWith({ userId: 993994, companyId: 776775 });
     });
   });
 
