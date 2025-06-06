@@ -3,17 +3,6 @@ import { UserTypes } from '@/types';
 import { storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const deleteUsersQl = (data: CustomFieldItems) => `
-  mutation DeleteUser {
-    userDelete (
-      companyId: ${data.companyId}
-      userId: ${data.userId}
-    ) {
-      message
-    }
-  }
-`;
-
 const checkUserB2BEmail = (data: CustomFieldItems) => `
   query UserEmailCheck {
     userEmailCheck (
@@ -85,11 +74,6 @@ export interface UsersResponse {
     };
   };
 }
-
-export const deleteUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: deleteUsersQl(data),
-  });
 
 export interface UserEmailCheckResponse {
   data: {
