@@ -6,6 +6,8 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
+import B3LayoutTip from '@/components/layout/B3LayoutTip';
+import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { AppStore, RootState, setupStore } from '@/store';
 import * as storeModule from '@/store';
 
@@ -41,9 +43,12 @@ export const renderWithProviders = (
       <Suspense fallback="test-loading">
         <Provider store={store}>
           <LangProvider>
-            <MemoryRouter>
-              <NavigationSpy spy={navigation}>{children}</NavigationSpy>
-            </MemoryRouter>
+            <DynamicallyVariableProvider>
+              <B3LayoutTip />
+              <MemoryRouter>
+                <NavigationSpy spy={navigation}>{children}</NavigationSpy>
+              </MemoryRouter>
+            </DynamicallyVariableProvider>
           </LangProvider>
         </Provider>
       </Suspense>
