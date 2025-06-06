@@ -3,17 +3,6 @@ import { UserTypes } from '@/types';
 import { storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const deleteUsersQl = (data: CustomFieldItems) => `
-  mutation DeleteUser {
-    userDelete (
-      companyId: ${data.companyId}
-      userId: ${data.userId}
-    ) {
-      message
-    }
-  }
-`;
-
 const checkUserB2BEmail = (data: CustomFieldItems) => `
   query UserEmailCheck {
     userEmailCheck (
@@ -47,23 +36,6 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
     userType,
   }
 }`;
-
-const getUserExtraFields = () => `
-  query GetUserExtraFields {
-    userExtraFields {
-      fieldName
-      fieldType
-      isRequired
-      defaultValue
-      maximumLength
-      numberOfRows
-      maximumValue
-      listOfValue
-      visibleToEnduser
-      labelName
-    }
-  }
-`;
 
 export interface UsersResponse {
   data: {
@@ -102,33 +74,6 @@ export interface UsersResponse {
     };
   };
 }
-
-export interface UserExtraFieldsInfoResponse {
-  data: {
-    userExtraFields: Array<{
-      fieldName: string;
-      fieldType: number;
-      isRequired: boolean;
-      defaultValue: string | null;
-      maximumLength: string | null;
-      numberOfRows: number | null;
-      maximumValue: string | null;
-      listOfValue: string[] | null;
-      visibleToEnduser: boolean;
-      labelName: string;
-    }>;
-  };
-}
-
-export const getUsersExtraFieldsInfo = () =>
-  B3Request.graphqlB2B({
-    query: getUserExtraFields(),
-  });
-
-export const deleteUsers = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: deleteUsersQl(data),
-  });
 
 export interface UserEmailCheckResponse {
   data: {
