@@ -449,6 +449,11 @@ describe('when the user is associated with a company', () => {
 
     expect(beginMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 123'));
     expect(getAgentInfo).toHaveBeenLastCalledWith(expect.stringContaining('customerId: 789'));
+
+    expect(setOpenPageSpy).toHaveBeenLastCalledWith({
+      isOpen: true,
+      openUrl: '/dashboard',
+    });
   });
 
   it('can end masquerade', async () => {

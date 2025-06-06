@@ -105,10 +105,12 @@ function Dashboard(props: PageProps) {
         store.dispatch(setCartNumber(0));
       }
 
+      console.debug('asdkalsd 2');
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
       });
+      console.debug('asdkalsd 3');
 
       setFilterData({
         ...filterData,
