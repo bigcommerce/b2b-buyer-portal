@@ -1,5 +1,6 @@
-import { getUsersExtraFieldsInfo, UserExtraFieldsInfoResponse } from './getUsersExtraFieldsInfo';
 import b2bLogger from '@/utils/b3Logger';
+
+import { getUsersExtraFieldsInfo, UserExtraFieldsInfoResponse } from './getUsersExtraFieldsInfo';
 
 interface FieldsOptionProps {
   label: string;
