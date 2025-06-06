@@ -71,6 +71,9 @@ describe('when the user is associated with a company', () => {
   });
 
   const preloadedState = Object.freeze({ company: companyWithB2B });
+  beforeEach(() => {
+    Cookies.remove('cartId');
+  });
 
   it('lists all the companies associated with the user', async () => {
     const acmeInc = buildCompanyEdgeWith({ node: { companyName: 'Acme Inc' } });
@@ -360,7 +363,6 @@ describe('when the user is associated with a company', () => {
 
     expect(beginMasquerade).toHaveBeenLastCalledWith(expect.stringContaining('companyId: 123'));
     expect(getAgentInfo).toHaveBeenLastCalledWith(expect.stringContaining('customerId: 789'));
-
     expect(setOpenPageSpy).toHaveBeenLastCalledWith({
       isOpen: true,
       openUrl: '/dashboard',
