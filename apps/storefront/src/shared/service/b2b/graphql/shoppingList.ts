@@ -37,7 +37,7 @@ const getShoppingList = ({
   email = '',
   search = '',
   isDefault = true,
-}) => `{
+}) => ` query B2BCustomerShoppingLists {
   shoppingLists (
     offset: ${offset}
     first: ${first}
@@ -355,7 +355,12 @@ const deleteShoppingListItem = (data: CustomFieldItems) => `mutation {
   }
 }`;
 
-const getCustomerShoppingLists = ({ offset = 0, first = 50, search = '', channelId = 1 }) => `{
+const getCustomerShoppingLists = ({
+  offset = 0,
+  first = 50,
+  search = '',
+  channelId = 1,
+}) => `query CustomerShoppingLists {
   customerShoppingLists (
     offset: ${offset}
     first: ${first}

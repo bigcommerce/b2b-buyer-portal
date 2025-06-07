@@ -51,22 +51,30 @@ const buildShoppingListsNodeWith = builder<{ node: ShoppingListsItemsProps }>(()
   },
 }));
 
-describe('HeadlesController shopping lists utils', () => {
+describe('HeadlessController shopping lists utils', () => {
   it('getLists retrieves B2B shopping lists', async () => {
-    const getShoppingLists = vi.fn().mockReturnValue({
-      data: {
-        shoppingLists: {
-          totalCount: 1,
-          pageInfo: {
-            hasNextPage: false,
-            hasPreviousPage: false,
-          },
-          edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
-        },
-      },
-    });
+    const getShoppingLists = vi.fn();
 
-    server.use(graphql.operation(({ query }) => HttpResponse.json(getShoppingLists(query))));
+    when(getShoppingLists)
+      .calledWith(stringContainingAll('first: 50', 'offset: 0'))
+      .thenReturn({
+        data: {
+          shoppingLists: {
+            totalCount: 1,
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+            edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
+          },
+        },
+      });
+
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+        HttpResponse.json(getShoppingLists(query)),
+      ),
+    );
 
     const mockSetOpenPage = vi.fn();
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />, {
@@ -82,36 +90,38 @@ describe('HeadlesController shopping lists utils', () => {
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toBeDefined();
-    expect(data).toHaveLength;
     expect(data[0].id).toBeDefined();
-    expect(data[0].id).toHaveLength;
   });
 
   it('getLists retrieves B2C shopping lists', async () => {
-    const getShoppingLists = vi.fn().mockReturnValue({
-      data: {
-        customerShoppingLists: {
-          totalCount: 1,
-          pageInfo: {
-            hasNextPage: false,
-            hasPreviousPage: false,
+    const getShoppingLists = vi.fn();
+
+    when(getShoppingLists)
+      .calledWith(stringContainingAll('first: 50', 'offset: 0'))
+      .thenReturn({
+        data: {
+          customerShoppingLists: {
+            totalCount: 1,
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+            edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
           },
-          edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
         },
-      },
-    });
+      });
 
-    // not sure how this is used
-    when(getShoppingLists).calledWith(stringContainingAll('offset: 0', 'first:50')).thenReturn({});
+    server.use(
+      graphql.query('CustomerShoppingLists', ({ query }) =>
+        HttpResponse.json(getShoppingLists(query)),
+      ),
+    );
 
-    server.use(graphql.operation(({ query }) => HttpResponse.json(getShoppingLists(query))));
     const mockSetOpenPage = vi.fn();
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toBeDefined();
-    expect(data).toHaveLength;
     expect(data[0].id).toBeDefined();
-    expect(data[0].id).toHaveLength;
   });
 });
