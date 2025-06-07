@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import Cookies from 'js-cookie';
 
 import { usePageMask } from '@/components';
+import { ConfirmMasqueradeDialog } from '@/components/ConfirmMasqueradeDialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -11,7 +13,8 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
-import { useAppSelector, useAppStore } from '@/store';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
+import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
@@ -21,6 +24,15 @@ import { CompanyNameCell } from './CompanyNameCell';
 interface ListItem {
   [key: string]: string;
 }
+
+type ConfirmState =
+  | {
+      type: 'start';
+      companyId: number;
+    }
+  | {
+      type: 'end';
+    };
 
 export const defaultSortKey = 'companyName';
 
@@ -35,23 +47,25 @@ const rowsPerPage = [10, 20, 30];
 function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const salesRepCompanyId = Number(
     useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id),
   );
 
-  return { salesRepCompanyId, b2bId, customerId };
+  return { salesRepCompanyId, b2bId, customerId, cartNumber };
 }
 
 function Dashboard(props: PageProps) {
   const showPageMask = usePageMask();
   const store = useAppStore();
 
-  const { salesRepCompanyId, b2bId, customerId } = useData();
+  const { salesRepCompanyId, b2bId, customerId, cartNumber } = useData();
 
   const { setOpenPage } = props;
   const b3Lang = useB3Lang();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [confirmMasquerade, setConfirmMasquerade] = useState<ConfirmState>();
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
@@ -84,6 +98,13 @@ function Dashboard(props: PageProps) {
         await startMasquerade({ customerId, companyId }, store);
       }
 
+      const cartEntityId = Cookies.get('cartId');
+      if (cartEntityId) {
+        await deleteCart({ deleteCartInput: { cartEntityId } });
+        Cookies.remove('cartId');
+        store.dispatch(setCartNumber(0));
+      }
+
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
@@ -103,6 +124,7 @@ function Dashboard(props: PageProps) {
       if (typeof b2bId === 'number') {
         await endMasquerade(store);
       }
+      store.dispatch(setCartNumber(0));
       setFilterData({
         ...filterData,
       });
@@ -126,6 +148,26 @@ function Dashboard(props: PageProps) {
       ...filterData,
       q,
     });
+  };
+
+  const onStartMasquerade = async (companyId: number) => {
+    const cartId = Cookies.get('cartId');
+
+    if (cartId && cartNumber > 0) {
+      setConfirmMasquerade({ type: 'start', companyId });
+    } else {
+      await startActing(companyId);
+    }
+  };
+
+  const onEndMasquerade = async () => {
+    const cartId = Cookies.get('cartId');
+
+    if (cartId && cartNumber > 0) {
+      setConfirmMasquerade({ type: 'end' });
+    } else {
+      await endActing();
+    }
   };
 
   const columnItems: TableColumnItem<ListItem>[] = [
@@ -155,7 +197,7 @@ function Dashboard(props: PageProps) {
           return (
             <ActionMenuCell
               label={b3Lang('dashboard.endMasqueradeAction')}
-              onClick={() => endActing()}
+              onClick={() => onEndMasquerade()}
             />
           );
         }
@@ -163,7 +205,7 @@ function Dashboard(props: PageProps) {
         return (
           <ActionMenuCell
             label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => startActing(Number(companyId))}
+            onClick={() => onStartMasquerade(Number(companyId))}
           />
         );
       },
@@ -202,15 +244,11 @@ function Dashboard(props: PageProps) {
             const action = isSelected
               ? {
                   label: b3Lang('dashboard.endMasqueradeAction'),
-                  onClick: () => {
-                    endActing();
-                  },
+                  onClick: () => onEndMasquerade(),
                 }
               : {
                   label: b3Lang('dashboard.masqueradeAction'),
-                  onClick: () => {
-                    startActing(Number(companyId));
-                  },
+                  onClick: () => onStartMasquerade(Number(companyId)),
                 };
 
             return (
@@ -224,6 +262,29 @@ function Dashboard(props: PageProps) {
           }}
         />
       </Box>
+      <ConfirmMasqueradeDialog
+        title={
+          confirmMasquerade?.type === 'end'
+            ? b3Lang('dashboard.masqueradeModal.title.end')
+            : b3Lang('dashboard.masqueradeModal.title.start')
+        }
+        isOpen={confirmMasquerade !== undefined}
+        isRequestLoading={isRequestLoading}
+        handleClose={() => setConfirmMasquerade(undefined)}
+        handleConfirm={async () => {
+          if (!confirmMasquerade) {
+            return;
+          }
+
+          if (confirmMasquerade.type === 'start') {
+            await startActing(confirmMasquerade.companyId);
+          } else {
+            await endActing();
+          }
+
+          setConfirmMasquerade(undefined);
+        }}
+      />
     </B3Spin>
   );
 }

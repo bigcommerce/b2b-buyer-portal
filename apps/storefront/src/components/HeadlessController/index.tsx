@@ -32,6 +32,7 @@ import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
@@ -286,6 +287,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
         cart: {
           setEntityId: (entityId) => {
             Cookies.set('cartId', entityId);
+            b3TriggerCartNumber();
           },
           getEntityId: () => Cookies.get('cartId'),
         },

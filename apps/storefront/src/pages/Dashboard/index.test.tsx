@@ -1,7 +1,9 @@
+import Cookies from 'js-cookie';
 import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   bulk,
   faker,
   graphql,
@@ -9,10 +11,12 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
 import { CompanyStatus } from '@/types';
@@ -64,6 +68,10 @@ describe('when the user is associated with a company', () => {
   });
 
   const preloadedState = { company: companyWithB2B };
+
+  beforeEach(() => {
+    Cookies.remove('cartId');
+  });
 
   it('displays a table with headings for each key attribute of a company', async () => {
     server.use(
@@ -389,6 +397,9 @@ describe('when the user is associated with a company', () => {
         },
       }),
     );
+    const deleteCartReturn = vi.fn().mockReturnValue({});
+
+    when(deleteCartReturn).calledWith(stringContainingAll('deletedCartEntityId: 1')).thenReturn({});
 
     server.use(
       graphql.query('SuperAdminCompanies', () =>
@@ -400,12 +411,19 @@ describe('when the user is associated with a company', () => {
       ),
       graphql.mutation('BeginMasquerade', ({ query }) => HttpResponse.json(beginMasquerade(query))),
       graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
+      graphql.mutation('deleteCart', ({ query }) => HttpResponse.json(deleteCartReturn(query))),
     );
 
+    Cookies.set('cartId', '1');
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {
-      preloadedState,
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({
+          cartNumber: 1,
+        }),
+      },
     });
 
     await waitFor(() => {
@@ -416,6 +434,7 @@ describe('when the user is associated with a company', () => {
 
     await userEvent.click(within(row).getByRole('button'));
     await userEvent.click(screen.getByRole('menuitem', { name: /Masquerade/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Continue/ }));
 
     await waitFor(() => {
       expect(within(row).getByText(/Selected/)).toBeInTheDocument();

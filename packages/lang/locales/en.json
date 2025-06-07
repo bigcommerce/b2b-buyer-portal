@@ -133,6 +133,12 @@
   "dashboard.selected": "Selected",
   "dashboard.masqueradeAction": "Masquerade",
   "dashboard.endMasqueradeAction": "End Masquerade",
+  "dashboard.masqueradeModal.title.start": "Start Masquerading",
+  "dashboard.masqueradeModal.title.end": "End Masquerading",
+  "dashboard.masqueradeModal.message": "This action will empty your shopping cart. Do you want to continue?",
+  "dashboard.masqueradeModal.actions.cancel": "Cancel",
+  "dashboard.masqueradeModal.actions.continue": "Continue",
+
 
   "orders.order": "Order",
   "orders.poReference": "PO / Reference",
