@@ -307,6 +307,68 @@ describe('when a personal customer', () => {
       expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
     });
 
+    it('toggles sort order when clicking the current sort column', async () => {
+      const getOrders = vi.fn();
+
+      const order66996 = buildCustomerOrderNodeWith({ node: { orderId: '66996' } });
+      const order3998 = buildCustomerOrderNodeWith({ node: { orderId: '3998' } });
+
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "bcOrderId"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 2,
+                edges: [order3998, order66996],
+              },
+            },
+          }),
+        );
+
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "-bcOrderId"'))
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                totalCount: 2,
+                edges: [order66996, order3998],
+              },
+            },
+          }),
+        );
+
+      server.use(
+        graphql.query('GetCustomerOrders', ({ query }) => HttpResponse.json(getOrders(query))),
+      );
+
+      renderWithProviders(<MyOrders />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await waitFor(() => {
+        // row 0 is the header row
+        expect(screen.getAllByRole('row')[1]).toHaveTextContent('66996');
+      });
+
+      const orderIdHeader = screen.getByRole('columnheader', { name: 'Order' });
+
+      expect(orderIdHeader).toHaveAttribute('aria-sort', 'descending');
+
+      await userEvent.click(within(orderIdHeader).getByRole('button'));
+
+      await waitFor(() => {
+        // row 0 is the header row
+        expect(screen.getAllByRole('row')[1]).toHaveTextContent('3998');
+      });
+
+      expect(screen.getByRole('columnheader', { name: 'Order' })).toHaveAttribute(
+        'aria-sort',
+        'ascending',
+      );
+    });
+
     it('sorts orders by different columns', async () => {
       const getOrders = vi.fn().mockReturnValue(buildGetCustomerOrdersWith('WHATEVER_VALUES'));
 
@@ -318,13 +380,12 @@ describe('when a personal customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      const table = screen.getByRole('table');
-      const createdOnHeader = within(table).getByRole('columnheader', { name: 'Created on' });
+      const createdOnHeader = screen.getByRole('columnheader', { name: 'Created on' });
 
       expect(createdOnHeader).not.toHaveAttribute('aria-sort');
 
       when(getOrders)
-        .calledWith(stringContainingAll('orderBy: "createdAt"'))
+        .calledWith(stringContainingAll('orderBy: "-createdAt"'))
         .thenReturn(
           buildGetCustomerOrdersWith({
             data: {
@@ -342,7 +403,10 @@ describe('when a personal customer', () => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(createdOnHeader).toHaveAttribute('aria-sort', 'ascending');
+      expect(screen.getByRole('columnheader', { name: 'Created on' })).toHaveAttribute(
+        'aria-sort',
+        'descending',
+      );
     });
 
     it('can change the number of rows per page', async () => {
@@ -1037,6 +1101,44 @@ describe('when a company customer', () => {
       expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
     });
 
+    it('toggles sort order when clicking the current sort column', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
+
+      server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
+
+      renderWithProviders(<MyOrders />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const orderHeader = screen.getByRole('columnheader', { name: 'Order' });
+
+      expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
+
+      when(getOrders)
+        .calledWith(stringContainingAll('orderBy: "bcOrderId"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [buildCompanyOrderNodeWith({ node: { orderId: '66996' } })],
+              },
+            },
+          }),
+        );
+
+      await userEvent.click(within(orderHeader).getByRole('button'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('columnheader', { name: 'Order' })).toHaveAttribute(
+        'aria-sort',
+        'ascending',
+      );
+    });
+
     it('sorts orders by different columns', async () => {
       const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
 
@@ -1046,13 +1148,12 @@ describe('when a company customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      const table = screen.getByRole('table');
-      const createdOnHeader = within(table).getByRole('columnheader', { name: 'Created on' });
+      const createdOnHeader = screen.getByRole('columnheader', { name: 'Created on' });
 
       expect(createdOnHeader).not.toHaveAttribute('aria-sort');
 
       when(getOrders)
-        .calledWith(stringContainingAll('orderBy: "createdAt"'))
+        .calledWith(stringContainingAll('orderBy: "-createdAt"'))
         .thenReturn(
           buildCompanyOrdersWith({
             data: {
@@ -1070,7 +1171,10 @@ describe('when a company customer', () => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
       });
 
-      expect(createdOnHeader).toHaveAttribute('aria-sort', 'ascending');
+      expect(screen.getByRole('columnheader', { name: 'Created on' })).toHaveAttribute(
+        'aria-sort',
+        'descending',
+      );
     });
 
     it('can change the number of rows per page', async () => {

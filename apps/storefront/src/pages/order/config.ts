@@ -22,8 +22,6 @@ export interface FilterMoreProps {
   orderStatus?: string | number;
 }
 
-export const defaultSortKey = 'orderId';
-
 export const sortKeys = {
   orderId: 'bcOrderId',
   poNumber: 'poNumber',
@@ -32,6 +30,12 @@ export const sortKeys = {
   placedBy: 'placedBy',
   createdAt: 'createdAt',
 };
+
+export function assertSortKey(key: string): asserts key is keyof typeof sortKeys {
+  if (!Object.keys(sortKeys).includes(key)) {
+    throw new Error(`Invalid sort key: ${key}`);
+  }
+}
 
 export const getFilterMoreData = (
   isB2BUser: boolean,
@@ -119,7 +123,6 @@ export const getCustomerInitFilter = (): Partial<FilterSearchProps> => {
   return {
     beginDateAt: null,
     endDateAt: null,
-    orderBy: `-${sortKeys[defaultSortKey]}`,
     createdBy: '',
     q: '',
   };
@@ -134,7 +137,6 @@ export const getCompanyInitFilter = (
     beginDateAt: null,
     endDateAt: null,
     companyName: '',
-    orderBy: `-${sortKeys[defaultSortKey]}`,
     createdBy: '',
     orderNumber: '',
     poNumber: '',

@@ -90,7 +90,7 @@ interface TableProps<Row extends OrderIdRow> {
   isInfiniteScroll?: boolean;
   onClickRow: (row: Row, index: number) => void;
   sortDirection?: 'asc' | 'desc';
-  sortByFn?: (e: { key: string }) => void;
+  sortByFn?: (key: string) => void;
   orderBy?: string;
 }
 
@@ -209,7 +209,7 @@ export function B3Table<Row extends OrderIdRow>({
                           active={column.key === orderBy}
                           direction={column.key === orderBy ? sortDirection : 'desc'}
                           hideSortIcon={column.key !== orderBy}
-                          onClick={() => sortByFn && sortByFn(column)}
+                          onClick={() => sortByFn?.(column.key)}
                         >
                           {column.title}
                         </TableSortLabel>

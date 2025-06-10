@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 
 import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { useMobile, useSort } from '@/hooks';
+import { useMobile } from '@/hooks';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
-import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
-import { PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
+import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
-  defaultSortKey,
+  assertSortKey,
   FilterSearchProps,
   getCompanyInitFilter,
   getCustomerInitFilter,
@@ -102,25 +102,63 @@ function useData() {
   };
 }
 
+const getEmail = (haystack: string = '') => {
+  const getEmailReg = /\((.+)\)/g;
+  const emailRegArr = getEmailReg.exec(haystack);
+
+  return emailRegArr?.length ? emailRegArr[1] : '';
+};
+
+const getName = (haystack: string = '') => {
+  const getCreatedByReg = /^[^(]+/;
+  const createdByUserRegArr = getCreatedByReg.exec(haystack);
+  return createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : '';
+};
+
+interface OrderBy {
+  key: keyof typeof sortKeys;
+  dir: 'asc' | 'desc';
+}
+
+const getOrderBy = ({ key, dir }: OrderBy) => {
+  return dir === 'desc' ? `-${sortKeys[key]}` : sortKeys[key];
+};
+
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
   const { role, isAgenting, companyId, isB2BUser, isEnabledCompanyHierarchy, selectedCompanyId } =
     useData();
 
-  const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [pagination, setPagination] = useState({ offset: 0, first: 10 });
+
   const [allTotal, setAllTotal] = useState(0);
-  const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null);
+  const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>();
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
-  const [isAutoRefresh, setIsAutoRefresh] = useState(false);
 
-  const [handleSetOrderBy, order, orderBy] = useSort(
-    sortKeys,
-    defaultSortKey,
-    filterData,
-    setFilterData,
-  );
+  const [orderBy, setOrderBy] = useState<OrderBy>({
+    key: 'orderId',
+    dir: 'desc',
+  });
+
+  const handleSetOrderBy = (key: string) => {
+    setOrderBy((prev) => {
+      assertSortKey(key);
+
+      if (prev.key === key) {
+        return {
+          key,
+          dir: prev.dir === 'asc' ? 'desc' : 'asc',
+        };
+      }
+
+      return {
+        key,
+        dir: 'desc',
+      };
+    });
+  };
 
   useEffect(() => {
     const search = isB2BUser
@@ -128,7 +166,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       : getCustomerInitFilter();
 
     setFilterData(search);
-    setIsAutoRefresh(true);
 
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
@@ -178,13 +215,19 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
   }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role, selectedCompanyId]);
 
-  const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = async (params) => {
+  const fetchList = async ({
+    createdBy,
+    ...params
+  }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
     const { edges = [], totalCount } = isB2BUser
-      ? await getB2BAllOrders(params)
+      ? await getB2BAllOrders({
+          ...params,
+          email: getEmail(createdBy),
+          createdBy: getName(createdBy),
+        })
       : await getBCAllOrders(params);
 
     setAllTotal(totalCount);
-    setIsAutoRefresh(false);
 
     return {
       edges: edges.map((row: PossibleNodeWrapper<object>) => ('node' in row ? row.node : row)),
@@ -198,7 +241,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
-        searchParams: filterData,
+        searchParams: {
+          ...filterData,
+          orderBy: getOrderBy(orderBy),
+        },
         totalCount: allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
@@ -322,8 +368,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     }));
   };
 
+  const { data, isFetching } = useQuery({
+    queryKey: ['orderList', filterData, pagination, orderBy],
+    enabled: Boolean(filterData),
+    queryFn: () => fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }),
+  });
+
   return (
-    <B3Spin isSpinning={isRequestLoading}>
+    <B3Spin isSpinning={isFetching}>
       <Box
         sx={{
           display: 'flex',
@@ -372,19 +424,19 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           />
         </Box>
 
-        <B3PaginationTable
-          columnItems={columnItems}
-          getRequestList={fetchList}
-          searchParams={filterData || {}}
-          requestLoading={setIsRequestLoading}
-          isAutoRefresh={isAutoRefresh}
-          sortDirection={order}
-          orderBy={orderBy}
-          sortByFn={handleSetOrderBy}
+        <B3Table
+          columnItems={columnItems || []}
+          listItems={data?.edges || []}
+          pagination={{ ...pagination, count: data?.totalCount || 0 }}
+          onPaginationChange={setPagination}
+          isInfiniteScroll={isMobile}
           renderItem={(row, index) => (
             <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
           )}
           onClickRow={goToDetail}
+          sortDirection={orderBy.dir}
+          sortByFn={handleSetOrderBy}
+          orderBy={orderBy.key}
         />
       </Box>
     </B3Spin>
