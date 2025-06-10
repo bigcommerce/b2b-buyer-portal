@@ -1,50 +1,18 @@
 import B3Request from '@/shared/service/request/b3Fetch';
-import { B2BOrderData, MoneyFormat, OrderStatusItem } from '@/types';
+import { OrderStatusItem } from '@/types';
 import { convertArrayToGraphql } from '@/utils';
-
-const companyInfo = `
-  companyInfo {
-    companyId,
-    companyName,
-    companyAddress,
-    companyCountry,
-    companyState,
-    companyCity,
-    companyZipCode,
-    phoneNumber,
-    bcId,
-  }
-`;
 
 export type CustomerOrderNode = {
   node: {
     orderId?: string;
     createdAt: number;
-    updatedAt: number;
     totalIncTax?: number;
-    currencyCode?: string;
-    usdIncTax?: number;
-    money?: unknown;
-    items?: number;
-    cartId?: string;
-    userId: number;
+    money?: string;
     poNumber?: string;
-    referenceNumber?: string;
     status: string;
-    customStatus?: string;
-    statusCode: number;
-    isArchived?: boolean;
-    isInvoiceOrder: 'A_0' | 'A_1';
-    invoiceId?: string;
-    invoiceNumber?: string;
-    invoiceStatus?: string;
-    ipStatus?: 'A_0' | 'A_1' | 'A_2';
-    flag?: 'A_0' | 'A_1' | 'A_2' | 'A_3';
-    billingName?: string;
     companyName?: string;
     firstName?: string;
     lastName?: string;
-    merchantEmail?: string;
   };
 };
 
@@ -52,10 +20,6 @@ export interface GetCustomerOrders {
   data: {
     customerOrders: {
       totalCount: number;
-      pageInfo: {
-        hasNextPage: boolean;
-        hasPreviousPage: boolean;
-      };
       edges: Array<CustomerOrderNode>;
     };
   };
@@ -65,31 +29,12 @@ export type CompanyOrderNode = {
   node: {
     orderId?: string;
     createdAt: number;
-    updatedAt: number;
     totalIncTax?: number;
-    currencyCode?: string;
-    usdIncTax?: number;
-    money?: unknown;
-    items?: number;
-    cartId?: string;
-    userId: number;
+    money?: string;
     poNumber?: string;
-    referenceNumber?: string;
     status: string;
-    customStatus?: string;
-    statusCode: number;
-    isArchived?: boolean;
-    isInvoiceOrder: 'A_0' | 'A_1';
-    invoiceId?: string;
-    invoiceNumber?: string;
-    invoiceStatus?: string;
-    ipStatus?: 'A_0' | 'A_1' | 'A_2';
-    flag?: 'A_0' | 'A_1' | 'A_2' | 'A_3';
-    billingName?: string;
-    companyName?: string;
     firstName?: string;
     lastName?: string;
-    merchantEmail?: string;
     companyInfo?: {
       companyName: string;
     };
@@ -100,10 +45,6 @@ export interface GetCompanyOrders {
   data: {
     allOrders: {
       totalCount: number;
-      pageInfo: {
-        hasNextPage: boolean;
-        hasPreviousPage: boolean;
-      };
       edges: Array<CustomerOrderNode>;
     };
   };
@@ -126,268 +67,21 @@ query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
     ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
-    pageInfo{
-      hasNextPage,
-      hasPreviousPage,
-    },
     edges{
       node {
         orderId,
         createdAt,
-        updatedAt,
         totalIncTax,
-        currencyCode,
-        usdIncTax,
         money,
-        items,
-        cartId,
-        userId,
         poNumber,
-        referenceNumber,
         status,
-        customStatus,
-        statusCode,
-        isArchived,
-        isInvoiceOrder,
-        invoiceId,
-        invoiceNumber,
-        invoiceStatus,
-        ipStatus,
-        flag,
-        billingName,
-        merchantEmail,
         firstName,
         lastName,
-        companyName,
-        ${companyInfo}
+        companyInfo {
+          companyName,
+        }
       }
     }
-  }
-}`;
-
-export type CustomerOrderShippingAddress = {
-  id: number;
-  zip: string;
-  city: string;
-  email: string;
-  phone: string;
-  state: string;
-  company: string;
-  country: string;
-  cost_tax: string;
-  order_id: number;
-  street_1: string;
-  street_2: string;
-  base_cost: string;
-  last_name: string;
-  first_name: string;
-  cost_ex_tax: string;
-  items_total: number;
-  cost_inc_tax: string;
-  country_iso2: string;
-  items_shipped: number;
-  shipping_method: string;
-  shipping_zone_id: number;
-  cost_tax_class_id: number;
-  handling_cost_tax: string;
-  base_handling_cost: string;
-  shipping_zone_name: string;
-  handling_cost_ex_tax: string;
-  handling_cost_inc_tax: string;
-  handling_cost_tax_class_id: number;
-};
-
-export type OrderProduct = {
-  id: number;
-  sku: string;
-  name: string;
-  imageUrl: string;
-  quantity: number;
-  base_price: string;
-  productUrl: string;
-  variant_id: number;
-  price_ex_tax: string;
-  price_inc_tax: string;
-  product_options: Array<{
-    option_id: number;
-    display_name: string;
-    display_value: string;
-  }>;
-  order_address_id: number;
-  quantity_shipped: number;
-  type: 'physical' | 'digital';
-};
-
-export interface Shipment {
-  id: number;
-  shipping_method: string;
-  shipping_provider_display_name: string;
-  date_created: string;
-  items: {
-    quantity: number;
-    order_product_id: number;
-  }[];
-  order_address_id: number;
-  tracking_number: string;
-  tracking_link: string;
-  generated_tracking_link: string;
-}
-
-interface OrderHistoryEvent {
-  id: number;
-  eventType: number;
-  status: string;
-  createdAt: number;
-}
-
-export interface GetCustomerOrder {
-  data: {
-    customerOrder: {
-      id: string;
-      dateCreated: number;
-      firstName: string;
-      lastName: string;
-      poNumber?: string;
-      shippingAddress: CustomerOrderShippingAddress[];
-      coupons: [];
-      money?: MoneyFormat;
-
-      paymentMethod: string;
-
-      status: string;
-
-      totalTax: number;
-      totalExTax: number;
-      discountAmount: number;
-      handlingCostExTax: number;
-      subtotalExTax: number;
-      shippingCostExTax: number;
-
-      companyInfo: {
-        companyId: null;
-      };
-
-      shipments: false | Shipment[];
-
-      products: OrderProduct[];
-      billingAddress: {
-        email: string;
-        first_name: string;
-        last_name: string;
-        phone: string;
-        company: string;
-        street_1: string;
-        street_2: string;
-        zip: string;
-        city: string;
-        state: string;
-        country: string;
-      };
-
-      orderHistoryEvent?: OrderHistoryEvent[];
-    };
-  };
-}
-
-const orderDetail = (id: number, fn: 'order' | 'customerOrder') => `
-query ${fn === 'order' ? 'GetOrder' : 'GetCustomerOrder'} {
-  ${fn}(
-    id: ${id}
-  ){
-    id,
-    companyName,
-    firstName,
-    lastName,
-    status,
-    statusId,
-    customerId,
-    customStatus,
-    dateCreated,
-    dateModified,
-    dateShipped,
-    subtotalExTax,
-    subtotalIncTax,
-    subtotalTax,
-    baseShippingCost,
-    shippingCostExTax,
-    shippingCostIncTax,
-    shippingCostTax,
-    shippingCostTaxClassId,
-    baseHandlingCost,
-    handlingCostExTax,
-    handlingCostIncTax,
-    handlingCostTax,
-    handlingCostTaxClassId,
-    baseWrappingCost,
-    wrappingCostExTax,
-    wrappingCostIncTax,
-    wrappingCostTax,
-    wrappingCostTaxClassId,
-    totalExTax,
-    totalIncTax,
-    totalTax,
-    itemsTotal,
-    itemsShipped,
-    paymentMethod,
-    paymentProviderId,
-    paymentStatus,
-    refundedAmount,
-    orderIsDigital,
-    storeCreditAmount,
-    giftCertificateAmount,
-    ipAddress,
-    geoipCountry,
-    geoipCountryIso2,
-    currencyId,
-    currencyCode,
-    currencyExchangeRate,
-    defaultCurrencyId,
-    defaultCurrencyCode,
-    staffNotes,
-    customerMessage,
-    discountAmount,
-    couponDiscount,
-    shippingAddressCount,
-    isDeleted,
-    ebayOrderId,
-    cartId,
-    ipAddressV6,
-    isEmailOptIn,
-    poNumber,
-    storeDefaultCurrencyCode,
-    storeDefaultToTransactionalExchangeRate,
-    customerLocale,
-    channelId,
-    orderSource,
-    externalSource,
-    creditCardType,
-    externalId,
-    externalMerchantId,
-    taxProviderId,
-    canReturn,
-    createdEmail,
-    products,
-    coupons,
-    extraFields,
-    billingAddress,
-    shippingAddresses,
-    shippingAddress,
-    shipments,
-    money,
-    referenceNumber,
-    isInvoiceOrder,
-    updatedAt,
-    externalOrderId,
-    ipStatus,
-    invoiceId,
-    orderHistoryEvent {
-      id,
-      eventType,
-      status,
-      extraFields,
-      createdAt,
-    },
-    ${companyInfo}
   }
 }`;
 
@@ -418,11 +112,11 @@ query ${fn === 'orderStatuses' ? 'GetOrderStatuses' : 'GetCustomerOrderStatuses'
   }
 }`;
 
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `
+const getCreatedByUser = (companyId: number) => `
   query GetOrdersCreatedByUser {
-    ${fn}(
+    createdByUser (
       companyId: ${companyId},
-      module: ${module},
+      module: 0,
     ){
       results,
     }
@@ -439,16 +133,6 @@ export const getBCAllOrders = (data: CustomFieldItems) =>
     query: allOrders(data, 'customerOrders'),
   }).then((res) => res.customerOrders);
 
-export const getB2BOrderDetails = (id: number): Promise<B2BOrderData> =>
-  B3Request.graphqlB2B({
-    query: orderDetail(id, 'order'),
-  }).then((res) => res.order);
-
-export const getBCOrderDetails = (id: number): Promise<B2BOrderData> =>
-  B3Request.graphqlB2B({
-    query: orderDetail(id, 'customerOrder'),
-  }).then((res) => res.customerOrder);
-
 export const getOrderStatusType = (): Promise<OrderStatusItem[]> =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('orderStatuses'),
@@ -459,7 +143,7 @@ export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   }).then((res) => res.bcOrderStatuses);
 
-export const getOrdersCreatedByUser = (companyId: number, module: number) =>
+export const getOrdersCreatedByUser = (companyId: number) =>
   B3Request.graphqlB2B({
-    query: getCreatedByUser(companyId, module, 'createdByUser'),
+    query: getCreatedByUser(companyId),
   });
