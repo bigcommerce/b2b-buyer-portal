@@ -95,7 +95,7 @@ function Dashboard(props: PageProps) {
     await deleteCart({ deleteCartInput: { cartEntityId } });
     Cookies.remove('cartId');
     store.dispatch(setCartNumber(0));
-  }
+  };
 
   const startActing = async (companyId: number) => {
     try {
@@ -106,7 +106,7 @@ function Dashboard(props: PageProps) {
 
       const cartEntityId = Cookies.get('cartId');
       if (cartEntityId) {
-        await clearCart(cartEntityId)
+        await clearCart(cartEntityId);
       }
 
       setOpenPage({
@@ -129,9 +129,9 @@ function Dashboard(props: PageProps) {
         await endMasquerade(store);
       }
 
-      const cartEntityId = Cookies.get('cartId')
+      const cartEntityId = Cookies.get('cartId');
       if (cartEntityId) {
-        await clearCart(cartEntityId)
+        await clearCart(cartEntityId);
       }
 
       setFilterData({
@@ -280,7 +280,7 @@ function Dashboard(props: PageProps) {
           if (confirmMasquerade?.type === 'start') {
             await startActing(confirmMasquerade.companyId);
             setConfirmMasquerade(undefined);
-          } else if (confirmMasquerade?.type === 'end'){
+          } else if (confirmMasquerade?.type === 'end') {
             await endActing();
             setConfirmMasquerade(undefined);
           }
