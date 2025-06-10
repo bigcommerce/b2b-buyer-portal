@@ -7,13 +7,6 @@ import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile, useSort } from '@/hooks';
-import {
-  getB2BAllOrders,
-  getBCAllOrders,
-  getBcOrderStatusType,
-  getOrdersCreatedByUser,
-  getOrderStatusType,
-} from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
@@ -32,6 +25,13 @@ import {
   sortKeys,
 } from './config';
 import { OrderItemCard } from './OrderItemCard';
+import {
+  getB2BAllOrders,
+  getBCAllOrders,
+  getBcOrderStatusType,
+  getOrdersCreatedByUser,
+  getOrderStatusType,
+} from './orders';
 
 interface CompanyInfoProps {
   companyId: string;
@@ -50,7 +50,7 @@ interface ListItem {
   lastName: string;
   orderId: string;
   poNumber?: string;
-  money: string;
+  money?: string;
   totalIncTax: string;
   status: string;
   createdAt: string;
@@ -135,7 +135,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     const initFilter = async () => {
       const createdByUsers =
-        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(Number(companyId), 0) : {};
+        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(Number(companyId)) : {};
 
       const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
 
