@@ -13,6 +13,7 @@ import {
   startMockServer,
   stringContainingAll,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -1130,6 +1131,88 @@ describe('when a personal customer visits an order', () => {
 
       expect(await screen.findByRole('heading', { name: 'Order #2,' })).toBeInTheDocument();
       expect(screen.getByRole('navigation', { name: 'Order 2 of 10' })).toBeInTheDocument();
+    });
+
+    it('honours the orderBy parameter', async () => {
+      vi.mocked(useParams).mockReturnValue({ id: '1' });
+
+      const getAllOrders = vi.fn();
+      const getCustomerOrderResponse = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', (query) =>
+          HttpResponse.json(getCustomerOrderResponse(query)),
+        ),
+        graphql.query('GetCustomerOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
+      );
+
+      when(getCustomerOrderResponse)
+        .calledWith(stringContainingAll('id: "1"'))
+        .thenReturn(buildCustomerOrderResponseWith({ data: { customerOrder: { id: '1' } } }));
+
+      when(getAllOrders)
+        .calledWith(
+          stringContainingAll(
+            'beginDateAt: 1672531200000',
+            'endDateAt: 1680307200000',
+            'first: 3',
+            'offset: 0',
+            'orderBy: "status"',
+          ),
+        )
+        .thenReturn(
+          buildGetCustomerOrdersWith({
+            data: {
+              customerOrders: {
+                edges: [
+                  buildCustomerOrderNodeWith({ node: { orderId: '1' } }),
+                  buildCustomerOrderNodeWith({ node: { orderId: '2' } }),
+                  buildCustomerOrderNodeWith({ node: { orderId: '3' } }),
+                ],
+                totalCount: 10,
+              },
+            },
+          }),
+        );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [
+          {
+            state: {
+              isCompanyOrder: false,
+              currentIndex: 0,
+              totalCount: 10,
+              beginDateAt: new Date('2023-01-01').getTime(),
+              endDateAt: new Date('2023-04-01').getTime(),
+              searchParams: {
+                orderBy: 'status',
+                offset: 5,
+              },
+            },
+          },
+        ],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const navigation = await screen.findByRole('navigation', { name: 'Order 1 of 10' });
+
+      expect(screen.getByRole('heading', { name: 'Order #1,' })).toBeInTheDocument();
+
+      const [prev, next] = within(navigation).getAllByRole('button');
+
+      await waitFor(() => {
+        expect(next).toBeEnabled();
+      });
+
+      expect(prev).toBeDisabled();
     });
   });
 });
