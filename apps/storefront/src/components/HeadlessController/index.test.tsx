@@ -1,7 +1,6 @@
 import {
   buildCompanyStateWith,
   builder,
-  bulk,
   faker,
   graphql,
   HttpResponse,
@@ -65,7 +64,13 @@ describe('HeadlessController shopping lists utils', () => {
               hasNextPage: false,
               hasPreviousPage: false,
             },
-            edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
+            edges: [
+              buildShoppingListsNodeWith({
+                node: {
+                  id: 123,
+                },
+              }),
+            ],
           },
         },
       });
@@ -90,7 +95,13 @@ describe('HeadlessController shopping lists utils', () => {
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toBeDefined();
-    expect(data[0].id).toBeDefined();
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 123,
+        }),
+      ]),
+    );
   });
 
   it('getLists retrieves B2C shopping lists', async () => {
@@ -106,7 +117,13 @@ describe('HeadlessController shopping lists utils', () => {
               hasNextPage: false,
               hasPreviousPage: false,
             },
-            edges: bulk(buildShoppingListsNodeWith, 'WHATEVER_VALUES').times(1),
+            edges: [
+              buildShoppingListsNodeWith({
+                node: {
+                  id: 123,
+                },
+              }),
+            ],
           },
         },
       });
@@ -122,6 +139,12 @@ describe('HeadlessController shopping lists utils', () => {
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toBeDefined();
-    expect(data[0].id).toBeDefined();
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 123,
+        }),
+      ]),
+    );
   });
 });
