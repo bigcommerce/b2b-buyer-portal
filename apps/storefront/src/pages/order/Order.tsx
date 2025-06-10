@@ -25,8 +25,9 @@ import { PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   defaultSortKey,
   FilterSearchProps,
+  getCompanyInitFilter,
+  getCustomerInitFilter,
   getFilterMoreData,
-  getInitFilter,
   getOrderStatusText,
   sortKeys,
 } from './config';
@@ -83,6 +84,7 @@ function useData() {
   const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
+
   const currentCompanyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting
       ? Number(salesRepCompanyId)
@@ -94,10 +96,8 @@ function useData() {
     role,
     isAgenting,
     isB2BUser,
-    orderSubViewPermission,
-    selectCompanyHierarchyId: Number(selectCompanyHierarchyId),
-    isEnabledCompanyHierarchy,
-    currentCompanyId: Number(currentCompanyId),
+    isEnabledCompanyHierarchy: isEnabledCompanyHierarchy && orderSubViewPermission,
+    selectedCompanyId: Number(selectCompanyHierarchyId) || currentCompanyId,
     companyId,
   };
 }
@@ -105,16 +105,8 @@ function useData() {
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-  const {
-    role,
-    isAgenting,
-    companyId,
-    isB2BUser,
-    orderSubViewPermission,
-    selectCompanyHierarchyId,
-    isEnabledCompanyHierarchy,
-    currentCompanyId,
-  } = useData();
+  const { role, isAgenting, companyId, isB2BUser, isEnabledCompanyHierarchy, selectedCompanyId } =
+    useData();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [allTotal, setAllTotal] = useState(0);
@@ -131,12 +123,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   );
 
   useEffect(() => {
-    const search = getInitFilter(isCompanyOrder, isB2BUser);
-    if (isB2BUser) {
-      search.companyIds = [selectCompanyHierarchyId || currentCompanyId];
-    }
+    const search = isB2BUser
+      ? getCompanyInitFilter(isCompanyOrder, selectedCompanyId)
+      : getCustomerInitFilter();
+
     setFilterData(search);
     setIsAutoRefresh(true);
+
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
 
@@ -154,6 +147,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         createdByUsers,
         orderStatuses,
       );
+
       setOrderStatuses(orderStatuses);
 
       const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
@@ -182,16 +176,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [
-    b3Lang,
-    companyId,
-    currentCompanyId,
-    isAgenting,
-    isB2BUser,
-    isCompanyOrder,
-    role,
-    selectCompanyHierarchyId,
-  ]);
+  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role, selectedCompanyId]);
 
   const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = async (params) => {
     const { edges = [], totalCount } = isB2BUser
@@ -299,10 +284,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const handleChange = (key: string, value: string) => {
     if (key === 'search') {
-      setFilterData({
-        ...filterData,
+      setFilterData((data) => ({
+        ...data,
         q: value,
-      });
+      }));
     }
   };
 
@@ -316,17 +301,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       currentStatus = originStatus?.systemLabel || currentStatus;
     }
 
-    const search: Partial<FilterSearchProps> = {
+    setFilterData((data) => ({
+      ...data,
       beginDateAt: value?.startValue || null,
       endDateAt: value?.endValue || null,
       createdBy: value?.PlacedBy || '',
       statusCode: currentStatus,
       companyName: value?.company || '',
-    };
-    setFilterData({
-      ...filterData,
-      ...search,
-    });
+    }));
   };
 
   const columnItems = getColumnItems();
@@ -334,10 +316,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const handleSelectCompanies = (company: number[]) => {
     const newCompanyIds = company.includes(-1) ? [] : company;
 
-    setFilterData({
-      ...filterData,
+    setFilterData((data) => ({
+      ...data,
       companyIds: newCompanyIds,
-    });
+    }));
   };
 
   return (
@@ -363,7 +345,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             },
           }}
         >
-          {isEnabledCompanyHierarchy && orderSubViewPermission && (
+          {isEnabledCompanyHierarchy && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
             </Box>
