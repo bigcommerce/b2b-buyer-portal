@@ -117,9 +117,9 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
         await superAdminEndMasquerade(Number(salesRepCompanyId));
       }
 
-      const cartId = Cookies.get('cartId');
-      if (confirmEndActing && cartId) {
-        await deleteCart({ deleteCartInput: { cartEntityId: cartId } });
+      const cartEntityId = Cookies.get('cartId');
+      if (cartEntityId) {
+        await deleteCart({ deleteCartInput: { cartEntityId } });
         Cookies.remove('cartId');
         dispatch(setCartNumber(0));
       }
@@ -134,9 +134,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   };
 
   const onEndActing = async () => {
-    const cartId = Cookies.get('cartId');
-
-    if (cartId && cartNumber > 0) {
+    if (cartNumber > 0) {
       setConfirmEndActing(true);
     } else {
       await endActing();
