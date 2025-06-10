@@ -91,6 +91,12 @@ function Dashboard(props: PageProps) {
     return list;
   };
 
+  const clearCart = async (cartEntityId: string) => {
+    await deleteCart({ deleteCartInput: { cartEntityId } });
+    Cookies.remove('cartId');
+    store.dispatch(setCartNumber(0));
+  }
+
   const startActing = async (companyId: number) => {
     try {
       setIsRequestLoading(true);
@@ -100,9 +106,7 @@ function Dashboard(props: PageProps) {
 
       const cartEntityId = Cookies.get('cartId');
       if (cartEntityId) {
-        await deleteCart({ deleteCartInput: { cartEntityId } });
-        Cookies.remove('cartId');
-        store.dispatch(setCartNumber(0));
+        await clearCart(cartEntityId)
       }
 
       setOpenPage({
@@ -124,7 +128,12 @@ function Dashboard(props: PageProps) {
       if (typeof b2bId === 'number') {
         await endMasquerade(store);
       }
-      store.dispatch(setCartNumber(0));
+
+      const cartEntityId = Cookies.get('cartId')
+      if (cartEntityId) {
+        await clearCart(cartEntityId)
+      }
+
       setFilterData({
         ...filterData,
       });
@@ -151,9 +160,7 @@ function Dashboard(props: PageProps) {
   };
 
   const onStartMasquerade = async (companyId: number) => {
-    const cartId = Cookies.get('cartId');
-
-    if (cartId && cartNumber > 0) {
+    if (cartNumber > 0) {
       setConfirmMasquerade({ type: 'start', companyId });
     } else {
       await startActing(companyId);
@@ -161,9 +168,7 @@ function Dashboard(props: PageProps) {
   };
 
   const onEndMasquerade = async () => {
-    const cartId = Cookies.get('cartId');
-
-    if (cartId && cartNumber > 0) {
+    if (cartNumber > 0) {
       setConfirmMasquerade({ type: 'end' });
     } else {
       await endActing();
@@ -272,17 +277,13 @@ function Dashboard(props: PageProps) {
         isRequestLoading={isRequestLoading}
         handleClose={() => setConfirmMasquerade(undefined)}
         handleConfirm={async () => {
-          if (!confirmMasquerade) {
-            return;
-          }
-
-          if (confirmMasquerade.type === 'start') {
+          if (confirmMasquerade?.type === 'start') {
             await startActing(confirmMasquerade.companyId);
-          } else {
+            setConfirmMasquerade(undefined);
+          } else if (confirmMasquerade?.type === 'end'){
             await endActing();
+            setConfirmMasquerade(undefined);
           }
-
-          setConfirmMasquerade(undefined);
         }}
       />
     </B3Spin>
