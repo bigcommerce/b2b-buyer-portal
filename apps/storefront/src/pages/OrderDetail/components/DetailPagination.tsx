@@ -12,6 +12,7 @@ import { isB2BUserSelector, useAppSelector } from '@/store';
 
 interface SearchParamsProps {
   [key: string]: number | string | undefined;
+  orderBy: string;
   offset: number;
   first: number;
 }
@@ -35,6 +36,11 @@ interface RightLeftSideProps {
 
 const initListIndex = 100000000;
 
+const defaultSearchParams = {
+  orderBy: '-createdAt',
+  offset: 0,
+};
+
 function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -46,7 +52,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     leftId: '',
   });
 
-  const localtion = useLocation();
+  const location = useLocation();
   const [isMobile] = useMobile();
 
   let currentIndex = 0;
@@ -59,8 +65,8 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
 
   const id = useId();
 
-  if (localtion?.state) {
-    const state = localtion.state as LocationState;
+  if (location?.state) {
+    const state = location.state as LocationState;
     currentIndex = state?.currentIndex || 0;
     totalCount = state?.totalCount || 0;
     beginDateAt = state?.beginDateAt || null;
@@ -79,12 +85,12 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     };
 
     const searchDetailParams = {
+      ...defaultSearchParams,
       ...searchParams,
       first: 3,
       offset: index(),
       beginDateAt: beginDateAt || null,
       endDateAt: endDateAt || null,
-      orderBy: '-createdAt',
     };
 
     const { edges: list, totalCount } = isB2BUser
