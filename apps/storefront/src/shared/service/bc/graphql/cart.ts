@@ -276,7 +276,7 @@ const addLineItemToCart = `mutation addCartLineItemsTwo($addCartLineItemsInput: 
           entityId
         }}}}`;
 
-const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!) {
+const deleteCartQuery = `mutation DeleteCart($deleteCartInput: DeleteCartInput!) {
   cart {
     deleteCart(input: $deleteCartInput) {
       deletedCartEntityId
