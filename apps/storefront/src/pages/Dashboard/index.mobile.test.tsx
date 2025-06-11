@@ -329,7 +329,7 @@ describe('when the user is associated with a company', () => {
       graphql.query('SuperAdminCompanies', ({ query }) => HttpResponse.json(getCompanyList(query))),
       graphql.mutation('BeginMasquerade', ({ query }) => HttpResponse.json(beginMasquerade(query))),
       graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
-      graphql.mutation('deleteCart', ({ query }) => HttpResponse.json(deleteCartReturn(query))),
+      graphql.mutation('DeleteCart', ({ query }) => HttpResponse.json(deleteCartReturn(query))),
     );
 
     Cookies.set('cartId', '1');
