@@ -10,6 +10,7 @@ orbs:
   ci: bigcommerce/internal@volatile
   node: bigcommerce/internal-node@volatile
   security: bigcommerce/internal-security@volatile
+  test-coverage-reporter: bigcommerce/internal-test-coverage-reporter@volatile
 
 jobs:
   test:
@@ -18,10 +19,17 @@ jobs:
     steps:
       - ci/pre-setup
       - node/yarn-install
+      - test-coverage-reporter/install
       - run:
           name: "Run unit tests for core package"
           command: |
-            yarn test
+            cd apps/storefront
+            yarn coverage
+      - test-coverage-reporter/store-report:
+          coverage-format: "lcov"
+          additional-args: "./coverage/lcov.info"
+      - store_artifacts:
+          path: ./apps/storefront/coverage/lcov-report
 
   lint:
     <<: *node_executor
