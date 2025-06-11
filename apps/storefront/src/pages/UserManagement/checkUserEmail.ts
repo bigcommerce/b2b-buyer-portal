@@ -17,7 +17,14 @@ const checkUserB2BEmail = `
 `;
 
 export interface UserEmailCheckResponse {
-  data: { userEmailCheck: { userType: UserTypes; userInfo: { companyName: string | null } } };
+  data: {
+    userEmailCheck: {
+      userType: UserTypes;
+      userInfo: {
+        companyName: string | null;
+      };
+    };
+  };
 }
 
 interface CheckUserEmailVariables {
