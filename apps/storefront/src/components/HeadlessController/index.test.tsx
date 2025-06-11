@@ -11,6 +11,7 @@ import {
 import { when } from 'vitest-when';
 
 import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
+import { CustomerRole } from '@/types';
 
 import HeadlessController from '.';
 
@@ -86,7 +87,7 @@ describe('HeadlessController shopping lists utils', () => {
       preloadedState: {
         company: buildCompanyStateWith({
           customer: {
-            role: 3,
+            role: CustomerRole.SUPER_ADMIN,
           },
         }),
       },
@@ -94,7 +95,6 @@ describe('HeadlessController shopping lists utils', () => {
 
     const data = await window.b2b.utils.shoppingList.getLists();
 
-    expect(data).toBeDefined();
     expect(data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -138,7 +138,6 @@ describe('HeadlessController shopping lists utils', () => {
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
     const data = await window.b2b.utils.shoppingList.getLists();
 
-    expect(data).toBeDefined();
     expect(data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
