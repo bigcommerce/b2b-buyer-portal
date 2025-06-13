@@ -5,12 +5,12 @@ import concat from 'lodash-es/concat';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
-import { checkUserEmail } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
 import { channelId, isKeyOf, snackbar } from '@/utils';
 
 import { addUser } from './addUser';
+import { checkUserEmail } from './checkUserEmail';
 import {
   emailError,
   ExtraFieldsProps,
