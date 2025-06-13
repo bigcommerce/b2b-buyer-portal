@@ -1,0 +1,54 @@
+type OrderHistoryEvent {
+  id: ID!
+  eventType: Int
+  status: String
+  createdAt: Int
+}
+
+interface BaseOrder implements Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  createdAt: String!
+  totalIncTax: Float!
+  money: Money!
+  poNumber: String
+  status: String!
+  # Status Label, is merged in the UI, by fetching the OrderStatuses list from a different API. Probably worth combining the two in here.
+  statusLabel: String!
+  orderHistory: [OrderHistoryEvent!]!
+}
+
+type Order implements BaseOrder & Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  createdAt: String!
+  totalIncTax: Float!
+  money: Money!
+  poNumber: String
+  status: String!
+  statusLabel: String!
+  orderHistory: [OrderHistoryEvent!]!
+}
+
+type CompanyOrder implements BaseOrder & Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  createdAt: String!
+  totalIncTax: Float!
+  money: Money!
+  poNumber: String
+  status: String!
+  statusLabel: String!
+  orderHistory: [OrderHistoryEvent!]!
+
+  company: Company!
+}
+
+union OrderResult = Order | CompanyOrder
+
+extend type Query {
+  Order(orderId: ID!): OrderResult
+}

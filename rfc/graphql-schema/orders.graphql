@@ -1,0 +1,123 @@
+# bc orders - b2c use case, no company involved
+# personal orders - includes company name, all placed by the current user
+# company orders - includes placed by/company name - aggregates all orders for one or more companies
+
+type Company {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+type CompanyOrderEdge implements Edge {
+  node: CompanyOrder!
+  cursor: String!
+}
+
+type CompanyOrderConnection implements Connection {
+  edges: [CompanyOrderEdge!]!
+  pageInfo: PageInfo!
+  collectionInfo: CollectionInfo!
+}
+
+type User implements Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  createdAt: String!
+}
+
+type UserEdge implements Edge {
+  node: User!
+  cursor: String!
+}
+
+interface UserConnection implements Connection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  collectionInfo: CollectionInfo!
+}
+
+input CompanyOrderFilters {
+  search: String
+  beginDateAt: Date
+  endDateAt: Date
+  status: String
+  companyIds: [ID!] # Used to further filter the orders by company, required for company hierarchy
+  # Might be worth replacing the "email" / "createdBy" field with one taking userId
+  # user: ID
+  email: String
+  createdBy: String
+}
+
+input OrderFilters {
+  search: String
+  beginDateAt: Date
+  endDateAt: Date
+  status: String
+  companyName: String
+  companyIds: [ID!] # I need to confirm, but this looks required for company hierarchy
+}
+
+enum CompanyOrderSortField {
+  ID
+  PO_NUMBER
+  TOTAL_INC_TAX
+  STATUS
+  PLACED_BY
+  CREATED_AT
+}
+
+enum OrderSortField {
+  ID
+  PO_NUMBER
+  TOTAL_INC_TAX
+  STATUS
+  CREATED_AT
+}
+
+input CompanyOrderSortInput {
+  field: CompanyOrderSortField!
+  direction: SortDirection!
+}
+
+input OrderSortInput {
+  field: OrderSortField!
+  direction: SortDirection!
+}
+
+input UsersWithOrdersFilter {
+  companyIds: [ID!] # Company Hierarchy, this should not be passed when all companies are displayed
+}
+
+extend type Query {
+  # This returns the orders for all companies the user has access to, feed style
+  # In the case of a masquerading user, it should automatically return the orders for the masqueraded company
+  CompanyOrders(
+    sort: CompanyOrderSortInput
+    filter: CompanyOrderFilters
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): CompanyOrderConnection
+  # This returns the orders for the current user, across all their companies
+  # In the case of a masquerading user, it should automatically return the orders for the masqueraded company
+  Orders(
+    filter: OrderFilters
+    sort: OrderSortInput
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): CompanyOrderConnection
+  # This returns a list of all the users that have placed orders for a set of companies, feed style
+  # It is used to populate the "Placed by" dropdown in the filter view
+  UsersWithOrders(
+    filter: UsersWithOrdersFilter
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): UserConnection
+}
