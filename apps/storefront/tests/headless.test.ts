@@ -20,7 +20,7 @@ describe('when headless.ts is run', () => {
           data: {
             storefrontScript: {
               script:
-                '<script>\n window.b3CheckoutConfig = {\n routes: {\n dashboard: "/account.php?action=order_status",\n },\n };\n window.B3 = {\n setting: {\n store_hash: "store_hash",\n channel_id: 1,\n platform: "bigcommerce",\n b2b_client_id: "b2b_client_id",\n b2b_url: "https://api-b2b.bigcommerce.com",\n captcha_site_key: "xyz",\n },\n "dom.checkoutRegisterParentElement": "#checkout-app",\n };\n</script>\n<script type="module" crossorigin src="https://cdn.bundleb2b.net/b2b/production/storefront/index.wVqliJs9.js"></script>\n<script nomodule crossorigin src="https://cdn.bundleb2b.net/b2b/production/storefront/polyfills-legacy.DArz4FPZ.js"></script>\n<script nomodule crossorigin src="https://cdn.bundleb2b.net/b2b/production/storefront/index-legacy.BwHISVUB.js"></script>\n',
+                '<script>\n window.b3CheckoutConfig = {\n routes: {\n dashboard: "/account.php?action=order_status",\n },\n };\n window.B3 = {\n setting: {\n store_hash: "store_hash",\n channel_id: 1,\n platform: "bigcommerce",\n b2b_client_id: "b2b_client_id",\n b2b_url: "https://api-b2b.bigcommerce.com",\n captcha_site_key: "xyz",\n },\n "dom.checkoutRegisterParentElement": "#checkout-app",\n };\n</script>\n<script type="module" crossorigin src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/index.wVqliJs9.js"></script>\n<script nomodule crossorigin src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/polyfills-legacy.DArz4FPZ.js"></script>\n<script nomodule crossorigin src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/index-legacy.BwHISVUB.js"></script>\n',
             },
           },
         });
@@ -53,7 +53,7 @@ describe('when headless.ts is run', () => {
        },
        "dom.checkoutRegisterParentElement": "#checkout-app",
        };
-      </script><script type="module" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/index.wVqliJs9.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/polyfills-legacy.DArz4FPZ.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/index-legacy.BwHISVUB.js" class="buyer-portal-scripts-headless"></script>"
+      </script><script type="module" crossorigin="" src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/index.wVqliJs9.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/polyfills-legacy.DArz4FPZ.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://microapps.bigcommerce.com/b2b-buyer-portal/storefront/index-legacy.BwHISVUB.js" class="buyer-portal-scripts-headless"></script>"
     `);
 
     // calling again to make sure the old scripts get replaced properly

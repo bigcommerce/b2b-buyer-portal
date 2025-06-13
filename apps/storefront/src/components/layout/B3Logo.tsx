@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import { Box, ImageListItem } from '@mui/material';
 
-import { STORE_DEFAULT_LOGO } from '@/constants';
+import b2bLogo from '@/assets/b2bLogo.png';
 import { useMobile } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
+import { getAssetUrl } from '@/utils/getAssetUrl';
 
 export default function B3Logo() {
   const {
@@ -35,6 +36,7 @@ export default function B3Logo() {
               height: '65px',
               display: 'flex',
               alignItems: 'center',
+              maxHeight: '65px',
               '& img': {
                 maxHeight: '65px',
               },
@@ -54,7 +56,7 @@ export default function B3Logo() {
           window.location.href = '/';
         }}
       >
-        <img src={logo || STORE_DEFAULT_LOGO} alt="logo" />
+        <img src={logo || getAssetUrl(b2bLogo)} alt="logo" />
       </ImageListItem>
     </Box>
   );
