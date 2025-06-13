@@ -4,6 +4,7 @@ import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
+import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
@@ -19,6 +20,7 @@ import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, platform, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { type PageProps } from '../PageProps';
@@ -285,26 +287,24 @@ function Login(props: PageProps) {
                     {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
                   </Alert>
                 )}
-                {loginInfo.logo && (
-                  <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                    <LoginImage>
-                      <ImageListItem
-                        sx={{
-                          maxWidth: isMobile ? '70%' : '250px',
-                        }}
-                        onClick={() => {
-                          window.location.href = '/';
-                        }}
-                      >
-                        <img
-                          src={loginInfo.logo}
-                          alt={b3Lang('login.registerLogo')}
-                          loading="lazy"
-                        />
-                      </ImageListItem>
-                    </LoginImage>
-                  </Box>
-                )}
+                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+                  <LoginImage>
+                    <ImageListItem
+                      sx={{
+                        maxWidth: isMobile ? '70%' : '250px',
+                      }}
+                      onClick={() => {
+                        window.location.href = '/';
+                      }}
+                    >
+                      <img
+                        src={loginInfo.logo || getAssetUrl(b2bLogo)}
+                        alt={b3Lang('login.registerLogo')}
+                        loading="lazy"
+                      />
+                    </ImageListItem>
+                  </LoginImage>
+                </Box>
                 {loginInfo.widgetHeadText && (
                   <LoginWidget
                     sx={{

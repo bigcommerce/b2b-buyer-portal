@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem } from '@mui/material';
 
+import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
@@ -14,6 +15,7 @@ import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { loginCheckout, LoginConfig } from '../Login/config';
@@ -30,7 +32,6 @@ import {
 import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
-
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
 
@@ -291,20 +292,22 @@ function Registered(props: PageProps) {
               alignItems: 'center',
             }}
           >
-            {logo && (
-              <RegisteredImage>
-                <ImageListItem
-                  sx={{
-                    maxWidth: '250px',
-                  }}
-                  onClick={() => {
-                    window.location.href = '/';
-                  }}
-                >
-                  <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
-                </ImageListItem>
-              </RegisteredImage>
-            )}
+            <RegisteredImage>
+              <ImageListItem
+                sx={{
+                  maxWidth: '250px',
+                }}
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+              >
+                <img
+                  src={logo || getAssetUrl(b2bLogo)}
+                  alt={b3Lang('global.tips.registerLogo')}
+                  loading="lazy"
+                />
+              </ImageListItem>
+            </RegisteredImage>
             <RegisteredStep activeStep={activeStep} backgroundColor={backgroundColor}>
               <RegisterContent
                 activeStep={activeStep}
