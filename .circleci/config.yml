@@ -27,9 +27,11 @@ jobs:
             yarn coverage
       - test-coverage-reporter/store-report:
           coverage-format: "lcov"
-          additional-args: "./coverage/lcov.info"
       - store_artifacts:
-          path: ./apps/storefront/coverage/lcov-report
+          path: ./apps/storefront/coverage/
+      - run:
+          name: Remove coverage upon success
+          command: rm -rf ./coverage       
 
   lint:
     <<: *node_executor

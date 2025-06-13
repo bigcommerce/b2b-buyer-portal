@@ -54,7 +54,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'istanbul',
         cleanOnRerun: process.env.CI === 'true',
-        reporter: ['text', 'html', 'clover', 'json', 'lcov'],
+        reporter: ['lcov'],
         reportsDirectory: 'coverage',
       },
       deps: {
