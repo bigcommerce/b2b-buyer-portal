@@ -28,6 +28,14 @@ describe('when the user is on checkout page and the company status is rejected',
   });
 
   it('shows an error message', () => {
+    vi.mock('@b3/lang', () => ({
+      useB3Lang: () => (id: string) => {
+        if (id === 'global.statusNotifications.accountRejectedOrderingDisabled') {
+          return 'Your business account has been rejected. Ordering is disabled.';
+        }
+        return id;
+      },
+    }));
     vi.mock('@/utils', () => ({
       globalSnackbar: {
         error: vi.fn(),
@@ -61,6 +69,14 @@ describe('when the user is on checkout page and the company status is rejected',
 
 describe('when the user is NOT on checkout page and the company status is rejected', () => {
   it('does not show error message', () => {
+    vi.mock('@b3/lang', () => ({
+      useB3Lang: () => (id: string) => {
+        if (id === 'global.statusNotifications.accountRejectedOrderingDisabled') {
+          return 'Your business account has been rejected. Ordering is disabled.';
+        }
+        return id;
+      },
+    }));
     vi.mock('@/utils', () => ({
       globalSnackbar: {
         error: vi.fn(),
@@ -94,6 +110,14 @@ describe('when the user is NOT on checkout page and the company status is reject
 
 describe('when the user is on checkout page and the company status is Approved', () => {
   it('does not an error message', () => {
+    vi.mock('@b3/lang', () => ({
+      useB3Lang: () => (id: string) => {
+        if (id === 'global.statusNotifications.accountRejectedOrderingDisabled') {
+          return 'Your business account has been rejected. Ordering is disabled.';
+        }
+        return id;
+      },
+    }));
     vi.mock('@/utils', () => ({
       globalSnackbar: {
         error: vi.fn(),
@@ -127,6 +151,14 @@ describe('when the user is on checkout page and the company status is Approved',
 
 describe('when the user is on checkout page and the company status is PENDING', () => {
   it('shows an error message', () => {
+    vi.mock('@b3/lang', () => ({
+      useB3Lang: () => (id: string) => {
+        if (id === 'global.statusNotifications.accountRejectedOrderingDisabled') {
+          return 'Your business account has been rejected. Ordering is disabled.';
+        }
+        return id;
+      },
+    }));
     vi.mock('@/utils', () => ({
       globalSnackbar: {
         error: vi.fn(),
