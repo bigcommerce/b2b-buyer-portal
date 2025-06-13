@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect } from 'react';
 import config from '@b3/global-b3';
+import { useB3Lang } from '@b3/lang';
 
 import {
   getContrastColor,
@@ -31,6 +32,7 @@ interface IsShowBlockPendingAccountOrderCreationTipProps {
 }
 
 const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps) => {
+  const b3Lang = useB3Lang();
   const { addToQuoteFromCookie: addToQuote, addLoading } = addProductsFromCartToQuote(setOpenPage);
 
   const translationVarName = 'global.customStyles.addToAllQuoteBtn';
@@ -61,9 +63,9 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
   useEffect(() => {
     if (checkIsInPage(CHECKOUT_URL) && companyStatus === CompanyStatus.REJECTED) {
-      globalSnackbar.error('Your business account has been rejected. Ordering is disabled.');
+      globalSnackbar.error(b3Lang('global.statusNotifications.accountRejectedOrderingDisabled'));
     }
-  }, [pathname, companyStatus]);
+  }, [pathname, companyStatus, b3Lang]);
 
   useEffect(() => {
     const showPendingAccountTip = () => {
