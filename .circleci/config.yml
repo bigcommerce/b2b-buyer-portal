@@ -25,9 +25,22 @@ jobs:
           command: |
             cd apps/storefront
             yarn coverage
-      - test-coverage-reporter/store-report:
-          coverage-format: "lcov"
-          additional-args: "./coverage/lcov.info"
+      - run: # store test coverage, creating coverage dir regardless to allow persist_to_workspace below to work
+          name: Code Coverage Reporter - Store Test Coverage
+          command: |
+            set +e
+            mkdir -p ./coverage
+            CC_TEST_REPORTER_CMD="$PWD/cc-test-reporter"
+            FORMATTED_COVERAGE="$PWD/coverage/formatted-coverage.${CIRCLE_BUILD_NUM}.${CIRCLE_NODE_INDEX}.json"
+            echo "Formatting lcov coverage to ${FORMATTED_COVERAGE}"
+            # moving to apps/storefront to make sure the report / files are in the right place
+            cd apps/storefront
+            ../../cc-test-reporter format-coverage -t lcov -o "${FORMATTED_COVERAGE}" coverage/lcov.info
+            true
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - coverage
       - store_artifacts:
           path: ./apps/storefront/coverage/lcov-report
 
