@@ -4029,42 +4029,6 @@ type Mutation {
   ): QuoteFrontendPdf
 
   """
-  Begin a masquerade using a super admin user.
-  Requires a B2B Token.
-  """
-  superAdminBeginMasquerade(
-    """
-    The company id.
-    This field is required.
-    """
-    companyId: Int!
-
-    """
-    The user id.
-    This field is not used and will be deprecated soon.
-    """
-    userId: Int
-  ): SuperAdminBeginMasquerade
-
-  """
-  End a masquerade using a super admin user.
-  Requires a B2B Token.
-  """
-  superAdminEndMasquerade(
-    """
-    The company id.
-    This field is required.
-    """
-    companyId: Int!
-
-    """
-    The user id.
-    This field is not used and will be deprecated soon.
-    """
-    userId: Int
-  ): SuperAdminEndMasquerade
-
-  """
   Create a company using a customer id.
   """
   companyCreate(companyData: CompanyInputType): CompanyCreate
@@ -4179,22 +4143,6 @@ type Mutation {
     """
     subscribersData: CustomerSubscribersInputType!
   ): CustomerSubscribersCreate
-
-  """
-  Begin masquerading a company
-  """
-  userMasqueradingCompanyBegin(
-    """
-    The company id.
-    This field is required.
-    """
-    companyId: Int!
-  ): UserMasqueradingCompanyBegin
-
-  """
-  End masquerading a company
-  """
-  userMasqueradingCompanyEnd: UserMasqueradingCompanyEnd
 
   """
   Create a company address.
@@ -6260,41 +6208,6 @@ type Query {
   Requires a B2B Token.
   """
   companySubsidiaries: [CompanySubsidiariesType]
-
-  """
-  Get a list of companies by super admin.
-  Requires a B2B token.
-  """
-  superAdminCompanies(
-    """
-    Unique ID of a super admin.
-    This field is required.
-    """
-    superAdminId: Int!
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    search: String
-
-    """
-    Ordering
-    """
-    orderBy: String
-  ): SuperAdminCompanyTypeCountableConnection
-
-  """
-  Get the masquerading company of a customer.
-  Requires a B2B token.
-  """
-  superAdminMasquerading(
-    """
-    Unique ID of a customer in BigCommerce.
-    This field is required.
-    """
-    customerId: Int!
-  ): CompanyType
 
   """
   Get the list of quotes.
@@ -8814,85 +8727,6 @@ type StoreUserInfo {
   salesRepInfo: salesRepInfoType
 }
 
-type SuperAdminBeginMasquerade {
-  userInfo: UserInfoType
-}
-
-type SuperAdminCompanyExtraFieldsValueType {
-  fieldName: String
-  fieldValue: String
-}
-
-type SuperAdminCompanyType implements Node {
-  """
-  Company ID of the company
-  """
-  companyId: Int
-
-  """
-  The ID of the object
-  """
-  id: ID!
-
-  """
-  Company name
-  """
-  companyName: String
-
-  """
-  Company BC customer group name
-  """
-  bcGroupName: String
-
-  """
-  Admin user name of the company
-  """
-  companyAdminName: String
-
-  """
-  Email of the company
-  """
-  companyEmail: String
-
-  """
-  Extra field list of the company
-  """
-  extraFields: [SuperAdminCompanyExtraFieldsValueType]
-}
-
-type SuperAdminCompanyTypeCountableConnection {
-  """
-  Pagination data for this connection.
-  """
-  pageInfo: PageInfo!
-  edges: [SuperAdminCompanyTypeCountableEdge!]!
-
-  """
-  A total count of items in the collection.
-  """
-  totalCount: Int
-}
-
-type SuperAdminCompanyTypeCountableEdge {
-  """
-  The item at the end of the edge.
-  """
-  node: SuperAdminCompanyType!
-
-  """
-  A cursor for use in pagination.
-  """
-  cursor: String!
-}
-
-"""
-Super admin end masquerade,
-Requires a B2B Token.
-"""
-type SuperAdminEndMasquerade {
-  message: String
-}
-
 type TaxClassRateType {
   """
   The rate of tax class
@@ -9257,20 +9091,6 @@ input UserLoginType {
   Redirect URL for storefront login token
   """
   redirectUrl: String = "#/orders"
-}
-
-"""
-Begin masquerading a company
-"""
-type UserMasqueradingCompanyBegin {
-  userMasqueradingCompanyBegin: CompanyInfoType
-}
-
-"""
-End masquerading a company
-"""
-type UserMasqueradingCompanyEnd {
-  message: String
 }
 
 """
