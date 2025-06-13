@@ -1,4 +1,5 @@
 import dashboard from './byPage/dashboard'
 import userManagement from './byPage/userManagement'
+import orderList from './byPage/orders'
 
-export default [userManagement, dashboard]
+export default [userManagement, orderList, dashboard]
