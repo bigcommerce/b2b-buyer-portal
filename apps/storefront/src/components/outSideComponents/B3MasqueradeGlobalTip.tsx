@@ -106,31 +106,24 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   const [isMobile] = useMobile();
 
   const endActing = async () => {
-    if (isOpen) {
-      setOpenPage({
-        isOpen: true,
-        openUrl: '/dashboard?closeMasquerade=1',
-      });
-    } else {
-      setIsLoading(true);
-      if (typeof b2bId === 'number') {
-        await superAdminEndMasquerade(Number(salesRepCompanyId));
-      }
-
-      const cartEntityId = Cookies.get('cartId');
-      if (cartEntityId) {
-        await deleteCart({ deleteCartInput: { cartEntityId } });
-        Cookies.remove('cartId');
-        dispatch(setCartNumber(0));
-      }
-
-      setIsLoading(false);
-      dispatch(clearMasqueradeCompany());
-      setOpenPage({
-        isOpen: true,
-        openUrl: '/dashboard',
-      });
+    setIsLoading(true);
+    if (typeof b2bId === 'number') {
+      await superAdminEndMasquerade(Number(salesRepCompanyId));
     }
+
+    const cartEntityId = Cookies.get('cartId');
+    if (cartEntityId) {
+      await deleteCart({ deleteCartInput: { cartEntityId } });
+      Cookies.remove('cartId');
+      dispatch(setCartNumber(0));
+    }
+
+    setIsLoading(false);
+    dispatch(clearMasqueradeCompany());
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/dashboard',
+    });
   };
 
   const onEndActing = async () => {
