@@ -854,8 +854,8 @@ describe('when the user is a B2B customer', () => {
         graphql.query('GetShoppingListsCreatedByUser', () =>
           HttpResponse.json({ data: { createdByUser: { results: [] } } }),
         ),
-        graphql.mutation('DeleteShoppingList', ({ query }) =>
-          HttpResponse.json(deleteShoppingList(query)),
+        graphql.mutation('DeleteShoppingList', ({ variables }) =>
+          HttpResponse.json(deleteShoppingList(variables)),
         ),
       );
 
@@ -868,8 +868,8 @@ describe('when the user is a B2B customer', () => {
       const confirmDeleteModal = await screen.findByRole('dialog');
 
       when(deleteShoppingList)
-        .calledWith(expect.stringContaining('id: 123'))
-        .thenResolve({ data: { shoppingListsDelete: { message: 'Success' } } });
+        .calledWith({ id: 123 })
+        .thenReturn({ data: { shoppingListsDelete: { message: 'Success' } } });
 
       getB2BCustomerShoppingLists.mockReturnValueOnce(
         buildB2BShoppingListResponseWith({ data: { shoppingLists: { edges: [] } } }),
