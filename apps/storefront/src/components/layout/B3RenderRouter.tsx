@@ -30,13 +30,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (openUrl && openUrl === '/dashboard?closeMasquerade=1') {
-      navigate('/dashboard', {
-        state: {
-          closeMasquerade: '1',
-        },
-      });
-    } else if (openUrl === '/dashboard') {
+    if (openUrl === '/dashboard') {
       location.state = null;
       navigate(openUrl);
     } else if (typeof openUrl === 'string') {

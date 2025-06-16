@@ -32,6 +32,7 @@ export function ConfirmMasqueradeDialog({
       handRightClick={handleConfirm}
       dialogWidth="480px"
       dialogSx={{
+        zIndex: 12006,
         '& .MuiPaper-elevation': {
           '& h2': {
             border: 'unset',
