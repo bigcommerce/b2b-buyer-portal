@@ -9,7 +9,6 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
-  deleteB2BShoppingList,
   deleteBcShoppingList,
   getB2BShoppingList,
   getBcShoppingList,
@@ -21,6 +20,7 @@ import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
 import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
+import { deleteB2BShoppingList } from './deleteB2BShoppingList';
 import ShoppingListsCard from './ShoppingListsCard';
 
 interface RefCurrentProps extends HTMLInputElement {
