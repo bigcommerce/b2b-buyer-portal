@@ -147,12 +147,6 @@ const duplicateShoppingList = (
   }
 }`;
 
-const deleteShoppingList = (id: number) => `mutation DeleteShoppingList {
-  shoppingListsDelete(id: ${id}) {
-    message
-  }
-}`;
-
 const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
   shoppingListsItemsUpdate(
     itemId: ${data.itemId}
@@ -610,11 +604,6 @@ export const duplicateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
         status: data.status,
       },
     },
-  });
-
-export const deleteB2BShoppingList = (id: number) =>
-  B3Request.graphqlB2B({
-    query: deleteShoppingList(id),
   });
 
 export const getB2BShoppingListDetails = (data: CustomFieldItems = {}) =>
