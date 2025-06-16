@@ -26,8 +26,9 @@ jobs:
             cd apps/storefront
             yarn coverage
       - test-coverage-reporter/store-report:
-          coverage-format: "lcov"
-          additional-args: "./coverage/lcov.info"
+          coverage-format: lcov
+          base-directory: ./apps/storefront
+          additional-args: coverage/lcov.info
       - store_artifacts:
           path: ./apps/storefront/coverage/lcov-report
 
