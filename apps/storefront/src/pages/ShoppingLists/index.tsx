@@ -20,7 +20,7 @@ import { channelId, snackbar } from '@/utils';
 import AddEditShoppingLists from './AddEditShoppingLists';
 import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
 import { deleteB2BShoppingList } from './deleteB2BShoppingList';
-import { deleteBcShoppingList } from './deleteB2CShoppingList';
+import { deleteB2CShoppingList } from './deleteB2CShoppingList';
 import ShoppingListsCard from './ShoppingListsCard';
 
 interface RefCurrentProps extends HTMLInputElement {
@@ -35,7 +35,7 @@ function useData() {
     useAppSelector(rolePermissionSelector);
   const companyId = companyB2BId || salesRepCompanyId;
 
-  const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
+  const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteB2CShoppingList;
 
   const getUserShoppingLists = isB2BUser
     ? () => getShoppingListsCreatedByUser(Number(companyId), 1)
