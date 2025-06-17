@@ -2,19 +2,19 @@ import { Alert, AlertTitle, Box, Snackbar } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import { MsgsProps, TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
+import { platform } from '@/utils';
 
 interface B3TipProps extends TipMessagesProps {
   handleItemClose: (id: number | string) => void;
   handleAllClose: (id: string | number, reason: string) => void;
 }
 
-function MessageAlert({
-  msg,
-  onClose,
-}: {
+interface AlertProps {
   msg: MsgsProps;
   onClose: (id: string | number) => void;
-}) {
+}
+
+function MessageAlert({ msg, onClose }: AlertProps) {
   const Body = msg.jsx ? msg.jsx : () => <span>{msg.msg}</span>;
 
   return (
@@ -32,6 +32,69 @@ function MessageAlert({
         },
       }}
       variant="filled"
+      key={msg.id}
+      severity={msg.type}
+      onClose={() => msg.isClose && onClose(msg.id)}
+    >
+      {msg.title && <AlertTitle>{msg.title}</AlertTitle>}
+      <Body />
+    </Alert>
+  );
+}
+
+const CatalystColors = {
+  success: 'color-mix(in oklab, oklch(83.77% 0.214 142.31), white 75%)',
+  warning: 'color-mix(in oklab, oklch(83.42% 0.159 79.51), white 75%)',
+  info: 'color-mix(in oklab, oklch(49.07% 0.177 262.04), white 75%)',
+  error: 'color-mix(in oklab, oklch(64.89% 0.237 26.97), white 75%)',
+};
+
+function CatalystAlert({ msg, onClose }: AlertProps) {
+  const Body = msg.jsx
+    ? msg.jsx
+    : () => (
+        <span
+          style={{
+            textWrap: 'wrap',
+          }}
+        >
+          {msg.msg}
+        </span>
+      );
+
+  return (
+    <Alert
+      sx={{
+        background: CatalystColors[msg.type],
+        boxShadow: '0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(0, 0, 0, 0.05);',
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: 'oklab(0.1822 0 0 / 0.1)',
+        borderRadius: '12px',
+        alignItems: 'center',
+        minWidth: '284px',
+        mb: '5px',
+        padding: '12px 12px 12px 16px',
+        color: '#000',
+        fontWeight: 400,
+        letterSpacing: 'normal',
+        fontSize: '14px',
+        fontFamily:
+          'ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji',
+        textWrap: 'auto',
+
+        '& button[title="Close"]': {
+          display: msg.isClose ? 'flex' : 'none',
+        },
+
+        '& .MuiAlert-message': {
+          overflow: 'unset',
+          padding: 0,
+          whiteSpace: 'nowrap',
+        },
+      }}
+      variant="filled"
+      icon={false}
       key={msg.id}
       severity={msg.type}
       onClose={() => msg.isClose && onClose(msg.id)}
@@ -76,7 +139,11 @@ export default function B3Tip({
                   display: 'flex',
                 }}
               >
-                <MessageAlert msg={msg} onClose={handleItemClose} />
+                {platform === 'catalyst' ? (
+                  <CatalystAlert msg={msg} onClose={handleItemClose} />
+                ) : (
+                  <MessageAlert msg={msg} onClose={handleItemClose} />
+                )}
               </Box>
             </Snackbar>
           ))

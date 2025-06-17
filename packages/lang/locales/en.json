@@ -698,7 +698,7 @@
   "login.loginText.missingCaptcha": "The captcha you entered is incorrect. Please try again.",
 
   "pdp.notification.productsAdded": "Products were added to your shopping list",
-  "pdp.notification.viewShoppingList": "view shopping list",
+  "pdp.notification.viewShoppingList": "View shopping list",
   "pdp.addToShoppingList": "Add to shopping list",
 
   "forgotPassword.resetPassword": "Reset password",
