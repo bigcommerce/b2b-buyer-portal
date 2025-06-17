@@ -423,7 +423,7 @@ const duplicateCustomerShoppingList = (
   }
 }`;
 
-const deleteCustomerShoppingList = (id: number) => `mutation{
+const deleteCustomerShoppingList = (id: number) => `mutation DeleteCustomerShoppingList {
   customerShoppingListsDelete (id: ${id}) {
     message
   }

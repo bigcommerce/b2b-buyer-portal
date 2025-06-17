@@ -84,6 +84,35 @@ const buildB2BShoppingListResponseWith = builder(() => {
   };
 });
 
+const buildB2CShoppingListEdgeWith = builder(() => ({
+  node: {
+    id: faker.number.int().toString(),
+    name: faker.lorem.words(3),
+    description: faker.lorem.sentence(),
+    updatedAt: faker.date.past(),
+    products: {
+      totalCount: faker.number.int(),
+    },
+  },
+}));
+
+const buildB2CShoppingListResponseWith = builder(() => {
+  const numberOfShoppingLists = faker.number.int({ min: 1, max: 10 });
+
+  return {
+    data: {
+      customerShoppingLists: {
+        totalCount: faker.number.int({ min: numberOfShoppingLists }),
+        pageInfo: {
+          hasNextPage: faker.datatype.boolean(),
+          hasPreviousPage: faker.datatype.boolean(),
+        },
+        edges: bulk(buildB2CShoppingListEdgeWith, 'WHATEVER_VALUES').times(numberOfShoppingLists),
+      },
+    },
+  };
+});
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -873,6 +902,64 @@ describe('when the user is a B2B customer', () => {
 
       getB2BCustomerShoppingLists.mockReturnValueOnce(
         buildB2BShoppingListResponseWith({ data: { shoppingLists: { edges: [] } } }),
+      );
+
+      await userEvent.click(within(confirmDeleteModal).getByRole('button', { name: 'Delete' }));
+
+      const alert = await screen.findByRole('alert');
+
+      expect(
+        within(alert).getByText('The shopping list was successfully deleted'),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', { name: 'My outdated shopping list' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+});
+
+describe('when the user is a B2C customer', () => {
+  const nonCompany = buildCompanyStateWith({ customer: { b2bId: undefined } });
+  const preloadedState = { company: nonCompany };
+
+  describe('when deleting a shopping list succeeds', () => {
+    it('displays a success message and displays the shopping lists', async () => {
+      const deleteShoppingList = vi.fn();
+      const getB2CCustomerShoppingLists = vi.fn();
+
+      const outdatedList = buildB2CShoppingListEdgeWith({
+        node: { id: '123', name: 'My outdated shopping list' },
+      });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [outdatedList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(getB2CCustomerShoppingLists()),
+        ),
+        graphql.mutation('DeleteCustomerShoppingList', ({ query }) =>
+          HttpResponse.json(deleteShoppingList(query)),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(screen.getByRole('button', { name: 'delete' }));
+
+      const confirmDeleteModal = await screen.findByRole('dialog');
+
+      when(deleteShoppingList)
+        .calledWith(expect.stringContaining('id: 123'))
+        .thenReturn({ data: { customerShoppingListsDelete: { message: 'Success' } } });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({ data: { customerShoppingLists: { edges: [] } } }),
       );
 
       await userEvent.click(within(confirmDeleteModal).getByRole('button', { name: 'Delete' }));
