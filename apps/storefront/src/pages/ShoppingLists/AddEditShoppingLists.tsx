@@ -111,6 +111,7 @@ function AddEditShoppingLists(
           }
         }
 
+        // @ts-expect-error this all needs refactoring to give types a chance of matching
         await fn(params);
         handleCancelClick();
         snackbar.success(successTip);
