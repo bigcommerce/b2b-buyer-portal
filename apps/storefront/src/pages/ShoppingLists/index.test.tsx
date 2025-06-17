@@ -1101,7 +1101,7 @@ describe('when the user is a B2C customer', () => {
             description: 'Lots of good stuff in here',
           },
         })
-        .thenReturn({ data: { shoppingList: { shoppingList: newList } } });
+        .thenReturn({ data: { shoppingList: { shoppingList: { id: '123' } } } });
 
       getB2CCustomerShoppingLists.mockReturnValueOnce(
         buildB2CShoppingListResponseWith({ data: { customerShoppingLists: { edges: [newList] } } }),
