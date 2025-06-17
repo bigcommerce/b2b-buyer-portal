@@ -941,8 +941,8 @@ describe('when the user is a B2C customer', () => {
         graphql.query('CustomerShoppingLists', () =>
           HttpResponse.json(getB2CCustomerShoppingLists()),
         ),
-        graphql.mutation('DeleteCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(deleteShoppingList(query)),
+        graphql.mutation('DeleteCustomerShoppingList', ({ variables }) =>
+          HttpResponse.json(deleteShoppingList(variables)),
         ),
       );
 
@@ -955,7 +955,7 @@ describe('when the user is a B2C customer', () => {
       const confirmDeleteModal = await screen.findByRole('dialog');
 
       when(deleteShoppingList)
-        .calledWith(expect.stringContaining('id: 123'))
+        .calledWith({ id: 123 })
         .thenReturn({ data: { customerShoppingListsDelete: { message: 'Success' } } });
 
       getB2CCustomerShoppingLists.mockReturnValueOnce(
