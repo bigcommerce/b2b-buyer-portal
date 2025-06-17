@@ -1046,4 +1046,77 @@ describe('when the user is a B2C customer', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe('when creating a shopping list succeeds', () => {
+    it('displays a success message and displays the new shopping list in the results', async () => {
+      const createShoppingList = vi.fn();
+      const getB2CCustomerShoppingLists = vi.fn();
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(getB2CCustomerShoppingLists()),
+        ),
+        graphql.mutation('CreateCustomerShoppingList', ({ variables }) =>
+          HttpResponse.json(createShoppingList(variables)),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(screen.getByRole('button', { name: /Create New/i }));
+
+      const createNewModal = await screen.findByRole('dialog');
+
+      await userEvent.type(
+        within(createNewModal).getByRole('textbox', { name: 'Name' }),
+        'My new shopping list',
+      );
+
+      await userEvent.type(
+        within(createNewModal).getByRole('textbox', { name: 'Description' }),
+        'Lots of good stuff in here',
+      );
+
+      const newList = buildB2CShoppingListEdgeWith({
+        node: {
+          name: 'My new shopping list',
+          description: 'Lots of good stuff in here',
+          id: '123',
+        },
+      });
+
+      when(createShoppingList)
+        .calledWith({
+          shoppingListData: {
+            channelId: 1,
+            name: 'My new shopping list',
+            description: 'Lots of good stuff in here',
+          },
+        })
+        .thenReturn({ data: { shoppingList: { shoppingList: newList } } });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({ data: { customerShoppingLists: { edges: [newList] } } }),
+      );
+
+      await userEvent.click(within(createNewModal).getByRole('button', { name: 'Save' }));
+
+      const alert = await screen.findByRole('alert');
+
+      expect(
+        within(alert).getByText('The shopping list was successfully added'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'My new shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
 });
