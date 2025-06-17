@@ -5,7 +5,6 @@ import { useB3Lang } from '@b3/lang';
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import {
-  createBcShoppingList,
   duplicateB2BShoppingList,
   duplicateBcShoppingList,
   updateB2BShoppingList,
@@ -21,6 +20,7 @@ import {
   ShoppingListsItemsProps,
 } from './config';
 import { createB2BShoppingList } from './createB2BShoppingList';
+import { createBcShoppingList } from './createBcShoppingList';
 
 interface AddEditUserProps {
   renderList: () => void;
