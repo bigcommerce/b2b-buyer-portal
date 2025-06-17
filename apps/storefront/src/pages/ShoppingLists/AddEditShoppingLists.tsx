@@ -80,7 +80,10 @@ function AddEditShoppingLists(
           ...data,
         };
 
-        let fn = isB2BUser ? createB2BShoppingList : createBcShoppingList;
+        // @ts-expect-error this all needs refactoring to give types a chance of matching
+        let fn: (params: typeof params) => Promise<unknown> = isB2BUser
+          ? createB2BShoppingList
+          : createBcShoppingList;
         let successTip = b3Lang('shoppingLists.addSuccess');
         if (type === 'edit') {
           if (isB2BUser) {
@@ -111,7 +114,6 @@ function AddEditShoppingLists(
           }
         }
 
-        // @ts-expect-error this all needs refactoring to give types a chance of matching
         await fn(params);
         handleCancelClick();
         snackbar.success(successTip);

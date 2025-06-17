@@ -1,39 +1,34 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 
-interface ShoppingListParams {
-  id: string | number;
-  sampleShoppingListId: string | number;
-  name: string;
-  description: string;
-  status: number;
-  channelId: number;
-  companyId: number;
+const createCustomerShoppingList = `
+  mutation CreateCustomerShoppingList($shoppingListData: CustomerShoppingListsInputType!) {
+    customerShoppingListsCreate(shoppingListData: $shoppingListData) {
+      shoppingList {
+        id,
+      }
+    }
+  }
+`;
+
+interface CreateCustomerShoppingListResponse {
+  data: {
+    customerShoppingListsCreate: {
+      shoppingList: {
+        id: string;
+      };
+    };
+  };
 }
 
-const getCustomerShoppingListInfo = `
-shoppingList {
-  id,
-  name,
-  description,
-  grandTotal,
-  totalDiscount,
-  totalTax,
-  isShowGrandTotal,
-}`;
+interface ShoppingListParams {
+  name: string;
+  description: string;
+  channelId: number;
+}
 
-const createCustomerShoppingList = (
-  fn: string,
-) => `mutation CreateCustomerShoppingList ($shoppingListData: CustomerShoppingListsInputType!){
-  ${fn}(
-    shoppingListData: $shoppingListData
-  ) {
-    ${getCustomerShoppingListInfo}
-  }
-}`;
-
-export const createBcShoppingList = (data: Partial<ShoppingListParams>) =>
-  B3Request.graphqlB2B({
-    query: createCustomerShoppingList('customerShoppingListsCreate'),
+export const createBcShoppingList = (data: ShoppingListParams) =>
+  B3Request.graphqlB2B<CreateCustomerShoppingListResponse>({
+    query: createCustomerShoppingList,
     variables: {
       shoppingListData: {
         name: data.name,
