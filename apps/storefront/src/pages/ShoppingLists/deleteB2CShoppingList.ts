@@ -16,7 +16,7 @@ interface DeleteShoppingListResponse {
   };
 }
 
-export const deleteBcShoppingList = (id: number | string) =>
+export const deleteB2CShoppingList = (id: number | string) =>
   B3Request.graphqlB2B<DeleteShoppingListResponse>({
     query: deleteCustomerShoppingList,
     variables: { id: Number(id) },
