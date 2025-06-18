@@ -478,7 +478,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const handleSubmit = async () => {
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
+
     try {
       const info = cloneDeep(quoteInfoOrigin);
       if (isEdit && contactInfoRef?.current) {
@@ -802,6 +807,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                   <CustomButton
                     variant="contained"
                     size="small"
+                    disabled={loading}
                     sx={{
                       height: '38px',
                       width: '90%',
@@ -815,6 +821,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                 <CustomButton
                   variant="contained"
                   size="small"
+                  disabled={loading}
                   sx={{
                     padding: '8px 22px',
                     alignSelf: 'center',
