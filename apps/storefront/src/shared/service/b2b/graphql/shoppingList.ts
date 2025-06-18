@@ -404,7 +404,7 @@ const updateCustomerShoppingList = (
 
 const createCustomerShoppingList = (
   fn: string,
-) => `mutation CreateCustomerShoppingList ($shoppingListData: CustomerShoppingListsInputType!){
+) => `mutation($shoppingListData: CustomerShoppingListsInputType!){
   ${fn}(
     shoppingListData: $shoppingListData
   ) {
