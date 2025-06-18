@@ -423,6 +423,12 @@ const duplicateCustomerShoppingList = (
   }
 }`;
 
+const deleteCustomerShoppingList = (id: number) => `mutation{
+  customerShoppingListsDelete (id: ${id}) {
+    message
+  }
+}`;
+
 const getCustomerShoppingListDetails = (data: CustomFieldItems) => `{
   customerShoppingList (
     id: ${data.id}
@@ -660,6 +666,11 @@ export const duplicateBcShoppingList = (data: Partial<ShoppingListParams>) =>
         description: data.description,
       },
     },
+  });
+
+export const deleteBcShoppingList = (id: number) =>
+  B3Request.graphqlB2B({
+    query: deleteCustomerShoppingList(id),
   });
 
 export const getBcShoppingListDetails = (data: CustomFieldItems = {}) =>
