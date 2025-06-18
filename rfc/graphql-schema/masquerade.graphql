@@ -1,0 +1,17 @@
+type MasqueradeInfo {
+  company: Company!
+}
+
+extend type Query {
+  masquerade: MasqueradeInfo
+}
+
+# Not too sure about this, serving as a placeholder for the real mutation result
+type MasqueradeResult {
+  success: Boolean!
+}
+
+extend type Mutation {
+  startMasquerade(companyId: ID!): MasqueradeResult
+  endMasquerade: MasqueradeResult
+}
