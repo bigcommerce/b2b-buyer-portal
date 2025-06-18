@@ -285,9 +285,9 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
         },
         cart: {
-          setEntityId: (entityId) => {
+          setEntityId: async (entityId) => {
             Cookies.set('cartId', entityId);
-            b3TriggerCartNumber();
+            await b3TriggerCartNumber();
           },
           getEntityId: () => Cookies.get('cartId'),
         },
