@@ -138,7 +138,7 @@ const createShoppingList = (fn: string) => `mutation($shoppingListData: Shopping
 
 const duplicateShoppingList = (
   fn: string,
-) => `mutation($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
+) => `mutation DuplicateB2BShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
   ${fn}(
     sampleShoppingListId: $sampleShoppingListId
     shoppingListData: $shoppingListData
