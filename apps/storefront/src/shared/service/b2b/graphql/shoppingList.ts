@@ -136,17 +136,6 @@ const createShoppingList = (fn: string) => `mutation($shoppingListData: Shopping
   }
 }`;
 
-const duplicateShoppingList = (
-  fn: string,
-) => `mutation DuplicateB2BShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
-  ${fn}(
-    sampleShoppingListId: $sampleShoppingListId
-    shoppingListData: $shoppingListData
-  ) {
-    ${getShoppingListInfo}
-  }
-}`;
-
 const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
   shoppingListsItemsUpdate(
     itemId: ${data.itemId}
@@ -585,19 +574,6 @@ export const updateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
     query: updateShoppingList('shoppingListsUpdate'),
     variables: {
       id: data?.id ? Number(data.id) : 1,
-      shoppingListData: {
-        name: data.name,
-        description: data.description,
-        status: data.status,
-      },
-    },
-  });
-
-export const duplicateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
-  B3Request.graphqlB2B({
-    query: duplicateShoppingList('shoppingListsDuplicate'),
-    variables: {
-      sampleShoppingListId: data?.sampleShoppingListId ? Number(data.sampleShoppingListId) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
