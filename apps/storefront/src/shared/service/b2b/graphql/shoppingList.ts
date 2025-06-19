@@ -401,17 +401,6 @@ const createCustomerShoppingList = (
   }
 }`;
 
-const duplicateCustomerShoppingList = (
-  fn: string,
-) => `mutation DuplicateB2CShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
-  ${fn}(
-    sampleShoppingListId: $sampleShoppingListId
-    shoppingListData: $shoppingListData
-  ) {
-    ${getCustomerShoppingListInfo}
-  }
-}`;
-
 const deleteCustomerShoppingList = (id: number) => `mutation{
   customerShoppingListsDelete (id: ${id}) {
     message
@@ -628,18 +617,6 @@ export const updateBcShoppingList = (data: Partial<ShoppingListParams>) =>
         name: data.name,
         description: data.description,
         channelId: data?.channelId ? Number(data.channelId) : 1,
-      },
-    },
-  });
-
-export const duplicateBcShoppingList = (data: Partial<ShoppingListParams>) =>
-  B3Request.graphqlB2B({
-    query: duplicateCustomerShoppingList('customerShoppingListsDuplicate'),
-    variables: {
-      sampleShoppingListId: data?.sampleShoppingListId ? Number(data.sampleShoppingListId) : 1,
-      shoppingListData: {
-        name: data.name,
-        description: data.description,
       },
     },
   });
