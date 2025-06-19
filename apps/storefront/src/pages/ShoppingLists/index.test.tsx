@@ -1199,4 +1199,87 @@ describe('when the user is a B2C customer', () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe('when duplicating a shopping list succeeds', () => {
+    it('displays a success message and displays the new shopping list in the results', async () => {
+      const duplicateShoppingList = vi.fn();
+      const getB2CCustomerShoppingLists = vi.fn();
+
+      const originalList = buildB2CShoppingListEdgeWith({
+        node: {
+          name: 'My original shopping list',
+          description: 'Lots of good stuff in here',
+          id: '123',
+        },
+      });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [originalList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(getB2CCustomerShoppingLists()),
+        ),
+        graphql.mutation('DuplicateB2CShoppingList', ({ variables }) =>
+          HttpResponse.json(duplicateShoppingList(variables)),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(screen.getByRole('button', { name: /duplicate/i }));
+
+      const createNewModal = await screen.findByRole('dialog');
+
+      const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'My copied shopping list');
+
+      const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+      await userEvent.clear(descriptionField);
+      await userEvent.type(descriptionField, 'Even more good stuff in here');
+
+      const duplicateList = buildB2CShoppingListEdgeWith({
+        node: {
+          name: 'My copied shopping list',
+          description: 'Even more good stuff in here',
+          id: '456',
+        },
+      });
+
+      when(duplicateShoppingList)
+        .calledWith({
+          sampleShoppingListId: 123,
+          shoppingListData: {
+            description: 'Even more good stuff in here',
+            name: 'My copied shopping list',
+          },
+        })
+        .thenReturn({
+          data: { shoppingListsDuplicate: { shoppingList: duplicateList } },
+        });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [originalList, duplicateList] } },
+        }),
+      );
+
+      await userEvent.click(within(createNewModal).getByRole('button', { name: 'Save' }));
+
+      const alert = await screen.findByRole('alert');
+
+      expect(
+        within(alert).getByText('The shopping list was successfully duplicated'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'My copied shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
 });
