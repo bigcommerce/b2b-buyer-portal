@@ -1,42 +1,34 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 
-interface ShoppingListParams {
-  id: string | number;
+const duplicateCustomerShoppingList = `
+  mutation DuplicateB2CShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
+    customerShoppingListsDuplicate(sampleShoppingListId: $sampleShoppingListId, shoppingListData: $shoppingListData) {
+      shoppingList {
+        id,
+      }
+    }
+  }
+`;
+
+interface DuplicateB2CShoppingListResponse {
+  customerShoppingListsDuplicate: {
+    shoppingList: {
+      id: number;
+    };
+  };
+}
+
+interface ShoppingListVariables {
   sampleShoppingListId: string | number;
   name: string;
   description: string;
-  status: number;
-  channelId: number;
-  companyId: number;
 }
 
-const getCustomerShoppingListInfo = `
-shoppingList {
-  id,
-  name,
-  description,
-  grandTotal,
-  totalDiscount,
-  totalTax,
-  isShowGrandTotal,
-}`;
-
-const duplicateCustomerShoppingList = (
-  fn: string,
-) => `mutation DuplicateB2CShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
-  ${fn}(
-    sampleShoppingListId: $sampleShoppingListId
-    shoppingListData: $shoppingListData
-  ) {
-    ${getCustomerShoppingListInfo}
-  }
-}`;
-
-export const duplicateBcShoppingList = (data: Partial<ShoppingListParams>) =>
-  B3Request.graphqlB2B({
-    query: duplicateCustomerShoppingList('customerShoppingListsDuplicate'),
+export const duplicateB2CShoppingList = (data: ShoppingListVariables) =>
+  B3Request.graphqlB2B<DuplicateB2CShoppingListResponse>({
+    query: duplicateCustomerShoppingList,
     variables: {
-      sampleShoppingListId: data?.sampleShoppingListId ? Number(data.sampleShoppingListId) : 1,
+      sampleShoppingListId: Number(data.sampleShoppingListId),
       shoppingListData: {
         name: data.name,
         description: data.description,

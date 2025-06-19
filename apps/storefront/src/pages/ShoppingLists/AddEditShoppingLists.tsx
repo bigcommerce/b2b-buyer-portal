@@ -17,7 +17,7 @@ import {
 import { createB2BShoppingList } from './createB2BShoppingList';
 import { createBcShoppingList } from './createBcShoppingList';
 import { duplicateB2BShoppingList } from './duplicateB2BShoppingList';
-import { duplicateBcShoppingList } from './duplicateB2CShoppingList';
+import { duplicateB2CShoppingList } from './duplicateB2CShoppingList';
 
 interface AddEditUserProps {
   renderList: () => void;
@@ -94,7 +94,7 @@ function AddEditShoppingLists(
           params.id = editData?.id || 0;
           successTip = b3Lang('shoppingLists.updateSuccess');
         } else if (type === 'dup') {
-          fn = isB2BUser ? duplicateB2BShoppingList : duplicateBcShoppingList;
+          fn = isB2BUser ? duplicateB2BShoppingList : duplicateB2CShoppingList;
           params.sampleShoppingListId = editData?.id || 0;
           successTip = b3Lang('shoppingLists.duplicateSuccess');
         } else if (type === 'add') {
