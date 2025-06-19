@@ -1365,4 +1365,88 @@ describe('when the user is a B2C customer', () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe('when updating a shopping list succeeds', () => {
+    it('displays a success message and displays the updated shopping list in the results', async () => {
+      const updateShoppingList = vi.fn();
+      const getB2CCustomerShoppingLists = vi.fn();
+
+      const originalList = buildB2CShoppingListEdgeWith({
+        node: {
+          name: 'My original shopping list',
+          description: 'Lots of good stuff in here',
+          id: '123',
+        },
+      });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [originalList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(getB2CCustomerShoppingLists()),
+        ),
+        graphql.mutation('UpdateB2CShoppingList', ({ variables }) =>
+          HttpResponse.json(updateShoppingList(variables)),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(screen.getByRole('button', { name: /edit/i }));
+
+      const createNewModal = await screen.findByRole('dialog');
+
+      const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'My much improved shopping list');
+
+      const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+      await userEvent.clear(descriptionField);
+      await userEvent.type(descriptionField, 'Even more good stuff in here');
+
+      const updatedList = buildB2CShoppingListEdgeWith({
+        node: {
+          name: 'My much improved shopping list',
+          description: 'Even more good stuff in here',
+          id: originalList.node.id,
+        },
+      });
+
+      when(updateShoppingList)
+        .calledWith({
+          id: 123,
+          shoppingListData: {
+            channelId: 1,
+            description: 'Even more good stuff in here',
+            name: 'My much improved shopping list',
+          },
+        })
+        .thenReturn({
+          data: { shoppingList: updatedList },
+        });
+
+      getB2CCustomerShoppingLists.mockReturnValueOnce(
+        buildB2CShoppingListResponseWith({
+          data: { customerShoppingLists: { edges: [updatedList] } },
+        }),
+      );
+
+      await userEvent.click(within(createNewModal).getByRole('button', { name: 'Save' }));
+
+      const alert = await screen.findByRole('alert');
+
+      expect(
+        within(alert).getByText('The shopping list was successfully updated'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'My much improved shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
 });
