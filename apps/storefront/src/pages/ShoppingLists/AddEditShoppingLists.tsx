@@ -4,11 +4,7 @@ import { useB3Lang } from '@b3/lang';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
-import {
-  duplicateBcShoppingList,
-  updateB2BShoppingList,
-  updateBcShoppingList,
-} from '@/shared/service/b2b';
+import { updateB2BShoppingList, updateBcShoppingList } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { channelId, snackbar } from '@/utils';
@@ -21,6 +17,7 @@ import {
 import { createB2BShoppingList } from './createB2BShoppingList';
 import { createBcShoppingList } from './createBcShoppingList';
 import { duplicateB2BShoppingList } from './duplicateB2BShoppingList';
+import { duplicateBcShoppingList } from './duplicateB2CShoppingList';
 
 interface AddEditUserProps {
   renderList: () => void;
