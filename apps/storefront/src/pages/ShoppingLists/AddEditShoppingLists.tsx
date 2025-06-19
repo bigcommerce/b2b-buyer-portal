@@ -18,7 +18,7 @@ import { createBcShoppingList } from './createBcShoppingList';
 import { duplicateB2BShoppingList } from './duplicateB2BShoppingList';
 import { duplicateB2CShoppingList } from './duplicateB2CShoppingList';
 import { updateB2BShoppingListDetails } from './updateB2BShoppingListDetails';
-import { updateBcShoppingList } from './updateB2CShoppingListDetails';
+import { updateB2CShoppingListDetails } from './updateB2CShoppingListDetails';
 
 interface AddEditUserProps {
   renderList: () => void;
@@ -88,7 +88,7 @@ function AddEditShoppingLists(
             fn = updateB2BShoppingListDetails;
             params.status = editData?.status;
           } else {
-            fn = updateBcShoppingList;
+            fn = updateB2CShoppingListDetails;
             params.channelId = channelId;
           }
 
