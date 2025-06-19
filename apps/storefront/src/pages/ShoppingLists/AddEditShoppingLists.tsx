@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
-import { updateB2BShoppingList, updateBcShoppingList } from '@/shared/service/b2b';
+import { updateBcShoppingList } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { channelId, snackbar } from '@/utils';
@@ -18,6 +18,7 @@ import { createB2BShoppingList } from './createB2BShoppingList';
 import { createBcShoppingList } from './createBcShoppingList';
 import { duplicateB2BShoppingList } from './duplicateB2BShoppingList';
 import { duplicateB2CShoppingList } from './duplicateB2CShoppingList';
+import { updateB2BShoppingListDetails } from './updateB2BShoppingListDetails';
 
 interface AddEditUserProps {
   renderList: () => void;
@@ -84,7 +85,7 @@ function AddEditShoppingLists(
         let successTip = b3Lang('shoppingLists.addSuccess');
         if (type === 'edit') {
           if (isB2BUser) {
-            fn = updateB2BShoppingList;
+            fn = updateB2BShoppingListDetails;
             params.status = editData?.status;
           } else {
             fn = updateBcShoppingList;
