@@ -18,7 +18,7 @@ import { createB2BShoppingList } from './createB2BShoppingList';
 import { createBcShoppingList } from './createBcShoppingList';
 import { duplicateB2BShoppingList } from './duplicateB2BShoppingList';
 import { duplicateB2CShoppingList } from './duplicateB2CShoppingList';
-import { updateB2BShoppingList } from './updateB2BShoppingListDetails';
+import { updateB2BShoppingListDetails } from './updateB2BShoppingListDetails';
 
 interface AddEditUserProps {
   renderList: () => void;
@@ -85,7 +85,7 @@ function AddEditShoppingLists(
         let successTip = b3Lang('shoppingLists.addSuccess');
         if (type === 'edit') {
           if (isB2BUser) {
-            fn = updateB2BShoppingList;
+            fn = updateB2BShoppingListDetails;
             params.status = editData?.status;
           } else {
             fn = updateBcShoppingList;

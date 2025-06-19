@@ -1,64 +1,39 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 
-interface ShoppingListParams {
-  id: string | number;
-  sampleShoppingListId: string | number;
-  name: string;
-  description: string;
-  status: number;
-  channelId: number;
-  companyId: number;
-}
-
-const getShoppingListInfo = `shoppingList {
-  id,
-  name,
-  description,
-  status,
-  approvedFlag,
-  customerInfo{
-    firstName,
-    lastName,
-    userId,
-    email,
-  },
-  isOwner,
-  grandTotal,
-  totalDiscount,
-  totalTax,
-  isShowGrandTotal,
-  companyInfo {
-    companyId,
-    companyName,
-    companyAddress,
-    companyCountry,
-    companyState,
-    companyCity,
-    companyZipCode,
-    phoneNumber,
-    bcId,
-  },
-}`;
-
-const updateShoppingList = (fn: string) => `
+const updateShoppingList = `
   mutation UpdateB2BShoppingList ($id: Int!, $shoppingListData: ShoppingListsInputType!) {
-    ${fn}(
-      id: $id
-      shoppingListData: $shoppingListData
-    ) {
-      ${getShoppingListInfo}
+    shoppingListsUpdate(id: $id, shoppingListData: $shoppingListData) {
+      shoppingList {
+        id
+      }
     }
   }
 `;
 
-export const updateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
-  B3Request.graphqlB2B({
-    query: updateShoppingList('shoppingListsUpdate'),
+interface B2BShoppingListUpdateResponse {
+  shoppingListsUpdate: {
+    shoppingList: {
+      id: number;
+    };
+  };
+}
+
+interface ShoppingListVariables {
+  id: string | number;
+  name: string;
+  description: string;
+  status: number;
+}
+
+export const updateB2BShoppingListDetails = (data: ShoppingListVariables) =>
+  B3Request.graphqlB2B<B2BShoppingListUpdateResponse>({
+    query: updateShoppingList,
     variables: {
-      id: data?.id ? Number(data.id) : 1,
+      id: Number(data.id),
       shoppingListData: {
         name: data.name,
         description: data.description,
+        // passes back original status, not editable in the UI
         status: data.status,
       },
     },
