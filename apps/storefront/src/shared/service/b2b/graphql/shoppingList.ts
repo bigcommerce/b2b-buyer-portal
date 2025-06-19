@@ -382,7 +382,7 @@ shoppingList {
 
 const updateCustomerShoppingList = (
   fn: string,
-) => `mutation UpdateB2CShoppingList($id: Int!, $shoppingListData: CustomerShoppingListsInputType!){
+) => `mutation($id: Int!, $shoppingListData: CustomerShoppingListsInputType!){
   ${fn}(
     id: $id
     shoppingListData: $shoppingListData
