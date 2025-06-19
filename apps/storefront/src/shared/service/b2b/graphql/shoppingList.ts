@@ -403,7 +403,7 @@ const createCustomerShoppingList = (
 
 const duplicateCustomerShoppingList = (
   fn: string,
-) => `mutation($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
+) => `mutation DuplicateB2CShoppingList($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
   ${fn}(
     sampleShoppingListId: $sampleShoppingListId
     shoppingListData: $shoppingListData
