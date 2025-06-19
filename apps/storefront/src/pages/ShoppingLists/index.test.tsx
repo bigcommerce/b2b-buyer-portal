@@ -854,6 +854,7 @@ describe('when the user is a B2B customer', () => {
     permissions: [
       { code: 'delete_shopping_list_item', permissionLevel: 1 },
       { code: 'create_shopping_list', permissionLevel: 1 },
+      { code: 'update_shopping_list_item', permissionLevel: 1 },
     ],
     companyInfo: { status: CompanyStatus.APPROVED },
     customer: { userType: UserTypes.MULTIPLE_B2C, firstName: 'John', lastName: 'Doe' },
@@ -1065,6 +1066,88 @@ describe('when the user is a B2B customer', () => {
       ).toBeInTheDocument();
       expect(
         await screen.findByRole('heading', { name: 'My copied shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when updating a shopping list succeeds', () => {
+    it('displays a success message and displays the updated shopping list in the results', async () => {
+      const updateB2BShoppingListDetails = vi.fn();
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const originalList = buildB2BShoppingListNodeWith({
+        name: 'My original shopping list',
+        description: 'Lots of good stuff in here',
+        id: '123',
+      });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({ data: { shoppingLists: { edges: [originalList] } } }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', () =>
+          HttpResponse.json(getB2BCustomerShoppingLists()),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+        ),
+        graphql.mutation('UpdateB2BShoppingList', ({ variables }) =>
+          HttpResponse.json(updateB2BShoppingListDetails(variables)),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const editButtons = await screen.findAllByRole('button', { name: /edit/i });
+
+      // editButtons[0] is the search filter button :/
+      await userEvent.click(editButtons[1]);
+
+      const createNewModal = await screen.findByRole('dialog');
+
+      const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'My updated shopping list');
+
+      const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+      await userEvent.clear(descriptionField);
+      await userEvent.type(descriptionField, 'Needs more good stuff in here');
+
+      const updatedList = buildB2BShoppingListNodeWith({
+        ...originalList,
+        name: 'My updated shopping list',
+        description: 'Needs more good stuff in here',
+      });
+
+      when(updateB2BShoppingListDetails)
+        .calledWith({
+          id: 123,
+          shoppingListData: {
+            name: 'My updated shopping list',
+            description: 'Needs more good stuff in here',
+            status: originalList.status,
+          },
+        })
+        .thenReturn({
+          data: { shoppingListsUpdate: { shoppingList: updatedList } },
+        });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({ data: { shoppingLists: { edges: [updatedList] } } }),
+      );
+
+      await userEvent.click(within(createNewModal).getByRole('button', { name: 'Save' }));
+
+      const alert = await screen.findByRole('alert');
+
+      expect(
+        within(alert).getByText('The shopping list was successfully updated'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'My updated shopping list' }),
       ).toBeInTheDocument();
     });
   });
