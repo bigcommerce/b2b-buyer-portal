@@ -126,7 +126,7 @@ export default function B3Tip({
               disableWindowBlurListener
               anchorOrigin={{
                 vertical,
-                horizontal,
+                horizontal: isMobile && platform === 'catalyst' ? 'left' : horizontal,
               }}
               sx={{
                 top: `${24 + index * 10 + index * (isMobile ? 80 : 90)}px !important`,
