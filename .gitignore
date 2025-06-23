@@ -35,3 +35,6 @@ yarn-error.log*
 .vscode
 
 slack-message.json
+
+# generated graphql POC schema
+supergraph.graphql
