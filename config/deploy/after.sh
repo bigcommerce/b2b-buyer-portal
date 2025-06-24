@@ -27,18 +27,11 @@ tee create_revision_payload.json <<EOF >/dev/null
 }
 EOF
 
-if [[ $ENVIRONMENT =~ "production-tier1" ]]; then
+if [[ $ENVIRONMENT =~ "production" ]]; then
   tee deploy_revision_payload.json <<EOF >/dev/null
 {
 "deploy_all": false,
 "store_hashes": $(cat deployment/production-tier1.json),
-"revision": "${REVISION_TITLE}"
-}
-EOF
-else
-  tee deploy_revision_payload.json <<EOF >/dev/null
-{
-"deploy_all": true,
 "revision": "${REVISION_TITLE}"
 }
 EOF
