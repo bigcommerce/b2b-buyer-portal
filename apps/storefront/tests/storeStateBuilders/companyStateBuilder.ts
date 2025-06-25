@@ -45,6 +45,7 @@ export const buildCompanyStateWith = builder<CompanyState & PersistPartial>(() =
     shoppingLists: false,
     quotes: false,
     companyHierarchy: false,
+    quickOrderPad: false,
   },
   _persist: {
     version: 1,

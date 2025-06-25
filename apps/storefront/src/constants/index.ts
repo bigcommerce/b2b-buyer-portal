@@ -105,6 +105,7 @@ export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = [
   { key: 'shoppingLists', path: HeadlessRoutes.SHOPPING_LISTS },
   { key: 'quotes', path: HeadlessRoutes.QUOTES },
   { key: 'companyHierarchy', path: HeadlessRoutes.COMPANY_HIERARCHY },
+  { key: 'quickOrderPad', path: HeadlessRoutes.PURCHASED_PRODUCTS },
 ] as const;
 
 export const LOGIN_LANDING_LOCATIONS = {
