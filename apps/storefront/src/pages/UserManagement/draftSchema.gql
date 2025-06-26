@@ -1,0 +1,178 @@
+interface Node {
+  id: ID!
+}
+
+input UsersFiltersInput {
+  search: String
+  companyRoleId: ID
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+enum StandardUserRole {
+  ADMIN
+  JUNIOR_BUYER
+  SENIOR_BUYER
+}
+
+type StandardRole {
+  type: StandardUserRole!
+}
+
+type CustomRole {
+  id: ID!
+  name: String!
+}
+
+union Role = StandardRole | CustomRole
+
+# If a user is in many companies, is there a unique user per company?
+type User implements Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  # feels odd to have something contextual (which company) in the user object
+  # as it's the "company" they're currently acting as
+  role: Role!
+  # "formFields" is the same type as defined by Storefront
+  # commented out to avoid duplication and to keep this schema valid
+  # formFields: [CustomerFormFieldValue!]!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type UsersConnection {
+  pageInfo: PageInfo!
+  edges: [UserEdge!]
+}
+
+# Placeholder for custom fields
+# These are probably already defined in the Storefront schema somewhere..?
+type CustomTextField implements Node {
+  id: ID!
+  # Plus other important properties...
+}
+
+type CustomSelectField implements Node {
+  id: ID!
+  # Plus other important properties...
+}
+
+union CustomField = CustomTextField | CustomSelectField # etc etc
+type Query {
+  # does this need to namespaced under "company"?
+  # or UsersByCompany?
+  # or do we need to keep in mind heirarchical companies?
+  Users(
+    # should companyId be mandatory? If so, should it be outside of the filters?
+    # could/should this be an array of ids?
+    companyId: ID!
+    filters: UsersFiltersInput
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): UsersConnection!
+  UserCustomFields: [CustomField!]!
+}
+
+type ChangeRoleResult {
+  user: User!
+}
+
+input ChangeStandardRoleInput {
+  companyId: ID!
+  userId: ID!
+  role: StandardUserRole!
+}
+
+input ChangeCustomRoleInput {
+  companyId: ID!
+  userId: ID!
+  roleId: ID!
+}
+
+input UpdateUserDetailsInput {
+  firstName: String
+  lastName: String
+  phone: String
+  # "formFields" is the same input as defined by Storefront
+  # commented out to avoid duplication and to keep this schema valid
+  # formFields: CustomerFormFieldsInput
+}
+
+type UpdateUserResult {
+  user: User!
+}
+
+interface Error {
+  message: String!
+}
+
+# Placeholder for real domain errors
+type SomeDeregistrationUserError implements Error {
+  message: String!
+}
+
+type DeregistrationUserResult {
+  # A union of different errors that can occur during deregistration
+  # Each implementing the Error interface
+  errors: [SomeDeregistrationUserError!]!
+}
+
+input NewUserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  # assuming we can unify standard and custom roles by one ID
+  roleId: ID!
+  phone: String
+  # "formFields" is the same input as defined by Storefront
+  # commented out to avoid duplication and to keep this schema valid
+  # formFields: CustomerFormFieldsInput
+}
+
+type UserEmailTakenError implements Error {
+  message: String!
+}
+
+# Placeholder for real domain errors
+type SomeRegisterUserError implements Error {
+  message: String!
+}
+
+union RegisterUserError = UserEmailTakenError | SomeRegisterUserError
+
+type RegisterUserResult {
+  user: User
+  errors: [RegisterUserError!]!
+}
+
+# Do we need to keep passing in companyId? Or are userIds enough to identify the user?
+type UserMutations {
+  # split as you cannot take unions as an input
+  # if we treat StandardRoles as IDs (and they do not overlap with CustomRoles)
+  # then we could have a single changeRole mutation
+  changeStandardRole(companyId: ID!, userId: ID!, role: StandardUserRole!): ChangeRoleResult!
+  changeCustomRole(companyId: ID!, userId: ID!, roleId: ID!): ChangeRoleResult!
+  updateUserDetails(companyId: ID!, userId: ID!, input: UpdateUserDetailsInput!): UpdateUserResult!
+  # previously DeleteUser - needs more thought
+  # "Delete" sets off CRUD alarms and implies cascading deletes leading to ownerless data and poor auditability
+  deregisterUser(companyId: ID!, userId: ID!): DeregistrationUserResult!
+
+  registerUser(companyId: ID!, input: NewUserInput!): RegisterUserResult!
+}
+
+type Mutation {
+  # should user also be namespaced under "company"?
+  user: UserMutations!
+}
