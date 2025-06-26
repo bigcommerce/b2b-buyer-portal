@@ -40,6 +40,7 @@ module.exports = {
           testFilesRegex,
           '\\.d\\.ts$',
           '^tests/setup-test-environment.ts',
+          '^tests/jsdom-polyfills.ts',
           '^tests/global-setup.ts',
         ],
         numberOfDependentsLessThan: 1,

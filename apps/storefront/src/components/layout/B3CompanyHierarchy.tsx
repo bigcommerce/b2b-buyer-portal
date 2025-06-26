@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import CheckIcon from '@mui/icons-material/Check';
+import { Check as CheckIcon } from '@mui/icons-material';
 import { Box, Chip, Grid } from '@mui/material';
 
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';

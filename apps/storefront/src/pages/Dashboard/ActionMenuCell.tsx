@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 

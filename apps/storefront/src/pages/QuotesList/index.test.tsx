@@ -444,7 +444,9 @@ describe('when the user is a B2B customer', () => {
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListB2B>()
+        .mockReturnValue(allQuotes);
 
       const getQuotesListQuerySpy = vitest.fn();
 
@@ -496,7 +498,9 @@ describe('when the user is a B2B customer', () => {
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListB2B>()
+        .mockReturnValue(allQuotes);
 
       const getQuotesListQuerySpy = vitest.fn();
 
@@ -555,7 +559,9 @@ describe('when the user is a B2B customer', () => {
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListB2B>()
+        .mockReturnValue(allQuotes);
       const getQuotesListQuerySpy = vitest.fn();
 
       server.use(
@@ -621,7 +627,9 @@ describe('when the user is a B2B customer', () => {
         data: { quotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListB2B>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListB2B>()
+        .mockReturnValue(allQuotes);
       const getQuotesListQuerySpy = vitest.fn();
 
       server.use(
@@ -925,7 +933,9 @@ describe('when the user is a B2C customer', () => {
         data: { customerQuotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListBC>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListBC>()
+        .mockReturnValue(allQuotes);
 
       const getQuotesListQuerySpy = vitest.fn();
 
@@ -974,7 +984,9 @@ describe('when the user is a B2C customer', () => {
         data: { customerQuotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListBC>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListBC>()
+        .mockReturnValue(allQuotes);
 
       const getQuotesListQuerySpy = vitest.fn();
 
@@ -1030,7 +1042,9 @@ describe('when the user is a B2C customer', () => {
         data: { customerQuotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListBC>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListBC>()
+        .mockReturnValue(allQuotes);
       const getQuotesListQuerySpy = vitest.fn();
 
       server.use(
@@ -1093,7 +1107,9 @@ describe('when the user is a B2C customer', () => {
         data: { customerQuotes: { totalCount: 2, edges: [manySocks, someTrousers] } },
       });
 
-      const getQuotesList = vitest.fn<unknown[], QuotesListBC>().mockReturnValue(allQuotes);
+      const getQuotesList = vitest
+        .fn<(...args: unknown[]) => QuotesListBC>()
+        .mockReturnValue(allQuotes);
       const getQuotesListQuerySpy = vitest.fn();
 
       server.use(

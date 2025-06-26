@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import styled from '@emotion/styled';
-import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
+import { InsertDriveFile } from '@mui/icons-material';
 import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 

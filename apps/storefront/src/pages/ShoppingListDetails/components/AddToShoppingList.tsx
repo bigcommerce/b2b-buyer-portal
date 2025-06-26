@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
 import { B3Upload } from '@/components';

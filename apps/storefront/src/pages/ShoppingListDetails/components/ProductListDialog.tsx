@@ -1,6 +1,6 @@
 import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
-import SearchIcon from '@mui/icons-material/Search';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';

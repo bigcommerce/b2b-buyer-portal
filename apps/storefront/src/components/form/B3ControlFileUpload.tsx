@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import DescriptionRounded from '@mui/icons-material/DescriptionRounded';
-import ImageRoundedIcon from '@mui/icons-material/ImageRounded';
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
-import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded';
+import {
+  CloudUploadOutlined as CloudUploadOutlinedIcon,
+  DescriptionRounded,
+  ImageRounded as ImageRoundedIcon,
+  InsertDriveFileRounded as InsertDriveFileRoundedIcon,
+  PictureAsPdfRounded as PictureAsPdfRoundedIcon,
+} from '@mui/icons-material';
 import { FormLabel, Typography } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 

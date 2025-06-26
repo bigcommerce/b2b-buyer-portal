@@ -1,6 +1,5 @@
 import { ReactElement, ReactNode, useEffect, useState } from 'react';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Box, Collapse, Typography } from '@mui/material';
 
 interface CollapseContainerProps {

@@ -1,8 +1,10 @@
 import { useEffect, useId, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import {
+  NavigateBefore as NavigateBeforeIcon,
+  NavigateNext as NavigateNextIcon,
+} from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 

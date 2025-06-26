@@ -13,7 +13,7 @@ import b2blogger from '@/utils/b3Logger';
 
 import { ForgotPassword } from '.';
 
-vi.mock('@/utils/b3Logger', () => ({ default: { error: vi.fn() } }));
+vi.mock('@/utils/b3Logger');
 
 const { server } = startMockServer();
 
@@ -247,7 +247,6 @@ describe('when captcha is disabled', () => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
-
         serverMock(await request.text());
 
         return HttpResponse.text();

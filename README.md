@@ -92,7 +92,7 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 ## 🛠 System Setup
 
-- **Node:** Ensure you have Node.js version >=18.0.0.
+- **Node:** Ensure you have Node.js version >=22.16.0.
 - **Package Manager:** This project uses Yarn v1.22.17.
 
 ## ⚙ Getting Started

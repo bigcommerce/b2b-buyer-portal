@@ -4,8 +4,18 @@
     "no-restricted-imports": [
       "error",
       {
-        "name": "lodash",
-        "message": "Import from lodash-es"
+        "paths": [
+          {
+            "name": "lodash",
+            "message": "Import from lodash-es"
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@mui/icons-material/*"],
+            "message": "Use `import { IconName } from '@mui/icons-material';`"
+          }
+        ]
       }
     ]
   },

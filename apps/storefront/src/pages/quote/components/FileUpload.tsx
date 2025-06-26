@@ -2,9 +2,11 @@ import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import DeleteIcon from '@mui/icons-material/Delete';
-import HelpIcon from '@mui/icons-material/Help';
+import {
+  AttachFile as AttachFileIcon,
+  Delete as DeleteIcon,
+  Help as HelpIcon,
+} from '@mui/icons-material';
 import { Box, Tooltip, Typography, useTheme } from '@mui/material';
 import noop from 'lodash-es/noop';
 import { v1 as uuid } from 'uuid';

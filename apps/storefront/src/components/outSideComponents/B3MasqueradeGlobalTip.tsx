@@ -1,8 +1,10 @@
 import { useContext, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import GroupIcon from '@mui/icons-material/Group';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import {
+  Group as GroupIcon,
+  KeyboardArrowLeft as KeyboardArrowLeftIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+} from '@mui/icons-material';
 import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import Cookies from 'js-cookie';

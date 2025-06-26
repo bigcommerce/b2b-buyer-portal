@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { useB3Lang } from '@b3/lang';
-import BusinessIcon from '@mui/icons-material/Business';
+import { Business as BusinessIcon } from '@mui/icons-material';
 import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
