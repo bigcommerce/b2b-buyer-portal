@@ -43,6 +43,13 @@ if [[ $ENVIRONMENT =~ "production" ]]; then
 "revision": "${REVISION_TITLE}"
 }
 EOF
+else
+  tee deploy_revision_payload.json <<EOF >/dev/null
+{
+"deploy_all": true,
+"revision": "${REVISION_TITLE}"
+}
+EOF
 fi
 
 # create revision
