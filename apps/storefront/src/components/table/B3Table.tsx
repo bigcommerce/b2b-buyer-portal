@@ -1,7 +1,9 @@
 import { ChangeEvent, FC, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import {
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Card,

@@ -1,6 +1,8 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import {
+  ArrowDropDown as ArrowDropDownIcon,
+  ArrowDropUp as ArrowDropUpIcon,
+} from '@mui/icons-material';
 import { Box, MenuProps } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';

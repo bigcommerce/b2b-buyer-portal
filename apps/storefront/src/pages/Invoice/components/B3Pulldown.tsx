@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 

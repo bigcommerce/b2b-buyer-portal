@@ -305,7 +305,7 @@ describe.each([
       });
 
       const getUsersResponse = vi
-        .fn<unknown[], UsersResponse>()
+        .fn<(...args: unknown[]) => UsersResponse>()
         .mockReturnValue(buildUsersResponseWith(usersPageOne));
 
       const getUsersVariablesSpy = vi.fn();
@@ -366,7 +366,7 @@ describe.each([
       });
 
       const getUsersResponse = vi
-        .fn<unknown[], UsersResponse>()
+        .fn<(...args: unknown[]) => UsersResponse>()
         .mockReturnValue(buildUsersResponseWith(usersPageOne));
 
       const getUsersVariablesSpy = vi.fn();
@@ -477,7 +477,7 @@ describe.each([
       });
 
       const getUsersResponse = vi
-        .fn<unknown[], UsersResponse>()
+        .fn<(...args: unknown[]) => UsersResponse>()
         .mockReturnValue(
           buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
         );
@@ -624,7 +624,7 @@ describe.each([
       });
 
       const getUsersResponse = vi
-        .fn<unknown[], UsersResponse>()
+        .fn<(...args: unknown[]) => UsersResponse>()
         .mockReturnValue(buildUsersResponseWith({ data: { users: { edges: [troyMcClure] } } }));
 
       const deleteUserVariablesSpy = vi.fn();

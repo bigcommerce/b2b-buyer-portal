@@ -1,7 +1,6 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import ClearIcon from '@mui/icons-material/Clear';
-import SearchIcon from '@mui/icons-material/Search';
+import { Clear as ClearIcon, Search as SearchIcon } from '@mui/icons-material';
 import { InputBase, Paper } from '@mui/material';
 
 import { useDebounce } from '@/hooks';

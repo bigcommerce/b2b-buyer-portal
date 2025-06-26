@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Link, Typography } from '@mui/material';
 
 import { B3Upload, successTip } from '@/components';

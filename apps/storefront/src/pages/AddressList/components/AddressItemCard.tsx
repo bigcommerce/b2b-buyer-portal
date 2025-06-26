@@ -1,8 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Theme, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';

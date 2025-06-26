@@ -21,7 +21,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   store?: AppStore;
 }
 
-function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock<[string]> }>) {
+function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock }>) {
   const location = useLocation();
 
   spy.mockReset();
@@ -71,7 +71,8 @@ export const renderWithProviders = (
 
   const queryClient = getMockQueryClient();
 
-  const navigation = vi.fn<[string]>();
+  const navigation = vi.fn();
+
   function Wrapper({ children }: PropsWithChildren) {
     return (
       <Suspense fallback="test-loading">

@@ -19,7 +19,7 @@ interface ExtendedRenderHookOptions<Result> extends Omit<RenderHookOptions<Resul
   store?: AppStore;
 }
 
-function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock<[string]> }>) {
+function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock }>) {
   const location = useLocation();
 
   spy.mockReset();
@@ -51,7 +51,7 @@ export const renderHookWithProviders = <Result, Props>(
   } = options;
 
   vi.spyOn(storeModule, 'store', 'get').mockReturnValue(store);
-  const navigation = vi.fn<[string]>();
+  const navigation = vi.fn();
 
   function Wrapper({ children }: PropsWithChildren) {
     return (

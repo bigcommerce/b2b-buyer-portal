@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import AddIcon from '@mui/icons-material/Add';
+import { Add as AddIcon } from '@mui/icons-material';
 import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';

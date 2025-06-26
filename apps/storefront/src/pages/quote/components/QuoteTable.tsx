@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useB3Lang } from '@b3/lang';
-import { Delete, Edit } from '@mui/icons-material';
-import WarningIcon from '@mui/icons-material/Warning';
+import { Delete, Edit, Warning as WarningIcon } from '@mui/icons-material';
 import { Box, styled, TextField, Typography } from '@mui/material';
 import ceil from 'lodash-es/ceil';
 

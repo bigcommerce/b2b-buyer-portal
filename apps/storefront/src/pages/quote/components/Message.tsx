@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { useB3Lang } from '@b3/lang';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { ArrowUpward as ArrowUpwardIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/material';
 import { format, formatDistanceStrict } from 'date-fns';
 

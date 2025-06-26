@@ -1,7 +1,7 @@
 import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import { FilterList as FilterListIcon } from '@mui/icons-material';
 import { Badge, Box, Button, IconButton, useTheme } from '@mui/material';
 
 import { useMobile } from '@/hooks';
