@@ -2,6 +2,7 @@ import {
   defineConfig,
   loadGraphQLHTTPSubgraph,
 } from '@graphql-mesh/compose-cli'
+import additionalTypeDefs from './additionalTypeDefs/index'
 
 const storeHash = process.env.STORE_HASH
 const bearerToken = process.env.STORE_OAUTH_TOKEN
@@ -21,10 +22,6 @@ export const composeConfig = defineConfig({
         operationHeaders: headers,
       }),
     },
-    {
-      sourceHandler: loadGraphQLHTTPSubgraph('b2bGraphExtensions', {
-        endpoint: `http://localhost:4040/graphql`,
-      }),
-    },
   ],
+  additionalTypeDefs,
 })
