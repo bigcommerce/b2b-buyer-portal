@@ -1,5 +1,3 @@
-Jira: [JIRA_TOKEN](https://bigcommercecloud.atlassian.net/browse/JIRA_TOKEN)
-
 ## What/Why?
 <!--
   A description about what this pull request implements and its purpose.
