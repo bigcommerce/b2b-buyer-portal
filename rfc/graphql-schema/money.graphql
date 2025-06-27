@@ -1,0 +1,13 @@
+enum CurrencyLocation {
+  left
+  right
+}
+
+type Money {
+  currency_location: CurrencyLocation!
+  currency_token: String!
+  decimal_token: String!
+  decimal_places: Int!
+  thousands_token: String!
+  currency_exchange_rate: Float!
+}
