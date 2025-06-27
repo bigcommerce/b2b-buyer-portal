@@ -1,0 +1,41 @@
+type Company implements Node {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+type CompanyEdge implements Edge {
+  node: Company!
+  cursor: String!
+}
+
+type CompanyConnection implements Connection {
+  edges: [CompanyEdge!]!
+  pageInfo: PageInfo!
+  collectionInfo: CollectionInfo!
+}
+
+input CompanyFiltersInput {
+  search: String
+}
+
+enum CompanySortField {
+  NAME
+  EMAIL
+}
+
+input CompanySortInput {
+  field: CompanySortField!
+  direction: SortDirection!
+}
+
+extend type Query {
+  companies(
+    filters: CompanyFiltersInput
+    sort: CompanySortInput
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): CompanyConnection!
+}
