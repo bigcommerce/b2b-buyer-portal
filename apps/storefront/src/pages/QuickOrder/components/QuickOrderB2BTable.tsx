@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, styled, TextField, Typography } from '@mui/material';
 
@@ -128,6 +128,11 @@ function QuickOrderTable({
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
+  const childCompanyId = selectCompanyHierarchyId || companyInfoId;
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
@@ -146,6 +151,12 @@ function QuickOrderTable({
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
 
+  useEffect(() => {
+    if (paginationTableRef.current?.getList) {
+      paginationTableRef.current.getList();
+    }
+  }, [childCompanyId]);
+
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       const productIds: number[] = [];
@@ -160,12 +171,14 @@ function QuickOrderTable({
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       try {
-        const { productsSearch } = await getProducts({
+        const productSearchParams = {
           productIds,
           currencyCode,
-          companyId: companyInfoId,
           customerGroupId,
-        });
+          companyId: childCompanyId,
+        };
+
+        const { productsSearch } = await getProducts(productSearchParams);
 
         const newProductsSearch = conversionProductsList(productsSearch);
 
@@ -190,9 +203,14 @@ function QuickOrderTable({
   };
 
   const getList: GetRequestList<SearchProps, ProductInfoProps> = async (params) => {
+    const queryParams = {
+      ...params,
+      companyId: childCompanyId,
+    };
+
     const {
       orderedProducts: { edges, totalCount },
-    } = isB2BUser ? await getOrderedProducts(params) : await getBcOrderedProducts(params);
+    } = isB2BUser ? await getOrderedProducts(queryParams) : await getBcOrderedProducts(queryParams);
 
     const listProducts = await handleGetProductsById(edges);
 
