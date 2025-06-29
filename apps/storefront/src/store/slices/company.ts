@@ -76,6 +76,7 @@ const initialState: CompanyState = {
     shoppingLists: false,
     quotes: false,
     companyHierarchy: false,
+    quickOrderPad: false,
   },
 };
 
