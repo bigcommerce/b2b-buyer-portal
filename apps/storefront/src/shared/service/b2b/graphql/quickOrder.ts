@@ -1,10 +1,5 @@
 import B3Request from '../../request/b3Fetch';
 
-// import {
-//   convertArrayToGraphql,
-//   storeHash,
-// } from '../../../../utils'
-
 const orderedProducts = (data: CustomFieldItems) => `{
   orderedProducts (
     q: "${data.q || ''}"
@@ -13,6 +8,7 @@ const orderedProducts = (data: CustomFieldItems) => `{
     beginDateAt: "${data.beginDateAt}"
     endDateAt: "${data.endDateAt}"
     orderBy: "${data?.orderBy || ''}"
+    ${data?.companyId ? `companyId: ${data.companyId}` : ''}
   ){
     totalCount,
     pageInfo{
