@@ -27,30 +27,12 @@ tee create_revision_payload.json <<EOF >/dev/null
 }
 EOF
 
-if [[ $ENVIRONMENT =~ "production" ]]; then
-  tee deploy_revision_payload.json <<EOF >/dev/null
+cat <<EOF > deploy_revision_payload.json 
 {
-"deploy_all": false,
-"store_hashes": [
-  "nphozlrwue",
-  "p70ju3hpl0",
-  "sh1inxgzt3",
-  "oov9d9k3v8",
-  "p1xpzyx4re",
-  "c75o808cpx",
-  "kj7zxmzw8n"
-],
-"revision": "${REVISION_TITLE}"
+  "deploy_all": true,
+  "revision": "${REVISION_TITLE}"
 }
 EOF
-else
-  tee deploy_revision_payload.json <<EOF >/dev/null
-{
-"deploy_all": true,
-"revision": "${REVISION_TITLE}"
-}
-EOF
-fi
 
 # create revision
 curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/revisions" \
