@@ -25,7 +25,7 @@ export default /* GraphQL */ `
 
   type Company implements Node {
     id: ID!
-    Customers(
+    customers(
       filters: CustomerFiltersInput
       before: String
       after: String
