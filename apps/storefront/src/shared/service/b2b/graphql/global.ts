@@ -436,10 +436,6 @@ export const getCurrencies = (channelId: string | number) =>
   B3Request.graphqlB2B({
     query: currencies(channelId),
   });
-export const getBcCurrencies = (channelId: string) =>
-  B3Request.graphqlB2B({
-    query: currencies(channelId),
-  });
 
 export const getStorefrontConfigs = (channelId: number, keys: string[]) =>
   B3Request.graphqlB2B({
@@ -487,6 +483,7 @@ export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
     query: userMasqueradingCompanyEnd,
   });
+
 export const getUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
     query: userMasqueradingCompany,
