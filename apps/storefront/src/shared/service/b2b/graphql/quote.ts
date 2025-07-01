@@ -288,7 +288,7 @@ const getQuoteInfo = (data: { id: number; date: string }) => `
   }
 `;
 
-const exportQuotePdf = (data: {
+const getExportQuotePdfQuery = (data: {
   quoteId: number;
   createdAt: number;
   isPreview: boolean;
@@ -306,7 +306,7 @@ const exportQuotePdf = (data: {
   }
 }`;
 
-const quoteCheckout = (data: { id: number }) => `mutation{
+const getQuoteCheckoutQuery = (data: { id: number }) => `mutation{
   quoteCheckout(
     id: ${data.id},
     storeHash: "${storeHash}",
@@ -449,17 +449,7 @@ export const createQuote = (data: CustomFieldItems) =>
     query: quoteCreate(data),
   });
 
-export const createBCQuote = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: quoteCreate(data),
-  });
-
-export const updateB2BQuote = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: quoteUpdate(data),
-  });
-
-export const updateBCQuote = (data: CustomFieldItems) =>
+export const updateQuote = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: quoteUpdate(data),
   });
@@ -644,34 +634,19 @@ export const getBcQuoteDetail = (data: { id: number; date: string }) =>
     query: getQuoteInfo(data),
   });
 
-export const exportB2BQuotePdf = (data: {
+export const exportQuotePdf = (data: {
   quoteId: number;
   createdAt: number;
   isPreview: boolean;
   lang: string;
 }) =>
   B3Request.graphqlB2B({
-    query: exportQuotePdf(data),
+    query: getExportQuotePdfQuery(data),
   });
 
-export const exportBcQuotePdf = (data: {
-  quoteId: number;
-  createdAt: number;
-  isPreview: boolean;
-  lang: string;
-}) =>
+export const quoteCheckout = (data: { id: number }) =>
   B3Request.graphqlB2B({
-    query: exportQuotePdf(data),
-  });
-
-export const b2bQuoteCheckout = (data: { id: number }) =>
-  B3Request.graphqlB2B({
-    query: quoteCheckout(data),
-  });
-
-export const bcQuoteCheckout = (data: { id: number }) =>
-  B3Request.graphqlB2B({
-    query: quoteCheckout(data),
+    query: getQuoteCheckoutQuery(data),
   });
 
 export const quoteDetailAttachFileCreate = (data: CustomFieldItems) =>

@@ -1,10 +1,6 @@
 import { Location, NavigateFunction } from 'react-router-dom';
 
-import {
-  b2bQuoteCheckout,
-  bcQuoteCheckout,
-  getBCStorefrontProductSettings,
-} from '@/shared/service/b2b';
+import { getBCStorefrontProductSettings, quoteCheckout } from '@/shared/service/b2b';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
@@ -43,10 +39,9 @@ export const handleQuoteCheckout = async ({
       return;
     }
 
-    const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
     const date = getSearchVal(location.search, 'date');
 
-    const res = await fn({
+    const res = await quoteCheckout({
       id: Number(quoteId),
     });
 

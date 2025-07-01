@@ -15,7 +15,7 @@ import { format, formatDistanceStrict } from 'date-fns';
 import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { GlobalContext } from '@/shared/global';
-import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b';
+import { updateQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat, storeHash } from '@/utils';
 
@@ -260,13 +260,12 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
   const updateMsgs = async (msg: string) => {
     try {
-      const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
       setLoading(true);
       const {
         quoteUpdate: {
           quote: { trackingHistory },
         },
-      } = await fn({
+      } = await updateQuote({
         id: Number(id),
         quoteData: {
           message: msg,
@@ -293,9 +292,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
     (open: boolean) => {
       if (open) {
         if (!quotesUpdateMessagePermission && isB2BUser) return;
-        const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
+
         if (changeReadRef.current === 0 && msgs.length) {
-          fn({
+          updateQuote({
             id: Number(id),
             quoteData: {
               lastMessage: msgs[msgs.length - 1]?.date,

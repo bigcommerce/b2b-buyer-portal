@@ -10,8 +10,7 @@ import { useMobile } from '@/hooks';
 import useScrollBar from '@/hooks/useScrollBar';
 import { GlobalContext } from '@/shared/global';
 import {
-  exportB2BQuotePdf,
-  exportBcQuotePdf,
+  exportQuotePdf,
   getB2BQuoteDetail,
   getBcQuoteDetail,
   searchProducts,
@@ -442,9 +441,7 @@ function QuoteDetail() {
         lang: bcLanguage,
       };
 
-      const fn = Number(role) === 99 ? exportBcQuotePdf : exportB2BQuotePdf;
-
-      const quotePdf = await fn(data);
+      const quotePdf = await exportQuotePdf(data);
 
       if (quotePdf) {
         return {
