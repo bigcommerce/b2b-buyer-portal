@@ -1,4 +1,4 @@
-import { searchB2BProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b';
 import { store } from '@/store';
 
 import { conversionProductsList } from './b3Product/shared/config';
@@ -10,7 +10,7 @@ export const handleGetCurrentProductInfo = async (productId: number | string) =>
   const { id: companyInfoId } = currentState.company.companyInfo;
   const companyId = companyInfoId || salesRepCompanyId;
 
-  const { productsSearch } = await searchB2BProducts({
+  const { productsSearch } = await searchProducts({
     productIds: [Number(productId)],
     companyId,
     customerGroupId,

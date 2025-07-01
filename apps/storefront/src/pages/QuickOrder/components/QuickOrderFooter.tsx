@@ -22,8 +22,7 @@ import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, getProductPriceIncTaxOrExTaxBySetting, snackbar } from '@/utils';
@@ -219,8 +218,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const companyId = companyInfoId;
 
-      const getVariantInfoByProductId = isB2BUser ? searchB2BProducts : searchBcProducts;
-      const { productsSearch: getInventoryInfos } = await getVariantInfoByProductId({
+      const { productsSearch: getInventoryInfos } = await searchProducts({
         productIds,
         companyId,
         customerGroupId,
@@ -311,8 +309,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         }
       });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-      const { productsSearch } = await getProducts({
+      const { productsSearch } = await searchProducts({
         productIds,
         companyId: companyInfoId,
         customerGroupId,

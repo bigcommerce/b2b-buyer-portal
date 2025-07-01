@@ -210,7 +210,7 @@ describe('when a product without a required variant is added to a shopping list'
     };
 
     vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchB2BProducts').mockResolvedValue(productsResponse);
+    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
 
     vi.mock('@/utils/b3Tip', () => ({
       globalSnackbar: {
@@ -379,7 +379,7 @@ describe('when a product with required variants is added to a shopping list', ()
     };
 
     vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchB2BProducts').mockResolvedValue(productsResponse);
+    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
     vi.spyOn(graphqlModule, 'addProductToShoppingList').mockResolvedValue(
       addProductToShoppingListResponse,
     );
@@ -539,7 +539,7 @@ describe('when an unexpected error occurred during adding a product to shopping 
     };
 
     vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchB2BProducts').mockResolvedValue(productsResponse);
+    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
     vi.spyOn(graphqlModule, 'addProductToShoppingList').mockRejectedValue(
       new Error('Unexpected error'),
     );

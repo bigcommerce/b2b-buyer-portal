@@ -7,8 +7,7 @@ import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
 import { getActiveCurrencyInfo, serialize, ValidationError } from '@/utils';
@@ -40,9 +39,8 @@ export const addProductsToShoppingList = async ({
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
   const { id: companyId } = store.getState().company.companyInfo;
-  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
-  const { productsSearch } = await getProducts({
+  const { productsSearch } = await searchProducts({
     productIds: items.map(({ productId }) => productId),
     currencyCode,
     companyId,

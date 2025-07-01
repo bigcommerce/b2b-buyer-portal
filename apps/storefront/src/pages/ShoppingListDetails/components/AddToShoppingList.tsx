@@ -225,12 +225,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       <CardContent>
         <Box>
           <Typography variant="h5">{b3Lang('shoppingList.addToShoppingList.addToList')}</Typography>
-          <SearchProduct
-            updateList={updateList}
-            addToList={addToList}
-            isB2BUser={isB2BUser}
-            type="shoppingList"
-          />
+          <SearchProduct updateList={updateList} addToList={addToList} type="shoppingList" />
 
           <Divider />
 

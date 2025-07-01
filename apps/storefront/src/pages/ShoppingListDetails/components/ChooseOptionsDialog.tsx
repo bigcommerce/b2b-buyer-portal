@@ -18,7 +18,7 @@ import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
@@ -90,7 +90,6 @@ interface ChooseOptionsDialogProps {
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   addButtonText?: string;
-  isB2BUser: boolean;
   type?: string;
 }
 
@@ -114,7 +113,6 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     isEdit = false,
     isLoading,
     setIsLoading,
-    isB2BUser,
     type,
     ...restProps
   } = props;
@@ -188,10 +186,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         }, []);
 
         if (productIds.length > 0) {
-          const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
           const companyId = companyInfoId || salesRepCompanyId;
-          const { productsSearch } = await getProducts({
+          const { productsSearch } = await searchProducts({
             productIds,
             companyId,
             customerGroupId,

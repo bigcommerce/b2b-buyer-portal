@@ -949,7 +949,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               updateSummary={updateSummary}
               total={draftQuoteList.length}
               items={draftQuoteList}
-              isB2BUser={isB2BUser}
             />
           </Container>
 
@@ -970,11 +969,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               }}
             >
               <QuoteSummary ref={quoteSummaryRef} />
-              <AddToQuote
-                updateList={updateSummary}
-                addToQuote={addToQuote}
-                isB2BUser={isB2BUser}
-              />
+              <AddToQuote updateList={updateSummary} addToQuote={addToQuote} />
 
               <QuoteNote quoteStatus="Draft" />
 

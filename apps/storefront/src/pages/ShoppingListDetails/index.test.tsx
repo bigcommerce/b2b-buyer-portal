@@ -14,7 +14,7 @@ import {
   within,
 } from 'tests/test-utils';
 
-import { SearchB2BProductsResponse } from '@/shared/service/b2b/graphql/product';
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { CompanyStatus, UserTypes } from '@/types';
 
@@ -114,7 +114,7 @@ const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
   ],
 });
 
-type SearchB2BProduct = SearchB2BProductsResponse['data']['productsSearch'][number];
+type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number];
 type SearchB2BProductV3Option = SearchB2BProduct['optionsV3'][number];
 type SearchB2BProductV3OptionValue = SearchB2BProductV3Option['option_values'][number];
 
@@ -191,7 +191,7 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   isPriceHidden: faker.datatype.boolean(),
 }));
 
-const buildSearchProductsResponseWith = builder<SearchB2BProductsResponse>(() => ({
+const buildSearchProductsResponseWith = builder<SearchProductsResponse>(() => ({
   data: {
     productsSearch: bulk(buildSearchB2BProductWith, 'WHATEVER_VALUES').times(
       faker.number.int({ min: 0, max: 12 }),

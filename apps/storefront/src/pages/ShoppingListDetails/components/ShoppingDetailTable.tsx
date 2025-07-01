@@ -792,7 +792,6 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
         isEdit
-        isB2BUser={isB2BUser}
       />
 
       <ShoppingDetailAddNotes

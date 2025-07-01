@@ -8,7 +8,7 @@ import { B3CollapseContainer, B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
-import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
@@ -25,11 +25,10 @@ import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
 interface AddToListProps {
   updateList: () => void;
   addToQuote: (products: CustomFieldItems[]) => void;
-  isB2BUser: boolean;
 }
 
 export default function AddToQuote(props: AddToListProps) {
-  const { updateList, addToQuote, isB2BUser } = props;
+  const { updateList, addToQuote } = props;
 
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
@@ -128,7 +127,7 @@ export default function AddToQuote(props: AddToListProps) {
   const quickAddToList = async (variantProducts: CustomFieldItems[]) => {
     const productIds = variantProducts.map((item) => item.productId);
 
-    const { productsSearch } = await searchB2BProducts({
+    const { productsSearch } = await searchProducts({
       productIds,
       companyId,
       customerGroupId,
@@ -190,9 +189,7 @@ export default function AddToQuote(props: AddToListProps) {
         }
       });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
-      const { productsSearch } = await getProducts({
+      const { productsSearch } = await searchProducts({
         productIds,
         companyId,
         customerGroupId,
@@ -283,7 +280,6 @@ export default function AddToQuote(props: AddToListProps) {
             type="quote"
             searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
             addButtonText={b3Lang('quoteDraft.searchProduct.addToQuoteButton')}
-            isB2BUser={isB2BUser}
           />
 
           <Divider />
