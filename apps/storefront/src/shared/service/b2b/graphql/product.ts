@@ -68,7 +68,7 @@ const getVariantSkuByProductId = (productId: string) => `{
   }
 }`;
 
-const searchProducts = (data: CustomFieldItems) => `
+const getSearchProductsQuery = (data: CustomFieldItems) => `
   query SearchProducts {
     productsSearch (
       search: "${data.search || ''}"
@@ -236,7 +236,7 @@ export interface B2BProducts {
   };
 }
 
-export interface SearchB2BProductsResponse {
+export interface SearchProductsResponse {
   data: {
     productsSearch: Array<{
       id: number;
@@ -305,22 +305,11 @@ export interface SearchB2BProductsResponse {
   };
 }
 
-export const searchB2BProducts = (data: CustomFieldItems = {}) => {
+export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
   return B3Request.graphqlB2B({
-    query: searchProducts({
-      ...data,
-      currencyCode: data?.currencyCode || currencyCode,
-    }),
-  });
-};
-
-export const searchBcProducts = (data: CustomFieldItems = {}) => {
-  const { currency_code: currencyCode } = getActiveCurrencyInfo();
-
-  return B3Request.graphqlB2B({
-    query: searchProducts({
+    query: getSearchProductsQuery({
       ...data,
       currencyCode: data?.currencyCode || currencyCode,
     }),

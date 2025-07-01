@@ -67,7 +67,7 @@ function QuickOrder() {
               pl: isMobile ? '0px !important' : '16px',
             }}
           >
-            {isShowQuickOrderPad && <QuickOrderPad isB2BUser={isB2BUser} />}
+            {isShowQuickOrderPad && <QuickOrderPad />}
           </Grid>
         </Grid>
       </Box>

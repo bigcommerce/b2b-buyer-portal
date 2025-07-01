@@ -51,8 +51,7 @@ import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
   guestProductsBulkUploadCSV,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
 } from './graphql/product';
 import {
   b2bQuoteCheckout,
@@ -215,8 +214,7 @@ export {
   guestProductsBulkUploadCSV,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
   sendSubscribersState,
   setChannelStoreType,
   storeB2BBasicInfo,

@@ -33,7 +33,6 @@ interface ShoppingDetailTableProps {
   total: number;
   items: any[];
   idEdit?: boolean;
-  isB2BUser: boolean;
   updateSummary: () => void;
 }
 
@@ -74,7 +73,7 @@ const StyledTextField = styled(TextField)(() => ({
 const QUOTE_PRODUCT_QTY_MAX = 1000000;
 
 function QuoteTable(props: ShoppingDetailTableProps) {
-  const { total, items, idEdit = true, isB2BUser, updateSummary } = props;
+  const { total, items, idEdit = true, updateSummary } = props;
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
   const [isRequestLoading, setIsRequestLoading] = useState(false);
@@ -495,7 +494,6 @@ function QuoteTable(props: ShoppingDetailTableProps) {
           handleChooseOptionsDialogConfirm as unknown as (products: CustomFieldItems[]) => void
         }
         isEdit
-        isB2BUser={isB2BUser}
       />
     </StyledQuoteTableContainer>
   );

@@ -14,8 +14,7 @@ import {
   exportBcQuotePdf,
   getB2BQuoteDetail,
   getBcQuoteDetail,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
 } from '@/shared/service/b2b';
 import {
   activeCurrencyInfoSelector,
@@ -85,9 +84,7 @@ function useData() {
 
       const options = { productIds, currencyCode, companyId, customerGroupId };
 
-      const { productsSearch } = await (isB2BUser
-        ? searchB2BProducts(options)
-        : searchBcProducts(options));
+      const { productsSearch } = await searchProducts(options);
 
       const newProductsSearch = conversionProductsList(productsSearch);
 

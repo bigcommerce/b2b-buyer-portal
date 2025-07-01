@@ -2,7 +2,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import isEmpty from 'lodash-es/isEmpty';
 import { v1 as uuid } from 'uuid';
 
-import { getProductPricing, searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
+import { getProductPricing, searchProducts } from '@/shared/service/b2b';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
 import { Modifiers, ShoppingListProductItem } from '@/types';
@@ -94,11 +94,7 @@ const getModifiersPrice = (modifiers: CustomFieldItems[], options: CustomFieldIt
   return modifierCalculatedPrices;
 };
 
-const getProductExtraPrice = async (
-  modifiers: CustomFieldItems[],
-  options: CustomFieldItems,
-  role: number,
-) => {
+const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: CustomFieldItems) => {
   if (!modifiers.length || !options.length) return [];
   const modifiersItem =
     modifiers?.filter(
@@ -127,12 +123,11 @@ const getProductExtraPrice = async (
   if (productIds.length) {
     const { masqueradeCompany } = store.getState().b2bFeatures;
     const salesRepCompanyId = masqueradeCompany.id;
-    const fn = Number(role) === 99 || Number(role) === 100 ? searchBcProducts : searchB2BProducts;
     const currentState = store.getState();
     const companyInfoId = currentState.company.companyInfo.id;
     const { customerGroupId } = currentState.company.customer;
     const companyId = companyInfoId || salesRepCompanyId;
-    const { productsSearch: additionalProductsSearch } = await fn({
+    const { productsSearch: additionalProductsSearch } = await searchProducts({
       productIds,
       companyId,
       customerGroupId,
@@ -269,13 +264,11 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
 };
 
 const getExtraProductPricesProducts = async (
-  isB2BUser: boolean,
   listProducts: ListItemProps[],
   pickListIds: number[],
 ) => {
-  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
-  const { productsSearch: pickListProductsSearch } = await getProducts({
+  const { productsSearch: pickListProductsSearch } = await searchProducts({
     productIds: pickListIds,
     currencyCode,
   });
@@ -363,7 +356,7 @@ const addTaxProductPrices = (
   });
 };
 
-const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: boolean) => {
+const getNewProductsList = async (listProducts: ListItemProps[]) => {
   try {
     const { currency_code: currencyCode } = getActiveCurrencyInfo();
     if (listProducts.length > 0) {
@@ -380,9 +373,7 @@ const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: bool
       const companyId = companyInfoId || salesRepCompanyId;
       const { customerGroupId } = currentState.company.customer;
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
-      const { productsSearch } = await getProducts({
+      const { productsSearch } = await searchProducts({
         productIds,
         currencyCode,
         companyId,
@@ -400,7 +391,7 @@ const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: bool
 
       // Get a collection of related products
       if (pickListIds.length) {
-        newListProducts = await getExtraProductPricesProducts(isB2BUser, listProducts, pickListIds);
+        newListProducts = await getExtraProductPricesProducts(listProducts, pickListIds);
       }
 
       setItemProductPrice(newListProducts);

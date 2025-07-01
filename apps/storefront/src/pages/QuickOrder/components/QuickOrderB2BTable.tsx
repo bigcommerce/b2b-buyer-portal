@@ -7,12 +7,7 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
-import {
-  getBcOrderedProducts,
-  getOrderedProducts,
-  searchB2BProducts,
-  searchBcProducts,
-} from '@/shared/service/b2b';
+import { getBcOrderedProducts, getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
 import {
@@ -157,10 +152,8 @@ function QuickOrderTable({
         }
       });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
       try {
-        const { productsSearch } = await getProducts({
+        const { productsSearch } = await searchProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,

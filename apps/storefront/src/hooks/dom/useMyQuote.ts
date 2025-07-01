@@ -82,10 +82,10 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       const b2bLoading = document.querySelector('#b2b-div-loading');
       if (b3MyQuote && !b2bLoading) {
         addLoading(b3MyQuote);
-        addToQuote(role, b3MyQuote);
+        addToQuote(b3MyQuote);
       }
     },
-    [role, addLoading, addToQuote],
+    [addLoading, addToQuote],
   );
 
   const cd = () => {

@@ -13,8 +13,7 @@ import { GlobalContext } from '@/shared/global';
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
 } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { rolePermissionSelector, useAppSelector } from '@/store';
@@ -354,9 +353,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         }
       });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
-      const { productsSearch } = await getProducts({
+      const { productsSearch } = await searchProducts({
         productIds,
         companyId,
         customerGroupId,

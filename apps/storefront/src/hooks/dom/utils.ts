@@ -3,7 +3,7 @@ import { LangFormatFunction } from '@b3/lang';
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
-import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b';
 import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
@@ -187,7 +187,7 @@ const addProductsToDraftQuote = async (
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
   // fetch data with products IDs
-  const { productsSearch } = await searchB2BProducts({
+  const { productsSearch } = await searchProducts({
     productIds: Array.from(
       new Set(productsWithSKUOrVariantId.map(({ productEntityId }) => Number(productEntityId))),
     ),
@@ -283,7 +283,7 @@ const addProductFromProductPageToQuote = (
   isEnableProduct: boolean,
   b3Lang: LangFormatFunction,
 ) => {
-  const addToQuote = async (role: string | number, node?: HTMLElement) => {
+  const addToQuote = async (node?: HTMLElement) => {
     try {
       const productView = node ? node.closest(config['dom.productView']) : document;
       if (!productView) return;
@@ -303,11 +303,10 @@ const addProductFromProductPageToQuote = (
       const companyInfoId = store.getState().company.companyInfo.id;
       const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId');
       const { customerGroupId } = store.getState().company.customer;
-      const fn = Number(role) === 99 || Number(role) === 100 ? searchBcProducts : searchB2BProducts;
 
       const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
-      const { productsSearch } = await fn({
+      const { productsSearch } = await searchProducts({
         productIds: [Number(productId)],
         companyId,
         customerGroupId,

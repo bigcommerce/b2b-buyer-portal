@@ -12,8 +12,7 @@ import {
   getB2BJuniorPlaceOrder,
   getB2BShoppingListDetails,
   getBcShoppingListDetails,
-  searchB2BProducts,
-  searchBcProducts,
+  searchProducts,
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b';
@@ -107,9 +106,7 @@ function useData() {
 
   const getProducts = async (productIds: number[]) => {
     const options = { productIds, currencyCode, companyId, customerGroupId };
-    const { productsSearch } = isB2BUser
-      ? await searchB2BProducts(options)
-      : await searchBcProducts(options);
+    const { productsSearch } = await searchProducts(options);
 
     return conversionProductsList(productsSearch);
   };
