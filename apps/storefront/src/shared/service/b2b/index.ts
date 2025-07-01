@@ -129,7 +129,7 @@ export {
   getInvoiceStats,
   invoiceDownloadPDF,
 } from './graphql/invoice';
-export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickOrder';
+export { getOrderedProducts } from './graphql/quickOrder';
 
 export {
   addProductToBcShoppingList,

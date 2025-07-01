@@ -1,10 +1,5 @@
 import B3Request from '../../request/b3Fetch';
 
-// import {
-//   convertArrayToGraphql,
-//   storeHash,
-// } from '../../../../utils'
-
 const orderedProducts = (data: CustomFieldItems) => `{
   orderedProducts (
     q: "${data.q || ''}"
@@ -50,11 +45,6 @@ const orderedProducts = (data: CustomFieldItems) => `{
 }`;
 
 export const getOrderedProducts = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: orderedProducts(data),
-  });
-
-export const getBcOrderedProducts = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: orderedProducts(data),
   });

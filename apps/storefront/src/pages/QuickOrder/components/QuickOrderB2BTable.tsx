@@ -7,8 +7,8 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
-import { getBcOrderedProducts, getOrderedProducts, searchProducts } from '@/shared/service/b2b';
-import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
 import {
   currencyFormat,
@@ -120,7 +120,6 @@ function QuickOrderTable({
 }: QuickOrderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
@@ -185,7 +184,7 @@ function QuickOrderTable({
   const getList: GetRequestList<SearchProps, ProductInfoProps> = async (params) => {
     const {
       orderedProducts: { edges, totalCount },
-    } = isB2BUser ? await getOrderedProducts(params) : await getBcOrderedProducts(params);
+    } = await getOrderedProducts(params);
 
     const listProducts = await handleGetProductsById(edges);
 
