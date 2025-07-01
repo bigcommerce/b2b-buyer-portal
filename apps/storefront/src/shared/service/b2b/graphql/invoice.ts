@@ -243,8 +243,8 @@ export const exportInvoicesAsCSV = (data: CustomFieldItems) =>
 export const getInvoiceStats = (
   status: number | string,
   decimalPlaces: number,
-  comapnyIds: number[],
+  companyIds: number[],
 ) =>
   B3Request.graphqlB2B({
-    query: invoiceStats(status, decimalPlaces, comapnyIds),
+    query: invoiceStats(status, decimalPlaces, companyIds),
   });
