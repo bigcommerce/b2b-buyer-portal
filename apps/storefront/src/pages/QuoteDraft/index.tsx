@@ -13,12 +13,7 @@ import { permissionLevels } from '@/constants';
 import { useMobile, useSetCountry, useValidatePermissionWithComparisonType } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import {
-  createBCQuote,
-  createQuote,
-  getB2BCustomerAddresses,
-  getBCCustomerAddresses,
-} from '@/shared/service/b2b';
+import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
   activeCurrencyInfoSelector,
@@ -645,8 +640,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         recipients: info.recipients || [],
       };
 
-      const fn = Number(role) === 99 ? createBCQuote : createQuote;
-
       if (!dispatchEvent('on-quote-create', data)) {
         throw new Error();
       }
@@ -655,7 +648,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         quoteCreate: {
           quote: { id, createdAt },
         },
-      } = await fn(data);
+      } = await createQuote(data);
 
       setQuoteId(id);
       setCurrentCreatedAt(createdAt);
