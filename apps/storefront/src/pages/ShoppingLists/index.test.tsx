@@ -15,7 +15,6 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import { GQLRequest } from '@/shared/service/request/b3Fetch';
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
 import * as utilsModule from '@/utils';
 
@@ -789,31 +788,18 @@ describe('when user filters shopping lists by status "rejected"', () => {
   // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
   // For now when we filter by "Rejected" we also include "Deleted"
   it('fetches shopping lists with status "Rejected" and "Deleted"', async () => {
-    const shoppingList = buildB2BShoppingListNodeWith('WHATEVER_VALUES');
-    const response = {
-      data: {
-        shoppingLists: {
-          totalCount: 1,
-          pageInfo: { hasNextPage: false, hasPreviousPage: false },
-          edges: [
-            {
-              node: shoppingList,
-            },
-          ],
-        },
-      },
-    };
+    const getB2BCustomerShoppingLists = vi
+      .fn()
+      .mockReturnValue(buildB2BShoppingListResponseWith('WHATEVER_VALUES'));
 
-    const requestBodies: GQLRequest[] = [];
-
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(response);
-    });
-
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+        HttpResponse.json(getB2BCustomerShoppingLists(query)),
+      ),
+      graphql.query('GetShoppingListsCreatedByUser', () =>
+        HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+      ),
+    );
 
     const superAdminCustomer = buildCustomerWith({
       role: CustomerRole.SUPER_ADMIN,
@@ -834,18 +820,18 @@ describe('when user filters shopping lists by status "rejected"', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'edit' }));
 
-    await userEvent.click(
-      screen.getByRole('combobox', {
-        name: (_, element) => element.getAttribute('aria-labelledby')?.includes('status') ?? false,
-      }),
-    );
+    const filterModal = await screen.findByRole('dialog');
+
+    // Status select cannot be found via the label
+    // the first select is for "Created By"
+    await userEvent.click(within(filterModal).getAllByRole('combobox')[1]);
 
     await userEvent.click(screen.getByRole('option', { name: /Rejected/i }));
     await userEvent.click(screen.getByRole('button', { name: /Apply/i }));
 
-    const lastRequestBody = requestBodies[requestBodies.length - 1];
-
-    expect(lastRequestBody.query).toContain('status: [20, 50]');
+    expect(getB2BCustomerShoppingLists).toHaveBeenCalledWith(
+      expect.stringContaining('status: [20, 50]'),
+    );
   });
 });
 
