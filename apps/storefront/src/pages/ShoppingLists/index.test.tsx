@@ -10,6 +10,7 @@ import {
   screen,
   startMockServer,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -1135,6 +1136,103 @@ describe('when the user is a B2B customer', () => {
       expect(
         await screen.findByRole('heading', { name: 'My updated shopping list' }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('when clicking on the "next" button', () => {
+    it('displays the following page of results', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const firstElevenLists = bulk(buildB2BShoppingListNodeWith, 'WHATEVER_VALUES').times(11);
+      const twelfthList = buildB2BShoppingListNodeWith({ name: 'My twelfth shopping list' });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { totalCount: 13, edges: [...firstElevenLists, twelfthList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: 'My twelfth shopping list' })).toBeInTheDocument();
+
+      const thirteenthList = buildB2BShoppingListNodeWith({
+        name: 'My thirteenth shopping list',
+      });
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(expect.stringContaining('offset: 12'))
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { totalCount: 13, edges: [thirteenthList] } },
+          }),
+        );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      expect(
+        screen.queryByRole('heading', { name: 'My twelfth shopping list' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'My thirteenth shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when searching for a specific term', () => {
+    it('displays results matching the search term', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const goodList = buildB2BShoppingListNodeWith({ name: 'Good list' });
+      const betterList = buildB2BShoppingListNodeWith({ name: 'Better list' });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { edges: [goodList, betterList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: 'Good list' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Better list' })).toBeInTheDocument();
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(expect.stringContaining('search: "Better"'))
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { edges: [betterList] } },
+          }),
+        );
+
+      await userEvent.type(screen.getByPlaceholderText('Search'), 'Better');
+
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'Good list' })).not.toBeInTheDocument(),
+      );
+      expect(screen.getByRole('heading', { name: 'Better list' })).toBeInTheDocument();
     });
   });
 });
