@@ -9,6 +9,7 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
   waitForElementToBeRemoved,
@@ -1233,6 +1234,74 @@ describe('when the user is a B2B customer', () => {
         expect(screen.queryByRole('heading', { name: 'Good list' })).not.toBeInTheDocument(),
       );
       expect(screen.getByRole('heading', { name: 'Better list' })).toBeInTheDocument();
+    });
+  });
+
+  describe('when the user filters by "Created by"', () => {
+    it('displays results that match that author', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const sally = { firstName: 'Sally', lastName: 'Smith', email: 'sally.smith@bigcommerce.com' };
+      const tony = { firstName: 'Tony', lastName: 'Bennett', email: 'tomy.bennet@bigcommerce.com' };
+
+      const listBySally = buildB2BShoppingListNodeWith({
+        name: "Sally's list",
+        customerInfo: { email: sally.email },
+      });
+      const listByTony = buildB2BShoppingListNodeWith({
+        name: "Tony's list",
+        customerInfo: { email: tony.email },
+      });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { edges: [listBySally, listByTony] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [sally, tony] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: "Sally's list" })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: "Tony's list" })).toBeInTheDocument();
+
+      // The filter button is called "edit", as are all the buttons to edit individual shopping lists
+      await userEvent.click((await screen.findAllByRole('button', { name: 'edit' }))[0]);
+
+      const filterModal = await screen.findByRole('dialog');
+
+      // Status select cannot be found via the label
+      await userEvent.click(within(filterModal).getAllByRole('combobox')[0]);
+
+      await userEvent.click(screen.getByRole('option', { name: /Sally/ }));
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(
+          stringContainingAll('createdBy: "Sally Smith"', 'email: "sally.smith@bigcommerce.com"'),
+        )
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { edges: [listBySally] } },
+          }),
+        );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: "Tony's list" })).not.toBeInTheDocument(),
+      );
+
+      expect(screen.getByRole('heading', { name: "Sally's list" })).toBeInTheDocument();
     });
   });
 });
