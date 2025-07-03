@@ -18,7 +18,7 @@ export default function B3CloseAppButton() {
   const navigate = useNavigate();
 
   const handleCloseForm = () => {
-    if (isCloseGotoBCHome) {
+    if (isCloseGotoBCHome || window.location.search.includes('action=order_status')) {
       window.location.href = '/';
     } else {
       navigate('/');
