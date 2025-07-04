@@ -9,13 +9,14 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import { GQLRequest } from '@/shared/service/request/b3Fetch';
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
 import * as utilsModule from '@/utils';
 
@@ -789,31 +790,18 @@ describe('when user filters shopping lists by status "rejected"', () => {
   // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
   // For now when we filter by "Rejected" we also include "Deleted"
   it('fetches shopping lists with status "Rejected" and "Deleted"', async () => {
-    const shoppingList = buildB2BShoppingListNodeWith('WHATEVER_VALUES');
-    const response = {
-      data: {
-        shoppingLists: {
-          totalCount: 1,
-          pageInfo: { hasNextPage: false, hasPreviousPage: false },
-          edges: [
-            {
-              node: shoppingList,
-            },
-          ],
-        },
-      },
-    };
+    const getB2BCustomerShoppingLists = vi
+      .fn()
+      .mockReturnValue(buildB2BShoppingListResponseWith('WHATEVER_VALUES'));
 
-    const requestBodies: GQLRequest[] = [];
-
-    const responseHandler = vi.fn(async ({ request }) => {
-      const body = await request.json();
-      requestBodies.push(body);
-
-      return HttpResponse.json(response);
-    });
-
-    server.use(http.post('https://api-b2b.bigcommerce.com/graphql', responseHandler));
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+        HttpResponse.json(getB2BCustomerShoppingLists(query)),
+      ),
+      graphql.query('GetShoppingListsCreatedByUser', () =>
+        HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+      ),
+    );
 
     const superAdminCustomer = buildCustomerWith({
       role: CustomerRole.SUPER_ADMIN,
@@ -834,18 +822,18 @@ describe('when user filters shopping lists by status "rejected"', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'edit' }));
 
-    await userEvent.click(
-      screen.getByRole('combobox', {
-        name: (_, element) => element.getAttribute('aria-labelledby')?.includes('status') ?? false,
-      }),
-    );
+    const filterModal = await screen.findByRole('dialog');
+
+    // Status select cannot be found via the label
+    // the first select is for "Created By"
+    await userEvent.click(within(filterModal).getAllByRole('combobox')[1]);
 
     await userEvent.click(screen.getByRole('option', { name: /Rejected/i }));
     await userEvent.click(screen.getByRole('button', { name: /Apply/i }));
 
-    const lastRequestBody = requestBodies[requestBodies.length - 1];
-
-    expect(lastRequestBody.query).toContain('status: [20, 50]');
+    expect(getB2BCustomerShoppingLists).toHaveBeenCalledWith(
+      expect.stringContaining('status: [20, 50]'),
+    );
   });
 });
 
@@ -1149,6 +1137,171 @@ describe('when the user is a B2B customer', () => {
       expect(
         await screen.findByRole('heading', { name: 'My updated shopping list' }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('when clicking on the "next" button', () => {
+    it('displays the following page of results', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const firstElevenLists = bulk(buildB2BShoppingListNodeWith, 'WHATEVER_VALUES').times(11);
+      const twelfthList = buildB2BShoppingListNodeWith({ name: 'My twelfth shopping list' });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { totalCount: 13, edges: [...firstElevenLists, twelfthList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: 'My twelfth shopping list' })).toBeInTheDocument();
+
+      const thirteenthList = buildB2BShoppingListNodeWith({
+        name: 'My thirteenth shopping list',
+      });
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(expect.stringContaining('offset: 12'))
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { totalCount: 13, edges: [thirteenthList] } },
+          }),
+        );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      expect(
+        screen.queryByRole('heading', { name: 'My twelfth shopping list' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'My thirteenth shopping list' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when searching for a specific term', () => {
+    it('displays results matching the search term', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const goodList = buildB2BShoppingListNodeWith({ name: 'Good list' });
+      const betterList = buildB2BShoppingListNodeWith({ name: 'Better list' });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { edges: [goodList, betterList] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: 'Good list' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Better list' })).toBeInTheDocument();
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(expect.stringContaining('search: "Better"'))
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { edges: [betterList] } },
+          }),
+        );
+
+      await userEvent.type(screen.getByPlaceholderText('Search'), 'Better');
+
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'Good list' })).not.toBeInTheDocument(),
+      );
+      expect(screen.getByRole('heading', { name: 'Better list' })).toBeInTheDocument();
+    });
+  });
+
+  describe('when the user filters by "Created by"', () => {
+    it('displays results that match that author', async () => {
+      const getB2BCustomerShoppingLists = vi.fn();
+
+      const sally = { firstName: 'Sally', lastName: 'Smith', email: 'sally.smith@bigcommerce.com' };
+      const tony = { firstName: 'Tony', lastName: 'Bennett', email: 'tomy.bennet@bigcommerce.com' };
+
+      const listBySally = buildB2BShoppingListNodeWith({
+        name: "Sally's list",
+        customerInfo: { email: sally.email },
+      });
+      const listByTony = buildB2BShoppingListNodeWith({
+        name: "Tony's list",
+        customerInfo: { email: tony.email },
+      });
+
+      getB2BCustomerShoppingLists.mockReturnValueOnce(
+        buildB2BShoppingListResponseWith({
+          data: { shoppingLists: { edges: [listBySally, listByTony] } },
+        }),
+      );
+
+      server.use(
+        graphql.query('B2BCustomerShoppingLists', ({ query }) =>
+          HttpResponse.json(getB2BCustomerShoppingLists(query)),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json({ data: { createdByUser: { results: [sally, tony] } } }),
+        ),
+      );
+
+      renderWithProviders(<ShoppingLists />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.getByRole('heading', { name: "Sally's list" })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: "Tony's list" })).toBeInTheDocument();
+
+      // The filter button is called "edit", as are all the buttons to edit individual shopping lists
+      await userEvent.click((await screen.findAllByRole('button', { name: 'edit' }))[0]);
+
+      const filterModal = await screen.findByRole('dialog');
+
+      // Status select cannot be found via the label
+      await userEvent.click(within(filterModal).getAllByRole('combobox')[0]);
+
+      await userEvent.click(screen.getByRole('option', { name: /Sally/ }));
+
+      when(getB2BCustomerShoppingLists)
+        .calledWith(
+          stringContainingAll('createdBy: "Sally Smith"', 'email: "sally.smith@bigcommerce.com"'),
+        )
+        .thenReturn(
+          buildB2BShoppingListResponseWith({
+            data: { shoppingLists: { edges: [listBySally] } },
+          }),
+        );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: "Tony's list" })).not.toBeInTheDocument(),
+      );
+
+      expect(screen.getByRole('heading', { name: "Sally's list" })).toBeInTheDocument();
     });
   });
 });
