@@ -32,6 +32,7 @@ export default /* GraphQL */ `
 
   type ShoppingListConnection {
     pageInfo: PageInfo!
+    collectionInfo: CollectionInfo
     edges: [ShoppingListEdge!]!
   }
 
