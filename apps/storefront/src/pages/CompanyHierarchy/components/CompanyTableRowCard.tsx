@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useId, useMemo, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Business as BusinessIcon, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { Box, Card, Chip, IconButton, Menu, MenuItem } from '@mui/material';
@@ -24,6 +24,7 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
   getDisplayName = (node) => node.companyName,
   getNodeId = (node) => node.companyId,
 }: CompanyTableRowCardProps<T>) {
+  const companyNameId = useId();
   const nodeId = getNodeId(company);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const b3Lang = useB3Lang();
@@ -70,10 +71,12 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
         padding: '16px',
         marginBottom: '16px',
       }}
+      role="listitem"
+      aria-labelledby={companyNameId}
     >
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+          <Box id={companyNameId} sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <BusinessIcon sx={{ color: 'rgba(0, 0, 0, 0.54)', mr: 1 }} />
             {getDisplayName(company)}
           </Box>
@@ -84,6 +87,7 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
               aria-controls={open ? 'company-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
+              aria-label={b3Lang('companyHierarchy.table.actions')}
               sx={{
                 pt: 0,
 
