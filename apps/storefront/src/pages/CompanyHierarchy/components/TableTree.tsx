@@ -106,7 +106,16 @@ function CompanyTableRow<T extends TreeNodeProps>({
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', ml: level * 4, alignItems: 'center' }}>
               {hasChildren ? (
-                <IconButton size="small" onClick={() => setExpanded(!expanded)} sx={{ mr: 1 }}>
+                <IconButton
+                  aria-label={
+                    expanded
+                      ? b3Lang('companyHierarchy.table.collapse')
+                      : b3Lang('companyHierarchy.table.open')
+                  }
+                  size="small"
+                  onClick={() => setExpanded(!expanded)}
+                  sx={{ mr: 1 }}
+                >
                   <KeyboardArrowDownIcon
                     sx={{
                       transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -163,6 +172,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
               aria-controls={open ? 'company-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
+              aria-label={b3Lang('companyHierarchy.table.actions')}
             >
               <MoreHorizIcon />
             </IconButton>
@@ -249,7 +259,7 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
   return (
     <>
       {isMobile ? (
-        <>
+        <div role="list">
           {mobileCompanyData.map((company) => (
             <CompanyTableRowCard
               company={company}
@@ -260,7 +270,7 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
               getNodeId={getNodeId}
             />
           ))}
-        </>
+        </div>
       ) : (
         <Paper sx={{ width: '100%', minHeight: '100px', mx: 'auto', mt: 2 }}>
           <TableContainer>
