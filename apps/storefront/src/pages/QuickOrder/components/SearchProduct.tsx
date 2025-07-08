@@ -18,21 +18,12 @@ import ChooseOptionsDialog from './ChooseOptionsDialog';
 import ProductListDialog from './ProductListDialog';
 
 interface SearchProductProps {
-  updateList?: () => void;
   addToList: (products: CustomFieldItems[]) => void;
-  searchDialogTitle?: string;
-  addButtonText?: string;
-  type?: string;
 }
 
-export default function SearchProduct({
-  updateList = () => {},
-  addToList,
-  searchDialogTitle,
-  addButtonText,
-  type,
-}: SearchProductProps) {
+export default function SearchProduct({ addToList }: SearchProductProps) {
   const b3Lang = useB3Lang();
+
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector((state) => state.company.customer.customerGroupId);
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
@@ -100,7 +91,6 @@ export default function SearchProduct({
 
     if (isAdded) {
       setIsAdded(false);
-      updateList();
     }
 
     clearProductInfo();
@@ -120,8 +110,6 @@ export default function SearchProduct({
       setIsLoading(true);
       await calculateProductListPrice(products);
       await addToList(products);
-
-      updateList();
     } finally {
       setIsLoading(false);
     }
@@ -170,7 +158,7 @@ export default function SearchProduct({
       <Typography>{b3Lang('global.searchProductAddProduct.searchBySkuOrName')}</Typography>
       <TextField
         hiddenLabel
-        placeholder={b3Lang(`global.searchProduct.placeholder.${type}`)}
+        placeholder={b3Lang('global.searchProduct.placeholder.quickOrder')}
         variant="filled"
         fullWidth
         size="small"
@@ -214,26 +202,21 @@ export default function SearchProduct({
         isLoading={isLoading}
         productList={productList}
         searchText={searchText}
-        type={type}
         onSearchTextChange={handleSearchTextChange}
         onSearch={handleSearchButtonClicked}
         onCancel={handleProductListDialogCancel}
         onProductQuantityChange={handleProductQuantityChange}
         onChooseOptionsClick={handleChangeOptionsClick}
         onAddToListClick={handleProductListAddToList}
-        searchDialogTitle={searchDialogTitle}
-        addButtonText={addButtonText}
       />
 
       <ChooseOptionsDialog
         isOpen={chooseOptionsOpen}
         isLoading={isLoading}
-        type={type}
         setIsLoading={setIsLoading}
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
-        addButtonText={addButtonText}
       />
     </Box>
   );

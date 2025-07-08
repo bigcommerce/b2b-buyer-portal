@@ -62,6 +62,7 @@ function ProductTableAction(props: ProductTableActionProps) {
 }
 
 interface ProductListDialogProps {
+  isLoading: boolean;
   isOpen: boolean;
   searchText: string;
   productList: ShoppingListProductItem[];
@@ -71,16 +72,13 @@ interface ProductListDialogProps {
   onProductQuantityChange: (id: number, newQuantity: number) => void;
   onAddToListClick: (products: CustomFieldItems[]) => void;
   onChooseOptionsClick: (id: number) => void;
-  isLoading: boolean;
-  searchDialogTitle?: string;
-  addButtonText?: string;
-  type?: string;
 }
 
 const ProductTable = B3ProductList<ShoppingListProductItem>;
 
 export default function ProductListDialog(props: ProductListDialogProps) {
   const b3Lang = useB3Lang();
+
   const {
     isOpen,
     onCancel,
@@ -92,9 +90,6 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     onAddToListClick,
     onChooseOptionsClick,
     isLoading,
-    type,
-    searchDialogTitle = b3Lang('shoppingLists.title'),
-    addButtonText = b3Lang('shoppingLists.addButtonText'),
   } = props;
 
   const isEnableProduct = useAppSelector(
@@ -118,16 +113,14 @@ export default function ProductListDialog(props: ProductListDialogProps) {
       const { variants = [] } = product || {};
       const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {};
 
-      if (type !== 'shoppingList' && purchasingDisabled === true && !isEnableProduct) {
+      if (purchasingDisabled && !isEnableProduct) {
         snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
         return false;
       }
 
       return true;
     },
-    // ignore b3Lang it's not reactive
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isEnableProduct, type],
+    [b3Lang, isEnableProduct],
   );
 
   const handleAddToList = (id: number) => {
@@ -156,7 +149,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
       fullWidth
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
-      title={searchDialogTitle}
+      title={b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
       showRightBtn={false}
       loading={isLoading}
       maxWidth="md"
@@ -197,7 +190,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
             <ProductTable
               products={productList}
               quantityEditable
-              type={type}
+              type="quickOrder"
               textAlign={isMobile ? 'left' : 'right'}
               canToProduct
               onProductQuantityChange={onProductQuantityChange}
@@ -206,7 +199,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
                   product={product}
                   onAddToListClick={handleAddToList}
                   onChooseOptionsClick={onChooseOptionsClick}
-                  addButtonText={addButtonText}
+                  addButtonText={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
                 />
               )}
               actionWidth="180px"
