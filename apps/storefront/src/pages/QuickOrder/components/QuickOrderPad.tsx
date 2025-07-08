@@ -323,54 +323,27 @@ export default function QuickOrderPad() {
         }),
       );
     }
-    // disabling this rule as b3Lang has rendering issues
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productData]);
+  }, [b3Lang, productData]);
 
   return (
-    <Card
-      sx={{
-        marginBottom: isMobile ? '8.5rem' : '50px',
-      }}
-    >
+    <Card sx={{ marginBottom: isMobile ? '8.5rem' : '50px' }}>
       <CardContent>
         <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              marginBottom: '1rem',
-            }}
-          >
+          <Typography variant="h5" sx={{ marginBottom: '1rem' }}>
             {b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
           </Typography>
 
-          <SearchProduct
-            addToList={handleQuickSearchAddCart}
-            searchDialogTitle={b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
-            type="quickOrder"
-            addButtonText={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
-          />
+          <SearchProduct addToList={handleQuickSearchAddCart} />
 
           <Divider />
 
-          <QuickAdd
-            quickAddToList={quickAddToList}
-            buttonText={b3Lang('purchasedProducts.quickOrderPad.addProductsToCart')}
-          />
+          <QuickAdd quickAddToList={quickAddToList} />
 
           <Divider />
 
-          <Box
-            sx={{
-              margin: '20px 0 0',
-            }}
-          >
+          <Box sx={{ margin: '20px 0 0' }}>
             <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
-              <UploadFileIcon
-                sx={{
-                  marginRight: '8px',
-                }}
-              />
+              <UploadFileIcon sx={{ marginRight: '8px' }} />
               {b3Lang('purchasedProducts.quickOrderPad.bulkUploadCSV')}
             </CustomButton>
           </Box>

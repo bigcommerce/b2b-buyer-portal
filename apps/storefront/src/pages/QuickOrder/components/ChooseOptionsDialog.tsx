@@ -23,12 +23,7 @@ import { useAppSelector } from '@/store';
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '@/types';
 import { currencyFormat, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import {
-  calculateProductListPrice,
-  getBCPrice,
-  getProductInfoDisplayPrice,
-  getVariantInfoDisplayPrice,
-} from '@/utils/b3Product/b3Product';
+import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   Base64,
   getOptionRequestData,
@@ -85,11 +80,8 @@ interface ChooseOptionsDialogProps {
   product?: ShoppingListProductItem;
   onCancel: () => void;
   onConfirm: (products: CustomFieldItems[]) => void;
-  isEdit?: boolean;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
-  addButtonText?: string;
-  type?: string;
 }
 
 interface ChooseOptionsProductProps extends ShoppingListProductItem {
@@ -104,20 +96,8 @@ interface ChooseOptionsProductProps extends ShoppingListProductItem {
 }
 
 export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
-  const {
-    isOpen,
-    onCancel,
-    onConfirm,
-    product,
-    isEdit = false,
-    isLoading,
-    setIsLoading,
-    type,
-    ...restProps
-  } = props;
-
+  const { isOpen, onCancel, onConfirm, product, isLoading, setIsLoading } = props;
   const b3Lang = useB3Lang();
-  const { addButtonText = b3Lang('shoppingList.chooseOptionsDialog.addToList') } = restProps;
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
   const isEnableProduct = useAppSelector(
@@ -131,7 +111,6 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null);
   const [variantSku, setVariantSku] = useState('');
   const [currentImage, setCurrentImage] = useState<string>(product?.imageUrl || '');
-  const [isShowPrice, setShowPrice] = useState<boolean>(true);
   const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({});
   const [productPriceChangeOptions, setProductPriceChangeOptions] = useState<
     Partial<AllOptionProps>[]
@@ -140,27 +119,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (type === 'quote' && product) {
-      if (variantSku) {
-        const newProduct = product as CustomFieldItems;
-        newProduct.quantity = quantity;
-        const isPrice = !!getVariantInfoDisplayPrice(newProduct.base_price, newProduct, {
-          sku: variantSku,
-        });
-        setShowPrice(isPrice);
-      } else {
-        const newProduct = product as CustomFieldItems;
-        newProduct.quantity = quantity;
-        const isPrice = !!getProductInfoDisplayPrice(newProduct.base_price, newProduct);
-        if (!isPrice) {
-          setShowPrice(false);
-        }
-      }
-    } else if ((type === 'shoppingList' || type === 'quickOrder') && product) {
-      setShowPrice(!product?.isPriceHidden);
-    }
-  }, [variantSku, quantity, product, type]);
+  const isShowPrice = Boolean(product?.isPriceHidden);
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -378,15 +337,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const validateQuantityNumber = useCallback(() => {
     const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {};
 
-    if (type !== 'shoppingList' && purchasingDisabled === true && !isEnableProduct) {
+    if (purchasingDisabled && !isEnableProduct) {
       snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
       return false;
     }
 
     return true;
-    // disabling as b3Lang will render errors
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEnableProduct, type, variantInfo]);
+  }, [b3Lang, isEnableProduct, variantInfo]);
 
   const getOptionList = useCallback(
     (value: FieldValues) => {
@@ -522,7 +479,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   return (
     <B3Dialog
       isOpen={isOpen}
-      rightSizeBtn={isEdit ? b3Lang('shoppingList.chooseOptionsDialog.saveOption') : addButtonText}
+      rightSizeBtn={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
       title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}

@@ -16,24 +16,19 @@ import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
 
 interface AddToListContentProps {
-  updateList?: () => void;
   quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
-  level?: number;
-  buttonText?: string;
 }
+
+const LEVEL = 3;
 
 export default function QuickAdd(props: AddToListContentProps) {
   const b3Lang = useB3Lang();
-  const {
-    updateList = () => {},
-    quickAddToList,
-    level = 3,
-    buttonText = b3Lang('purchasedProducts.quickAdd.addProductToList'),
-  } = props;
+  const { quickAddToList } = props;
+  const buttonText = b3Lang('purchasedProducts.quickOrderPad.addProductsToCart');
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
-  const [rows, setRows] = useState(level);
+  const [rows, setRows] = useState(LEVEL);
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,14 +42,12 @@ export default function QuickAdd(props: AddToListContentProps) {
       formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)];
     });
     setFormFields(formFields);
-    // disabling since b3Lang since it has rendering issues
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows]);
+  }, [b3Lang, rows]);
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const handleAddRowsClick = () => {
-    setRows(rows + level);
+    setRows(rows + LEVEL);
   };
 
   const {
@@ -382,8 +375,6 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (productItems.length > 0) {
           await quickAddToList(productItems);
           clearInputValue(value, passSku);
-
-          updateList();
         }
       } finally {
         setIsLoading(false);
