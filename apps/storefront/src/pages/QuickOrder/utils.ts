@@ -126,8 +126,8 @@ export const getCartProductInfo = async () => {
 
   if (cart) {
     const { lineItems } = cart;
-    return Object.keys(lineItems).reduce((pre, cru) => {
-      lineItems[cru].forEach((item: LineItem) => {
+    return Object.values(lineItems).reduce((pre, lineItems) => {
+      lineItems.forEach((item: LineItem) => {
         pre.push(item);
       });
 

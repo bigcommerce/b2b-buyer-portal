@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 
 import { CreateCartInput, DeleteCartInput } from '@/types/cart';
 import { platform } from '@/utils';
+import { LineItem } from '@/utils/b3Product/b3Product';
 
 import B3Request from '../../request/b3Fetch';
 
@@ -284,7 +285,45 @@ const deleteCartQuery = `mutation DeleteCart($deleteCartInput: DeleteCartInput!)
   }
 }`;
 
-export const getCart = async (cartId?: string): Promise<any> => {
+export interface GetCart {
+  data: {
+    site: {
+      cart: null | {
+        entityId: string;
+        currencyCode: string;
+        isTaxIncluded: boolean;
+        baseAmount: {
+          currencyCode: string;
+          value: number;
+        };
+        discountedAmount: {
+          currencyCode: string;
+          value: number;
+        };
+        amount: {
+          currencyCode: string;
+          value: number;
+        };
+        discounts: Array<{
+          entityId: string;
+          discountedAmount: {
+            currencyCode: string;
+            value: number;
+          };
+        }>;
+        lineItems: {
+          physicalItems: LineItem[];
+          digitalItems: LineItem[];
+          giftCertificates: LineItem[];
+          customItems: LineItem[];
+        };
+        locale: string;
+      };
+    };
+  };
+}
+
+export const getCart = async (cartId?: string): Promise<GetCart> => {
   if (platform === 'bigcommerce') {
     const cartInfo = await B3Request.graphqlBC({
       query: getCartInfo,
