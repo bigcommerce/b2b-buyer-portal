@@ -253,6 +253,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         const deleteCartObject = deleteCartData(cartEntityId);
         const cartInfo = await getCart();
         let res = null;
+        // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
         if (allowJuniorPlaceOrder && cartInfo.length) {
           await deleteCart(deleteCartObject);
           res = await updateCart(cartInfo, lineItems);

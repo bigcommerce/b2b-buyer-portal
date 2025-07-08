@@ -78,17 +78,17 @@ export const renderWithProviders = (
       <Suspense fallback="test-loading">
         <QueryClientProvider client={queryClient}>
           <GlobalProvider>
-            <MockGlobalProvider payload={initialGlobalContext} />
-            <Provider store={store}>
-              <LangProvider>
-                <DynamicallyVariableProvider>
-                  <B3LayoutTip />
-                  <MemoryRouter initialEntries={initialEntries}>
+            <MemoryRouter initialEntries={initialEntries}>
+              <MockGlobalProvider payload={initialGlobalContext} />
+              <Provider store={store}>
+                <LangProvider>
+                  <DynamicallyVariableProvider>
+                    <B3LayoutTip />
                     <NavigationSpy spy={navigation}>{children}</NavigationSpy>
-                  </MemoryRouter>
-                </DynamicallyVariableProvider>
-              </LangProvider>
-            </Provider>
+                  </DynamicallyVariableProvider>
+                </LangProvider>
+              </Provider>
+            </MemoryRouter>
           </GlobalProvider>
         </QueryClientProvider>
       </Suspense>

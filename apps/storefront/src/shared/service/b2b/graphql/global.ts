@@ -251,6 +251,54 @@ const companyCreditConfig = () => `{
   }
 }`;
 
+interface BulkPricing {
+  minimum: number;
+  maximum: number | null;
+  discountAmount: number;
+  discountType: string;
+  taxDiscountAmount: null;
+}
+
+interface CalculatedPrice {
+  asEntered: number;
+  enteredInclusive: boolean;
+  taxExclusive: number;
+  taxInclusive: number;
+}
+
+interface PriceRange {
+  minimum: CalculatedPrice;
+  maximum: CalculatedPrice;
+}
+
+interface ReferenceRequest {
+  productId: number;
+  variantId: number;
+  options: null;
+}
+
+interface PriceProduct {
+  productId: number;
+  variantId: number;
+  options: any[];
+  referenceRequest: ReferenceRequest;
+  retailPrice: null;
+  salePrice: null;
+  minimumAdvertisedPrice: null;
+  saved: null;
+  price: CalculatedPrice;
+  calculatedPrice: CalculatedPrice;
+  priceRange: PriceRange;
+  retailPriceRange: null;
+  bulkPricing: BulkPricing[];
+}
+
+export interface PriceProductsResponse {
+  data: {
+    priceProducts: PriceProduct[];
+  };
+}
+
 const priceProducts = `query priceProducts($storeHash: String, $channelId: Int, $currencyCode: String!, $customerGroupId: Int, $items: [PricingProductItemInputType]!) {
   priceProducts(
 		storeHash: $storeHash,
