@@ -14,10 +14,10 @@ import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
-import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
 import { addCartProductToVerify } from '../utils';
 
 import QuickAdd from './QuickAdd';
+import SearchProduct from './SearchProduct';
 
 export default function QuickOrderPad() {
   const [isMobile] = useMobile();
