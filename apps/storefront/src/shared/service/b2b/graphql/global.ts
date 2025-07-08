@@ -353,7 +353,7 @@ const priceProducts = `query priceProducts($storeHash: String, $channelId: Int, 
 }
 `;
 
-const companySubsidiaries = `query {
+const companySubsidiaries = `query CompanySubsidiaries {
 	companySubsidiaries {
 		companyId
 		companyName

@@ -140,7 +140,6 @@
   "dashboard.masqueradeModal.actions.cancel": "Cancel",
   "dashboard.masqueradeModal.actions.continue": "Continue",
 
-
   "orders.order": "Order",
   "orders.poReference": "PO / Reference",
   "orders.grandTotal": "Grand total",
@@ -728,6 +727,9 @@
   "payment.okButton": "Ok",
 
   "companyHierarchy.table.name": "Name",
+  "companyHierarchy.table.actions": "Actions",
+  "companyHierarchy.table.collapse": "Collapse",
+  "companyHierarchy.table.open": "Open",
   "companyHierarchy.dialog.title": "Switch company",
   "companyHierarchy.dialog.content": "Switching to a different company will refresh your shopping cart. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "Your company",
