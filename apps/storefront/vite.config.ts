@@ -43,6 +43,10 @@ export default defineConfig(({ mode }) => {
       },
     },
     test: {
+      onConsoleLog(warning) {
+        // TODO: This warns in production, will have to be fixed in the future.
+        return !warning.includes('The value provided to Autocomplete is invalid.');
+      },
       slowTestThreshold: 4_000,
       env: {
         VITE_B2B_URL: 'https://api-b2b.bigcommerce.com',
