@@ -38,15 +38,15 @@ const buildShoppingListsNodeWith = builder<{ node: ShoppingListsItemsProps }>(()
     approvedFlag: faker.datatype.boolean(),
     isOwner: faker.datatype.boolean(),
     companyInfo: {
-      companyId: faker.string.numeric(),
+      companyId: faker.number.int().toString(),
       companyName: faker.company.name(),
       companyAddress: faker.location.streetAddress(),
       companyCountry: faker.location.country(),
       companyState: faker.location.state(),
       companyCity: faker.location.city(),
       companyZipCode: faker.location.zipCode(),
-      phoneNumber: faker.string.numeric(),
-      bcId: faker.string.numeric(),
+      phoneNumber: faker.number.int().toString(),
+      bcId: faker.number.int().toString(),
     },
   },
 }));

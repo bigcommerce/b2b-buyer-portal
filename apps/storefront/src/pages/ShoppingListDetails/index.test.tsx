@@ -40,7 +40,7 @@ const buildShoppingListProductEdgeWith = builder<ShoppingListProductEdge>(() => 
     quantity: faker.number.int({ min: 1, max: 10 }),
     productName: faker.commerce.productName(),
     optionList: JSON.stringify([
-      { option_id: faker.string.numeric(), option_value: faker.word.sample() },
+      { option_id: faker.number.int().toString(), option_value: faker.word.sample() },
     ]),
     itemId: faker.number.int(),
     baseSku: faker.string.alphanumeric(5),

@@ -35,7 +35,7 @@ const { server } = startMockServer();
 
 const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
   node: {
-    orderId: faker.string.numeric({ length: 4 }),
+    orderId: faker.number.int().toString(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     createdAt: getUnixTime(faker.date.past()),
@@ -47,8 +47,8 @@ const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
     usdIncTax: faker.number.float(),
     items: faker.number.int(),
     userId: faker.number.int(),
-    poNumber: faker.string.numeric({ length: 5 }),
-    referenceNumber: faker.string.numeric({ length: 3 }),
+    poNumber: faker.number.int().toString(),
+    referenceNumber: faker.number.int().toString(),
     status: faker.word.noun(),
     customStatus: faker.word.noun(),
     statusCode: faker.number.int(),
@@ -60,7 +60,7 @@ const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
 }));
 
 const buildOrderStatusWith = builder<CustomerOrderStatus>(() => ({
-  statusCode: faker.string.numeric({ length: 4 }),
+  statusCode: faker.number.int().toString(),
   systemLabel: faker.word.noun(),
   customLabel: faker.word.noun(),
 }));
@@ -643,7 +643,7 @@ describe('when a personal customer', () => {
 
 const buildCompanyOrderNodeWith = builder<CompanyOrderNode>(() => ({
   node: {
-    orderId: faker.string.numeric({ length: 4 }),
+    orderId: faker.number.int().toString(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     createdAt: getUnixTime(faker.date.past()),
@@ -655,8 +655,8 @@ const buildCompanyOrderNodeWith = builder<CompanyOrderNode>(() => ({
     usdIncTax: faker.number.float(),
     items: faker.number.int(),
     userId: faker.number.int(),
-    poNumber: faker.string.numeric({ length: 5 }),
-    referenceNumber: faker.string.numeric({ length: 3 }),
+    poNumber: faker.number.int().toString(),
+    referenceNumber: faker.number.int().toString(),
     status: faker.word.noun(),
     customStatus: faker.word.noun(),
     statusCode: faker.number.int(),

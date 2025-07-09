@@ -26,20 +26,24 @@ const { server } = startMockServer();
 
 type UserExtraField = UserExtraFieldsInfoResponse['data']['userExtraFields'][number];
 
-const buildUserExtraFieldWith = builder<UserExtraField>(() => ({
-  fieldName: faker.lorem.words(3),
-  fieldType: faker.helpers.arrayElement([0, 1, 2, 3]),
-  isRequired: faker.datatype.boolean(),
-  defaultValue: faker.word.sample(),
-  maximumLength: faker.number.int({ min: 1, max: 100 }).toString(),
-  numberOfRows: faker.number.int({ min: 1, max: 10 }),
-  maximumValue: faker.number.int({ min: 1, max: 100 }).toString(),
-  listOfValue: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
+const buildUserExtraFieldWith = builder<UserExtraField>(() => {
+  const listOfValue = Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
     faker.word.sample(),
-  ),
-  visibleToEnduser: faker.datatype.boolean(),
-  labelName: faker.lorem.words(),
-}));
+  );
+
+  return {
+    fieldName: faker.lorem.words(3),
+    fieldType: faker.helpers.arrayElement([0, 1, 2, 3]),
+    isRequired: faker.datatype.boolean(),
+    defaultValue: faker.helpers.arrayElement(listOfValue),
+    maximumLength: faker.number.int({ min: 1, max: 100 }).toString(),
+    numberOfRows: faker.number.int({ min: 1, max: 10 }),
+    maximumValue: faker.number.int({ min: 1, max: 100 }).toString(),
+    listOfValue,
+    visibleToEnduser: faker.datatype.boolean(),
+    labelName: faker.lorem.words(),
+  };
+});
 
 const buildUserExtraFieldsResponseWith = builder<UserExtraFieldsInfoResponse>(() => ({
   data: {

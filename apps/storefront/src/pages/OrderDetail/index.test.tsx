@@ -39,7 +39,7 @@ vi.mock('react-router-dom');
 const { server } = startMockServer();
 
 const buildOrderStatusWith = builder<CustomerOrderStatus>(() => ({
-  statusCode: faker.string.numeric({ length: 4 }),
+  statusCode: faker.number.int().toString(),
   systemLabel: faker.word.noun(),
   customLabel: faker.word.noun(),
 }));
@@ -101,7 +101,7 @@ const buildProductOptionWith = builder<OrderProduct['product_options'][number]>(
 const buildProductWith = builder<OrderProduct>(() => ({
   id: faker.number.int(),
   name: faker.commerce.productName(),
-  sku: faker.string.numeric({ length: 4 }),
+  sku: faker.number.int().toString(),
   quantity: faker.number.int(),
   price_ex_tax: faker.number.float({ min: 0, max: 200 }).toFixed(2),
   price_inc_tax: faker.number.float({ min: 0, max: 200 }).toFixed(2),
@@ -150,8 +150,8 @@ const buildShippingAddressWith = builder<CustomerOrderShippingAddress>(() => ({
 const buildCustomerOrderResponseWith = builder<GetCustomerOrder>(() => ({
   data: {
     customerOrder: {
-      id: faker.string.numeric({ length: 4 }),
-      poNumber: faker.helpers.maybe(() => faker.string.numeric({ length: 4 })),
+      id: faker.number.int().toString(),
+      poNumber: faker.helpers.maybe(() => faker.number.int().toString()),
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       dateCreated: faker.date.recent().getTime(),
@@ -190,7 +190,7 @@ const buildCustomerOrderResponseWith = builder<GetCustomerOrder>(() => ({
 
 const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
   node: {
-    orderId: faker.string.numeric({ length: 4 }),
+    orderId: faker.number.int().toString(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     createdAt: getUnixTime(faker.date.past()),
@@ -202,8 +202,8 @@ const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
     usdIncTax: faker.number.float(),
     items: faker.number.int(),
     userId: faker.number.int(),
-    poNumber: faker.string.numeric({ length: 5 }),
-    referenceNumber: faker.string.numeric({ length: 3 }),
+    poNumber: faker.number.int().toString(),
+    referenceNumber: faker.number.int().toString(),
     status: faker.word.noun(),
     customStatus: faker.word.noun(),
     statusCode: faker.number.int(),
@@ -244,7 +244,7 @@ const buildShipmentWith = builder<Shipment>(() => ({
   shipping_provider_display_name: faker.company.name(),
   order_address_id: faker.number.int(),
   tracking_link: faker.internet.url(),
-  tracking_number: faker.string.numeric({ length: 4 }),
+  tracking_number: faker.number.int().toString(),
   generated_tracking_link: faker.internet.url(),
 }));
 
@@ -259,7 +259,7 @@ describe('when a personal customer visits an order', () => {
   };
 
   beforeEach(() => {
-    vi.mocked(useParams).mockReturnValue({ id: faker.string.numeric({ length: 3 }) });
+    vi.mocked(useParams).mockReturnValue({ id: faker.number.int().toString() });
   });
 
   it('renders the order header', async () => {
