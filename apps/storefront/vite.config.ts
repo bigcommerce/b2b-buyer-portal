@@ -8,7 +8,20 @@ import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { gte } from 'semver';
 import { defineConfig, loadEnv } from 'vite';
+
+const { error } = console;
+
+const requiredNodeVersion = '22.16.0';
+
+if (!gte(process.versions.node, requiredNodeVersion)) {
+  error(
+    `❌ This repo requires Node.js version ${requiredNodeVersion}, but the current version is ${process.versions.node}.`,
+  );
+
+  process.exit(1);
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());

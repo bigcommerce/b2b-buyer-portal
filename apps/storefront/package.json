@@ -87,6 +87,7 @@
     "jsdom": "^24.1.0",
     "msw": "^2.8.4",
     "rollup-plugin-visualizer": "^6.0.3",
+    "semver": "^7.7.2",
     "terser": "^5.43.1",
     "typescript": "^5.8.3",
     "vite": "^7.0.0",
