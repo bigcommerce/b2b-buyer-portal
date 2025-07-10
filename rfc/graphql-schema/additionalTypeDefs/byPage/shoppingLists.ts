@@ -6,7 +6,7 @@ export default /* GraphQL */ `
   enum ShoppingListStatus {
     DRAFT
     ARCHIVED
-    READY_FOR_APPROVAL
+    AWAITING_APPROVAL
     APPROVED
     REJECTED
   }
