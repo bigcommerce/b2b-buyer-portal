@@ -70,12 +70,27 @@ function useData() {
     return true;
   };
 
-  return { isBCUser, isB2BUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
+  return {
+    isBCUser,
+    isB2BUser,
+    companyId,
+    customer,
+    validateEmailValue,
+    emailValidation,
+    passwordValidation,
+  };
 }
 
 function AccountSetting() {
-  const { isBCUser, isB2BUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
-    useData();
+  const {
+    isBCUser,
+    isB2BUser,
+    companyId,
+    customer,
+    validateEmailValue,
+    emailValidation,
+    passwordValidation,
+  } = useData();
 
   const {
     control,
@@ -291,31 +306,43 @@ function AccountSetting() {
         {!isB2BUser && platform === 'catalyst' && (
           <Box>
             <Alert
-              severity='info'
-              variant='filled'
+              severity="info"
+              variant="filled"
               sx={{
                 width: 'inherit',
                 '& button[title="Close"]': {
-                  display: 'block', 
+                  display: 'block',
                 },
                 mb: '24px',
                 maxWidth: '1450px',
 
                 '& .MuiAlert-icon': {
-                  padding:'12px 0',
+                  padding: '12px 0',
                 },
 
                 '& .MuiAlert-message': {
                   width: '100%',
-                }
+                },
               }}
             >
               <Box display="flex" flexWrap="wrap" justifyContent="space-between" width="100%">
                 <Box>
-                  <Typography variant="subtitle1" fontWeight="800">{b3Lang('accountSettings.registeredToB2b.title')}</Typography>
-                  <Typography sx={{ textWrap:'wrap' }}>{b3Lang('accountSettings.registeredToB2b.description')}</Typography>
+                  <Typography variant="subtitle1" fontWeight="800">
+                    {b3Lang('accountSettings.registeredToB2b.title')}
+                  </Typography>
+                  <Typography sx={{ textWrap: 'wrap' }}>
+                    {b3Lang('accountSettings.registeredToB2b.description')}
+                  </Typography>
                 </Box>
-                <Typography component={Link} to="/registeredbctob2b" sx={{ textDecoration: 'none', textTransform: 'uppercase' }} fontWeight="bold" color="#fff">{b3Lang('accountSettings.registeredToB2b.upgrade')}</Typography>
+                <Typography
+                  component={Link}
+                  to="/registeredbctob2b"
+                  sx={{ textDecoration: 'none', textTransform: 'uppercase' }}
+                  fontWeight="bold"
+                  color="#fff"
+                >
+                  {b3Lang('accountSettings.registeredToB2b.upgrade')}
+                </Typography>
               </Box>
             </Alert>
           </Box>

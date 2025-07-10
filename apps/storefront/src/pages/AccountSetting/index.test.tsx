@@ -5,8 +5,10 @@ import {
   renderWithProviders,
   screen,
 } from 'tests/test-utils';
-import AccountSetting from '.';
+
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
+
+import AccountSetting from '.';
 
 vi.mock('@/utils', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/utils')>()),
