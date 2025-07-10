@@ -2,8 +2,11 @@ import {
   buildCompanyStateWith,
   builder,
   faker,
+  graphql,
+  HttpResponse,
   renderWithProviders,
   screen,
+  startMockServer,
 } from 'tests/test-utils';
 
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
@@ -14,6 +17,8 @@ vi.mock('@/utils', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/utils')>()),
   platform: 'catalyst',
 }));
+
+const { server } = startMockServer();
 
 const buildCustomerWith = builder<Customer>(() => ({
   id: 0,
@@ -47,6 +52,16 @@ describe('B2B Upgrade Banner', () => {
       companyInfo: companyInfoInCompanyState,
       permissions: [],
     });
+
+    server.use(
+      graphql.query('B2BAccountFormFields', () =>
+        HttpResponse.json({
+          data: {
+            accountFormFields: [],
+          },
+        }),
+      ),
+    );
 
     renderWithProviders(<AccountSetting />, {
       preloadedState: {
@@ -82,6 +97,16 @@ describe('B2B Upgrade Banner', () => {
       companyInfo: companyInfoInCompanyState,
       permissions: [],
     });
+
+    server.use(
+      graphql.query('B2BAccountFormFields', () =>
+        HttpResponse.json({
+          data: {
+            accountFormFields: [],
+          },
+        }),
+      ),
+    );
 
     renderWithProviders(<AccountSetting />, {
       preloadedState: {
