@@ -61,6 +61,13 @@ describe('B2B Upgrade Banner', () => {
           },
         }),
       ),
+      graphql.query('getB2bAccountSettings', () =>
+        HttpResponse.json({
+          data: {
+            accountSettings: {},
+          },
+        }),
+      ),
     );
 
     renderWithProviders(<AccountSetting />, {
@@ -103,6 +110,13 @@ describe('B2B Upgrade Banner', () => {
         HttpResponse.json({
           data: {
             accountFormFields: [],
+          },
+        }),
+      ),
+      graphql.query('getB2cAccountSettings', () =>
+        HttpResponse.json({
+          data: {
+            customerAccountSettings: [],
           },
         }),
       ),
