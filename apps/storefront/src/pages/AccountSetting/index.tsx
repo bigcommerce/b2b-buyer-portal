@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import { Box } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components';
@@ -23,7 +23,7 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage, channelId, snackbar } from '@/utils';
+import { B3SStorage, channelId, platform, snackbar } from '@/utils';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
@@ -70,11 +70,11 @@ function useData() {
     return true;
   };
 
-  return { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
+  return { isBCUser, isB2BUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
 }
 
 function AccountSetting() {
-  const { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
+  const { isBCUser, isB2BUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
     useData();
 
   const {
@@ -287,50 +287,84 @@ function AccountSetting() {
 
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
-      <Box
-        sx={{
-          width: isMobile ? '100%' : '35%',
-          minHeight: isMobile ? '800px' : '300px',
-          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
-            {
-              bgcolor: b3HexToRgb('#FFFFFF', 0.87),
-              borderRadius: '4px',
-              borderBottomLeftRadius: '0',
-              borderBottomRightRadius: '0',
-            },
-          '& .MuiButtonBase-root.MuiCheckbox-root:not(.Mui-checked), & .MuiRadio-root:not(.Mui-checked)':
-            {
-              color: b3HexToRgb(getContrastColor(backgroundColor), 0.6),
-            },
-          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
-            {
-              color: b3HexToRgb(getContrastColor(backgroundColor), 0.87),
-            },
-          '& .MuiInputLabel-root.MuiInputLabel-formControl:not(.Mui-focused)': {
-            color: b3HexToRgb(getContrastColor('#FFFFFF'), 0.6),
-          },
-        }}
-      >
-        <B3CustomForm
-          formFields={translatedFields}
-          errors={errors}
-          control={control}
-          getValues={getValues}
-          setValue={setValue}
-        />
+      <Box>
+        {!isB2BUser && platform === 'catalyst' && (
+          <Box>
+            <Alert
+              severity='info'
+              variant='filled'
+              sx={{
+                width: 'inherit',
+                '& button[title="Close"]': {
+                  display: 'block', 
+                },
+                mb: '24px',
+                maxWidth: '1450px',
 
-        <CustomButton
+                '& .MuiAlert-icon': {
+                  padding:'12px 0',
+                },
+
+                '& .MuiAlert-message': {
+                  width: '100%',
+                }
+              }}
+            >
+              <Box display="flex" flexWrap="wrap" justifyContent="space-between" width="100%">
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="800">{b3Lang('accountSettings.registeredToB2b.title')}</Typography>
+                  <Typography sx={{ textWrap:'wrap' }}>{b3Lang('accountSettings.registeredToB2b.description')}</Typography>
+                </Box>
+                <Typography component={Link} to="/registeredbctob2b" sx={{ textDecoration: 'none', textTransform: 'uppercase' }} fontWeight="bold" color="#fff">{b3Lang('accountSettings.registeredToB2b.upgrade')}</Typography>
+              </Box>
+            </Alert>
+          </Box>
+        )}
+        <Box
           sx={{
-            mt: '28px',
-            mb: isMobile ? '20px' : '0',
-            width: '100%',
-            visibility: isVisible ? 'visible' : 'hidden',
+            width: isMobile ? '100%' : '35%',
+            minHeight: isMobile ? '800px' : '300px',
+            '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
+              {
+                bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+                borderRadius: '4px',
+                borderBottomLeftRadius: '0',
+                borderBottomRightRadius: '0',
+              },
+            '& .MuiButtonBase-root.MuiCheckbox-root:not(.Mui-checked), & .MuiRadio-root:not(.Mui-checked)':
+              {
+                color: b3HexToRgb(getContrastColor(backgroundColor), 0.6),
+              },
+            '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
+              {
+                color: b3HexToRgb(getContrastColor(backgroundColor), 0.87),
+              },
+            '& .MuiInputLabel-root.MuiInputLabel-formControl:not(.Mui-focused)': {
+              color: b3HexToRgb(getContrastColor('#FFFFFF'), 0.6),
+            },
           }}
-          onClick={handleAddUserClick}
-          variant="contained"
         >
-          {b3Lang('accountSettings.button.saveUpdates')}
-        </CustomButton>
+          <B3CustomForm
+            formFields={translatedFields}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+
+          <CustomButton
+            sx={{
+              mt: '28px',
+              mb: isMobile ? '20px' : '0',
+              width: '100%',
+              visibility: isVisible ? 'visible' : 'hidden',
+            }}
+            onClick={handleAddUserClick}
+            variant="contained"
+          >
+            {b3Lang('accountSettings.button.saveUpdates')}
+          </CustomButton>
+        </Box>
       </Box>
     </B3Spin>
   );
