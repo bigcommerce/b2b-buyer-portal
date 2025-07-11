@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -232,366 +233,422 @@ afterEach(() => {
   Cookies.remove('cartId');
 });
 
-describe('has recently ordered products', () => {
-  it('displays a table with product information', async () => {
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+it('displays a table with product information', async () => {
+  const getRecentlyOrderedProducts = vi.fn();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
-    const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Laugh Canister',
-        sku: 'SCR-623',
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: {
+      productName: 'Laugh Canister',
+      sku: 'SCR-623',
+    },
+  });
+
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+      }),
+    );
+
+  when(searchProducts)
+    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+          }),
+        ],
       },
     });
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-      .thenReturn(
-        buildGetRecentlyOrderedProductsWith({
-          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
-        }),
-      );
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-            }),
-          ],
-        },
-      });
+  renderWithProviders(<QuickOrder />, { preloadedState });
 
-    server.use(
-      graphql.query('RecentlyOrderedProducts', ({ query }) =>
-        HttpResponse.json(getRecentlyOrderedProducts(query)),
-      ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-    );
+  expect(await screen.findByText('1 products')).toBeInTheDocument();
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
+  const table = screen.getByRole('table');
 
-    expect(await screen.findByText('1 products')).toBeInTheDocument();
+  const columnHeaders = within(table).getAllByRole('columnheader');
 
-    const table = screen.getByRole('table');
+  expect(within(columnHeaders[0]).getByRole('checkbox')).toBeInTheDocument();
+  expect(columnHeaders[1]).toHaveTextContent('Product');
+  expect(columnHeaders[2]).toHaveTextContent('Price');
+  expect(columnHeaders[3]).toHaveTextContent('Qty');
+  expect(columnHeaders[4]).toHaveTextContent('Last ordered');
+});
 
-    const columnHeaders = within(table).getAllByRole('columnheader');
+it('displays all the information associated with the products', async () => {
+  vi.setSystemTime(new Date('22 July 2024'));
 
-    expect(within(columnHeaders[0]).getByRole('checkbox')).toBeInTheDocument();
-    expect(columnHeaders[1]).toHaveTextContent('Product');
-    expect(columnHeaders[2]).toHaveTextContent('Price');
-    expect(columnHeaders[3]).toHaveTextContent('Qty');
-    expect(columnHeaders[4]).toHaveTextContent('Last ordered');
+  const getRecentlyOrderedProducts = vi.fn();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: {
+      productName: 'Laugh Canister',
+      sku: 'SCR-623',
+      basePrice: '122.33',
+      variantSku: 'VARIANT-123',
+      lastOrderedAt: getUnixTime(new Date('22 July 2024')),
+    },
   });
 
-  it('displays all the information associated with the products', async () => {
-    vi.setSystemTime(new Date('22 July 2024'));
+  when(getRecentlyOrderedProducts)
+    .calledWith(
+      stringContainingAll(
+        'first: 12',
+        'offset: 0',
+        'orderBy: "-lastOrderedAt"',
+        'beginDateAt: "2024-04-23"',
+        'endDateAt: "2024-07-22"',
+      ),
+    )
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+      }),
+    );
 
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-    const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Laugh Canister',
-        sku: 'SCR-623',
-        basePrice: '122.33',
-        variantSku: 'VARIANT-123',
-        lastOrderedAt: getUnixTime(new Date('22 July 2024')),
+  when(searchProducts)
+    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            isPriceHidden: false,
+          }),
+        ],
       },
     });
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(
-        stringContainingAll(
-          'first: 12',
-          'offset: 0',
-          'orderBy: "-lastOrderedAt"',
-          'beginDateAt: "2024-04-23"',
-          'endDateAt: "2024-07-22"',
-        ),
-      )
-      .thenReturn(
-        buildGetRecentlyOrderedProductsWith({
-          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
-        }),
-      );
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              isPriceHidden: false,
-            }),
-          ],
-        },
-      });
+  renderWithProviders(<QuickOrder />, { preloadedState });
 
-    server.use(
-      graphql.query('RecentlyOrderedProducts', ({ query }) =>
-        HttpResponse.json(getRecentlyOrderedProducts(query)),
-      ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-    );
+  const row = await screen.findByRole('row', { name: /Laugh Canister/ });
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
+  expect(within(row).getByRole('cell', { name: /Laugh Canister/ })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: /VARIANT-123/ })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '$122.33' })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '1' })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '22 July 2024' })).toBeInTheDocument();
+});
 
-    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+it('can change sort order by clicking the table headers', async () => {
+  const getRecentlyOrderedProducts = vi.fn();
 
-    expect(within(row).getByRole('cell', { name: /Laugh Canister/ })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: /VARIANT-123/ })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '$122.33' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '1' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '22 July 2024' })).toBeInTheDocument();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: {
+      productName: 'Laugh Canister',
+    },
   });
 
-  it('can change sort order by clicking the table headers', async () => {
-    const getRecentlyOrderedProducts = vi.fn();
+  const doorStationPanel = buildRecentlyOrderedProductNodeWith({
+    node: { productName: 'Door Station Panel' },
+  });
 
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('orderBy: "-lastOrderedAt"'))
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 2, edges: [laughCanister, doorStationPanel] } },
+      }),
+    );
 
-    const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Laugh Canister',
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('orderBy: "productName"'))
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 2, edges: [doorStationPanel, laughCanister] } },
+      }),
+    );
+
+  when(searchProducts)
+    .calledWith(stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+          }),
+          buildSearchProductWith({
+            id: Number(doorStationPanel.node.productId),
+            name: doorStationPanel.node.productName,
+            sku: doorStationPanel.node.sku,
+          }),
+        ],
       },
     });
 
-    const doorStationPanel = buildRecentlyOrderedProductNodeWith({
-      node: { productName: 'Door Station Panel' },
-    });
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(stringContainingAll('orderBy: "-lastOrderedAt"'))
-      .thenReturn(
-        buildGetRecentlyOrderedProductsWith({
-          data: { orderedProducts: { totalCount: 2, edges: [laughCanister, doorStationPanel] } },
-        }),
-      );
+  renderWithProviders(<QuickOrder />, { preloadedState });
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(stringContainingAll('orderBy: "productName"'))
-      .thenReturn(
-        buildGetRecentlyOrderedProductsWith({
-          data: { orderedProducts: { totalCount: 2, edges: [doorStationPanel, laughCanister] } },
-        }),
-      );
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    when(searchProducts)
-      .calledWith(
-        stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId),
-      )
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-            }),
-            buildSearchProductWith({
-              id: Number(doorStationPanel.node.productId),
-              name: doorStationPanel.node.productName,
-              sku: doorStationPanel.node.sku,
-            }),
-          ],
-        },
-      });
+  const before = await screen.findAllByRole('row');
 
-    server.use(
-      graphql.query('RecentlyOrderedProducts', ({ query }) =>
-        HttpResponse.json(getRecentlyOrderedProducts(query)),
-      ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-    );
+  // before[0] is the header row, so we start from 1
+  expect(before[1]).toHaveTextContent('Laugh Canister');
+  expect(before[2]).toHaveTextContent('Door Station Panel');
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
+  const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
 
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  await userEvent.click(within(productHeader).getByRole('button'));
 
-    const before = await screen.findAllByRole('row');
+  const after = await screen.findAllByRole('row');
 
-    // before[0] is the header row, so we start from 1
-    expect(before[1]).toHaveTextContent('Laugh Canister');
-    expect(before[2]).toHaveTextContent('Door Station Panel');
+  // after[0] is the header row, so we start from 1
+  expect(after[1]).toHaveTextContent('Door Station Panel');
+  expect(after[2]).toHaveTextContent('Laugh Canister');
+});
 
-    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
-
-    await userEvent.click(within(productHeader).getByRole('button'));
-
-    const after = await screen.findAllByRole('row');
-
-    // after[0] is the header row, so we start from 1
-    expect(after[1]).toHaveTextContent('Door Station Panel');
-    expect(after[2]).toHaveTextContent('Laugh Canister');
+it('can filter products by date-range and search', async () => {
+  const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+    data: {
+      orderedProducts: {
+        totalCount: 0,
+        edges: [],
+      },
+    },
   });
 
-  it('can filter products by date-range and search', async () => {
-    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: {
+      productName: 'Laugh Canister',
+    },
+  });
+
+  when(getRecentlyOrderedProducts)
+    .calledWith(
+      stringContainingAll(
+        'first: 12',
+        'offset: 0',
+        'orderBy: "-lastOrderedAt"',
+        'beginDateAt: "2024-04-15"',
+        'endDateAt: "2024-05-14"',
+        'q: "Laugh Canister"',
+      ),
+    )
+    .thenReturn({
       data: {
         orderedProducts: {
-          totalCount: 0,
-          edges: [],
+          totalCount: 1,
+          edges: [laughCanister],
         },
       },
     });
 
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-    const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Laugh Canister',
+  when(searchProducts)
+    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+          }),
+        ],
       },
     });
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(
-        stringContainingAll(
-          'first: 12',
-          'offset: 0',
-          'orderBy: "-lastOrderedAt"',
-          'beginDateAt: "2024-04-15"',
-          'endDateAt: "2024-05-14"',
-          'q: "Laugh Canister"',
-        ),
-      )
-      .thenReturn({
-        data: {
-          orderedProducts: {
-            totalCount: 1,
-            edges: [laughCanister],
-          },
-        },
-      });
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-            }),
-          ],
-        },
-      });
+  renderWithProviders(<QuickOrder />, { preloadedState });
 
-    server.use(
-      graphql.query('RecentlyOrderedProducts', ({ query }) =>
-        HttpResponse.json(getRecentlyOrderedProducts(query)),
-      ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-    );
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
+  const fromInput = screen.getByRole('textbox', { name: /From/ });
+  const toInput = screen.getByRole('textbox', { name: /To/ });
+  const searchInput = screen.getByPlaceholderText('Search');
 
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  await userEvent.clear(fromInput);
+  await userEvent.type(fromInput, '04/15/2024');
+  await userEvent.clear(toInput);
+  await userEvent.type(toInput, '05/14/2024');
+  await userEvent.type(searchInput, 'Laugh Canister');
 
-    const fromInput = screen.getByRole('textbox', { name: /From/ });
-    const toInput = screen.getByRole('textbox', { name: /To/ });
-    const searchInput = screen.getByPlaceholderText('Search');
+  expect(await screen.findByRole('row', { name: /Laugh Canister/ })).toBeInTheDocument();
+});
 
-    await userEvent.clear(fromInput);
-    await userEvent.type(fromInput, '04/15/2024');
-    await userEvent.clear(toInput);
-    await userEvent.type(toInput, '05/14/2024');
-    await userEvent.type(searchInput, 'Laugh Canister');
+it('recalculates product price when quantity is modified', async () => {
+  const getRecentlyOrderedProducts = vi.fn();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
-    expect(await screen.findByRole('row', { name: /Laugh Canister/ })).toBeInTheDocument();
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: {
+      productName: 'Laugh Canister',
+      basePrice: '122.33',
+    },
   });
 
-  it('recalculates product price when quantity is modified', async () => {
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-    const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Laugh Canister',
-        basePrice: '122.33',
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+    .thenReturn({
+      data: {
+        orderedProducts: {
+          totalCount: 1,
+          edges: [laughCanister],
+        },
       },
     });
 
-    when(getRecentlyOrderedProducts)
-      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-      .thenReturn({
-        data: {
-          orderedProducts: {
-            totalCount: 1,
-            edges: [laughCanister],
-          },
-        },
-      });
+  when(searchProducts)
+    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            isPriceHidden: false,
+          }),
+        ],
+      },
+    });
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              isPriceHidden: false,
-            }),
-          ],
-        },
-      });
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
 
-    server.use(
-      graphql.query('RecentlyOrderedProducts', ({ query }) =>
-        HttpResponse.json(getRecentlyOrderedProducts(query)),
-      ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-    );
+  renderWithProviders(<QuickOrder />, { preloadedState });
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
+  const row = await screen.findByRole('row', { name: /Laugh Canister/ });
 
-    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+  expect(within(row).getByRole('cell', { name: /Laugh Canister/ })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '$122.33' })).toBeInTheDocument();
 
-    expect(within(row).getByRole('cell', { name: /Laugh Canister/ })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '$122.33' })).toBeInTheDocument();
+  const input = within(row).getByRole('spinbutton');
 
-    const input = within(row).getByRole('spinbutton');
+  await userEvent.clear(input);
+  await userEvent.type(input, '2');
 
-    await userEvent.clear(input);
-    await userEvent.type(input, '2');
+  expect(within(row).getByRole('cell', { name: '$244.66' })).toBeInTheDocument();
+});
 
-    expect(within(row).getByRole('cell', { name: '$244.66' })).toBeInTheDocument();
+it('updates the subtotal when products are selected', async () => {
+  const getRecentlyOrderedProducts = vi.fn();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: { productName: 'Laugh Canister', basePrice: '122.33' },
   });
 
-  it('updates the subtotal when products are selected', async () => {
+  const doorStationPanel = buildRecentlyOrderedProductNodeWith({
+    node: { productName: 'Door Station Panel', basePrice: '33.45' },
+  });
+
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 2, edges: [laughCanister, doorStationPanel] } },
+      }),
+    );
+
+  when(searchProducts)
+    .calledWith(stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+          }),
+          buildSearchProductWith({
+            id: Number(doorStationPanel.node.productId),
+            name: doorStationPanel.node.productName,
+            sku: doorStationPanel.node.sku,
+          }),
+        ],
+      },
+    });
+
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+  );
+
+  renderWithProviders(<QuickOrder />, { preloadedState });
+
+  const laughCanisterRow = await screen.findByRole('row', { name: /Laugh Canister/ });
+  const doorStationPanelRow = await screen.findByRole('row', { name: /Door Station Panel/ });
+
+  const input = within(laughCanisterRow).getByRole('spinbutton');
+
+  await userEvent.clear(input);
+  await userEvent.type(input, '2');
+
+  await userEvent.click(within(laughCanisterRow).getByRole('checkbox'));
+  await userEvent.click(within(doorStationPanelRow).getByRole('checkbox'));
+
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: 'Subtotal: $278.11' })).toBeInTheDocument();
+  });
+});
+
+describe('when the user has permission to purchase but quote/shoppingList are disabled', () => {
+  it('displays add to cart when -add selected to- is clicked', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister', basePrice: '122.33' },
-    });
-
-    const doorStationPanel = buildRecentlyOrderedProductNodeWith({
-      node: { productName: 'Door Station Panel', basePrice: '33.45' },
     });
 
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
       .thenReturn(
         buildGetRecentlyOrderedProductsWith({
-          data: { orderedProducts: { totalCount: 2, edges: [laughCanister, doorStationPanel] } },
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
         }),
       );
 
     when(searchProducts)
-      .calledWith(
-        stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId),
-      )
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
       .thenReturn({
         data: {
           productsSearch: [
@@ -599,11 +656,6 @@ describe('has recently ordered products', () => {
               id: Number(laughCanister.node.productId),
               name: laughCanister.node.productName,
               sku: laughCanister.node.sku,
-            }),
-            buildSearchProductWith({
-              id: Number(doorStationPanel.node.productId),
-              name: doorStationPanel.node.productName,
-              sku: doorStationPanel.node.sku,
             }),
           ],
         },
@@ -616,100 +668,140 @@ describe('has recently ordered products', () => {
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState });
-
-    const laughCanisterRow = await screen.findByRole('row', { name: /Laugh Canister/ });
-    const doorStationPanelRow = await screen.findByRole('row', { name: /Door Station Panel/ });
-
-    const input = within(laughCanisterRow).getByRole('spinbutton');
-
-    await userEvent.clear(input);
-    await userEvent.type(input, '2');
-
-    await userEvent.click(within(laughCanisterRow).getByRole('checkbox'));
-    await userEvent.click(within(doorStationPanelRow).getByRole('checkbox'));
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Subtotal: $278.11' })).toBeInTheDocument();
-    });
-  });
-
-  describe('when the user has permission to purchase but quote/shoppingList are disabled', () => {
-    it('displays add to cart when -add selected to- is clicked', async () => {
-      const getRecentlyOrderedProducts = vi.fn();
-      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-      const laughCanister = buildRecentlyOrderedProductNodeWith({
-        node: { productName: 'Laugh Canister', basePrice: '122.33' },
-      });
-
-      when(getRecentlyOrderedProducts)
-        .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-        .thenReturn(
-          buildGetRecentlyOrderedProductsWith({
-            data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
-          }),
-        );
-
-      when(searchProducts)
-        .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-        .thenReturn({
-          data: {
-            productsSearch: [
-              buildSearchProductWith({
-                id: Number(laughCanister.node.productId),
-                name: laughCanister.node.productName,
-                sku: laughCanister.node.sku,
-              }),
-            ],
-          },
-        });
-
-      server.use(
-        graphql.query('RecentlyOrderedProducts', ({ query }) =>
-          HttpResponse.json(getRecentlyOrderedProducts(query)),
-        ),
-        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      );
-
-      renderWithProviders(<QuickOrder />, {
-        preloadedState: {
-          ...preloadedState,
-          company: {
-            ...preloadedState.company,
-            permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
-          },
+    renderWithProviders(<QuickOrder />, {
+      preloadedState: {
+        ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
         },
-        initialGlobalContext: { productQuoteEnabled: false, shoppingListEnabled: false },
-      });
-
-      const row = await screen.findByRole('row', { name: /Laugh Canister/ });
-
-      await userEvent.click(within(row).getByRole('checkbox'));
-
-      const addButton = screen.getByRole('button', { name: 'Add selected to' });
-
-      await userEvent.click(addButton);
-
-      expect(screen.getByRole('menuitem', { name: /Add selected to cart/ })).toBeInTheDocument();
-      expect(
-        screen.queryByRole('menuitem', { name: /Add selected to shopping list/ }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('menuitem', { name: /Add selected to quote/ }),
-      ).not.toBeInTheDocument();
+      },
+      initialGlobalContext: { productQuoteEnabled: false, shoppingListEnabled: false },
     });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    expect(screen.getByRole('menuitem', { name: /Add selected to cart/ })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: /Add selected to shopping list/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: /Add selected to quote/ }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+it('adds a product to the cart', async () => {
+  const getRecentlyOrderedProducts = vi.fn();
+  const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+  const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+  const createCartSimple = vi.fn();
+
+  const laughCanister = buildRecentlyOrderedProductNodeWith({
+    node: { productName: 'Laugh Canister', basePrice: '122.33' },
   });
 
-  it('adds a product to the cart', async () => {
+  when(getRecentlyOrderedProducts)
+    .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+    .thenReturn(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+      }),
+    );
+
+  when(searchProducts)
+    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .thenReturn({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 0,
+            orderQuantityMinimum: 0,
+            inventoryLevel: 100,
+            variants: [
+              buildVariantWith({
+                product_id: Number(laughCanister.node.productId),
+                variant_id: Number(laughCanister.node.variantId),
+                sku: laughCanister.node.variantSku,
+                purchasing_disabled: false,
+              }),
+              buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+            ],
+          }),
+        ],
+      },
+    });
+
+  when(createCartSimple)
+    .calledWith({
+      createCartInput: {
+        lineItems: [
+          {
+            productEntityId: Number(laughCanister.node.productId),
+            variantEntityId: Number(laughCanister.node.variantId),
+            quantity: 1,
+            selectedOptions: { multipleChoices: [], textFields: [] },
+          },
+        ],
+      },
+    })
+    .thenDo(() => {
+      const cart = buildGetCartWith({ data: { site: { cart: { entityId: '12345' } } } });
+
+      getCart.mockReturnValue(cart);
+
+      return { data: { cart: { createCart: { cart: cart.data.site.cart } } } };
+    });
+
+  server.use(
+    graphql.query('RecentlyOrderedProducts', ({ query }) =>
+      HttpResponse.json(getRecentlyOrderedProducts(query)),
+    ),
+    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('getCart', () => HttpResponse.json(getCart())),
+    graphql.mutation('createCartSimple', ({ variables }) =>
+      HttpResponse.json(createCartSimple(variables)),
+    ),
+  );
+
+  renderWithProviders(<QuickOrder />, { preloadedState });
+
+  const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+  await userEvent.click(within(row).getByRole('checkbox'));
+
+  const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+  await userEvent.click(addButton);
+
+  await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+  await waitFor(() => {
+    expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+  });
+
+  expect(Cookies.get('cartId')).toBe('12345');
+  expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+    cartId: '12345',
+  });
+});
+
+describe('when product purchasing_disabled', () => {
+  it('displays an error message when trying to add to cart', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
-
-    const createCartSimple = vi.fn();
-
     const laughCanister = buildRecentlyOrderedProductNodeWith({
-      node: { productName: 'Laugh Canister', basePrice: '122.33' },
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
     });
 
     when(getRecentlyOrderedProducts)
@@ -737,7 +829,7 @@ describe('has recently ordered products', () => {
                   product_id: Number(laughCanister.node.productId),
                   variant_id: Number(laughCanister.node.variantId),
                   sku: laughCanister.node.variantSku,
-                  purchasing_disabled: false,
+                  purchasing_disabled: true, // This variant is not purchasable
                 }),
                 buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
               ],
@@ -746,25 +838,185 @@ describe('has recently ordered products', () => {
         },
       });
 
-    when(createCartSimple)
-      .calledWith({
-        createCartInput: {
-          lineItems: [
-            {
-              productEntityId: Number(laughCanister.node.productId),
-              variantEntityId: Number(laughCanister.node.variantId),
-              quantity: 1,
-              selectedOptions: { multipleChoices: [], textFields: [] },
-            },
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('SKU VARIANT-123 cannot be purchased in online store.'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when purchasable out of stock is enabled', () => {
+    it('can add the product to the cart', async () => {
+      const getRecentlyOrderedProducts = vi.fn();
+      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+      const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+      const createCartSimple = vi.fn();
+
+      const laughCanister = buildRecentlyOrderedProductNodeWith({
+        node: { productName: 'Laugh Canister', basePrice: '122.33' },
+      });
+
+      when(getRecentlyOrderedProducts)
+        .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+        .thenReturn(
+          buildGetRecentlyOrderedProductsWith({
+            data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+          }),
+        );
+
+      when(searchProducts)
+        .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+        .thenReturn({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: Number(laughCanister.node.productId),
+                name: laughCanister.node.productName,
+                sku: laughCanister.node.sku,
+                orderQuantityMaximum: 0,
+                orderQuantityMinimum: 0,
+                inventoryLevel: 100,
+                variants: [
+                  buildVariantWith({
+                    product_id: Number(laughCanister.node.productId),
+                    variant_id: Number(laughCanister.node.variantId),
+                    sku: laughCanister.node.variantSku,
+                    purchasing_disabled: true, // This variant is not purchasable
+                  }),
+                  buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+                ],
+              }),
+            ],
+          },
+        });
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                productEntityId: Number(laughCanister.node.productId),
+                variantEntityId: Number(laughCanister.node.variantId),
+                quantity: 1,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenDo(() => {
+          const cart = buildGetCartWith({ data: { site: { cart: { entityId: '12345' } } } });
+
+          getCart.mockReturnValue(cart);
+
+          return { data: { cart: { createCart: { cart: cart.data.site.cart } } } };
+        });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', ({ query }) =>
+          HttpResponse.json(getRecentlyOrderedProducts(query)),
+        ),
+        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+      );
+
+      renderWithProviders(<QuickOrder />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+          }),
+        },
+      });
+
+      const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+      await userEvent.click(within(row).getByRole('checkbox'));
+
+      const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+      await userEvent.click(addButton);
+
+      await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+      });
+
+      expect(Cookies.get('cartId')).toBe('12345');
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: '12345',
+      });
+    });
+  });
+});
+
+describe('when the product does not have enough stock', () => {
+  it('displays an error message when trying to add to cart (variant)', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                  inventory_level: 2, // This variant is out of stock
+                }),
+                buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+              ],
+            }),
           ],
         },
-      })
-      .thenDo(() => {
-        const cart = buildGetCartWith({ data: { site: { cart: { entityId: '12345' } } } });
-
-        getCart.mockReturnValue(cart);
-
-        return { data: { cart: { createCart: { cart: cart.data.site.cart } } } };
       });
 
     server.use(
@@ -772,16 +1024,210 @@ describe('has recently ordered products', () => {
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      graphql.query('getCart', () => HttpResponse.json(getCart())),
-      graphql.mutation('createCartSimple', ({ variables }) =>
-        HttpResponse.json(createCartSimple(variables)),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
     );
 
-    renderWithProviders(<QuickOrder />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('VARIANT-123 does not have enough stock, please change the quantity'),
+      ).toBeInTheDocument();
     });
+  });
+
+  it('displays an error message when trying to add to cart (product)', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 2, // This product is out of stock
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                  inventory_level: 100,
+                }),
+                buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('VARIANT-123 does not have enough stock, please change the quantity'),
+      ).toBeInTheDocument();
+    });
+  });
+});
+
+describe('when the quantity is not within the min/max', () => {
+  it('adds to the cart when adding 1 item with 5 already in the cart, min of 5 and max of 10', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              sku: 'SKU-123',
+              orderQuantityMaximum: 10,
+              orderQuantityMinimum: 5,
+              inventoryTracking: 'none',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    const addCartLineItemsTwo = vi.fn();
+
+    when(addCartLineItemsTwo)
+      .calledWith({
+        addCartLineItemsInput: {
+          cartEntityId: 'foo-bar-ca-fe-ca-fe',
+          data: {
+            lineItems: [
+              {
+                quantity: 1,
+                productEntityId: Number(laughCanister.node.productId),
+                variantEntityId: Number(laughCanister.node.variantId),
+                selectedOptions: {
+                  multipleChoices: [],
+                  textFields: [],
+                },
+              },
+            ],
+          },
+        },
+      })
+      .thenReturn({});
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(
+          buildGetCartWith({
+            data: {
+              site: {
+                cart: {
+                  entityId: 'foo-bar-ca-fe-ca-fe',
+                  lineItems: {
+                    physicalItems: [
+                      buildCartItemWith({
+                        productEntityId: Number(laughCanister.node.productId),
+                        variantEntityId: Number(laughCanister.node.variantId),
+                        sku: laughCanister.node.sku,
+                        quantity: 5, // Cart already has 5 items
+                      }),
+                    ],
+                  },
+                },
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
+        HttpResponse.json(addCartLineItemsTwo(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
 
     const row = await screen.findByRole('row', { name: /Laugh Canister/ });
 
@@ -796,163 +1242,372 @@ describe('has recently ordered products', () => {
     await waitFor(() => {
       expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
     });
-
-    expect(Cookies.get('cartId')).toBe('12345');
-    expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
-      cartId: '12345',
-    });
   });
 
-  describe('when the user has no permissions to purchase but shoppingList and quotes are enabled', () => {
-    it('displays add to quote/shopping list when -add selected to- is clicked', async () => {
-      const getRecentlyOrderedProducts = vi.fn();
-      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-      const laughCanister = buildRecentlyOrderedProductNodeWith({
-        node: { productName: 'Laugh Canister', basePrice: '122.33' },
-      });
-
-      when(getRecentlyOrderedProducts)
-        .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-        .thenReturn(
-          buildGetRecentlyOrderedProductsWith({
-            data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
-          }),
-        );
-
-      when(searchProducts)
-        .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-        .thenReturn({
-          data: {
-            productsSearch: [
-              buildSearchProductWith({
-                id: Number(laughCanister.node.productId),
-                name: laughCanister.node.productName,
-                sku: laughCanister.node.sku,
-              }),
-            ],
-          },
-        });
-
-      server.use(
-        graphql.query('RecentlyOrderedProducts', ({ query }) =>
-          HttpResponse.json(getRecentlyOrderedProducts(query)),
-        ),
-        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      );
-
-      renderWithProviders(<QuickOrder />, {
-        preloadedState: {
-          company: {
-            ...preloadedState.company,
-            permissions: [{ code: 'purchase_enable', permissionLevel: 0 }],
-          },
-          storeInfo: storeInfoWithDateFormat,
-        },
-        initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
-      });
-
-      const row = await screen.findByRole('row', { name: /Laugh Canister/ });
-
-      await userEvent.click(within(row).getByRole('checkbox'));
-
-      const addButton = screen.getByRole('button', { name: 'Add selected to' });
-
-      await userEvent.click(addButton);
-
-      // { code: 'purchase_enable', permissionLevel: 0 }
-      expect(
-        screen.queryByRole('menuitem', { name: /Add selected to cart/ }),
-      ).not.toBeInTheDocument();
-      // shoppingListEnabled: true
-      expect(
-        screen.getByRole('menuitem', { name: /Add selected to shopping list/ }),
-      ).toBeInTheDocument();
-      // productQuoteEnabled: true
-      expect(screen.getByRole('menuitem', { name: /Add selected to quote/ })).toBeInTheDocument();
+  it('displays an error message when trying to add 1 item to the cart with min of 5', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister' },
     });
-  });
 
-  describe('when the user does not have permissions to purchase and shopping list/quote is disabled', () => {
-    it('does not display the footer', async () => {
-      const getRecentlyOrderedProducts = vi.fn();
-      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-
-      const laughCanister = buildRecentlyOrderedProductNodeWith({
-        node: { productName: 'Laugh Canister', basePrice: '122.33' },
-      });
-      when(getRecentlyOrderedProducts)
-        .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-        .thenReturn(
-          buildGetRecentlyOrderedProductsWith({
-            data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
-          }),
-        );
-
-      when(searchProducts)
-        .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-        .thenReturn({
-          data: {
-            productsSearch: [
-              buildSearchProductWith({
-                id: Number(laughCanister.node.productId),
-                name: laughCanister.node.productName,
-                sku: laughCanister.node.sku,
-              }),
-            ],
-          },
-        });
-
-      server.use(
-        graphql.query('RecentlyOrderedProducts', ({ query }) =>
-          HttpResponse.json(getRecentlyOrderedProducts(query)),
-        ),
-        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      );
-
-      const preloadedState = {
-        company: buildCompanyStateWith({
-          ...approvedB2BCompany,
-          permissions: [{ code: 'purchase_enable', permissionLevel: 0 }],
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
         }),
-        storeInfo: storeInfoWithDateFormat,
-      };
+      );
 
-      renderWithProviders(<QuickOrder />, {
-        preloadedState,
-        initialGlobalContext: { productQuoteEnabled: false, shoppingListEnabled: false },
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              sku: 'SKU-123',
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 5,
+              inventoryTracking: 'none',
+            }),
+          ],
+        },
       });
 
-      expect(screen.queryByRole('button', { name: 'Add selected to' })).not.toBeInTheDocument();
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('You need to purchase a minimum of 5 of the SKU-123 per order.'),
+      ).toBeInTheDocument();
     });
   });
 
-  describe('when no product is selected', () => {
-    it('pressing the -add selected to- shows an error', async () => {
-      const getRecentlyOrderedProducts = vi.fn();
+  it('displays an error message when trying to add 10 items to the cart with max of 5', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister' },
+    });
 
-      when(getRecentlyOrderedProducts)
-        .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
-        .thenReturn(
-          buildGetRecentlyOrderedProductsWith({
-            data: { orderedProducts: { totalCount: 0, edges: [] } },
-          }),
-        );
-
-      server.use(
-        graphql.query('RecentlyOrderedProducts', ({ query }) =>
-          HttpResponse.json(getRecentlyOrderedProducts(query)),
-        ),
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState });
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              sku: 'SKU-123',
+              orderQuantityMaximum: 5,
+              orderQuantityMinimum: 0,
+              inventoryTracking: 'none',
+            }),
+          ],
+        },
+      });
 
-      const addButton = await screen.findByRole('button', { name: /Add selected to/ });
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
+    );
 
-      await userEvent.click(addButton);
+    renderWithProviders(<QuickOrder />, { preloadedState });
 
-      expect(screen.getByText('Please select at least one item')).toBeInTheDocument();
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('You need to purchase a maximum of 5 of the SKU-123 per order.'),
+      ).toBeInTheDocument();
     });
+  });
+
+  it('displays an error message when adding 4 items with 8 already in the cart and max of 10', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              sku: 'SKU-123',
+              orderQuantityMaximum: 10,
+              orderQuantityMinimum: 0,
+              inventoryTracking: 'none',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(
+          buildGetCartWith({
+            data: {
+              site: {
+                cart: {
+                  entityId: 'foo-bar-ca-fe-ca-fe',
+                  lineItems: {
+                    physicalItems: [
+                      buildCartItemWith({
+                        productEntityId: Number(laughCanister.node.productId),
+                        variantEntityId: Number(laughCanister.node.variantId),
+                        sku: laughCanister.node.sku,
+                        quantity: 8, // Cart already has 8 items
+                      }),
+                    ],
+                  },
+                },
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '4');
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('You need to purchase a maximum of 10 of the VARIANT-123 per order.'),
+      ).toBeInTheDocument();
+    });
+  });
+});
+
+describe('when the user has no permissions to purchase but shoppingList and quotes are enabled', () => {
+  it('displays add to quote/shopping list when -add selected to- is clicked', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', basePrice: '122.33' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    );
+
+    renderWithProviders(<QuickOrder />, {
+      preloadedState: {
+        company: {
+          ...preloadedState.company,
+          permissions: [{ code: 'purchase_enable', permissionLevel: 0 }],
+        },
+        storeInfo: storeInfoWithDateFormat,
+      },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    // { code: 'purchase_enable', permissionLevel: 0 }
+    expect(
+      screen.queryByRole('menuitem', { name: /Add selected to cart/ }),
+    ).not.toBeInTheDocument();
+    // shoppingListEnabled: true
+    expect(
+      screen.getByRole('menuitem', { name: /Add selected to shopping list/ }),
+    ).toBeInTheDocument();
+    // productQuoteEnabled: true
+    expect(screen.getByRole('menuitem', { name: /Add selected to quote/ })).toBeInTheDocument();
+  });
+});
+
+describe('when the user does not have permissions to purchase and shopping list/quote is disabled', () => {
+  it('does not display the footer', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', basePrice: '122.33' },
+    });
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    );
+
+    const preloadedState = {
+      company: buildCompanyStateWith({
+        ...approvedB2BCompany,
+        permissions: [{ code: 'purchase_enable', permissionLevel: 0 }],
+      }),
+      storeInfo: storeInfoWithDateFormat,
+    };
+
+    renderWithProviders(<QuickOrder />, {
+      preloadedState,
+      initialGlobalContext: { productQuoteEnabled: false, shoppingListEnabled: false },
+    });
+
+    expect(screen.queryByRole('button', { name: 'Add selected to' })).not.toBeInTheDocument();
+  });
+});
+
+describe('when no product is selected', () => {
+  it('pressing the -add selected to- shows an error', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 0, edges: [] } },
+        }),
+      );
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const addButton = await screen.findByRole('button', { name: /Add selected to/ });
+
+    await userEvent.click(addButton);
+
+    expect(screen.getByText('Please select at least one item')).toBeInTheDocument();
   });
 });
 
