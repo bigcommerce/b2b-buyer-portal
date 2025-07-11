@@ -18,3 +18,9 @@ Collected here as they may become easier to answer as the schema evolves.
    - in both `Customer` and `Company`?
    - in its own root type, e.g. `ShoppingList`?
    - or can B2B `Customer`s only have shopping lists under `Company`?
+
+5. Do we allow for recursive queries? E.g. `Company.subsidiaries` bringing back more Companies with their own `subsidiaries`
+
+   - If so, how is the BE limiting overly complex or deep queries?
+
+6. Can we rely on `activeCompany.set` to invalidate/swap carts on the BE, rather than it being an additional call from the FE?
