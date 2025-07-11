@@ -66,6 +66,7 @@ const {
   quoteDraftPermissionCodes,
   quoteDetailPermissionCodes,
   companyHierarchyPermissionCodes,
+  quickOrderPermissionCodes,
 } = newPermissions;
 
 export const routeList: (BuyerPortalRoute | RouteItem)[] = [
@@ -140,10 +141,12 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     path: '/purchased-products',
     name: 'Quick order',
     pageTitle: 'Purchased products',
+    subsidiariesCompanyKey: 'quickOrderPad',
     wsKey: 'quickOrder',
     isMenuItem: true,
     configKey: 'quickOrderPad',
     permissions: quickOrderPermissions,
+    permissionCodes: `${ordersPermissionCodes},${quickOrderPermissionCodes}`,
     isTokenLogin: true,
     idLang: 'global.navMenu.quickOrder',
   },
@@ -308,6 +311,10 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
           level: 2,
           containOrEqual: 'contain',
         });
+      }
+
+      if (path === '/purchased-products' && hasPermission) {
+        return true;
       }
 
       return hasPermission;
