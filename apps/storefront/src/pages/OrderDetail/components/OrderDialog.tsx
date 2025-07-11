@@ -11,8 +11,7 @@ import { useMobile } from '@/hooks';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  getB2BVariantInfoBySkus,
-  getBcVariantInfoBySkus,
+  getVariantInfoBySkus,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
@@ -370,12 +369,8 @@ export default function OrderDialog({
       const visibleSkus = visibleProducts.map((product) => product.sku);
 
       if (visibleSkus.length === 0) return;
-      const params = {
-        skus: visibleSkus,
-      };
-      const { variantSku: variantInfoList = [] } = isB2BUser
-        ? await getB2BVariantInfoBySkus(params)
-        : await getBcVariantInfoBySkus(params);
+
+      const { variantSku: variantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
 
       setVariantInfoList(variantInfoList);
     };

@@ -10,11 +10,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
-import {
-  getB2BVariantInfoBySkus,
-  getBcVariantInfoBySkus,
-  searchProducts,
-} from '@/shared/service/b2b/graphql/product';
+import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
@@ -238,11 +234,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         return;
       }
 
-      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
-
-      const getInventoryInfos = await getVariantInfoBySku({
-        skus,
-      });
+      const getInventoryInfos = await getVariantInfoBySkus(skus);
 
       const { validateFailureArr, validateSuccessArr } = verifyInventory(
         getInventoryInfos?.variantSku || [],
