@@ -36,8 +36,14 @@ export default /* GraphQL */ `
     edges: [ShoppingListEdge!]!
   }
 
+  input CustomerShoppingListsFiltersInput {
+    searchTerm: String
+    status: [ShoppingListStatus]
+  }
+
   extend type Customer {
     shoppingLists(
+      filters: CustomerShoppingListsFiltersInput
       before: String
       after: String
       first: Int
