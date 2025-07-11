@@ -46,6 +46,7 @@ export default /* GraphQL */ `
   }
 
   input CompanyShoppingListsFiltersInput {
+    searchTerm: String
     createdBy: ID
     status: [ShoppingListStatus]
   }
