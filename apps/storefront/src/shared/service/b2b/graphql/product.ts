@@ -8,10 +8,10 @@ interface ProductPurchasable {
   sku: string;
 }
 
-const getVariantInfoBySkus = ({ skus = [] }) => `
+const getVariantInfoBySkusQuery = (skuList: string[]) => `
 query GetVariantInfoBySkus {
   variantSku (
-    variantSkus: ${convertArrayToGraphql(skus)},
+    variantSkus: ${convertArrayToGraphql(skuList)},
     storeHash: "${storeHash}"
     channelId: ${channelId}
   ){
@@ -145,13 +145,8 @@ const productAnonUploadBulkUploadCSV = (data: CustomFieldItems) => `mutation {
   }
 }`;
 
-export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}, customMessage = false) =>
-  B3Request.graphqlB2B(
-    {
-      query: getVariantInfoBySkus(data),
-    },
-    customMessage,
-  );
+export const getVariantInfoBySkus = (skuList: string[] = []) =>
+  B3Request.graphqlB2B({ query: getVariantInfoBySkusQuery(skuList) });
 
 export const getB2BSkusInfo = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
@@ -316,11 +311,6 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
     }),
   });
 };
-
-export const getBcVariantInfoBySkus = (data: CustomFieldItems = {}) =>
-  B3Request.graphqlB2B({
-    query: getVariantInfoBySkus(data),
-  });
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({

@@ -7,12 +7,12 @@ import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { getVariantInfoBySkus } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { compareOption } from '@/utils/b3Product/b3Product';
 import { getAllModifierDefaultValue, getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 
-import { getB2BVariantInfoBySkus, getBcVariantInfoBySkus } from '../../../shared/service/b2b';
 import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
 
 interface AddToListContentProps {
@@ -35,7 +35,6 @@ export default function QuickAdd(props: AddToListContentProps) {
     type,
   } = props;
 
-  const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
   const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
 
@@ -290,15 +289,8 @@ export default function QuickAdd(props: AddToListContentProps) {
   };
 
   const getVariantList = async (skus: string[]) => {
-    const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
-
     try {
-      const { variantSku: variantInfoList } = await getVariantInfoBySku(
-        {
-          skus,
-        },
-        true,
-      );
+      const { variantSku: variantInfoList } = await getVariantInfoBySkus(skus);
 
       return variantInfoList;
     } catch (error) {
