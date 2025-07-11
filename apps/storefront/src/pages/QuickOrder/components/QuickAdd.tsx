@@ -179,7 +179,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         return;
       }
 
-      if (isStock === '1' && quantity > Number(stock)) {
+      if (isStock === '1' && allQuantity > Number(stock)) {
         notStockSku.push({
           sku,
           stock: Number(stock),

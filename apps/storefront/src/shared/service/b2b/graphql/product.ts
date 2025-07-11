@@ -8,7 +8,8 @@ interface ProductPurchasable {
   sku: string;
 }
 
-const getVariantInfoBySkus = ({ skus = [] }) => `{
+const getVariantInfoBySkus = ({ skus = [] }) => `
+query GetVariantInfoBySkus {
   variantSku (
     variantSkus: ${convertArrayToGraphql(skus)},
     storeHash: "${storeHash}"
