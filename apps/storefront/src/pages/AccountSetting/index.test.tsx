@@ -3,6 +3,7 @@ import {
   builder,
   faker,
   graphql,
+  http,
   HttpResponse,
   renderWithProviders,
   screen,
@@ -68,6 +69,13 @@ describe('B2B Upgrade Banner', () => {
           },
         }),
       ),
+      http.get('*', ({ request }) => {
+        console.error(`Unhandled GET request: ${request.url.toString()}`);
+        // You can return a specific error response or let it fall through (which MSW will warn about)
+        // For debugging, you might want to throw an error here to immediately fail the test.
+        // throw new Error(`Unhandled GET request: ${request.url.toString()}`);
+        return HttpResponse.json({ message: 'Unhandled Mocked GET Request' }, { status: 500 });
+      })
     );
 
     renderWithProviders(<AccountSetting />, {
@@ -120,6 +128,13 @@ describe('B2B Upgrade Banner', () => {
           },
         }),
       ),
+      http.get('*', ({ request }) => {
+        console.error(`Unhandled GET request: ${request.url.toString()}`);
+        // You can return a specific error response or let it fall through (which MSW will warn about)
+        // For debugging, you might want to throw an error here to immediately fail the test.
+        // throw new Error(`Unhandled GET request: ${request.url.toString()}`);
+        return HttpResponse.json({ message: 'Unhandled Mocked GET Request' }, { status: 500 });
+      })
     );
 
     renderWithProviders(<AccountSetting />, {
