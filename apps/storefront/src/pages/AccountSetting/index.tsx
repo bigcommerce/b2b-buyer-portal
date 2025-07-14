@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import { Alert, Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components';
@@ -29,6 +29,7 @@ import { deCodeField, getAccountFormFields } from '../Registered/config';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
 import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
+import { UpgradeBanner } from './UpgradeBanner';
 
 function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -303,50 +304,7 @@ function AccountSetting() {
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
       <Box>
-        {!isB2BUser && platform === 'catalyst' && (
-          <Box>
-            <Alert
-              severity="info"
-              variant="filled"
-              sx={{
-                width: 'inherit',
-                '& button[title="Close"]': {
-                  display: 'block',
-                },
-                mb: '24px',
-                maxWidth: '1450px',
-
-                '& .MuiAlert-icon': {
-                  padding: '12px 0',
-                },
-
-                '& .MuiAlert-message': {
-                  width: '100%',
-                },
-              }}
-            >
-              <Box display="flex" flexWrap="wrap" justifyContent="space-between" width="100%">
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="800">
-                    {b3Lang('accountSettings.registeredToB2b.title')}
-                  </Typography>
-                  <Typography sx={{ textWrap: 'wrap' }}>
-                    {b3Lang('accountSettings.registeredToB2b.description')}
-                  </Typography>
-                </Box>
-                <Typography
-                  component={Link}
-                  to="/registeredbctob2b"
-                  sx={{ textDecoration: 'none', textTransform: 'uppercase' }}
-                  fontWeight="bold"
-                  color="#fff"
-                >
-                  {b3Lang('accountSettings.registeredToB2b.upgrade')}
-                </Typography>
-              </Box>
-            </Alert>
-          </Box>
-        )}
+        {!isB2BUser && platform === 'catalyst' && <UpgradeBanner />}
         <Box
           sx={{
             width: isMobile ? '100%' : '35%',
