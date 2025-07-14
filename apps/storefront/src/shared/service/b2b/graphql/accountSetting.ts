@@ -21,7 +21,7 @@ const updateCustomerAccountSettings = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getAccountSettings = (data: CustomFieldItems) => `query getB2bAccountSettings {
+const getAccountSettings = (data: CustomFieldItems) => `query GetB2bAccountSettings {
   accountSettings (
     companyId: ${data.companyId}
   ){

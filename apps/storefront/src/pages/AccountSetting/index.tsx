@@ -28,8 +28,8 @@ import { B3SStorage, channelId, platform, snackbar } from '@/utils';
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
-import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 import { UpgradeBanner } from './UpgradeBanner';
+import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 
 function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
