@@ -122,7 +122,7 @@ const newPermissions = {
   quoteDraftPermissionCodes: b2bPermissionsMap.quotesCreateActionsPermission,
   quoteDetailPermissionCodes: b2bPermissionsMap.getQuoteDetailPermission,
   companyHierarchyPermissionCodes: b2bPermissionsMap.companyHierarchyPermission,
-  quickOrderPermissionCodes: b2bPermissionsMap.purchasabilityPermission,
+  quickOrderPermissionCodes: b2bPermissionsMap.getOrderPermission,
 };
 
 export { legacyPermissions, denyInvoiceRoles, allLegacyPermission, newPermissions };

@@ -148,21 +148,15 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     const subsidiariesPermission = getSubsidiariesPermission(routes);
 
     if (selectCompanyHierarchyId) {
-      routes = routes.filter((route) => {
-        if (route?.subsidiariesCompanyKey === 'quickOrderPad') {
-          return true;
-        }
-        return route?.subsidiariesCompanyKey
+      routes = routes.filter((route) =>
+        route?.subsidiariesCompanyKey
           ? subsidiariesPermission[route.subsidiariesCompanyKey]
-          : false;
-      });
+          : false,
+      );
     } else {
       routes = routes.filter((route) => {
         if (route?.subsidiariesCompanyKey === 'companyHierarchy') {
           return isEnabledCompanyHierarchy && subsidiariesPermission[route.subsidiariesCompanyKey];
-        }
-        if (route?.subsidiariesCompanyKey === 'quickOrderPad') {
-          return true;
         }
         return true;
       });
