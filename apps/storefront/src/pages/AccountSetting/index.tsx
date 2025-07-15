@@ -22,6 +22,7 @@ import {
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
+import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { B3SStorage, channelId, platform, snackbar } from '@/utils';
 
@@ -40,6 +41,10 @@ function useData() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = role === 3 && isAgenting ? Number(salesRepCompanyId) : Number(companyInfoId);
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
+  const isDisplayUpgradeBanner =
+    CustomerRole.B2C === customer.role &&
+    [UserTypes.B2C, UserTypes.MULTIPLE_B2C].includes(customer.userType) &&
+    platform === 'catalyst';
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
@@ -73,24 +78,24 @@ function useData() {
 
   return {
     isBCUser,
-    isB2BUser,
     companyId,
     customer,
     validateEmailValue,
     emailValidation,
     passwordValidation,
+    isDisplayUpgradeBanner,
   };
 }
 
 function AccountSetting() {
   const {
     isBCUser,
-    isB2BUser,
     companyId,
     customer,
     validateEmailValue,
     emailValidation,
     passwordValidation,
+    isDisplayUpgradeBanner,
   } = useData();
 
   const {
@@ -305,7 +310,7 @@ function AccountSetting() {
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
       <Box>
-        {!isB2BUser && platform === 'catalyst' && <UpgradeBanner />}
+        {isDisplayUpgradeBanner && <UpgradeBanner />}
         <Box
           sx={{
             width: isMobile ? '100%' : '35%',
