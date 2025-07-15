@@ -84,7 +84,7 @@ describe('B2B Upgrade Banner', () => {
     expect(screen.queryByText('Upgrade to a business account')).not.toBeInTheDocument();
   });
 
-  it('displays the B2B upgrade banner when user is B2C user',  () => {
+  it('displays the B2B upgrade banner when user is B2C user', () => {
     const customer = buildCustomerWith({
       id: 123,
       userType: UserTypes.MULTIPLE_B2C,
