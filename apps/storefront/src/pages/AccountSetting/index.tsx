@@ -181,6 +181,8 @@ function AccountSetting() {
         setDecryptionFields(contactInformation);
 
         setExtraFields(additionalInformation);
+      } catch(e) {
+        console.error(e)
       } finally {
         if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
