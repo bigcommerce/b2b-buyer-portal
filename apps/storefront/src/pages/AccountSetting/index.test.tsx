@@ -7,6 +7,7 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
@@ -39,11 +40,11 @@ const buildCustomerWith = builder<Customer>(() => ({
 }));
 
 describe('B2B Upgrade Banner', () => {
-  it('does not display the B2B upgrade banner when user is B2B', () => {
+  it('does not display the B2B upgrade banner when user is B2B', async () => {
     const customer = buildCustomerWith({
       id: 123,
       userType: UserTypes.CURRENT_B2B_COMPANY,
-      role: CustomerRole.SUPER_ADMIN,
+      role: CustomerRole.SENIOR_BUYER,
     });
 
     const companyInfoInCompanyState = {
@@ -66,7 +67,7 @@ describe('B2B Upgrade Banner', () => {
           },
         }),
       ),
-      graphql.query('GetB2bAccountSettings', () =>
+      graphql.query('GetB2CAccountSettings', () =>
         HttpResponse.json({
           data: {
             accountSettings: {},
@@ -81,13 +82,16 @@ describe('B2B Upgrade Banner', () => {
       },
     });
 
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
     expect(screen.queryByText('Upgrade to a business account')).not.toBeInTheDocument();
   });
 
-  it('displays the B2B upgrade banner when user is B2C user', () => {
+  it('displays the B2B upgrade banner when user is B2C user', async () => {
     const customer = buildCustomerWith({
       id: 123,
       userType: UserTypes.MULTIPLE_B2C,
+      role: CustomerRole.B2C,
     });
 
     const companyInfoInCompanyState = {
@@ -110,7 +114,7 @@ describe('B2B Upgrade Banner', () => {
           },
         }),
       ),
-      graphql.query('GetB2cAccountSettings', () =>
+      graphql.query('GetB2CAccountSettings', () =>
         HttpResponse.json({
           data: {
             customerAccountSettings: [],
@@ -125,6 +129,13 @@ describe('B2B Upgrade Banner', () => {
       },
     });
 
-    expect(screen.getByText('Upgrade to a business account')).toBeDefined();
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const alertBox = await screen.findByText(/Upgrade to a business account/i);
+
+    expect(alertBox).toBeInTheDocument();
+
+    const updateLink = screen.getByRole('link', { name: 'Upgrade' });
+    expect(updateLink).toHaveAttribute('href', '/registeredbctob2b');
   });
 });

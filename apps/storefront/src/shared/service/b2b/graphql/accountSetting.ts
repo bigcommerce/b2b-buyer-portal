@@ -44,7 +44,7 @@ const getAccountSettings = (data: CustomFieldItems) => `query GetB2bAccountSetti
   }
 }`;
 
-const customerAccountSettings = () => `query getB2CAccountSettings {
+const customerAccountSettings = () => `query GetB2CAccountSettings {
   customerAccountSettings {
     firstName,
     lastName,
