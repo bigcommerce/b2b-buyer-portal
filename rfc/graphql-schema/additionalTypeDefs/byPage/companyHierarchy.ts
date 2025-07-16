@@ -6,8 +6,11 @@ export default /* GraphQL */ `
     # (rather than getting a flattened list and building it themselves)
     # however, it will require the BE to add recursion/max nodes protection
     subsidiaries: CompanyConnection!
-    # what is "channelFlag" represent?
-    channelFlag: Boolean!
+  }
+
+  extend type Query {
+    activeCompany: Company
+    company(id: ID!): Company!
   }
 
   type CompanyEdge {
