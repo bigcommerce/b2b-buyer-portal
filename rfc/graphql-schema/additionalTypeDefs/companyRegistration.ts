@@ -63,6 +63,16 @@ export default /* GraphQL */ `
     registerCompany(input: RegisterCompanyInput!): RegisterCompanyResult!
   }
 
+  enum UserRegistrationModes {
+    CUSTOMERS_ONLY
+    COMPANIES_ONLY
+    CUSTOMERS_AND_COMPANIES
+  }
+
+  extend type CustomersSettings {
+    registrationMode: UserRegistrationModes
+  }
+
   extend type Mutation {
     company: CompanyMutations!
   }
