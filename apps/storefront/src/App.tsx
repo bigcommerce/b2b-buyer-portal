@@ -211,6 +211,8 @@ export default function App() {
       // background login enter judgment and refresh
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
+      } else if (window.location.hash.includes('/register')) {
+        gotoPage('/register');
       } else {
         showPageMask(false);
       }
