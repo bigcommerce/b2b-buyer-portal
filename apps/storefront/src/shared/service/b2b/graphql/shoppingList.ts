@@ -136,7 +136,7 @@ const createShoppingList = (fn: string) => `mutation($shoppingListData: Shopping
   }
 }`;
 
-const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
+const updateShoppingListsItem = (data: CustomFieldItems) => `mutation B2BUpdateShoppingListItems {
   shoppingListsItemsUpdate(
     itemId: ${data.itemId}
     shoppingListId: ${data.shoppingListId}

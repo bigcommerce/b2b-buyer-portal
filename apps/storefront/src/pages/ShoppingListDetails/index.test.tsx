@@ -9,10 +9,12 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
@@ -542,5 +544,159 @@ describe('when user rejects a shopping list', () => {
         shoppingListData: expect.objectContaining({ status: rejectedStatusCode }),
       }),
     );
+  });
+});
+
+describe("when a product's quantity is increased", () => {
+  it('displays an updated total amount for that product', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const twoLovelySocks = buildShoppingListProductEdgeWith({
+      node: { productName: 'Lovely socks', quantity: 2, basePrice: '49.00' },
+    });
+
+    const threeLovelySocks = buildShoppingListProductEdgeWith({
+      node: { ...twoLovelySocks.node, quantity: 3 },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { status: 0, products: { totalCount: 1, edges: [twoLovelySocks] } } },
+    });
+
+    const getShoppingList = vi.fn().mockReturnValueOnce(shoppingListResponse);
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+      graphql.mutation('B2BUpdateShoppingListItems', () =>
+        HttpResponse.json({
+          data: { shoppingListsItemsUpdate: { shoppingListsItem: threeLovelySocks.node } },
+        }),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
+    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$98.00' })).toBeInTheDocument();
+
+    getShoppingList.mockReturnValueOnce(
+      buildShoppingListGraphQLResponseWith({
+        data: {
+          shoppingList: { status: 0, products: { totalCount: 1, edges: [threeLovelySocks] } },
+        },
+      }),
+    );
+
+    const quantityInput = within(rowOfLovelySocks).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '3', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$147.00' })).toBeInTheDocument();
+  });
+});
+
+describe('when the user updates the product notes', () => {
+  it('updates the product note in the shopping list', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const lovelySocks = buildShoppingListProductEdgeWith({
+      node: { itemId: 12345, productName: 'Lovely socks', productNote: 'Initial note' },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { products: { totalCount: 1, edges: [lovelySocks] } } },
+    });
+
+    const getShoppingList = vi.fn().mockReturnValueOnce(shoppingListResponse);
+    const updateShoppingLists = vi.fn();
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+      graphql.mutation('B2BUpdateShoppingListItems', ({ query }) =>
+        HttpResponse.json(updateShoppingLists(query)),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
+
+    expect(within(rowOfLovelySocks).getByText('Initial note')).toBeInTheDocument();
+
+    await userEvent.hover(rowOfLovelySocks);
+
+    await userEvent.click(within(rowOfLovelySocks).getByTestId('StickyNote2Icon'));
+
+    const noteModal = screen.getByRole('dialog');
+
+    const noteInput = within(noteModal).getByPlaceholderText('Add notes to products');
+    await userEvent.clear(noteInput);
+
+    await userEvent.type(noteInput, 'Updated note');
+
+    const lovelySocksUpdated = buildShoppingListProductEdgeWith({
+      node: { ...lovelySocks.node, productNote: 'Updated note' },
+    });
+
+    when(updateShoppingLists)
+      .calledWith(stringContainingAll('itemId: 12345', 'productNote: "Updated note"'))
+      .thenReturn({
+        data: { shoppingListsItemsUpdate: { shoppingListsItem: lovelySocksUpdated.node } },
+      });
+
+    const shoppingListResponseUpdated = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { products: { totalCount: 1, edges: [lovelySocksUpdated] } } },
+    });
+
+    getShoppingList.mockReturnValueOnce(shoppingListResponseUpdated);
+
+    await userEvent.click(within(noteModal).getByRole('button', { name: 'save' }));
+
+    expect(await within(rowOfLovelySocks).findByText('Updated note')).toBeInTheDocument();
+  });
+});
+
+describe('when the shopping list is ready for approval', () => {
+  it('does not display the "add to list" section', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const readyForApprovalStatusCode = 40;
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: { name: 'Shopping List 1', status: readyForApprovalStatusCode },
+      },
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(screen.queryByRole('heading', { name: 'Add to list' })).not.toBeInTheDocument();
   });
 });
