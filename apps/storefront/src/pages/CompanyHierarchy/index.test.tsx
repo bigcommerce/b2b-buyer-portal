@@ -119,7 +119,7 @@ describe('when collapsing the row of a parent company', () => {
     expect(rowOfApple).toBeInTheDocument();
     expect(rowOfBanana).toBeInTheDocument();
 
-    await userEvent.click(within(rowOfAcme).getByRole('button', { name: 'Collapse' }));
+    await userEvent.click(within(rowOfAcme).getByTestId('collapse'));
 
     await waitFor(() => expect(rowOfApple).not.toBeInTheDocument());
     expect(rowOfBanana).not.toBeInTheDocument();
@@ -160,10 +160,10 @@ it('display an "Actions" button for all but the selected company, if they have a
   const rowOfBanana = screen.getByRole('row', { name: /Banana/ });
   const rowOfCherimoya = screen.getByRole('row', { name: /cherimoya/ });
 
-  expect(within(rowOfAcme).queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
-  expect(within(rowOfApple).getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-  expect(within(rowOfBanana).getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-  expect(within(rowOfCherimoya).queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
+  expect(within(rowOfAcme).queryByTestId('actions')).not.toBeInTheDocument();
+  expect(within(rowOfApple).getByTestId('actions')).toBeInTheDocument();
+  expect(within(rowOfBanana).getByTestId('actions')).toBeInTheDocument();
+  expect(within(rowOfCherimoya).queryByTestId('actions')).not.toBeInTheDocument();
 });
 
 describe('when switching to a different company', () => {
@@ -188,7 +188,7 @@ describe('when switching to a different company', () => {
 
     const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
 
-    await userEvent.click(within(rowOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -223,7 +223,7 @@ describe('when cancelling a switch to a different company', () => {
 
     const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
 
-    await userEvent.click(within(rowOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -261,7 +261,7 @@ describe('when continuing to switch to a different company', () => {
 
     const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
 
-    await userEvent.click(within(rowOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -318,7 +318,7 @@ describe('when the user has a current cart and switches company', () => {
 
     const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
 
-    await userEvent.click(within(rowOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');

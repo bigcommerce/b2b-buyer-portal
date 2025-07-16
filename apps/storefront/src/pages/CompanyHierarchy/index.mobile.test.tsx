@@ -132,10 +132,10 @@ it('display an "Actions" button for all but the selected company, if they have a
   const tileOfBanana = screen.getByRole('listitem', { name: /Banana/ });
   const rowOfCherimoya = screen.getByRole('listitem', { name: /cherimoya/ });
 
-  expect(within(tileOfAcme).queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
-  expect(within(tileOfApple).getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-  expect(within(tileOfBanana).getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-  expect(within(rowOfCherimoya).queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
+  expect(within(tileOfAcme).queryByTestId('actions')).not.toBeInTheDocument();
+  expect(within(tileOfApple).getByTestId('actions')).toBeInTheDocument();
+  expect(within(tileOfBanana).getByTestId('actions')).toBeInTheDocument();
+  expect(within(rowOfCherimoya).queryByTestId('actions')).not.toBeInTheDocument();
 });
 
 describe('when switching to a different company', () => {
@@ -160,7 +160,7 @@ describe('when switching to a different company', () => {
 
     const tileOfApple = await screen.findByRole('listitem', { name: /Apple/ });
 
-    await userEvent.click(within(tileOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(tileOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -195,7 +195,7 @@ describe('when cancelling a switch to a different company', () => {
 
     const tileOfApple = await screen.findByRole('listitem', { name: /Apple/ });
 
-    await userEvent.click(within(tileOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(tileOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -233,7 +233,7 @@ describe('when continuing to switch to a different company', () => {
 
     const tileOfApple = await screen.findByRole('listitem', { name: /Apple/ });
 
-    await userEvent.click(within(tileOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(tileOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
@@ -290,7 +290,7 @@ describe('when the user has a current cart and switches company', () => {
 
     const tileOfApple = await screen.findByRole('listitem', { name: /Apple/ });
 
-    await userEvent.click(within(tileOfApple).getByRole('button', { name: 'Actions' }));
+    await userEvent.click(within(tileOfApple).getByTestId('actions'));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
