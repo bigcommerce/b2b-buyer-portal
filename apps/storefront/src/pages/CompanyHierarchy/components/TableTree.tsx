@@ -107,11 +107,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
             <Box sx={{ display: 'flex', ml: level * 4, alignItems: 'center' }}>
               {hasChildren ? (
                 <IconButton
-                  aria-label={
-                    expanded
-                      ? b3Lang('companyHierarchy.table.collapse')
-                      : b3Lang('companyHierarchy.table.open')
-                  }
+                  data-testid={expanded ? 'collapse' : 'open'}
                   size="small"
                   onClick={() => setExpanded(!expanded)}
                   sx={{ mr: 1 }}
@@ -172,7 +168,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
               aria-controls={open ? 'company-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
-              aria-label={b3Lang('companyHierarchy.table.actions')}
+              data-testid="actions"
             >
               <MoreHorizIcon />
             </IconButton>

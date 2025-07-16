@@ -87,7 +87,7 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
               aria-controls={open ? 'company-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
-              aria-label={b3Lang('companyHierarchy.table.actions')}
+              data-testid="actions"
               sx={{
                 pt: 0,
 
