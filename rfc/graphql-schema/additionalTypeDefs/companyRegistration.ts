@@ -73,6 +73,14 @@ export default /* GraphQL */ `
     registrationMode: UserRegistrationModes
   }
 
+  type CompanyFormFields {
+    registration: [FormField!]!
+  }
+
+  extend type FormFields {
+    company: CompanyFormFields!
+  }
+
   extend type Mutation {
     company: CompanyMutations!
   }
