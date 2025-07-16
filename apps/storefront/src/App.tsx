@@ -195,7 +195,14 @@ export default function App() {
       };
 
       if (!customerId) {
-        const info = await getCurrentCustomerInfo();
+        let info;
+
+        try {
+          info = await getCurrentCustomerInfo();
+        } catch (error) {
+          b2bLogger.error(error);
+        }
+
         if (info) {
           userInfo.role = info?.role;
         }
