@@ -66,6 +66,7 @@ const {
   quoteDraftPermissionCodes,
   quoteDetailPermissionCodes,
   companyHierarchyPermissionCodes,
+  quickOrderPermissionCodes,
 } = newPermissions;
 
 export const routeList: (BuyerPortalRoute | RouteItem)[] = [
@@ -140,10 +141,12 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     path: '/purchased-products',
     name: 'Quick order',
     pageTitle: 'Purchased products',
+    subsidiariesCompanyKey: 'quickOrder',
     wsKey: 'quickOrder',
     isMenuItem: true,
     configKey: 'quickOrderPad',
     permissions: quickOrderPermissions,
+    permissionCodes: quickOrderPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.quickOrder',
   },
