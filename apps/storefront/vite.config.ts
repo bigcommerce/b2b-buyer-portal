@@ -43,10 +43,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     test: {
-      onConsoleLog(warning) {
-        // TODO: This warns in production, will have to be fixed in the future.
-        return !warning.includes('The value provided to Autocomplete is invalid.');
-      },
       // We override the default timeout in CI to account for slower test execution.
       // This is necessary because the default timeout of 5 seconds is not enough for some tests
       // that involve network requests or complex component interactions.

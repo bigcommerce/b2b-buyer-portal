@@ -258,6 +258,7 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
         <div role="list">
           {mobileCompanyData.map((company) => (
             <CompanyTableRowCard
+              key={getNodeId(company)}
               company={company}
               currentCompanyId={currentCompanyId}
               selectCompanyId={selectCompanyId}
