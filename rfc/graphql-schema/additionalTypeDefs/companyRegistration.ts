@@ -74,7 +74,7 @@ export default /* GraphQL */ `
   }
 
   type CompanyFormFields {
-    registration: [FormField!]!
+    registration: [FormField!]! # This includes business, business address, and extra customer fields
   }
 
   extend type FormFields {
