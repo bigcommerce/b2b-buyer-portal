@@ -6,13 +6,13 @@ export default /* GraphQL */ `
     isDefaultBilling: Boolean!
   }
 
-  interface CompanyAddress implements CustomerAddress {
+  interface CompanyAddress {
     entityId: Int!
     firstName: String!
     lastName: String!
     address1: String!
     address2: String
-    addressType: DestinationAddressType
+    addressType: AddressType! # This is the B2B address type, which is defined atop. Different from the B2C address type (commercial/residential)
     city: String!
     country: String
     countryId: Int
@@ -26,8 +26,6 @@ export default /* GraphQL */ `
     company: Company!
 
     label: String!
-
-    addressType: AddressType!
   }
 
   type CompanyAddressEdge {
@@ -137,7 +135,7 @@ export default /* GraphQL */ `
   }
 
   type CompanyFormFields {
-    address: [FormField!]!
+    address: [FormField!]! # This includes b2c address fields + b2b extra fields
   }
 
   extend type FormFields {
