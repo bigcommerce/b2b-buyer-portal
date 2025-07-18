@@ -134,24 +134,20 @@ export default /* GraphQL */ `
     data: SetAsDefaultDataInput!
   }
 
-  type CompanyFormFields {
-    address: [FormField!]! # This includes b2c address fields + b2b extra fields
+  type ExtraFields {
+    companyAddress: [FormField!]!
   }
 
-  extend type FormFields {
-    company: CompanyFormFields!
+  extend type Settings {
+    extraFields: ExtraFields!
   }
 
   extend type CompanyMutations {
-    addAddress(
-      input: CompanyAddressCreateInput
-    ): CompanyAddressResult!
-    updateAddress(
-      input: CompanyAddressUpdateInput!
-    ): CompanyAddressResult!
-    setAddressAsDefault(
-      input: SetAsDefaultInput!
-    ): CompanyAddressResult!
-    deleteAddress(input: CompanyAddressDeleteInput!): CompanyAddressDeleteResult!
+    addAddress(input: CompanyAddressCreateInput): CompanyAddressResult!
+    updateAddress(input: CompanyAddressUpdateInput!): CompanyAddressResult!
+    setAddressAsDefault(input: SetAsDefaultInput!): CompanyAddressResult!
+    deleteAddress(
+      input: CompanyAddressDeleteInput!
+    ): CompanyAddressDeleteResult!
   }
 `
