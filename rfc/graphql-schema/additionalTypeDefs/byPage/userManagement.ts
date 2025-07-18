@@ -9,8 +9,14 @@ export default /* GraphQL */ `
     name: String!
   }
 
+  type CompanyRelationship {
+    role: Role!
+    company: Company!
+  }
+
   extend type Customer {
-    role: Role
+    company: String! # we can make this companyRelationship.company.name for b2b customers for backward compatibility
+    companyRelationship: CompanyRelationship
   }
 
   type CustomerEdge {
