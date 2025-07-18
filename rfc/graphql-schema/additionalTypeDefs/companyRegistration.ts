@@ -73,12 +73,12 @@ export default /* GraphQL */ `
     registrationMode: UserRegistrationModes
   }
 
-  type CompanyFormFields {
-    registration: [FormField!]! # This includes business, business address, and extra customer fields
+  type ExtraFields {
+    companyRegistration: [FormField!]!
   }
 
-  extend type FormFields {
-    company: CompanyFormFields!
+  extend type Settings {
+    extraFields: ExtraFields!
   }
 
   extend type Mutation {

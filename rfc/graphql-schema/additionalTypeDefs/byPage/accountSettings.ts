@@ -8,26 +8,22 @@ export default /* GraphQL */ `
     companyRelationship: CompanyRelationship
   }
 
-  type CompanyFormFields {
-    user: [FormField!]! # This includes b2c customer fields + b2b extra fields
+  type ExtraFields {
+    companyUser: [FormField!]!
   }
 
-  extend type FormFields {
-    company: CompanyFormFields!
+  extend type Settings {
+    extraFields: ExtraFields!
   }
 
-  input UpdateCustomerInput {
-    firstName: String!
-    lastName: String!
-    email: String!
-    phone: String
-    company: String
-    formFields: CustomerFormFieldsInput
+  extend input UpdateCustomerInput {
+    extraFields: CustomerFormFieldsInput # This is only used for companyUser extra fields
   }
 
-  type CustomerMutations {
-    updateCustomer(input: UpdateCustomerInput!): UpdateCustomerResult
-  }
+  # This is already defined in storefront schema, added here for clarity
+  # type CustomerMutations {
+  #   updateCustomer(input: UpdateCustomerInput!): UpdateCustomerResult
+  # }
 
   extend type Mutation {
     customer: CustomerMutations
