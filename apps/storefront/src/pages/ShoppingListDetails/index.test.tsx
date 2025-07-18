@@ -11,6 +11,7 @@ import {
   startMockServer,
   stringContainingAll,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -231,7 +232,12 @@ it('displays a summary of products within the shopping list', async () => {
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
   expect(screen.getByText('2 products')).toBeInTheDocument();
-  expect(screen.getByText('$460.00')).toBeInTheDocument();
+
+  // This is a workaround for the fact that the total price is not immediately available.
+  // The price is set after a useEffect and can fail during tests.
+  await waitFor(() => {
+    expect(screen.getByText('$460.00')).toBeInTheDocument();
+  });
 
   expect(screen.getByRole('row', { name: /Lovely socks/ })).toBeInTheDocument();
   expect(screen.getByRole('row', { name: /Fancy hat/ })).toBeInTheDocument();
