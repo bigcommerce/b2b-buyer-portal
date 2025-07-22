@@ -1267,6 +1267,7 @@ describe('when a super admin is masquerading as a company customer', () => {
 
     when(getAllOrders)
       .calledWith(
+        // isShowMy controls whether to show the orders for the current user, setting it to "1" will filter for currentUser
         stringContainingAll('companyIds: [433,]', 'isShowMy: "1"', 'orderBy: "-bcOrderId"'),
       )
       .thenReturn(
