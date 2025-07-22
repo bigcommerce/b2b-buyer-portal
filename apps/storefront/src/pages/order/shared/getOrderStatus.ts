@@ -92,12 +92,6 @@ export const orderStatusTranslationVariables: OrderStatusConfig = {
   'Partially Refunded': 'orders.status.partiallyRefunded',
 };
 
-export const getOrderStatusOptions = () =>
-  Object.keys(orderStatusText).map((code) => ({
-    value: code,
-    label: orderStatusText[code],
-  }));
-
 const getOrderStatus = (code: string | number) => ({
   color: orderStatusColor[code],
   textColor: orderStatusTextColor[code],
