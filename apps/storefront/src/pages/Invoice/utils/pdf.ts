@@ -16,7 +16,10 @@ const analyzePDFUrl = (url: string): Promise<string> =>
       });
   });
 
-export const getInvoiceDownloadPDFUrl = async (invoiceId: string, isPayNow = false) => {
+export const getInvoiceDownloadPDFUrl = async (
+  invoiceId: string,
+  isPayNow = false,
+): Promise<string> => {
   const {
     invoicePdf: { url },
   } = await invoiceDownloadPDF(Number(invoiceId), isPayNow);
