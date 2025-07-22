@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
@@ -66,6 +66,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       title: b3Lang('invoice.invoiceItemCardHeader.order'),
       render: () => (
         <Box
+          role="button"
           sx={{
             color: '#000000',
             cursor: 'pointer',
@@ -186,8 +187,12 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     },
   ];
 
+  const groupId = useId();
+
   return (
     <Card
+      role="group"
+      aria-labelledby={groupId}
       sx={{
         marginBottom: selectedPay.length > 0 && addBottom ? '5rem' : 0,
       }}
@@ -221,6 +226,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               }}
             >
               <Box
+                id={groupId}
+                role="button"
                 sx={{
                   color: '#000000',
                   cursor: 'pointer',
