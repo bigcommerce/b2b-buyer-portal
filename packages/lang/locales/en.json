@@ -194,6 +194,7 @@
   "invoice.footer.totalPayment": "Total payment: {total}",
   "invoice.footer.payInvoices": "Pay invoices",
   "invoice.paymentHistory.title": "Payments history",
+  "invoice.actions.moreActions": "More actions",
   "invoice.actions.viewInvoice": "View invoice",
   "invoice.actions.viewOrder": "View order",
   "invoice.actions.viewPaymentHistory": "View payment history",
@@ -702,7 +703,6 @@
   "pdp.addToShoppingList": "Add to shopping list",
   "pdp.cartToQuote.error.notFound": "Cart not found",
   "pdp.cartToQuote.error.empty": "No products in the cart.",
-
 
   "forgotPassword.resetPassword": "Reset password",
   "forgotPassword.requestEmail": "Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.",

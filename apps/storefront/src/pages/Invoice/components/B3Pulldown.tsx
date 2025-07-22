@@ -12,6 +12,8 @@ import { b2bPermissionsMap, snackbar, verifyLevelPermission } from '@/utils';
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
 
+import { triggerPdfDownload } from './triggerPdfDownload';
+
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
     boxShadow:
@@ -129,11 +131,7 @@ function B3Pulldown({
 
     setIsRequestLoading(false);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.download = 'file.pdf';
-    a.click();
+    triggerPdfDownload(url, 'file.pdf');
   };
 
   useEffect(() => {
@@ -141,7 +139,6 @@ function B3Pulldown({
     const payPermissions =
       Number(openBalance.value) > 0 && invoicePayPermission && purchasabilityPermission;
 
-    setIsPay(payPermissions);
     const isPayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
     setIsPay(isPayInvoice);
 
@@ -158,7 +155,12 @@ function B3Pulldown({
 
   return (
     <>
-      <IconButton onClick={handleMoreActionsClick} ref={ref}>
+      <IconButton
+        onClick={handleMoreActionsClick}
+        ref={ref}
+        aria-label={b3Lang('invoice.actions.moreActions')}
+        aria-haspopup="menu"
+      >
         <MoreHorizIcon />
       </IconButton>
       <StyledMenu

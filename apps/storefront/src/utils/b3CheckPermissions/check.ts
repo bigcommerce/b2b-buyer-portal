@@ -90,17 +90,17 @@ export const verifyLevelPermission = ({
   userEmail = '',
   userId = 0,
 }: VerifyLevelPermissionProps): boolean => {
-  const info = getPermissionsInfo(code);
+  const permissionLevel = getPermissionsInfo(code)?.permissionLevel;
 
-  if (!info) return !!info;
-
-  const { permissionLevel } = info;
-
-  if (!permissionLevel) return false;
+  if (!permissionLevel) {
+    return false;
+  }
 
   const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id;
 
-  if (salesRepCompanyId) return true;
+  if (salesRepCompanyId) {
+    return true;
+  }
 
   const { companyInfo, customer } = store.getState().company || {};
 

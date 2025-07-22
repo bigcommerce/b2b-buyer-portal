@@ -1,7 +1,8 @@
 import { convertArrayToGraphql } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
-const invoiceList = (data: CustomFieldItems) => `{
+const invoiceList = (data: CustomFieldItems) => `
+query GetInvoices {
   invoices (
     search: "${data.q || ''}"
     first: ${data.first}
@@ -61,7 +62,8 @@ const invoiceList = (data: CustomFieldItems) => `{
   }
 }`;
 
-const invoiceStats = (status: number | string, decimalPlaces: number, companyIds: number[]) => `{
+const invoiceStats = (status: number | string, decimalPlaces: number, companyIds: number[]) => `
+query GetInvoiceStats {
   invoiceStats (
     ${status === '' ? '' : `status: ${status},`}
     decimalPlaces: ${decimalPlaces}
@@ -72,7 +74,8 @@ const invoiceStats = (status: number | string, decimalPlaces: number, companyIds
   }
 }`;
 
-const getInvoiceDownloadPDF = (invoiceId: number, isPayNow: boolean) => `mutation {
+const getInvoiceDownloadPDF = (invoiceId: number, isPayNow: boolean) => `
+mutation GetInvoicePDFUrl {
   invoicePdf (
     invoiceId: ${invoiceId}
     ${isPayNow ? `isPayNow: ${isPayNow}` : ''}
@@ -81,7 +84,8 @@ const getInvoiceDownloadPDF = (invoiceId: number, isPayNow: boolean) => `mutatio
   }
 }`;
 
-const invoiceCreateBcCart = (data: any) => `mutation {
+const invoiceCreateBcCart = (data: any) => `
+mutation CreateCart {
   invoiceCreateBcCart (
     bcCartData: {
       lineItems: ${convertArrayToGraphql(data.lineItems)},
@@ -98,7 +102,8 @@ const invoiceCreateBcCart = (data: any) => `mutation {
   }
 }`;
 
-const receiptLine = (id: number) => `{
+const receiptLine = (id: number) => `
+query GetInvoicePaymentHistory {
   allReceiptLines (
     invoiceId: "${id}"
     first: 50
@@ -195,7 +200,8 @@ const invoiceReceipt = (id: number) => `{
   }
 }`;
 
-const exportInvoices = `mutation($invoiceFilterData: InvoiceFilterDataType!, $lang: String!) {
+const exportInvoices = `
+mutation ExportInvoicesAsCSV ($invoiceFilterData: InvoiceFilterDataType!, $lang: String!) {
   invoicesExport (
     invoiceFilterData: $invoiceFilterData,
     lang: $lang,

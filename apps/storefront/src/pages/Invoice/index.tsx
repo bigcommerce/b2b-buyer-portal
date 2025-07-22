@@ -562,6 +562,7 @@ function Invoice() {
               textDecoration: 'underline',
             },
           }}
+          role="button"
           onClick={() => {
             const companyInfo = item?.companyInfo || {};
             handleViewInvoice(item.id, item.status, companyInfo?.companyId);
@@ -589,6 +590,7 @@ function Invoice() {
       isSortable: true,
       render: (item: InvoiceList) => (
         <Box
+          role="button"
           sx={{
             color: '#000000',
             cursor: 'pointer',
@@ -749,7 +751,7 @@ function Invoice() {
       },
     },
     {
-      key: 'companyName',
+      key: 'invoiceActions',
       title: b3Lang('invoice.headers.action'),
       render: (row: InvoiceList) => {
         const { id, companyInfo } = row;
