@@ -124,7 +124,8 @@ query GetInvoicePaymentHistory {
   }
 }`;
 
-const invoiceDetail = (invoiceId: number) => `{
+const invoiceDetail = (invoiceId: number) => `
+query GetInvoiceDetails {
   invoice (
     invoiceId: ${invoiceId}
   ) {
