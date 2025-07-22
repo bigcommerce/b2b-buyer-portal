@@ -73,9 +73,7 @@ function Payment() {
     };
 
     init();
-    // disabling b3Lang due to rendering issues within b3Lang
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [platform, params.id]);
+  }, [platform, params.id, B2BToken, b3Lang]);
 
   const handleConfirm = () => {
     navigate('/login');

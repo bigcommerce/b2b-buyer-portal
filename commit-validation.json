@@ -16,6 +16,7 @@
     "quick-order",
     "company-hierarchy",
     "company-orders",
-    "invoices"
+    "invoices",
+    "invoice-payment"
   ]
 }
