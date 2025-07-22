@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useId } from 'react';
 import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
@@ -22,7 +22,7 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
     disabled = false,
     extraPadding,
   } = rest;
-
+  const id = useId();
   const b3Lang = useB3Lang();
 
   const muiAttributeProps = muiSelectProps || {};
@@ -69,6 +69,7 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
           }}
           error={!!errors[name]}
           required={required}
+          id={`${id}-label`}
         >
           {label}
         </InputLabel>
@@ -83,6 +84,8 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
             {...onChangeProps}
             size={size}
             error={!!errors[name]}
+            labelId={`${id}-label`}
+            id={`${id}-select`}
             sx={{
               ...extraPadding,
             }}
