@@ -14,6 +14,7 @@
     "user-management",
     "dashboard",
     "quick-order",
-    "company-hierarchy"
+    "company-hierarchy",
+    "company-orders"
   ]
 }
