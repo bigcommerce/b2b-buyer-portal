@@ -133,7 +133,7 @@ export default function AddToQuote(props: AddToListProps) {
       customerGroupId,
     });
 
-    const productList = productsSearch.map((product: CustomFieldItems) => {
+    const productList = conversionProductsList(productsSearch).map((product: CustomFieldItems) => {
       const variantProduct =
         variantProducts.find(
           (variantProduct: CustomFieldItems) => variantProduct.productId === product.id,
