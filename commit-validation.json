@@ -15,6 +15,7 @@
     "dashboard",
     "quick-order",
     "company-hierarchy",
-    "company-orders"
+    "company-orders",
+    "invoices"
   ]
 }
