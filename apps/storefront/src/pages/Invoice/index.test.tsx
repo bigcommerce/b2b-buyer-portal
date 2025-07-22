@@ -82,6 +82,17 @@ const buildInvoiceStatsResponseWith = builder(() => ({
   },
 }));
 
+const buildReceiptLineNodeWith = builder(() => ({
+  node: {
+    id: faker.number.int().toString(),
+    invoiceNumber: faker.number.int().toString(),
+    amount: {
+      code: faker.finance.currencyCode(),
+      value: faker.commerce.price(),
+    },
+  },
+}));
+
 const companyStateWithPurchasePermissions = buildCompanyStateWith({
   customer: {
     id: 9988,
@@ -618,8 +629,12 @@ it('can expand an invoice to look at its details', async () => {
     .calledWith(pdfFile)
     .thenReturn('https://localhost:3000/mock-blob-url');
 
+  const { log } = console;
+  vi.spyOn(console, 'log').mockImplementation(log);
+
   // PDFObject will log a warning in the console if it cannot embed the PDF
-  vi.spyOn(console, 'log').mockImplementation(vi.fn());
+  // eslint-disable-next-line no-console
+  when(console.log).calledWith(stringContainingAll('[PDFObject]'), expect.anything()).thenReturn();
 
   await userEvent.click(expandRow);
 
@@ -994,6 +1009,7 @@ describe('when using the action menu', () => {
                     node: {
                       id: '3344',
                       invoiceNumber: '3322',
+                      status: InvoiceStatusCode.PartiallyPaid,
                     },
                   }),
                 ],
@@ -1348,5 +1364,178 @@ it('exports selected invoices as CSV', async () => {
 
   await waitFor(() => {
     expect(window.open).toHaveBeenCalledWith('https://example.com/invoices.csv', '_blank');
+  });
+});
+
+describe('when the url contains an invoiceId parameter', () => {
+  it('display invoices matching the invoiceId and expands them', async () => {
+    const pdfFile = new Blob(['%PDF-1.4 Mock PDF Content'], { type: 'application/pdf' });
+
+    const getInvoicesResponse = vi.fn();
+    const getInvoicePDFUrlResponse = vi.fn();
+
+    server.use(
+      graphql.query('GetInvoices', ({ query }) => HttpResponse.json(getInvoicesResponse(query))),
+      graphql.query('GetInvoiceStats', () =>
+        HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.mutation('GetInvoicePDFUrl', ({ query }) =>
+        HttpResponse.json(getInvoicePDFUrlResponse(query)),
+      ),
+      http.get('https://example.com/123456.pdf', async () =>
+        HttpResponse.arrayBuffer(await pdfFile.arrayBuffer(), {
+          headers: { 'Content-Type': 'application/pdf' },
+        }),
+      ),
+      http.get('https://example.com/123478.pdf', async () =>
+        HttpResponse.arrayBuffer(await pdfFile.arrayBuffer(), {
+          headers: { 'Content-Type': 'application/pdf' },
+        }),
+      ),
+    );
+
+    when(getInvoicePDFUrlResponse)
+      .calledWith(stringContainingAll('123456'))
+      .thenReturn({ data: { invoicePdf: { url: 'https://example.com/123456.pdf' } } });
+
+    when(getInvoicePDFUrlResponse)
+      .calledWith(stringContainingAll('123478'))
+      .thenReturn({ data: { invoicePdf: { url: 'https://example.com/123478.pdf' } } });
+
+    when(getInvoicesResponse)
+      .calledWith(stringContainingAll('search: "1234"'))
+      .thenReturn(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({ node: { id: '123456' } }),
+                buildInvoiceWith({ node: { id: '123478' } }),
+              ],
+            },
+          },
+        }),
+      );
+
+    renderWithProviders(<Invoice />, {
+      preloadedState,
+      initialEntries: [{ search: '?invoiceId=1234' }],
+    });
+
+    const { log } = console;
+    vi.spyOn(console, 'log').mockImplementation(log);
+
+    // PDFObject will log a warning in the console if it cannot embed the PDF
+    // eslint-disable-next-line no-console
+    when(console.log)
+      .calledWith(stringContainingAll('[PDFObject]'), expect.anything())
+      .thenReturn();
+
+    when(window.URL.createObjectURL)
+      .calledWith(pdfFile)
+      .thenDo(() => faker.internet.url());
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('link', { name: 'Download PDF' })).toHaveLength(2);
+    });
+  });
+});
+
+describe('when the url contains a receiptId (coming back from checkout)', () => {
+  it('displays the receipt information', async () => {
+    const getReceiptResponse = vi.fn();
+
+    server.use(
+      graphql.query('GetInvoices', () =>
+        HttpResponse.json(buildInvoicesResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetInvoiceStats', () =>
+        HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetInvoiceReceipt', ({ query }) =>
+        HttpResponse.json(getReceiptResponse(query)),
+      ),
+    );
+
+    when(getReceiptResponse)
+      .calledWith(stringContainingAll('id: 1234'))
+      .thenReturn({
+        data: {
+          receipt: {
+            paymentId: 13802,
+            createdAt: getUnixTime(new Date('July 3 2025')),
+            transactionType: 'Paid',
+            paymentType: 'visa ending in 1111',
+            totalAmount: '30.0000',
+            referenceNumber: '123123',
+            details: { paymentDetails: { comment: 'Foo bar payment comment' } },
+            receiptLineSet: {
+              edges: [
+                buildReceiptLineNodeWith({
+                  node: { invoiceNumber: '00053858', amount: { code: 'USD', value: '20.0000' } },
+                }),
+                buildReceiptLineNodeWith({
+                  node: { invoiceNumber: '00053857', amount: { code: 'USD', value: '10.0000' } },
+                }),
+              ],
+            },
+          },
+        },
+      });
+
+    renderWithProviders(<Invoice />, {
+      preloadedState,
+      initialEntries: [{ search: '?receiptId=1234' }],
+    });
+
+    const modal = await screen.findByRole('dialog', { name: 'Thank you for your payment' });
+
+    expect(within(modal).getByText('Payment#:')).toBeInTheDocument();
+    expect(within(modal).getByText('13802')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Payment received on:')).toBeInTheDocument();
+    expect(within(modal).getByText('3 July 2025')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Transaction type:')).toBeInTheDocument();
+    expect(within(modal).getByText('Paid')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Payment type:')).toBeInTheDocument();
+    expect(within(modal).getByText('Visa ending in 1111')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Payment total:')).toBeInTheDocument();
+    expect(within(modal).getByText('$30.00')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Reference:')).toBeInTheDocument();
+    expect(within(modal).getByText('123123')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Payment comment:')).toBeInTheDocument();
+    expect(within(modal).getByText('Foo bar payment comment')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Invoices paid')).toBeInTheDocument();
+    expect(
+      within(modal).getByText('You made payments towards the invoices shown below'),
+    ).toBeInTheDocument();
+
+    expect(within(modal).getByText('Invoice#')).toBeInTheDocument();
+    expect(within(modal).getByText('Amount paid')).toBeInTheDocument();
+
+    expect(within(modal).getByText('Invoices paid')).toBeInTheDocument();
+    expect(
+      within(modal).getByText('You made payments towards the invoices shown below'),
+    ).toBeInTheDocument();
+
+    expect(within(modal).getByText('00053858')).toBeInTheDocument();
+    expect(within(modal).getByText('$20.00')).toBeInTheDocument();
+
+    expect(within(modal).getByText('00053857')).toBeInTheDocument();
+    expect(within(modal).getByText('$10.00')).toBeInTheDocument();
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Ok' }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: 'Thank you for your payment' }),
+      ).not.toBeInTheDocument();
+    });
   });
 });
