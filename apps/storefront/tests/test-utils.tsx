@@ -105,8 +105,14 @@ export const renderWithProviders = (
 
 export function stringContainingAll(...substrings: string[]) {
   return {
-    asymmetricMatch(received: string) {
-      return substrings.every((sub) => received.includes(sub));
+    asymmetricMatch(received: unknown) {
+      return substrings.every((sub) => {
+        if (typeof received === 'string') {
+          return received.includes(sub);
+        }
+
+        return false;
+      });
     },
     toString() {
       return 'stringContainingAll';

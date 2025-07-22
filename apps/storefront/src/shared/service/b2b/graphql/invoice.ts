@@ -155,7 +155,8 @@ query GetInvoiceDetails {
   }
 }`;
 
-const invoiceReceipt = (id: number) => `{
+const invoiceReceipt = (id: number) => `
+query GetInvoiceReceipt {
   receipt (
     id: ${id}
   ) {
