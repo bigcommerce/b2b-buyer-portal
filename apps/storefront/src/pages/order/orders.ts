@@ -85,7 +85,7 @@ query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   }
 }`;
 
-export interface CustomerOrderStatus {
+export interface OrderStatus {
   systemLabel: string;
   customLabel: string;
   statusCode: string;
@@ -93,13 +93,13 @@ export interface CustomerOrderStatus {
 
 export interface CustomerOrderStatues {
   data: {
-    bcOrderStatuses: CustomerOrderStatus[];
+    bcOrderStatuses: OrderStatus[];
   };
 }
 
 export interface CompanyOrderStatuses {
   data: {
-    orderStatuses: CustomerOrderStatus[];
+    orderStatuses: OrderStatus[];
   };
 }
 
