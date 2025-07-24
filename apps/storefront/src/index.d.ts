@@ -20,6 +20,24 @@ type ChannelPlatform =
   | 'wordpress'
   | 'custom';
 
+type Position =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top-center'
+  | 'bottom-center';
+
+interface ToastOptions {
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+  description?: string;
+  position?: Position;
+  dismissLabel?: string;
+}
+
 declare interface Window {
   tipDispatch: import('@/shared/global/context/config.ts').DispatchProps;
   globalTipDispatch: any;
@@ -31,6 +49,14 @@ declare interface Window {
       environment: import('@/types/global').Environment;
       disable_logout_button?: boolean;
       cart_url?: string;
+    };
+  };
+  catalyst: {
+    toast: {
+      error: (message: string, options?: ToastOptions) => void;
+      success: (message: string, options?: ToastOptions) => void;
+      info: (message: string, options?: ToastOptions) => void;
+      warning: (message: string, options?: ToastOptions) => void;
     };
   };
   b2b: {

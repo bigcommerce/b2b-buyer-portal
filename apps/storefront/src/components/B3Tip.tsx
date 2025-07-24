@@ -1,7 +1,8 @@
-import { Alert, AlertTitle, Box, Snackbar } from '@mui/material';
+import { Alert, Box, Snackbar } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import { MsgsProps, TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
+import TipBody from './TipBody';
 
 interface B3TipProps extends TipMessagesProps {
   handleItemClose: (id: number | string) => void;
@@ -15,8 +16,6 @@ function MessageAlert({
   msg: MsgsProps;
   onClose: (id: string | number) => void;
 }) {
-  const Body = msg.jsx ? msg.jsx : () => <span>{msg.msg}</span>;
-
   return (
     <Alert
       sx={{
@@ -36,8 +35,10 @@ function MessageAlert({
       severity={msg.type}
       onClose={() => msg.isClose && onClose(msg.id)}
     >
-      {msg.title && <AlertTitle>{msg.title}</AlertTitle>}
-      <Body />
+      <TipBody
+        action={msg.action}
+        message={msg.msg}
+      />
     </Alert>
   );
 }
