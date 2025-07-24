@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import { Box, Button, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
@@ -517,51 +517,29 @@ function QuoteDetail() {
     const { state } = location;
 
     if (!state) return;
-    const tip = () => (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Box
-          sx={{
-            mr: '15px',
-          }}
-        >
-          {Number(role) === 100
-            ? b3Lang('quoteDetail.submittedQuote')
-            : b3Lang('quoteDetail.quoteSubmitted')}
-        </Box>
-        <Button
-          onClick={() => {
-            if (Number(role) === 100) {
-              copy(window.location.href);
-              snackbar.success(b3Lang('quoteDetail.copySuccessful'));
-            } else {
-              navigate('/quotes');
-            }
-          }}
-          variant="text"
-          sx={{
-            color: '#ffffff',
-            textAlign: 'left',
-            padding: 0,
-          }}
-        >
-          {Number(role) === 100
-            ? b3Lang('quoteDetail.copyQuoteLink')
-            : b3Lang('quoteDetail.reviewAllQuotes')}
-        </Button>
-      </Box>
-    );
 
     setTimeout(() => {
-      snackbar.success('', {
-        jsx: () => tip(),
-        isClose: true,
-        duration: 30000,
-      });
+      snackbar.success(
+        Number(role) === 100
+          ? b3Lang('quoteDetail.submittedQuote')
+          : b3Lang('quoteDetail.quoteSubmitted'),
+        {
+          action: {
+            label:
+              Number(role) === 100
+                ? b3Lang('quoteDetail.copyQuoteLink')
+                : b3Lang('quoteDetail.reviewAllQuotes'),
+            onClick: () => {
+              if (Number(role) === 100) {
+                copy(window.location.href);
+                snackbar.success(b3Lang('quoteDetail.copySuccessful'));
+              } else {
+                navigate('/quotes');
+              }
+            },
+          },
+        },
+      );
     }, 10);
     location.state = null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
