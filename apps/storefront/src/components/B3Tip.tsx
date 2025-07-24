@@ -21,7 +21,7 @@ function MessageAlert({
       sx={{
         alignItems: 'center',
         '& button[title="Close"]': {
-          display: msg.isClose ? 'block' : 'none',
+          display: 'block',
         },
         mb: '5px',
 

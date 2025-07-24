@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 
-import { B3CustomForm, successTip } from '@/components';
+import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
 import { useMobile } from '@/hooks';
@@ -16,6 +17,7 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -72,6 +74,7 @@ export default function OrderDialog({
   itemKey,
   orderId,
 }: OrderDialogProps) {
+  const navigate = useNavigate();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
@@ -232,15 +235,17 @@ export default function OrderDialog({
 
       if (status) {
         setOpen(false);
-        snackbar.success('', {
-          jsx: successTip({
-            message: b3Lang('orderDetail.reorder.productsAdded'),
-            link: CART_URL,
-            linkText: b3Lang('orderDetail.viewCart'),
-            isOutLink: true,
-            isCustomEvent: true,
-          }),
-          isClose: true,
+        snackbar.success(b3Lang('orderDetail.reorder.productsAdded'), {
+          action: {
+            label: b3Lang('orderDetail.reorder.viewCart'),
+            onClick: () => {
+              handleTipLink(CART_URL, {
+                isCustomEvent: true,
+                isOutLink: true,
+                navigate,
+              });
+            },
+          },
         });
         b3TriggerCartNumber();
       } else if (res.errors) {
@@ -329,13 +334,15 @@ export default function OrderDialog({
         items: params,
       });
 
-      snackbar.success('', {
-        jsx: successTip({
-          message: b3Lang('orderDetail.addToShoppingList.productsAdded'),
-          link: `/shoppingList/${id}`,
-          linkText: b3Lang('orderDetail.viewShoppingList'),
-        }),
-        isClose: true,
+      snackbar.success(b3Lang('orderDetail.addToShoppingList.productsAdded'), {
+        action: {
+          label: b3Lang('orderDetail.viewShoppingList'),
+          onClick: () => {
+            handleTipLink(`/shoppingList/${id}`, {
+              navigate,
+            });
+          },
+        },
       });
 
       setOpenShoppingList(false);
