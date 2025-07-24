@@ -24,3 +24,5 @@ Collected here as they may become easier to answer as the schema evolves.
    - If so, how is the BE limiting overly complex or deep queries?
 
 6. Can we rely on `activeCompany.set` to invalidate/swap carts on the BE, rather than it being an additional call from the FE?
+
+7. We need an endpoint elsewhere to upload files for company registration.
