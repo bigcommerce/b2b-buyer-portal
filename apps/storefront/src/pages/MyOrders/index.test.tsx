@@ -616,7 +616,7 @@ describe('when a personal customer', () => {
 
       expect(within(dialog).getByRole('heading', { name: 'Filters' })).toBeInTheDocument();
 
-      await userEvent.click(within(dialog).getByRole('combobox'));
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
 
       await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
 
@@ -726,7 +726,7 @@ describe('when a personal customer', () => {
 
       expect(within(dialog).getByRole('heading', { name: 'Filters' })).toBeInTheDocument();
 
-      await userEvent.click(within(dialog).getByRole('combobox'));
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
 
       await userEvent.click(screen.getByRole('option', { name: 'Awaiting' }));
 
@@ -1375,7 +1375,7 @@ describe('when a company customer', () => {
 
       const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
-      await userEvent.click(within(dialog).getByRole('combobox'));
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
 
       await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
 
@@ -1481,7 +1481,7 @@ describe('when a company customer', () => {
 
       const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
-      await userEvent.click(within(dialog).getByRole('combobox'));
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
 
       await userEvent.click(screen.getByRole('option', { name: 'Awaiting' }));
 

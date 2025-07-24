@@ -313,7 +313,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     },
   ] as const satisfies TableColumnItem<ListItem>[];
 
-  const getColumnItems = () => {
+  const getColumnItems = (): TableColumnItem<ListItem>[] => {
     const getNewColumnItems = columnAllItems.filter((item) => {
       const { key } = item;
       if (!isB2BUser && key === 'companyName') return false;
@@ -425,7 +425,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         </Box>
 
         <B3Table
-          columnItems={columnItems || []}
+          columnItems={columnItems}
           listItems={data?.edges || []}
           pagination={{ ...pagination, count: data?.totalCount || 0 }}
           onPaginationChange={setPagination}
