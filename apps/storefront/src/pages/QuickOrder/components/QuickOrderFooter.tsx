@@ -14,7 +14,6 @@ import {
 } from '@mui/material';
 import { v1 as uuid } from 'uuid';
 
-import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
@@ -34,6 +33,7 @@ import {
   validProductQty,
 } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -229,15 +229,17 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const res = await callCart(lineItems);
 
       if (res && !res.errors) {
-        snackbar.success('', {
-          jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsAdded'),
-            link: CART_URL,
-            linkText: b3Lang('purchasedProducts.footer.viewCart'),
-            isOutLink: true,
-            isCustomEvent: true,
-          }),
-          isClose: true,
+        snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {
+          action: {
+            label: b3Lang('purchasedProducts.footer.viewCart'),
+            onClick: () => {
+              handleTipLink(CART_URL, {
+                isCustomEvent: true,
+                isOutLink: true,
+                navigate,
+              });
+            },
+          },
         });
       } else if (res && res.errors) {
         snackbar.error(res.errors[0].message, {
@@ -377,15 +379,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       isSuccess = validProductQty(newProducts);
 
       if (!isFondVariant) {
-        snackbar.error('', {
-          jsx: successTip({
-            message: errorMessage,
-            link: '',
-            linkText: '',
-            isOutLink: false,
-          }),
-          isClose: true,
-        });
+        snackbar.error(errorMessage);
 
         return;
       }
@@ -393,24 +387,26 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2');
         addQuoteDraftProducts(newProducts);
-        snackbar.success('', {
-          jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsAddedToQuote'),
-            link: '/quoteDraft',
-            linkText: b3Lang('purchasedProducts.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
+        snackbar.success(b3Lang('purchasedProducts.footer.productsAddedToQuote'), {
+          action: {
+            label: b3Lang('purchasedProducts.footer.viewQuote'),
+            onClick: () => {
+              handleTipLink('/quoteDraft', {
+                navigate,
+              });
+            },
+          },
         });
       } else {
-        snackbar.error('', {
-          jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsLimit'),
-            link: '/quoteDraft',
-            linkText: b3Lang('purchasedProducts.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
+        snackbar.error(b3Lang('purchasedProducts.footer.productsLimit'), {
+          action: {
+            label: b3Lang('purchasedProducts.footer.viewQuote'),
+            onClick: () => {
+              handleTipLink('/quoteDraft', {
+                navigate,
+              });
+            },
+          },
         });
       }
     } catch (e) {

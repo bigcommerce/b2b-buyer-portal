@@ -1,11 +1,11 @@
 import { useContext, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown, Delete } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 import { v1 as uuid } from 'uuid';
 
-import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
@@ -30,6 +30,7 @@ import {
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
+import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 
@@ -76,6 +77,7 @@ interface ListItemProps {
 function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
+  const navigate = useNavigate();
 
   const {
     state: { productQuoteEnabled = false },
@@ -273,15 +275,17 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           ) {
             window.location.href = CHECKOUT_URL;
           } else {
-            snackbar.success('', {
-              jsx: successTip({
-                message: b3Lang('shoppingList.footer.productsAddedToCart'),
-                link: CART_URL,
-                linkText: b3Lang('shoppingList.footer.viewCart'),
-                isOutLink: true,
-                isCustomEvent: true,
-              }),
-              isClose: true,
+            snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+              action: {
+                label: b3Lang('shoppingList.reAddToCart.viewCart'),
+                onClick: () => {
+                  handleTipLink(CART_URL, {
+                    isCustomEvent: true,
+                    isOutLink: true,
+                    navigate,
+                  });
+                },
+              },
             });
             b3TriggerCartNumber();
           }
@@ -421,15 +425,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       isSuccess = validProductQty(newProducts);
 
       if (!isFondVariant) {
-        snackbar.error('', {
-          jsx: successTip({
-            message: errorMessage,
-            link: '',
-            linkText: '',
-            isOutLink: false,
-          }),
-          isClose: true,
-        });
+        snackbar.error(errorMessage);
 
         return;
       }
@@ -437,24 +433,26 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2');
         addQuoteDraftProducts(newProducts);
-        snackbar.success('', {
-          jsx: successTip({
-            message: b3Lang('shoppingList.footer.productsAddedToQuote'),
-            link: '/quoteDraft',
-            linkText: b3Lang('shoppingList.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
+        snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
+          action: {
+            label: b3Lang('shoppingList.footer.viewQuote'),
+            onClick: () => {
+              handleTipLink('/quoteDraft', {
+                navigate,
+              });
+            },
+          },
         });
       } else {
-        snackbar.error('', {
-          jsx: successTip({
-            message: b3Lang('shoppingList.footer.productsLimit'),
-            link: '/quoteDraft',
-            linkText: b3Lang('shoppingList.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
+        snackbar.error(b3Lang('shoppingList.footer.productsLimit'), {
+          action: {
+            label: b3Lang('shoppingList.footer.viewQuote'),
+            onClick: () => {
+              handleTipLink('/quoteDraft', {
+                navigate,
+              });
+            },
+          },
         });
       }
     } catch (e) {
