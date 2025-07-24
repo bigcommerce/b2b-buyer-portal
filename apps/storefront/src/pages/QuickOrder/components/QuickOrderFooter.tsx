@@ -4,7 +4,6 @@ import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown } from '@mui/icons-material';
 import {
   Box,
-  Button,
   Grid,
   Menu,
   MenuItem,
@@ -421,33 +420,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     navigate(`/shoppingList/${id}`);
   };
 
-  const tip = (id: string | number) => (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          mr: '15px',
-        }}
-      >
-        {b3Lang('purchasedProducts.footer.productsAddedToShoppingList')}
-      </Box>
-      <Button
-        onClick={() => gotoShoppingDetail(id)}
-        variant="text"
-        sx={{
-          color: '#ffffff',
-          padding: 0,
-        }}
-      >
-        view shopping list
-      </Button>
-    </Box>
-  );
-
   const handleShoppingClose = (isTrue?: boolean) => {
     if (isTrue) {
       setOpenShoppingList(false);
@@ -511,8 +483,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       });
 
       snackbar.success(b3Lang('purchasedProducts.footer.productsAddedToShoppingList'), {
-        jsx: () => tip(shoppingListId),
-        isClose: true,
+        action: {
+          label: b3Lang('pdp.notification.viewShoppingList'),
+          onClick: () => gotoShoppingDetail(shoppingListId),
+        },
       });
       handleShoppingClose(true);
     } catch (err) {
