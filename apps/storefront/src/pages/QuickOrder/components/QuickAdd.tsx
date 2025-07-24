@@ -369,6 +369,8 @@ export default function QuickAdd(props: AddToListContentProps) {
           await quickAddToList(productItems);
           clearInputValue(value, passSku);
         }
+      } catch (error: unknown) {
+        snackbar.error((error as Error).message);
       } finally {
         setIsLoading(false);
       }
