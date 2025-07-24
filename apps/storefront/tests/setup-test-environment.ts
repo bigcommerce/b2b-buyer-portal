@@ -1,4 +1,5 @@
 import { cleanup } from '@testing-library/react';
+import failOnConsole from 'vitest-fail-on-console';
 
 import { Environment } from '@/types';
 
@@ -31,4 +32,14 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+});
+
+failOnConsole({
+  silenceMessage: (message) => {
+    // TODO: This warns in production, will have to be fixed in the future.
+    return message.includes('The value provided to Autocomplete is invalid.');
+  },
+  shouldFailOnLog: true,
+  shouldFailOnWarn: true,
+  shouldFailOnInfo: true,
 });

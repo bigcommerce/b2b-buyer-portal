@@ -8891,6 +8891,13 @@ vite-node@3.2.4:
   optionalDependencies:
     fsevents "~2.3.3"
 
+vitest-fail-on-console@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/vitest-fail-on-console/-/vitest-fail-on-console-0.7.1.tgz#c512487fc76cc8bf0de9b56b86d87da6ce3fdeeb"
+  integrity sha512-/PjuonFu7CwUVrKaiQPIGXOtiEv2/Gz3o8MbLmovX9TGDxoRCctRC8CA9zJMRUd6AvwGu/V5a3znObTmlPNTgw==
+  dependencies:
+    chalk "5.3.0"
+
 vitest-when@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/vitest-when/-/vitest-when-0.6.1.tgz#86c0123e80d1d9addfa878733a8881b72f03b24c"
