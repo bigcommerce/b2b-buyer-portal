@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import { setElementsListenersConfig } from '@b3/global-b3';
+import { useB3Lang } from '@b3/lang';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
@@ -77,6 +78,7 @@ const Manager = new CallbackManager();
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
   const store = useAppStore();
+  const b3Lang = useB3Lang();
 
   const { state: globalState } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -92,7 +94,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext);
-  const { addToQuoteFromCart, addToQuoteFromCookie } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuoteFromCart, addToQuoteFromCookie } = addProductsFromCartToQuote(
+    setOpenPage,
+    b3Lang,
+  );
 
   const {
     registerEnabled,
@@ -160,7 +165,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               sku: await getSku(item),
             };
 
-            return addProductsToDraftQuote([productWithSku], setOpenPage);
+            return addProductsToDraftQuote([productWithSku], setOpenPage, b3Lang);
           },
           addProductsFromCart: addToQuoteFromCookie,
           addProductsFromCartId: addToQuoteFromCart,
@@ -172,7 +177,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               })),
             );
 
-            return addProductsToDraftQuote(products, setOpenPage);
+            return addProductsToDraftQuote(products, setOpenPage, b3Lang);
           },
           getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),

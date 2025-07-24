@@ -700,6 +700,9 @@
   "pdp.notification.productsAdded": "Products were added to your shopping list",
   "pdp.notification.viewShoppingList": "view shopping list",
   "pdp.addToShoppingList": "Add to shopping list",
+  "pdp.cartToQuote.error.notFound": "Cart not found",
+  "pdp.cartToQuote.error.empty": "No products in the cart.",
+
 
   "forgotPassword.resetPassword": "Reset password",
   "forgotPassword.requestEmail": "Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.",

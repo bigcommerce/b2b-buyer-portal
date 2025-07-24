@@ -2,6 +2,7 @@ import { Alert, Box, Snackbar } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import { MsgsProps, TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
+
 import TipBody from './TipBody';
 
 interface B3TipProps extends TipMessagesProps {
@@ -35,10 +36,7 @@ function MessageAlert({
       severity={msg.type}
       onClose={() => msg.isClose && onClose(msg.id)}
     >
-      <TipBody
-        action={msg.action}
-        message={msg.msg}
-      />
+      <TipBody action={msg.action} message={msg.msg} />
     </Alert>
   );
 }
