@@ -96,7 +96,7 @@ export default /* GraphQL */ `
     createShoppingList(input: CreateShoppingListInput): CreateShoppingListResult
   }
 
-  extend type CompanyMutation {
+  extend type CompanyMutations {
     createShoppingList(input: CreateShoppingListInput): CreateShoppingListResult
   }
 
