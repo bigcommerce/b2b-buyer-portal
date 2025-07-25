@@ -1,5 +1,4 @@
 import { useB3Lang } from '@b3/lang';
-import { Box, Button } from '@mui/material';
 
 import { useAppSelector } from '@/store';
 import { globalSnackbar } from '@/utils';
@@ -18,34 +17,11 @@ export function useAddedToShoppingListAlert() {
     });
 
   return (id: string) => {
-    globalSnackbar.success('Products were added to your shopping list', {
-      jsx: () => (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              mr: '15px',
-            }}
-          >
-            {b3Lang('pdp.notification.productsAdded')}
-          </Box>
-          <Button
-            onClick={() => gotoShoppingDetail(id)}
-            variant="text"
-            sx={{
-              color: '#ffffff',
-              padding: 0,
-            }}
-          >
-            {b3Lang('pdp.notification.viewShoppingList')}
-          </Button>
-        </Box>
-      ),
-      isClose: true,
+    globalSnackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
+      action: {
+        label: b3Lang('pdp.notification.viewShoppingList'),
+        onClick: () => gotoShoppingDetail(id),
+      },
     });
   };
 }

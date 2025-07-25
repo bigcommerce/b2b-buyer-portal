@@ -1,16 +1,20 @@
-import { Dispatch, ReactElement, ReactNode } from 'react';
+import { Dispatch, ReactNode } from 'react';
 
 export type AlertTip = 'error' | 'info' | 'success' | 'warning';
 export interface MsgsProps {
   title?: string;
   msg?: string;
-  jsx?: () => ReactElement;
+  description?: string;
   id: string | number;
   type: AlertTip;
   isClose?: boolean;
   vertical?: 'top' | 'bottom';
   horizontal?: 'left' | 'right' | 'center';
   time: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 export interface TipMessagesProps {
   msgs?: Array<MsgsProps> | [];

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
 
-import { B3QuantityTextField, successTip } from '@/components';
+import { B3QuantityTextField } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
@@ -19,6 +20,7 @@ import {
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
+import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -167,6 +169,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
+  const navigate = useNavigate();
   const b3Lang = useB3Lang();
   const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -234,15 +237,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
         ) {
           window.location.href = CHECKOUT_URL;
         } else {
-          snackbar.success('', {
-            jsx: successTip({
-              message: b3Lang('shoppingList.reAddToCart.productsAdded'),
-              link: CART_URL,
-              linkText: b3Lang('shoppingList.reAddToCart.viewCart'),
-              isOutLink: true,
-              isCustomEvent: true,
-            }),
-            isClose: true,
+          snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
+            action: {
+              label: b3Lang('shoppingList.reAddToCart.viewCart'),
+              onClick: () => {
+                handleTipLink(CART_URL, {
+                  isCustomEvent: true,
+                  isOutLink: true,
+                  navigate,
+                });
+              },
+            },
           });
           b3TriggerCartNumber();
         }
