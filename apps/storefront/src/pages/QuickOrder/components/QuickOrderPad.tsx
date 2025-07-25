@@ -219,7 +219,9 @@ export default function QuickOrderPad() {
           {
             action: {
               label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
-              onClick: () => (window.location.href = stockErrorFile),
+              onClick: () => {
+                window.location.href = stockErrorFile;
+              },
             },
           },
         );
