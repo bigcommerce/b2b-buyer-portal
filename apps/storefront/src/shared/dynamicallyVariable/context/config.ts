@@ -4,6 +4,7 @@ export type AlertTip = 'error' | 'info' | 'success' | 'warning';
 export interface MsgsProps {
   title?: string;
   msg?: string;
+  description?: string;
   id: string | number;
   type: AlertTip;
   isClose?: boolean;
