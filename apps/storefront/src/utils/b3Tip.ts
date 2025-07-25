@@ -31,31 +31,6 @@ interface SnackbarItemProps {
 }
 
 const getLocalHandler = (variant: AlertTip) => {
-  return (message: string, options?: SnackbarItemProps) => {
-    const msgs = [
-      {
-        isClose: options?.isClose || false,
-        id: uuid(),
-        type: variant,
-        msg: message || `${variant} without any info.`,
-        jsx: options?.jsx,
-        time: 5000,
-      },
-    ];
-
-    window.tipDispatch?.({
-      type: 'tip',
-      payload: {
-        tipMessage: {
-          autoHideDuration: options?.duration || 5000,
-          msgs,
-        },
-      },
-    });
-  };
-};
-
-const getNewLocalHandler = (variant: AlertTip) => {
   return (
     message: string,
     options?: Pick<ToastOptions, 'action' | 'description'> & SnackbarItemProps,
@@ -95,31 +70,6 @@ export const snackbar =
       };
 
 const getGlobalHandler = (variant: AlertTip) => {
-  return (message: string, options?: SnackbarItemProps) => {
-    const msgs = [
-      {
-        isClose: options?.isClose || false,
-        id: uuid(),
-        type: variant,
-        msg: message || `${variant} without any info.`,
-        jsx: options?.jsx,
-        time: 5000,
-      },
-    ];
-
-    window.globalTipDispatch({
-      type: 'globalTip',
-      payload: {
-        globalTipMessage: {
-          autoHideDuration: options?.duration || 5000,
-          msgs,
-        },
-      },
-    });
-  };
-};
-
-const getNewGlobalHandler = (variant: AlertTip) => {
   return (
     message: string,
     options?: Pick<ToastOptions, 'action' | 'description'> & SnackbarItemProps,
