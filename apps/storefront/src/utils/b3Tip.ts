@@ -68,6 +68,7 @@ const getNewLocalHandler = (variant: AlertTip) => {
         action: options?.action,
         isClose: options?.isClose || false,
         time: 5000,
+        description: options?.description,
       },
     ];
 
@@ -131,6 +132,7 @@ const getNewGlobalHandler = (variant: AlertTip) => {
         action: options?.action,
         isClose: options?.isClose || false,
         time: 5000,
+        description: options?.description,
       },
     ];
 

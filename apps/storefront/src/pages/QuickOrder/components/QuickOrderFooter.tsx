@@ -2,15 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } fro
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown } from '@mui/icons-material';
-import {
-  Box,
-  Grid,
-  Menu,
-  MenuItem,
-  SxProps,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, Grid, Menu, MenuItem, SxProps, Typography, useMediaQuery } from '@mui/material';
 import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';

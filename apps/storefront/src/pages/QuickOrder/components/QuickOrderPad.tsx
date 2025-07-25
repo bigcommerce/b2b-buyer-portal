@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
-import { Box, Card, CardContent, Divider, Link, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -81,51 +81,6 @@ export default function QuickOrderPad() {
 
     return res;
   };
-
-  const limitProductTips = (data: CustomFieldItems) => (
-    <>
-      <p
-        style={{
-          margin: 0,
-        }}
-      >
-        {b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
-          variantSku: data.variantSku,
-        })}
-      </p>
-      <p
-        style={{
-          margin: 0,
-        }}
-      >
-        {b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
-          availableAmount: data.AvailableAmount,
-        })}
-      </p>
-    </>
-  );
-
-  const outOfStockProductTips = (outOfStock: string[], fileErrorsCSV: string) => (
-    <>
-      <p
-        style={{
-          margin: 0,
-        }}
-      >
-        {b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
-          outOfStock: outOfStock.join(','),
-        })}
-      </p>
-      <Link
-        href={fileErrorsCSV}
-        sx={{
-          color: '#FFFFFF',
-        }}
-      >
-        {b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV')}
-      </Link>
-    </>
-  );
 
   const getValidProducts = (products: CustomFieldItems) => {
     const notPurchaseSku: string[] = [];
@@ -232,9 +187,16 @@ export default function QuickOrderPad() {
 
       if (limitProduct.length > 0) {
         limitProduct.forEach((data: CustomFieldItems) => {
-          snackbar.warning('', {
-            jsx: () => limitProductTips(data),
-          });
+          snackbar.warning(
+            b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
+              variantSku: data.variantSku,
+            }),
+            {
+              description: b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
+                availableAmount: data.AvailableAmount,
+              }),
+            },
+          );
         });
       }
 
@@ -250,10 +212,17 @@ export default function QuickOrderPad() {
       }
 
       if (outOfStock.length > 0 && stockErrorFile) {
-        snackbar.error('', {
-          jsx: () => outOfStockProductTips(outOfStock, stockErrorFile),
-          isClose: true,
-        });
+        snackbar.error(
+          b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
+            outOfStock: outOfStock.join(','),
+          }),
+          {
+            action: {
+              label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
+              onClick: () => (window.location.href = stockErrorFile),
+            },
+          },
+        );
       }
 
       if (minLimitQuantity.length > 0) {

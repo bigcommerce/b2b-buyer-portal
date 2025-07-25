@@ -7,10 +7,11 @@ interface TipBodyProps {
     onClick: () => void;
   };
   message: ReactNode;
+  description?: string;
 }
 
 export default function TipBody(props: TipBodyProps) {
-  const { action, message } = props;
+  const { action, message, description } = props;
 
   return (
     <Box
@@ -25,6 +26,15 @@ export default function TipBody(props: TipBodyProps) {
         }}
       >
         {message}
+        {description && (
+          <p
+            style={{
+              margin: 0,
+            }}
+          >
+            {description}
+          </p>
+        )}
       </Box>
       {action && (
         <Button
