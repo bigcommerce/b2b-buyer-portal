@@ -214,7 +214,6 @@ const addProductsToDraftQuote = async (
         onClick: () => gotoQuoteDraft(setOpenPage),
         label: b3Lang('quoteDraft.notification.openQuote'),
       },
-      isClose: true,
     });
   }
 };
@@ -356,7 +355,6 @@ const addProductFromProductPageToQuote = (
             onClick: () => gotoQuoteDraft(setOpenPage),
             label: b3Lang('quoteDraft.notification.openQuote'),
           },
-          isClose: true,
         });
       } else if (!isSuccess) {
         globalSnackbar.error(b3Lang('global.notification.maximumPurchaseExceed'), {
@@ -364,7 +362,6 @@ const addProductFromProductPageToQuote = (
             onClick: () => gotoQuoteDraft(setOpenPage),
             label: b3Lang('quoteDraft.notification.openQuote'),
           },
-          isClose: true,
         });
       } else {
         globalSnackbar.error('Price error');

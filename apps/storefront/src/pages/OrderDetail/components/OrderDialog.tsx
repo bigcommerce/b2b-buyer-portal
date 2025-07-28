@@ -250,20 +250,14 @@ export default function OrderDialog({
         });
         b3TriggerCartNumber();
       } else if (res.errors) {
-        snackbar.error(res.errors[0].message, {
-          isClose: true,
-        });
+        snackbar.error(res.errors[0].message);
       }
     } catch (err) {
       if (err instanceof Error) {
-        snackbar.error(err.message, {
-          isClose: true,
-        });
+        snackbar.error(err.message);
       } else if (typeof err === 'object' && err !== null && 'detail' in err) {
         const customError = err as { detail: string };
-        snackbar.error(customError.detail, {
-          isClose: true,
-        });
+        snackbar.error(customError.detail);
       }
     } finally {
       setIsRequestLoading(false);

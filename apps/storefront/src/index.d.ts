@@ -51,7 +51,7 @@ declare interface Window {
       cart_url?: string;
     };
   };
-  catalyst: {
+  catalyst?: {
     toast: {
       error: (message: string, options?: ToastOptions) => void;
       success: (message: string, options?: ToastOptions) => void;

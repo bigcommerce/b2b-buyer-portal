@@ -221,9 +221,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           b3Lang('shoppingList.footer.unavailableProducts', {
             skus: cantPurchase.slice(0, -1),
           }),
-          {
-            isClose: true,
-          },
         );
         return;
       }
@@ -233,9 +230,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           allowJuniorPlaceOrder
             ? b3Lang('shoppingList.footer.selectItemsToCheckout')
             : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-          {
-            isClose: true,
-          },
         );
         return;
       }
@@ -264,9 +258,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           b3TriggerCartNumber();
         }
         if (res && res.errors) {
-          snackbar.error(res.errors[0].message, {
-            isClose: true,
-          });
+          snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
           if (
             allowJuniorPlaceOrder &&
@@ -343,9 +335,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         return !variantSku;
       });
       if (noSkuProducts.length > 0) {
-        snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'), {
-          isClose: true,
-        });
+        snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'));
       }
       if (noSkuProducts.length === checkedArr.length) return;
 

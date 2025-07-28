@@ -61,9 +61,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         (item: CustomFieldItems) => item.amount === '.' || Number(item.amount) === 0,
       );
       if (badItem) {
-        snackbar.error(b3Lang('invoice.footer.invalidNameError'), {
-          isClose: true,
-        });
+        snackbar.error(b3Lang('invoice.footer.invalidNameError'));
 
         return;
       }

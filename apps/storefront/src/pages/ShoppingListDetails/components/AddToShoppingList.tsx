@@ -61,14 +61,12 @@ export default function AddToShoppingList(props: AddToListProps) {
         items,
       });
 
-      snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-        isClose: true,
-      });
+      snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'));
 
       return res;
     } catch (e: any) {
       if (e.message.length > 0) {
-        snackbar.error(e.message, { isClose: true });
+        snackbar.error(e.message);
       }
     }
     return true;
@@ -93,9 +91,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       items,
     });
 
-    snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-      isClose: true,
-    });
+    snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'));
 
     return res;
   };
@@ -183,9 +179,6 @@ export default function AddToShoppingList(props: AddToListProps) {
           b3Lang('shoppingList.addToShoppingList.skuNotAddable', {
             notAddAble: notAddAble.join(', '),
           }),
-          {
-            isClose: true,
-          },
         );
       }
 
@@ -194,9 +187,6 @@ export default function AddToShoppingList(props: AddToListProps) {
           b3Lang('shoppingList.addToShoppingList.skuNotPurchasable', {
             notPurchaseSku: notPurchaseSku.join(', '),
           }),
-          {
-            isClose: true,
-          },
         );
       }
 

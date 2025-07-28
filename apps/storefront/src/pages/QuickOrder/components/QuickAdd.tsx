@@ -313,9 +313,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('purchasedProducts.quickAdd.notFoundSku', {
               notFoundSku: notFoundSku.join(','),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -325,9 +322,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('purchasedProducts.quickAdd.notPurchaseableSku', {
               notPurchaseSku: notPurchaseSku.join(','),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -344,9 +338,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('purchasedProducts.quickAdd.insufficientStockSku', {
               stockSku: stockSku.join(','),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -365,9 +356,6 @@ export default function QuickAdd(props: AddToListContentProps) {
                 limit,
                 sku,
               }),
-              {
-                isClose: true,
-              },
             );
           });
         }

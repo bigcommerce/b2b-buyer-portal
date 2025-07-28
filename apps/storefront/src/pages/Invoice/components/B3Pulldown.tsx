@@ -107,9 +107,7 @@ function B3Pulldown({
     };
 
     if (openBalance.value === '.' || Number(openBalance.value) === 0) {
-      snackbar.error('The payment amount entered has an invalid value.', {
-        isClose: true,
-      });
+      snackbar.error('The payment amount entered has an invalid value.');
 
       return;
     }

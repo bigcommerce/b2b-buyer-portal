@@ -254,9 +254,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       }
 
       if (res.errors) {
-        snackbar.error(res.message, {
-          isClose: true,
-        });
+        snackbar.error(res.message);
       }
 
       b3TriggerCartNumber();

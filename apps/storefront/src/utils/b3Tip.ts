@@ -36,7 +36,7 @@ const getLocalHandler = (variant: AlertTip) => {
   };
 };
 
-export const snackbar = window.catalyst.toast || {
+export const snackbar = window.catalyst?.toast || {
   error: getLocalHandler('error'),
   success: getLocalHandler('success'),
   info: getLocalHandler('info'),

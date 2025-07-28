@@ -34,7 +34,7 @@ function MessageAlert({
       variant="filled"
       key={msg.id}
       severity={msg.type}
-      onClose={() => msg.isClose && onClose(msg.id)}
+      onClose={() => onClose(msg.id)}
     >
       <TipBody action={msg.action} message={msg.msg} description={msg.description} />
     </Alert>

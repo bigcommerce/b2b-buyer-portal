@@ -67,9 +67,6 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
       b3Lang('purchasedProducts.quickOrderPad.insufficientStockSku', {
         sku: productSku,
       }),
-      {
-        isClose: true,
-      },
     );
 
     return {
@@ -84,9 +81,6 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
         minQuantity: orderQuantityMinimum,
         sku: productSku,
       }),
-      {
-        isClose: true,
-      },
     );
 
     return {
@@ -101,9 +95,6 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
         maxQuantity: orderQuantityMaximum,
         sku: productSku,
       }),
-      {
-        isClose: true,
-      },
     );
 
     return {

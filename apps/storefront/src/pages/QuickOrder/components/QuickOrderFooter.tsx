@@ -233,13 +233,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           },
         });
       } else if (res && res.errors) {
-        snackbar.error(res.errors[0].message, {
-          isClose: true,
-        });
+        snackbar.error(res.errors[0].message);
       } else {
-        snackbar.error('Error has occurred', {
-          isClose: true,
-        });
+        snackbar.error('Error has occurred');
       }
     } finally {
       b3TriggerCartNumber();
@@ -287,9 +283,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return !variantSku;
       });
       if (noSkuProducts.length > 0) {
-        snackbar.error(b3Lang('purchasedProducts.footer.cantAddProductsNoSku'), {
-          isClose: true,
-        });
+        snackbar.error(b3Lang('purchasedProducts.footer.cantAddProductsNoSku'));
       }
       if (noSkuProducts.length === checkedArr.length) return;
 
