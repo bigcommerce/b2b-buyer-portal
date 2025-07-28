@@ -1,18 +1,7 @@
-import { ReactElement } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { v1 as uuid } from 'uuid';
 
 import { AlertTip, MsgsProps } from '@/shared/dynamicallyVariable/context/config';
-
-import { platform } from './basicConfig';
-
-type Position =
-  | 'top-left'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-right'
-  | 'top-center'
-  | 'bottom-center';
 
 interface ToastOptions {
   action?: {
@@ -20,28 +9,16 @@ interface ToastOptions {
     onClick: () => void;
   };
   description?: string;
-  position?: Position;
-  dismissLabel?: string;
-}
-
-interface SnackbarItemProps {
-  duration?: number;
-  jsx?: () => ReactElement;
-  isClose?: boolean;
 }
 
 const getLocalHandler = (variant: AlertTip) => {
-  return (
-    message: string,
-    options?: Pick<ToastOptions, 'action' | 'description'> & SnackbarItemProps,
-  ) => {
+  return (message: string, options?: ToastOptions) => {
     const msgs: Array<MsgsProps> = [
       {
         id: uuid(),
         type: variant,
         msg: message || `${variant} without any info.`,
         action: options?.action,
-        isClose: options?.isClose || false,
         time: 5000,
         description: options?.description,
       },
@@ -51,7 +28,7 @@ const getLocalHandler = (variant: AlertTip) => {
       type: 'tip',
       payload: {
         tipMessage: {
-          autoHideDuration: options?.duration || 5000,
+          autoHideDuration: 5000,
           msgs,
         },
       },
@@ -59,28 +36,21 @@ const getLocalHandler = (variant: AlertTip) => {
   };
 };
 
-export const snackbar =
-  platform === 'catalyst'
-    ? window.catalyst.toast
-    : {
-        error: getLocalHandler('error'),
-        success: getLocalHandler('success'),
-        info: getLocalHandler('info'),
-        warning: getLocalHandler('warning'),
-      };
+export const snackbar = window.catalyst.toast || {
+  error: getLocalHandler('error'),
+  success: getLocalHandler('success'),
+  info: getLocalHandler('info'),
+  warning: getLocalHandler('warning'),
+};
 
 const getGlobalHandler = (variant: AlertTip) => {
-  return (
-    message: string,
-    options?: Pick<ToastOptions, 'action' | 'description'> & SnackbarItemProps,
-  ) => {
+  return (message: string, options?: ToastOptions) => {
     const msgs = [
       {
         id: uuid(),
         type: variant,
         msg: message || `${variant} without any info.`,
         action: options?.action,
-        isClose: options?.isClose || false,
         time: 5000,
         description: options?.description,
       },
@@ -90,7 +60,7 @@ const getGlobalHandler = (variant: AlertTip) => {
       type: 'globalTip',
       payload: {
         globalTipMessage: {
-          autoHideDuration: options?.duration || 5000,
+          autoHideDuration: 5000,
           msgs,
         },
       },
@@ -98,15 +68,12 @@ const getGlobalHandler = (variant: AlertTip) => {
   };
 };
 
-export const globalSnackbar =
-  platform === 'catalyst'
-    ? window.catalyst.toast
-    : {
-        error: getGlobalHandler('error'),
-        success: getGlobalHandler('success'),
-        info: getGlobalHandler('info'),
-        warning: getGlobalHandler('warning'),
-      };
+export const globalSnackbar = window.catalyst?.toast || {
+  error: getGlobalHandler('error'),
+  success: getGlobalHandler('success'),
+  info: getGlobalHandler('info'),
+  warning: getGlobalHandler('warning'),
+};
 
 interface LinkOptions {
   isCustomEvent?: boolean;

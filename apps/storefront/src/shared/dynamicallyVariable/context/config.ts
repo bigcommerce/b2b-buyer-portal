@@ -7,9 +7,6 @@ export interface MsgsProps {
   description?: string;
   id: string | number;
   type: AlertTip;
-  isClose?: boolean;
-  vertical?: 'top' | 'bottom';
-  horizontal?: 'left' | 'right' | 'center';
   time: number;
   action?: {
     label: string;
