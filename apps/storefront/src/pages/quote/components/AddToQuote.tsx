@@ -108,18 +108,14 @@ export default function AddToQuote(props: AddToListProps) {
       return !(sku || variantSku);
     });
     if (noSkuProducts.length > 0) {
-      snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'), {
-        isClose: true,
-      });
+      snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'));
     }
 
     if (noSkuProducts.length === products.length) return [];
 
     addToQuote(newProducts);
 
-    snackbar.success(b3Lang('quoteDraft.notification.productSingular'), {
-      isClose: true,
-    });
+    snackbar.success(b3Lang('quoteDraft.notification.productSingular'));
 
     return products;
   };
@@ -155,9 +151,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     addToQuote(newProducts);
 
-    snackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
-      isClose: true,
-    });
+    snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
 
     return variantProducts;
   };
@@ -243,9 +237,7 @@ export default function AddToQuote(props: AddToListProps) {
         await calculateProductListPrice(newProducts, '2');
 
         addQuoteDraftProducts(newProducts);
-        snackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
-          isClose: true,
-        });
+        snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
         updateList();
         setIsOpenBulkLoadCSV(false);
       } else {

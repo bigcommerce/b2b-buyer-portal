@@ -49,9 +49,7 @@ export default function QuickOrderPad() {
         },
       });
     } else {
-      snackbar.error('Error has occurred', {
-        isClose: true,
-      });
+      snackbar.error('Error has occurred');
     }
   };
 
@@ -59,9 +57,7 @@ export default function QuickOrderPad() {
     const res = await callCart(products);
 
     if (res && res.errors) {
-      snackbar.error(res.errors[0].message, {
-        isClose: true,
-      });
+      snackbar.error(res.errors[0].message);
     } else {
       snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
         action: {
@@ -205,9 +201,6 @@ export default function QuickOrderPad() {
           b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
             notPurchaseSku: notPurchaseSku.join(','),
           }),
-          {
-            isClose: true,
-          },
         );
       }
 
@@ -234,9 +227,6 @@ export default function QuickOrderPad() {
               minQuantity: data.minQuantity,
               sku: data.variantSku,
             }),
-            {
-              isClose: true,
-            },
           );
         });
       }
@@ -248,9 +238,6 @@ export default function QuickOrderPad() {
               maxQuantity: data.maxQuantity,
               sku: data.variantSku,
             }),
-            {
-              isClose: true,
-            },
           );
         });
       }

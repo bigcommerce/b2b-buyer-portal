@@ -325,9 +325,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('shoppingList.quickAdd.skuNotFound', {
               notFoundSku: notFoundSku.join(', '),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -337,9 +334,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('shoppingList.quickAdd.skuNotPurchasable', {
               notPurchaseSku: notPurchaseSku.join(', '),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -349,9 +343,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('shoppingList.quickAdd.skuNotAddable', {
               notAddAble: notAddAble.join(', '),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 
@@ -364,9 +355,6 @@ export default function QuickAdd(props: AddToListContentProps) {
             b3Lang('shoppingList.quickAdd.skuLimitQuantity', {
               numberLimit: numberLimit.join(', '),
             }),
-            {
-              isClose: true,
-            },
           );
         }
 

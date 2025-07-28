@@ -317,9 +317,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         });
       }
 
-      snackbar.success(b3Lang('shoppingList.shoppingListStatusUpdated'), {
-        isClose: true,
-      });
+      snackbar.success(b3Lang('shoppingList.shoppingListStatusUpdated'));
       tableRef.current?.initSearch();
     } finally {
       setIsRequestLoading(false);
