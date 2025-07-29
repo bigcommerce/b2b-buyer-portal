@@ -1,4 +1,3 @@
-import { NavigateFunction } from 'react-router-dom';
 import { v1 as uuid } from 'uuid';
 
 import { AlertTip, MsgsProps } from '@/shared/dynamicallyVariable/context/config';
@@ -73,26 +72,4 @@ export const globalSnackbar = window.catalyst?.toast || {
   success: getGlobalHandler('success'),
   info: getGlobalHandler('info'),
   warning: getGlobalHandler('warning'),
-};
-
-interface LinkOptions {
-  isCustomEvent?: boolean;
-  isOutLink?: boolean;
-  navigate: NavigateFunction;
-}
-
-export const handleTipLink = (
-  link: string,
-  { isCustomEvent, isOutLink, navigate }: LinkOptions,
-) => {
-  if (isCustomEvent) {
-    if (!window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-      return;
-    }
-  }
-  if (isOutLink) {
-    window.location.href = link;
-  } else {
-    navigate(link);
-  }
 };

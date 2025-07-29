@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
@@ -20,7 +19,6 @@ import {
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
-import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -169,7 +167,6 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
-  const navigate = useNavigate();
   const b3Lang = useB3Lang();
   const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -241,11 +238,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             action: {
               label: b3Lang('shoppingList.reAddToCart.viewCart'),
               onClick: () => {
-                handleTipLink(CART_URL, {
-                  isCustomEvent: true,
-                  isOutLink: true,
-                  navigate,
-                });
+                if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+                  window.location.href = CART_URL;
+                }
               },
             },
           });

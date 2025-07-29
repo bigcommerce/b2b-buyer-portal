@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
@@ -12,7 +11,6 @@ import useMobile from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -22,7 +20,6 @@ import QuickAdd from './QuickAdd';
 import SearchProduct from './SearchProduct';
 
 export default function QuickOrderPad() {
-  const navigate = useNavigate();
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
@@ -40,11 +37,9 @@ export default function QuickOrderPad() {
         action: {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
-            handleTipLink(CART_URL, {
-              isCustomEvent: true,
-              isOutLink: true,
-              navigate,
-            });
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
           },
         },
       });
@@ -63,11 +58,9 @@ export default function QuickOrderPad() {
         action: {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
-            handleTipLink(CART_URL, {
-              isCustomEvent: true,
-              isOutLink: true,
-              navigate,
-            });
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
           },
         },
       });

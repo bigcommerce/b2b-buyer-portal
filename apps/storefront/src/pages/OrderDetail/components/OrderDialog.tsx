@@ -17,7 +17,6 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
@@ -239,11 +238,9 @@ export default function OrderDialog({
           action: {
             label: b3Lang('orderDetail.reorder.viewCart'),
             onClick: () => {
-              handleTipLink(CART_URL, {
-                isCustomEvent: true,
-                isOutLink: true,
-                navigate,
-              });
+              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+                window.location.href = CART_URL;
+              }
             },
           },
         });
@@ -332,9 +329,7 @@ export default function OrderDialog({
         action: {
           label: b3Lang('orderDetail.viewShoppingList'),
           onClick: () => {
-            handleTipLink(`/shoppingList/${id}`, {
-              navigate,
-            });
+            navigate(`/shoppingList/${id}`);
           },
         },
       });
