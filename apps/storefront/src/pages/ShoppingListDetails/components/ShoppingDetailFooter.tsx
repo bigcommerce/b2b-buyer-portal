@@ -30,7 +30,6 @@ import {
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
-import { handleTipLink } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 
@@ -271,11 +270,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
               action: {
                 label: b3Lang('shoppingList.reAddToCart.viewCart'),
                 onClick: () => {
-                  handleTipLink(CART_URL, {
-                    isCustomEvent: true,
-                    isOutLink: true,
-                    navigate,
-                  });
+                  if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+                    window.location.href = CART_URL;
+                  }
                 },
               },
             });
@@ -427,9 +424,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           action: {
             label: b3Lang('shoppingList.footer.viewQuote'),
             onClick: () => {
-              handleTipLink('/quoteDraft', {
-                navigate,
-              });
+              navigate('/quoteDraft');
             },
           },
         });
@@ -438,9 +433,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           action: {
             label: b3Lang('shoppingList.footer.viewQuote'),
             onClick: () => {
-              handleTipLink('/quoteDraft', {
-                navigate,
-              });
+              navigate('/quoteDraft');
             },
           },
         });
