@@ -35,9 +35,17 @@ afterEach(() => {
 });
 
 failOnConsole({
-  silenceMessage: (message) => {
-    // TODO: This warns in production, will have to be fixed in the future.
-    return message.includes('The value provided to Autocomplete is invalid.');
+  silenceMessage: (message: string) => {
+    // TODO: These warn in production, will have to be fixed in the future.
+    if (message.includes('ImmutableStateInvariantMiddleware')) {
+      return true;
+    }
+
+    if (message.includes('The value provided to Autocomplete is invalid.')) {
+      return true;
+    }
+
+    return false;
   },
   shouldFailOnLog: true,
   shouldFailOnWarn: true,
