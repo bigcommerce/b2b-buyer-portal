@@ -23,12 +23,14 @@ jobs:
       - run:
           name: "Run unit tests for core package"
           command: |
-            cd apps/storefront
-            yarn coverage
+            yarn --cwd ./apps/storefront coverage
+      - run:
+          name: "Format coverage report"
+          command: |
+            sed -i -e 's|SF:|SF:apps/storefront/|g' ./apps/storefront/coverage/lcov.info
       - test-coverage-reporter/store-report:
           coverage-format: lcov
-          base-directory: ./apps/storefront
-          additional-args: coverage/lcov.info
+          additional-args: ./apps/storefront/coverage/lcov.info
       - store_artifacts:
           path: ./apps/storefront/coverage/lcov-report
 
