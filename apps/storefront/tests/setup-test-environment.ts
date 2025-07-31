@@ -3,6 +3,7 @@ import failOnConsole from 'vitest-fail-on-console';
 
 import { Environment } from '@/types';
 
+import 'vitest-location-mock';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('@/store');

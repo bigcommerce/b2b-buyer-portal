@@ -106,7 +106,7 @@ export function ForgotPassword({
                   maxWidth: isMobile ? '175px' : '250px',
                 }}
                 onClick={() => {
-                  window.location.href = '/';
+                  window.location.assign('/');
                 }}
               >
                 <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />

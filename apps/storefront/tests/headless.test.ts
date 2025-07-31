@@ -31,7 +31,7 @@ describe('when headless.ts is run', () => {
 
     expect(serverMock.mock.lastCall).toMatchInlineSnapshot(`
       [
-        "{"query":"\\n          {\\n            storefrontScript(\\n              storeHash: \\"\\"\\n              channelId: \\n              siteUrl: \\"http://localhost:3000\\"\\n            ) {\\n              script\\n              storeHash\\n              channelId\\n            }\\n          }"}",
+        "{"query":"\\n          {\\n            storefrontScript(\\n              storeHash: \\"\\"\\n              channelId: \\n              siteUrl: \\"http://localhost\\"\\n            ) {\\n              script\\n              storeHash\\n              channelId\\n            }\\n          }"}",
       ]
     `);
 
