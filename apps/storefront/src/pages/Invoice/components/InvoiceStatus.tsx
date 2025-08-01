@@ -1,7 +1,7 @@
 import { B3Tag } from '@/components';
 
 interface StatusProps {
-  code: number;
+  code: InvoiceStatusCode;
 }
 
 interface InvoiceStatusProps {
@@ -10,27 +10,34 @@ interface InvoiceStatusProps {
   };
 }
 
+export enum InvoiceStatusCode {
+  Open = 0,
+  PartiallyPaid = 1,
+  Paid = 2,
+  Overdue = 3,
+}
+
 export default function InvoiceStatus(props: StatusProps) {
   const { code } = props;
 
   const getInvoiceStatus = (code: number) => {
     const invoiceStatus: InvoiceStatusProps = {
-      0: {
+      [InvoiceStatusCode.Open]: {
         textColor: '#000000',
         name: 'Open',
         color: '#F1C224',
       },
-      1: {
+      [InvoiceStatusCode.PartiallyPaid]: {
         textColor: '#FFFFFF',
         name: 'Partially paid',
         color: '#516FAE',
       },
-      2: {
+      [InvoiceStatusCode.Paid]: {
         textColor: '#000000',
         name: 'Paid',
         color: '#C4DD6C',
       },
-      3: {
+      [InvoiceStatusCode.Overdue]: {
         textColor: '#FFFFFF',
         name: 'Overdue',
         color: '#D32F2F',

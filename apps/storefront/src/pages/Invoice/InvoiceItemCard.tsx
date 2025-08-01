@@ -66,6 +66,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       title: b3Lang('invoice.invoiceItemCardHeader.order'),
       render: () => (
         <Box
+          role="button"
           sx={{
             color: '#000000',
             cursor: 'pointer',
@@ -221,6 +222,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               }}
             >
               <Box
+                role="button"
                 sx={{
                   color: '#000000',
                   cursor: 'pointer',
