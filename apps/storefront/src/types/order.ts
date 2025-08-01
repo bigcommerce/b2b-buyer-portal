@@ -3,8 +3,3 @@ export interface OrderStatusItem {
   statusCode: string;
   systemLabel: string;
 }
-
-export interface OrderStatusResponse {
-  orderStatuses?: OrderStatusItem[];
-  bcOrderStatuses?: OrderStatusItem[];
-}

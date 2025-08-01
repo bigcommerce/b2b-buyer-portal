@@ -19,19 +19,20 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+
 import {
   CompanyOrderNode,
   CompanyOrderStatuses,
-  CustomerOrderStatus,
   GetCompanyOrders,
-} from '@/shared/service/b2b/graphql/orders';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+  OrderStatus,
+} from '../order/orders';
 
 import MyOrders from '.';
 
 const { server } = startMockServer();
 
-const buildOrderStatusWith = builder<CustomerOrderStatus>(() => ({
+const buildOrderStatusWith = builder<OrderStatus>(() => ({
   statusCode: faker.number.int().toString(),
   systemLabel: faker.word.noun(),
   customLabel: faker.word.noun(),
@@ -47,24 +48,9 @@ const buildCompanyOrderNodeWith = builder<CompanyOrderNode>(() => ({
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     createdAt: getUnixTime(faker.date.past()),
-    updatedAt: getUnixTime(faker.date.recent()),
-    isArchived: faker.datatype.boolean(),
-    isInvoiceOrder: faker.helpers.arrayElement(['A_1', 'A_0']),
     totalIncTax: faker.number.float(),
-    currencyCode: faker.finance.currencyCode(),
-    usdIncTax: faker.number.float(),
-    items: faker.number.int(),
-    userId: faker.number.int(),
     poNumber: faker.number.int().toString(),
-    referenceNumber: faker.number.int().toString(),
     status: faker.word.noun(),
-    customStatus: faker.word.noun(),
-    statusCode: faker.number.int(),
-    ipStatus: faker.helpers.arrayElement(['A_0', 'A_1', 'A_2']),
-    flag: faker.helpers.arrayElement(['A_0', 'A_1', 'A_2', 'A_3']),
-    billingName: faker.person.fullName(),
-    merchantEmail: faker.internet.email(),
-    companyName: faker.company.name(),
     companyInfo: {
       companyName: faker.company.name(),
     },
