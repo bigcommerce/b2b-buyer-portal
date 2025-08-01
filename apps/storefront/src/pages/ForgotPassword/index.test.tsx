@@ -81,7 +81,7 @@ describe('when a logo is provided', () => {
   it('navigates to the homepage when the logo is clicked', async () => {
     window.location.hash = '#potato';
 
-    expect(window.location.href).toBe('http://localhost:3000/#potato');
+    expect(window.location.href).toBe('http://localhost/#potato');
 
     const { user } = renderWithProviders(
       <ForgotPassword
@@ -96,7 +96,9 @@ describe('when a logo is provided', () => {
 
     await user.click(logo);
 
-    expect(window.location.href).toBe('http://localhost:3000/');
+    await waitFor(() => {
+      expect(window.location.href).toBe('http://localhost/');
+    });
   });
 });
 
@@ -243,7 +245,7 @@ describe('when captcha is disabled', () => {
     const serverMock = vi.fn();
 
     server.use(
-      http.post('/login.php', async ({ request }) => {
+      http.post('http://localhost:3000/login.php', async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
@@ -275,7 +277,7 @@ describe('when captcha is disabled', () => {
 
   it('logs an error when the request to reset password fails', async () => {
     server.use(
-      http.post('/login.php', async ({ request }) => {
+      http.post('http://localhost:3000/login.php', async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });

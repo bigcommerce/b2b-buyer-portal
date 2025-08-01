@@ -12,6 +12,8 @@ import { b2bPermissionsMap, snackbar, verifyLevelPermission } from '@/utils';
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
 
+import { triggerPdfDownload } from './triggerPdfDownload';
+
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
     boxShadow:
@@ -129,11 +131,7 @@ function B3Pulldown({
 
     setIsRequestLoading(false);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.download = 'file.pdf';
-    a.click();
+    triggerPdfDownload(url, 'file.pdf');
   };
 
   useEffect(() => {
