@@ -37,7 +37,7 @@ afterEach(() => {
 failOnConsole({
   silenceMessage: (message: string) => {
     // TODO: These warn in production, will have to be fixed in the future.
-    if (message.includes('ImmutableStateInvariantMiddleware')) {
+    if (message.includes('which is more than the warning threshold of')) {
       return true;
     }
 
