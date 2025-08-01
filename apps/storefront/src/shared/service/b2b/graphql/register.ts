@@ -64,7 +64,7 @@ interface CustomerSubscribers {
   channel_id: number;
 }
 
-const getAccountFormFields = (type: number) => `{
+const getAccountFormFields = (type: number) => `query B2BAccountFormFields {
   accountFormFields(storeHash: "${storeHash}", formType: ${type}){
     id
     formType

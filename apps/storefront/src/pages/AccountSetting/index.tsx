@@ -22,12 +22,14 @@ import {
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
+import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage, channelId, snackbar } from '@/utils';
+import { B3SStorage, channelId, platform, snackbar } from '@/utils';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
+import { UpgradeBanner } from './UpgradeBanner';
 import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 
 function useData() {
@@ -39,6 +41,10 @@ function useData() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = role === 3 && isAgenting ? Number(salesRepCompanyId) : Number(companyInfoId);
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
+  const isDisplayUpgradeBanner =
+    CustomerRole.B2C === customer.role &&
+    [UserTypes.B2C, UserTypes.MULTIPLE_B2C].includes(customer.userType) &&
+    platform === 'catalyst';
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
@@ -70,12 +76,27 @@ function useData() {
     return true;
   };
 
-  return { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
+  return {
+    isBCUser,
+    companyId,
+    customer,
+    validateEmailValue,
+    emailValidation,
+    passwordValidation,
+    isDisplayUpgradeBanner,
+  };
 }
 
 function AccountSetting() {
-  const { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
-    useData();
+  const {
+    isBCUser,
+    companyId,
+    customer,
+    validateEmailValue,
+    emailValidation,
+    passwordValidation,
+    isDisplayUpgradeBanner,
+  } = useData();
 
   const {
     control,
@@ -287,50 +308,53 @@ function AccountSetting() {
 
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
-      <Box
-        sx={{
-          width: isMobile ? '100%' : '35%',
-          minHeight: isMobile ? '800px' : '300px',
-          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
-            {
-              bgcolor: b3HexToRgb('#FFFFFF', 0.87),
-              borderRadius: '4px',
-              borderBottomLeftRadius: '0',
-              borderBottomRightRadius: '0',
-            },
-          '& .MuiButtonBase-root.MuiCheckbox-root:not(.Mui-checked), & .MuiRadio-root:not(.Mui-checked)':
-            {
-              color: b3HexToRgb(getContrastColor(backgroundColor), 0.6),
-            },
-          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
-            {
-              color: b3HexToRgb(getContrastColor(backgroundColor), 0.87),
-            },
-          '& .MuiInputLabel-root.MuiInputLabel-formControl:not(.Mui-focused)': {
-            color: b3HexToRgb(getContrastColor('#FFFFFF'), 0.6),
-          },
-        }}
-      >
-        <B3CustomForm
-          formFields={translatedFields}
-          errors={errors}
-          control={control}
-          getValues={getValues}
-          setValue={setValue}
-        />
-
-        <CustomButton
+      <Box>
+        {isDisplayUpgradeBanner && <UpgradeBanner />}
+        <Box
           sx={{
-            mt: '28px',
-            mb: isMobile ? '20px' : '0',
-            width: '100%',
-            visibility: isVisible ? 'visible' : 'hidden',
+            width: isMobile ? '100%' : '35%',
+            minHeight: isMobile ? '800px' : '300px',
+            '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
+              {
+                bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+                borderRadius: '4px',
+                borderBottomLeftRadius: '0',
+                borderBottomRightRadius: '0',
+              },
+            '& .MuiButtonBase-root.MuiCheckbox-root:not(.Mui-checked), & .MuiRadio-root:not(.Mui-checked)':
+              {
+                color: b3HexToRgb(getContrastColor(backgroundColor), 0.6),
+              },
+            '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
+              {
+                color: b3HexToRgb(getContrastColor(backgroundColor), 0.87),
+              },
+            '& .MuiInputLabel-root.MuiInputLabel-formControl:not(.Mui-focused)': {
+              color: b3HexToRgb(getContrastColor('#FFFFFF'), 0.6),
+            },
           }}
-          onClick={handleAddUserClick}
-          variant="contained"
         >
-          {b3Lang('accountSettings.button.saveUpdates')}
-        </CustomButton>
+          <B3CustomForm
+            formFields={translatedFields}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+
+          <CustomButton
+            sx={{
+              mt: '28px',
+              mb: isMobile ? '20px' : '0',
+              width: '100%',
+              visibility: isVisible ? 'visible' : 'hidden',
+            }}
+            onClick={handleAddUserClick}
+            variant="contained"
+          >
+            {b3Lang('accountSettings.button.saveUpdates')}
+          </CustomButton>
+        </Box>
       </Box>
     </B3Spin>
   );
