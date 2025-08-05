@@ -5,6 +5,7 @@ import shoppingLists from './byPage/shoppingLists'
 import companyHierarchy from './byPage/companyHierarchy'
 import addresses from './byPage/addresses'
 import companyRegistration from './companyRegistration'
+import invoices from './byPage/invoices'
 
 export default [
   userManagement,
@@ -14,4 +15,5 @@ export default [
   companyHierarchy,
   companyRegistration,
   addresses,
+  invoices,
 ]
