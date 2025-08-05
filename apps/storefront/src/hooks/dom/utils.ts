@@ -242,7 +242,7 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormat
       const newCartProductsList = cartProductsList.filter(
         (product: PhysicalItemProps) => !product.parentEntityId,
       );
-      await addProductsToDraftQuote(newCartProductsList, setOpenPage, entityId);
+      await addProductsToDraftQuote(newCartProductsList, setOpenPage, b3Lang, entityId);
     } catch (e) {
       b2bLogger.error(e);
     } finally {
