@@ -3,7 +3,7 @@ import { LangFormatFunction } from '@b3/lang';
 
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchProducts } from '@/shared/service/b2b';
-import { getCart } from '@/shared/service/bc/graphql/cart';
+import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
@@ -33,10 +33,6 @@ interface ProductOptionsProps {
 }
 
 interface CustomItemProps {
-  extendedListPrice: number;
-  id: string;
-  listPrice: number;
-  name: string;
   quantity: number;
   sku: string;
 }
@@ -67,46 +63,12 @@ interface PhysicalItemProps extends DigitalItemProps {
   isShippingRequire: boolean;
   parentEntityId?: string | null;
 }
-interface Contact {
-  email: string;
-  name: string;
-}
-interface GiftCertificateProps {
-  amount: number;
-  id: string;
-  isTaxable: boolean;
-  name: string;
-  recipient: Contact;
-  sender: Contact;
-}
 
 interface LineItemsProps {
-  customItems: CustomItemProps[];
-  digitalItems: DigitalItemProps[];
-  giftCertificates: GiftCertificateProps[];
-  physicalItems: PhysicalItemProps[];
-}
-
-interface CartInfoProps {
-  baseAmount: number;
-  cartAmount: number;
-  coupons: any;
-  createdTime: string;
-  currency: {
-    code: string;
-    decimalPlaces: number;
-    name: string;
-    symbol: string;
-  };
-  customerId: number;
-  discountAmount: number;
-  discounts: DiscountsProps[];
-  email: string;
-  id: string;
-  isTaxIncluded: boolean;
-  lineItems: LineItemsProps;
-  locale: string;
-  updatedTime: string;
+  customItems: LineItem[];
+  digitalItems: LineItem[];
+  giftCertificates: LineItem[];
+  physicalItems: LineItem[];
 }
 
 const addLoading = (b3CartToQuote: any) => {
@@ -219,7 +181,7 @@ const addProductsToDraftQuote = async (
 };
 
 const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormatFunction) => {
-  const addToQuote = async (cartInfoWithOptions: CartInfoProps | any) => {
+  const addToQuote = async (cartInfoWithOptions: GetCart) => {
     try {
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error(b3Lang('pdp.cartToQuote.error.notFound'));
