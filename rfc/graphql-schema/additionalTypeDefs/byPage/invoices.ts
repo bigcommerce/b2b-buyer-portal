@@ -6,11 +6,6 @@ export default /* GraphQL */ `
     CANCELLED
   }
 
-  type InvoiceStats {
-    openBalance: Float!
-    overdueBalance: Float!
-  }
-
   input InvoiceDateRangeFilterInput {
     from: DateTime!
     to: DateTime
@@ -55,13 +50,17 @@ export default /* GraphQL */ `
     errors: [GenerateInvoicePdfError!]!
   }
 
+  type InvoiceBalances {
+    open: Money!
+    original: Money!
+  }
+
   type Invoice {
     id: ID!
     invoiceNumber: String!
     createdAt: DateTime!
     dueDate: DateTime!
-    openBalance: Money!
-    originalBalance: Money!
+    balance: InvoiceBalances!
     status: InvoiceStatus!
     order: Order!
     company: Company!
@@ -76,7 +75,6 @@ export default /* GraphQL */ `
     edges: [InvoiceEdge!]!
     pageInfo: PageInfo!
     collectionInfo: CollectionInfo!
-    stats: InvoiceStats!
   }
 
   type ExportInvoicesAsCSVResult {
@@ -84,7 +82,13 @@ export default /* GraphQL */ `
     errors: [Error!]!
   }
 
+  type InvoiceTotals {
+    open: Money!
+    overdue: Money!
+  }
+
   extend type Company {
+    invoiceTotals: InvoiceTotals!
     invoicesByIds(invoiceIds: [ID!]!): [Invoice!]!
     invoices(
       filters: InvoiceFiltersInput
