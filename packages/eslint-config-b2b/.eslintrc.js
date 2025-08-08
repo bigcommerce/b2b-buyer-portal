@@ -89,6 +89,7 @@ module.exports = {
           '**/tests/**/*.tsx',
           '**/*.test.ts',
           '**/*.test.tsx',
+          'vite.config.ts',
         ],
       },
     ],
