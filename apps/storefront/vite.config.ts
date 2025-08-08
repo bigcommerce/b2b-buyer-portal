@@ -1,9 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
 // cspell:ignore onwarn, pdfobject
-/// <reference types="vitest" />
-// Types are not exported for @vitejs/plugin-legacy, so we need to use `@ts-expect-error` to ignore the type errors for now.
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -91,7 +86,6 @@ export default defineConfig(({ mode }) => {
             if (name.includes('headless') || env.VITE_DISABLE_BUILD_HASH) {
               return '[name].js';
             }
-
             return '[name].[hash].js';
           },
           manualChunks: {
