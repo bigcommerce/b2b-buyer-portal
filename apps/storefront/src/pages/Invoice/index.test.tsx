@@ -994,6 +994,7 @@ describe('when using the action menu', () => {
                     node: {
                       id: '3344',
                       invoiceNumber: '3322',
+                      status: InvoiceStatusCode.PartiallyPaid,
                     },
                   }),
                 ],
