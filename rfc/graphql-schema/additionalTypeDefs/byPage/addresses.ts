@@ -27,7 +27,7 @@ export default /* GraphQL */ `
 
     label: String!
 
-    addressType: AddressType!
+    type: AddressType!
   }
 
   type CompanyAddressEdge {
