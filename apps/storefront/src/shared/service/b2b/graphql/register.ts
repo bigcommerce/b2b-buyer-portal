@@ -134,7 +134,7 @@ const getCustomerInfo = () => `{
   }
 }`;
 
-const getCountries = () => `{
+const getCountries = () => `query Countries {
   countries(storeHash:"${storeHash}") {
     id
     countryName

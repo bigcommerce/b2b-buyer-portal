@@ -75,7 +75,7 @@ const getCustomerAddresses = () => `{
   }
 }`;
 
-const getAddresses = (companyId: number) => `{
+const getAddresses = (companyId: number) => `query Addresses {
   addresses (
     first: 50
     offset: 0
