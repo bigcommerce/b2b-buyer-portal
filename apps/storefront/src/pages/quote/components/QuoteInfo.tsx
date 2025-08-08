@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 
@@ -75,14 +76,19 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
     flag !== 'info' ? addressVerifyKeys.some((item: string) => info && !!info[item]) : false;
 
   const infoPaddingLeft = flag === 'info' || isMobile ? 0 : '10px';
+  const titleId = useId();
+
   return (
     <Box
+      aria-labelledby={titleId}
+      role="article"
       sx={{
         width: isMobile || flag === 'info' ? '100%' : '33.3%',
         paddingLeft: infoPaddingLeft,
       }}
     >
       <Typography
+        id={titleId}
         sx={{
           fontWeight: 400,
           fontSize: '24px',

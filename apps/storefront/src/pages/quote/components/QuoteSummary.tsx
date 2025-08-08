@@ -1,4 +1,12 @@
-import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  Ref,
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
@@ -88,11 +96,15 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     return price;
   };
 
+  const cardId = useId();
+
   return (
-    <Card>
+    <Card role="article" aria-labelledby={cardId}>
       <CardContent>
         <Box>
-          <Typography variant="h5">{b3Lang('quoteDraft.quoteSummary.summary')}</Typography>
+          <Typography id={cardId} variant="h5">
+            {b3Lang('quoteDraft.quoteSummary.summary')}
+          </Typography>
           <Box
             sx={{
               marginTop: '20px',
