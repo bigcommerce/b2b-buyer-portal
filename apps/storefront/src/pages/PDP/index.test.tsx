@@ -6,12 +6,12 @@ import {
   renderWithProviders,
   screen,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
 import * as graphqlModule from '@/shared/service/b2b';
 import { Customer, CustomerRole, LoginTypes, ShoppingListStatus, UserTypes } from '@/types';
-import { globalSnackbar } from '@/utils/b3Tip';
 
 import PDP from '.';
 
@@ -212,13 +212,6 @@ describe('when a product without a required variant is added to a shopping list'
     vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
     vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
 
-    vi.mock('@/utils/b3Tip', () => ({
-      globalSnackbar: {
-        error: vi.fn(),
-        success: vi.fn(),
-      },
-    }));
-
     renderWithProviders(<PDP />, {
       preloadedState: {
         global: globalState,
@@ -233,9 +226,9 @@ describe('when a product without a required variant is added to a shopping list'
     await userEvent.click(screen.getByText('Test Shopping List 1'));
     await userEvent.click(screen.getByText('OK'));
 
-    expect(globalSnackbar.error).toHaveBeenCalledWith('Please fill out product options first.');
-
-    expect(globalSnackbar.success).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText('Please fill out product options first.')).toBeInTheDocument();
+    });
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
@@ -382,13 +375,6 @@ describe('when a product with required variants is added to a shopping list', ()
       addProductToShoppingListResponse,
     );
 
-    vi.mock('@/utils/b3Tip', () => ({
-      globalSnackbar: {
-        error: vi.fn(),
-        success: vi.fn(),
-      },
-    }));
-
     renderWithProviders(<PDP />, {
       preloadedState: {
         global: globalState,
@@ -403,11 +389,10 @@ describe('when a product with required variants is added to a shopping list', ()
     await userEvent.click(screen.getByText('Test Shopping List 1'));
     await userEvent.click(screen.getByText('OK'));
 
-    expect(globalSnackbar.error).not.toHaveBeenCalled();
-    expect(globalSnackbar.success).toHaveBeenCalledWith(
-      'Products were added to your shopping list',
-      expect.anything(),
-    );
+    await waitFor(() => {
+      expect(screen.getByText('Products were added to your shopping list')).toBeInTheDocument();
+    });
+
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
@@ -542,13 +527,6 @@ describe('when an unexpected error occurred during adding a product to shopping 
       new Error('Unexpected error'),
     );
 
-    vi.mock('@/utils/b3Tip', () => ({
-      globalSnackbar: {
-        error: vi.fn(),
-        success: vi.fn(),
-      },
-    }));
-
     renderWithProviders(<PDP />, {
       preloadedState: {
         global: globalState,
@@ -563,7 +541,10 @@ describe('when an unexpected error occurred during adding a product to shopping 
     await userEvent.click(screen.getByText('Test Shopping List 1'));
     await userEvent.click(screen.getByText('OK'));
 
-    expect(globalSnackbar.error).toHaveBeenCalledWith('Something went wrong. Please try again.');
+    await waitFor(() => {
+      expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+    });
+
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
