@@ -187,9 +187,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                             lineHeight: '1.5',
                             color: '#455A64',
                           }}
-                          key={`${option.optionName}_${option.optionLabel}`}
+                          key={`${option.optionId}_${option.optionName}_${option.optionLabel}`}
                         >
-                          {`${option.optionName}: ${option.optionLabel}`}
+                          ${option.optionName}: ${option.optionLabel}
                         </Typography>
                       ),
                   )}
