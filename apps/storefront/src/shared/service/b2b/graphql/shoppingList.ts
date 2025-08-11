@@ -302,7 +302,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `
   }
 `;
 
-const addItemsToShoppingList = (data: CustomFieldItems) => `mutation {
+const addItemsToShoppingList = (data: CustomFieldItems) => `mutation AddItemsToShoppingList {
   shoppingListsItemsCreate(
     shoppingListId: ${data.shoppingListId},
     items: ${convertArrayToGraphql(data.items || [])}
