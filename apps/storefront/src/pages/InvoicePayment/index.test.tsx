@@ -200,6 +200,8 @@ describe('when the user is logged in', () => {
     renderWithProviders(<Payment />, { preloadedState: { company: loggedInUser } });
 
     await waitFor(() => {
+      // `toHaveLength(2)` is used because the error message appears twice in the UI
+      // once shown by the `fetch` method and once by the Payment component
       expect(screen.getAllByText('The bird is the word')).toHaveLength(2);
     });
   });

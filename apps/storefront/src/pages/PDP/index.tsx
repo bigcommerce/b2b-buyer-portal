@@ -95,10 +95,7 @@ function useData() {
 
   const getShoppingListItem = () => {
     if (platform !== 'bigcommerce') {
-      const {
-        itemFromCurrentPage: [product],
-      } = window.b2b.utils.shoppingList;
-      return product;
+      return window.b2b.utils.shoppingList.itemFromCurrentPage[0];
     }
 
     if (!shoppingListClickNode) return undefined;

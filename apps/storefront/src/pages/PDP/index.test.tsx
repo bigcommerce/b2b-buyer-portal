@@ -3,17 +3,21 @@ import {
   builder,
   buildGlobalStateWith,
   faker,
+  graphql,
+  HttpResponse,
   renderWithProviders,
   screen,
+  startMockServer,
   userEvent,
   waitFor,
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
-import * as graphqlModule from '@/shared/service/b2b';
 import { Customer, CustomerRole, LoginTypes, ShoppingListStatus, UserTypes } from '@/types';
 
 import PDP from '.';
+
+const { server } = startMockServer();
 
 beforeEach(() => {
   vi.spyOn(window, 'scrollTo').mockReturnValue();
@@ -46,7 +50,7 @@ const buildCustomerWith = builder<Customer>(() => ({
 }));
 
 const buildShoppingListGraphQLResponseNodeWith = builder(() => ({
-  id: faker.string.uuid(),
+  id: faker.number.int(),
   name: faker.lorem.words(),
   description: faker.lorem.words(),
   status: faker.helpers.arrayElement([
@@ -209,8 +213,12 @@ describe('when a product without a required variant is added to a shopping list'
       ],
     };
 
-    vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', () =>
+        HttpResponse.json({ data: { shoppingLists: shoppingListResponse } }),
+      ),
+      graphql.query('SearchProducts', () => HttpResponse.json({ data: productsResponse })),
+    );
 
     renderWithProviders(<PDP />, {
       preloadedState: {
@@ -223,12 +231,14 @@ describe('when a product without a required variant is added to a shopping list'
 
     expect(screen.getByText('Add to shopping list')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Test Shopping List 1'));
+    await userEvent.click(await screen.findByText('Test Shopping List 1'));
+
     await userEvent.click(screen.getByText('OK'));
 
     await waitFor(() => {
       expect(screen.getByText('Please fill out product options first.')).toBeInTheDocument();
     });
+
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });
@@ -369,10 +379,14 @@ describe('when a product with required variants is added to a shopping list', ()
       },
     };
 
-    vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
-    vi.spyOn(graphqlModule, 'addProductToShoppingList').mockResolvedValue(
-      addProductToShoppingListResponse,
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', () =>
+        HttpResponse.json({ data: { shoppingLists: shoppingListResponse } }),
+      ),
+      graphql.query('SearchProducts', () => HttpResponse.json({ data: productsResponse })),
+      graphql.mutation('AddItemsToShoppingList', () =>
+        HttpResponse.json(addProductToShoppingListResponse),
+      ),
     );
 
     renderWithProviders(<PDP />, {
@@ -386,7 +400,8 @@ describe('when a product with required variants is added to a shopping list', ()
 
     expect(screen.getByText('Add to shopping list')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Test Shopping List 1'));
+    await userEvent.click(await screen.findByText('Test Shopping List 1'));
+
     await userEvent.click(screen.getByText('OK'));
 
     await waitFor(() => {
@@ -521,10 +536,14 @@ describe('when an unexpected error occurred during adding a product to shopping 
       ],
     };
 
-    vi.spyOn(graphqlModule, 'getB2BShoppingList').mockResolvedValue(shoppingListResponse);
-    vi.spyOn(graphqlModule, 'searchProducts').mockResolvedValue(productsResponse);
-    vi.spyOn(graphqlModule, 'addProductToShoppingList').mockRejectedValue(
-      new Error('Unexpected error'),
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', () =>
+        HttpResponse.json({ data: { shoppingLists: shoppingListResponse } }),
+      ),
+      graphql.query('SearchProducts', () => HttpResponse.json({ data: productsResponse })),
+      graphql.mutation('AddItemsToShoppingList', () =>
+        HttpResponse.json({ errors: [{ message: 'Something went wrong. Please try again.' }] }),
+      ),
     );
 
     renderWithProviders(<PDP />, {
@@ -538,11 +557,14 @@ describe('when an unexpected error occurred during adding a product to shopping 
 
     expect(screen.getByText('Add to shopping list')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Test Shopping List 1'));
+    await userEvent.click(await screen.findByText('Test Shopping List 1'));
+
     await userEvent.click(screen.getByText('OK'));
 
     await waitFor(() => {
-      expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+      // `toHaveLength(2)` is used because the error message appears twice in the UI
+      // once shown by the `fetch` method and once by the Payment component
+      expect(screen.getAllByText('Something went wrong. Please try again.')).toHaveLength(2);
     });
 
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
