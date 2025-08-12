@@ -6,15 +6,17 @@ import {
   bulk,
   faker,
   graphql,
+  http,
   HttpResponse,
   renderWithProviders,
   screen,
   startMockServer,
+  userEvent,
   within,
 } from 'tests/test-utils';
 
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
-import { CompanyStatus, UserTypes } from '@/types';
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
@@ -87,6 +89,20 @@ const buildAddressWith = builder<Address>(() => ({
   addressLabel: faker.lorem.word(),
 }));
 
+const noAddress = buildAddressWith({
+  // a missing address is modeled like this :'(
+  label: '',
+  firstName: '',
+  lastName: '',
+  address: '',
+  apartment: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  country: '',
+  phoneNumber: '',
+});
+
 const buildQuoteInfoStateWith = builder<QuoteInfoState & PersistPartial>(() => ({
   draftQuoteList: bulk(buildDraftQuoteItemWith, 'WHATEVER_VALUES').times(
     faker.number.int({ min: 1, max: 12 }),
@@ -111,9 +127,15 @@ const buildQuoteInfoStateWith = builder<QuoteInfoState & PersistPartial>(() => (
   _persist: { version: 1, rehydrated: true },
 }));
 
+const customerEmail = 'info@abc.net';
+
 const approvedB2BCompany = buildCompanyStateWith({
   companyInfo: { status: CompanyStatus.APPROVED },
-  customer: { userType: UserTypes.MULTIPLE_B2C },
+  customer: {
+    userType: UserTypes.MULTIPLE_B2C,
+    role: CustomerRole.SENIOR_BUYER,
+    emailAddress: customerEmail,
+  },
 });
 
 const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } });
@@ -308,23 +330,7 @@ describe('when there is no billing address assigned', () => {
       ),
     );
 
-    const quoteInfo = buildQuoteInfoStateWith({
-      draftQuoteInfo: {
-        // a missing address is modeled like this :'(
-        billingAddress: buildAddressWith({
-          label: '',
-          firstName: '',
-          lastName: '',
-          address: '',
-          apartment: '',
-          city: '',
-          state: '',
-          zipCode: '',
-          country: '',
-          phoneNumber: '',
-        }),
-      },
-    });
+    const quoteInfo = buildQuoteInfoStateWith({ draftQuoteInfo: { billingAddress: noAddress } });
 
     renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
       preloadedState: { ...preloadedState, quoteInfo },
@@ -392,23 +398,7 @@ describe('when there is no shipping address assigned', () => {
       ),
     );
 
-    const quoteInfo = buildQuoteInfoStateWith({
-      draftQuoteInfo: {
-        // a missing address is modeled like this :'(
-        shippingAddress: buildAddressWith({
-          label: '',
-          firstName: '',
-          lastName: '',
-          address: '',
-          apartment: '',
-          city: '',
-          state: '',
-          zipCode: '',
-          country: '',
-          phoneNumber: '',
-        }),
-      },
-    });
+    const quoteInfo = buildQuoteInfoStateWith({ draftQuoteInfo: { shippingAddress: noAddress } });
 
     renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
       preloadedState: { ...preloadedState, quoteInfo },
@@ -449,4 +439,306 @@ it('displays the quote info"', async () => {
   expect(within(info).getByText('Reference: REF123456')).toBeInTheDocument();
   expect(within(info).getByText('CC: billy.bully@acme.com')).toBeInTheDocument();
   expect(within(info).getByText('CC: terry.trousers@acme.com')).toBeInTheDocument();
+});
+
+describe('when editing the buyer info', () => {
+  it('displays the "Contact person" and "Email" fields as disabled', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { name: 'Joey Johnson', email: 'joey.johnson@abc.com' },
+        shippingAddress: usAddress,
+        billingAddress: usAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+    expect(screen.getByRole('textbox', { name: 'Contact person' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Email' })).toBeDisabled();
+  });
+});
+
+describe('when buyer info is changed and then saved', () => {
+  it('displays the updated buyer info details', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { companyName: 'ABC Inc', phoneNumber: '04747666333', email: customerEmail },
+        shippingAddress: usAddress,
+        billingAddress: usAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+    const phoneInput = screen.getByRole('textbox', { name: 'Phone' });
+    await userEvent.clear(phoneInput);
+    await userEvent.type(phoneInput, '1234567890');
+
+    const companyInput = screen.getByRole('textbox', { name: 'Company name' });
+    await userEvent.clear(companyInput);
+    await userEvent.type(companyInput, "Jack's Slacks");
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+
+    const buyerInfo = await screen.findByRole('article', { name: 'Buyer info' });
+
+    expect(within(buyerInfo).getByText("Jack's Slacks")).toBeInTheDocument();
+    expect(within(buyerInfo).getByText('1234567890')).toBeInTheDocument();
+  });
+});
+
+describe('when quote info is changed and then saved', () => {
+  it('displays the updated quote info details', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { email: customerEmail, quoteTitle: '' },
+        referenceNumber: '',
+        shippingAddress: usAddress,
+        billingAddress: usAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+    const phoneInput = screen.getByRole('textbox', { name: 'Quote Title' });
+    await userEvent.type(phoneInput, 'Lots of nice things');
+
+    const companyInput = screen.getByRole('textbox', { name: 'Reference number' });
+    await userEvent.type(companyInput, '818767');
+
+    const ccInput = screen.getByRole('textbox', { name: 'CC email' });
+    await userEvent.type(ccInput, 'fred@acme.com');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+
+    const quoteInfoSummary = await screen.findByRole('article', { name: 'Quote info' });
+    expect(within(quoteInfoSummary).getByText('Title: Lots of nice things')).toBeInTheDocument();
+    expect(within(quoteInfoSummary).getByText('Reference: 818767')).toBeInTheDocument();
+    expect(within(quoteInfoSummary).getByText('CC: fred@acme.com')).toBeInTheDocument();
+  });
+});
+
+describe('when a billing address is added and then saved', () => {
+  it('displays the billing address', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+    const shippingFields = screen.getByRole('group', { name: 'Billing' });
+
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address label' }),
+      'ABC Inc',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'First name' }),
+      'Joey',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Last name' }),
+      'Johnson',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Company' }),
+      'ABC Inc',
+    );
+    await userEvent.click(within(shippingFields).getByRole('combobox', { name: 'Country' }));
+    await userEvent.click(screen.getByRole('option', { name: 'United States' }));
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address line 1' }),
+      '1 Main St',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address line 2 (optional)' }),
+      'Apt 4B',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'City' }),
+      'Springfield',
+    );
+    await userEvent.click(within(shippingFields).getByRole('combobox', { name: 'State' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Alabama' }));
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Zip code' }),
+      '62701',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Phone number' }),
+      '04747666333',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+
+    const billingSummary = await screen.findByRole('article', { name: 'Billing' });
+
+    expect(within(billingSummary).getByText('ABC Inc')).toBeInTheDocument();
+    expect(within(billingSummary).getByText('Joey Johnson')).toBeInTheDocument();
+    expect(within(billingSummary).getByText('1 Main St')).toBeInTheDocument();
+    expect(within(billingSummary).getByText('Apt 4B')).toBeInTheDocument();
+    expect(within(billingSummary).getByText('Springfield, Alabama, 62701, US')).toBeInTheDocument();
+    expect(within(billingSummary).getByText('04747666333')).toBeInTheDocument();
+  });
+});
+
+describe('when a shipping address is added and then saved', () => {
+  it('displays the shipping address', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+    const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address label' }),
+      'My home',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'First name' }),
+      'Sam',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Last name' }),
+      'Jackson',
+    );
+    await userEvent.click(within(shippingFields).getByRole('combobox', { name: 'Country' }));
+    await userEvent.click(screen.getByRole('option', { name: 'United States' }));
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address line 1' }),
+      '2 Small Street',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Address line 2 (optional)' }),
+      'South Nelson',
+    );
+    await userEvent.type(within(shippingFields).getByRole('textbox', { name: 'City' }), 'Big Town');
+    await userEvent.click(within(shippingFields).getByRole('combobox', { name: 'State' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Alabama' }));
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Zip code' }),
+      '62799',
+    );
+    await userEvent.type(
+      within(shippingFields).getByRole('textbox', { name: 'Phone number' }),
+      '04747613123',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+
+    const shippingSummary = await screen.findByRole('article', { name: 'Shipping' });
+
+    expect(within(shippingSummary).getByText('My home')).toBeInTheDocument();
+    expect(within(shippingSummary).getByText('Sam Jackson')).toBeInTheDocument();
+    expect(within(shippingSummary).getByText('2 Small Street')).toBeInTheDocument();
+    expect(within(shippingSummary).getByText('South Nelson')).toBeInTheDocument();
+    expect(within(shippingSummary).getByText('Big Town, Alabama, 62799, US')).toBeInTheDocument();
+    expect(within(shippingSummary).getByText('04747613123')).toBeInTheDocument();
+  });
 });
