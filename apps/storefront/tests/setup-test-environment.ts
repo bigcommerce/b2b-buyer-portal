@@ -48,7 +48,8 @@ failOnConsole({
 
     return false;
   },
-  shouldFailOnLog: true,
-  shouldFailOnWarn: true,
-  shouldFailOnInfo: true,
+  shouldFailOnLog: Boolean(process.env.CI),
+  shouldFailOnWarn: Boolean(process.env.CI),
+  shouldFailOnInfo: Boolean(process.env.CI),
+  shouldFailOnError: Boolean(process.env.CI),
 });
