@@ -14,6 +14,6 @@
     "@b3/tsconfig": "*",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-b2b": "*",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
