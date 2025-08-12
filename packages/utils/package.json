@@ -15,6 +15,6 @@
     "@b3/tsconfig": "*",
     "eslint": "^8.2.0",
     "eslint-config-bc": "*",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
