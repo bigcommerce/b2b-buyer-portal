@@ -1,24 +1,52 @@
-aliases:
-  - &node_executor
-      executor:
-        name: node/node
-        node-version: "22.16"
-
 version: 2.1
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:22.16
 
 orbs:
   ci: bigcommerce/internal@volatile
-  node: bigcommerce/internal-node@volatile
   security: bigcommerce/internal-security@volatile
   test-coverage-reporter: bigcommerce/internal-test-coverage-reporter@volatile
 
+commands:
+  install-dependencies:
+    steps:
+      - restore_cache:
+          keys:
+            - node-modules-cache-i1-{{ checksum "package.json" }}
+
+      - run:
+          name: Enable corepack
+          command: |
+            mkdir -p /tmp/bc/bin
+            mkdir -p /tmp/bc/caches/corepack
+            mkdir -p /tmp/bc/caches/yarn
+            export COREPACK_HOME=/tmp/bc/caches/corepack
+            echo 'export PATH=/tmp/bc/bin:$PATH' >> $BASH_ENV
+            corepack enable yarn --install-directory /tmp/bc/bin
+            hash -r
+            yarn config set cache-folder /tmp/bc/caches/yarn
+
+      - run:
+          name: Installing dependencies
+          command: |
+            yarn install --immutable
+
+      - save_cache:
+          name: Saving node_modules cache
+          key: node-modules-cache-i1-{{ checksum "package.json" }}
+          paths:
+            - /tmp/bc/caches
+
 jobs:
   test:
-    <<: *node_executor
+    executor: node
     resource_class: medium+
     steps:
       - ci/pre-setup
-      - node/yarn-install
+      - install-dependencies
       - test-coverage-reporter/install
       - run:
           name: "Run unit tests for core package"
@@ -35,21 +63,21 @@ jobs:
           path: ./apps/storefront/coverage/lcov-report
 
   lint:
-    <<: *node_executor
+    executor: node
     resource_class: medium+
     steps:
       - ci/pre-setup
-      - node/yarn-install
+      - install-dependencies
       - run:
-          name: "Run lint"
+          name: 'Run lint'
           command: yarn run lint
 
   build_and_push:
-    <<: *node_executor
+    executor: node
     resource_class: medium+
     steps:
       - ci/pre-setup
-      - node/yarn-install
+      - install-dependencies
       - ci/gcloud_login
       - run:
           name: "Build distribution files"
