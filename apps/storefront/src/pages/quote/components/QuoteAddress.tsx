@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useId, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
@@ -169,8 +169,17 @@ function QuoteAddress(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [info]);
 
+  const fieldsetId = useId();
+
   return (
-    <Box width={isMobile ? '100%' : '50%'} mt={isMobile ? '2rem' : '0'} pr={pr} pl={pl}>
+    <Box
+      role="group"
+      aria-labelledby={fieldsetId}
+      width={isMobile ? '100%' : '50%'}
+      mt={isMobile ? '2rem' : '0'}
+      pr={pr}
+      pl={pl}
+    >
       <Box
         sx={{
           display: 'flex',
@@ -178,6 +187,7 @@ function QuoteAddress(
         }}
       >
         <Typography
+          id={fieldsetId}
           sx={{
             fontWeight: 400,
             fontSize: '24px',
