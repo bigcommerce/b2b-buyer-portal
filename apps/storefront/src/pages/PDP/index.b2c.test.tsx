@@ -19,8 +19,6 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import { ShoppingListStatus } from '@/types';
-
 import PDP from '.';
 
 const { server } = startMockServer();
@@ -57,30 +55,9 @@ const buildCustomerShoppingListNodeWith = builder(() => ({
     id: faker.number.int().toString(),
     name: faker.lorem.word(),
     description: faker.lorem.sentence(),
-    status: 0,
-    customerInfo: {
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      userId: faker.number.int(),
-      email: faker.internet.email(),
-      role: '0',
-    },
     updatedAt: getUnixTime(faker.date.recent()),
-    isOwner: faker.datatype.boolean(),
     products: {
       totalCount: faker.number.int({ min: 0, max: 10 }),
-    },
-    approvedFlag: faker.datatype.boolean(),
-    companyInfo: {
-      companyId: faker.number.int().toString(),
-      companyName: faker.company.name(),
-      companyAddress: faker.location.streetAddress(),
-      companyCountry: faker.location.country(),
-      companyState: faker.location.state(),
-      companyCity: faker.location.city(),
-      companyZipCode: faker.location.zipCode(),
-      phoneNumber: faker.phone.number(),
-      bcId: faker.number.int().toString(),
     },
   },
 }));
@@ -136,20 +113,15 @@ describe('stencil', () => {
 
     const addItemsToCustomerShoppingList = vi.fn();
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
+
     server.use(
       graphql.query('CustomerShoppingLists', () =>
         HttpResponse.json(
           buildCustomerShoppingListResponseWith({
-            data: {
-              customerShoppingLists: {
-                totalCount: 1,
-                edges: [
-                  buildCustomerShoppingListNodeWith({
-                    node: { id: '992', name: 'Foo Bar Shopping List' },
-                  }),
-                ],
-              },
-            },
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
           }),
         ),
       ),
@@ -212,20 +184,15 @@ describe('stencil', () => {
 
     const addItemsToCustomerShoppingList = vi.fn();
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
+
     server.use(
       graphql.query('CustomerShoppingLists', () =>
         HttpResponse.json(
           buildCustomerShoppingListResponseWith({
-            data: {
-              customerShoppingLists: {
-                totalCount: 1,
-                edges: [
-                  buildCustomerShoppingListNodeWith({
-                    node: { id: '992', name: 'Foo Bar Shopping List' },
-                  }),
-                ],
-              },
-            },
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
           }),
         ),
       ),
@@ -316,12 +283,7 @@ describe('stencil', () => {
       .calledWith(stringContainingAll('first: 50', 'channelId: 1'))
       .thenReturn(
         buildCustomerShoppingListResponseWith({
-          data: {
-            customerShoppingLists: {
-              totalCount: 0,
-              edges: [],
-            },
-          },
+          data: { customerShoppingLists: { totalCount: 0, edges: [] } },
         }),
       );
 
@@ -357,24 +319,15 @@ describe('stencil', () => {
     await userEvent.type(nameInput, 'New Shopping List');
     await userEvent.type(descriptionInput, 'This is a new shopping list');
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'New Shopping List' },
+    });
+
     when(getCustomerShoppingLists, { times: 1 })
       .calledWith(stringContainingAll('first: 50', 'channelId: 1'))
       .thenReturn(
         buildCustomerShoppingListResponseWith({
-          data: {
-            customerShoppingLists: {
-              totalCount: 0,
-              edges: [
-                buildCustomerShoppingListNodeWith({
-                  node: {
-                    id: '992',
-                    name: 'New Shopping List',
-                    status: ShoppingListStatus.Draft,
-                  },
-                }),
-              ],
-            },
-          },
+          data: { customerShoppingLists: { totalCount: 0, edges: [shoppingList] } },
         }),
       );
 
@@ -390,11 +343,18 @@ describe('stencil', () => {
   });
 
   it('navigates to the shopping list page when the "View Shopping List" button is clicked', async () => {
-    const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-    const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
 
     server.use(
-      graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+      graphql.query('CustomerShoppingLists', () =>
+        HttpResponse.json(
+          buildCustomerShoppingListResponseWith({
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+          }),
+        ),
+      ),
       graphql.query('SearchProducts', () =>
         HttpResponse.json({
           data: {
@@ -421,7 +381,7 @@ describe('stencil', () => {
       initialGlobalContext: { shoppingListClickNode },
     });
 
-    await userEvent.click(await screen.findByText(firstShoppingList.name));
+    await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
     await userEvent.click(screen.getByRole('button', { name: 'OK' }));
 
@@ -429,7 +389,7 @@ describe('stencil', () => {
 
     expect(preloadedState.global.setOpenPageFn).toHaveBeenLastCalledWith({
       isOpen: true,
-      openUrl: `/shoppingList/${firstShoppingList.id}`,
+      openUrl: '/shoppingList/992',
       params: {
         shoppingListBtn: 'add',
       },
@@ -447,11 +407,18 @@ describe('stencil', () => {
         />,
       );
 
-      const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-      const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+      const shoppingList = buildCustomerShoppingListNodeWith({
+        node: { name: 'Foo Bar Shopping List' },
+      });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(
+            buildCustomerShoppingListResponseWith({
+              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+            }),
+          ),
+        ),
         graphql.query('SearchProducts', () =>
           HttpResponse.json({
             data: {
@@ -471,7 +438,7 @@ describe('stencil', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      await userEvent.click(await screen.findByText(firstShoppingList.name));
+      await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
       await userEvent.click(screen.getByText('OK'));
 
@@ -493,12 +460,18 @@ describe('stencil', () => {
           options={{ 'attribute[114]': '104' }}
         />,
       );
-
-      const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-      const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+      const shoppingList = buildCustomerShoppingListNodeWith({
+        node: { name: 'Foo Bar Shopping List' },
+      });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(
+            buildCustomerShoppingListResponseWith({
+              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+            }),
+          ),
+        ),
         graphql.query('SearchProducts', () =>
           HttpResponse.json({
             data: {
@@ -524,7 +497,7 @@ describe('stencil', () => {
 
       expect(screen.getByText('Add to shopping list')).toBeInTheDocument();
 
-      await userEvent.click(await screen.findByText(firstShoppingList.name));
+      await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
       await userEvent.click(screen.getByText('OK'));
 
@@ -559,20 +532,15 @@ describe('other/catalyst', () => {
 
     const addItemsToCustomerShoppingList = vi.fn();
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
+
     server.use(
       graphql.query('CustomerShoppingLists', () =>
         HttpResponse.json(
           buildCustomerShoppingListResponseWith({
-            data: {
-              customerShoppingLists: {
-                totalCount: 1,
-                edges: [
-                  buildCustomerShoppingListNodeWith({
-                    node: { id: '992', name: 'Foo Bar Shopping List' },
-                  }),
-                ],
-              },
-            },
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
           }),
         ),
       ),
@@ -630,20 +598,15 @@ describe('other/catalyst', () => {
 
     const addItemsToCustomerShoppingList = vi.fn();
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
+
     server.use(
       graphql.query('CustomerShoppingLists', () =>
         HttpResponse.json(
           buildCustomerShoppingListResponseWith({
-            data: {
-              customerShoppingLists: {
-                totalCount: 1,
-                edges: [
-                  buildCustomerShoppingListNodeWith({
-                    node: { id: '992', name: 'Foo Bar Shopping List' },
-                  }),
-                ],
-              },
-            },
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
           }),
         ),
       ),
@@ -729,12 +692,7 @@ describe('other/catalyst', () => {
       .calledWith(stringContainingAll('first: 50', 'channelId: 1'))
       .thenReturn(
         buildCustomerShoppingListResponseWith({
-          data: {
-            customerShoppingLists: {
-              totalCount: 0,
-              edges: [],
-            },
-          },
+          data: { customerShoppingLists: { totalCount: 0, edges: [] } },
         }),
       );
 
@@ -771,24 +729,15 @@ describe('other/catalyst', () => {
     await userEvent.type(nameInput, 'New Shopping List');
     await userEvent.type(descriptionInput, 'This is a new shopping list');
 
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'New Shopping List' },
+    });
+
     when(getCustomerShoppingLists, { times: 1 })
       .calledWith(stringContainingAll('first: 50', 'channelId: 1'))
       .thenReturn(
         buildCustomerShoppingListResponseWith({
-          data: {
-            customerShoppingLists: {
-              totalCount: 0,
-              edges: [
-                buildCustomerShoppingListNodeWith({
-                  node: {
-                    id: '992',
-                    name: 'New Shopping List',
-                    status: ShoppingListStatus.Draft,
-                  },
-                }),
-              ],
-            },
-          },
+          data: { customerShoppingLists: { totalCount: 0, edges: [shoppingList] } },
         }),
       );
 
@@ -804,11 +753,18 @@ describe('other/catalyst', () => {
   });
 
   it('navigates to the shopping list page when the "View Shopping List" button is clicked', async () => {
-    const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-    const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+    const shoppingList = buildCustomerShoppingListNodeWith({
+      node: { id: '992', name: 'Foo Bar Shopping List' },
+    });
 
     server.use(
-      graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+      graphql.query('CustomerShoppingLists', () =>
+        HttpResponse.json(
+          buildCustomerShoppingListResponseWith({
+            data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+          }),
+        ),
+      ),
       graphql.query('SearchProducts', () =>
         HttpResponse.json({
           data: {
@@ -829,7 +785,7 @@ describe('other/catalyst', () => {
 
     renderWithProviders(<PDP />, { preloadedState });
 
-    await userEvent.click(await screen.findByText(firstShoppingList.name));
+    await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
     await userEvent.click(screen.getByRole('button', { name: 'OK' }));
 
@@ -837,7 +793,7 @@ describe('other/catalyst', () => {
 
     expect(preloadedState.global.setOpenPageFn).toHaveBeenLastCalledWith({
       isOpen: true,
-      openUrl: `/shoppingList/${firstShoppingList.id}`,
+      openUrl: '/shoppingList/992',
       params: {
         shoppingListBtn: 'add',
       },
@@ -854,11 +810,18 @@ describe('other/catalyst', () => {
         },
       ]);
 
-      const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-      const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+      const shoppingList = buildCustomerShoppingListNodeWith({
+        node: { name: 'Foo Bar Shopping List' },
+      });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(
+            buildCustomerShoppingListResponseWith({
+              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+            }),
+          ),
+        ),
         graphql.query('SearchProducts', () =>
           HttpResponse.json({
             data: {
@@ -874,7 +837,7 @@ describe('other/catalyst', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      await userEvent.click(await screen.findByText(firstShoppingList.name));
+      await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
       await userEvent.click(screen.getByText('OK'));
 
@@ -896,11 +859,18 @@ describe('other/catalyst', () => {
         },
       ]);
 
-      const shoppingListsResponse = buildCustomerShoppingListResponseWith('WHATEVER_VALUES');
-      const firstShoppingList = shoppingListsResponse.data.customerShoppingLists.edges[0].node;
+      const shoppingList = buildCustomerShoppingListNodeWith({
+        node: { name: 'Foo Bar Shopping List' },
+      });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () => HttpResponse.json(shoppingListsResponse)),
+        graphql.query('CustomerShoppingLists', () =>
+          HttpResponse.json(
+            buildCustomerShoppingListResponseWith({
+              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
+            }),
+          ),
+        ),
         graphql.query('SearchProducts', () =>
           HttpResponse.json({
             data: {
@@ -921,7 +891,7 @@ describe('other/catalyst', () => {
 
       expect(screen.getByText('Add to shopping list')).toBeInTheDocument();
 
-      await userEvent.click(await screen.findByText(firstShoppingList.name));
+      await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
 
       await userEvent.click(screen.getByText('OK'));
 

@@ -45,7 +45,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const theme = useTheme();
   const [isMobile] = useMobile();
@@ -61,26 +61,15 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
       setList([]);
 
       try {
+        const filterStatus = submitShoppingListPermission
+          ? ShoppingListStatus.Draft
+          : ShoppingListStatus.Approved;
+
         const { edges: list = [] } = isB2BUser
-          ? await getB2BShoppingList()
+          ? await getB2BShoppingList({ status: filterStatus })
           : await getBcShoppingList({ channelId });
 
-        if (!isB2BUser) {
-          setList(list);
-        } else {
-          const { submitShoppingListPermission } = b2bPermissions;
-
-          const newList = list.filter(
-            (item: CustomFieldItems) =>
-              item.node.status ===
-              Number(
-                submitShoppingListPermission
-                  ? ShoppingListStatus.Draft
-                  : ShoppingListStatus.Approved,
-              ),
-          );
-          setList(newList);
-        }
+        setList(list);
       } finally {
         setLoading(false);
       }
