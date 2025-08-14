@@ -107,7 +107,7 @@ export default function B3Dialog<T>({
 
       <Dialog
         fullWidth={fullWidth}
-        open={isOpen}
+        open={isOpen && Boolean(container.current)}
         container={container.current}
         onClose={(_: object, reason: string) => handleCloseClick(reason)}
         fullScreen={isMobile}

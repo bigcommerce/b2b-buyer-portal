@@ -50,7 +50,7 @@ const B3CompanyHierarchyExternalButton = lazy(
   () => import('@/components/outSideComponents/B3CompanyHierarchyExternalButton'),
 );
 
-const HeadlessController = lazy(() => import('@/components/HeadlessController'));
+const HeadlessController = lazy(() => import('@/HeadlessController'));
 
 const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
 
