@@ -10,7 +10,6 @@ export { default as B3Tag } from './B3Tag';
 export { default as B3Tip } from './B3Tip';
 export { default as CheckoutTip } from './extraTip/CheckoutTip';
 export { default as GlobalDialog } from './extraTip/GlobalDialog';
-export * from './HeadlessController';
 export { B3PageMask, Loading, usePageMask } from './loading';
 export { default as B3HoverButton } from './outSideComponents/B3HoverButton';
 export { default as B3MasqueradeGlobalTip } from './outSideComponents/B3MasqueradeGlobalTip';

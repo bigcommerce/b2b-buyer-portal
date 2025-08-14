@@ -1,13 +1,13 @@
-import { lazy, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
+import { B3CustomForm } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 
-const B3Dialog = lazy(() => import('../../../components/B3Dialog'));
-const B3CustomForm = lazy(() => import('../../../components/B3CustomForm'));
 const getList = (b3Lang: LangFormatFunction) => [
   {
     name: 'name',
