@@ -9,6 +9,7 @@ import invoices from './byPage/invoices'
 import accountSettings from './byPage/accountSettings'
 import shoppingListDetails from './byPage/shoppingListDetails'
 import quickOrder from './byPage/quickOrder'
+import quotes from './byPage/quotes'
 
 export default [
   userManagement,
@@ -22,4 +23,5 @@ export default [
   invoices,
   accountSettings,
   quickOrder,
+  quotes,
 ]
