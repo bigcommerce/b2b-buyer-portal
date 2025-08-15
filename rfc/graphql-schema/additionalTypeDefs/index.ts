@@ -6,6 +6,7 @@ import companyHierarchy from './byPage/companyHierarchy'
 import addresses from './byPage/addresses'
 import companyRegistration from './companyRegistration'
 import invoices from './byPage/invoices'
+import quotes from './byPage/quotes'
 
 export default [
   userManagement,
@@ -16,4 +17,5 @@ export default [
   companyRegistration,
   addresses,
   invoices,
+  quotes,
 ]
