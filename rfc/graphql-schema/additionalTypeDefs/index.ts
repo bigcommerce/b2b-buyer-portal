@@ -8,6 +8,7 @@ import companyRegistration from './companyRegistration'
 import invoices from './byPage/invoices'
 import accountSettings from './byPage/accountSettings'
 import shoppingListDetails from './byPage/shoppingListDetails'
+import quickOrder from './byPage/quickOrder'
 
 export default [
   userManagement,
@@ -20,4 +21,5 @@ export default [
   addresses,
   invoices,
   accountSettings,
+  quickOrder,
 ]
