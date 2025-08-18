@@ -127,7 +127,6 @@ type AddConfiguredProductsToQuoteResult {
 }
 
 extend type CartMutations {
-    bulkProductValidation(input: BulkProductValidationInput!): BulkProductValidationResult!
     addConfiguredProducts(input: AddConfiguredProductsToCartInput!): AddConfiguredProductsToCartResult!
 }
 
@@ -158,6 +157,10 @@ type ShoppingListMutations {
     ): AddConfiguredProductsToShoppingListResult!
 }
 
+extend type CatalogMutations {
+    bulkProductValidation(input: BulkProductValidationInput!): BulkProductValidationResult!
+}
+
 extend type Query {
     purchasedProducts(input: PurchasedProductsSearchInput!): PurchasedProductConnection!
 }
@@ -166,6 +169,7 @@ extend type Mutation {
     quote: QuoteMutations 
     cart: CartMutations
     shoppingList: ShoppingListMutations
+    catalog: CatalogMutations
 }
 
 `
