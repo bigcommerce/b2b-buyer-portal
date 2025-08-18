@@ -10,6 +10,7 @@ import accountSettings from './byPage/accountSettings'
 import shoppingListDetails from './byPage/shoppingListDetails'
 import quickOrder from './byPage/quickOrder'
 import quotes from './byPage/quotes'
+import quoteDetails from './byPage/quoteDetails'
 
 export default [
   userManagement,
@@ -24,4 +25,5 @@ export default [
   accountSettings,
   quickOrder,
   quotes,
+  quoteDetails,
 ]
