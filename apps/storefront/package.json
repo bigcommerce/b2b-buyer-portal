@@ -85,7 +85,7 @@
     "dependency-cruiser": "^17.0.1",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-b2b": "*",
-    "jsdom": "^24.1.0",
+    "jsdom": "^26.1.0",
     "msw": "^2.8.4",
     "rollup-plugin-visualizer": "^6.0.3",
     "terser": "^5.43.1",
