@@ -181,21 +181,24 @@ export default /* GraphQL */ `
     errors: [UpdateShoppingListDetailsError!]!
   }
 
-  input UpdateShoppingListDetailsInput {
+  input UpdateShoppingListDetailsDataInput {
     name: String
     description: String
   }
 
+  input UpdateShoppingListDetailsInput {
+    id: ID!
+    data: UpdateShoppingListDetailsDataInput!
+  }
+
   extend type CustomerMutations {
     updateShoppingListDetails(
-      id: ID!
       input: UpdateShoppingListDetailsInput
     ): UpdateShoppingListDetailsResult
   }
 
   extend type CompanyMutations {
     updateShoppingListDetails(
-      id: ID!
       input: UpdateShoppingListDetailsInput
     ): UpdateShoppingListDetailsResult
   }

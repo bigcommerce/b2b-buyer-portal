@@ -58,7 +58,14 @@ export default /* GraphQL */ `
     ): CompanyAddressConnection!
   }
 
-  input CompanyAddressCreateInput {
+  input AddressTypeInput {
+    isShipping: Boolean!
+    isBilling: Boolean!
+    isDefaultShipping: Boolean!
+    isDefaultBilling: Boolean!
+  }
+
+  input CompanyAddressCreateDataInput {
     firstName: String!
     lastName: String!
     address1: String!
@@ -69,22 +76,16 @@ export default /* GraphQL */ `
     phone: String
     postalCode: String
     extraFields: CustomerFormFieldsInput
-
     label: String!
-    isShipping: Boolean!
-    isBilling: Boolean!
-    isDefaultShipping: Boolean!
-    isDefaultBilling: Boolean!
+    addressType: AddressTypeInput!
   }
 
-  input AddressTypeInput {
-    isShipping: Boolean!
-    isBilling: Boolean!
-    isDefaultShipping: Boolean!
-    isDefaultBilling: Boolean!
+  input CompanyAddressCreateInput {
+    companyId: ID!
+    data: CompanyAddressCreateDataInput!
   }
 
-  input CompanyAddressUpdateInput {
+  input CompanyAddressUpdateDataInput {
     firstName: String
     lastName: String
     address1: String
@@ -95,10 +96,13 @@ export default /* GraphQL */ `
     phone: String
     postalCode: String
     extraFields: CustomerFormFieldsInput
-
     label: String!
-
     addressType: AddressTypeInput!
+  }
+
+  input CompanyAddressUpdateInput {
+    addressId: ID!
+    data: CompanyAddressUpdateDataInput!
   }
 
   type CompanyAddressResult {
@@ -114,13 +118,22 @@ export default /* GraphQL */ `
     message: String!
   }
 
+  input CompanyAddressDeleteInput {
+    addressId: ID!
+  }
+
   type CompanyAddressDeleteResult {
     errors: [CompanyAddressDeleteError!]!
   }
 
-  input SetAsDefaultInput {
+  input SetAsDefaultDataInput {
     isDefaultShipping: Boolean
     isDefaultBilling: Boolean
+  }
+
+  input SetAsDefaultInput {
+    addressId: ID!
+    data: SetAsDefaultDataInput!
   }
 
   type CompanyFormFields {
@@ -133,17 +146,14 @@ export default /* GraphQL */ `
 
   extend type CompanyMutations {
     addAddress(
-      companyId: ID!
       input: CompanyAddressCreateInput
     ): CompanyAddressResult!
     updateAddress(
-      addressId: ID!
       input: CompanyAddressUpdateInput!
     ): CompanyAddressResult!
     setAddressAsDefault(
-      addressId: ID!
       input: SetAsDefaultInput!
     ): CompanyAddressResult!
-    deleteAddress(addressId: ID!): CompanyAddressDeleteResult!
+    deleteAddress(input: CompanyAddressDeleteInput!): CompanyAddressDeleteResult!
   }
 `

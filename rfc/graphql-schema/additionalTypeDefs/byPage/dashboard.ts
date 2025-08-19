@@ -47,6 +47,10 @@ export default /* GraphQL */ `
     message: String!
   }
 
+  input SetActiveCompanyInput {
+    companyId: ID!
+  }
+
   type SetActiveCompanyResult {
     activeCompany: Company
     errors: [SetActiveCompanyError!]!
@@ -57,7 +61,7 @@ export default /* GraphQL */ `
   }
 
   type ActiveCompanyMutations {
-    set(companyId: ID!): SetActiveCompanyResult
+    set(input: SetActiveCompanyInput!): SetActiveCompanyResult
     # is this really a feature? what can they do when they are not masquerading that they can't while they are?
     # for a b2b user, only "super-admins" can be on a "non-company" state. Can we default them to the last company they were on and remove the clear mutation?
     clear: ClearActiveCompanyResult
