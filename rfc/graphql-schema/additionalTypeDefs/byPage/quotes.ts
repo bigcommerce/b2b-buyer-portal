@@ -22,9 +22,8 @@ export default /* GraphQL */ `
     createdBy: Customer!
     title: String
     subtotal: Money!
-    createdBy: Customer!
     createdAt: DateTime!
-    lastUpdated: DateTime!
+    updatedAt: DateTime!
     expirationDate: DateTime
     salesRep: SalesRep
   }
@@ -66,8 +65,8 @@ export default /* GraphQL */ `
     LAST_UPDATE_OLDEST
     EXPIRATION_DATE_NEWEST
     EXPIRATION_DATE_OLDEST
-    STATUS_A_TO_Z # how does this work with different languages?
-    STATUS_Z_TO_A # how does this work with different languages?
+    STATUS_A_TO_Z
+    STATUS_Z_TO_A
   }
 
   type SalesRepsConnection {
