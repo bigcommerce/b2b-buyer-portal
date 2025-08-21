@@ -28,6 +28,8 @@ export interface TablePagination {
   first: number;
 }
 
+export type RefreshType = 'FORCE_PRESERVE_SELECTION';
+
 interface GetRequestListResult<T extends object> {
   edges: PossibleNodeWrapper<T>[];
   totalCount: number;
@@ -171,7 +173,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   );
 
   const fetchList = useCallback(
-    async (b3Pagination?: TablePagination, isRefresh?: boolean) => {
+    async (b3Pagination?: TablePagination, isRefresh?: boolean, type?: RefreshType) => {
       try {
         if (cache?.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
           return;
@@ -204,7 +206,9 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
         cacheList(edges);
 
-        if (!isSelectOtherPageCheckbox) setSelectCheckbox([]);
+        // Added FORCE_PRESERVE_SELECTION to keep the selection even with intertenal refresh
+        if (!isSelectOtherPageCheckbox && type !== 'FORCE_PRESERVE_SELECTION')
+          setSelectCheckbox([]);
 
         if (!b3Pagination) {
           setPagination({
@@ -231,9 +235,12 @@ function PaginationTable<GetRequestListParams, Row extends object>(
     ],
   );
 
-  const refresh = useCallback(() => {
-    fetchList(pagination, true);
-  }, [fetchList, pagination]);
+  const refresh = useCallback(
+    (type?: RefreshType) => {
+      fetchList(pagination, true, type);
+    },
+    [fetchList, pagination],
+  );
 
   useEffect(() => {
     const isChangeCompany =
