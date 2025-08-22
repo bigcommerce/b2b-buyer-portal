@@ -16,7 +16,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import {
   B3PaginationTable,
   GetRequestList,
-  RefreshType,
+  TableRefreshConfig,
 } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
@@ -94,7 +94,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void;
   setList: (items?: ListItemProps[]) => void;
   getSelectedValue: () => void;
-  refresh: (type?: RefreshType) => void;
+  refresh: (type?: TableRefreshConfig) => void;
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
@@ -227,7 +227,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     paginationTableRef.current?.setList([...newListItems]);
   };
 
-  const initSearch = (type?: RefreshType) => {
+  const initSearch = (type?: TableRefreshConfig) => {
     paginationTableRef.current?.refresh(type);
   };
 
@@ -277,7 +277,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       setSelectedOptionsOpen(false);
       setEditProductItemId('');
       snackbar.success(b3Lang('shoppingList.table.productUpdated'));
-      initSearch('FORCE_PRESERVE_SELECTION');
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }
@@ -332,7 +332,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       await handleUpdateShoppingListItem(itemId);
       snackbar.success(b3Lang('shoppingList.table.quantityUpdated'));
       setQtyNotChangeFlag(true);
-      initSearch('FORCE_PRESERVE_SELECTION');
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }
@@ -370,7 +370,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       handleCancelAddNotesClick();
       await handleUpdateShoppingListItem(addNoteItemId);
       snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'));
-      initSearch('FORCE_PRESERVE_SELECTION');
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }

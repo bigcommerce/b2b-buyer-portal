@@ -33,7 +33,6 @@ yarn-error.log*
 
 # ide
 .vscode
-.history
 
 slack-message.json
 
