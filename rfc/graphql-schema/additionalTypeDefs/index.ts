@@ -11,6 +11,7 @@ import shoppingListDetails from './byPage/shoppingListDetails'
 import quickOrder from './byPage/quickOrder'
 import quotes from './byPage/quotes'
 import quoteDetails from './byPage/quoteDetails'
+import addToShoppingList from './byPage/addToShoppingList'
 
 export default [
   userManagement,
@@ -26,4 +27,5 @@ export default [
   quickOrder,
   quotes,
   quoteDetails,
+  addToShoppingList,
 ]
