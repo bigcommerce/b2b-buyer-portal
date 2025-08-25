@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
@@ -141,15 +142,7 @@ const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display:
 const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
 
 beforeEach(() => {
-  /* @ts-expect-error This object is not complete, it only includes the properties required for this test file */
-  window.b2b = { callbacks: { dispatchEvent: vi.fn() } };
-});
-
-afterEach(() => {
-  // @ts-expect-error Removing the b2b object to avoid conflicts in other tests
-  delete window.b2b;
-
-  Cookies.remove('cartId');
+  set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 });
 
 it('renders the quick add section', () => {
