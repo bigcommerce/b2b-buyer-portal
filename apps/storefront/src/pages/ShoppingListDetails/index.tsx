@@ -271,7 +271,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const shoppingListDetailInfo = await getShoppingList(params);
-
+    setIsRequestLoading(true);
     const {
       products: { edges, totalCount },
     } = shoppingListDetailInfo;
@@ -282,7 +282,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo);
     setShoppingListInfo(shoppingListDetailInfo);
-
+    setIsRequestLoading(false);
     if (!listProducts) {
       return {
         edges: [],

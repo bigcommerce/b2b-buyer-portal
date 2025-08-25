@@ -13,7 +13,11 @@ import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
 import { Box, Grid, styled, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
+import {
+  B3PaginationTable,
+  GetRequestList,
+  TableRefreshConfig,
+} from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
@@ -90,7 +94,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void;
   setList: (items?: ListItemProps[]) => void;
   getSelectedValue: () => void;
-  refresh: () => void;
+  refresh: (type?: TableRefreshConfig) => void;
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
@@ -223,8 +227,8 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     paginationTableRef.current?.setList([...newListItems]);
   };
 
-  const initSearch = () => {
-    paginationTableRef.current?.refresh();
+  const initSearch = (type?: TableRefreshConfig) => {
+    paginationTableRef.current?.refresh(type);
   };
 
   useImperativeHandle(ref, () => ({
@@ -273,7 +277,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       setSelectedOptionsOpen(false);
       setEditProductItemId('');
       snackbar.success(b3Lang('shoppingList.table.productUpdated'));
-      initSearch();
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }
@@ -328,7 +332,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       await handleUpdateShoppingListItem(itemId);
       snackbar.success(b3Lang('shoppingList.table.quantityUpdated'));
       setQtyNotChangeFlag(true);
-      initSearch();
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }
@@ -366,7 +370,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       handleCancelAddNotesClick();
       await handleUpdateShoppingListItem(addNoteItemId);
       snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'));
-      initSearch();
+      initSearch({ keepCheckedItems: true });
     } finally {
       setIsRequestLoading(false);
     }
