@@ -22,6 +22,8 @@ import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingLi
 import { CompanyStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
+import { VariantInfo, VariantInfoResponse } from '../QuickOrder/index.quickadd.test';
+import { GetCart } from '@/shared/service/bc/graphql/cart';
 
 vitest.mock('react-router-dom', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router-dom')>()),
@@ -114,7 +116,8 @@ const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
   permissions: [
     { code: 'create_shopping_list', permissionLevel: 1 },
     { code: 'approve_draft_shopping_list', permissionLevel: 1 },
-  ],
+    { code: 'purchase_enable', permissionLevel: 1 }
+  ]
 });
 
 type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number];
@@ -210,6 +213,34 @@ afterEach(() => {
     vi.clearAllMocks();
   }
 });
+const buildVariantInfoWith = builder<VariantInfo>(() => ({
+  isStock: faker.helpers.arrayElement(['0', '1']),
+  stock: faker.number.int(),
+  calculatedPrice: faker.commerce.price(),
+  productId: faker.number.int().toString(),
+  variantId: faker.number.int().toString(),
+  baseSku: faker.string.uuid(),
+  productName: faker.commerce.productName(),
+  categories: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () =>
+    faker.number.int().toString(),
+  ),
+  imageUrl: faker.image.url(),
+  option: [],
+  isVisible: faker.helpers.arrayElement(['0', '1']),
+  minQuantity: faker.number.int(),
+  maxQuantity: faker.number.int(),
+  modifiers: [],
+  purchasingDisabled: faker.helpers.arrayElement(['0', '1']),
+  variantSku: faker.string.uuid(),
+}));
+
+const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
+  data: {
+    variantSku: bulk(buildVariantInfoWith, 'WHATEVER_VALUES').times(
+      faker.number.int({ min: 1, max: 5 }),
+    ),
+  },
+}));
 
 it('displays a summary of products within the shopping list', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -783,3 +814,312 @@ describe('when the shopping list is ready for approval', () => {
     expect(screen.queryByRole('heading', { name: 'Add to list' })).not.toBeInTheDocument();
   });
 });
+
+describe('when shopping list products verify inventory into add to cart', () => {
+  it('it error on exceed product inventory', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const getVariantInfoBySkus = vi.fn();
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 1
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 73737,
+        variantSku: 'LVLY-SK-123',
+        productNote: 'Decorative wool socks',
+        primaryImage: 'https://example.com/socks.jpg',
+        basePrice: '49.00',
+        tax: '0.00',
+        discount: '0.00',
+        quantity: 2,
+        optionList: JSON.stringify([
+          { valueLabel: 'color', valueText: 'red' },
+          { valueLabel: 'size', valueText: 'large' },
+        ]),
+      },
+    });
+  
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 } },
+    });
+  
+    const lovelySocksSearchProduct = buildSearchB2BProductWith({
+      id: lovelySocksProductEdge.node.productId,
+      name: lovelySocksProductEdge.node.productName,
+      isPriceHidden: false,
+      optionsV3: [
+        buildSearchB2BProductV3OptionWith({
+          display_name: 'Size',
+          option_values: [
+            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
+          ],
+        }),
+      ],
+    });
+  
+    const searchProductsQuerySpy = vi.fn();
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        searchProductsQuerySpy(query);
+  
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+    );
+  
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },  initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true}
+    });
+  
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  
+    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('productIds: [73737]'),
+    );
+  
+    const row = screen.getByRole('row', { name: /Lovely socks/ });
+
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
+  
+    const checkbox = within(row).getByRole('checkbox')
+
+    await userEvent.click(checkbox)
+
+    expect(within(row).getByRole('checkbox')).toBeChecked()
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/}))
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }))
+
+    await screen.findByText('1 product(s) were not added to cart, please change the quantity')
+
+    spy.mockRestore();
+  })
+
+  it('it error on min quantity not reached', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const getVariantInfoBySkus = vi.fn();
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      minQuantity: 3,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 5
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 73737,
+        variantSku: 'LVLY-SK-123',
+        productNote: 'Decorative wool socks',
+        primaryImage: 'https://example.com/socks.jpg',
+        basePrice: '49.00',
+        tax: '0.00',
+        discount: '0.00',
+        quantity: 2,
+        optionList: JSON.stringify([
+          { valueLabel: 'color', valueText: 'red' },
+          { valueLabel: 'size', valueText: 'large' },
+        ]),
+      },
+    });
+  
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 } },
+    });
+  
+    const lovelySocksSearchProduct = buildSearchB2BProductWith({
+      id: lovelySocksProductEdge.node.productId,
+      name: lovelySocksProductEdge.node.productName,
+      isPriceHidden: false,
+      optionsV3: [
+        buildSearchB2BProductV3OptionWith({
+          display_name: 'Size',
+          option_values: [
+            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
+          ],
+        }),
+      ],
+    });
+  
+    const searchProductsQuerySpy = vi.fn();
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        searchProductsQuerySpy(query);
+  
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+    );
+  
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },  initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true}
+    });
+  
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  
+    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('productIds: [73737]'),
+    );
+  
+    const row = screen.getByRole('row', { name: /Lovely socks/ });
+
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
+  
+    const checkbox = within(row).getByRole('checkbox')
+
+    await userEvent.click(checkbox)
+
+    expect(within(row).getByRole('checkbox')).toBeChecked()
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/}))
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }))
+
+    await screen.findByText('1 product(s) were not added to cart, please change the quantity')
+
+    spy.mockRestore();
+  })
+
+  it('it error on max quantity exceed', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const getVariantInfoBySkus = vi.fn();
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      maxQuantity: 3,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 5
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 73737,
+        variantSku: 'LVLY-SK-123',
+        productNote: 'Decorative wool socks',
+        primaryImage: 'https://example.com/socks.jpg',
+        basePrice: '49.00',
+        tax: '0.00',
+        discount: '0.00',
+        quantity: 4,
+        optionList: JSON.stringify([
+          { valueLabel: 'color', valueText: 'red' },
+          { valueLabel: 'size', valueText: 'large' },
+        ]),
+      },
+    });
+  
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 } },
+    });
+  
+    const lovelySocksSearchProduct = buildSearchB2BProductWith({
+      id: lovelySocksProductEdge.node.productId,
+      name: lovelySocksProductEdge.node.productName,
+      isPriceHidden: false,
+      optionsV3: [
+        buildSearchB2BProductV3OptionWith({
+          display_name: 'Size',
+          option_values: [
+            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
+          ],
+        }),
+      ],
+    });
+  
+    const searchProductsQuerySpy = vi.fn();
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        searchProductsQuerySpy(query);
+  
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+    );
+  
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },  initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true}
+    });
+  
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  
+    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('productIds: [73737]'),
+    );
+  
+    const row = screen.getByRole('row', { name: /Lovely socks/ });
+
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '4' })).toBeInTheDocument();
+  
+    const checkbox = within(row).getByRole('checkbox')
+
+    await userEvent.click(checkbox)
+
+    expect(within(row).getByRole('checkbox')).toBeChecked()
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/}))
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }))
+
+    await screen.findByText('1 product(s) were not added to cart, please change the quantity')
+
+    spy.mockRestore();
+  })
+
+})
