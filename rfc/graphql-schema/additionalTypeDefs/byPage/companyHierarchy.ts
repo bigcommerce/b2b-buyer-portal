@@ -33,6 +33,10 @@ export default /* GraphQL */ `
     message: String!
   }
 
+  input SetActiveCompanyInput {
+    companyId: ID!
+  }
+
   type SetActiveCompanyResult {
     activeCompany: Company
     errors: [SetActiveCompanyError!]!
@@ -43,7 +47,7 @@ export default /* GraphQL */ `
   }
 
   type ActiveCompanyMutations {
-    set(companyId: ID!): SetActiveCompanyResult
+    set(input: SetActiveCompanyInput!): SetActiveCompanyResult
   }
 
   extend type Mutation {
