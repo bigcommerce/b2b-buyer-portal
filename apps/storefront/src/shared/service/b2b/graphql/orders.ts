@@ -207,12 +207,15 @@ export type OrderProduct = {
   base_price: string;
   productUrl: string;
   variant_id: number;
+  product_id: number;
   price_ex_tax: string;
   price_inc_tax: string;
   product_options: Array<{
+    product_option_id: number;
     option_id: number;
     display_name: string;
     display_value: string;
+    value: string;
   }>;
   order_address_id: number;
   quantity_shipped: number;

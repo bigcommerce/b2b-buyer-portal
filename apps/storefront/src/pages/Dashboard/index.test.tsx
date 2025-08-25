@@ -69,10 +69,6 @@ describe('when the user is associated with a company', () => {
 
   const preloadedState = { company: companyWithB2B };
 
-  beforeEach(() => {
-    Cookies.remove('cartId');
-  });
-
   it('displays a table with headings for each key attribute of a company', async () => {
     server.use(
       graphql.query('SuperAdminCompanies', () =>
