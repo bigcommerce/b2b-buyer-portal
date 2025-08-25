@@ -202,6 +202,15 @@ const buildSearchProductsResponseWith = builder<SearchProductsResponse>(() => ({
   },
 }));
 
+afterEach(() => {
+  if (server && typeof server.resetHandlers === 'function') {
+    server.resetHandlers();
+  }
+  if (typeof vi !== 'undefined' && vi.clearAllMocks) {
+    vi.clearAllMocks();
+  }
+});
+
 it('displays a summary of products within the shopping list', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -554,6 +563,14 @@ describe('when user rejects a shopping list', () => {
 });
 
 describe("when a product's quantity is increased", () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('displays an updated total amount for that product', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -608,6 +625,66 @@ describe("when a product's quantity is increased", () => {
     });
 
     expect(within(rowOfLovelySocks).getByRole('cell', { name: '$147.00' })).toBeInTheDocument();
+  });
+
+  it('should keep checkbox selection even after the product Qty update', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const twoLovelyBoots = buildShoppingListProductEdgeWith({
+      node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
+    });
+
+    const threeLovelyBoots = buildShoppingListProductEdgeWith({
+      node: { ...twoLovelyBoots.node, quantity: 3 },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: { shoppingList: { status: 0, products: { totalCount: 1, edges: [twoLovelyBoots] } } },
+    });
+
+    const getShoppingList = vi.fn().mockReturnValueOnce(shoppingListResponse);
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+      graphql.mutation('B2BUpdateShoppingListItems', () =>
+        HttpResponse.json({
+          data: { shoppingListsItemsUpdate: { shoppingListsItem: threeLovelyBoots.node } },
+        }),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const rowOfLovelyBoots = screen.getByRole('row', { name: /Lovely boots/ });
+    within(rowOfLovelyBoots).getByRole('checkbox').click();
+
+    getShoppingList.mockReturnValueOnce(
+      buildShoppingListGraphQLResponseWith({
+        data: {
+          shoppingList: { status: 0, products: { totalCount: 1, edges: [threeLovelyBoots] } },
+        },
+      }),
+    );
+
+    const quantityInput = within(rowOfLovelyBoots).getByRole('spinbutton');
+    await userEvent.type(quantityInput, '3', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+    expect(getShoppingList).toHaveBeenCalledTimes(2);
+    quantityInput.blur();
+
+    await waitFor(() => {
+      expect(getShoppingList).toHaveBeenCalledTimes(3);
+    });
+    expect(within(rowOfLovelyBoots).getByRole('checkbox')).toBeChecked();
   });
 });
 
