@@ -185,7 +185,12 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
       )}
 
       {products.map((product: EditableProductItem) => (
-        <Flex isMobile={isMobile} key={product.sku}>
+        <Flex
+          isMobile={isMobile}
+          key={product.sku}
+          role="group"
+          aria-labelledby={`group-label-${product.id}`}
+        >
           <Checkbox
             checked={isChecked(product.variant_id)}
             onChange={() =>
@@ -199,14 +204,14 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                 marginLeft: '16px',
               }}
             >
-              <Typography variant="body1" color="#212121">
+              <Typography variant="body1" color="#212121" id={`group-label-${product.id}`}>
                 {product.name}
               </Typography>
               <Typography variant="body1" color="#616161">
                 {product.sku}
               </Typography>
               {(product.product_options || []).map((option: OrderProductOption) => (
-                <ProductOptionText key={option.display_name}>
+                <ProductOptionText key={option.id}>
                   {`${option.display_name}: ${option.display_value}`}
                 </ProductOptionText>
               ))}
