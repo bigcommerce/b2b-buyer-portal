@@ -19,7 +19,7 @@ index eddd787..b44d025 100644
  
  export interface TablePaginationTypeMap<AdditionalProps, RootComponent extends React.ElementType> {
 diff --git a/node_modules/@mui/material/TablePagination/TablePagination.js b/node_modules/@mui/material/TablePagination/TablePagination.js
-index 0ef30fb..e5e9805 100644
+index a57a7f5..adecbb4 100644
 --- a/node_modules/@mui/material/TablePagination/TablePagination.js
 +++ b/node_modules/@mui/material/TablePagination/TablePagination.js
 @@ -115,9 +115,10 @@ const TablePaginationDisplayedRows = styled('p', {

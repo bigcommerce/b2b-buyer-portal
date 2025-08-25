@@ -71,9 +71,6 @@ describe('when the user is associated with a company', () => {
   });
 
   const preloadedState = Object.freeze({ company: companyWithB2B });
-  beforeEach(() => {
-    Cookies.remove('cartId');
-  });
 
   it('lists all the companies associated with the user', async () => {
     const acmeInc = buildCompanyEdgeWith({ node: { companyName: 'Acme Inc' } });
