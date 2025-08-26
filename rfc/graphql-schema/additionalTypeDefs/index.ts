@@ -12,6 +12,7 @@ import quickOrder from './byPage/quickOrder'
 import quotes from './byPage/quotes'
 import quoteDetails from './byPage/quoteDetails'
 import addToShoppingList from './byPage/addToShoppingList'
+import draftQuote from './byPage/draftQuote'
 
 export default [
   userManagement,
@@ -28,4 +29,5 @@ export default [
   quotes,
   quoteDetails,
   addToShoppingList,
+  draftQuote,
 ]
