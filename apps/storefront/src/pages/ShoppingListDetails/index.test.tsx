@@ -229,14 +229,6 @@ const buildSearchProductsResponseWith = builder<SearchProductsResponse>(() => ({
   },
 }));
 
-afterEach(() => {
-  if (server && typeof server.resetHandlers === 'function') {
-    server.resetHandlers();
-  }
-  if (typeof vi !== 'undefined' && vi.clearAllMocks) {
-    vi.clearAllMocks();
-  }
-});
 const buildVariantInfoWith = builder<VariantInfo>(() => ({
   isStock: faker.helpers.arrayElement(['0', '1']),
   stock: faker.number.int(),
@@ -618,10 +610,6 @@ describe('when user rejects a shopping list', () => {
 });
 
 describe("when a product's quantity is increased", () => {
-  beforeEach(() => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -684,6 +672,7 @@ describe("when a product's quantity is increased", () => {
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
       node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
@@ -740,6 +729,7 @@ describe("when a product's quantity is increased", () => {
       expect(getShoppingList).toHaveBeenCalledTimes(3);
     });
     expect(within(rowOfLovelyBoots).getByRole('checkbox')).toBeChecked();
+    spy.mockRestore();
   });
 });
 
