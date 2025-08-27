@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect } from 'react';
-import config from '@b3/global-b3';
 
 import {
   getContrastColor,
@@ -8,6 +7,7 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { CART_URL, CHECKOUT_URL } from '@/constants';
+import config from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';

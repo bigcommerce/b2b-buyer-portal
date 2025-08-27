@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import config from '@b3/global-b3';
 
 import { CHECKOUT_URL } from '@/constants';
+import config from '@/lib/config';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';

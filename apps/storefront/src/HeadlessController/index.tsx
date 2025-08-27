@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef } from 'react';
-import { setElementsListenersConfig } from '@b3/global-b3';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
+import { setElementsListenersConfig } from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import {
   addProductsToShoppingList,

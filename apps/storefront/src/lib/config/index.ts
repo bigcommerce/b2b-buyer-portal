@@ -1,11 +1,11 @@
 interface ThemeElementsProps {
-  [key: string]: string
+  [key: string]: string;
 }
 
 const themeOtherElementConfig = () => {
   const originElement =
-    '[href^="/account.php"],  [href^="/account.php"] .navUser-item-accountLabel, [href^="/account.php?action=address_book"], [href^="/account.php?action=order_status"], [href^="/account.php?action=account_details"], [href="/login.php"], [href="/login.php?action=create_account"]'
-  let allOtherElement = originElement
+    '[href^="/account.php"],  [href^="/account.php"] .navUser-item-accountLabel, [href^="/account.php?action=address_book"], [href^="/account.php?action=order_status"], [href^="/account.php?action=account_details"], [href="/login.php"], [href="/login.php?action=create_account"]';
+  let allOtherElement = originElement;
   // Deadline: September 05, 2023--[Theme Camden and theme RightRope] and [Theme LifeStyle and theme Vault] require the same configuration, so only one is required
   // Camden: '[href="/account.php"] svg, [href="/account.php"] svg use, [href="/account.php"] span, [href="/account.php"], [href="/login.php"] span, [href="/login.php"] svg use, [href="/login.php"] svg, [href="/login.php"]'
   // Vault: '.navUser-item--account a, .navUser-item--account a svg',
@@ -24,17 +24,17 @@ const themeOtherElementConfig = () => {
       '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg path',
     FinchUS: '[href^="/account.php"] img',
     Beautify: '[href^="/account.php"] .new-icon-account',
-  }
+  };
 
   Object.values(themeElements).forEach((value) => {
-    allOtherElement = allOtherElement.concat(value, ',')
-  })
-  allOtherElement = allOtherElement.slice(0, -1)
+    allOtherElement = allOtherElement.concat(value, ',');
+  });
+  allOtherElement = allOtherElement.slice(0, -1);
 
   return {
     'dom.allOtherElement': allOtherElement,
-  }
-}
+  };
+};
 
 const config: Record<string, string> = {
   'dom.registerElement':
@@ -56,12 +56,12 @@ const config: Record<string, string> = {
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   ...themeOtherElementConfig(),
-}
+};
 
 export const setElementsListenersConfig = (key: string, value: string) => {
   if (key in config) {
-    config[key] = value
+    config[key] = value;
   }
-}
+};
 
-export default config
+export default config;
