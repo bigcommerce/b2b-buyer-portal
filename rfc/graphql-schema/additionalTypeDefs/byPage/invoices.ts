@@ -70,7 +70,7 @@ export default /* GraphQL */ `
     dueDate: DateTime!
     balance: InvoiceBalances!
     status: InvoiceStatus!
-    order: Order!
+    order: Order # Apparently multiple orders can be linked to the same invoice, we could consider making this a list
     company: Company!
   }
 
@@ -128,12 +128,18 @@ export default /* GraphQL */ `
   }
 
   type InvoiceMutations {
-    createCartFromInvoices(input: CreateCartFromInvoiceInput!): CartCreateResult!
-    generateInvoicePdf(input: GenerateInvoicePdfInput!): GenerateInvoicePdfResult!
+    createCartFromInvoices(
+      input: CreateCartFromInvoiceInput!
+    ): CartCreateResult!
+    generateInvoicePdf(
+      input: GenerateInvoicePdfInput!
+    ): GenerateInvoicePdfResult!
     exportAsCSVFromSearch(
       input: ExportInvoicesAsCSVSearchInput!
     ): ExportInvoicesAsCSVResult!
-    exportAsCSVByIds(input: ExportInvoicesAsCSVByIdInput!): ExportInvoicesAsCSVResult!
+    exportAsCSVByIds(
+      input: ExportInvoicesAsCSVByIdInput!
+    ): ExportInvoicesAsCSVResult!
   }
 
   type ReceiptLineSet {
