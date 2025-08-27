@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider } from '@mui/material';
 import { v1 as uuid } from 'uuid';
@@ -8,6 +7,7 @@ import { B3CollapseContainer, B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';

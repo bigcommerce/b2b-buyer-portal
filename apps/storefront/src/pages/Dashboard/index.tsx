@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
@@ -11,6 +10,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';

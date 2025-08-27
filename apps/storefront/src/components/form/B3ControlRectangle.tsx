@@ -1,6 +1,7 @@
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { FormControl, FormHelperText, FormLabel, Radio, RadioGroup, useTheme } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 import { StyleRectangleFormControlLabel } from './styled';
 import Form from './ui';

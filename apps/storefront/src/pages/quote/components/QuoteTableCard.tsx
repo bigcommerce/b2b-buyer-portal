@@ -1,8 +1,8 @@
-import { useB3Lang } from '@b3/lang';
 import { Delete, Edit } from '@mui/icons-material';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useB3Lang } from '@/lib/lang';
 import { currencyFormat } from '@/utils';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 

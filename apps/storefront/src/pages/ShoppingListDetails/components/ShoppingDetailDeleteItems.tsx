@@ -1,8 +1,8 @@
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 
 interface ShoppingDetailDeleteItemsProps {
   open: boolean;

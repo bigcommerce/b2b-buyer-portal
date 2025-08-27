@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box } from '@mui/material';
 
 import useStorageState from '@/hooks/useStorageState';
+import { useB3Lang } from '@/lib/lang';
 import { getCompanyCreditConfig } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 

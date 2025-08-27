@@ -1,11 +1,11 @@
 import { MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { RegisteredContext } from './context/RegisteredContext';

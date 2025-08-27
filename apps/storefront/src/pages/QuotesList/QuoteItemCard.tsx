@@ -1,4 +1,3 @@
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -7,6 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
 import { TableColumnItem } from '@/components/table/B3Table';
+import { useB3Lang } from '@/lib/lang';
 import { currencyFormat, displayFormat } from '@/utils';
 
 import QuoteStatus from '../quote/components/QuoteStatus';

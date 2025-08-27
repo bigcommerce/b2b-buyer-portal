@@ -1,11 +1,11 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import { Captcha } from '@/components/form';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
 import {

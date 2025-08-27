@@ -1,5 +1,4 @@
 import { ChangeEvent, MouseEvent, ReactElement, ReactNode, useContext } from 'react';
-import { useB3Lang } from '@b3/lang';
 import {
   Card,
   Grid,
@@ -15,6 +14,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import B3NoData from './B3NoData';

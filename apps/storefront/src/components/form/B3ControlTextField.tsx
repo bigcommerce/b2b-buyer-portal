@@ -1,8 +1,9 @@
 import { KeyboardEvent, WheelEvent } from 'react';
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
+
+import { useB3Lang } from '@/lib/lang';
 
 import { StyleNumberTextField } from './styled';
 import Form from './ui';

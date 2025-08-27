@@ -1,11 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dispatchEvent } from '@b3/hooks';
-import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';

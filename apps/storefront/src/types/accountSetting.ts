@@ -1,4 +1,4 @@
-import { LangFormatFunction } from '@b3/lang';
+import { LangFormatFunction } from '@/lib/lang';
 
 export interface Fields {
   bcLabel: string;

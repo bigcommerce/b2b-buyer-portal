@@ -1,5 +1,4 @@
-import { LangFormatFunction } from '@b3/lang';
-
+import { LangFormatFunction } from '@/lib/lang';
 import { CompanyInfoTypes } from '@/types';
 
 interface ExtraFieldsProps {

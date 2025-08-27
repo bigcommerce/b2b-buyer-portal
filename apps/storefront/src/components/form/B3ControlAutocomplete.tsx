@@ -1,9 +1,9 @@
 import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
 
+import { useB3Lang } from '@/lib/lang';
 import { getB2BRoleList } from '@/shared/service/b2b';
 
 import Form from './ui';

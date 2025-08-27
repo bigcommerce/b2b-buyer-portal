@@ -1,9 +1,9 @@
 import { ReactNode, useContext } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Step, StepLabel, Stepper, useTheme } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { B3SStorage } from '@/utils';
 
 import { RegisteredContext } from './context/RegisteredContext';

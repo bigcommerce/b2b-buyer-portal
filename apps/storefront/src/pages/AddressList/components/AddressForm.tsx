@@ -1,11 +1,11 @@
 import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Checkbox, FormControlLabel, styled } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
+import { useB3Lang } from '@/lib/lang';
 import {
   createB2BAddress,
   createBcAddress,

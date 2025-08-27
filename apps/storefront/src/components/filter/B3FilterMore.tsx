@@ -1,10 +1,10 @@
 import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { FilterList as FilterListIcon } from '@mui/icons-material';
 import { Badge, Box, Button, IconButton, useTheme } from '@mui/material';
 
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import B3CustomForm from '../B3CustomForm';

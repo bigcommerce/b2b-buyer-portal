@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
-import { LangProvider } from '@b3/lang';
+
+import { LangProvider } from '@/lib/lang';
 
 import { CustomStyleContext } from './shared/customStyleButton';
 

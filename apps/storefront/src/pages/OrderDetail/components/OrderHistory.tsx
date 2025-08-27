@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Card, CardContent, Typography } from '@mui/material';
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { displayExtendedFormat } from '@/utils';
 
 import { OrderHistoryItem, OrderStatusItem } from '../../../types';

@@ -1,6 +1,5 @@
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
-
 import { B3Tag } from '@/components';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 
 interface OrderStatusProps {
   code: string;

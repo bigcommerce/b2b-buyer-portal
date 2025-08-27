@@ -1,10 +1,10 @@
 import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import concat from 'lodash-es/concat';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
 import { channelId, isKeyOf, snackbar } from '@/utils';

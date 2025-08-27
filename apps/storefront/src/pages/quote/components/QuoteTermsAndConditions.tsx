@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 
 import { B3CollapseContainer } from '@/components';
+import { useB3Lang } from '@/lib/lang';
 
 interface QuoteTermsAndConditionsProps {
   quoteLegalTerms: string;

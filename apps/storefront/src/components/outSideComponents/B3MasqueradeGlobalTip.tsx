@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import {
   Group as GroupIcon,
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
@@ -17,6 +16,7 @@ import {
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
+import { useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';

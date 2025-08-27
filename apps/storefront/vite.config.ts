@@ -91,7 +91,6 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             muiIcon: ['@mui/icons-material'],
             redux: ['react-redux'],
             dateFns: ['date-fns'],
-            lang: ['@b3/lang'],
             pdfobject: ['pdfobject'],
             resizable: ['react-resizable'],
             pdf: ['react-pdf'],

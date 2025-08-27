@@ -1,9 +1,9 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Clear as ClearIcon, Search as SearchIcon } from '@mui/icons-material';
 import { InputBase, Paper } from '@mui/material';
 
 import { useDebounce } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 
 interface B3FilterSearchProps {
   handleChange: (value: string) => void;

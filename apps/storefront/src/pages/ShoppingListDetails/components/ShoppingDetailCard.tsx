@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useB3Lang } from '@/lib/lang';
 import { currencyFormat } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { getBCPrice } from '@/utils/b3Product/b3Product';

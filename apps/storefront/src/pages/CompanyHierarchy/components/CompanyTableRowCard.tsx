@@ -1,8 +1,8 @@
 import { useContext, useId, useMemo, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Business as BusinessIcon, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { Box, Card, Chip, IconButton, Menu, MenuItem } from '@mui/material';
 
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { RecursiveNode, TreeNodeProps } from './types';

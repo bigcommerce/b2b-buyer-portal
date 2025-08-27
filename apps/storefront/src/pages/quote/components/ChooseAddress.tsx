@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Grid } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
+import { useB3Lang } from '@/lib/lang';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressItemType } from '@/types/address';
 

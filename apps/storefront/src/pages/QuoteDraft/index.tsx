@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dispatchEvent } from '@b3/hooks';
-import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, uniq } from 'lodash-es';
@@ -11,6 +10,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import { useMobile, useSetCountry, useValidatePermissionWithComparisonType } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';

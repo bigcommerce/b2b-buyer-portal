@@ -1,4 +1,4 @@
-import { useB3Lang } from '@b3/lang';
+import { useB3Lang } from '@/lib/lang';
 
 const useGetButtonText = (
   translationVariable: string,
