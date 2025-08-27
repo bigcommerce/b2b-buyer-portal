@@ -43,6 +43,7 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
   const currentVariant = variants.find(
     (variant: CustomFieldItems) => Number(variant.variant_id) === Number(variantId),
   );
+
   if (currentVariant) {
     purchasingDisabled = currentVariant.purchasing_disabled;
     stock = inventoryTracking === 'variant' ? currentVariant.inventory_level : stock;
@@ -117,6 +118,7 @@ export const getCartProductInfo = async () => {
 
   if (cart) {
     const { lineItems } = cart;
+
     return Object.values(lineItems).reduce((pre, lineItems) => {
       lineItems.forEach((item: LineItem) => {
         pre.push(item);

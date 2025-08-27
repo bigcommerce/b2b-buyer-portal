@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, styled, TextField, Typography } from '@mui/material';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -143,9 +143,12 @@ function QuickOrderTable({
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       const productIds: number[] = [];
+
       listProducts.forEach((item) => {
         const { node } = item;
+
         node.quantity = 1;
+
         if (!productIds.includes(node.productId)) {
           productIds.push(node.productId);
         }
@@ -178,6 +181,7 @@ function QuickOrderTable({
         snackbar.error(err);
       }
     }
+
     return [];
   };
 
@@ -228,6 +232,7 @@ function QuickOrderTable({
     const params = {
       ...search,
     };
+
     if (key === 'start') {
       params.beginDateAt = value || distanceDay(90);
     } else {
@@ -251,11 +256,13 @@ function QuickOrderTable({
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
     if (value !== '' && Number(value) <= 0) return;
+
     const listItems = paginationTableRef.current?.getList() || [];
     const listCacheItems = paginationTableRef.current?.getCacheList() || [];
 
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item;
+
       if (node?.id === id) {
         node.quantity = Number(value) || '';
       }
@@ -264,12 +271,14 @@ function QuickOrderTable({
     });
     const newListCacheItems = listCacheItems?.map((item: ListItemProps) => {
       const { node } = item;
+
       if (node?.id === id) {
         node.quantity = Number(value) || '';
       }
 
       return item;
     });
+
     paginationTableRef.current?.setList([...newListItems]);
     paginationTableRef.current?.setCacheAllList([...newListCacheItems]);
   };
@@ -278,7 +287,9 @@ function QuickOrderTable({
     const {
       productsSearch: { isPriceHidden },
     } = row;
+
     if (isPriceHidden) return '';
+
     return getDisplayPrice({
       price,
       productInfo: row,
@@ -291,6 +302,7 @@ function QuickOrderTable({
     const cacheProductList: CustomFieldItems = paginationTableRef.current?.getCacheList() || [];
 
     let qty = row.quantity;
+
     if (cacheProductList.length > 0) {
       const currentProduct = cacheProductList.find(
         (item: CustomFieldItems) =>
@@ -317,6 +329,7 @@ function QuickOrderTable({
 
         const currentImage =
           b2bGetVariantImageByVariantInfo(currentVariants, { variantId }) || row.imageUrl;
+
         return (
           <Box
             sx={{
@@ -325,27 +338,27 @@ function QuickOrderTable({
             }}
           >
             <StyledImage
-              src={currentImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
+              src={currentImage || PRODUCT_DEFAULT_IMAGE}
             />
             <Box>
-              <Typography variant="body1" color="#212121">
+              <Typography color="#212121" variant="body1">
                 {row.productName}
               </Typography>
-              <Typography variant="body1" color="#616161">
+              <Typography color="#616161" variant="body1">
                 {row.variantSku}
               </Typography>
               {optionList.length > 0 && (
                 <Box>
                   {optionList.map((option: any) => (
                     <Typography
+                      key={option.id}
                       sx={{
                         fontSize: '0.75rem',
                         lineHeight: '1.5',
                         color: '#455A64',
                       }}
-                      key={option.id}
                     >
                       {`${option.display_name}: ${option.display_value}`}
                     </Typography>
@@ -369,6 +382,7 @@ function QuickOrderTable({
           basePrice,
         } = row;
         let priceIncTax = Number(basePrice);
+
         if (variants?.length) {
           priceIncTax =
             getProductPriceIncTaxOrExTaxBySetting(variants, Number(variantId)) || Number(basePrice);
@@ -401,10 +415,6 @@ function QuickOrderTable({
 
         return (
           <StyledTextField
-            size="small"
-            type="number"
-            variant="filled"
-            value={qty}
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
@@ -412,6 +422,10 @@ function QuickOrderTable({
             onChange={(e) => {
               handleUpdateProductQty(row.id, e.target.value);
             }}
+            size="small"
+            type="number"
+            value={qty}
+            variant="filled"
           />
         );
       },
@@ -472,10 +486,10 @@ function QuickOrderTable({
           >
             <B3FilterSearch
               h="48px"
-              searchBGColor="rgba(0, 0, 0, 0.06)"
               handleChange={(e) => {
                 handleSearchProduct(e);
               }}
+              searchBGColor="rgba(0, 0, 0, 0.06)"
             />
 
             {isMobile && (
@@ -486,21 +500,21 @@ function QuickOrderTable({
                 }}
               >
                 <B3FilterMore
-                  filterMoreInfo={[]}
-                  startPicker={{
-                    isEnabled: true,
-                    label: b3Lang('purchasedProducts.from'),
-                    defaultValue: search?.beginDateAt || '',
-                    pickerKey: 'start',
-                  }}
                   endPicker={{
                     isEnabled: true,
                     label: b3Lang('purchasedProducts.to'),
                     defaultValue: search?.endDateAt || '',
                     pickerKey: 'end',
                   }}
+                  filterMoreInfo={[]}
                   isShowMore
                   onChange={handleFilterChange}
+                  startPicker={{
+                    isEnabled: true,
+                    label: b3Lang('purchasedProducts.from'),
+                    defaultValue: search?.beginDateAt || '',
+                    pickerKey: 'start',
+                  }}
                 />
               </Box>
             )}
@@ -508,56 +522,56 @@ function QuickOrderTable({
 
           {!isMobile && (
             <B3FilterPicker
-              handleChange={handlePickerChange}
-              xs={{
-                mt: 0,
-                height: '50px',
-              }}
-              startPicker={{
-                isEnabled: true,
-                label: b3Lang('purchasedProducts.from'),
-                defaultValue: distanceDay(90),
-                pickerKey: 'start',
-              }}
+              customWidth="58%"
               endPicker={{
                 isEnabled: true,
                 label: b3Lang('purchasedProducts.to'),
                 defaultValue: distanceDay(),
                 pickerKey: 'end',
               }}
-              customWidth="58%"
+              handleChange={handlePickerChange}
+              startPicker={{
+                isEnabled: true,
+                label: b3Lang('purchasedProducts.from'),
+                defaultValue: distanceDay(90),
+                pickerKey: 'start',
+              }}
+              xs={{
+                mt: 0,
+                height: '50px',
+              }}
             />
           )}
         </Box>
 
         <B3PaginationTable
-          ref={paginationTableRef}
           columnItems={columnItems}
-          rowsPerPageOptions={[12, 24, 36]}
-          getRequestList={getList}
-          searchParams={search}
-          isCustomRender={false}
-          showCheckbox
-          showSelectAllCheckbox
           disableCheckbox={false}
-          hover
-          labelRowsPerPage={b3Lang('purchasedProducts.itemsPerPage')}
-          showBorder={false}
-          requestLoading={setIsRequestLoading}
+          getRequestList={getList}
           getSelectCheckbox={getSelectCheckbox}
-          itemIsMobileSpacing={0}
+          hover
+          isCustomRender={false}
           isSelectOtherPageCheckbox
+          itemIsMobileSpacing={0}
+          labelRowsPerPage={b3Lang('purchasedProducts.itemsPerPage')}
           noDataText={b3Lang('purchasedProducts.noProductsFound')}
-          sortDirection={order}
           orderBy={orderBy}
-          sortByFn={handleSetOrderBy}
+          ref={paginationTableRef}
           renderItem={(row, _, checkBox) => (
             <QuickOrderCard
-              item={row}
               checkBox={checkBox}
               handleUpdateProductQty={handleUpdateProductQty}
+              item={row}
             />
           )}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={[12, 24, 36]}
+          searchParams={search}
+          showBorder={false}
+          showCheckbox
+          showSelectAllCheckbox
+          sortByFn={handleSetOrderBy}
+          sortDirection={order}
         />
       </StyleQuickOrderTable>
     </B3Spin>

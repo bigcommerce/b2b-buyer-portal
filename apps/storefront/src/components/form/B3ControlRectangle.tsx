@@ -1,6 +1,6 @@
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { FormControl, FormHelperText, FormLabel, Radio, RadioGroup, useTheme } from '@mui/material';
+import { Controller } from 'react-hook-form';
 
 import { StyleRectangleFormControlLabel } from './styled';
 import Form from './ui';
@@ -59,17 +59,18 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
             {options?.length &&
               options.map((option: Form.RadopGroupListProps) => {
                 const isActive = field.value.toString() === option.value.toString();
+
                 return (
                   <StyleRectangleFormControlLabel
-                    value={option.value}
-                    label={option.label}
+                    control={<Radio />}
                     key={option.value}
+                    label={option.label}
                     sx={{
                       border: isActive ? `1px solid ${primaryColor}` : '1px solid #767676',
                       boxShadow: isActive ? `0 0 0 1px ${primaryColor}` : 'none',
                       ...labelStyle,
                     }}
-                    control={<Radio />}
+                    value={option.value}
                   />
                 );
               })}

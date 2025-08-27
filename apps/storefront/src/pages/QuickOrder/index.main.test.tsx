@@ -1,6 +1,16 @@
 // Does it make sense for someone without purchase permissions, shopping list disabled, and quote disabled to be able to access QuickOrder?
 
 import Cookies from 'js-cookie';
+import { when } from 'vitest-when';
+
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
+import {
+  OrderedProductNode,
+  RecentlyOrderedProductsResponse,
+} from '@/shared/service/b2b/graphql/quickOrder';
+import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { CompanyStatus, UserTypes } from '@/types';
+import { LineItem } from '@/utils/b3Product/b3Product';
 import {
   buildCompanyStateWith,
   builder,
@@ -20,16 +30,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
-import {
-  OrderedProductNode,
-  RecentlyOrderedProductsResponse,
-} from '@/shared/service/b2b/graphql/quickOrder';
-import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, UserTypes } from '@/types';
-import { LineItem } from '@/utils/b3Product/b3Product';
 
 import QuickOrder from '.';
 
@@ -1537,6 +1537,7 @@ describe('when the user does not have permissions to purchase and shopping list/
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister', basePrice: '122.33' },
     });
+
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
       .thenReturn(

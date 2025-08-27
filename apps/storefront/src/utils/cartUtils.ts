@@ -10,6 +10,7 @@ export const handleSplitOptionId = (id: string | number) => {
     const idRight = id.split('[')[1];
 
     const optionId = idRight.split(']')[0];
+
     return Number(optionId);
   }
 
@@ -24,15 +25,19 @@ const cartLineItems = (products: any) => {
   const items = products.map((product: any) => {
     const { newSelectOptionList, quantity, optionSelections, allOptions = [] } = product;
     let options = [];
+
     options = newSelectOptionList || optionSelections;
+
     const selectedOptions = options.reduce(
       (a: any, c: any) => {
         const optionValue = parseInt(c.optionValue, 10);
         const splitOptionId = handleSplitOptionId(c.optionId);
         const productOption = allOptions.find((option: CustomFieldItems) => {
           const id = option?.product_option_id || option?.id || '';
+
           return id === splitOptionId;
         });
+
         if (
           Number.isNaN(optionValue) ||
           productOption?.type === 'text' ||
@@ -96,14 +101,18 @@ const getLineItemsData = (cartInfo: any, productData: any) => {
 export const createNewShoppingCart = async (products: any) => {
   const cartData = newDataCart(products);
   const res = await createNewCart(cartData);
+
   if (res?.errors?.length) {
     throw new Error(res.errors[0].message);
   }
+
   const { entityId } = res.data.cart.createCart.cart;
+
   Cookies.set('cartId', entityId);
   dispatchEvent('on-cart-created', {
     cartId: entityId,
   });
+
   return res;
 };
 

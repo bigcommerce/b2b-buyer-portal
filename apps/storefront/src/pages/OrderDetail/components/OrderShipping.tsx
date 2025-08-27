@@ -1,8 +1,8 @@
-import { Fragment, useContext, useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import format from 'date-fns/format';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components';
@@ -36,17 +36,22 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
       shippings.forEach((list: OrderShippingsItem) => {
         if (list.shipmentItems.length) {
           const { shipmentItems } = list;
+
           shipmentItems.forEach((item: OrderShippedItem) => {
             const trackingNumber = item.tracking_number;
+
             if (item?.generated_tracking_link && trackingNumber) {
               item.tracking_link = item.generated_tracking_link;
+
               return;
             }
 
             const tracking = getTracking(trackingNumber);
+
             if (tracking) {
               const { trackingUrl = '', trackingNumber } = tracking;
               const shippingItem = item;
+
               if (trackingUrl) {
                 shippingItem.tracking_link = trackingUrl.includes('=%s')
                   ? trackingUrl.replace('=%s', `=${trackingNumber}`)
@@ -75,6 +80,7 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
   let shipmentIndex = 0;
   const getShipmentIndex = () => {
     shipmentIndex += 1;
+
     return shipmentIndex;
   };
 
@@ -116,22 +122,22 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
               }}
             >
               <Typography
-                variant="h6"
                 sx={{
                   fontSize: '24px',
                   fontWeight: '400',
                 }}
+                variant="h6"
               >
                 {getFullName(shipping)}
                 {' – '}
                 {getCompanyName(shipping.company || '')}
               </Typography>
               <Typography
-                variant="h6"
                 sx={{
                   fontSize: '24px',
                   fontWeight: '400',
                 }}
+                variant="h6"
               >
                 {getFullAddress(shipping)}
               </Typography>
@@ -162,12 +168,12 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
                     )}
                   </Box>
                   <B3ProductList
-                    quantityKey="current_quantity_shipped"
-                    products={shipment.itemsInfo}
-                    money={money}
-                    totalText="Total"
                     canToProduct={isCurrentCompany}
+                    money={money}
+                    products={shipment.itemsInfo}
+                    quantityKey="current_quantity_shipped"
                     textAlign="right"
+                    totalText="Total"
                   />
                 </Fragment>
               ) : null,
@@ -186,12 +192,12 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
                 </Box>
 
                 <B3ProductList
-                  quantityKey="not_shipping_number"
-                  products={shipping.notShip.itemsInfo}
-                  money={money}
-                  totalText="Total"
                   canToProduct={isCurrentCompany}
+                  money={money}
+                  products={shipping.notShip.itemsInfo}
+                  quantityKey="not_shipping_number"
                   textAlign={isMobile ? 'left' : 'right'}
+                  totalText="Total"
                 />
               </Fragment>
             ) : null}

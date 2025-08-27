@@ -8,6 +8,7 @@ export default function useStorageState<T>(
   const initialValue = () => {
     try {
       const item = storage.getItem(key);
+
       return item ? JSON.parse(item) : initialState;
     } catch (error) {
       // If parsing fails, return initial state

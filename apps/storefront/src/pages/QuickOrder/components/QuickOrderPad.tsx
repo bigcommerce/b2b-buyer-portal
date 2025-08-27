@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -93,13 +93,16 @@ export default function QuickOrderPad() {
         productId,
         modifiers,
       } = currentProduct;
+
       if (purchasingDisabled === '1' || purchasingDisabled) {
         notPurchaseSku.push(variantSku);
+
         return;
       }
 
       if (isStock === '1' && stock === 0) {
         outOfStock.push(variantSku);
+
         return;
       }
 
@@ -108,6 +111,7 @@ export default function QuickOrderPad() {
           variantSku,
           AvailableAmount: stock,
         });
+
         return;
       }
 
@@ -155,6 +159,7 @@ export default function QuickOrderPad() {
 
   const handleAddToCart = async (productsData: CustomFieldItems) => {
     setIsLoading(true);
+
     try {
       const { stockErrorFile, validProduct } = productsData;
 
@@ -254,6 +259,7 @@ export default function QuickOrderPad() {
       currentProducts as CustomFieldItems[],
       b3Lang,
     );
+
     try {
       if (isPassVerify) {
         await quickAddToList(productData);
@@ -287,7 +293,7 @@ export default function QuickOrderPad() {
     <Card sx={{ marginBottom: isMobile ? '8.5rem' : '50px' }}>
       <CardContent>
         <Box>
-          <Typography variant="h5" sx={{ marginBottom: '1rem' }}>
+          <Typography sx={{ marginBottom: '1rem' }} variant="h5">
             {b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
           </Typography>
 
@@ -300,7 +306,7 @@ export default function QuickOrderPad() {
           <Divider />
 
           <Box sx={{ margin: '20px 0 0' }}>
-            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
+            <CustomButton onClick={() => handleOpenUploadDiag()} variant="text">
               <UploadFileIcon sx={{ marginRight: '8px' }} />
               {b3Lang('purchasedProducts.quickOrderPad.bulkUploadCSV')}
             </CustomButton>
@@ -309,13 +315,13 @@ export default function QuickOrderPad() {
       </CardContent>
 
       <B3Upload
-        isOpen={isOpenBulkLoadCSV}
-        setIsOpen={setIsOpenBulkLoadCSV}
-        handleAddToList={handleAddToCart}
-        setProductData={setProductData}
         addBtnText={addBtnText}
+        handleAddToList={handleAddToCart}
         isLoading={isLoading}
+        isOpen={isOpenBulkLoadCSV}
         isToCart
+        setIsOpen={setIsOpenBulkLoadCSV}
+        setProductData={setProductData}
       />
     </Card>
   );

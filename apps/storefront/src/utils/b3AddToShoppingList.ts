@@ -51,6 +51,7 @@ export const isModifierMultiLineTextValid = (option: any, optionVal: any) => {
       errMsg = `The max length of ${displayName} is ${maxLength}.`;
     }
   }
+
   if (minLength) {
     if (mulValueLength < minLength) {
       isOptionValid = false;
@@ -161,6 +162,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
       message: '',
     };
   }
+
   const requiredOptions = bcOriginalOptions.filter(({ required }: any) => !!required);
 
   const isRequiredValid = requiredOptions.every(({ id, noValue, type }: any) => {
@@ -174,6 +176,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
 
   if (!isRequiredValid) {
     const errorMessage = 'Please fill out product options first.';
+
     return {
       isValid: false,
       message: errorMessage,
@@ -204,6 +207,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
 
     if (['multi_line_text', 'numbers_only_text', 'text'].includes(type)) {
       let validationFuc: any = VALIDATION_MAP.textarea;
+
       if (type !== 'multi_line_text') {
         validationFuc =
           partial === 'numbers_only_text' ? VALIDATION_MAP.inputNumbers : VALIDATION_MAP.inputText;
@@ -212,6 +216,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
       const { optionValue } = optionList.find(({ optionId }: any) => optionId.includes(id)) ?? {};
 
       const { isOptionValid, errMsg }: any = validationFuc(option, optionValue);
+
       if (!isOptionValid) {
         return {
           isValid: false,
@@ -229,6 +234,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
 
 export const getProductOptionList = (optionMap: any) => {
   const optionList: any = [];
+
   Object.keys(optionMap).forEach((item) => {
     if (item.includes('attribute') && item.match(/\[([0-9]+)\]/g)) {
       optionList.push({

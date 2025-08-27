@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
 
 import {
   CHECKOUT_URL,
@@ -87,15 +87,16 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
   const positionStyles = isMobile ? {} : getPosition(horizontalPadding, verticalPadding, location);
 
   if (href.includes(CHECKOUT_URL)) return null;
+
   return (
     <Snackbar
+      anchorOrigin={getLocation(location) || defaultLocation}
+      open
       sx={{
         zIndex: '99999999993',
         width: 'auto',
         ...positionStyles,
       }}
-      anchorOrigin={getLocation(location) || defaultLocation}
-      open
     >
       <Box
         sx={{
@@ -110,14 +111,6 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
           productQuoteEnabled &&
           !href.includes('/cart') && (
             <Button
-              sx={{
-                height: '42px',
-                ':hover': {
-                  backgroundColor: getHoverColor(color, 0.2),
-                },
-                ...defaultSx,
-                ...MUIMediaStyle,
-              }}
               onClick={() => {
                 setOpenPage({
                   isOpen: true,
@@ -126,6 +119,14 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
                     quoteBtn: 'open',
                   },
                 });
+              }}
+              sx={{
+                height: '42px',
+                ':hover': {
+                  backgroundColor: getHoverColor(color, 0.2),
+                },
+                ...defaultSx,
+                ...MUIMediaStyle,
               }}
               variant="contained"
             >

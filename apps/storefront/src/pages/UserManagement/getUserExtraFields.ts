@@ -52,12 +52,15 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
         }
 
         break;
+
       case 'number':
         currentItems.max = item.maximumValue || '';
         break;
+
       case 'multiline':
         currentItems.rows = item.numberOfRows || '';
         break;
+
       default:
         currentItems.maxLength = item.maximumLength || '';
         break;
@@ -71,6 +74,7 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
 
 const getB2BUserExtraFields = async () => {
   let userExtraFieldsList: FormattedItemsProps[] = [];
+
   try {
     const { userExtraFields } = await getUsersExtraFieldsInfo();
     const visibleFields = userExtraFields.filter((item) => item.visibleToEnduser);

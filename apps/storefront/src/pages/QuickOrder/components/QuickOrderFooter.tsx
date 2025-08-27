@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, SxProps, Typography, useMediaQuery } from '@mui/material';
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -150,6 +150,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const currentProduct: CustomFieldItems | undefined = inventoryInfos.find(
         (inventory: CustomFieldItems) => Number(node.productId) === inventory.id,
       );
+
       if (currentProduct) {
         const { variants }: CustomFieldItems = currentProduct;
 
@@ -186,6 +187,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const handleAddSelectedToCart = async () => {
     setIsRequestLoading(true);
     handleClose();
+
     try {
       const productIds: number[] = [];
 
@@ -199,6 +201,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       if (productIds.length === 0) {
         snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
+
         return;
       }
 
@@ -263,6 +266,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const handleAddSelectedToQuote = async () => {
     setIsRequestLoading(true);
     handleClose();
+
     try {
       const productsWithSku = checkedArr.filter((checkedItem: CheckedProduct) => {
         const {
@@ -279,12 +283,15 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
         return !variantSku;
       });
+
       if (noSkuProducts.length > 0) {
         snackbar.error(b3Lang('purchasedProducts.footer.cantAddProductsNoSku'));
       }
+
       if (noSkuProducts.length === checkedArr.length) return;
 
       const productIds: number[] = [];
+
       productsWithSku.forEach((product: CheckedProduct) => {
         const { node } = product;
 
@@ -306,6 +313,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       let isFondVariant = true;
 
       const newProducts: CustomFieldItems[] = [];
+
       productsWithSku.forEach((product: CheckedProduct) => {
         const {
           node: {
@@ -427,8 +435,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const handleAddSelectedToShoppingList = async (shoppingListId: string | number) => {
     setIisShoppingListLoading(true);
+
     try {
       const productIds: number[] = [];
+
       checkedArr.forEach((product: CheckedProduct) => {
         const { node } = product;
 
@@ -447,6 +457,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         const optionsList = getOptionsList(optionList);
 
         const newOptionLists = getValidOptionsList(optionsList, productsSearch);
+
         items.push({
           productId: Number(productId),
           variantId: Number(variantId),
@@ -456,6 +467,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       });
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
+
       await addToShoppingList({
         shoppingListId: Number(shoppingListId),
         items,
@@ -514,6 +526,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           const priceIncTax =
             getProductPriceIncTaxOrExTaxBySetting(variants, Number(variantId)) ||
             Number(basePrice || 0);
+
           total += priceIncTax * Number(quantity);
         } else {
           total += Number(basePrice || 0) * Number(quantity);
@@ -544,6 +557,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     <>
       {isShowCartAction || productQuoteEnabled || shoppingListEnabled ? (
         <Grid
+          container
+          spacing={2}
           sx={{
             position: 'fixed',
             bottom: isMobile && isAgenting ? '52px' : 0,
@@ -557,8 +572,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
             flexWrap: 'nowrap',
             zIndex: '1000',
           }}
-          container
-          spacing={2}
         >
           <Grid item={isMobile} sx={gridBarStyles}>
             <Box
@@ -605,12 +618,12 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                   }}
                 >
                   <Typography
-                    variant="h6"
                     sx={{
                       fontSize: '16px',
                       fontWeight: '700',
                       color: '#000000',
                     }}
+                    variant="h6"
                   >
                     {b3Lang('purchasedProducts.footer.subtotal', {
                       subtotal: currencyFormat(selectedSubTotal),
@@ -626,26 +639,26 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                     }}
                   >
                     <CustomButton
-                      variant="contained"
-                      ref={ref}
+                      endIcon={<ArrowDropDown />}
                       onClick={handleOpenBtnList}
+                      ref={ref}
                       sx={{
                         marginRight: isMobile ? '1rem' : 0,
                         width: isMobile ? '100%' : 'auto',
                       }}
-                      endIcon={<ArrowDropDown />}
+                      variant="contained"
                     >
                       {b3Lang('purchasedProducts.footer.addSelectedTo')}
                     </CustomButton>
 
                     <Menu
-                      id="basic-menu"
-                      anchorEl={ref.current}
-                      open={isOpen}
-                      onClose={handleClose}
                       MenuListProps={{
                         'aria-labelledby': 'basic-button',
                       }}
+                      anchorEl={ref.current}
+                      id="basic-menu"
+                      onClose={handleClose}
+                      open={isOpen}
                     >
                       {buttonList.length > 0 &&
                         buttonList.map((button) => {
@@ -678,19 +691,19 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       ) : null}
 
       <OrderShoppingList
-        isOpen={openShoppingList}
         dialogTitle={b3Lang('purchasedProducts.footer.addToShoppingList')}
+        isLoading={isShoppingListLoading}
+        isOpen={openShoppingList}
         onClose={handleShoppingClose}
         onConfirm={handleAddSelectedToShoppingList}
         onCreate={handleOpenCreateDialog}
-        isLoading={isShoppingListLoading}
         setLoading={setIisShoppingListLoading}
       />
 
       <CreateShoppingList
-        open={isOpenCreateShopping}
         onChange={handleCreateShoppingClick}
         onClose={handleCloseShoppingClick}
+        open={isOpenCreateShopping}
       />
     </>
   );

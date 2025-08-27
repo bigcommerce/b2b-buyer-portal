@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 
 import { B3CollapseContainer } from '@/components';
 import { useRole } from '@/hooks';
@@ -54,6 +54,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
         ...draftQuoteInfo,
         fileInfo: newFileInfo,
       };
+
       dispatch(setDraftQuoteInfo(newQuoteInfo));
     }
   };
@@ -61,6 +62,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
   const handleChange = async (file: FileObjects) => {
     try {
       let newFileList: FileObjects[] = [];
+
       if (status !== 0) {
         const createFile: FileObjects = {
           fileName: file.fileName,
@@ -105,6 +107,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
 
         saveQuoteInfo(newFileList);
       }
+
       setFileList(newFileList);
     } finally {
       uploadRef.current?.setUploadLoadding(false);
@@ -114,8 +117,10 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
   const handleDelete = async (id: string) => {
     try {
       uploadRef.current?.setUploadLoadding(true);
+
       const deleteFile = fileList.find((file) => file.id === id);
       const newFileList = fileList.filter((file) => file.id !== id);
+
       if (status !== 0 && deleteFile) {
         await quoteDetailAttachFileDelete({
           fileId: deleteFile?.id || '',
@@ -124,6 +129,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
       } else {
         saveQuoteInfo(newFileList);
       }
+
       setFileList(newFileList);
     } finally {
       uploadRef.current?.setUploadLoadding(false);
@@ -134,10 +140,13 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
     const customerFiles = fileList.filter(
       (file: FileObjects) => file?.title && file.title.includes('by customer'),
     );
+
     if (customerFiles.length >= 3) {
       snackbar.error(b3Lang('global.quoteAttachment.maxFilesMessage'));
+
       return true;
     }
+
     return false;
   };
 
@@ -151,14 +160,14 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
         <B3CollapseContainer title={b3Lang('global.quoteAttachment.title')}>
           <Box>
             <FileUpload
+              allowUpload={allowUpload}
+              fileList={fileList}
+              isEndLoadding
+              limitUploadFn={limitUploadFn}
+              onDelete={handleDelete}
+              onchange={handleChange}
               ref={uploadRef}
               requestType={roleText !== 'b2b' ? 'customerQuoteAttachedFile' : 'quoteAttachedFile'}
-              isEndLoadding
-              fileList={fileList}
-              limitUploadFn={limitUploadFn}
-              onchange={handleChange}
-              onDelete={handleDelete}
-              allowUpload={allowUpload}
             />
           </Box>
         </B3CollapseContainer>

@@ -1,11 +1,11 @@
-import { useContext, useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
+import { useContext, useRef, useState } from 'react';
+import { Controller } from 'react-hook-form';
 
 import { GlobalContext } from '@/shared/global';
 
@@ -72,43 +72,44 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
     <>
       <Box ref={container} />
       <PickerFormControl>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
+        <LocalizationProvider adapterLocale={activeLang} dateAdapter={AdapterDayjs}>
           <Controller
             key={fieldsProps.name}
             {...fieldsProps}
             render={({ field: { ref, ...rest } }) => (
               <DatePicker
-                label={label}
                 inputFormat={inputFormat}
+                label={label}
                 {...muixPickerProps}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    variant={variant || 'filled'}
-                    required={required}
+                    error={!!errors[name]}
+                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
                     inputProps={{
                       readOnly: true,
                     }}
                     onMouseDown={() => {
                       setOpen(true);
+
                       if (pickerRef?.current?.blur) {
                         pickerRef.current.blur();
                       }
                     }}
+                    required={required}
                     value={getValues(name) || defaultValue}
-                    error={!!errors[name]}
-                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                    variant={variant || 'filled'}
                   />
                 )}
                 {...rest}
                 DialogProps={{
                   container: container.current,
                 }}
-                open={open}
+                onChange={handleDatePickerChange}
                 onClose={() => {
                   setOpen(false);
                 }}
-                onChange={handleDatePickerChange}
+                open={open}
               />
             )}
           />

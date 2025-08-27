@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 
 import B3Dialog from '@/components/B3Dialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
@@ -47,6 +47,7 @@ function ChooseAddress({
           (item.isShipping === 1 && type === 'shipping') ||
           (item.isBilling === 1 && type === 'billing'),
       );
+
       recordList.current.copyList = isB2BUser ? newList : allList;
       setList(newList);
     }
@@ -68,11 +69,15 @@ function ChooseAddress({
   const handleSearchProduct = (q: string) => {
     if (!q && recordList?.current) {
       setList(recordList.current.copyList);
+
       return;
     }
+
     const newList: AddressItemType[] = [];
+
     keys.forEach((key: string) => {
       let flag = true;
+
       list.forEach((item: AddressItemType) => {
         if (item[key].includes(q) && flag) {
           newList.push(item);
@@ -90,19 +95,19 @@ function ChooseAddress({
   return (
     <B3Dialog
       fullWidth
-      isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
-      title={b3Lang('quoteDraft.chooseAddress.chooseFromSaved')}
-      showRightBtn={false}
+      isOpen={isOpen}
       maxWidth="lg"
+      showRightBtn={false}
+      title={b3Lang('quoteDraft.chooseAddress.chooseFromSaved')}
     >
       <Box>
         <B3FilterSearch
-          searchBGColor="rgba(0, 0, 0, 0.06)"
-          placeholder={b3Lang('quoteDraft.chooseAddress.searchAddress')}
           handleChange={(e) => {
             handleSearchProduct(e);
           }}
+          placeholder={b3Lang('quoteDraft.chooseAddress.searchAddress')}
+          searchBGColor="rgba(0, 0, 0, 0.06)"
         />
       </Box>
       <Box

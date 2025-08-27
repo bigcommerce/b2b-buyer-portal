@@ -75,6 +75,7 @@ export const useValidatePermissionWithComparisonType = ({
       containOrEqual,
       permissions,
     });
+
     setIsValidate(isPermissions);
   }, [permissions, level, code, containOrEqual]);
 

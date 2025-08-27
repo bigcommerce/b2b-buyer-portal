@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
 import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
 
 import {
   getContrastColor,
@@ -57,6 +57,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     ) {
       dispatch(resetDraftQuoteInfo());
       dispatch(resetDraftQuoteList());
+
       if (typeof b2bId === 'number') {
         dispatch(setQuoteUserId(b2bId));
       }
@@ -64,6 +65,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     // ignore dispatch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [b2bId, role, quoteDraftUserId]);
+
   const cache = useRef({});
   const {
     state: { addQuoteBtn, quoteOnNonPurchasableProductPageBtn },
@@ -80,6 +82,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     (e: React.MouseEvent) => {
       const b3MyQuote = e.target as HTMLElement;
       const b2bLoading = document.querySelector('#b2b-div-loading');
+
       if (b3MyQuote && !b2bLoading) {
         addLoading(b3MyQuote);
         addToQuote(b3MyQuote);
@@ -137,6 +140,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
 
   const clearQuoteDom = () => {
     const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote');
+
     myQuoteBtn.forEach((item: CustomFieldItems) => {
       removeElement(item);
     });
@@ -144,6 +148,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
 
   const clearNoPurchasableQuoteDom = () => {
     const myNoPurchasableQuoteBtn = document.querySelectorAll('.b2b-add-to-no-purchasable-quote');
+
     myNoPurchasableQuoteBtn.forEach((item: CustomFieldItems) => {
       removeElement(item);
     });
@@ -151,8 +156,10 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
 
   const addBtnStyle = useCallback(() => {
     const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote');
+
     myQuoteBtn.forEach((quote: CustomFieldItems) => {
       const myQuote = quote;
+
       myQuote.innerHTML = myQuoteBtnLabel;
       myQuote.setAttribute('style', isBuyPurchasable ? customCss : noPurchasableQuoteCustomCss);
       myQuote.style.backgroundColor = isBuyPurchasable ? color : noPurchasableQuoteColor;
@@ -196,6 +203,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
           (key: string) =>
             (cacheQuoteDom as CustomFieldItems)[key] === (addQuoteBtn as CustomFieldItems)[key],
         );
+
         if (!isAddStyle) {
           addBtnStyle();
           cache.current = cloneDeep(addQuoteBtn);
@@ -206,8 +214,10 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
         (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach(
           (node: CustomFieldItems) => {
             const children = node.parentNode.querySelectorAll(quoteNode);
+
             if (!children.length) {
               let myQuote: CustomFieldItems | null = null;
+
               myQuote = document.createElement('div');
               myQuote.innerHTML = myQuoteBtnLabel;
               myQuote.setAttribute(
@@ -229,11 +239,13 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
                   isBuyPurchasable ? classSelector : noPurchasableQuoteClassSelector
                 }`,
               );
+
               if (CustomAddToQuoteAll.length) {
                 node.appendChild(myQuote);
               } else {
                 node.parentNode.appendChild(myQuote);
               }
+
               myQuote.addEventListener('click', quoteCallBack, {
                 capture: true,
               });
@@ -249,11 +261,13 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     if (!productQuoteEnabled) {
       clearQuoteDom();
       clearNoPurchasableQuoteDom();
+
       return;
     }
 
     if (!isBuyPurchasable) {
       clearQuoteDom();
+
       const noPurchasableQuoteAll = document.querySelectorAll(config['dom.setToNoPurchasable']);
 
       const CustomAddToQuoteAll = noPurchasableQuoteLocationSelector
@@ -267,6 +281,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       }
     } else {
       clearNoPurchasableQuoteDom();
+
       const addToQuoteAll = document.querySelectorAll(config['dom.setToQuote']);
       const CustomAddToQuoteAll = locationSelector
         ? document.querySelectorAll(locationSelector)
@@ -276,9 +291,9 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       purchasableQuote(CustomAddToQuoteAll, addToQuoteAll, true);
     }
 
-    // eslint-disable-next-line
     return () => {
       const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote');
+
       myQuoteBtn.forEach((item: CustomFieldItems) => {
         item.removeEventListener('click', quoteCallBack);
       });

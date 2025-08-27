@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Add as AddIcon } from '@mui/icons-material';
 import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import B3Dialog from '@/components/B3Dialog';
 import CustomButton from '@/components/button/CustomButton';
@@ -56,6 +56,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   useEffect(() => {
     if (!isOpen) return;
+
     const getList = async () => {
       setLoading(true);
       setList([]);
@@ -98,15 +99,15 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   return (
     <B3Dialog
-      fullWidth
-      isOpen={isOpen}
-      title={dialogTitle}
       disabledSaveBtn={!activeId}
-      handleLeftClick={handleClose}
+      fullWidth
       handRightClick={handleConfirm}
+      handleLeftClick={handleClose}
+      isOpen={isOpen}
       rightSizeBtn={confirmText}
+      title={dialogTitle}
     >
-      <B3Spin isSpinning={isLoading} isFlex={false}>
+      <B3Spin isFlex={false} isSpinning={isLoading}>
         <Box
           sx={
             isMobile
@@ -128,8 +129,8 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
           >
             {list.map((item: ListItem) => (
               <MenuItem
-                key={item.node.id}
                 className={activeId === item.node.id ? 'active' : ''}
+                key={item.node.id}
                 onClick={handleListItemClicked(item)}
                 sx={{
                   '&:hover': {
@@ -147,11 +148,11 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
         </Box>
 
         <CustomButton
-          variant="text"
           onClick={handleCreate}
           sx={{
             textTransform: 'none',
           }}
+          variant="text"
         >
           <AddIcon
             sx={{

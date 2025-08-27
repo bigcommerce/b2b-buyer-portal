@@ -39,13 +39,13 @@ function GlobalDialog() {
       }}
     >
       <B3Dialog
+        handRightClick={handleSaveMessage}
+        handleLeftClick={globalMessage?.cancelFn || messageDialogClose}
         isOpen={globalMessage?.open || false}
-        title={globalMessage?.title || ''}
         leftSizeBtn={globalMessage?.cancelText || 'cancel'}
         rightSizeBtn={globalMessage?.saveText || 'save'}
-        handleLeftClick={globalMessage?.cancelFn || messageDialogClose}
-        handRightClick={handleSaveMessage}
         showRightBtn={!!globalMessage?.saveText}
+        title={globalMessage?.title || ''}
       >
         <Box
           sx={{

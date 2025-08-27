@@ -1,7 +1,7 @@
-import { useContext, useId, useMemo, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Business as BusinessIcon, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { Box, Card, Chip, IconButton, Menu, MenuItem } from '@mui/material';
+import { useContext, useId, useMemo, useState } from 'react';
 
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
@@ -67,12 +67,12 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
 
   return (
     <Card
+      aria-labelledby={companyNameId}
+      role="listitem"
       sx={{
         padding: '16px',
         marginBottom: '16px',
       }}
-      role="listitem"
-      aria-labelledby={companyNameId}
     >
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -82,12 +82,12 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
           </Box>
           {company?.channelFlag && isDisabledAction && (
             <IconButton
-              size="small"
-              onClick={handleClick}
               aria-controls={open ? 'company-menu' : undefined}
-              aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
+              aria-haspopup="true"
               data-testid="actions"
+              onClick={handleClick}
+              size="small"
               sx={{
                 pt: 0,
 
@@ -132,27 +132,27 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
         )}
       </Box>
       <Menu
-        id="company-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
         MenuListProps={{
           'aria-labelledby': 'company-button',
         }}
+        anchorEl={anchorEl}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
         }}
+        id="company-menu"
+        onClose={handleClose}
+        open={open}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
         }}
       >
         <MenuItem
+          onClick={handleSwitchClick}
           sx={{
             color: 'primary.main',
           }}
-          onClick={handleSwitchClick}
         >
           {b3Lang('companyHierarchy.dialog.title')}
         </MenuItem>

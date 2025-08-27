@@ -1,4 +1,3 @@
-import { ChangeEvent, MouseEvent, ReactElement, ReactNode, useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
 import {
   Card,
@@ -12,6 +11,7 @@ import {
   TableRow,
 } from '@mui/material';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { ChangeEvent, MouseEvent, ReactElement, ReactNode, useContext } from 'react';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
@@ -61,18 +61,18 @@ interface RowProps<Row extends OrderIdRow> {
 function Row<Row extends OrderIdRow>({ columnItems, node, onClickRow }: RowProps<Row>) {
   return (
     <TableRow
+      data-testid="tableBody-Row"
       hover
       onClick={onClickRow}
       sx={{
         cursor: 'pointer',
       }}
-      data-testid="tableBody-Row"
     >
       {columnItems.map((column) => (
         <TableCell
           align={column.align ?? 'left'}
-          key={column.title}
           data-testid={column.key ? `tableBody-${column.key}` : ''}
+          key={column.title}
         >
           {column.render(node)}
         </TableCell>
@@ -152,16 +152,21 @@ export function B3Table<Row extends OrderIdRow>({
           <Grid container spacing={2}>
             {listItems.map((row, index) => {
               return (
-                <Grid item xs={12} key={row.orderId}>
+                <Grid item key={row.orderId} xs={12}>
                   {renderItem(row, index)}
                 </Grid>
               );
             })}
           </Grid>
           <TablePagination
-            rowsPerPageOptions={rowsPerPageOptions}
-            labelRowsPerPage={b3Lang('global.pagination.perPage')}
             component="div"
+            count={count}
+            labelRowsPerPage={b3Lang('global.pagination.perPage')}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            page={first === 0 ? 0 : offset / first}
+            rowsPerPage={first}
+            rowsPerPageOptions={rowsPerPageOptions}
             sx={{
               color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
               marginTop: '1.5rem',
@@ -172,11 +177,6 @@ export function B3Table<Row extends OrderIdRow>({
                 color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
               },
             }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </>
       )}
@@ -198,11 +198,11 @@ export function B3Table<Row extends OrderIdRow>({
                 <TableRow data-testid="tableHead-Row">
                   {columnItems.map((column) => (
                     <TableCell
-                      key={column.title}
-                      width={column.width}
                       align={column.align ?? 'left'}
-                      sortDirection={column.key === orderBy ? sortDirection : false}
                       data-testid={column.key ? `tableHead-${column.key}` : ''}
+                      key={column.title}
+                      sortDirection={column.key === orderBy ? sortDirection : false}
+                      width={column.width}
                     >
                       {column.isSortable ? (
                         <TableSortLabel
@@ -227,8 +227,8 @@ export function B3Table<Row extends OrderIdRow>({
 
                   return (
                     <Row
-                      key={`row-${node.orderId}`}
                       columnItems={columnItems}
+                      key={`row-${node.orderId}`}
                       node={node}
                       onClickRow={() => onClickRow(node, index)}
                     />
@@ -238,20 +238,20 @@ export function B3Table<Row extends OrderIdRow>({
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={rowsPerPageOptions}
-            labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
             component="div"
+            count={count}
+            labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            page={first === 0 ? 0 : offset / first}
+            rowsPerPage={first}
+            rowsPerPageOptions={rowsPerPageOptions}
             sx={{
               marginTop: '1.5rem',
               '::-webkit-scrollbar': {
                 display: 'none',
               },
             }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
       )}

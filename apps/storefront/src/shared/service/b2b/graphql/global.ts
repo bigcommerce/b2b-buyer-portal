@@ -34,6 +34,7 @@ interface CompanySubsidiariesProps {
 interface ConfigsSwitchStatus {
   storeConfigSwitchStatus: ConfigsSwitchStatusProps;
 }
+
 const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutation {
 	authorization(authData: {
 		bcToken: "${currentCustomerJWT}"
@@ -511,6 +512,7 @@ export const getProductPricing = (data: Partial<ProductPrice>) =>
     variables: convertObjectOrArrayKeysToCamel(data),
   }).then((res) => {
     const { priceProducts: b2bPriceProducts = [] } = res;
+
     return {
       data: convertObjectOrArrayKeysToSnake(b2bPriceProducts) as CustomFieldItems[],
     };

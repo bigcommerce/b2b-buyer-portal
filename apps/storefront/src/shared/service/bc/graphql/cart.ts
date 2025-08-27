@@ -341,6 +341,7 @@ export const getCart = async (cartId?: string): Promise<GetCart> => {
     query: getCartInfo,
     variables: { entityId },
   });
+
   if (cartInfo.data.site.cart?.entityId) {
     Cookies.set('cartId', cartInfo.data.site.cart.entityId);
   }

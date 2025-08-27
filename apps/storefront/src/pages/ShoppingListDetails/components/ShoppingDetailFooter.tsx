@@ -1,9 +1,9 @@
-import { useContext, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown, Delete } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
+import { useContext, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -145,6 +145,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
       if (inventoryInfo) {
         let isPassVerify = true;
+
         if (
           inventoryInfo.isStock === '1' &&
           (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
@@ -191,11 +192,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
 
     handleClose();
     setLoading(true);
+
     try {
       const skus: string[] = [];
 
@@ -217,6 +220,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             skus: cantPurchase.slice(0, -1),
           }),
         );
+
         return;
       }
 
@@ -226,6 +230,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             ? b3Lang('shoppingList.footer.selectItemsToCheckout')
             : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
         );
+
         return;
       }
 
@@ -240,6 +245,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         const deleteCartObject = deleteCartData(cartEntityId);
         const cartInfo = await getCart();
         let res = null;
+
         // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
         if (allowJuniorPlaceOrder && cartInfo.length) {
           await deleteCart(deleteCartObject);
@@ -248,6 +254,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           res = await callCart(lineItems);
           b3TriggerCartNumber();
         }
+
         if (res && res.errors) {
           snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
@@ -303,10 +310,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const handleAddSelectedToQuote = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
+
     setLoading(true);
     handleClose();
+
     try {
       const productsWithSku = checkedArr.filter((checkedItem: ListItemProps) => {
         const {
@@ -323,12 +333,15 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
         return !variantSku;
       });
+
       if (noSkuProducts.length > 0) {
         snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'));
       }
+
       if (noSkuProducts.length === checkedArr.length) return;
 
       const productIds: number[] = [];
+
       productsWithSku.forEach((product: ListItemProps) => {
         const { node } = product;
 
@@ -349,6 +362,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       let isFondVariant = true;
 
       const newProducts: CustomFieldItems[] = [];
+
       productsWithSku.forEach((product: ListItemProps) => {
         const {
           node: {
@@ -470,9 +484,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       }
 
       if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout];
+
       if (productQuoteEnabled) {
         return [buttons.addSelectedToQuote];
       }
+
       return [];
     }
 
@@ -485,6 +501,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   return (
     <Grid
+      container
+      spacing={2}
       sx={{
         position: 'fixed',
         bottom: isMobile && isAgenting ? '52px' : 0,
@@ -498,8 +516,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         flexWrap: 'nowrap',
         zIndex: '999',
       }}
-      container
-      spacing={2}
     >
       <Grid
         item
@@ -551,12 +567,12 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 fontSize: '16px',
                 fontWeight: '700',
                 color: '#000000',
               }}
+              variant="h6"
             >
               {b3Lang('shoppingList.footer.subtotal', {
                 subtotal: currencyFormat(selectedSubTotal),
@@ -574,21 +590,21 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 isCanEditShoppingList &&
                 b2bShoppingListActionsPermission && (
                   <CustomButton
+                    disabled={shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval}
                     sx={{
                       padding: '5px',
                       border: `1px solid ${customColor || '#1976d2'}`,
                       margin: isMobile ? '0 1rem 0 0' : '0 1rem',
                       minWidth: 'auto',
                     }}
-                    disabled={shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval}
                   >
                     <Delete
                       color="primary"
-                      sx={{
-                        color: customColor,
-                      }}
                       onClick={() => {
                         setDeleteOpen(true);
+                      }}
+                      sx={{
+                        color: customColor,
                       }}
                     />
                   </CustomButton>
@@ -605,12 +621,12 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 >
                   {buttonList.length === 1 && buttonList[0] && (
                     <CustomButton
-                      variant="contained"
                       onClick={buttonList[0].handleClick}
                       sx={{
                         marginRight: isMobile ? '1rem' : 0,
                         width: isMobile ? '100%' : 'auto',
                       }}
+                      variant="contained"
                     >
                       {buttonList[0].name}
                     </CustomButton>
@@ -618,25 +634,25 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   {buttonList.length === 2 && (
                     <>
                       <CustomButton
-                        variant="contained"
+                        endIcon={<ArrowDropDown />}
                         onClick={handleOpenBtnList}
                         ref={ref}
                         sx={{
                           marginRight: isMobile ? '1rem' : 0,
                           width: isMobile ? '100%' : 'auto',
                         }}
-                        endIcon={<ArrowDropDown />}
+                        variant="contained"
                       >
                         {b3Lang('shoppingList.footer.addSelectedTo')}
                       </CustomButton>
                       <Menu
-                        id="basic-menu"
-                        anchorEl={ref.current}
-                        open={isOpen}
-                        onClose={handleClose}
                         MenuListProps={{
                           'aria-labelledby': 'basic-button',
                         }}
+                        anchorEl={ref.current}
+                        id="basic-menu"
+                        onClose={handleClose}
+                        open={isOpen}
                       >
                         {buttonList.length > 1 &&
                           buttonList.map((button) => (

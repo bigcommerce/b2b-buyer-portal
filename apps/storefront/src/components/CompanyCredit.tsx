@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import useStorageState from '@/hooks/useStorageState';
 import { getCompanyCreditConfig } from '@/shared/service/b2b';
@@ -48,7 +48,7 @@ function CompanyCredit() {
         margin: '1rem 0',
       }}
     >
-      <Alert variant="filled" onClose={() => handleCompanyCreditCloseClick()} severity="warning">
+      <Alert onClose={() => handleCompanyCreditCloseClick()} severity="warning" variant="filled">
         {b3Lang('global.companyCredit.alert')}
       </Alert>
     </Box>

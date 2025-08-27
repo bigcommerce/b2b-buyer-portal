@@ -1,7 +1,7 @@
-import { ReactElement } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
+import { ReactElement } from 'react';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { currencyFormat } from '@/utils';
@@ -108,9 +108,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
         <Box>{checkBox && checkBox()}</Box>
         <Box>
           <StyledImage
-            src={currentImage || PRODUCT_DEFAULT_IMAGE}
             alt="Product-img"
             loading="lazy"
+            src={currentImage || PRODUCT_DEFAULT_IMAGE}
           />
         </Box>
         <Box
@@ -119,7 +119,6 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
           }}
         >
           <Typography
-            variant="body1"
             color="#212121"
             onClick={() => {
               const {
@@ -131,10 +130,11 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             sx={{
               cursor: 'pointer',
             }}
+            variant="body1"
           >
             {productName}
           </Typography>
-          <Typography variant="body1" color="#616161">
+          <Typography color="#616161" variant="body1">
             {variantSku}
           </Typography>
           <Box
@@ -146,12 +146,12 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               <Box>
                 {optionsValue.map((option: any) => (
                   <Typography
+                    key={option.valueLabel}
                     sx={{
                       fontSize: '0.75rem',
                       lineHeight: '1.5',
                       color: '#455A64',
                     }}
-                    key={option.valueLabel}
                   >
                     {`${option.valueLabel}: ${option.valueText}`}
                   </Typography>
@@ -185,16 +185,19 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
           </Typography>
 
           <TextField
-            size="small"
-            type="number"
-            variant="filled"
-            label={b3Lang('shoppingList.shoppingDetailCard.quantity')}
             disabled={b2bAndBcShoppingListActionsPermissions ? isReadForApprove : true}
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
             }}
-            value={quantity}
+            label={b3Lang('shoppingList.shoppingDetailCard.quantity')}
+            onBlur={() => {
+              handleUpdateShoppingListItem(itemId);
+            }}
+            onChange={(e) => {
+              handleUpdateProductQty(shoppingDetail.id, e.target.value);
+            }}
+            size="small"
             sx={{
               margin: '0.5rem 0',
               width: '60%',
@@ -207,12 +210,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 fontSize: '14px',
               },
             }}
-            onChange={(e) => {
-              handleUpdateProductQty(shoppingDetail.id, e.target.value);
-            }}
-            onBlur={() => {
-              handleUpdateShoppingListItem(itemId);
-            }}
+            type="number"
+            value={quantity}
+            variant="filled"
           />
           <Typography
             sx={{
@@ -225,19 +225,14 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             })}
           </Typography>
           <Box
+            id="shoppingList-actionList-mobile"
             sx={{
               marginTop: '11px',
               textAlign: 'end',
             }}
-            id="shoppingList-actionList-mobile"
           >
             {b2bAndBcShoppingListActionsPermissions && (
               <StickyNote2
-                sx={{
-                  marginRight: '0.5rem',
-                  cursor: 'pointer',
-                  color: 'rgba(0, 0, 0, 0.54)',
-                }}
                 onClick={() => {
                   setAddNoteOpen(true);
                   setAddNoteItemId(Number(itemId));
@@ -246,17 +241,16 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                     setNotes(productNote);
                   }
                 }}
+                sx={{
+                  marginRight: '0.5rem',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
               />
             )}
 
             {canChangeOption && (
               <Edit
-                sx={{
-                  marginRight: canChangeOption ? '0.5rem' : '',
-                  marginLeft: canChangeOption ? '0.3rem' : '',
-                  cursor: 'pointer',
-                  color: 'rgba(0, 0, 0, 0.54)',
-                }}
                 onClick={() => {
                   onEdit(
                     {
@@ -268,18 +262,24 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                     itemId,
                   );
                 }}
+                sx={{
+                  marginRight: canChangeOption ? '0.5rem' : '',
+                  marginLeft: canChangeOption ? '0.3rem' : '',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
               />
             )}
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && (
               <Delete
+                onClick={() => {
+                  setDeleteOpen(true);
+                  onDelete(Number(itemId));
+                }}
                 sx={{
                   marginLeft: '0.3rem',
                   cursor: 'pointer',
                   color: 'rgba(0, 0, 0, 0.54)',
-                }}
-                onClick={() => {
-                  setDeleteOpen(true);
-                  onDelete(Number(itemId));
                 }}
               />
             )}

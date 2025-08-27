@@ -1,7 +1,7 @@
-import { KeyboardEventHandler, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid, Typography } from '@mui/material';
+import { KeyboardEventHandler, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -37,6 +37,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
   useEffect(() => {
     let formFields: CustomFieldItems[] = [];
+
     loopRows(rows, (index) => {
       formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)];
     });
@@ -100,6 +101,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   const getProductData = (value: CustomFieldItems) => {
     const skuValue: SimpleObject = {};
     let isValid = true;
+
     loopRows(rows, (index) => {
       const sku = value[`sku-${index}`];
       const qty = value[`qty-${index}`];
@@ -108,6 +110,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       if (isValid && sku) {
         const quantity = parseInt(qty, 10) || 0;
+
         skuValue[sku] = skuValue[sku] ? (skuValue[sku] as number) + quantity : quantity;
       }
     });
@@ -147,6 +150,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       if (!variantInfo) {
         notFoundSku.push(sku);
+
         return;
       }
 
@@ -175,6 +179,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       if (purchasingDisabled === '1') {
         notPurchaseSku.push(sku);
+
         return;
       }
 
@@ -206,10 +211,12 @@ export default function QuickAdd(props: AddToListContentProps) {
         (arr: ShoppingListAddProductOption[], optionStr: string) => {
           try {
             const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
+
             arr.push({
               optionId: `attribute[${option.option_id}]`,
               optionValue: `${option.id}`,
             });
+
             return arr;
           } catch (error) {
             return arr;
@@ -283,12 +290,14 @@ export default function QuickAdd(props: AddToListContentProps) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.',
       );
+
       return;
     }
 
     handleSubmit(async (value) => {
       try {
         setIsLoading(true);
+
         const { skuValue, isValid, skus } = getProductData(value);
 
         if (!isValid || skus.length <= 0) {
@@ -340,9 +349,11 @@ export default function QuickAdd(props: AddToListContentProps) {
 
             const type = min === 0 ? 'Max' : 'Min';
             const limit = min === 0 ? max : min;
+
             showErrors(value, [sku], 'qty', `${type} is ${limit}`);
 
             const typeText = min === 0 ? 'maximum' : 'minimum';
+
             snackbar.error(
               b3Lang('purchasedProducts.quickAdd.purchaseQuantityLimitMessage', {
                 typeText,
@@ -397,12 +408,12 @@ export default function QuickAdd(props: AddToListContentProps) {
           </Grid>
           <Grid item>
             <CustomButton
-              variant="text"
+              onClick={handleAddRowsClick}
               sx={{
                 textTransform: 'initial',
                 ml: '-8px',
               }}
-              onClick={handleAddRowsClick}
+              variant="text"
             >
               {b3Lang('purchasedProducts.quickAdd.showMoreRowsButton')}
             </CustomButton>
@@ -418,24 +429,24 @@ export default function QuickAdd(props: AddToListContentProps) {
           }}
         >
           <B3CustomForm
-            formFields={formFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={formFields}
             getValues={getValues}
             setValue={setValue}
           />
         </Box>
 
         <CustomButton
-          variant="outlined"
-          fullWidth
           disabled={isLoading}
+          fullWidth
           onClick={handleAddToList}
           sx={{
             margin: '20px 0',
           }}
+          variant="outlined"
         >
-          <B3Spin isSpinning={isLoading} tip="" size={16}>
+          <B3Spin isSpinning={isLoading} size={16} tip="">
             <Box
               sx={{
                 flex: 1,

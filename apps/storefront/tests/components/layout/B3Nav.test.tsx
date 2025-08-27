@@ -1,3 +1,7 @@
+import B3Nav from '@/components/layout/B3Nav';
+import { GlobalState } from '@/shared/global/context/config';
+import { newPermissions } from '@/shared/routes/config';
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -6,11 +10,6 @@ import {
   screen,
   waitFor,
 } from 'tests/test-utils';
-
-import B3Nav from '@/components/layout/B3Nav';
-import { GlobalState } from '@/shared/global/context/config';
-import { newPermissions } from '@/shared/routes/config';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
 const buildGlobalContextWith = builder<Partial<GlobalState>>(() => ({
   storefrontConfig: {
@@ -117,6 +116,7 @@ describe('when quickOrderPad and buyAgain are enabled in storefront config, and 
       buyAgain: true,
     },
   });
+
   describe('when user has no quick order permission', () => {
     it('should not show Quick Order in the navigation', async () => {
       const companyStateWithB2BUserAndNoQuickOrderPermission = buildCompanyStateWith({
@@ -155,6 +155,7 @@ describe('when quickOrderPad and buyAgain are enabled in storefront config, and 
       code: newPermissions.quickOrderPermissionCodes,
       permissionLevel: 1,
     };
+
     describe('when user represents its own company', () => {
       it('should show Quick Order in the navigation', () => {
         const companyHierarchyWithUserRepresentingItsOwnCompany = {
@@ -214,6 +215,7 @@ describe('when quickOrderPad and buyAgain are enabled in storefront config, and 
       code: newPermissions.quickOrderPermissionCodes,
       permissionLevel: 2,
     };
+
     describe('when user represents its own company', () => {
       it('should show Quick Order in the navigation', async () => {
         const companyHierarchyWithUserRepresentingItsOwnCompany = {
@@ -273,6 +275,7 @@ describe('when quickOrderPad and buyAgain are enabled in storefront config, and 
       code: newPermissions.quickOrderPermissionCodes,
       permissionLevel: 3,
     };
+
     describe('when user represents its own company', () => {
       it('should show Quick Order in the navigation', async () => {
         const companyHierarchyWithUserRepresentingItsOwnCompany = {

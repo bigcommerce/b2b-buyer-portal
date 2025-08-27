@@ -1,6 +1,6 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, styled, Typography } from '@mui/material';
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
@@ -127,12 +127,14 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
     if (isEnableProduct) {
       if (isHandleApprove) return price;
+
       return getDisplayPrice({
         price,
         productInfo: row,
         showText: b3Lang('quoteDraft.quoteSummary.tbd'),
       });
     }
+
     return price;
   };
   const columnItems: TableColumnItem<ProductInfoProps>[] = [
@@ -151,18 +153,18 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             }}
           >
             <StyledImage
-              src={row.imageUrl || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
+              src={row.imageUrl || PRODUCT_DEFAULT_IMAGE}
             />
             <Box>
               <Typography
-                variant="body1"
                 color="#212121"
                 onClick={() => {
                   const {
                     location: { origin },
                   } = window;
+
                   if (productUrl) {
                     window.location.href = `${origin}${productUrl}`;
                   }
@@ -170,10 +172,11 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 sx={{
                   cursor: 'pointer',
                 }}
+                variant="body1"
               >
                 {row.productName}
               </Typography>
-              <Typography variant="body1" color="#616161">
+              <Typography color="#616161" variant="body1">
                 {row.sku}
               </Typography>
               {optionsValue.length > 0 && (
@@ -182,12 +185,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                     (option: OptionProps) =>
                       option.optionLabel && (
                         <Typography
+                          key={`${option.optionId}_${option.optionName}_${option.optionLabel}`}
                           sx={{
                             fontSize: '0.75rem',
                             lineHeight: '1.5',
                             color: '#455A64',
                           }}
-                          key={`${option.optionId}_${option.optionName}_${option.optionLabel}`}
                         >
                           ${option.optionName}: ${option.optionLabel}
                         </Typography>
@@ -197,13 +200,13 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               )}
               {row.notes && (
                 <Typography
-                  variant="body1"
                   color="#ED6C02"
                   sx={{
                     fontSize: '0.9rem',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
                   }}
+                  variant="body1"
                 >
                   <span>Notes: </span>
                   {row.notes}
@@ -237,6 +240,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const discountPrice = getBCPrice(Number(offeredPrice), discountTaxPrice);
 
         const isDiscount = Number(basePrice) - Number(offeredPrice) > 0 && displayDiscount;
+
         return (
           <>
             {isDiscount && (
@@ -386,29 +390,29 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         </Typography>
       </Box>
       <B3PaginationTable
-        ref={paginationTableRef}
         columnItems={columnItems}
-        rowsPerPageOptions={[12, 24, 36]}
         getRequestList={getQuoteTableDetails}
-        isCustomRender={false}
         hover
-        searchParams={search}
-        labelRowsPerPage={b3Lang('quoteDetail.table.perPage')}
-        showBorder={false}
+        isCustomRender={false}
         itemIsMobileSpacing={0}
+        labelRowsPerPage={b3Lang('quoteDetail.table.perPage')}
         noDataText={b3Lang('quoteDetail.table.noProducts')}
-        tableKey="productId"
+        ref={paginationTableRef}
         renderItem={(row, index) => (
           <QuoteDetailTableCard
-            len={total || 0}
-            item={row}
-            showPrice={showPrice}
-            itemIndex={index}
             currency={currency}
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
+            item={row}
+            itemIndex={index}
+            len={total || 0}
+            showPrice={showPrice}
           />
         )}
+        rowsPerPageOptions={[12, 24, 36]}
+        searchParams={search}
+        showBorder={false}
+        tableKey="productId"
       />
     </StyledQuoteTableContainer>
   );

@@ -1,7 +1,7 @@
-import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, useMediaQuery } from '@mui/material';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import useMobile from '@/hooks/useMobile';
 import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
@@ -51,10 +51,12 @@ export default function B3Layout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const itemsRoutes = routes.find((item) => item.path === location.pathname);
+
     if (itemsRoutes && location.pathname !== '/quoteDraft') {
       const foundPath = Object.entries(SPECIAL_PATH_TEXTS).find(
         ([specialPath]) => specialPath === location.pathname,
       );
+
       if (foundPath) {
         setTitle(b3Lang(foundPath[1]));
       } else {
@@ -63,6 +65,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
     } else {
       setTitle('');
     }
+
     dispatch({
       type: 'common',
       payload: {
@@ -91,6 +94,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
 
   const overflowStyle = useMemo(() => {
     const overflowXHiddenPage = ['/invoice'];
+
     if (overflowXHiddenPage.includes(location.pathname)) {
       return {
         overflowX: 'hidden',
@@ -163,13 +167,13 @@ export default function B3Layout({ children }: { children: ReactNode }) {
       )}
 
       <B3Dialog
+        handRightClick={globalMessageDialog.saveFn}
+        handleLeftClick={globalMessageDialog.cancelFn || messageDialogClose}
         isOpen={globalMessageDialog.open}
-        title={globalMessageDialog.title}
         leftSizeBtn={globalMessageDialog.cancelText}
         rightSizeBtn={globalMessageDialog.saveText}
-        handleLeftClick={globalMessageDialog.cancelFn || messageDialogClose}
-        handRightClick={globalMessageDialog.saveFn}
         showRightBtn={!!globalMessageDialog.saveText}
+        title={globalMessageDialog.title}
       >
         <Box
           sx={{

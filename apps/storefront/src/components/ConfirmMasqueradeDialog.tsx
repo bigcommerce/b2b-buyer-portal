@@ -22,15 +22,6 @@ export function ConfirmMasqueradeDialog({
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      rightSizeBtn={b3Lang('dashboard.masqueradeModal.actions.continue')}
-      title={title}
-      leftSizeBtn={b3Lang('dashboard.masqueradeModal.actions.cancel')}
-      maxWidth={false}
-      loading={isRequestLoading}
-      handleLeftClick={handleClose}
-      handRightClick={handleConfirm}
-      dialogWidth="480px"
       dialogSx={{
         zIndex: 12006,
         '& .MuiPaper-elevation': {
@@ -43,6 +34,15 @@ export function ConfirmMasqueradeDialog({
           },
         },
       }}
+      dialogWidth="480px"
+      handRightClick={handleConfirm}
+      handleLeftClick={handleClose}
+      isOpen={isOpen}
+      leftSizeBtn={b3Lang('dashboard.masqueradeModal.actions.cancel')}
+      loading={isRequestLoading}
+      maxWidth={false}
+      rightSizeBtn={b3Lang('dashboard.masqueradeModal.actions.continue')}
+      title={title}
     >
       <Box
         sx={{

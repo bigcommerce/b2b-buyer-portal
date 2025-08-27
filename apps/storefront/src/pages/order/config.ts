@@ -113,6 +113,7 @@ export const getFilterMoreData = (
       item.name === 'company'
     )
       return false;
+
     return true;
   });
 

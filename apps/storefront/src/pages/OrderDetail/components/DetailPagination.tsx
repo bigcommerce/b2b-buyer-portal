@@ -1,5 +1,3 @@
-import { useEffect, useId, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import {
   NavigateBefore as NavigateBeforeIcon,
@@ -7,6 +5,8 @@ import {
 } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import { useEffect, useId, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useMobile } from '@/hooks';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
@@ -18,6 +18,7 @@ interface SearchParamsProps {
   offset: number;
   first: number;
 }
+
 interface DetailPageProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -69,6 +70,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
 
   if (location?.state) {
     const state = location.state as LocationState;
+
     currentIndex = state?.currentIndex || 0;
     totalCount = state?.totalCount || 0;
     beginDateAt = state?.beginDateAt || null;
@@ -83,6 +85,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
 
     const index = () => {
       if (listIndex) return listIndex - 1;
+
       return 0;
     };
 
@@ -129,7 +132,9 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
   useEffect(() => {
     if (totalCount > 0) setListIndex(currentIndex);
     if (listIndex === initListIndex) return;
+
     const searchPageStart = currentIndex + (searchParams.offset || 0);
+
     setListIndex(searchPageStart);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -153,10 +158,11 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
   };
 
   const index = listIndex + 1;
+
   return (
     <Box
-      role="navigation"
       aria-labelledby={id}
+      role="navigation"
       sx={{
         display: 'flex',
         color,
@@ -190,8 +196,8 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
       )}
 
       <IconButton
-        onClick={handleBeforePage}
         disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
+        onClick={handleBeforePage}
       >
         <NavigateBeforeIcon
           sx={{
@@ -200,8 +206,8 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
         />
       </IconButton>
       <IconButton
-        onClick={handleNextPage}
         disabled={totalCount <= 1 || arrived === 'toRight' || loading}
+        onClick={handleNextPage}
       >
         <NavigateNextIcon
           sx={{

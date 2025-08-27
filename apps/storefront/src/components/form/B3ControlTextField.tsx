@@ -1,8 +1,8 @@
-import { KeyboardEvent, WheelEvent } from 'react';
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
+import { KeyboardEvent, WheelEvent } from 'react';
+import { Controller } from 'react-hook-form';
 
 import { StyleNumberTextField } from './styled';
 import Form from './ui';
@@ -41,6 +41,7 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
   const b3Lang = useB3Lang();
 
   let requiredText = '';
+
   if (fieldType === 'password') {
     requiredText = b3Lang('global.validate.password.required');
   } else {
@@ -92,6 +93,7 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     const keys = allowArrow ? ['KeyE', 'Period'] : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period'];
+
     if (keys.indexOf(event.code) > -1) {
       event.preventDefault();
     }
@@ -114,6 +116,7 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
         autoComplete: 'off',
       };
     }
+
     return {};
   };
   const newExtraPadding =
@@ -139,24 +142,28 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
               key={textField.name}
               {...textField}
               {...rest}
+              allowarrow={allowArrow ? 1 : 0}
+              error={!!errors[name]}
+              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+              inputProps={muiAttributeProps}
+              onKeyDown={handleNumberInputKeyDown}
+              onWheel={handleNumberInputWheel}
               sx={{
                 color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
                 '& input': {
                   ...newExtraPadding,
                 },
               }}
-              allowarrow={allowArrow ? 1 : 0}
-              inputProps={muiAttributeProps}
-              error={!!errors[name]}
-              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-              onKeyDown={handleNumberInputKeyDown}
-              onWheel={handleNumberInputWheel}
             />
           ) : (
             <TextField
               key={textField.name}
               {...textField}
               {...rest}
+              error={!!errors[name]}
+              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+              inputProps={muiAttributeProps}
+              onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               sx={{
                 color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
                 ...sx,
@@ -167,10 +174,6 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
                   ...newExtraPadding,
                 },
               }}
-              inputProps={muiAttributeProps}
-              error={!!errors[name]}
-              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-              onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               {...autoCompleteFn()}
             />
           )

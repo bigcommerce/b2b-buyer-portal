@@ -1,6 +1,6 @@
-import { useContext, useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
@@ -32,6 +32,7 @@ const permissionKeys = [
   b2bPermissionsMap.addressesUpdateActionsPermission,
   b2bPermissionsMap.addressesDeleteActionsPermission,
 ];
+
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick(type: 'add'): void;
   handleOpenAddEditAddressClick(type: 'edit', data: AddressItemType): void;
@@ -54,6 +55,7 @@ interface Config {
   key: string;
   isEnabled: string;
 }
+
 const isConfigEnabled = (configs: Config[] | undefined, key: string) => {
   return (configs ?? []).find((config) => config.key === key)?.isEnabled === '1';
 };
@@ -97,8 +99,10 @@ function Address() {
 
       setCountries(countries);
       setIsRequestLoading(true);
+
       try {
         const addressFields = await getAddressFields(!isBCPermission, countries);
+
         setAddressFields(addressFields || []);
       } catch (err) {
         b2bLogger.error(err);
@@ -168,14 +172,17 @@ function Address() {
     const getEditPermission = async () => {
       if (isBCPermission) {
         setEditPermission(true);
+
         return;
       }
 
       if (updateActionsPermission) {
         try {
           let configList = addressConfig;
+
           if (!configList) {
             const { addressConfig: newConfig } = await getB2BAddressConfig();
+
             configList = newConfig;
 
             dispatch({
@@ -196,12 +203,14 @@ function Address() {
         }
       }
     };
+
     getEditPermission();
   }, [addressConfig, dispatch, isBCPermission, role, updateActionsPermission]);
 
   const handleCreate = () => {
     if (!editPermission) {
       snackbar.error(b3Lang('addresses.noPermissionToAdd'));
+
       return;
     }
 
@@ -211,6 +220,7 @@ function Address() {
   const handleEdit = (row: AddressItemType) => {
     if (!editPermission) {
       snackbar.error(b3Lang('addresses.noPermissionToEdit'));
+
       return;
     }
 
@@ -220,6 +230,7 @@ function Address() {
   const handleDelete = (address: AddressItemType) => {
     if (!editPermission) {
       snackbar.error(b3Lang('addresses.noPermissionToEdit'));
+
       return;
     }
 
@@ -258,62 +269,62 @@ function Address() {
         }}
       >
         <B3Filter
+          customButtonConfig={addButtonConfig}
           filterMoreInfo={translatedFilterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtonConfig={addButtonConfig}
           handleFilterCustomButtonClick={handleCreate}
         />
         <B3PaginationTable
-          ref={paginationTableRef}
           columnItems={[]}
-          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={getAddressList}
-          searchParams={filterData}
           isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
-          requestLoading={setIsRequestLoading}
-          tableKey="id"
+          ref={paginationTableRef}
           renderItem={(row) => (
             <AddressItemCard
-              key={row.id}
               item={row}
-              onEdit={canEdit ? () => handleEdit(row) : undefined}
+              key={row.id}
               onDelete={canDelete ? () => handleDelete(row) : undefined}
+              onEdit={canEdit ? () => handleEdit(row) : undefined}
               onSetDefault={canSetDefault ? () => handleSetDefault(row) : undefined}
             />
           )}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={[12, 24, 36]}
+          searchParams={filterData}
+          tableKey="id"
         />
 
         <B3AddressForm
-          updateAddressList={updateAddressList}
           addressFields={addressFields}
-          ref={addEditAddressRef}
           companyId={currentUseCompanyHierarchyId}
-          isBCPermission={isBCPermission}
           countries={countries}
+          isBCPermission={isBCPermission}
+          ref={addEditAddressRef}
+          updateAddressList={updateAddressList}
         />
 
         {editPermission && !isBCPermission && (
           <SetDefaultDialog
-            isOpen={openDialog === 'setDefault'}
-            closeDialog={closeDialog}
-            setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
-            updateAddressList={updateAddressList}
+            closeDialog={closeDialog}
             companyId={currentUseCompanyHierarchyId}
+            isOpen={openDialog === 'setDefault'}
+            setIsLoading={setIsRequestLoading}
+            updateAddressList={updateAddressList}
           />
         )}
 
         {editPermission && (
           <DeleteAddressDialog
-            isOpen={openDialog === 'delete'}
-            closeDialog={closeDialog}
-            setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
-            updateAddressList={updateAddressList}
+            closeDialog={closeDialog}
             companyId={currentUseCompanyHierarchyId}
             isBCPermission={isBCPermission}
+            isOpen={openDialog === 'delete'}
+            setIsLoading={setIsRequestLoading}
+            updateAddressList={updateAddressList}
           />
         )}
       </Box>

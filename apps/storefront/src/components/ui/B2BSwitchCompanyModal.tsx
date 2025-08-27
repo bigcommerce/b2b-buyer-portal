@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
+import { useState } from 'react';
 
 import B3Dialog from '@/components/B3Dialog';
 import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
@@ -46,6 +46,7 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
 
   const handleSwitchCompanyClick = async () => {
     setLoading(true);
+
     try {
       if (Number(switchCompanyId) === Number(currentCompanyId)) {
         await endUserMasqueradingCompany();
@@ -54,6 +55,7 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
       }
 
       const cartEntityId = Cookies.get('cartId');
+
       if (cartEntityId) {
         const deleteCartObject = deleteCartData(cartEntityId);
 
@@ -81,15 +83,6 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
 
   return (
     <B3Dialog
-      isOpen={open}
-      rightSizeBtn={rightSizeBtn || b3Lang('global.B2BSwitchCompanyModal.confirm.button')}
-      title={title || b3Lang('global.B2BSwitchCompanyModal.title')}
-      fullWidth={fullWidth}
-      maxWidth={false}
-      loading={loading}
-      handleLeftClick={handleClose}
-      handRightClick={handleSwitchCompanyClick}
-      dialogWidth="480px"
       dialogSx={{
         '& .MuiPaper-elevation': {
           '& h2': {
@@ -101,6 +94,15 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
           },
         },
       }}
+      dialogWidth="480px"
+      fullWidth={fullWidth}
+      handRightClick={handleSwitchCompanyClick}
+      handleLeftClick={handleClose}
+      isOpen={open}
+      loading={loading}
+      maxWidth={false}
+      rightSizeBtn={rightSizeBtn || b3Lang('global.B2BSwitchCompanyModal.confirm.button')}
+      title={title || b3Lang('global.B2BSwitchCompanyModal.title')}
     >
       <Box
         sx={{

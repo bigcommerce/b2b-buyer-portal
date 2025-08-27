@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
@@ -228,6 +228,7 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         render: (item: ListItem) => {
           const { totalAmount, currency } = item;
           const newCurrency = currency as CurrencyProps;
+
           return currencyFormatConvert(Number(totalAmount), {
             currency: newCurrency,
             isConversionRate: false,
@@ -343,6 +344,7 @@ function QuotesList() {
           const getCreatedByReg = /^[^(]+/;
           const createdByUserRegArr = getCreatedByReg.exec(createdBy);
           const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : '';
+
           if (createdByUser === quoteDraft.node.createdBy) edges.unshift(quoteDraft);
         } else if (showDraft) {
           edges.unshift(quoteDraft);
@@ -391,41 +393,41 @@ function QuotesList() {
         }}
       >
         <B3Filter
-          filterMoreInfo={filterMoreInfo}
-          startPicker={{
-            isEnabled: true,
-            label: b3Lang('quotes.from'),
-            defaultValue: filterData?.dateCreatedBeginAt || '',
-            pickerKey: 'start',
-          }}
           endPicker={{
             isEnabled: true,
             label: b3Lang('quotes.to'),
             defaultValue: filterData?.dateCreatedEndAt || '',
             pickerKey: 'end',
           }}
+          filterMoreInfo={filterMoreInfo}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
+          startPicker={{
+            isEnabled: true,
+            label: b3Lang('quotes.from'),
+            defaultValue: filterData?.dateCreatedBeginAt || '',
+            pickerKey: 'start',
+          }}
         />
         <B3PaginationTable
           columnItems={columns}
-          rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}
-          searchParams={filterData}
+          hover
           isCustomRender={false}
-          requestLoading={setIsRequestLoading}
-          tableKey="quoteNumber"
-          sortDirection={order}
-          orderBy={orderBy}
-          sortByFn={handleSetOrderBy}
           labelRowsPerPage={
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
           }
-          renderItem={(row) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
           onClickRow={(row) => {
             goToDetail(row, Number(row.status));
           }}
-          hover
+          orderBy={orderBy}
+          renderItem={(row) => <QuoteItemCard goToDetail={goToDetail} item={row} />}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={[10, 20, 30]}
+          searchParams={filterData}
+          sortByFn={handleSetOrderBy}
+          sortDirection={order}
+          tableKey="quoteNumber"
         />
       </Box>
     </B3Spin>

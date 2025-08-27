@@ -60,13 +60,13 @@ function B3LayoutTip() {
 
   return (
     <B3Tip
-      msgs={msgs}
-      handleAllClose={closeMsgs}
       autoHideDuration={autoHideDuration}
+      handleAllClose={closeMsgs}
       handleItemClose={handleClose}
+      horizontal={horizontal}
+      msgs={msgs}
       // handleItemClose={isClose ? handleClose : undefined}
       vertical={vertical}
-      horizontal={horizontal}
     />
   );
 }

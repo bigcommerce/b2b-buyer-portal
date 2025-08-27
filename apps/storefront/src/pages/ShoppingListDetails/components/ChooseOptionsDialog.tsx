@@ -1,3 +1,7 @@
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Box, Divider, TextField, Typography } from '@mui/material';
+import isEqual from 'lodash-es/isEqual';
 import {
   ChangeEvent,
   Dispatch,
@@ -9,10 +13,6 @@ import {
   useState,
 } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
-import styled from '@emotion/styled';
-import { Box, Divider, TextField, Typography } from '@mui/material';
-import isEqual from 'lodash-es/isEqual';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -145,15 +145,21 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (type === 'quote' && product) {
       if (variantSku) {
         const newProduct = product as CustomFieldItems;
+
         newProduct.quantity = quantity;
+
         const isPrice = !!getVariantInfoDisplayPrice(newProduct.base_price, newProduct, {
           sku: variantSku,
         });
+
         setShowPrice(isPrice);
       } else {
         const newProduct = product as CustomFieldItems;
+
         newProduct.quantity = quantity;
+
         const isPrice = !!getProductInfoDisplayPrice(newProduct.base_price, newProduct);
+
         if (!isPrice) {
           setShowPrice(false);
         }
@@ -174,14 +180,17 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         ) || [];
       const productImages: SimpleObject = {};
       const additionalProductsParams: CustomFieldItems = {};
+
       if (modifiers.length > 0) {
         const productIds = modifiers.reduce((arr: number[], modifier) => {
           const { option_values: optionValues } = modifier;
+
           optionValues.forEach((option) => {
             if (option?.value_data?.product_id) {
               arr.push(option.value_data.product_id);
             }
           });
+
           return arr;
         }, []);
 
@@ -203,11 +212,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setAdditionalProducts(additionalProductsParams);
 
       setQuantity(product.quantity);
+
       if (product.variants?.length === 1 && product.variants[0]) {
         setVariantInfo(product.variants[0]);
       }
 
       const productOptionsFields = getProductOptionsFields(product, productImages);
+
       setFormFields([...productOptionsFields]);
     } finally {
       setIsLoading(false);
@@ -216,6 +227,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
   const getProductPriceOptions = (product: ShoppingListProductItem) => {
     const newProductPriceChangeOptionLists: Partial<AllOptionProps>[] = [];
+
     product.allOptions?.forEach((item) => {
       if (
         item.type === 'product_list_with_images' ||
@@ -238,6 +250,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setChooseOptionsForm(product);
       setChooseOptionsProduct([]);
       setNewPrice(0);
+
       if (product?.allOptions?.length) {
         getProductPriceOptions(product);
       }
@@ -253,16 +266,19 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     const { variants = [] } = product;
 
     let priceNumber = 0;
+
     if (variantSku) {
       const variantCalculatePrice = variants.find(
         (variant) => variant.sku === variantSku,
       )?.bc_calculated_price;
+
       priceNumber =
         (showInclusiveTaxPrice
           ? variantCalculatePrice?.tax_inclusive
           : variantCalculatePrice?.tax_exclusive) || 0;
     } else {
       const variantCalculatePrice = variants[0]?.bc_calculated_price;
+
       priceNumber =
         parseFloat(
           (showInclusiveTaxPrice
@@ -335,6 +351,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
             ) {
               return false;
             }
+
             return isSelect;
           }, true);
 
@@ -364,10 +381,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (formFields[0]) {
       const defaultValues: SimpleObject = formFields.reduce((value: SimpleObject, fields) => {
         const formFieldValue = value;
+
         formFieldValue[fields.name] = fields.default;
         setValue(fields.name, fields.default);
+
         return value;
       }, {});
+
       getProductVariantId(defaultValues, formFields[0].name);
     }
 
@@ -381,6 +401,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
     if (type !== 'shoppingList' && purchasingDisabled === true && !isEnableProduct) {
       snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
+
       return false;
     }
 
@@ -392,6 +413,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const getOptionList = useCallback(
     (value: FieldValues) => {
       const optionsData = getOptionRequestData(formFields, {}, value);
+
       return Object.keys(optionsData).map((optionId) => ({
         optionId,
         optionValue: optionsData[optionId]?.toString(),
@@ -406,9 +428,11 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     cache.current = formValues;
+
     if (Object.keys(formValues).length && formFields.length && productPriceChangeOptions.length) {
       const optionList = getOptionList(formValues);
       const { variant_id: variantId = '' } = variantInfo || {};
+
       if (!product || !product.id || !variantId || !validateQuantityNumber()) {
         return;
       }
@@ -427,10 +451,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       if (chooseOptionsProduct[0]) {
         let optionChangeFlag = false;
         const { newSelectOptionList } = chooseOptionsProduct[0];
+
         newSelectOptionList.forEach((option) => {
           const findAttributeId = productPriceChangeOptions.findIndex((item) =>
             option.optionId.includes(String(item.id)),
           );
+
           optionList.forEach((newOption) => {
             if (
               option.optionId === newOption.optionId &&
@@ -441,6 +467,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
             }
           });
         });
+
         if (optionChangeFlag) {
           setChooseOptionsProduct(newChooseOptionsProduct);
         }
@@ -466,11 +493,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       try {
         if (chooseOptionsProduct.length) {
           setIsRequestLoading(true);
+
           const products = await calculateProductListPrice(chooseOptionsProduct);
 
           if (products[0]) {
             const { basePrice, taxPrice } = products[0];
             const price = getBCPrice(Number(basePrice), Number(taxPrice));
+
             setNewPrice(price);
           }
         }
@@ -522,12 +551,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      rightSizeBtn={isEdit ? b3Lang('shoppingList.chooseOptionsDialog.saveOption') : addButtonText}
-      handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
-      title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
+      handleLeftClick={handleCancelClicked}
+      isOpen={isOpen}
       loading={isLoading || isRequestLoading}
+      rightSizeBtn={isEdit ? b3Lang('shoppingList.chooseOptionsDialog.saveOption') : addButtonText}
+      title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
     >
       <B3Spin isSpinning={isLoading}>
         {product && (
@@ -551,10 +580,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                         marginLeft: '16px',
                       }}
                     >
-                      <Typography variant="body1" color="#212121">
+                      <Typography color="#212121" variant="body1">
                         {product.name}
                       </Typography>
-                      <Typography variant="body1" color="#616161">
+                      <Typography color="#616161" variant="body1">
                         {variantSku || product.sku}
                       </Typography>
                       {(product.product_options || []).map((option) => (
@@ -574,18 +603,18 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
                   <FlexItem>
                     <StyleTextField
-                      type="number"
-                      variant="filled"
                       label={b3Lang('shoppingList.chooseOptionsDialog.quantity')}
-                      value={quantity}
+                      onBlur={handleNumberInputBlur}
                       onChange={handleProductQuantityChange}
                       onKeyDown={handleNumberInputKeyDown}
-                      onBlur={handleNumberInputBlur}
                       size="small"
                       sx={{
                         width: '60%',
                         maxWidth: '100px',
                       }}
+                      type="number"
+                      value={quantity}
+                      variant="filled"
                     />
                   </FlexItem>
                 </Flex>
@@ -598,9 +627,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
               />
 
               <B3CustomForm
-                formFields={formFields}
-                errors={errors}
                 control={control}
+                errors={errors}
+                formFields={formFields}
                 getValues={getValues}
                 setValue={setValue}
               />

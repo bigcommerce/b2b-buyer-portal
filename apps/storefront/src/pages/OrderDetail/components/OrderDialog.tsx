@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
+import { FieldValues, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -109,14 +109,19 @@ export default function OrderDialog({
   ) => {
     if (!Object.keys(returnReason).length || !returnArr.length) {
       snackbar.error(b3Lang('purchasedProducts.error.selectOneItem'));
+
       return;
     }
+
     const transformedData = returnArr.reduce((result, item) => {
       const resultedData = result;
       const key = `return_qty[${item.returnId}]`;
+
       resultedData[key] = item.returnQty;
+
       return result;
     }, returnReason);
+
     transformedData.authenticity_token = getXsrfToken();
     transformedData.order_id = orderId;
 
@@ -134,15 +139,18 @@ export default function OrderDialog({
 
     try {
       setIsRequestLoading(true);
+
       const returnResult = await fetch(
         `${BigCommerceStorefrontAPIBaseURL}/account.php?action=save_new_return`,
         requestOptions,
       );
+
       if (returnResult.status === 200 && returnResult.url.includes('saved_new_return')) {
         snackbar.success(b3Lang('purchasedProducts.success.successfulApplication'));
       } else {
         snackbar.error('purchasedProducts.error.failedApplication');
       }
+
       setIsRequestLoading(false);
       handleClose();
     } catch (err) {
@@ -164,6 +172,7 @@ export default function OrderDialog({
         (variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase(),
       );
       const product = editableProducts.find((product) => product.sku === sku);
+
       if (!variantInfo || !product) {
         return;
       }
@@ -203,6 +212,7 @@ export default function OrderDialog({
     try {
       const items: CustomFieldItems[] = [];
       const skus: string[] = [];
+
       editableProducts.forEach((product) => {
         if (checkedArr.includes(product.variant_id)) {
           items.push({
@@ -226,8 +236,10 @@ export default function OrderDialog({
 
       if (!validateProductNumber(variantInfoList, skus)) {
         snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'));
+
         return;
       }
+
       const res = await callCart(items);
 
       const status = res && (res.data.cart.createCart || res.data.cart.addCartLineItems);
@@ -253,6 +265,7 @@ export default function OrderDialog({
         snackbar.error(err.message);
       } else if (typeof err === 'object' && err !== null && 'detail' in err) {
         const customError = err as { detail: string };
+
         snackbar.error(customError.detail);
       }
     } finally {
@@ -269,6 +282,7 @@ export default function OrderDialog({
       if (checkedArr.length === 0) {
         return;
       }
+
       handleClose();
       setOpenShoppingList(true);
     }
@@ -293,6 +307,7 @@ export default function OrderDialog({
 
   const handleShoppingConfirm = async (id: string) => {
     setIsRequestLoading(true);
+
     try {
       const items = editableProducts.map((product) => {
         const {
@@ -388,14 +403,14 @@ export default function OrderDialog({
         }}
       >
         <B3Dialog
-          isOpen={open}
           fullWidth
-          handleLeftClick={handleClose}
           handRightClick={handleSaveClick}
-          title={currentDialogData?.dialogTitle || ''}
-          rightSizeBtn={currentDialogData?.confirmText || 'Save'}
-          maxWidth="md"
+          handleLeftClick={handleClose}
+          isOpen={open}
           loading={isRequestLoading}
+          maxWidth="md"
+          rightSizeBtn={currentDialogData?.confirmText || 'Save'}
+          title={currentDialogData?.dialogTitle || ''}
         >
           <Typography
             sx={{
@@ -405,8 +420,8 @@ export default function OrderDialog({
             {currentDialogData?.description || ''}
           </Typography>
           <OrderCheckboxProduct
-            products={editableProducts}
             onProductChange={handleProductChange}
+            products={editableProducts}
             setCheckedArr={setCheckedArr}
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
@@ -416,17 +431,17 @@ export default function OrderDialog({
           {type === 'return' && (
             <>
               <Typography
-                variant="body1"
                 sx={{
                   margin: '20px 0',
                 }}
+                variant="body1"
               >
                 {b3Lang('purchasedProducts.orderDialog.additionalInformation')}
               </Typography>
               <B3CustomForm
-                formFields={returnFormFields}
-                errors={errors}
                 control={control}
+                errors={errors}
+                formFields={returnFormFields}
                 getValues={getValues}
                 setValue={setValue}
               />
@@ -436,20 +451,20 @@ export default function OrderDialog({
       </Box>
       {itemKey === 'order-summary' && (
         <OrderShoppingList
-          isOpen={openShoppingList}
           dialogTitle={b3Lang('purchasedProducts.orderDialog.addToShoppingList')}
+          isLoading={isRequestLoading}
+          isOpen={openShoppingList}
           onClose={handleShoppingClose}
           onConfirm={handleShoppingConfirm}
           onCreate={handleOpenCreateDialog}
-          isLoading={isRequestLoading}
           setLoading={setIsRequestLoading}
         />
       )}
       {itemKey === 'order-summary' && (
         <CreateShoppingList
-          open={isOpenCreateShopping}
           onChange={handleCreateShoppingClick}
           onClose={handleCloseShoppingClick}
+          open={isOpenCreateShopping}
         />
       )}
     </>

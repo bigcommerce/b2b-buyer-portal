@@ -30,10 +30,12 @@ interface RegisterState {
   bcTob2bCompanyInformation?: Array<RegisterFields>;
   bcTob2bAddressBasicFields?: Array<RegisterFields>;
 }
+
 interface RegisterAction {
   type: string;
   payload: RegisterState;
 }
+
 export interface RegisterContext {
   state: RegisterState;
   dispatch: Dispatch<RegisterAction>;
@@ -83,26 +85,31 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         ...state,
         ...action.payload,
       };
+
     case 'loading':
       return {
         ...state,
         ...action.payload,
       };
+
     case 'contactInformation':
       return {
         ...state,
         contactInformation: action.payload.contactInformation,
       };
+
     case 'accountType':
       return {
         ...state,
         accountType: action.payload.accountType,
       };
+
     case 'emailSletter':
       return {
         ...state,
         emailMarketingNewsletter: action.payload.emailMarketingNewsletter,
       };
+
     case 'stateList':
       return {
         ...state,
@@ -111,11 +118,13 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         bcAddressBasicFields: action.payload.bcAddressBasicFields,
         bcTob2bAddressBasicFields: action.payload.bcTob2bAddressBasicFields,
       };
+
     case 'finishInfo':
       return {
         ...state,
         ...action.payload,
       };
+
     default:
       return state;
   }

@@ -72,6 +72,7 @@ export const loginCheckout = (data: LoginConfig) => {
 
 export const sendForgotPasswordEmailFor = (email: string) => {
   const urlencoded = new URLSearchParams();
+
   urlencoded.append('email', email);
 
   const requestOptions: RequestInit = {
@@ -92,6 +93,7 @@ export const getLoginFlag = (search: string, key: string) => {
   if (!search) {
     return '';
   }
+
   const searchParams = new URLSearchParams(search);
 
   return searchParams.get(key);
@@ -122,10 +124,12 @@ export const logout = () =>
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
+
         return response.text();
       })
       .then((responseData) => {
         const isFlag = responseData.includes('alertBox--success');
+
         resolve(isFlag);
       })
       .catch((e) => {

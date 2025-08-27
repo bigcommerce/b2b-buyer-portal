@@ -1,8 +1,8 @@
-import { useContext, useMemo } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Business as BusinessIcon } from '@mui/icons-material';
 import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
+import { useContext, useMemo } from 'react';
 
 import { PAGES_SUBSIDIARIES_PERMISSION_KEYS, PATH_ROUTES, Z_INDEX } from '@/constants';
 import useMobile from '@/hooks/useMobile';
@@ -26,6 +26,7 @@ interface B3CompanyHierarchyExternalButtonProps {
   isOpen: boolean;
   setOpenPage: SetOpenPage;
 }
+
 function B3CompanyHierarchyExternalButton({
   setOpenPage,
   isOpen,
@@ -144,6 +145,7 @@ function B3CompanyHierarchyExternalButton({
         openUrl: route.path,
       });
     }
+
     dispatch(setOpenCompanyHierarchyDropDown(true));
   };
 
@@ -151,6 +153,8 @@ function B3CompanyHierarchyExternalButton({
     <>
       {!!companyName && (
         <Snackbar
+          anchorOrigin={getLocation(location) || defaultLocation}
+          open
           sx={{
             zIndex: Z_INDEX.NOTIFICATION,
             height: '52px',
@@ -161,10 +165,9 @@ function B3CompanyHierarchyExternalButton({
             ...sx,
             ...MUIMediaStyle,
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
-          open
         >
           <Box
+            onClick={() => handleHierarchyExternalBtnClick()}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -173,7 +176,6 @@ function B3CompanyHierarchyExternalButton({
               fontSize: '16px',
               cursor: 'pointer',
             }}
-            onClick={() => handleHierarchyExternalBtnClick()}
           >
             <BusinessIcon sx={{ fontSize: '20px' }} />
             <Box

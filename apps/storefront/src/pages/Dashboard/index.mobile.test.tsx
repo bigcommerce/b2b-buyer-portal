@@ -1,4 +1,8 @@
 import Cookies from 'js-cookie';
+import { when } from 'vitest-when';
+
+import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
+import { CompanyStatus } from '@/types';
 import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 import {
   buildCompanyStateWith,
@@ -15,10 +19,6 @@ import {
   userEvent,
   waitFor,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
-import { CompanyStatus } from '@/types';
 
 import Dashboard from '.';
 
@@ -71,6 +71,7 @@ describe('when the user is associated with a company', () => {
   });
 
   const preloadedState = Object.freeze({ company: companyWithB2B });
+
   beforeEach(() => {
     Cookies.remove('cartId');
   });
@@ -241,6 +242,7 @@ describe('when the user is associated with a company', () => {
     );
 
     const nextPageButton = screen.getByRole('button', { name: /Go to next page/ });
+
     await userEvent.click(nextPageButton);
 
     await waitFor(() => {
@@ -274,6 +276,7 @@ describe('when the user is associated with a company', () => {
     });
 
     const nextPageButton = screen.getByRole('button', { name: /Go to next page/ });
+
     await userEvent.click(nextPageButton);
 
     const monstersInc = buildCompanyEdgeWith({ node: { companyName: 'Monsters Inc' } });
@@ -285,6 +288,7 @@ describe('when the user is associated with a company', () => {
     );
 
     const prevPageButton = screen.getByRole('button', { name: /Go to previous page/ });
+
     await userEvent.click(prevPageButton);
 
     await waitFor(() => {
@@ -333,6 +337,7 @@ describe('when the user is associated with a company', () => {
     );
 
     Cookies.set('cartId', '1');
+
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {

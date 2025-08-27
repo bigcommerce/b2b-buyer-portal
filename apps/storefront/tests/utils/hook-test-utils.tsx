@@ -1,8 +1,8 @@
+import LangProvider from '@b3/lang/LangProvider';
+import { renderHook, RenderHookOptions } from '@testing-library/react';
 import { ComponentProps, PropsWithChildren, Suspense, useContext, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import LangProvider from '@b3/lang/LangProvider';
-import { renderHook, RenderHookOptions } from '@testing-library/react';
 import { Mock } from 'vitest';
 
 import B3LayoutTip from '@/components/layout/B3LayoutTip';
@@ -51,6 +51,7 @@ export const renderHookWithProviders = <Result, Props>(
   } = options;
 
   vi.spyOn(storeModule, 'store', 'get').mockReturnValue(store);
+
   const navigation = vi.fn();
 
   function Wrapper({ children }: PropsWithChildren) {

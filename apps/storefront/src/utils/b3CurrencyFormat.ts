@@ -55,9 +55,11 @@ export const ordersCurrencyFormat = (
       moneyFormat.currency_location === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
+
     return priceStr;
   } catch (e) {
     b2bLogger.error(e);
+
     return '';
   }
 };
@@ -107,8 +109,10 @@ export const currencyFormatConvert = (
         moneyFormat.currency_location === 'left'
           ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
           : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
+
       return priceStr;
     }
+
     const [integerPart, decimalPart] = Number(price).toFixed(moneyFormat.decimal_places).split('.');
     const newPrice = `${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, moneyFormat.thousands_token)}${
       decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''
@@ -117,9 +121,11 @@ export const currencyFormatConvert = (
       moneyFormat.currency_location === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
+
     return priceStr;
   } catch (e) {
     b2bLogger.error(e);
+
     return '';
   }
 };
@@ -130,6 +136,7 @@ const currencyFormat = (
   isConversionRate = false,
 ) => {
   const moneyFormat = currencyFormatInfo();
+
   try {
     const [integerPart, decimalPart] = (
       isConversionRate ? Number(price) * Number(moneyFormat.currency_exchange_rate) : Number(price)
@@ -143,9 +150,11 @@ const currencyFormat = (
       moneyFormat.currency_location === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
+
     return priceStr;
   } catch (e) {
     b2bLogger.error(e);
+
     return '';
   }
 };

@@ -1,7 +1,7 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid, useTheme } from '@mui/material';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
@@ -77,6 +77,7 @@ const calculateSubTotal = (checkedArr: CustomFieldItems) => {
 
     return (1000 * total) / 1000;
   }
+
   return 0.0;
 };
 
@@ -232,8 +233,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     if (listProducts.length > 0) {
       try {
         const productIds: number[] = [];
+
         listProducts.forEach((item) => {
           const { node } = item;
+
           if (!productIds.includes(node.productId)) {
             productIds.push(node.productId);
           }
@@ -255,6 +258,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           node.productUrl = productInfo?.productUrl || node.productUrl;
 
           node.disableCurrentCheckbox = false;
+
           if (node.quantity === 0) {
             node.disableCurrentCheckbox = true;
           }
@@ -271,7 +275,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const shoppingListDetailInfo = await getShoppingList(params);
+
     setIsRequestLoading(true);
+
     const {
       products: { edges, totalCount },
     } = shoppingListDetailInfo;
@@ -283,6 +289,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo);
     setShoppingListInfo(shoppingListDetailInfo);
     setIsRequestLoading(false);
+
     if (!listProducts) {
       return {
         edges: [],
@@ -298,6 +305,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true);
+
     try {
       const params: UpdateShoppingListParamsProps = {
         id: Number(id),
@@ -410,16 +418,16 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         }}
       >
         <ShoppingDetailHeader
-          isB2BUser={isB2BUser}
-          shoppingListInfo={shoppingListInfo}
+          customColor={primaryColor}
           customerInfo={customerInfo}
-          role={role}
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
-          setOpenPage={setOpenPage}
           isAgenting={isAgenting}
+          isB2BUser={isB2BUser}
           openAPPParams={openAPPParams}
-          customColor={primaryColor}
+          role={role}
+          setOpenPage={setOpenPage}
+          shoppingListInfo={shoppingListInfo}
         />
 
         <Grid
@@ -463,22 +471,22 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                 }
               >
                 <ShoppingDetailTable
-                  ref={tableRef}
-                  isReadForApprove={isReadForApprove}
-                  isJuniorApprove={isJuniorApprove}
                   allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-                  setCheckedArr={setCheckedArr}
-                  shoppingListInfo={shoppingListInfo}
+                  getShoppingListDetails={getShoppingListDetails}
+                  isB2BUser={isB2BUser}
+                  isCanEditShoppingList={isCanEditShoppingList}
+                  isJuniorApprove={isJuniorApprove}
+                  isReadForApprove={isReadForApprove}
                   isRequestLoading={isRequestLoading}
+                  productQuoteEnabled={productQuoteEnabled}
+                  ref={tableRef}
+                  role={role}
+                  setCheckedArr={setCheckedArr}
+                  setDeleteItemId={setDeleteItemId}
+                  setDeleteOpen={setDeleteOpen}
                   setIsRequestLoading={setIsRequestLoading}
                   shoppingListId={id}
-                  getShoppingListDetails={getShoppingListDetails}
-                  setDeleteOpen={setDeleteOpen}
-                  setDeleteItemId={setDeleteItemId}
-                  isB2BUser={isB2BUser}
-                  productQuoteEnabled={productQuoteEnabled}
-                  isCanEditShoppingList={isCanEditShoppingList}
-                  role={role}
+                  shoppingListInfo={shoppingListInfo}
                 />
               </Grid>
             </B3Spin>
@@ -498,9 +506,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           >
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
-                updateList={updateList}
-                type="shoppingList"
                 isB2BUser={isB2BUser}
+                type="shoppingList"
+                updateList={updateList}
               />
             )}
           </Grid>
@@ -509,37 +517,37 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         {!isReadForApprove &&
           (allowJuniorPlaceOrder || productQuoteEnabled || !isJuniorApprove) && (
             <ShoppingDetailFooter
-              shoppingListInfo={shoppingListInfo}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
               checkedArr={checkedArr}
-              selectedSubTotal={calculateSubTotal(checkedArr)}
-              setLoading={setIsRequestLoading}
-              setDeleteOpen={setDeleteOpen}
-              setValidateFailureProducts={setValidateFailureProducts}
-              setValidateSuccessProducts={setValidateSuccessProducts}
-              isB2BUser={isB2BUser}
               customColor={primaryColor}
+              isB2BUser={isB2BUser}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
+              selectedSubTotal={calculateSubTotal(checkedArr)}
+              setDeleteOpen={setDeleteOpen}
+              setLoading={setIsRequestLoading}
+              setValidateFailureProducts={setValidateFailureProducts}
+              setValidateSuccessProducts={setValidateSuccessProducts}
+              shoppingListInfo={shoppingListInfo}
             />
           )}
       </Box>
 
       <ReAddToCart
-        shoppingListInfo={shoppingListInfo}
-        role={role}
-        products={validateFailureProducts}
-        successProducts={validateSuccessProducts.length}
         allowJuniorPlaceOrder={allowJuniorPlaceOrder}
+        products={validateFailureProducts}
+        role={role}
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
+        shoppingListInfo={shoppingListInfo}
+        successProducts={validateSuccessProducts.length}
         textAlign={isMobile ? 'left' : 'right'}
       />
 
       <ShoppingDetailDeleteItems
-        open={deleteOpen}
         handleCancelClick={handleCancelClick}
         handleDeleteProductClick={handleDeleteProductClick}
+        open={deleteOpen}
       />
     </>
   );

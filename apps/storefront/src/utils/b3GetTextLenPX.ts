@@ -20,6 +20,7 @@ const getLineNumber = (text: string, fontSize = 14) => {
 
   const screenLen = isMobile ? mobileLen : pcLen;
   const len = getTextLenPX(text, fontSize);
+
   if (len !== null) {
     const lineNumber = Math.ceil(len / screenLen);
 

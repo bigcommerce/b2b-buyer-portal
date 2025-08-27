@@ -1,6 +1,6 @@
-import { useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { useContext } from 'react';
 
 import { B3ProductList } from '@/components';
 import { useMobile } from '@/hooks';
@@ -73,22 +73,22 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
               }}
             >
               <Typography
-                variant="h6"
                 sx={{
                   fontSize: '24px',
                   fontWeight: '400',
                 }}
+                variant="h6"
               >
                 {getFullName(billingItem)}
                 {' – '}
                 {getCompanyName(billingItem.billingAddress.company || '')}
               </Typography>
               <Typography
-                variant="h6"
                 sx={{
                   fontSize: '24px',
                   fontWeight: '400',
                 }}
+                variant="h6"
               >
                 {getFullAddress(billingItem)}
               </Typography>
@@ -99,17 +99,17 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
                 margin: '20px 0 2px',
               }}
             >
-              <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#313440' }}>
+              <Typography sx={{ fontWeight: 'bold', color: '#313440' }} variant="body1">
                 {b3Lang('orderDetail.billing.digitalProducts')}
               </Typography>
             </Box>
 
             <B3ProductList
-              products={billingItem.digitalProducts}
-              totalText="Total"
               canToProduct={isCurrentCompany}
-              textAlign={isMobile ? 'left' : 'right'}
               money={money}
+              products={billingItem.digitalProducts}
+              textAlign={isMobile ? 'left' : 'right'}
+              totalText="Total"
             />
           </CardContent>
         </Card>

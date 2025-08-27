@@ -1,3 +1,7 @@
+import { useB3Lang } from '@b3/lang';
+import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
+import { Box, Grid, styled, TextField, Typography } from '@mui/material';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   Dispatch,
   forwardRef,
@@ -8,10 +12,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useB3Lang } from '@b3/lang';
-import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
-import { Box, Grid, styled, TextField, Typography } from '@mui/material';
-import cloneDeep from 'lodash-es/cloneDeep';
 
 import {
   B3PaginationTable,
@@ -200,6 +200,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
     if (Number(value) < 0) return;
+
     const currentItem = originProducts.find((item: ListItemProps) => {
       const { node } = item;
 
@@ -207,11 +208,13 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     });
 
     const currentQty = currentItem?.node?.quantity || '';
+
     setQtyNotChangeFlag(Number(currentQty) === Number(value));
 
     const listItems: ListItemProps[] = paginationTableRef.current?.getList() || [];
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item;
+
       if (node?.id === id) {
         node.quantity = `${Number(value)}`;
         node.disableCurrentCheckbox = Number(value) === 0;
@@ -223,6 +226,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     const nonNumberProducts = newListItems.filter(
       (item: ListItemProps) => Number(item.node.quantity) === 0,
     );
+
     setDisabledSelectAll(nonNumberProducts.length === newListItems.length);
     paginationTableRef.current?.setList([...newListItems]);
   };
@@ -258,9 +262,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
     setIsRequestLoading(true);
+
     const updateShoppingListItem = isB2BUser
       ? updateB2BShoppingListsItem
       : updateBcShoppingListsItem;
+
     try {
       const newOptionLists = getValidOptionsList(products[0].newSelectOptionList, products[0]);
       const data = {
@@ -328,6 +334,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const handleUpdateShoppingListItemQty = async (itemId: number | string) => {
     if (qtyNotChangeFlag) return;
     setIsRequestLoading(true);
+
     try {
       await handleUpdateShoppingListItem(itemId);
       snackbar.success(b3Lang('shoppingList.table.quantityUpdated'));
@@ -342,6 +349,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     if (selectCheckbox.length > 0) {
       const productList = paginationTableRef.current?.getList() || [];
       const checkedItems: CustomFieldItems[] = [];
+
       selectCheckbox.forEach((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
           const { node } = product;
@@ -366,6 +374,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const handleAddItemNotesClick = async () => {
     setIsRequestLoading(true);
+
     try {
       handleCancelAddNotesClick();
       await handleUpdateShoppingListItem(addNoteItemId);
@@ -408,6 +417,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         products: { edges },
       } = shoppingListInfo;
       const nonNumberProducts = edges.filter((item: ListItemProps) => item.node.quantity === 0);
+
       setDisabledSelectAll(nonNumberProducts.length === edges.length);
     }
   }, [shoppingListInfo]);
@@ -416,7 +426,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     const {
       productsSearch: { isPriceHidden },
     } = row;
+
     if (isPriceHidden) return '';
+
     return getDisplayPrice({
       price,
       productInfo: row,
@@ -454,13 +466,12 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             }}
           >
             <StyledImage
-              src={currentImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
+              src={currentImage || PRODUCT_DEFAULT_IMAGE}
             />
             <Box>
               <Typography
-                variant="body1"
                 color="#212121"
                 onClick={() => {
                   const {
@@ -472,22 +483,23 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 sx={{
                   cursor: 'pointer',
                 }}
+                variant="body1"
               >
                 {row.productName}
               </Typography>
-              <Typography variant="body1" color="#616161">
+              <Typography color="#616161" variant="body1">
                 {row.variantSku}
               </Typography>
               {optionList.length > 0 && optionsValue.length > 0 && (
                 <Box>
                   {optionsValue.map((option: any) => (
                     <Typography
+                      key={option.valueLabel}
                       sx={{
                         fontSize: '0.75rem',
                         lineHeight: '1.5',
                         color: '#455A64',
                       }}
-                      key={option.valueLabel}
                     >
                       {`${option.valueLabel}: ${option.valueText}`}
                     </Typography>
@@ -540,26 +552,26 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: b3Lang('shoppingList.table.quantity'),
       render: (row) => (
         <StyledTextField
-          size="small"
-          type="number"
-          variant="filled"
-          sx={{
-            width: '72px',
-          }}
           disabled={
             b2bAndBcShoppingListActionsPermissions ? isReadForApprove || isJuniorApprove : true
           }
-          value={row.quantity}
           inputProps={{
             inputMode: 'numeric',
             pattern: '[0-9]*',
           }}
-          onChange={(e) => {
-            handleUpdateProductQty(row.id, e.target.value);
-          }}
           onBlur={() => {
             handleUpdateShoppingListItemQty(row.itemId);
           }}
+          onChange={(e) => {
+            handleUpdateProductQty(row.id, e.target.value);
+          }}
+          size="small"
+          sx={{
+            width: '72px',
+          }}
+          type="number"
+          value={row.quantity}
+          variant="filled"
         />
       ),
       width: '15%',
@@ -602,6 +614,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
               {showPrice(currencyFormat(totalPrice), row)}
             </Typography>
             <Box
+              id="shoppingList-actionList"
               sx={{
                 marginTop: '1rem',
                 opacity: 0,
@@ -609,7 +622,6 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 display: 'flex',
                 justifyContent: 'flex-end',
               }}
-              id="shoppingList-actionList"
             >
               {canShoppingListActions && (
                 <>
@@ -621,10 +633,6 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                     }}
                   >
                     <StickyNote2
-                      sx={{
-                        cursor: 'pointer',
-                        color: 'rgba(0, 0, 0, 0.54)',
-                      }}
                       onClick={() => {
                         setAddNoteOpen(true);
                         setAddNoteItemId(Number(itemId));
@@ -632,6 +640,10 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                         if (row.productNote) {
                           setNotes(row.productNote);
                         }
+                      }}
+                      sx={{
+                        cursor: 'pointer',
+                        color: 'rgba(0, 0, 0, 0.54)',
                       }}
                     />
                   </Grid>
@@ -645,10 +657,6 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                   >
                     {canChangeOption && (
                       <Edit
-                        sx={{
-                          cursor: 'pointer',
-                          color: 'rgba(0, 0, 0, 0.54)',
-                        }}
                         onClick={() => {
                           const { productsSearch, variantId, itemId, optionList, quantity } = row;
 
@@ -661,6 +669,10 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                             variantId,
                             itemId,
                           );
+                        }}
+                        sx={{
+                          cursor: 'pointer',
+                          color: 'rgba(0, 0, 0, 0.54)',
                         }}
                       />
                     )}
@@ -675,13 +687,13 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                       !isReadForApprove &&
                       !isJuniorApprove && (
                         <Delete
-                          sx={{
-                            cursor: 'pointer',
-                            color: 'rgba(0, 0, 0, 0.54)',
-                          }}
                           onClick={() => {
                             setDeleteOpen(true);
                             setDeleteItemId(Number(itemId));
+                          }}
+                          sx={{
+                            cursor: 'pointer',
+                            color: 'rgba(0, 0, 0, 0.54)',
                           }}
                         />
                       )}
@@ -732,78 +744,78 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         }}
       >
         <B3FilterSearch
-          searchBGColor="rgba(0, 0, 0, 0.06)"
           handleChange={(e) => {
             handleSearchProduct(e);
           }}
+          searchBGColor="rgba(0, 0, 0, 0.06)"
         />
       </Box>
 
       <B3PaginationTable
-        ref={paginationTableRef}
-        columnItems={columnItems}
-        rowsPerPageOptions={[10, 20, 50]}
-        getRequestList={getShoppingListDetails}
-        searchParams={search}
-        isCustomRender={false}
-        showCheckbox
-        showSelectAllCheckbox
         applyAllDisableCheckbox={false}
+        columnItems={columnItems}
         disableCheckbox={
           disabledSelectAll ||
           (b2bSubmitShoppingListPermission
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
             : (isReadForApprove || isJuniorApprove) && b2bAndBcShoppingListActionsPermissions)
         }
-        hover
-        labelRowsPerPage={b3Lang('shoppingList.table.itemsPerPage')}
-        showBorder={false}
-        requestLoading={setIsRequestLoading}
+        getRequestList={getShoppingListDetails}
         getSelectCheckbox={getSelectCheckbox}
+        hover
+        isCustomRender={false}
         itemIsMobileSpacing={0}
+        labelRowsPerPage={b3Lang('shoppingList.table.itemsPerPage')}
         noDataText={b3Lang('shoppingList.table.noProductsFound')}
-        sortDirection={order}
         orderBy={orderBy}
-        sortByFn={handleSetOrderBy}
         pageType="shoppingListDetailsTable"
+        ref={paginationTableRef}
         renderItem={(row, index, checkBox) => (
           <ShoppingDetailCard
-            len={shoppingListInfo?.products?.edges.length || 0}
-            item={row}
-            itemIndex={index}
-            showPrice={showPrice}
-            onEdit={handleOpenProductEdit}
-            onDelete={setDeleteItemId}
+            b2bAndBcShoppingListActionsPermissions={b2bAndBcShoppingListActionsPermissions}
             checkBox={checkBox}
-            setDeleteOpen={setDeleteOpen}
-            setAddNoteOpen={setAddNoteOpen}
-            setAddNoteItemId={setAddNoteItemId}
-            setNotes={setNotes}
             handleUpdateProductQty={handleUpdateProductQty}
             handleUpdateShoppingListItem={handleUpdateShoppingListItemQty}
             isReadForApprove={isReadForApprove || isJuniorApprove}
-            b2bAndBcShoppingListActionsPermissions={b2bAndBcShoppingListActionsPermissions}
+            item={row}
+            itemIndex={index}
+            len={shoppingListInfo?.products?.edges.length || 0}
+            onDelete={setDeleteItemId}
+            onEdit={handleOpenProductEdit}
+            setAddNoteItemId={setAddNoteItemId}
+            setAddNoteOpen={setAddNoteOpen}
+            setDeleteOpen={setDeleteOpen}
+            setNotes={setNotes}
+            showPrice={showPrice}
           />
         )}
+        requestLoading={setIsRequestLoading}
+        rowsPerPageOptions={[10, 20, 50]}
+        searchParams={search}
+        showBorder={false}
+        showCheckbox
+        showSelectAllCheckbox
+        sortByFn={handleSetOrderBy}
+        sortDirection={order}
       />
 
       <ChooseOptionsDialog
-        isOpen={chooseOptionsOpen}
+        isEdit
         isLoading={isRequestLoading}
-        setIsLoading={setIsRequestLoading}
-        product={optionsProduct}
-        type="shoppingList"
+        isOpen={chooseOptionsOpen}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
-        isEdit
+        product={optionsProduct}
+        setIsLoading={setIsRequestLoading}
+        type="shoppingList"
       />
 
       <ShoppingDetailAddNotes
-        open={addNoteOpen}
-        notes={notes}
-        setNotes={setNotes}
-        handleCancelAddNotesClick={handleCancelAddNotesClick}
         handleAddItemNotesClick={handleAddItemNotesClick}
+        handleCancelAddNotesClick={handleCancelAddNotesClick}
+        notes={notes}
+        open={addNoteOpen}
+        setNotes={setNotes}
       />
     </StyledShoppingListTableContainer>
   );

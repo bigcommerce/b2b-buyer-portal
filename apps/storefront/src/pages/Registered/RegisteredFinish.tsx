@@ -1,6 +1,6 @@
-import { useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box } from '@mui/material';
+import { useContext } from 'react';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
@@ -48,13 +48,13 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
           {blockPendingAccountOrderCreation && (
             <Alert
               severity="warning"
-              variant="filled"
               sx={{
                 margin: 'auto',
                 borderRadius: '4px',
                 padding: '6px 16px',
                 maxWidth: '820px',
               }}
+              variant="filled"
             >
               {b3Lang('global.registerFinish.blockPendingAccountOrderCreation.tip')}
             </Alert>
@@ -75,6 +75,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
         </StyleTipContainer>
       );
     }
+
     return undefined;
   };
 

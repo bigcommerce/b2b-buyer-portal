@@ -1,4 +1,3 @@
-import { builder, faker, graphql, HttpResponse, startMockServer } from 'tests/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { when } from 'vitest-when';
 
@@ -8,6 +7,7 @@ import { globalSnackbar } from '@/utils';
 import { getProductOptionList } from '@/utils/b3AddToShoppingList';
 import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProduce } from '@/utils/b3Product/b3Product';
+import { builder, faker, graphql, HttpResponse, startMockServer } from 'tests/test-utils';
 
 import { addProductFromProductPageToQuote } from './utils';
 
@@ -71,16 +71,22 @@ const b3Lang = (key: string, params?: any) => {
   switch (key) {
     case 'quoteDraft.productPageToQuote.outOfStock':
       return `outOfStock:${params?.name}:${params?.qty}`;
+
     case 'quoteDraft.notification.openQuote':
       return 'openQuote';
+
     case 'global.notification.addProductSingular':
       return 'addProductSingular';
+
     case 'global.notification.maximumPurchaseExceed':
       return 'maximumPurchaseExceed';
+
     case 'quoteDraft.notification.cantAddProductsNoSku':
       return 'cantAddNoSku';
+
     case 'quoteDraft.productPageToQuote.unavailable':
       return 'unavailable';
+
     default:
       return key;
   }
@@ -212,6 +218,7 @@ describe('addProductFromProductPageToQuote', () => {
     createDOM({ productId: 123, qty: 1, sku: '' });
 
     const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('cantAddNoSku');
@@ -234,6 +241,7 @@ describe('addProductFromProductPageToQuote', () => {
       );
 
     const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('Please fill out product options first.');
@@ -263,6 +271,7 @@ describe('addProductFromProductPageToQuote', () => {
       .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
     const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('maximumPurchaseExceed', expect.any(Object));
@@ -277,6 +286,7 @@ describe('addProductFromProductPageToQuote', () => {
     createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
     const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
     await addToQuote();
 
     expect(b2bLogger.error).toHaveBeenCalledWith(new Error('test'));
@@ -299,6 +309,7 @@ describe('addProductFromProductPageToQuote', () => {
         );
 
       const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+
       await addToQuote();
 
       expect(globalSnackbar.error).toHaveBeenCalledWith('unavailable');
@@ -324,6 +335,7 @@ describe('addProductFromProductPageToQuote', () => {
           );
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+
         await addToQuote();
 
         expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
@@ -356,6 +368,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+
         await addToQuote();
 
         expect(globalSnackbar.success).toHaveBeenCalled();
@@ -383,6 +396,7 @@ describe('addProductFromProductPageToQuote', () => {
           );
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+
         await addToQuote();
 
         expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
@@ -416,6 +430,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+
         await addToQuote();
 
         expect(globalSnackbar.success).toHaveBeenCalled();
@@ -449,6 +464,7 @@ describe('addProductFromProductPageToQuote', () => {
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
       const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
       await addToQuote();
 
       expect(globalSnackbar.success).toHaveBeenCalled();
@@ -482,6 +498,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
         await addToQuote();
 
         expect(addQuoteDraftProduce).toHaveBeenCalled();
@@ -514,6 +531,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
         await addToQuote();
 
         expect(addQuoteDraftProduce).toHaveBeenCalled();
@@ -549,6 +567,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
         await addToQuote();
 
         expect(addQuoteDraftProduce).toHaveBeenCalled();
@@ -582,6 +601,7 @@ describe('addProductFromProductPageToQuote', () => {
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
         const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+
         await addToQuote();
 
         expect(addQuoteDraftProduce).toHaveBeenCalled();

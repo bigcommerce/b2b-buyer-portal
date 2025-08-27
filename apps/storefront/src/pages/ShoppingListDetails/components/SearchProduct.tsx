@@ -1,7 +1,7 @@
-import { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
+import { ChangeEvent, KeyboardEvent, useState } from 'react';
 
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
@@ -59,10 +59,12 @@ export default function SearchProduct({
 
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(b3Lang('global.searchProductAddProduct.businessAccountPendingApproval'));
+
       return;
     }
 
     setIsLoading(true);
+
     try {
       const { productsSearch } = await searchProducts({
         search: searchText,
@@ -108,6 +110,7 @@ export default function SearchProduct({
 
   const handleProductQuantityChange = (id: number, newQuantity: number) => {
     const product = productList.find((product) => product.id === id);
+
     if (product) {
       product.quantity = newQuantity;
     }
@@ -133,11 +136,13 @@ export default function SearchProduct({
 
   const handleChangeOptionsClick = (productId: number) => {
     const product = productList.find((product) => product.id === productId);
+
     if (product) {
       setOptionsProduct({
         ...product,
       });
     }
+
     setProductListOpen(false);
     setChooseOptionsOpen(true);
   };
@@ -169,14 +174,6 @@ export default function SearchProduct({
     >
       <Typography>{b3Lang('global.searchProductAddProduct.searchBySkuOrName')}</Typography>
       <TextField
-        hiddenLabel
-        placeholder={b3Lang(`global.searchProduct.placeholder.${type}`)}
-        variant="filled"
-        fullWidth
-        size="small"
-        value={searchText}
-        onChange={handleSearchTextChange}
-        onKeyDown={handleSearchTextKeyDown}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -184,20 +181,28 @@ export default function SearchProduct({
             </InputAdornment>
           ),
         }}
+        fullWidth
+        hiddenLabel
+        onChange={handleSearchTextChange}
+        onKeyDown={handleSearchTextKeyDown}
+        placeholder={b3Lang(`global.searchProduct.placeholder.${type}`)}
+        size="small"
         sx={{
           margin: '12px 0',
           '& input': {
             padding: '12px 12px 12px 0',
           },
         }}
+        value={searchText}
+        variant="filled"
       />
       <CustomButton
-        variant="outlined"
-        fullWidth
         disabled={isLoading}
+        fullWidth
         onClick={handleSearchButtonClicked}
+        variant="outlined"
       >
-        <B3Spin isSpinning={isLoading} tip="" size={16}>
+        <B3Spin isSpinning={isLoading} size={16} tip="">
           <Box
             sx={{
               flex: 1,
@@ -210,30 +215,30 @@ export default function SearchProduct({
       </CustomButton>
 
       <ProductListDialog
-        isOpen={productListOpen}
+        addButtonText={addButtonText}
         isLoading={isLoading}
+        isOpen={productListOpen}
+        onAddToListClick={handleProductListAddToList}
+        onCancel={handleProductListDialogCancel}
+        onChooseOptionsClick={handleChangeOptionsClick}
+        onProductQuantityChange={handleProductQuantityChange}
+        onSearch={handleSearchButtonClicked}
+        onSearchTextChange={handleSearchTextChange}
         productList={productList}
+        searchDialogTitle={searchDialogTitle}
         searchText={searchText}
         type={type}
-        onSearchTextChange={handleSearchTextChange}
-        onSearch={handleSearchButtonClicked}
-        onCancel={handleProductListDialogCancel}
-        onProductQuantityChange={handleProductQuantityChange}
-        onChooseOptionsClick={handleChangeOptionsClick}
-        onAddToListClick={handleProductListAddToList}
-        searchDialogTitle={searchDialogTitle}
-        addButtonText={addButtonText}
       />
 
       <ChooseOptionsDialog
-        isOpen={chooseOptionsOpen}
+        addButtonText={addButtonText}
         isLoading={isLoading}
-        type={type}
-        setIsLoading={setIsLoading}
-        product={optionsProduct}
+        isOpen={chooseOptionsOpen}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
-        addButtonText={addButtonText}
+        product={optionsProduct}
+        setIsLoading={setIsLoading}
+        type={type}
       />
     </Box>
   );

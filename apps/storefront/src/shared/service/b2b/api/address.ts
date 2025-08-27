@@ -8,4 +8,5 @@ const validateAddressExtraFields = (data: CustomFieldItems) =>
     ...data,
     storeHash,
   });
+
 export default validateAddressExtraFields;

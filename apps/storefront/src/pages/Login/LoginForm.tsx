@@ -1,7 +1,7 @@
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { Link as RouterLink } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Link, Typography, useTheme } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -44,13 +44,13 @@ function LoginForm(props: LoginFormProps) {
       }}
     >
       <Typography
-        variant="h5"
         sx={{
           margin: '20px 0',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
         }}
+        variant="h5"
       >
         {b3Lang('login.loginText.signInHeader')}
       </Typography>
@@ -67,9 +67,9 @@ function LoginForm(props: LoginFormProps) {
       >
         <form onSubmit={handleSubmit(handleLoginClick)}>
           <B3CustomForm
-            formFields={loginFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={loginFields}
             getValues={getValues}
             setValue={setValue}
           />
@@ -83,17 +83,17 @@ function LoginForm(props: LoginFormProps) {
             }}
           >
             <Button
-              type="submit"
-              variant="contained"
               sx={{
                 backgroundColor: theme.palette.primary.main,
               }}
+              type="submit"
+              variant="contained"
             >
               {loginBtn}
             </Button>
             <Link
-              component={RouterLink}
               color={getContrastColor(backgroundColor)}
+              component={RouterLink}
               to="/forgotPassword"
             >
               {b3Lang('login.loginText.forgotPasswordText')}

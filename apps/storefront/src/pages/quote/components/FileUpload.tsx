@@ -1,5 +1,3 @@
-import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
-import { DropzoneArea } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import {
@@ -9,6 +7,8 @@ import {
 } from '@mui/icons-material';
 import { Box, Tooltip, Typography, useTheme } from '@mui/material';
 import noop from 'lodash-es/noop';
+import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
+import { DropzoneArea } from 'react-mui-dropzone';
 import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -132,9 +132,11 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     if (maxSize / 1048576 > 1) {
       return `${(maxSize / 1048576).toFixed(1)}MB`;
     }
+
     if (maxSize / 1024 > 1) {
       return `${(maxSize / 1024).toFixed(1)}KB`;
     }
+
     return `${maxSize}B`;
   };
 
@@ -142,11 +144,13 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     const { size, type } = rejectedFile;
 
     let isAcceptFileType = false;
+
     acceptedFiles.forEach((acceptedFileType: string) => {
       isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
     });
 
     let message = '';
+
     if (!isAcceptFileType) {
       message = b3Lang('global.fileUpload.fileTypeNotSupported');
     }
@@ -170,6 +174,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
         maxFileSize: getMaxFileSizeLabel(maxFileSize),
       }),
     );
+
     return '';
   };
 
@@ -182,12 +187,14 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
 
     if (!limitUploadFn && file && fileList.length >= fileNumber) {
       snackbar.error(b3Lang('global.fileUpload.maxFileNumber', { fileNumber }));
+
       return;
     }
 
     if (file) {
       try {
         setLoading(true);
+
         const {
           code,
           data: fileInfo,
@@ -196,6 +203,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
           file,
           type: requestType,
         });
+
         if (code === 200) {
           onchange({
             ...fileInfo,
@@ -247,11 +255,11 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
                 </Box>
                 {file.hasDelete && (
                   <DeleteIcon
-                    sx={{
-                      cursor: 'pointer',
-                    }}
                     onClick={() => {
                       handleDelete(file?.id || '');
+                    }}
+                    sx={{
+                      cursor: 'pointer',
                     }}
                   />
                 )}
@@ -274,27 +282,27 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
               }}
             >
               <DropzoneArea
-                dropzoneClass="file-upload-area"
                 Icon={AttachFile}
-                filesLimit={1}
-                onChange={handleChange}
-                showPreviews={false}
-                showPreviewsInDropzone={false}
-                maxFileSize={maxFileSize}
-                showAlerts={false}
+                acceptedFiles={acceptedFiles}
+                dropzoneClass="file-upload-area"
                 dropzoneText={title}
+                filesLimit={1}
                 getDropRejectMessage={getRejectMessage}
                 getFileLimitExceedMessage={getFileLimitExceedMessage}
-                acceptedFiles={acceptedFiles}
+                maxFileSize={maxFileSize}
+                onChange={handleChange}
+                showAlerts={false}
+                showPreviews={false}
+                showPreviewsInDropzone={false}
               />
             </FileUploadContainer>
 
             <Tooltip
-              title={tips}
               sx={{
                 fontSize: '20px',
                 color: 'rgba(0, 0, 0, 0.54)',
               }}
+              title={tips}
             >
               <HelpIcon />
             </Tooltip>

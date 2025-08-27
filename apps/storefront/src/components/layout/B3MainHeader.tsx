@@ -1,8 +1,8 @@
-import { useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid, Typography } from '@mui/material';
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
@@ -100,38 +100,38 @@ export default function MainHeader({ title }: { title: string }) {
           <Box sx={{ marginLeft: '8px' }}>
             {role === 100 && (
               <Button
+                onClick={() => {
+                  navigate('/login');
+                }}
                 sx={{
                   color: '#333333',
                   fontWeight: 700,
                   fontSize: '16px',
-                }}
-                onClick={() => {
-                  navigate('/login');
                 }}
               >
                 {b3Lang('global.B3MainHeader.signIn')}
               </Button>
             )}
             <Button
+              onClick={() => {
+                window.location.href = '/';
+              }}
               sx={{
                 color: '#333333',
                 fontWeight: 700,
                 fontSize: '16px',
-              }}
-              onClick={() => {
-                window.location.href = '/';
               }}
             >
               {b3Lang('global.B3MainHeader.home')}
             </Button>
             {isShowCart && (
               <Button
+                onClick={onCartClick}
                 sx={{
                   color: '#333333',
                   fontWeight: 700,
                   fontSize: '16px',
                 }}
-                onClick={onCartClick}
               >
                 {b3Lang('global.B3MainHeader.cart')}
                 {cartNumber > 0 ? (

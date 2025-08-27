@@ -24,4 +24,5 @@ const B3Tag = styled('span')(
     display: 'inline-block',
   }),
 );
+
 export default B3Tag;

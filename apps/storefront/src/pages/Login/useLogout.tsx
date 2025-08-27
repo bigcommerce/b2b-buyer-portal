@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import { dispatchEvent } from '@b3/hooks';
+import { useCallback } from 'react';
 
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
 import { bcLogoutLogin } from '@/shared/service/bc';

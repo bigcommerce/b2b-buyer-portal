@@ -1,4 +1,3 @@
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   FormControl,
@@ -8,6 +7,7 @@ import {
   Radio,
   RadioGroup,
 } from '@mui/material';
+import { Controller } from 'react-hook-form';
 
 import Form from './ui';
 
@@ -46,10 +46,10 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
             {options?.length &&
               options.map((option: Form.RadopGroupListProps) => (
                 <FormControlLabel
-                  value={option.value}
-                  label={option.label}
-                  key={option.value}
                   control={<Radio />}
+                  key={option.value}
+                  label={option.label}
+                  value={option.value}
                 />
               ))}
           </RadioGroup>

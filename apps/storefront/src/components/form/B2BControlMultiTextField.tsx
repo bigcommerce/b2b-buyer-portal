@@ -1,10 +1,10 @@
-import { KeyboardEvent } from 'react';
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
 import { Box, TextField, Typography } from '@mui/material';
 import { concat, debounce, uniq } from 'lodash-es';
 import isEmpty from 'lodash-es/isEmpty';
+import { KeyboardEvent } from 'react';
+import { Controller } from 'react-hook-form';
 
 import Form from './ui';
 
@@ -82,6 +82,7 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
   const handleAddNewItem = () => {
     const currentValue = getValues(name).trim();
     const isValidValue = validate(currentValue, b3Lang);
+
     if (isValidValue) {
       setError(name, {
         type: 'custom',
@@ -97,6 +98,7 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
 
   const handleDelete = (currentItem: string) => {
     const newItems = existValue.filter((item: string) => item !== currentItem);
+
     if (handleSave) handleSave(newItems);
   };
 
@@ -114,6 +116,7 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
         autoComplete: 'off',
       };
     }
+
     return {};
   };
 
@@ -137,16 +140,6 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
             {...textField}
             {...rest}
             {...otherProps}
-            sx={{
-              color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-              ...sx,
-              '& input': {
-                ...extraPadding,
-              },
-            }}
-            error={!!errors[name]}
-            helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-            onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
             InputProps={
               !isEmpty(InputProps)
                 ? { ...InputProps }
@@ -161,6 +154,16 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
                     ),
                   }
             }
+            error={!!errors[name]}
+            helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+            onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
+            sx={{
+              color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+              ...sx,
+              '& input': {
+                ...extraPadding,
+              },
+            }}
             {...autoCompleteFn()}
           />
         )}

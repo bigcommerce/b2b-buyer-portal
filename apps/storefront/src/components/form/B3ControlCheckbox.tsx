@@ -1,6 +1,6 @@
-import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
+import { Controller } from 'react-hook-form';
 
 import Form from './ui';
 
@@ -56,8 +56,8 @@ export default function B3ControlCheckbox({ control, errors, getValues, ...rest 
             <FormControlLabel
               control={
                 <Checkbox
-                  onChange={() => onChange(handleCheck(list.value, name))}
                   checked={(value as any).includes(list.value)}
+                  onChange={() => onChange(handleCheck(list.value, name))}
                 />
               }
               key={list.value}

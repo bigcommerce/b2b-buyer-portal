@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction, useCallback, useContext, useEffect } from 'react';
 import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
+import { Dispatch, SetStateAction, useCallback, useContext, useEffect } from 'react';
 
 import {
   getContrastColor,
@@ -21,6 +21,7 @@ import useStorageState from '../useStorageState';
 import { addProductsFromCartToQuote } from './utils';
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>;
+
 interface MutationObserverProps {
   setOpenPage: DispatchProps;
   cartQuoteEnabled: boolean;
@@ -111,6 +112,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote');
 
     const b2bLoading = document.querySelector('#b2b-div-loading');
+
     if (b3CartToQuote && !b2bLoading) {
       addLoading(b3CartToQuote);
       addToQuote();
@@ -143,17 +145,21 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : [];
 
     let cartQuoteBtnDom: CustomFieldItems | null = null;
+
     if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return;
 
     if (!cartQuoteEnabled || window?.location?.pathname?.includes('checkout')) {
       document.querySelector('.b2b-cart-to-quote')?.remove();
+
       return;
     }
 
     if (document.querySelectorAll('.b2b-cart-to-quote')?.length) {
       const cartToQuoteBtns = document.querySelectorAll('.b2b-cart-to-quote');
+
       cartToQuoteBtns.forEach((button: CustomFieldItems) => {
         const cartToQuoteBtn = button;
+
         cartToQuoteBtn.innerHTML = cartToQuoteBtnLabel;
         cartToQuoteBtn.setAttribute('style', customCss);
         cartToQuoteBtn.style.backgroundColor = color;
@@ -162,6 +168,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
         setMediaStyle(mediaBlocks, `b2b-cart-to-quote ${classSelector}`);
       });
+
       return;
     }
 
@@ -184,7 +191,6 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
       );
     }
 
-    // eslint-disable-next-line
     return () => {
       if (cartQuoteBtnDom) {
         cartQuoteBtnDom.removeEventListener('click', quoteCallBack);

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Loading } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -32,6 +32,7 @@ function Payment() {
       if (!B2BToken) {
         setOpen(true);
         setLoading(false);
+
         return;
       }
 
@@ -83,12 +84,12 @@ function Payment() {
     <Box>
       {loading && <Loading backColor="#FFFFFF" />}
       <B3Dialog
-        isOpen={open}
         fullWidth
-        title=""
+        handRightClick={handleConfirm}
+        isOpen={open}
         rightSizeBtn="ok"
         showLeftBtn={false}
-        handRightClick={handleConfirm}
+        title=""
       >
         <Box
           sx={{

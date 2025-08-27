@@ -119,6 +119,7 @@ export const loginInfo = async () => {
   const loginTokenInfo = getLoginTokenInfo();
 
   const token = await getBCGraphqlToken(loginTokenInfo);
+
   if (token) {
     store.dispatch(setBcGraphQLToken(token));
   }
@@ -165,6 +166,7 @@ export const getCompanyInfo = async (
   };
 
   const { B2BToken } = store.getState().company.tokens;
+
   if (!B2BToken || !VALID_ROLES.includes(Number(role))) return companyInfo;
 
   if (id && userType === UserTypes.MULTIPLE_B2C && Number(role) !== CustomerRole.SUPER_ADMIN) {
@@ -188,6 +190,7 @@ export const getCompanyInfo = async (
   const blockPendingAccountOrderCreation = B3SStorage.get('blockPendingAccountOrderCreation');
   const noNewSFPlaceOrders =
     blockPendingAccountOrderCreation && companyInfo.companyStatus === CompanyStatus.PENDING;
+
   if (noNewSFPlaceOrders) {
     sessionStorage.setItem(
       'b2b-blockPendingAccountOrderCreation',
@@ -204,6 +207,7 @@ export const agentInfo = async (customerId: number | string, role: number) => {
   if (Number(role) === CustomerRole.SUPER_ADMIN) {
     try {
       const data: any = await getAgentInfo(customerId);
+
       if (data?.superAdminMasquerading) {
         const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading;
 
@@ -244,16 +248,19 @@ export const getCompanyUserInfo = async () => {
   } catch (error) {
     b2bLogger.error(error);
   }
+
   return undefined;
 };
 
 const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
+
   try {
     currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId());
   } catch (error) {
     b2bLogger.error(error);
+
     return undefined;
   }
 
@@ -264,6 +271,7 @@ const loginWithCurrentCustomerJWT = async () => {
   const newLoginType = data.authorization.result.loginType as LoginTypes;
 
   const B2BPermissions = data.authorization.result.permissions;
+
   store.dispatch(setPermissionModules(B2BPermissions));
 
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
@@ -288,6 +296,7 @@ export const getCurrentCustomerInfo = async (
 
   if (!b2bToken && !B2BToken) {
     const data = await loginWithCurrentCustomerJWT();
+
     if (!data) return undefined;
     loginType = data.newLoginType;
   }
@@ -404,6 +413,7 @@ export const getCurrentCustomerInfo = async (
     b2bLogger.error(error);
     clearCurrentCustomerInfo();
   }
+
   return undefined;
 };
 
@@ -411,6 +421,7 @@ export const getSearchVal = (search: string, key: string) => {
   if (!search) {
     return '';
   }
+
   const searchParams = new URLSearchParams(search);
 
   return searchParams.get(key);

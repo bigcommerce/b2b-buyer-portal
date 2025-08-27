@@ -77,12 +77,14 @@ export function UserItemCard(props: OrderItemCardProps) {
             name: companyRoleName,
           };
         }
+
         return {
           color: '#D9DCE9',
           textColor: 'black',
           ...item,
         };
       }
+
       if (Number(item.value) === 1) {
         return {
           color: 'rgba(237, 108, 2, 0.3)',
@@ -90,6 +92,7 @@ export function UserItemCard(props: OrderItemCardProps) {
           ...item,
         };
       }
+
       return {
         color: '#C4DD6C',
         textColor: 'black',
@@ -105,6 +108,7 @@ export function UserItemCard(props: OrderItemCardProps) {
     const roleItem = newRoleList.find((item: RoleListProps) => item.name === name);
 
     if (!roleItem) return null;
+
     return (
       <B3Tag color={roleItem.color} textColor={roleItem.textColor}>
         {roleItem.label}
@@ -120,10 +124,10 @@ export function UserItemCard(props: OrderItemCardProps) {
         }}
       >
         <Typography
-          variant="h5"
           sx={{
             color: 'rgba(0, 0, 0, 0.87)',
           }}
+          variant="h5"
         >
           {firstName} {lastName}
         </Typography>
@@ -142,17 +146,17 @@ export function UserItemCard(props: OrderItemCardProps) {
             {updateActionsPermission && (
               <IconButton
                 aria-label="edit"
+                onClick={() => onEdit(userInfo.id)}
                 size="small"
                 sx={{
                   marginRight: '8px',
                 }}
-                onClick={() => onEdit(userInfo.id)}
               >
                 <EditIcon fontSize="inherit" />
               </IconButton>
             )}
             {deleteActionsPermission && (
-              <IconButton aria-label="delete" size="small" onClick={() => onDelete(userInfo.id)}>
+              <IconButton aria-label="delete" onClick={() => onDelete(userInfo.id)} size="small">
                 <DeleteIcon fontSize="inherit" />
               </IconButton>
             )}

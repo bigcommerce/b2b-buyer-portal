@@ -1,9 +1,9 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -48,6 +48,7 @@ function useData() {
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
+
     const payload = {
       email: emailValue,
       channelId,
@@ -191,6 +192,7 @@ function AccountSetting() {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
           setIsFinishUpdate(false);
         }
+
         setLoading(false);
         setIsVisible(true);
       }
@@ -208,6 +210,7 @@ function AccountSetting() {
     const userExtraFields = accountInfoFormFields.filter(
       (item: CustomFieldItems) => item.custom && item.groupId === 1,
     );
+
     return userExtraFields.map((item: CustomFieldItems) => ({
       fieldName: deCodeField(item?.name || ''),
       fieldValue: data[item.name],
@@ -265,10 +268,12 @@ function AccountSetting() {
 
           if (!payload) {
             snackbar.success(b3Lang('accountSettings.notification.noEdits'));
+
             return;
           }
 
           const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
+
           await requestFn(payload);
 
           if (
@@ -307,7 +312,7 @@ function AccountSetting() {
   }, [accountInfoFormFields, b3Lang]);
 
   return (
-    <B3Spin isSpinning={isLoading} background={backgroundColor}>
+    <B3Spin background={backgroundColor} isSpinning={isLoading}>
       <Box>
         {isDisplayUpgradeBanner && <UpgradeBanner />}
         <Box
@@ -335,21 +340,21 @@ function AccountSetting() {
           }}
         >
           <B3CustomForm
-            formFields={translatedFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={translatedFields}
             getValues={getValues}
             setValue={setValue}
           />
 
           <CustomButton
+            onClick={handleAddUserClick}
             sx={{
               mt: '28px',
               mb: isMobile ? '20px' : '0',
               width: '100%',
               visibility: isVisible ? 'visible' : 'hidden',
             }}
-            onClick={handleAddUserClick}
             variant="contained"
           >
             {b3Lang('accountSettings.button.saveUpdates')}

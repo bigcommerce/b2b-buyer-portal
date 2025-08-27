@@ -11,6 +11,7 @@ interface FormField {
   name: string;
   value: string;
 }
+
 interface Address {
   address1: string;
   address2: string;

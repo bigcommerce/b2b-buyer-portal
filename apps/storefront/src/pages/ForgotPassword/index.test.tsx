@@ -1,3 +1,4 @@
+import b2blogger from '@/utils/b3Logger';
 import {
   assertQueryParams,
   fireEvent,
@@ -8,8 +9,6 @@ import {
   startMockServer,
   waitFor,
 } from 'tests/test-utils';
-
-import b2blogger from '@/utils/b3Logger';
 
 import { ForgotPassword } from '.';
 
@@ -41,7 +40,7 @@ afterEach(() => {
 
 it('shows the header', async () => {
   renderWithProviders(
-    <ForgotPassword isEnabledOnStorefront={false} storefrontSiteKey="" setOpenPage={vi.fn()} />,
+    <ForgotPassword isEnabledOnStorefront={false} setOpenPage={vi.fn()} storefrontSiteKey="" />,
   );
 
   screen.getByRole('heading', { name: /reset password/i });
@@ -51,7 +50,7 @@ it('closes the popover when clicking `close`', async () => {
   const setOpenPage = vi.fn();
 
   const { user } = renderWithProviders(
-    <ForgotPassword isEnabledOnStorefront={false} storefrontSiteKey="" setOpenPage={setOpenPage} />,
+    <ForgotPassword isEnabledOnStorefront={false} setOpenPage={setOpenPage} storefrontSiteKey="" />,
   );
 
   await user.click(screen.getByTestId('CloseIcon'));
@@ -67,9 +66,9 @@ describe('when a logo is provided', () => {
     renderWithProviders(
       <ForgotPassword
         isEnabledOnStorefront={false}
-        storefrontSiteKey=""
-        setOpenPage={vi.fn()}
         logo="https://foo/bar.png"
+        setOpenPage={vi.fn()}
+        storefrontSiteKey=""
       />,
     );
 
@@ -86,9 +85,9 @@ describe('when a logo is provided', () => {
     const { user } = renderWithProviders(
       <ForgotPassword
         isEnabledOnStorefront={false}
-        storefrontSiteKey=""
-        setOpenPage={vi.fn()}
         logo="https://foo/bar.png"
+        setOpenPage={vi.fn()}
+        storefrontSiteKey=""
       />,
     );
 
@@ -105,7 +104,7 @@ describe('when a logo is provided', () => {
 describe('when a logo is not provided', () => {
   it('is not rendered', () => {
     renderWithProviders(
-      <ForgotPassword isEnabledOnStorefront={false} storefrontSiteKey="" setOpenPage={vi.fn()} />,
+      <ForgotPassword isEnabledOnStorefront={false} setOpenPage={vi.fn()} storefrontSiteKey="" />,
     );
 
     expect(screen.queryByRole('img', { name: /logo/i })).not.toBeInTheDocument();
@@ -117,7 +116,7 @@ describe('when captcha is enabled', () => {
     const iframe = document.createElement('iframe');
 
     const { user } = renderWithProviders(
-      <ForgotPassword isEnabledOnStorefront storefrontSiteKey="foo-bar" setOpenPage={vi.fn()} />,
+      <ForgotPassword isEnabledOnStorefront setOpenPage={vi.fn()} storefrontSiteKey="foo-bar" />,
       {
         preloadedState: {
           theme: {
@@ -128,6 +127,7 @@ describe('when captcha is enabled', () => {
     );
 
     const emailInput = screen.getByRole('textbox', { name: /email/i });
+
     await user.type(emailInput, 'test@example.com');
 
     const button = screen.getByRole('button', { name: /reset password/i });
@@ -156,7 +156,7 @@ describe('when captcha is enabled', () => {
     const iframe = document.createElement('iframe');
 
     const { user, navigation } = renderWithProviders(
-      <ForgotPassword isEnabledOnStorefront storefrontSiteKey="foo-bar" setOpenPage={vi.fn()} />,
+      <ForgotPassword isEnabledOnStorefront setOpenPage={vi.fn()} storefrontSiteKey="foo-bar" />,
       {
         preloadedState: {
           theme: {
@@ -167,6 +167,7 @@ describe('when captcha is enabled', () => {
     );
 
     const emailInput = screen.getByRole('textbox', { name: /email/i });
+
     await user.type(emailInput, 'test@example.com');
 
     const button = screen.getByRole('button', { name: /reset password/i });
@@ -207,7 +208,7 @@ describe('when captcha is enabled', () => {
     const iframe = document.createElement('iframe');
 
     const { user } = renderWithProviders(
-      <ForgotPassword isEnabledOnStorefront storefrontSiteKey="foo-bar" setOpenPage={vi.fn()} />,
+      <ForgotPassword isEnabledOnStorefront setOpenPage={vi.fn()} storefrontSiteKey="foo-bar" />,
       {
         preloadedState: {
           theme: {
@@ -258,8 +259,8 @@ describe('when captcha is disabled', () => {
     const { user, navigation } = renderWithProviders(
       <ForgotPassword
         isEnabledOnStorefront={false}
-        storefrontSiteKey="foo-bar"
         setOpenPage={vi.fn()}
+        storefrontSiteKey="foo-bar"
       />,
     );
 
@@ -281,6 +282,7 @@ describe('when captcha is disabled', () => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
+
         return HttpResponse.error();
       }),
     );
@@ -288,8 +290,8 @@ describe('when captcha is disabled', () => {
     const { user } = renderWithProviders(
       <ForgotPassword
         isEnabledOnStorefront={false}
-        storefrontSiteKey="foo-bar"
         setOpenPage={vi.fn()}
+        storefrontSiteKey="foo-bar"
       />,
     );
 
@@ -314,7 +316,7 @@ describe('when captcha is disabled', () => {
 
 it('shows a missing email error when the email is missing', async () => {
   const { user, navigation } = renderWithProviders(
-    <ForgotPassword isEnabledOnStorefront storefrontSiteKey="foo-bar" setOpenPage={vi.fn()} />,
+    <ForgotPassword isEnabledOnStorefront setOpenPage={vi.fn()} storefrontSiteKey="foo-bar" />,
   );
 
   const button = screen.getByRole('button', { name: /reset password/i });

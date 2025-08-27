@@ -48,6 +48,7 @@ const queryParse = <T>(query: T): string => {
   Object.keys(query || {}).forEach((key: string) => {
     queryText += `${key}=${(query as any)[key]}&`;
   });
+
   return queryText.slice(0, -1);
 };
 

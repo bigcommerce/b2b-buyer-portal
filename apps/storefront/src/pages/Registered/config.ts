@@ -1,6 +1,6 @@
-import { UseFormSetError } from 'react-hook-form';
 import { LangFormatFunction } from '@b3/lang';
 import format from 'date-fns/format';
+import { UseFormSetError } from 'react-hook-form';
 
 import { validateAddressExtraFields, validateBCCompanyExtraFields } from '@/shared/service/b2b';
 import { getLineNumber, validatorRules } from '@/utils';
@@ -110,6 +110,7 @@ const fieldsType = {
 
 const classificationType = (item: CustomFieldItems) => {
   let optionItems: ValidateOptionItems = {};
+
   if (fieldsType.text.includes(item.fieldType)) {
     optionItems = {
       minlength: item.minlength || null,
@@ -118,6 +119,7 @@ const classificationType = (item: CustomFieldItems) => {
       max: item.max || Number(item.maximumValue) || null,
       rows: item?.options?.rows || item.numberOfRows || null,
     };
+
     if (optionItems?.max) {
       optionItems.validate = validatorRules(['max'], {
         max: optionItems?.max,
@@ -131,24 +133,29 @@ const classificationType = (item: CustomFieldItems) => {
     if (item?.fieldName === 'email' || item?.fieldName === 'phone') {
       optionItems.validate = validatorRules([item.fieldName]);
     }
+
     if (item.fieldType === 'number' || (item.fieldType === 'text' && item.type === 'integer')) {
       optionItems.validate = validatorRules(['number']);
     }
   }
+
   if (fieldsType.checkbox.includes(item.fieldType)) {
     optionItems = {
       default: item.default || [],
       options: item.options?.items || null,
     };
   }
+
   if (fieldsType.dropdown.includes(item.fieldType)) {
     const items = [];
+
     if (item.options?.helperLabel) {
       items.push({
         label: item.options.helperLabel,
         value: '',
       });
     }
+
     const options = [...items, ...(item.options?.items || [])];
 
     if (item.listOfValue) {
@@ -165,6 +172,7 @@ const classificationType = (item: CustomFieldItems) => {
       options: options || null,
     };
   }
+
   if (fieldsType.radio.includes(item.fieldType)) {
     optionItems = {
       default: item.default || '',
@@ -175,6 +183,7 @@ const classificationType = (item: CustomFieldItems) => {
   if (optionItems?.options) {
     optionItems?.options.forEach((option: any) => {
       const optionValue = option;
+
       if (option.value) {
         optionValue.value = option.label;
       }
@@ -189,6 +198,7 @@ const classificationType = (item: CustomFieldItems) => {
 };
 
 const noEncryptFieldList = ['country', 'state', 'email'];
+
 export const b2bAddressRequiredFields = [
   'field_country',
   'field_address_1',
@@ -209,6 +219,7 @@ export const deCodeField = (fieldName: string) => {
   if (noEncryptFieldList.includes(fieldName)) {
     return fieldName;
   }
+
   return Base64.decode(fieldName);
 };
 
@@ -224,9 +235,11 @@ const bcFieldName = (fieldName: string) => {
   if (fieldName === 'countryCode') {
     return 'country';
   }
+
   if (fieldName === 'stateOrProvince') {
     return 'state';
   }
+
   return fieldName;
 };
 
@@ -273,6 +286,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     }
 
     let obj: CustomFieldItems = {};
+
     if (item.valueConfigs?.id) {
       obj = conversionSingleItem(item.valueConfigs);
     } else {
@@ -310,6 +324,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     if (item.fieldId === 'field_confirm_password') {
       obj.name = 'confirmPassword';
     }
+
     if (obj.fieldType === 'files') {
       obj.filesLimit = 3;
       obj.maxFileSize = 10485760;
@@ -338,8 +353,10 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
       if (obj.fieldType === 'multiline') {
         originPaddingTop = 0;
       }
+
       if (obj.fieldType === 'dropdown') {
         originPaddingTop = 0;
+
         if (lineNumber > 1) {
           lineNumber += isMobile ? 1.4 : 2;
         }
@@ -353,6 +370,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
         lineNumber === 1
           ? `${originPaddingTop}px`
           : `${originPaddingTop / 16 + (lineNumber - 1)}rem`;
+
       if (lineNumber > 0) {
         obj.extraPadding = {
           paddingTop: paddingTopVal,
@@ -381,6 +399,7 @@ export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) =
 
     return getAccountFormItems;
   }
+
   return {};
 };
 
@@ -455,6 +474,7 @@ export const validateExtraFields = async ({
 
         if (messageArr.length >= 2) {
           const field = customFields.find((field) => Base64.decode(field.name) === messageArr[0]);
+
           if (field) {
             setError(field.name, {
               type: 'manual',
@@ -462,8 +482,10 @@ export const validateExtraFields = async ({
             });
           }
         }
+
         reject(message);
       }
+
       resolve(result);
     };
 

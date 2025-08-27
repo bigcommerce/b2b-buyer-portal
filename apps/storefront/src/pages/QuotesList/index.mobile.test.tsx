@@ -1,4 +1,14 @@
 import { PersistPartial } from 'redux-persist/es/persistReducer';
+
+import {
+  QuoteEdge,
+  QuotesListB2B,
+  QuotesListBC,
+  QuoteStatus,
+} from '@/shared/service/b2b/graphql/quote';
+import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
+import { QuoteInfoState } from '@/store/slices/quoteInfo';
+import { CompanyStatus, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -13,16 +23,6 @@ import {
   startMockServer,
   userEvent,
 } from 'tests/test-utils';
-
-import {
-  QuoteEdge,
-  QuotesListB2B,
-  QuotesListBC,
-  QuoteStatus,
-} from '@/shared/service/b2b/graphql/quote';
-import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
-import { QuoteInfoState } from '@/store/slices/quoteInfo';
-import { CompanyStatus, UserTypes } from '@/types';
 
 import QuotesList from './index';
 

@@ -1,5 +1,4 @@
 import { JSDOM } from 'jsdom';
-import { renderWithProviders } from 'tests/test-utils';
 
 import { ThemeFrame } from '@/components';
 import {
@@ -7,6 +6,7 @@ import {
   loadCaptchaScript,
   loadCaptchaWidgetHandlers,
 } from '@/components/captcha/Captcha';
+import { renderWithProviders } from 'tests/test-utils';
 
 describe('loadCaptchaScript', () => {
   it('should inject recaptcha script to Document', () => {
@@ -15,6 +15,7 @@ describe('loadCaptchaScript', () => {
     loadCaptchaScript(window.document);
 
     const recaptchaScript = window.document.getElementsByTagName('script')[0];
+
     expect(recaptchaScript).toMatchObject({
       src: 'https://www.google.com/recaptcha/api.js?render=explicit',
     });
@@ -26,6 +27,7 @@ describe('loadCaptchaWidgetHandlers', () => {
     const { window } = new JSDOM();
 
     loadCaptchaWidgetHandlers(window.document, 'testid');
+
     const recaptchaHandlersScript = window.document.getElementsByTagName('script')[0];
 
     expect(recaptchaHandlersScript).not.toMatchObject({
@@ -37,6 +39,7 @@ describe('loadCaptchaWidgetHandlers', () => {
     const { window } = new JSDOM();
 
     loadCaptchaWidgetHandlers(window.document, 'testid');
+
     const recaptchaHandlersScript = window.document.getElementsByTagName('script')[0];
 
     expect(recaptchaHandlersScript).toMatchObject({
@@ -49,7 +52,7 @@ describe('Captcha', () => {
   it('should render the captcha wrapper', async () => {
     const { store } = renderWithProviders(
       <ThemeFrame title="test-frame">
-        <Captcha siteKey="foo-bar-baz" theme="dark" size="normal" handleGetKey={vi.fn()} />
+        <Captcha handleGetKey={vi.fn()} siteKey="foo-bar-baz" size="normal" theme="dark" />
       </ThemeFrame>,
     );
 

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { usePageMask } from '@/components';
 import { ConfirmMasqueradeDialog } from '@/components/ConfirmMasqueradeDialog';
@@ -17,9 +17,9 @@ import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
-import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
+import { DashboardCard } from './components/DashboardCard';
 
 interface ListItem {
   [key: string]: string;
@@ -84,6 +84,7 @@ function Dashboard(props: PageProps) {
 
   const getSuperAdminCompaniesList: GetRequestList<ListItem, ListItem> = async (params) => {
     let list = { edges: [], totalCount: 0 };
+
     if (typeof b2bId === 'number') {
       list = (await superAdminCompanies(b2bId, params)).superAdminCompanies;
     }
@@ -100,11 +101,13 @@ function Dashboard(props: PageProps) {
   const startActing = async (companyId: number) => {
     try {
       setIsRequestLoading(true);
+
       if (typeof b2bId === 'number') {
         await startMasquerade({ customerId, companyId }, store);
       }
 
       const cartEntityId = Cookies.get('cartId');
+
       if (cartEntityId) {
         await clearCart(cartEntityId);
       }
@@ -125,11 +128,13 @@ function Dashboard(props: PageProps) {
   const endActing = async () => {
     try {
       showPageMask(true);
+
       if (typeof b2bId === 'number') {
         await endMasquerade(store);
       }
 
       const cartEntityId = Cookies.get('cartId');
+
       if (cartEntityId) {
         await clearCart(cartEntityId);
       }
@@ -146,6 +151,7 @@ function Dashboard(props: PageProps) {
     const params = {
       ...location,
     };
+
     if (params?.state) {
       endActing();
     }
@@ -235,15 +241,9 @@ function Dashboard(props: PageProps) {
         </Box>
         <B3PaginationTable
           columnItems={columnItems}
-          rowsPerPageOptions={rowsPerPage}
           getRequestList={getSuperAdminCompaniesList}
-          searchParams={filterData || {}}
           isCustomRender={false}
-          requestLoading={setIsRequestLoading}
-          tableKey="id"
-          sortDirection={order}
           orderBy={orderBy}
-          sortByFn={handleSetOrderBy}
           renderItem={({ companyName, companyEmail, companyId }) => {
             const isSelected = Number(companyId) === Number(salesRepCompanyId);
             const action = isSelected
@@ -258,23 +258,22 @@ function Dashboard(props: PageProps) {
 
             return (
               <DashboardCard
+                action={action}
                 companyName={companyName}
                 email={companyEmail}
                 isSelected={isSelected}
-                action={action}
               />
             );
           }}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={rowsPerPage}
+          searchParams={filterData || {}}
+          sortByFn={handleSetOrderBy}
+          sortDirection={order}
+          tableKey="id"
         />
       </Box>
       <ConfirmMasqueradeDialog
-        title={
-          confirmMasquerade?.type === 'end'
-            ? b3Lang('dashboard.masqueradeModal.title.end')
-            : b3Lang('dashboard.masqueradeModal.title.start')
-        }
-        isOpen={confirmMasquerade !== undefined}
-        isRequestLoading={isRequestLoading}
         handleClose={() => setConfirmMasquerade(undefined)}
         handleConfirm={async () => {
           if (confirmMasquerade?.type === 'start') {
@@ -285,6 +284,13 @@ function Dashboard(props: PageProps) {
             setConfirmMasquerade(undefined);
           }
         }}
+        isOpen={confirmMasquerade !== undefined}
+        isRequestLoading={isRequestLoading}
+        title={
+          confirmMasquerade?.type === 'end'
+            ? b3Lang('dashboard.masqueradeModal.title.end')
+            : b3Lang('dashboard.masqueradeModal.title.start')
+        }
       />
     </B3Spin>
   );

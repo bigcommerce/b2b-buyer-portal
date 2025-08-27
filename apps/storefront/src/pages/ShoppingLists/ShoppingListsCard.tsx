@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import {
@@ -12,6 +10,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
@@ -61,6 +61,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
     if (submitShoppingListPermission) {
       if (status === ShoppingListStatus.Draft || status === ShoppingListStatus.Approved)
         return false;
+
       return true;
     }
 
@@ -124,12 +125,12 @@ function ShoppingListsCard(props: OrderItemCardProps) {
         }}
       >
         <Typography
-          variant="h5"
           sx={{
             color: 'rgba(0, 0, 0, 0.87)',
             width: '100%',
             wordBreak: 'break-all',
           }}
+          variant="h5"
         >
           {shoppingList.name}
         </Typography>
@@ -176,12 +177,12 @@ function ShoppingListsCard(props: OrderItemCardProps) {
         </Box>
         <Flex>
           <CustomButton
+            onClick={() => goToDetail(shoppingList)}
             sx={{
               m: '0 0 0 -8px',
               minWidth: 0,
             }}
             variant="text"
-            onClick={() => goToDetail(shoppingList)}
           >
             {b3Lang('shoppingLists.card.view')}
           </CustomButton>
@@ -193,12 +194,12 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             {!getEditPermissions(shoppingList.status) && isCanEditShoppingList && (
               <IconButton
                 aria-label="edit"
+                onClick={() => {
+                  onEdit(shoppingList);
+                }}
                 size="medium"
                 sx={{
                   marginRight: '8px',
-                }}
-                onClick={() => {
-                  onEdit(shoppingList);
                 }}
               >
                 <EditIcon fontSize="inherit" />
@@ -207,12 +208,12 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
             <IconButton
               aria-label="duplicate"
+              onClick={() => {
+                onCopy(shoppingList);
+              }}
               size="medium"
               sx={{
                 marginRight: '8px',
-              }}
-              onClick={() => {
-                onCopy(shoppingList);
               }}
             >
               <ContentCopyIcon fontSize="inherit" />
@@ -220,10 +221,10 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             {shoppingListCanBeDeleted(shoppingList.status) && isCanEditShoppingList && (
               <IconButton
                 aria-label="delete"
-                size="medium"
                 onClick={() => {
                   onDelete(shoppingList);
                 }}
+                size="medium"
               >
                 <DeleteIcon fontSize="inherit" />
               </IconButton>

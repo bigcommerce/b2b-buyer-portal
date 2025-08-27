@@ -1,8 +1,8 @@
-import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Controller, useWatch } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
+import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Controller, useWatch } from 'react-hook-form';
 
 import { getB2BRoleList } from '@/shared/service/b2b';
 
@@ -55,6 +55,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     control,
     name: inputNameKey,
   });
+
   useEffect(() => {
     if (nameKey) {
       setInputValue(getValues()[inputNameKey as string] || '');
@@ -151,6 +152,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     (_: SyntheticEvent, value: string, reason: string) => {
       if (reason === 'input') {
         const val = value === 'undefined' ? '' : value;
+
         setInputValue(val);
         setIsSearchKeyEmpty(false);
         handleFilterRoleChange(val);
@@ -166,6 +168,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   const handleScroll = (event: SyntheticEvent) => {
     const listboxNode = event.currentTarget;
     const { scrollTop, clientHeight, scrollHeight } = listboxNode;
+
     if (scrollTop + clientHeight + 1 >= scrollHeight) {
       fetchData({
         type: 'scroll',
@@ -178,7 +181,9 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     setPage(1);
     setOptions([]);
     setIsSearchKeyEmpty(true);
+
     const { preSelectValue, selectValue, inputValue } = cache.current;
+
     if (preSelectValue === selectValue) {
       setInputValue(inputValue || '');
     } else {
@@ -188,12 +193,12 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
 
   return (
     <FormControl
-      variant="filled"
+      disabled={disabled}
       style={{
         width: '100%',
         color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
       }}
-      disabled={disabled}
+      variant="filled"
     >
       <Controller
         {...fieldsProps}
@@ -202,31 +207,6 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
           <Autocomplete
             {...field}
             {...muiAttributeProps}
-            loading={loading}
-            disableClearable
-            options={options || []}
-            inputValue={inputValue}
-            value={inputValue || ''}
-            loadingText="Loading..."
-            getOptionLabel={(option: Option) => option.name ?? option}
-            openOnFocus
-            onChange={handleSelectChange}
-            onInputChange={handleInputChange}
-            onOpen={handleOpenSelect}
-            onClose={handleClose}
-            size={size}
-            sx={{
-              ...extraPadding,
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="filled"
-                error={!!errors[name]}
-                required={required}
-                label={label}
-              />
-            )}
             ListboxProps={{
               onScroll: handleScroll,
               style: {
@@ -234,6 +214,31 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
                 overflow: 'auto',
               },
             }}
+            disableClearable
+            getOptionLabel={(option: Option) => option.name ?? option}
+            inputValue={inputValue}
+            loading={loading}
+            loadingText="Loading..."
+            onChange={handleSelectChange}
+            onClose={handleClose}
+            onInputChange={handleInputChange}
+            onOpen={handleOpenSelect}
+            openOnFocus
+            options={options || []}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                error={!!errors[name]}
+                label={label}
+                required={required}
+                variant="filled"
+              />
+            )}
+            size={size}
+            sx={{
+              ...extraPadding,
+            }}
+            value={inputValue || ''}
           />
         )}
       />

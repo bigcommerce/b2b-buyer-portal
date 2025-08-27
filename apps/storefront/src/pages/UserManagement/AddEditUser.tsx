@@ -1,7 +1,7 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import concat from 'lodash-es/concat';
+import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -75,6 +75,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
   const handleGetUsersFiles = async () => {
     const userExtrafields = await getB2BUserExtraFields();
+
     setUserExtrafields(userExtrafields);
   };
 
@@ -88,6 +89,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
     const keyValue = Object.keys(selectedData);
 
     const extrafields: ExtraFieldsProps[] = [];
+
     userExtrafields.forEach((item: UsersFilesProps) => {
       if (keyValue.includes(item.name)) {
         const extraField = {
@@ -123,6 +125,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   const handleCancelClick = () => {
     usersFiles.forEach((item: UsersFilesProps) => {
       setValue(item.name, '');
+
       if (item.isExtraFields) {
         setValue(item.name, item.default || '');
       }
@@ -166,6 +169,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   const handleAddUserClick = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true);
+
       const extraFieldsInfo = handleGetExtrafieldsInfo(data);
       let message = b3Lang('userManagement.addUserSuccessfully');
 
@@ -182,6 +186,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
           if (!isValid) {
             setAddUpdateLoading(false);
+
             return;
           }
 
@@ -229,6 +234,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
       const data = await getUser({ userId, companyId });
       const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || [];
       let newData = data;
+
       if (extrafieldsInfo && extrafieldsInfo.length > 0) {
         const extrafieldsData: CustomFieldItems = {};
 
@@ -246,12 +252,15 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
       const companyRoleItem: UsersFilesProps | null =
         usersFiles.find((item) => item.name === 'companyRoleId') || null;
+
       if (companyRoleItem) {
         companyRoleItem.defaultName = data?.companyRoleName || '';
         companyRoleItem.default = data?.companyRoleId || '';
       }
     }
+
     const allUsersFiles = concat(usersFiles, userExtrafields);
+
     setUsersFiles(allUsersFiles);
 
     setType(type);
@@ -264,21 +273,21 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
   return (
     <B3Dialog
+      handRightClick={handleAddUserClick}
+      handleLeftClick={handleCancelClick}
       isOpen={open}
+      isShowBordered
+      leftSizeBtn={b3Lang('userManagement.cancel')}
+      loading={addUpdateLoading}
+      rightSizeBtn={b3Lang('userManagement.saveUser')}
       title={
         type === 'edit' ? b3Lang('userManagement.editUser') : b3Lang('userManagement.addNewUser')
       }
-      leftSizeBtn={b3Lang('userManagement.cancel')}
-      rightSizeBtn={b3Lang('userManagement.saveUser')}
-      handleLeftClick={handleCancelClick}
-      handRightClick={handleAddUserClick}
-      loading={addUpdateLoading}
-      isShowBordered
     >
       <B3CustomForm
-        formFields={usersFiles}
-        errors={errors}
         control={control}
+        errors={errors}
+        formFields={usersFiles}
         getValues={getValues}
         setValue={setValue}
       />

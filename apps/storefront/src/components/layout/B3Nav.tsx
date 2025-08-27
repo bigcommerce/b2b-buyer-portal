@@ -1,7 +1,7 @@
-import { useContext, useEffect, useMemo } from 'react';
-import { matchPath, useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@mui/material';
+import { useContext, useEffect, useMemo } from 'react';
+import { matchPath, useLocation, useNavigate } from 'react-router-dom';
 
 import { useMobile } from '@/hooks';
 import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
@@ -101,6 +101,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     }
 
     navigate(item.path);
+
     if (isMobile && closeSidebar) {
       closeSidebar(false);
     }
@@ -158,6 +159,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
         if (route?.subsidiariesCompanyKey === 'companyHierarchy') {
           return isEnabledCompanyHierarchy && subsidiariesPermission[route.subsidiariesCompanyKey];
         }
+
         return true;
       });
     }
@@ -171,12 +173,14 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const activePath = (path: string) => {
     if (location.pathname === path) {
       B3SStorage.set('prevPath', path);
+
       return true;
     }
 
     if (location.pathname.includes('orderDetail')) {
       const gotoOrderPath =
         B3SStorage.get('prevPath') === '/company-orders' ? '/company-orders' : '/orders';
+
       if (path === gotoOrderPath) return true;
     }
 
@@ -193,6 +197,8 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
 
   return (
     <List
+      aria-labelledby="nested-list-subheader"
+      component="nav"
       sx={{
         width: '100%',
         maxWidth: 360,
@@ -210,19 +216,17 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
           },
         },
       }}
-      component="nav"
-      aria-labelledby="nested-list-subheader"
     >
       {newRoutes.map((item) => {
         if (item.name === 'Quotes') {
           const { pathname } = location;
+
           return (
-            <ListItem key={item.path} disablePadding>
+            <ListItem disablePadding key={item.path}>
               <Badge
                 badgeContent={
                   quoteDetailHasNewMessages && pathname.includes('quoteDetail') ? '' : 0
                 }
-                variant="dot"
                 sx={{
                   width: '100%',
                   '& .MuiBadge-badge.MuiBadge-dot': {
@@ -233,6 +237,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
                     top: 22,
                   },
                 }}
+                variant="dot"
               >
                 <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
                   <ListItemText primary={b3Lang(item.idLang)} />
@@ -241,8 +246,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
             </ListItem>
           );
         }
+
         return (
-          <ListItem key={item.path} disablePadding>
+          <ListItem disablePadding key={item.path}>
             <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
               <ListItemText primary={b3Lang(item.idLang)} />
             </ListItemButton>

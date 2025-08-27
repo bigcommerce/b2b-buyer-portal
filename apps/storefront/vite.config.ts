@@ -14,6 +14,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
     experimental: {
       renderBuiltUrl(filename: string) {
         const isCustomBuyerPortal = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
+
         return isCustomBuyerPortal
           ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${filename}`
           : {
@@ -82,6 +83,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             if (name.includes('headless') || env.VITE_DISABLE_BUILD_HASH) {
               return '[name].js';
             }
+
             return '[name].[hash].js';
           },
           manualChunks: {
@@ -108,6 +110,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
           if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
             return;
           }
+
           warn(warning);
         },
         plugins: env.VITE_VISUALIZER === '1' && [
