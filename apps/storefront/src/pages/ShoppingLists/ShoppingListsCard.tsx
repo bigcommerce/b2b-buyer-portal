@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import {
   ContentCopy as ContentCopyIcon,
@@ -14,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import CustomButton from '@/components/button/CustomButton';
+import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { displayFormat, verifyLevelPermission } from '@/utils';

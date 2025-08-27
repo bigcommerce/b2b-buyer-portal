@@ -1,5 +1,6 @@
-import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 interface LoadingProps {
   backColor?: string;

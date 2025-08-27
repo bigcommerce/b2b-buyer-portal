@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Check } from '@mui/icons-material';
 import {
   Checkbox,
@@ -12,6 +11,7 @@ import {
 } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 
 interface B2BAutoCompleteCheckboxProps {

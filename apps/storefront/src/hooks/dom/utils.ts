@@ -1,6 +1,6 @@
 import config from '@b3/global-b3';
-import { LangFormatFunction } from '@b3/lang';
 
+import { LangFormatFunction } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchProducts } from '@/shared/service/b2b';
 import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';

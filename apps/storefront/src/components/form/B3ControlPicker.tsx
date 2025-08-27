@@ -1,12 +1,12 @@
 import { useContext, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 
 import setDayjsLocale from '../ui/setDayjsLocale';

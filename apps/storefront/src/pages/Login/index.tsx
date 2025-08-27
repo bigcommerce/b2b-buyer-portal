@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { dispatchEvent } from '@b3/hooks';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
@@ -9,6 +8,7 @@ import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
 import { GlobalContext } from '@/shared/global';

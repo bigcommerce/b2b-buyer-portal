@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import config from '@b3/global-b3';
-import { useB3Lang } from '@b3/lang';
 
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, useAppSelector } from '@/store';

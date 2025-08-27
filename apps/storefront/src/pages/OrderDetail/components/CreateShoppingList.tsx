@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 

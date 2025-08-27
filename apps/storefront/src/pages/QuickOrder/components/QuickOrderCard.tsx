@@ -1,8 +1,8 @@
 import { ReactElement } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useB3Lang } from '@/lib/lang';
 import { currencyFormat, displayFormat } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 

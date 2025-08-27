@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem, Typography } from '@mui/material';
 
 import { B3Card, B3CustomForm } from '@/components';
@@ -9,6 +8,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { Captcha } from '@/components/form';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';

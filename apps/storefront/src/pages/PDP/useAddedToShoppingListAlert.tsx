@@ -1,5 +1,4 @@
-import { useB3Lang } from '@b3/lang';
-
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { globalSnackbar } from '@/utils';
 

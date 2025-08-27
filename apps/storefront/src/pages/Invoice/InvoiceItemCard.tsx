@@ -1,10 +1,10 @@
 import { ReactElement, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, InputAdornment, TextField, Typography } from '@mui/material';
 
 import { TableColumnItem } from '@/components/table/B3Table';
+import { useB3Lang } from '@/lib/lang';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import { currencyFormat, displayFormat } from '@/utils';
 

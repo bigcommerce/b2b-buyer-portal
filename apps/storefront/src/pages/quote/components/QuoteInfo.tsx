@@ -1,9 +1,9 @@
 import { useId } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import {
   BillingAddress,
   ContactInfo,

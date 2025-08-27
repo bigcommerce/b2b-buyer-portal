@@ -1,6 +1,5 @@
 import { useEffect, useId, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import {
   NavigateBefore as NavigateBeforeIcon,
   NavigateNext as NavigateNextIcon,
@@ -9,6 +8,7 @@ import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 

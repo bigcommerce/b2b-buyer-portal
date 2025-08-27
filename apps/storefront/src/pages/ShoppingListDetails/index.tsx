@@ -1,10 +1,10 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box, Grid, useTheme } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   deleteB2BShoppingListItem,

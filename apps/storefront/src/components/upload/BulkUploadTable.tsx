@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { InsertDriveFile, MoreHoriz } from '@mui/icons-material';
 import { Box, Button, Link, Menu, MenuItem, Tab, Tabs, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -7,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 
 import BulkUploadTableCard from './BulkUploadTableCard';
 

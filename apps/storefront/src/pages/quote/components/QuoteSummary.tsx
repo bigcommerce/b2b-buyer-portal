@@ -7,9 +7,9 @@ import {
   useImperativeHandle,
   useState,
 } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils';
 import { getBCPrice } from '@/utils/b3Product/b3Product';

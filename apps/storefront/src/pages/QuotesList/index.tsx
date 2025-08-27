@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
@@ -8,6 +7,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   getB2BQuotesList,

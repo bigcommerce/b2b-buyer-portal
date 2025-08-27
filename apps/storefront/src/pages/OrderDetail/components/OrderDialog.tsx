@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 
@@ -9,6 +8,7 @@ import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,

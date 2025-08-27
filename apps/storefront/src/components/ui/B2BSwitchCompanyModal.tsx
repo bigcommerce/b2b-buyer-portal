@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import B3Dialog from '@/components/B3Dialog';
+import { useB3Lang } from '@/lib/lang';
 import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { store, useAppSelector } from '@/store';

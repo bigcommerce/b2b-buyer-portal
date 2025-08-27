@@ -1,10 +1,10 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, styled, Typography } from '@mui/material';
 
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';

@@ -1,5 +1,4 @@
-import { LangFormatFunction } from '@b3/lang';
-
+import { LangFormatFunction } from '@/lib/lang';
 import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { OrderedProductType, ProductInfoType } from '@/types/gql/graphql';

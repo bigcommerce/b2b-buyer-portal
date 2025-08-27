@@ -1,5 +1,6 @@
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 export function SelectedBadge() {
   const b3Lang = useB3Lang();
