@@ -1,6 +1,0 @@
-{
-  "exclude": ["node_modules"],
-  "extends": "@b3/tsconfig/vite.json",
-  "include": ["**/*.ts"],
-  "files": ["./index.d.ts"]
-}

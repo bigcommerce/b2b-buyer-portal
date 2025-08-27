@@ -1,6 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dispatchEvent } from '@b3/hooks';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, uniq } from 'lodash-es';
@@ -9,7 +8,12 @@ import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
-import { useMobile, useSetCountry, useValidatePermissionWithComparisonType } from '@/hooks';
+import {
+  dispatchEvent,
+  useMobile,
+  useSetCountry,
+  useValidatePermissionWithComparisonType,
+} from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';

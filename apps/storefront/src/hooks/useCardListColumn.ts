@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useWindowSize } from '@b3/hooks';
+
+import useWindowSize from './useWindowSize';
 
 const useCardListColumn = () => {
   const { width } = useWindowSize();
