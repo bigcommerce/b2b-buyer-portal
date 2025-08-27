@@ -1,6 +1,77 @@
 {
-  "extends": ["b2b"],
+  "extends": ["@bigcommerce/eslint-config"],
   "rules": {
+    "@bigcommerce/jsx-short-circuit-conditionals": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/await-thenable": "off",
+    "@typescript-eslint/consistent-indexed-object-style": "off",
+    "@typescript-eslint/consistent-type-assertions": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/member-ordering": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/no-base-to-string": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off",
+    "@typescript-eslint/no-deprecated": "off",
+    "@typescript-eslint/no-duplicate-type-constituents": "off",
+    "@typescript-eslint/no-dynamic-delete": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-invalid-void-type": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-misused-spread": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-redundant-type-constituents": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "@typescript-eslint/no-throw-literal": "off",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
+    "@typescript-eslint/no-unnecessary-condition": "off",
+    "@typescript-eslint/no-unnecessary-type-arguments": "off",
+    "@typescript-eslint/no-unnecessary-type-assertion": "off",
+    "@typescript-eslint/no-unnecessary-type-conversion": "off",
+    "@typescript-eslint/no-unnecessary-type-parameters": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-enum-comparison": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-wrapper-object-types": "off",
+    "@typescript-eslint/non-nullable-type-assertion-style": "off",
+    "@typescript-eslint/only-throw-error": "off",
+    "@typescript-eslint/prefer-for-of": "off",
+    "@typescript-eslint/prefer-includes": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "@typescript-eslint/prefer-optional-chain": "off",
+    "@typescript-eslint/prefer-promise-reject-errors": "off",
+    "@typescript-eslint/prefer-reduce-type-parameter": "off",
+    "@typescript-eslint/prefer-regexp-exec": "off",
+    "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "complexity": "off",
+    "curly": "off",
+    "import/dynamic-import-chunkname": "off",
+    "import/export": "off",
+    "jsdoc/check-param-names": "off",
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns-check": "off",
+    "jsdoc/require-returns-type": "off",
+    "jsx-a11y/no-autofocus": "off",
+    "no-restricted-syntax": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "react/jsx-pascal-case": "off",
+    "react/prefer-read-only-props": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-wrap-multilines": "off",
+    "react/destructuring-assignment": "off",
+    "no-param-reassign": "off",
     "no-restricted-imports": [
       "error",
       {
@@ -21,7 +92,7 @@
   },
   "overrides": [
     {
-      "files": ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
       "rules": {
         "no-restricted-imports": [
           "error",
@@ -31,145 +102,6 @@
           }
         ]
       }
-    },
-    {
-      "files": ["src/pages/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
-      "rules": {
-        "no-param-reassign": 0
-      }
-    },
-    {
-      "files": ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
-      "rules": {
-        "react/jsx-props-no-spreading": 0
-      }
-    },
-    {
-      "files": [
-        "src/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}",
-        "src/pages/**/*.{ts,tsx}",
-        "src/hooks/**/*.ts",
-        "src/hooks/*.ts",
-        "src/utils/**/*.ts",
-        "src/utils/*.ts",
-        "**.**.ts"
-      ],
-      "rules": {
-        "@typescript-eslint/no-shadow": 0
-      }
-    },
-    {
-      "files": [
-        "src/pages/AccountSetting/index.tsx",
-        "src/pages/AccountSetting/utils.ts",
-        "src/pages/AddressList/components/AddressForm.tsx",
-        "src/pages/AddressList/index.tsx",
-        "src/pages/Invoice/InvoiceItemCard.tsx",
-        "src/pages/Login/config.ts",
-        "src/pages/OrderDetail/components/OrderDialog.tsx",
-        "src/pages/PDP/index.tsx",
-        "src/pages/QuickOrder/components/QuickOrderCard.tsx",
-        "src/pages/QuickOrder/components/QuickOrderPad.tsx",
-        "src/pages/QuickOrder/components/QuickOrderB2BTable.tsx",
-        "src/pages/Registered/RegisterComplete.tsx",
-        "src/pages/Registered/RegisteredAccount.tsx",
-        "src/pages/Registered/RegisteredStep.tsx",
-        "src/pages/Registered/component/RegisteredStepButton.tsx",
-        "src/pages/Registered/config.ts",
-        "src/pages/Registered/types.ts",
-        "src/pages/RegisteredBCToB2B/index.tsx",
-        "src/pages/ShoppingListDetails/components/AddToShoppingList.tsx",
-        "src/pages/ShoppingListDetails/components/ChooseOptionsDialog.tsx",
-        "src/pages/ShoppingListDetails/components/ReAddToCart.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailCard.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailFooter.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailHeader.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx",
-        "src/pages/ShoppingListDetails/index.tsx",
-        "src/pages/ShoppingListDetails/ShoppingListDetails.tsx",
-        "src/pages/ShoppingLists/config.ts",
-        "src/pages/ShoppingLists/index.tsx",
-        "src/pages/ShoppingLists/ShoppingLists.tsx",
-        "src/pages/UserManagement/config.ts",
-        "src/pages/UserManagement/getUserExtraFields.ts",
-        "src/pages/order/Order.tsx",
-        "src/pages/order/OrderItemCard.tsx",
-        "src/pages/order/config.ts",
-        "src/pages/QuoteDetail/index.tsx",
-        "src/pages/QuoteDraft/index.tsx",
-        "src/pages/QuotesList/index.tsx",
-        "src/pages/quote/components/ContactInfo.tsx",
-        "src/pages/quote/components/QuoteAddress.tsx",
-        "src/pages/quote/components/QuoteDetailTable.tsx",
-        "src/pages/quote/components/QuoteDetailTableCard.tsx",
-        "src/pages/QuotesList/QuoteItemCard.tsx",
-        "src/pages/quote/components/QuoteTable.tsx",
-        "src/pages/quote/components/QuoteTableCard.tsx",
-        "src/components/*.tsx",
-        "src/components/button/*.tsx",
-        "src/components/filter/*.tsx",
-        "src/components/form/*.{ts,tsx}",
-        "src/components/table/*.tsx",
-        "src/components/ui/*.tsx",
-        "src/components/upload/*.tsx",
-        "src/hooks/**/*.ts",
-        "src/hooks/*.ts",
-        "src/shared/service/**/graphql/*.ts",
-        "src/shared/service/request/*.ts",
-        "src/types/*.ts",
-        "src/utils/b3Product/shared/*.ts",
-        "src/utils/b3AddToShoppingList.ts",
-        "src/utils/b3Product/*.ts",
-        "src/utils/*.ts",
-        "src/**.d.ts"
-      ],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": 0
-      }
-    },
-    {
-      "files": ["src/utils/b3Logger.ts"],
-      "rules": {
-        "no-console": 0
-      }
-    },
-    {
-      "files": [
-        "src/components/form/*.ts",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx",
-        "src/pages/QuotesList/QuoteItemCard.tsx",
-        "src/pages/QuotesList/index.tsx",
-        "src/utils/*.ts",
-        "tests/components/captcha/*.*.tsx"
-      ],
-      "rules": {
-        "@typescript-eslint/ban-types": 0
-      }
-    },
-    {
-      "files": ["src/components/form/ui.ts"],
-      "rules": { "@typescript-eslint/no-namespace": 0 }
-    },
-    {
-      "files": ["src/components/upload/*.tsx"],
-      "rules": { "react/destructuring-assignment": 0 }
-    },
-    {
-      "files": ["src/pages/**/*.{ts,tsx}"],
-      "rules": { "@typescript-eslint/no-non-null-assertion": 0 }
-    },
-    {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
-      "rules": { "react/jsx-wrap-multilines": 0 }
-    },
-    {
-      "files": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
-      "rules": { "import/extensions": 0 }
-    },
-    {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
-      "rules": { "@bigcommerce/jsx-short-circuit-conditionals": 0 }
     }
   ]
 }

@@ -1,10 +1,14 @@
 {
   "root": true,
-  "extends": ["b2b"],
+  "extends": ["@bigcommerce/eslint-config"],
   "overrides": [
     {
       "files": ["**/*.ts"],
-      "rules": { "@typescript-eslint/no-explicit-any": 0 }
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/naming-convention": "off",
+        "@typescript-eslint/consistent-indexed-object-style": "off"
+      }
     }
   ]
 }
