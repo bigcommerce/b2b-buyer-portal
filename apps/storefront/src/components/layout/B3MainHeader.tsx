@@ -1,9 +1,9 @@
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dispatchEvent } from '@b3/hooks';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
+import { dispatchEvent } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';

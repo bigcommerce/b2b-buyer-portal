@@ -120,3 +120,18 @@ declare interface CurrencyProps {
   thousandsToken: string;
   currencyExchangeRate: string;
 }
+
+declare interface Window {
+  b2b: {
+    callbacks: {
+      dispatchEvent: (
+        callbackKey: import('./useB2BCallback').EventType,
+
+        data?: Record<string, any>,
+      ) => boolean;
+    };
+  };
+  b2b: {
+    isInit: boolean;
+  };
+}

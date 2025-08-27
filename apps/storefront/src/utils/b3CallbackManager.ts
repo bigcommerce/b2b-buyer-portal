@@ -1,4 +1,4 @@
-import { EventType } from '@b3/hooks';
+import { EventType } from '@/hooks';
 
 import b2bLogger from './b3Logger';
 
