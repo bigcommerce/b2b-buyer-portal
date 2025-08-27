@@ -7,7 +7,6 @@ export type EventType =
   | 'on-registered'
   | 'on-logout';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Args = Record<string, any>;
 
 export const dispatchEvent = (event: EventType, data?: Args): boolean => {

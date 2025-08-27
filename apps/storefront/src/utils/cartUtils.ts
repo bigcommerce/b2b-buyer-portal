@@ -1,6 +1,6 @@
-import { dispatchEvent } from '@b3/hooks';
 import Cookies from 'js-cookie';
 
+import { dispatchEvent } from '@/hooks';
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
 
 import { LineItem } from './b3Product/b3Product';

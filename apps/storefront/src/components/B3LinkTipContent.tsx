@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { dispatchEvent } from '@b3/hooks';
 import { Box } from '@mui/material';
+
+import { dispatchEvent } from '@/hooks';
 
 export interface B3SuccessTipContentProps {
   message: string;
