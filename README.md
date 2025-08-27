@@ -115,6 +115,12 @@ Read the [Stencil Guide](./docs/stencil.md) when you are working on the BigComme
 
 Read the [Headless Guide](./docs/headless.md) when you are working on Catalyst, NextJS and other headless storefronts
 
+### Releases
+
+1. Upon merging your pull request, this repository will automatically deploy your changes to the production environment.
+
+2. You can access the release pipeline at: https://launchbay.bigcommerce.net/projects/515/releases/new
+
 ### Common issues:
 
 - **Stencil CLI** We're working to bring full support to integrate buyer portal into [stencil-cli](https://developer.bigcommerce.com/docs/storefront/stencil). If you find any issues feel free to open an issue report.
