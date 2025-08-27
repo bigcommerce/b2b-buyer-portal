@@ -295,6 +295,25 @@ export default /* GraphQL */ `
     ): RemoveAttachmentResult!
   }
 
+  input CreateQuoteInput {
+      title: String
+      lineItems: [QuoteLineItemInput!]
+      currencyCode: String
+  }
+
+  type CreateQuoteError implements Error {
+      message: String!
+  }
+
+  type CreateQuoteResult {
+      quote: Quote
+      errors: [CreateQuoteError!]!
+  }
+
+  extend type QuoteMutations {
+      create(input: CreateQuoteInput!): CreateQuoteResult!
+  }
+
   extend type Mutation {
     quote: QuoteMutations!
   }
