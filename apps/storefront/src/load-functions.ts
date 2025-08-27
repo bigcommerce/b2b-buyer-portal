@@ -1,4 +1,4 @@
-import config from '@b3/global-b3';
+import config from '@/lib/config';
 
 export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
   window.requestIdleCallback

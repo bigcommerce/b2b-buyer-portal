@@ -1,4 +1,4 @@
-import config from '@b3/global-b3';
+import config from '@/lib/config';
 
 interface Setting {
   [key: string]: string;

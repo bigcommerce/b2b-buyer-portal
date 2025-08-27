@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useRef } from 'react';
-import config from '@b3/global-b3';
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
 import cloneDeep from 'lodash-es/cloneDeep';
 
@@ -13,6 +12,7 @@ import {
   ADD_TO_SHOPPING_LIST_DEFAULT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARIABLE,
 } from '@/constants';
+import config from '@/lib/config';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';

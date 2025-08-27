@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
-import config from '@b3/global-b3';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import {
@@ -9,6 +8,7 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { ADD_TO_QUOTE_DEFAULT_VALUE, TRANSLATION_ADD_TO_QUOTE_VARIABLE } from '@/constants';
+import config from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
