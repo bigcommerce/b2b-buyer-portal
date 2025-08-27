@@ -1,5 +1,4 @@
-import config from '@b3/global-b3';
-
+import config from '@/lib/config';
 import { LangFormatFunction } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchProducts } from '@/shared/service/b2b';

@@ -21,7 +21,6 @@
     "start": "http-server ./dist --cors"
   },
   "dependencies": {
-    "@b3/global-b3": "*",
     "@emotion/cache": "^11.9.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.9.3",
