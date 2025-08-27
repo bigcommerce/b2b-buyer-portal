@@ -14,7 +14,7 @@
   "dependencies": {
     "@bigcommerce/eslint-config": "^2.8.1",
     "eslint": "^8.2.0",
-    "eslint-plugin-testing-library": "^5.10.3"
+    "eslint-plugin-testing-library": "^7.6.6"
   },
   "devDependencies": {}
 }
