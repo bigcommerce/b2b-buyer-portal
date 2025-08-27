@@ -78,7 +78,7 @@
     "@types/react-infinite-scroller": "^1.2.3",
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-legacy": "^7.2.1",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^5.0.1",
     "@vitest/coverage-istanbul": "^3.2.4",
     "babel-plugin-import": "^1.13.8",
     "c8": "^7.11.3",
