@@ -1,6 +1,7 @@
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { DataUsageRounded } from '@mui/icons-material';
+
+import { useB3Lang } from '@/lib/lang';
 
 const NoDataContainer = styled('div')(() => ({
   height: '100%',

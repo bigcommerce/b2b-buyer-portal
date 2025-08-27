@@ -1,5 +1,4 @@
 import { PropsWithChildren } from 'react';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Theme, useTheme } from '@mui/material';
@@ -11,6 +10,7 @@ import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import { useB3Lang } from '@/lib/lang';
 
 import { AddressItemType } from '../../../types/address';
 

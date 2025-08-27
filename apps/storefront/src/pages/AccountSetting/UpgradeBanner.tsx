@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box, Typography } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 export function UpgradeBanner() {
   const b3Lang = useB3Lang();

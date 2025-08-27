@@ -1,9 +1,9 @@
 import { useContext, useEffect, useMemo } from 'react';
 import { matchPath, useLocation, useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@mui/material';
 
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { GlobalContext } from '@/shared/global';
 import { type RouteItem } from '@/shared/routeList';

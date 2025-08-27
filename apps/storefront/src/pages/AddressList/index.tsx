@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,

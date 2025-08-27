@@ -1,9 +1,9 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { currencyFormat, snackbar } from '@/utils';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';

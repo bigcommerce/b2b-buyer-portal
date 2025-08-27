@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, SxProps, Typography, useMediaQuery } from '@mui/material';
 import { v1 as uuid } from 'uuid';
@@ -8,6 +7,7 @@ import { v1 as uuid } from 'uuid';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,

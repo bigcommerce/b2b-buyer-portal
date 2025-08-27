@@ -1,10 +1,11 @@
 import { KeyboardEvent } from 'react';
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
 import { Box, TextField, Typography } from '@mui/material';
 import { concat, debounce, uniq } from 'lodash-es';
 import isEmpty from 'lodash-es/isEmpty';
+
+import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 

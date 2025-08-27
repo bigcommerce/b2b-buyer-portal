@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Delete, Edit, Warning as WarningIcon } from '@mui/icons-material';
 import { Box, styled, TextField, Typography } from '@mui/material';
 import ceil from 'lodash-es/ceil';
@@ -7,6 +6,7 @@ import ceil from 'lodash-es/ceil';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useB3Lang } from '@/lib/lang';
 import {
   deleteProductFromDraftQuoteList,
   setDraftProduct,

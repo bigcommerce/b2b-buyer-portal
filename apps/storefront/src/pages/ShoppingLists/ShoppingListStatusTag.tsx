@@ -1,6 +1,5 @@
-import { useB3Lang } from '@b3/lang';
-
 import { B3Tag } from '@/components';
+import { useB3Lang } from '@/lib/lang';
 import { ShoppingListStatus } from '@/types/shoppingList';
 
 interface Props {

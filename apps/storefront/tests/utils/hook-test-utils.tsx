@@ -1,11 +1,11 @@
 import { ComponentProps, PropsWithChildren, Suspense, useContext, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import LangProvider from '@b3/lang/LangProvider';
 import { renderHook, RenderHookOptions } from '@testing-library/react';
 import { Mock } from 'vitest';
 
 import B3LayoutTip from '@/components/layout/B3LayoutTip';
+import LangProvider from '@/lib/lang/LangProvider';
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { GlobalContext, GlobalProvider } from '@/shared/global';
 import { GlobalState } from '@/shared/global/context/config';

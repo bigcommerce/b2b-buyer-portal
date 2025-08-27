@@ -1,9 +1,9 @@
 import { useContext } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Alert, Box } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils';

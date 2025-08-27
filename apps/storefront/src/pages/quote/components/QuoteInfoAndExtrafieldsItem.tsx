@@ -1,7 +1,7 @@
 import { useId } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 
+import { useB3Lang } from '@/lib/lang';
 import { QuoteInfoAndExtrafieldsItemProps } from '@/types/quotes';
 
 import { Base64 } from '../../../utils/b3Product/shared/config';

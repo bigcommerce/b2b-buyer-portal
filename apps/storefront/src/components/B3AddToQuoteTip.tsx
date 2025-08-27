@@ -1,5 +1,6 @@
-import { useB3Lang } from '@b3/lang';
 import { Box, Button } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 interface B3AddToQuoteTipProps {
   gotoQuoteDraft: () => void;

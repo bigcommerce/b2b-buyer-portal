@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
@@ -8,6 +7,7 @@ import { get } from 'lodash-es';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import useScrollBar from '@/hooks/useScrollBar';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   exportQuotePdf,

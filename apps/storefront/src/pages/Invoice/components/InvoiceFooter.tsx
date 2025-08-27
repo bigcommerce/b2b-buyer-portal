@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice';
 import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils';

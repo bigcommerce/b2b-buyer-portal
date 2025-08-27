@@ -1,5 +1,4 @@
 import { useContext, useMemo, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import {
   Business as BusinessIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -21,6 +20,7 @@ import {
 } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import CompanyTableRowCard from './CompanyTableRowCard';

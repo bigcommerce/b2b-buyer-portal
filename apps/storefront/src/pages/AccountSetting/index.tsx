@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
 
@@ -11,6 +10,7 @@ import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/uti
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import useStorageState from '@/hooks/useStorageState';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
   checkUserBCEmail,

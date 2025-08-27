@@ -1,5 +1,4 @@
-import { LangFormatFunction } from '@b3/lang';
-
+import { LangFormatFunction } from '@/lib/lang';
 import { LoginFlagType, LoginTypeConfig } from '@/types/login';
 import { BigCommerceStorefrontAPIBaseURL, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
@@ -8,6 +7,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';

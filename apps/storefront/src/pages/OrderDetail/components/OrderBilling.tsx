@@ -1,9 +1,9 @@
 import { useContext } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 
 import { OrderBillings } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';

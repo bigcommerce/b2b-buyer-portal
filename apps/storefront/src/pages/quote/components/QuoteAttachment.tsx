@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent } from '@mui/material';
 
 import { B3CollapseContainer } from '@/components';
 import { useRole } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { quoteDetailAttachFileCreate, quoteDetailAttachFileDelete } from '@/shared/service/b2b';
 import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store';
 import { snackbar } from '@/utils';

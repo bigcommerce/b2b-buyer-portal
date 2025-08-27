@@ -1,5 +1,4 @@
 import { Fragment, useContext, useEffect, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import format from 'date-fns/format';
@@ -7,6 +6,7 @@ import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 
 import { OrderShippedItem, OrderShippingsItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';

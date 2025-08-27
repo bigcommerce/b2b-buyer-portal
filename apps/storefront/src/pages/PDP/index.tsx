@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
-import { useB3Lang } from '@b3/lang';
 
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,

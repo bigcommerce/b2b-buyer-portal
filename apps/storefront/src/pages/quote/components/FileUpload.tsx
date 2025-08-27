@@ -1,6 +1,5 @@
 import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
-import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import {
   AttachFile as AttachFileIcon,
@@ -12,6 +11,7 @@ import noop from 'lodash-es/noop';
 import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { useB3Lang } from '@/lib/lang';
 import { uploadB2BFile } from '@/shared/service/b2b';
 import { snackbar } from '@/utils';
 

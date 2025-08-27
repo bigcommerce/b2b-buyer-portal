@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Box, styled, TextField, Typography } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -7,6 +6,7 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';

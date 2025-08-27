@@ -1,5 +1,4 @@
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
-
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { CompanyInfoTypes } from '@/types/invoice';
 import { ShoppingListStatus } from '@/types/shoppingList';
 

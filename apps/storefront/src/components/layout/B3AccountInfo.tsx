@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 
 import B3DropDown, { ListItemProps } from '../B3DropDown';

@@ -1,11 +1,11 @@
 import { forwardRef, useEffect, useId, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import { B3CustomForm } from '@/components';
 import { useGetCountry, useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { AddressItemType } from '@/types/address';
 import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes';
 

@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { displayFormat } from '@/utils';
 

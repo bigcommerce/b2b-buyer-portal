@@ -7,13 +7,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { ArrowUpward as ArrowUpwardIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/material';
 import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
+import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';

@@ -1,5 +1,4 @@
 import { ReactElement, ReactNode, useRef } from 'react';
-import { useB3Lang } from '@b3/lang';
 import {
   Box,
   Breakpoint,
@@ -14,6 +13,7 @@ import {
 
 import useMobile from '@/hooks/useMobile';
 import useScrollBar from '@/hooks/useScrollBar';
+import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 
 import CustomButton from './button/CustomButton';

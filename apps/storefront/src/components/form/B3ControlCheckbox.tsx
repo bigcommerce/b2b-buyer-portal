@@ -1,6 +1,7 @@
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 

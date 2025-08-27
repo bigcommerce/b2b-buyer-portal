@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
-import { useB3Lang } from '@b3/lang';
 import {
   CloudUploadOutlined as CloudUploadOutlinedIcon,
   DescriptionRounded,
@@ -10,6 +9,8 @@ import {
 } from '@mui/icons-material';
 import { FormLabel, Typography } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
+
+import { useB3Lang } from '@/lib/lang';
 
 import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants';
 

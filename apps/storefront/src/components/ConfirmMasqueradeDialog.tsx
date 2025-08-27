@@ -1,7 +1,7 @@
-import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
+import { useB3Lang } from '@/lib/lang';
 
 interface ConfirmMasqueradeDialogProps {
   title: string;

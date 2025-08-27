@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Check as CheckIcon } from '@mui/icons-material';
 import { Box, Chip, Grid } from '@mui/material';
 
+import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';

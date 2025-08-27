@@ -1,7 +1,8 @@
 import { ChangeEvent, useId } from 'react';
 import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
+
+import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 

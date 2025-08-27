@@ -1,12 +1,12 @@
 import { useContext, useState } from 'react';
 import { dispatchEvent } from '@b3/hooks';
-import { useB3Lang } from '@b3/lang';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { addProductToBcShoppingList, addProductToShoppingList } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';

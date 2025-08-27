@@ -1,11 +1,11 @@
 import { useContext, useMemo } from 'react';
-import { useB3Lang } from '@b3/lang';
 import { Business as BusinessIcon } from '@mui/icons-material';
 import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
 import { PAGES_SUBSIDIARIES_PERMISSION_KEYS, PATH_ROUTES, Z_INDEX } from '@/constants';
 import useMobile from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
