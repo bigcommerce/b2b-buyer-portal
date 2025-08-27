@@ -4,65 +4,12 @@ export default /* GraphQL */ `
     email: String!
   }
 
-  # CartSelectedOption clone STARTS
-  # Should we have an interface behind these?
-  # Or is this coincidental duplication?
-  # Can we imagine adding items to a cart and a draft quote diverging for business reasons?
-  interface QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-  }
-
-  type QuoteSelectedCheckboxOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    value: String!
-    valueEntityId: Int!
-  }
-
-  type QuoteSelectedDateFieldOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    date: DateTimeExtended!
-  }
-
-  type QuoteSelectedFileUploadOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    fileName: String!
-  }
-
-  type QuoteSelectedMultiLineTextFieldOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    text: String!
-  }
-
-  type QuoteSelectedMultipleChoiceOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    value: String!
-    valueEntityId: Int!
-  }
-
-  type QuoteSelectedNumberFieldOption implements QuoteSelectedOption {
-    entityId: Int!
-    name: String!
-    number: Float!
-  }
-
-  type QuoteSelectedTextFieldOption {
-    entityId: Int!
-    name: String!
-    text: String!
-  }
-  # CartSelectedOption clone ENDS
 
   # could this reuse QuotePhysicalItem (or an interface that backs both)?
   type QuoteLineItem implements Node {
     id: ID!
     configuredProductId: ID!
-    selectedOptions: [QuoteSelectedOption!]!
+    selectedOptions: [CartSelectedOption!]!
     sku: String
     name: String!
     quantity: Int!
@@ -177,57 +124,11 @@ export default /* GraphQL */ `
     quote(id: ID!): Quote
   }
 
-  # CartSelectedOptionsInput clone STARTS
-  # Should we have an interface behind these?
-  # Or is this coincidental duplication?
-  # Can we imagine adding items to a cart and a draft quote diverging for business reasons?
-
-  input QuoteSelectedCheckboxOptionInput {
-    optionEntityId: ID!
-    optionValueEntityId: ID!
-  }
-
-  input QuoteSelectedDateFieldOptionInput {
-    optionEntityId: ID!
-    date: DateTime!
-  }
-
-  input QuoteSelectedMultiLineTextFieldOptionInput {
-    optionEntityId: ID!
-    text: String!
-  }
-
-  input QuoteSelectedMultipleChoiceOptionInput {
-    optionEntityId: ID!
-    optionValueEntityId: ID!
-  }
-
-  input QuoteSelectedNumberFieldOptionInput {
-    optionEntityId: ID!
-    number: Float!
-  }
-
-  input QuoteSelectedTextFieldOptionInput {
-    optionEntityId: ID!
-    text: String!
-  }
-
-  input QuoteSelectedOptionsInput {
-    checkboxes: [QuoteSelectedCheckboxOptionInput!]
-    dateFields: [QuoteSelectedDateFieldOptionInput!]
-    multiLineTextFields: [QuoteSelectedMultiLineTextFieldOptionInput!]
-    multipleChoices: [QuoteSelectedMultipleChoiceOptionInput!]
-    numberFields: [QuoteSelectedNumberFieldOptionInput!]
-    textFields: [QuoteSelectedTextFieldOptionInput!]
-  }
-
-  # CartSelectedOptionsInput clone ENDS
-
   input QuoteLineItemInput {
     quantity: Int!
     productEntityId: ID!
     variantEntityId: ID
-    selectedOptions: QuoteSelectedOptionsInput
+    selectedOptions: CartSelectedOptionsInput
   }
 
   input AddQuoteLineItemsInput {
