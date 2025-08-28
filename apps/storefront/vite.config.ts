@@ -93,7 +93,6 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             dateFns: ['date-fns'],
             pdfobject: ['pdfobject'],
             resizable: ['react-resizable'],
-            pdf: ['react-pdf'],
             toolkit: ['@reduxjs/toolkit'],
             form: ['react-hook-form'],
             router: ['react-router-dom'],
