@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';
@@ -7,10 +7,28 @@ import { useB3Lang } from '@/lib/lang';
 
 import { OrderBillings } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
+import B3Dialog from '@/components/B3Dialog';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import { DigitalDownloadLineItem, getDigitalDownloadElements } from '@/shared/service/b2b/graphql/orders';
+import CustomButton from '@/components/button/CustomButton';
+import { snackbar } from '@/utils';
+import { getBlobFileName } from '@/utils/getBlobFileName';
+import { handleBlobDownload } from '@/utils/handleBlobDownload';
 
 type OrderBillingProps = {
   isCurrentCompany: boolean;
 };
+
+type DigitalProductNode = {
+  downloadFileUrls: string[],
+  downloadPageUrl: string,
+  name: string,
+  productEntityId: number,
+};
+
+type DigitalProduct = {
+  node: DigitalProductNode,
+}
 
 export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
@@ -20,6 +38,49 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
+
+  const [isDigitalDownloadOpen, setIsDigitalDownloadOpen] = useState(false);
+  const [isDigitalProductLoading, setIsDigitalProductLoading] = useState(false);
+  const [digitalProducts, setDigitalProducts] = useState<any>(null);
+  const [currentDigitalProduct, setCurrentDigitalProduct] = useState<any>(null);
+
+  useEffect(() => {
+    const getDigitalProductsInformation = async () => {
+      setIsDigitalProductLoading(true);
+      let elements = [];
+      try {
+        elements = orderId ? await getDigitalDownloadElements(orderId) : [];
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsDigitalProductLoading(false);
+      }
+
+      const digitalProductsData = elements.length > 0
+        ? elements?.map((item: DigitalProduct) => item.node) 
+        : null;
+
+      const digitalProducts = billings[0].digitalProducts.map((product: any) => {
+        const fileUrls = digitalProductsData?.find((item: any) => item.productEntityId === product.product_id)?.downloadFileUrls || [];
+        console.log(fileUrls)
+
+        return {
+          ...product,
+          downloadFileUrls: fileUrls,
+        };
+      });
+      setDigitalProducts(digitalProducts);
+    };
+    if (orderId) {
+      getDigitalProductsInformation();
+    }
+  }, [orderId]);
+
+  const getCurrentDigitalProduct = (productId: number) => {
+    const current = digitalProducts.find((product: any) => product.product_id === productId);
+    setCurrentDigitalProduct(current);
+    setIsDigitalDownloadOpen(!isDigitalDownloadOpen);
+  };
 
   const getFullName = (billing: OrderBillings) => {
     const { billingAddress } = billing;
@@ -59,6 +120,18 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
 
   if (!hasDigitalProducts) {
     return null;
+  }
+
+  const handleDownloadDigitalFile = async (file: string) => {
+    let blob;
+    try {
+        const res = await fetch(file);
+        blob = await res.blob();
+        let filename = getBlobFileName(blob, res.headers);
+        handleBlobDownload(blob, filename);
+    } catch {
+      snackbar.error(b3Lang('orderDetail.digitalProducts.fileNotAvailable'))
+    }
   }
 
   return (
@@ -105,13 +178,72 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             </Box>
 
             <B3ProductList
-              products={billingItem.digitalProducts}
+              products={digitalProducts || []}
               totalText="Total"
               canToProduct={isCurrentCompany}
               textAlign={isMobile ? 'left' : 'right'}
               money={money}
+              getDigitalDownloadLinks={getCurrentDigitalProduct}
             />
           </CardContent>
+            <B3Dialog
+              isOpen={isDigitalDownloadOpen}
+              fullWidth
+              handleLeftClick={() => setIsDigitalDownloadOpen(false)}
+              title={b3Lang('orderDetail.digitalProducts.filesToDownload')}
+              rightSizeBtn={undefined}
+              leftSizeBtn={b3Lang('orderDetail.digitalProducts.close')}
+              maxWidth="md"
+              loading={isDigitalProductLoading}
+              showRightBtn={false}
+            >
+              {
+                currentDigitalProduct?.downloadFileUrls.map((file: any, index: number) => (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 0',
+                      margin: '15px 0 15px 0',
+                      border: '1px solid #1976D2',
+                      borderRadius: '10px',
+                      p: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{ display: 'flex' }}
+                    >
+                      <InsertDriveFileOutlinedIcon
+                        sx={{
+                          color: '#1976D2',
+                          fontSize: '40px',
+                        }}
+                      />
+                      <Typography
+                        sx={{
+                          color: '#1976D2',
+                          fontSize: '14px',
+                          alignSelf: 'center',
+                        }}>
+                        {`${currentDigitalProduct?.name} ${index + 1}`}
+                      </Typography>
+                    </Box>
+                    <CustomButton
+                      onClick={() => handleDownloadDigitalFile(file)}
+                      sx={{
+                        color: '#1976D2',
+                        textDecoration: 'none',
+                        fontSize: '14px',
+                      }}
+                    >
+                      {b3Lang('orderDetail.digitalProducts.download')}
+                    </CustomButton>
+                  </Box>
+                ))
+              }
+              <div></div>
+            </B3Dialog>          
         </Card>
       ))}
     </Stack>
