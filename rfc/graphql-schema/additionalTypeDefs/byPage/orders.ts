@@ -1,7 +1,17 @@
 export default /* GraphQL */ `
+  type ExtraFieldValue {
+    name: String!
+    value: String!
+  }
+
   type OrderHistory {
     status: OrderStatus!
     createdAt: DateTime!
+  }
+
+  # This is a placeholder for Quote, it will be extended/overwritten in a different file.
+  type Quote implements Node {
+    id: ID!
   }
 
   extend type Order {
@@ -10,7 +20,7 @@ export default /* GraphQL */ `
     company: Company
     quote: Quote
     invoice: Invoice
-    extraFields: [FormFieldsType!] # This is the read-only version of the extra fields submitted when placing the order
+    extraFields: [ExtraFieldValue!]! # This is the read-only version of the extra fields submitted when placing the order
   }
 
   enum OrdersSortInput {

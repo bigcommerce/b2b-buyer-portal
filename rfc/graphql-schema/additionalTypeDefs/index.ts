@@ -7,12 +7,14 @@ import addresses from './byPage/addresses'
 import companyRegistration from './companyRegistration'
 import invoices from './byPage/invoices'
 import accountSettings from './byPage/accountSettings'
+import shoppingListDetails from './byPage/shoppingListDetails'
 
 export default [
   userManagement,
   orderList,
   dashboard,
   shoppingLists,
+  shoppingListDetails,
   companyHierarchy,
   companyRegistration,
   addresses,
