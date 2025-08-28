@@ -126,7 +126,6 @@
   "global.B2BAutoCompleteCheckbox.input.label": "Company",
   "global.B2BSwitchCompanyModal.title": "Switch company",
   "global.B2BSwitchCompanyModal.confirm.button": "Switch company",
-
   "dashboard.company": "Company",
   "dashboard.admin": "Admin",
   "dashboard.email": "Email",
@@ -139,7 +138,6 @@
   "dashboard.masqueradeModal.message": "This action will empty your shopping cart. Do you want to continue?",
   "dashboard.masqueradeModal.actions.cancel": "Cancel",
   "dashboard.masqueradeModal.actions.continue": "Continue",
-
   "orders.order": "Order",
   "orders.poReference": "PO / Reference",
   "orders.grandTotal": "Grand total",
@@ -164,7 +162,6 @@
   "orders.status.manualVerificationRequired": "Manual Verification Required",
   "orders.status.disputed": "Disputed",
   "orders.status.partiallyRefunded": "Partially Refunded",
-
   "invoice.exportCsvText": "Export all as CSV",
   "invoice.exportSelectedAsCsv": "Export selected as CSV",
   "invoice.exportFilteredAsCsv": "Export filtered as CSV",
@@ -206,7 +203,6 @@
   "invoice.filterStatus.partiallyPaid": "Partially paid",
   "invoice.filterStatus.paid": "Paid",
   "invoice.filterStatus.overdue": "Overdue",
-
   "quotes.dateCreated": "Date created",
   "quotes.status": "Status",
   "quotes.updated": "Updated",
@@ -235,7 +231,6 @@
   "quotes.quoteItemCard.expirationDate": "Expiration date",
   "quotes.quoteItemCard.subtotal": "Subtotal",
   "quotes.quoteItemCard.view": "VIEW",
-
   "shoppingLists.createNew": "Create new",
   "shoppingLists.deleteSuccess": "The shopping list was successfully deleted",
   "shoppingLists.deleteShoppingList": "Delete shopping list",
@@ -259,7 +254,6 @@
   "shoppingLists.card.lastActivity": "Last activity:",
   "shoppingLists.card.view": "View",
   "shoppingLists.viewShoppingList": "View shopping list",
-
   "purchasedProducts.product": "Product",
   "purchasedProducts.price": "Price",
   "purchasedProducts.qty": "Qty",
@@ -327,7 +321,6 @@
   "purchasedProducts.error.selectOneItem": "Please select at least one item",
   "purchasedProducts.error.fillCorrectQuantity": "Please fill in the correct quantity",
   "purchasedProducts.error.failedApplication": "Application failed, please contact the merchant.",
-
   "orderDetail.orderId": "Order #{orderId}",
   "orderDetail.purchaseOrderNumber": ", {purchaseOrderNumber}",
   "orderDetail.backToOrders": "Back to orders",
@@ -382,7 +375,11 @@
   "orderDetail.anotherCompany.tips": "This order is related to another company. To reorder, add to a shopping list, or perform other actions, you need to switch to that company.",
   "orderDetail.switchCompany.title": "Switch company",
   "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart.",
-
+  "orderDetail.digitalProducts.download": "Download",
+  "orderDetail.digitalProducts.filesToDownload": "Files to download",
+  "orderDetail.digitalProducts.viewFiles": "View files",
+  "orderDetail.digitalProducts.close": "Close",
+  "orderDetail.digitalProducts.fileNotAvailable": "The file is not available for download. Please contact support.",
   "addresses.noPermissionToAdd": "You do not have permission to add new address, please contact store owner",
   "addresses.noPermissionToEdit": "You do not have permission to edit address, please contact store owner",
   "addresses.noPermissionToDelete": "You do not have permission to delete address, please contact store owner",
@@ -425,7 +422,6 @@
   "addresses.editAddress.state": "State",
   "addresses.editAddress.zipCode": "Zip Code",
   "addresses.editAddress.phoneNumber": "Phone number",
-
   "shoppingList.shoppingListStatusUpdated": "Shopping list status updated successfully",
   "shoppingList.productRemoved": "Product removed from your shopping list",
   "shoppingList.addToShoppingList.productsAdded": "Products were added to your shopping list",
@@ -505,7 +501,6 @@
   "shoppingList.addItemNotes.cancel": "cancel",
   "shoppingList.addItemNotes.save": "save",
   "shoppingList.addItemNotes.placeholder": "Add notes to products",
-
   "userManagement.addUser": "Add new user",
   "userManagement.deleteUserSuccessfully": "User deleted successfully",
   "userManagement.deleteUser": "Delete user",
@@ -526,7 +521,6 @@
   "userManagement.userRole.admin": "Admin",
   "userManagement.userRole.seniorBuyer": "Senior buyer",
   "userManagement.userRole.juniorBuyer": "Junior buyer",
-
   "quoteDraft.addQuoteInfo": "Please add quote info before submitting",
   "quoteDraft.submit": "Please add quote products before submitting",
   "quoteDraft.submit.errorTip": "There are some products in the quote that are out of stock or unavailable for purchase. Please remove the product or modify the quantity of the product.",
@@ -601,7 +595,6 @@
   "quoteDraft.quoteTable.unavailable.tip": "Not available for purchase",
   "quoteDraft.productPageToQuote.outOfStock": "{name} Out of stock. In stock: {qty}",
   "quoteDraft.productPageToQuote.unavailable": "Not available for purchase",
-
   "accountSettings.notification.detailsUpdated": "Your account details have been updated.",
   "accountSettings.notification.emailExists": "Email already exists",
   "accountSettings.notification.updateEmailPassword": "Please type in your current password to update your email address.",
@@ -624,7 +617,6 @@
   "accountSettings.form.lastName": "Last name",
   "accountSettings.form.email": "Email",
   "accountSettings.form.phoneNumber": "Phone number",
-
   "quoteDetail.uploadedByCustomer": "Uploaded by customer: {createdBy}",
   "quoteDetail.uploadedBySalesRep": "Uploaded by sales rep: {createdBy}",
   "quoteDetail.submittedQuote": "Your quote was submitted. You can always find the quote using this link.",
@@ -668,7 +660,6 @@
   "quoteDetail.tableCard.total": "Total:",
   "quoteDetail.tableCard.qty": "Qty: {quantity}",
   "quoteDetail.termsAndConditions": "Terms and conditions",
-
   "register.title.registerComplete": "Application submitted",
   "register.title.registerCompleteWarning": "Application has been submitted",
   "register.title.accountCreated": "Registration complete!",
@@ -683,7 +674,6 @@
   "register.label.companyAttachments": "Company attachments",
   "register.emailValidate.alreadyExitsBC": "The email address {email} is already in use. Please enter a different one.",
   "register.registeredSingleCheckBox.label": "Email me special promotions and updates",
-
   "login.button.signIn": "Sign In",
   "login.button.signInUppercase": "SIGN IN",
   "login.button.createAccount": "CREATE ACCOUNT",
@@ -700,19 +690,15 @@
   "login.registerLogo": "register Logo",
   "login.loginText.quoteDetailToCheckoutUrl": "Please log in to purchase this quote",
   "login.loginText.missingCaptcha": "The captcha you entered is incorrect. Please try again.",
-
   "pdp.notification.productsAdded": "Products were added to your shopping list",
   "pdp.notification.viewShoppingList": "view shopping list",
   "pdp.addToShoppingList": "Add to shopping list",
   "pdp.cartToQuote.error.notFound": "Cart not found",
   "pdp.cartToQuote.error.empty": "No products in the cart.",
-
   "forgotPassword.resetPassword": "Reset password",
   "forgotPassword.requestEmail": "Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.",
   "forgotPassword.resetPasswordBtn": "Reset Password",
-
   "registeredbctob2b.title": "Business Account Application",
-
   "payment.errorInvoiceCantBeBlank": "The invoice cannot be blank",
   "payment.errorOpenBalanceIsIncorrect": "The invoice openBalance code or value is incorrect",
   "payment.invoiceDoesNotExist": "Invoice does not exist",
@@ -731,7 +717,6 @@
   "payment.invoiceNumber": "Invoice#",
   "payment.amountPaid": "Amount paid",
   "payment.okButton": "Ok",
-
   "companyHierarchy.table.name": "Name",
   "companyHierarchy.dialog.title": "Switch company",
   "companyHierarchy.dialog.content": "Switching to a different company will refresh your shopping cart. Do you want to continue?",

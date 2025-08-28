@@ -33,6 +33,7 @@ import {
 } from '@/shared/service/b2b/graphql/orders';
 import { CustomerRole, MoneyFormat } from '@/types';
 
+import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
 
 vi.mock('react-router-dom');
@@ -216,6 +217,33 @@ const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
     flag: faker.helpers.arrayElement(['A_0', 'A_1', 'A_2', 'A_3']),
     billingName: faker.person.fullName(),
     merchantEmail: faker.internet.email(),
+  },
+}));
+
+const buildDigitalProductNodeWith = builder<DigitalDownloadElementsResponse>(() => ({
+  data: {
+    site: {
+      order: {
+        consignments: {
+          downloads: [
+            {
+              lineItems: {
+                edges: [
+                  {
+                    node: {
+                      downloadFileUrls: [faker.internet.url(), faker.internet.url()],
+                      downloadPageUrl: faker.internet.url(),
+                      name: faker.commerce.productName(),
+                      productEntityId: faker.number.int(),
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    },
   },
 }));
 
@@ -755,6 +783,130 @@ describe('when a personal customer visits an order', () => {
       expect(screen.getByText('112')).toBeInTheDocument();
       expect(screen.getByText('€2.502,08')).toBeInTheDocument();
       expect(screen.getByText('Format: ePub')).toBeInTheDocument();
+    });
+
+    it('displays the view files link for digital products in an order', async () => {
+      const digitalProduct = buildProductWith({
+        name: 'Digital Product',
+        sku: 'DIGI-001',
+        price_ex_tax: '10.00',
+        quantity: 1,
+        product_options: [],
+        type: 'digital',
+        product_id: 1234,
+      });
+
+      const digitalNode = {
+        name: '',
+        downloadPageUrl: '',
+        downloadFileUrls: ['cat.com', 'meow.com'],
+        productEntityId: 1234,
+      };
+
+      const digitalDownloadElements = buildDigitalProductNodeWith({
+        data: {
+          site: {
+            order: {
+              consignments: {
+                downloads: [
+                  {
+                    lineItems: {
+                      edges: [{ node: { ...digitalNode } }],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  money: euro,
+                  products: [digitalProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetDigitalDownloadLinks', () => HttpResponse.json(digitalDownloadElements)),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByText('Digital products')).toBeInTheDocument();
+      expect(await screen.findByText('View files')).toBeInTheDocument();
+      await userEvent.click(await screen.findByText('View files'));
+
+      // validate if digital files dialog is opened and renders a download button for each url
+      expect(screen.getByText('Files to download')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('button', { name: 'Download' })).toHaveLength(2);
+      });
+    });
+
+    it('does not render the view files link for physical products and digital products with no file in an order', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+      const physicalProduct = buildProductWith({
+        id: 123,
+        order_address_id: address.id,
+        name: 'Phone',
+        price_ex_tax: '100.00',
+        quantity: 2,
+        quantity_shipped: 2,
+        type: 'physical',
+      });
+      const digitalProduct = buildProductWith({
+        name: 'How to meow',
+        price_ex_tax: '10.00',
+        quantity: 1,
+        product_options: [],
+        type: 'digital',
+      });
+      const shipmentOfAllPhysicalProduct = buildShipmentWith({
+        id: 2,
+        shipping_method: 'Test Shipping',
+        order_address_id: address.id,
+        items: [
+          {
+            quantity: physicalProduct.quantity_shipped,
+            order_product_id: physicalProduct.id,
+          },
+        ],
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  money: euro,
+                  products: [physicalProduct, digitalProduct],
+                  shippingAddress: [address, buildShippingAddressWith('WHATEVER_VALUES')],
+                  shipments: [shipmentOfAllPhysicalProduct],
+                },
+              },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Phone')).toBeInTheDocument();
+      expect(await screen.findByText('How to meow')).toBeInTheDocument();
+      expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
 

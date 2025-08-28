@@ -194,9 +194,15 @@ const handleProductQuantity = (data: B2BOrderData) => {
   return newProducts;
 };
 
+const getDigitalProducts = (products: OrderProductItem[]) => {
+  return products.filter((product) => product.type === 'digital');
+};
+
 const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) => ({
   shippings: getOrderShipping(data),
   billings: getOrderBilling(data),
+  digitalProducts: getDigitalProducts(data.products),
+  billingAddress: data.billingAddress || {},
   history: data.orderHistoryEvent || [],
   poNumber: data.poNumber || '',
   status: data.status,
