@@ -24,6 +24,7 @@ export const getPosition = (
     left: 'auto',
     right: '24px',
   };
+
   switch (locations.horizontal) {
     case 'left':
       positions.left = horizontalPadding ? `${horizontalPadding}px !important` : '24px';
@@ -58,9 +59,11 @@ export const splitCustomCssValue = (customCss: string) => {
   const mediaRegex = /(@media[^{]+{[^}]+})/g;
   // media block
   const mediaBlocks: string[] = [];
+
   // Blocks that do not contain media
   cssValue = cssValue.replace(mediaRegex, (_, mediaBlock) => {
     mediaBlocks.push(mediaBlock);
+
     return '';
   });
 
@@ -99,6 +102,7 @@ export const setMediaStyle = (mediaBlocks: string[], className: string) => {
   });
 
   let value = '';
+
   newCustomCss.forEach((style) => {
     value += `${style}\n`;
   });
@@ -108,18 +112,23 @@ export const setMediaStyle = (mediaBlocks: string[], className: string) => {
   }`;
 
   const style = document.createElement('style');
+
   style.appendChild(document.createTextNode(css));
 
   const head = document.head || document.getElementsByTagName('head')[0];
+
   head.appendChild(style);
 };
 
 export const setMUIMediaStyle = (mediaBlocks: string[]) => {
   if (mediaBlocks.length === 0) return {};
+
   const newMedia: CustomFieldItems = {};
+
   mediaBlocks.forEach((media: string) => {
     const mediaArr = media.split('\n');
     const first = mediaArr.find((item) => item.includes('@media'));
+
     if (first) {
       const key = first.split('{')[0];
 
@@ -148,13 +157,16 @@ export const getStyles = (customCss: string) => {
     .split(';')
     .reduce((acc: Record<string, string>, style) => {
       const [property, value] = style.split(':');
+
       if (property && value) {
         acc[property.trim().replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = value
           .trim()
           .replace(';', '');
       }
+
       return acc;
     }, {});
+
   return sx;
 };
 
@@ -185,12 +197,14 @@ const getLuminance = (color: string): number => {
     rgb.g / 255 <= 0.03928 ? rgb.g / 255 / 12.92 : ((rgb.g / 255 + 0.055) / 1.055) ** 2.4;
   const lumB =
     rgb.b / 255 <= 0.03928 ? rgb.b / 255 / 12.92 : ((rgb.b / 255 + 0.055) / 1.055) ** 2.4;
+
   return 0.2126 * lumR + 0.7152 * lumG + 0.0722 * lumB;
 };
 
 const getContrastRatio = (foreground: string, background: string): number => {
   const lumA = getLuminance(foreground);
   const lumB = getLuminance(background);
+
   return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
 };
 
@@ -202,6 +216,7 @@ export const getContrastColor = (color: string) => {
   if (blackContrast >= contrastThreshold || whiteContrast < blackContrast) {
     return '#000000';
   }
+
   return '#FFFFFF';
 };
 
@@ -225,6 +240,7 @@ export const getHoverColor = (color: string, factor: number): string => {
 
   const componentToHex = (c: number): string => {
     const hex = c.toString(16);
+
     return hex.length === 1 ? `0${hex}` : hex;
   };
 

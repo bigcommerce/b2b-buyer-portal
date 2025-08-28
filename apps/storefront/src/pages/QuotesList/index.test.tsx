@@ -1,4 +1,14 @@
 import { PersistPartial } from 'redux-persist/es/persistReducer';
+
+import {
+  QuoteEdge,
+  QuotesListB2B,
+  QuotesListBC,
+  QuoteStatus,
+} from '@/shared/service/b2b/graphql/quote';
+import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
+import { QuoteInfoState } from '@/store/slices/quoteInfo';
+import { CompanyStatus, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -15,16 +25,6 @@ import {
   waitFor,
   within,
 } from 'tests/test-utils';
-
-import {
-  QuoteEdge,
-  QuotesListB2B,
-  QuotesListBC,
-  QuoteStatus,
-} from '@/shared/service/b2b/graphql/quote';
-import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
-import { QuoteInfoState } from '@/store/slices/quoteInfo';
-import { CompanyStatus, UserTypes } from '@/types';
 
 import QuotesList from './index';
 
@@ -426,12 +426,15 @@ describe('when the user is a B2B customer', () => {
     const table = await screen.findByRole('table');
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
+
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
 
     const rowOfOneShirt = within(table).getByRole('row', { name: /One Shirt/ });
+
     expect(within(rowOfOneShirt).getByText('Ordered')).toBeInTheDocument();
 
     const rowOfEveryHat = within(table).getByRole('row', { name: /Every Hat/ });
+
     expect(within(rowOfEveryHat).getByText('Expired')).toBeInTheDocument();
   });
 
@@ -915,12 +918,15 @@ describe('when the user is a B2C customer', () => {
     const table = await screen.findByRole('table');
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
+
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
 
     const rowOfOneShirt = within(table).getByRole('row', { name: /One Shirt/ });
+
     expect(within(rowOfOneShirt).getByText('Ordered')).toBeInTheDocument();
 
     const rowOfEveryHat = within(table).getByRole('row', { name: /Every Hat/ });
+
     expect(within(rowOfEveryHat).getByText('Expired')).toBeInTheDocument();
   });
 

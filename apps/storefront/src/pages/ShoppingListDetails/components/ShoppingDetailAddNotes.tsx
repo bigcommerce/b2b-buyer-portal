@@ -20,13 +20,13 @@ function ShoppingDetailAddNotes(props: ShoppingDetailAddNotesProps) {
 
   return (
     <B3Dialog
+      handRightClick={handleAddItemNotesClick}
+      handleLeftClick={handleCancelAddNotesClick}
       isOpen={open}
-      title={b3Lang('shoppingList.addItemNotes.title')}
+      isShowBordered={false}
       leftSizeBtn={b3Lang('shoppingList.addItemNotes.cancel')}
       rightSizeBtn={b3Lang('shoppingList.addItemNotes.save')}
-      handleLeftClick={handleCancelAddNotesClick}
-      handRightClick={handleAddItemNotesClick}
-      isShowBordered={false}
+      title={b3Lang('shoppingList.addItemNotes.title')}
     >
       <Box
         sx={{
@@ -36,13 +36,13 @@ function ShoppingDetailAddNotes(props: ShoppingDetailAddNotesProps) {
         }}
       >
         <TextField
-          multiline
-          rows={6}
           defaultValue={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          variant="filled"
           fullWidth
+          multiline
+          onChange={(e) => setNotes(e.target.value)}
           placeholder={b3Lang('shoppingList.addItemNotes.placeholder')}
+          rows={6}
+          variant="filled"
         />
       </Box>
     </B3Dialog>

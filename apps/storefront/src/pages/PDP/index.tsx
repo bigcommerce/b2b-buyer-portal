@@ -68,6 +68,7 @@ export const addProductsToShoppingList = async ({
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
+
     products.push({
       productId,
       variantId,
@@ -103,12 +104,14 @@ function useData() {
     const productView: HTMLElement | null = shoppingListClickNode.closest(
       config['dom.productView'],
     );
+
     if (!productView) return undefined;
 
     const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
     const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
     const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
     const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
+
     return {
       productId: Number(productId),
       sku,
@@ -161,6 +164,7 @@ function PDP() {
     const product = getShoppingListItem();
 
     if (!product) return;
+
     try {
       setIsRequestLoading(true);
       await addToShoppingList({ shoppingListId, product })
@@ -190,18 +194,18 @@ function PDP() {
   return (
     <>
       <OrderShoppingList
-        isOpen={openShoppingList}
         dialogTitle={b3Lang('pdp.addToShoppingList')}
+        isLoading={isRequestLoading}
+        isOpen={openShoppingList}
         onClose={handleShoppingClose}
         onConfirm={handleShoppingConfirm}
         onCreate={handleOpenCreateDialog}
-        isLoading={isRequestLoading}
         setLoading={setIsRequestLoading}
       />
       <CreateShoppingList
-        open={isOpenCreateShopping}
         onChange={handleCreateShoppingClick}
         onClose={handleCloseShoppingClick}
+        open={isOpenCreateShopping}
       />
     </>
   );

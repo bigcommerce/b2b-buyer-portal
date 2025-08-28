@@ -1,3 +1,5 @@
+import isEmpty from 'lodash-es/isEmpty';
+import isEqual from 'lodash-es/isEqual';
 import {
   FC,
   ReactElement,
@@ -8,8 +10,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import isEmpty from 'lodash-es/isEmpty';
-import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
@@ -160,6 +160,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         const option = isNodeWrapper(item) ? item.node : item;
         const isExist = cacheAllList.some((cache) => {
           const cacheOption = isNodeWrapper(cache) ? cache.node : cache;
+
           // @ts-expect-error typed previously as an any
           return cacheOption[selectedSymbol] === option[selectedSymbol];
         });
@@ -180,10 +181,12 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         if (cache?.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
           return;
         }
+
         cache.current = searchParams;
 
         setLoading(true);
         if (requestLoading) requestLoading(true);
+
         const { createdBy = '' } = searchParams;
 
         const getEmailReg = /\((.+)\)/g;
@@ -245,6 +248,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   useEffect(() => {
     const isChangeCompany =
       Number(selectCompanyHierarchyIdCache.current) !== Number(selectCompanyHierarchyId);
+
     if (!isEmpty(searchParams)) {
       if (isChangeCompany) {
         if (isAutoRefresh) fetchList(pagination, true);
@@ -300,6 +304,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   const getCurrentAllItemsSelect = useCallback(() => {
     if (!selectCheckbox.length) return false;
+
     return list.every((item) => {
       const option = isNodeWrapper(item) ? item.node : item;
 
@@ -311,6 +316,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   useEffect(() => {
     if (isSelectOtherPageCheckbox) {
       const flag = getCurrentAllItemsSelect();
+
       setAllSelect(flag);
     }
   }, [selectCheckbox, pagination, isSelectOtherPageCheckbox, getCurrentAllItemsSelect]);
@@ -321,8 +327,10 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         setSelectCheckbox([]);
       } else {
         const selects: Array<string | number> = [];
+
         list.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
+
           if (option) {
             if (pageType === 'shoppingListDetailsTable') {
               selects.push(
@@ -343,16 +351,19 @@ function PaginationTable<GetRequestListParams, Row extends object>(
       const flag = getCurrentAllItemsSelect();
 
       const newSelectCheckbox = [...selectCheckbox];
+
       if (flag) {
         list.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
           // @ts-expect-error typed previously as an any
           const index = newSelectCheckbox.findIndex((item) => item === option[selectedSymbol]);
+
           newSelectCheckbox.splice(index, 1);
         });
       } else {
         list.forEach((item: PossibleNodeWrapper<Row>) => {
           const option = isNodeWrapper(item) ? item.node : item;
+
           // @ts-expect-error typed previously as an any
           if (!selectCheckbox.includes(option[selectedSymbol])) {
             // @ts-expect-error typed previously as an any
@@ -374,52 +385,54 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   const handleSelectOneItem = (id: string | number) => {
     const selects = [...selectCheckbox];
     const index = selects.indexOf(id);
+
     if (index !== -1) {
       selects.splice(index, 1);
     } else {
       selects.push(id);
     }
+
     setSelectCheckbox(selects);
   };
 
   return (
     <B3Table
-      hover={hover}
+      CollapseComponent={CollapseComponent}
+      applyAllDisableCheckbox={applyAllDisableCheckbox}
       columnItems={columnItems || []}
-      listItems={list}
-      pagination={tablePagination}
-      rowsPerPageOptions={rowsPerPageOptions}
-      onPaginationChange={handlePaginationChange}
+      disableCheckbox={disableCheckbox}
+      handleSelectAllItems={handleSelectAllItems}
+      handleSelectOneItem={handleSelectOneItem}
+      hover={hover}
+      isAllSelect={isAllSelect}
       isCustomRender={isCustomRender}
       isInfiniteScroll={isMobile}
       isLoading={loading}
-      renderItem={renderItem}
-      tableFixed={tableFixed}
-      tableHeaderHide={tableHeaderHide}
+      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
+      itemIsMobileSpacing={itemIsMobileSpacing}
       itemSpacing={itemSpacing}
       itemXs={itemXs}
-      noDataText={noDataText}
-      tableKey={tableKey}
-      itemIsMobileSpacing={itemIsMobileSpacing}
-      showCheckbox={showCheckbox}
-      showSelectAllCheckbox={showSelectAllCheckbox}
-      disableCheckbox={disableCheckbox}
-      selectedSymbol={selectedSymbol}
-      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
-      isAllSelect={isAllSelect}
-      selectCheckbox={selectCheckbox}
-      handleSelectAllItems={handleSelectAllItems}
-      handleSelectOneItem={handleSelectOneItem}
-      showBorder={showBorder}
       labelRowsPerPage={labelRowsPerPage}
+      listItems={list}
+      noDataText={noDataText}
       onClickRow={onClickRow}
+      onPaginationChange={handlePaginationChange}
+      orderBy={orderBy}
+      pagination={tablePagination}
+      renderItem={renderItem}
+      rowsPerPageOptions={rowsPerPageOptions}
+      selectCheckbox={selectCheckbox}
+      selectedSymbol={selectedSymbol}
+      showBorder={showBorder}
+      showCheckbox={showCheckbox}
       showPagination={showPagination}
       showRowsPerPageOptions={showRowsPerPageOptions}
-      CollapseComponent={CollapseComponent}
-      applyAllDisableCheckbox={applyAllDisableCheckbox}
-      sortDirection={sortDirection}
+      showSelectAllCheckbox={showSelectAllCheckbox}
       sortByFn={sortByFn}
-      orderBy={orderBy}
+      sortDirection={sortDirection}
+      tableFixed={tableFixed}
+      tableHeaderHide={tableHeaderHide}
+      tableKey={tableKey}
     />
   );
 }

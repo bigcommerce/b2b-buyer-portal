@@ -12,6 +12,7 @@ const useSort = <T>(
 
   const handleSetOrderBy = (e: { key: string }) => {
     const sortDirection = order === 'asc' ? 'desc' : 'asc';
+
     setOrder(sortDirection);
     setOrderBy(e.key);
     setFilterData({

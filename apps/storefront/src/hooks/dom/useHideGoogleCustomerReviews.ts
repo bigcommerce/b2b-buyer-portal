@@ -13,6 +13,7 @@ const useHideGoogleCustomerReviews = (props: B3HideGoogleCustomerReviewsProps) =
 
   useEffect(() => {
     if (isMobile) return;
+
     const googleCustomerReviewsDoms = document.querySelectorAll(
       '[title="Google Customer Reviews"]',
     );
@@ -20,6 +21,7 @@ const useHideGoogleCustomerReviews = (props: B3HideGoogleCustomerReviewsProps) =
 
     googleCustomerReviewsDoms.forEach((dom) => {
       const parentElement = dom?.parentElement;
+
       if (parentElement) parentElement.style.display = newVisibilityStyle;
     });
   }, [isOpen, isMobile]);

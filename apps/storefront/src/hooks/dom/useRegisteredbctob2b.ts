@@ -36,6 +36,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   const handleVerifyBcLoginStatus = async () => {
     try {
       const bcLoginStatus = await Promise.all([b2bVerifyBcLoginStatus()]);
+
       setIsBcLogin(bcLoginStatus[0]);
     } catch (error) {
       b2bLogger.error(error);
@@ -51,12 +52,14 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   useEffect(() => {
     const createConvertB2BNavNode = () => {
       const convertB2BNavNode = document.createElement('li');
+
       convertB2BNavNode.className = 'navUser-item navUser-convert-b2b';
       convertB2BNavNode.innerHTML = `
         <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
           ${b3Lang('global.registerB2B.linkText')}
         </a>
       `;
+
       return convertB2BNavNode;
     };
 
@@ -84,6 +87,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
       accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode);
 
       const linkNode = convertB2BNavNode.querySelector('a');
+
       if (linkNode) {
         linkNode.onclick = () => {
           setOpenPage({

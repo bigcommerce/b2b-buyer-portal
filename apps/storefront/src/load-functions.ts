@@ -5,6 +5,7 @@ export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
     ? window.requestIdleCallback
     : (cb: IdleRequestCallback) => {
         const start = Date.now();
+
         return window.setTimeout(() => {
           cb({
             didTimeout: false,
@@ -57,6 +58,7 @@ export const bindLinks = () => {
 
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
+
 export const unbindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,

@@ -34,8 +34,10 @@ export const serialize = (form: HTMLFormElement) => {
         !currentValue.disabled
       ) {
         const result = serializeAction(currentValue, previousValue);
+
         return { ...previousValue, ...result };
       }
+
       return previousValue;
     },
     {},

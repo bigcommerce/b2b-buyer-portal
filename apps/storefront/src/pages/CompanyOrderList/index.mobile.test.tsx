@@ -1,3 +1,6 @@
+import { when } from 'vitest-when';
+
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import {
   buildB2BFeaturesStateWith,
   buildCompanyStateWith,
@@ -17,9 +20,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
 import {
   CompanyOrderNode,
@@ -314,6 +314,7 @@ describe('has placed orders', () => {
       );
 
     const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
     await userEvent.click(nextPageButton);
 
     await waitFor(() => {
@@ -339,6 +340,7 @@ describe('has placed orders', () => {
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
     const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
     await userEvent.click(nextPageButton);
 
     when(getOrders)
@@ -355,6 +357,7 @@ describe('has placed orders', () => {
       );
 
     const previousPageButton = screen.getByRole('button', { name: /previous page/ });
+
     await userEvent.click(previousPageButton);
 
     await waitFor(() => {

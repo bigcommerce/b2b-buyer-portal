@@ -1,7 +1,7 @@
-import { forwardRef, useEffect, useId, useImperativeHandle, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Box, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { forwardRef, useEffect, useId, useImperativeHandle, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components';
 import { useGetCountry, useMobile } from '@/hooks';
@@ -152,6 +152,7 @@ function QuoteAddress(
       if (item === 'company') return;
       setValue(item, addressItem[item]);
     });
+
     if (type === 'billing' && shippingSameAsBilling) {
       setBillingChange(true);
     }
@@ -173,12 +174,12 @@ function QuoteAddress(
 
   return (
     <Box
-      role="group"
       aria-labelledby={fieldsetId}
-      width={isMobile ? '100%' : '50%'}
       mt={isMobile ? '2rem' : '0'}
-      pr={pr}
       pl={pl}
+      pr={pr}
+      role="group"
+      width={isMobile ? '100%' : '50%'}
     >
       <Box
         sx={{
@@ -216,18 +217,18 @@ function QuoteAddress(
       </Box>
 
       <B3CustomForm
-        formFields={quoteAddress}
-        errors={errors}
         control={control}
+        errors={errors}
+        formFields={quoteAddress}
         getValues={getValues}
         setValue={setValue}
       />
 
       <ChooseAddress
-        isOpen={isOpen}
-        handleChangeAddress={handleChangeAddress}
-        closeModal={handleCloseAddressChoose}
         addressList={addressList}
+        closeModal={handleCloseAddressChoose}
+        handleChangeAddress={handleChangeAddress}
+        isOpen={isOpen}
         type={type}
       />
     </Box>

@@ -14,7 +14,9 @@ export const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
   );
 
   if (!purchasabilityPermission && isLoggedInAndB2BAccount) return;
+
   const style = document.getElementById('b2bPermissions-cartElement-id');
+
   if (style) {
     style.remove();
   }

@@ -11,6 +11,7 @@ export const validatorRules =
   (validateRuleTypes: string[], options?: ValidateOptions) =>
   (val: string, b3lang: LangFormatFunction) => {
     let str = '';
+
     validateRuleTypes.forEach((item: string) => {
       if (item === 'email' && val && !re.email.test(val)) {
         str = b3lang('global.validatorRules.email');
@@ -21,9 +22,11 @@ export const validatorRules =
       if (item === 'phone' && val && !re.phone.test(val)) {
         str = b3lang('global.validatorRules.phoneNumber');
       }
+
       if (item === 'number' && val && !re.number.test(val)) {
         str = b3lang('global.validatorRules.number');
       }
+
       if (item === 'max' && options?.max && Number(options.max) < Number(val)) {
         str = b3lang('global.validatorRules.max', {
           max: options.max,
@@ -34,5 +37,6 @@ export const validatorRules =
         str = b3lang('global.validatorRules.passwords');
       }
     });
+
     return str || undefined;
   };

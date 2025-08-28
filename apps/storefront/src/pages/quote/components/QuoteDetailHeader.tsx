@@ -1,7 +1,7 @@
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -75,14 +75,14 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           }}
         >
           <Box
+            onClick={() => {
+              navigate('/quotes');
+            }}
             sx={{
               color: '#1976d2',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-            }}
-            onClick={() => {
-              navigate('/quotes');
             }}
           >
             <ArrowBackIosNew
@@ -146,11 +146,11 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           {(salesRepInfo?.salesRepName || salesRepInfo?.salesRepEmail) && (
             <StyledCreateName>
               <Typography
-                variant="subtitle2"
                 sx={{
                   marginRight: '0.5rem',
                   fontSize: '16px',
                 }}
+                variant="subtitle2"
               >
                 {b3Lang('quoteDetail.header.salesRep')}
               </Typography>
@@ -164,11 +164,11 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           <Box>
             <StyledCreateName>
               <Typography
-                variant="subtitle2"
                 sx={{
                   marginRight: '0.5rem',
                   fontSize: '16px',
                 }}
+                variant="subtitle2"
               >
                 {b3Lang('quoteDetail.header.issuedOn')}
               </Typography>
@@ -176,11 +176,11 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
             </StyledCreateName>
             <StyledCreateName>
               <Typography
-                variant="subtitle2"
                 sx={{
                   marginRight: '0.5rem',
                   fontSize: '16px',
                 }}
+                variant="subtitle2"
               >
                 {b3Lang('quoteDetail.header.expirationDate')}
               </Typography>
@@ -199,16 +199,16 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           >
             <Box>
               <CustomButton
-                variant="outlined"
+                onClick={printQuote}
                 sx={{
                   marginRight: '1rem',
                   displayPrint: 'none',
                 }}
-                onClick={printQuote}
+                variant="outlined"
               >
                 {b3Lang('quoteDetail.header.print')}
               </CustomButton>
-              <CustomButton variant="outlined" onClick={exportPdf}>
+              <CustomButton onClick={exportPdf} variant="outlined">
                 {b3Lang('quoteDetail.header.downloadPDF')}
               </CustomButton>
             </Box>

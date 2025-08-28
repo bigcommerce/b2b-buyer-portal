@@ -272,28 +272,36 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
           const quoteGuest =
             quoteConfig.find((config: QuoteConfigProps) => config.key === 'quote_for_guest')
               ?.value || '0';
+
           return quoteGuest === '1' && navListKey;
         }
+
         if (role === CustomerRole.B2C) {
           const quoteIndividualCustomer =
             quoteConfig.find(
               (config: QuoteConfigProps) => config.key === 'quote_for_individual_customer',
             )?.value || '0';
+
           return quoteIndividualCustomer === '1' && navListKey;
         }
       }
+
       if (item.configKey === 'shoppingLists') {
         const shoppingListOnProductPage = quoteConfig.find(
           (config: QuoteConfigProps) => config.key === 'shopping_list_on_product_page',
         )?.extraFields;
+
         if (role === CustomerRole.GUEST) {
           return shoppingListOnProductPage?.guest && navListKey;
         }
+
         if (role === CustomerRole.B2C) {
           return shoppingListOnProductPage?.b2c && navListKey;
         }
       }
+
       if (typeof navListKey === 'boolean') return navListKey;
+
       return permissions.includes(CustomerRole.B2C);
     }
 
@@ -330,6 +338,7 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
       const quoteB2B =
         quoteConfig.find((config: QuoteConfigProps) => config.key === 'quote_for_b2b')?.value ||
         '0';
+
       return storefrontConfig.quotes && quoteB2B === '1';
     }
 
@@ -337,18 +346,22 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
       const shoppingListOnProductPage = quoteConfig.find(
         (config: QuoteConfigProps) => config.key === 'shopping_list_on_product_page',
       )?.extraFields;
+
       return storefrontConfig.shoppingLists && shoppingListOnProductPage?.b2b;
     }
 
     if (item.configKey === 'quickOrderPad') {
       return storefrontConfig.quickOrderPad && storefrontConfig.buyAgain;
     }
+
     const config = storefrontConfig[item.configKey || ''] ?? {
       enabledStatus: true,
     };
+
     if (typeof config === 'boolean') {
       return config;
     }
+
     if (item.configKey === 'invoice') {
       return !!config.enabledStatus && !!config.value;
     }

@@ -1,6 +1,5 @@
-import { http, HttpResponse, startMockServer } from 'tests/test-utils';
-
 import { getAPIBaseURL } from '@/shared/service/request/base';
+import { http, HttpResponse, startMockServer } from 'tests/test-utils';
 
 import { initHeadlessScripts } from '../src/utils/headlessInitializer';
 

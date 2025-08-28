@@ -1,4 +1,6 @@
 import { useParams } from 'react-router-dom';
+import { when } from 'vitest-when';
+
 import {
   buildCompanyStateWith,
   buildGlobalStateWith,
@@ -12,7 +14,6 @@ import {
   userEvent,
   waitFor,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
 
 import Payment from '.';
 
@@ -239,6 +240,7 @@ describe('when the user is not logged in', () => {
     expect(screen.getByText('Click ok to go to the landing page')).toBeInTheDocument();
 
     const loginButton = screen.getByRole('button', { name: 'ok' });
+
     await userEvent.click(loginButton);
 
     expect(navigation).toHaveBeenCalledWith('/login');

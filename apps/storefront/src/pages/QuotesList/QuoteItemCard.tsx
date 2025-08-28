@@ -94,10 +94,10 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
+              variant="h6"
             >
               {item.quoteNumber}
             </Typography>

@@ -1,6 +1,5 @@
-import { builder } from 'tests/builder';
-
 import { StoreInfo } from '@/store/slices/storeInfo';
+import { builder } from 'tests/builder';
 
 export const buildStoreInfoStateWith = builder<StoreInfo>(() => ({
   timeFormat: {

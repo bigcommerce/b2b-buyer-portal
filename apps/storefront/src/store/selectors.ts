@@ -74,7 +74,6 @@ export const rolePermissionSelector = createSelector(
 export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
   quoteInfo.draftQuoteList.map(
     ({ node: { optionList, calculatedValue, productsSearch, ...restItem } }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedOptionList: OptionList[] = JSON.parse(optionList);
 
       const optionSelections = parsedOptionList.map(({ optionId, optionValue }) => {

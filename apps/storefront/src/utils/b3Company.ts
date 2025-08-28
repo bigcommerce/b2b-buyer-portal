@@ -16,6 +16,7 @@ export const buildHierarchy = ({
       if (companyId) {
         return company.companyId === companyId;
       }
+
       if (!parentId) {
         return company.parentCompanyId === null || company.parentCompanyId === 0;
       }

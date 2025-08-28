@@ -1,3 +1,5 @@
+import isEmpty from 'lodash-es/isEmpty';
+import isEqual from 'lodash-es/isEqual';
 import {
   ReactElement,
   Ref,
@@ -7,8 +9,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import isEmpty from 'lodash-es/isEmpty';
-import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
@@ -92,6 +92,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         const option = isNodeWrapper(item) ? item.node : item;
         const isExist = cacheAllList.some((cache) => {
           const cacheOption = isNodeWrapper(cache) ? cache.node : cache;
+
           return cacheOption.id === option.id;
         });
 
@@ -111,10 +112,12 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         if (cache?.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
           return;
         }
+
         cache.current = searchParams;
 
         setLoading(true);
         if (requestLoading) requestLoading(true);
+
         const { createdBy = '' } = searchParams;
 
         const getEmailReg = /\((.+)\)/g;
@@ -164,6 +167,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   useEffect(() => {
     const isChangeCompany =
       Number(selectCompanyHierarchyIdCache.current) !== Number(selectCompanyHierarchyId);
+
     if (!isEmpty(searchParams)) {
       if (isChangeCompany) {
         fetchList(pagination, true);
@@ -203,14 +207,14 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   return (
     <B3Table
-      listItems={list}
-      pagination={tablePagination}
-      rowsPerPageOptions={rowsPerPageOptions}
-      onPaginationChange={handlePaginationChange}
       isInfiniteScroll={isMobile}
       isLoading={loading}
-      renderItem={renderItem}
       itemXs={itemXs}
+      listItems={list}
+      onPaginationChange={handlePaginationChange}
+      pagination={tablePagination}
+      renderItem={renderItem}
+      rowsPerPageOptions={rowsPerPageOptions}
       showRowsPerPageOptions={showRowsPerPageOptions}
     />
   );

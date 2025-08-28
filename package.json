@@ -23,10 +23,10 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "eslint": "^7.32.0 || ^8.2.0",
-    "eslint-config-b2b": "*",
+    "@bigcommerce/eslint-config": "^2.11.0",
+    "eslint": "^8.2.0",
     "patch-package": "^8.0.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.5.3",
     "turbo": "^2.5.4"
   },
   "engines": {

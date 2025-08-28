@@ -24,6 +24,7 @@ const NoDataText = styled('span')(() => ({
 
 export default function B3NoData({ isLoading }: B3NoDataProps) {
   const b3Lang = useB3Lang();
+
   return (
     <NoDataContainer>
       {!isLoading && <DataUsageRounded fontSize="large" />}

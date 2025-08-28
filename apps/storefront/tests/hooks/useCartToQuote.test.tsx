@@ -1,10 +1,10 @@
-import { buildCompanyStateWith } from 'tests/test-utils';
-import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 import { vi } from 'vitest';
 
 import { CART_URL, CHECKOUT_URL } from '@/constants';
 import { CompanyStatus } from '@/types';
 import { B3SStorage } from '@/utils';
+import { buildCompanyStateWith } from 'tests/test-utils';
+import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
 import useCartToQuote from '../../src/hooks/dom/useCartToQuote';
 
@@ -27,6 +27,7 @@ describe('when the user is on checkout page and the company status is rejected',
     };
 
     const originalLocation = window.location;
+
     Object.defineProperty(window, 'location', {
       value: mockLocation,
       writable: true,
@@ -88,6 +89,7 @@ describe('when the user is NOT on checkout page and the company status is reject
     };
 
     const originalLocation = window.location;
+
     Object.defineProperty(window, 'location', {
       value: mockLocation,
       writable: true,
@@ -106,9 +108,11 @@ describe('when the user is NOT on checkout page and the company status is reject
       if (key === 'blockPendingAccountOrderCreation') {
         return 'false';
       }
+
       if (key === 'sf-isShowBlockPendingAccountOrderCreationTip') {
         return { cartTip: 0, checkoutTip: 0 };
       }
+
       return undefined;
     });
 
@@ -157,6 +161,7 @@ describe('when the user is on checkout page and the company status is Approved',
     };
 
     const originalLocation = window.location;
+
     Object.defineProperty(window, 'location', {
       value: mockLocation,
       writable: true,
@@ -175,9 +180,11 @@ describe('when the user is on checkout page and the company status is Approved',
       if (key === 'blockPendingAccountOrderCreation') {
         return 'false';
       }
+
       if (key === 'sf-isShowBlockPendingAccountOrderCreationTip') {
         return { cartTip: 0, checkoutTip: 0 };
       }
+
       return undefined;
     });
 
@@ -226,6 +233,7 @@ describe('when the user is on checkout page and the company status is PENDING', 
     };
 
     const originalLocation = window.location;
+
     Object.defineProperty(window, 'location', {
       value: mockLocation,
       writable: true,
@@ -244,9 +252,11 @@ describe('when the user is on checkout page and the company status is PENDING', 
       if (key === 'blockPendingAccountOrderCreation') {
         return 'false';
       }
+
       if (key === 'sf-isShowBlockPendingAccountOrderCreationTip') {
         return { cartTip: 0, checkoutTip: 0 };
       }
+
       return undefined;
     });
 

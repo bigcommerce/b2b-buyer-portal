@@ -44,7 +44,6 @@ export default function B3Select<T extends string | undefined>({
 
   return (
     <FormControl
-      variant="filled"
       sx={{
         borderRadius: '4px',
         borderBottomLeftRadius: '0',
@@ -55,6 +54,7 @@ export default function B3Select<T extends string | undefined>({
           backgroundColor: '#efeae7',
         },
       }}
+      variant="filled"
     >
       <InputLabel
         id="demo-simple-select-filled-label"
@@ -65,17 +65,17 @@ export default function B3Select<T extends string | undefined>({
         {label}
       </InputLabel>
       <Select
-        labelId="demo-simple-select-filled-label"
         id="demo-simple-select-filled"
-        value={value}
-        size={size}
+        labelId="demo-simple-select-filled-label"
         onChange={handleSelectChange}
+        size={size}
         sx={{
           color: getContrastColor('#efeae7'),
           '& svg': {
             color: getContrastColor('#efeae7'),
           },
         }}
+        value={value}
       >
         {isFirstSelect && (
           <MenuItem value="">

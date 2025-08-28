@@ -1,6 +1,6 @@
-import { useContext, useState } from 'react';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import { useContext, useState } from 'react';
 
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -47,6 +47,7 @@ export default function AddToShoppingList(props: AddToListProps) {
 
       const items = products.map((product) => {
         const newOptionLists = getValidOptionsList(product.newSelectOptionList, product);
+
         return {
           optionList: newOptionLists,
           productId: product.id,
@@ -68,6 +69,7 @@ export default function AddToShoppingList(props: AddToListProps) {
         snackbar.error(e.message);
       }
     }
+
     return true;
   };
 
@@ -77,6 +79,7 @@ export default function AddToShoppingList(props: AddToListProps) {
         product.newSelectOptionList || product.optionList,
         product?.products || product,
       );
+
       return {
         optionList: newOptionLists || [],
         productId: parseInt(product.productId, 10) || 0,
@@ -106,14 +109,17 @@ export default function AddToShoppingList(props: AddToListProps) {
         currentProduct;
 
       const defaultModifiers = getAllModifierDefaultValue(modifiers);
+
       if (purchasingDisabled && pageType !== 'shoppingList') {
         notPurchaseSku.push(variantSku);
+
         return;
       }
 
       const notPassedModifier = defaultModifiers.filter(
         (modifier: CustomFieldItems) => !modifier.isVerified,
       );
+
       if (notPassedModifier.length > 0) {
         notAddAble.push(variantSku);
 
@@ -130,6 +136,7 @@ export default function AddToShoppingList(props: AddToListProps) {
 
         if (type === 'date') {
           const { defaultValue } = modifier;
+
           Object.keys(defaultValue).forEach((key) => {
             optionsList.push({
               optionId: `attribute[${modifier.option_id}][${key}]`,
@@ -162,6 +169,7 @@ export default function AddToShoppingList(props: AddToListProps) {
 
   const handleCSVAddToList = async (productsData: CustomFieldItems) => {
     setIsLoading(true);
+
     try {
       const { validProduct } = productsData;
 
@@ -214,11 +222,11 @@ export default function AddToShoppingList(props: AddToListProps) {
       <CardContent>
         <Box>
           <Typography variant="h5">{b3Lang('shoppingList.addToShoppingList.addToList')}</Typography>
-          <SearchProduct updateList={updateList} addToList={addToList} type="shoppingList" />
+          <SearchProduct addToList={addToList} type="shoppingList" updateList={updateList} />
 
           <Divider />
 
-          <QuickAdd type="shoppingList" updateList={updateList} quickAddToList={quickAddToList} />
+          <QuickAdd quickAddToList={quickAddToList} type="shoppingList" updateList={updateList} />
 
           <Divider />
 
@@ -227,7 +235,7 @@ export default function AddToShoppingList(props: AddToListProps) {
               margin: '20px 0 0',
             }}
           >
-            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
+            <CustomButton onClick={() => handleOpenUploadDiag()} variant="text">
               <UploadFileIcon
                 sx={{
                   marginRight: '8px',
@@ -238,10 +246,10 @@ export default function AddToShoppingList(props: AddToListProps) {
           </Box>
 
           <B3Upload
-            isOpen={isOpenBulkLoadCSV}
-            setIsOpen={setIsOpenBulkLoadCSV}
             handleAddToList={handleCSVAddToList}
             isLoading={isLoading}
+            isOpen={isOpenBulkLoadCSV}
+            setIsOpen={setIsOpenBulkLoadCSV}
             withModifiers
           />
         </Box>

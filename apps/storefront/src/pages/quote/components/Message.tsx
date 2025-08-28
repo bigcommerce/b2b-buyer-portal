@@ -1,3 +1,6 @@
+import { ArrowUpward as ArrowUpwardIcon } from '@mui/icons-material';
+import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/material';
+import { format, formatDistanceStrict } from 'date-fns';
 import {
   KeyboardEvent,
   useCallback,
@@ -7,9 +10,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ArrowUpward as ArrowUpwardIcon } from '@mui/icons-material';
-import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/material';
-import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
@@ -45,6 +45,7 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+
   return (
     <Box
       sx={{
@@ -79,7 +80,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             m: '1px',
           }}
         >
-          <Tooltip title={format((msg.sendTime || 0) * 1000, 'K:m aa')} placement="top" arrow>
+          <Tooltip arrow placement="top" title={format((msg.sendTime || 0) * 1000, 'K:m aa')}>
             <Box
               sx={{
                 wordBreak: 'break-word',
@@ -158,6 +159,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
     let nextMsg: MessageProps = {};
     const getNewMsgs: MessageProps[] = [];
     let readNum = 0;
+
     msgs.forEach((msg: MessageProps, index: number) => {
       if (index === 0) {
         getNewMsgs.push({
@@ -199,6 +201,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             key: msg?.date,
           });
         }
+
         nextMsg = msg;
         nextMsg.isCustomer = !msg.role?.includes('Sales rep:');
       }
@@ -261,6 +264,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const updateMsgs = async (msg: string) => {
     try {
       setLoading(true);
+
       const {
         quoteUpdate: {
           quote: { trackingHistory },
@@ -274,6 +278,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           storeHash,
         },
       });
+
       setMessage('');
       setRead(0);
       convertedMsgs(trackingHistory);
@@ -303,10 +308,13 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             },
           });
         }
+
         setRead(0);
+
         if (messagesEndRef.current) {
           messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
         }
+
         changeReadRef.current += 1;
       }
     },
@@ -363,9 +371,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
               {messages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
                   <ChatMessage
-                    msg={item}
-                    isEndMessage={index === messages.length - 1}
                     isCustomer={!!item.isCustomer}
+                    isEndMessage={index === messages.length - 1}
+                    msg={item}
                   />
                   {item.date && <DateMessage msg={item} />}
                 </Box>
@@ -375,10 +383,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
           {status !== 4 && quotesUpdateMessagePermission && (
             <B3Spin
-              isSpinning={loading}
-              spinningHeight={50}
-              size={10}
               isCloseLoading
+              isSpinning={loading}
+              size={10}
+              spinningHeight={50}
               tip="waiting.."
             >
               <Box
@@ -388,7 +396,12 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                 }}
               >
                 <TextField
+                  label={b3Lang('quoteDetail.message.typeMessage')}
+                  onChange={(event) => {
+                    setMessage(event.target.value);
+                  }}
                   onKeyDown={updateMessage}
+                  size="small"
                   sx={{
                     width: '100%',
                     '& .MuiFormLabel-root': {
@@ -399,11 +412,6 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                     },
                   }}
                   value={message}
-                  onChange={(event) => {
-                    setMessage(event.target.value);
-                  }}
-                  size="small"
-                  label={b3Lang('quoteDetail.message.typeMessage')}
                   variant="filled"
                 />
                 <Box
@@ -417,13 +425,13 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                   }}
                 >
                   <ArrowUpwardIcon
+                    fontSize="small"
                     sx={{
                       height: '18px',
                       width: '18px',
                       margin: '8px 0 0 9px',
                       color: '#0000008A',
                     }}
-                    fontSize="small"
                   />
                 </Box>
               </Box>

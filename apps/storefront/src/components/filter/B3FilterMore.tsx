@@ -1,7 +1,7 @@
-import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { FilterList as FilterListIcon } from '@mui/icons-material';
 import { Badge, Box, Button, IconButton, useTheme } from '@mui/material';
+import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
@@ -27,8 +27,8 @@ type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>;
+      ? ReadonlyArray<DeepPartial<U>>
+      : DeepPartial<T[P]>;
 };
 
 interface B3FilterMoreProps<T, Y> {
@@ -106,6 +106,7 @@ function B3FilterMore<T, Y>({
 
     const newCounter = filterMoreInfo.reduce((cur, item) => {
       const newItem: CustomFieldItems = item;
+
       if (includesFilterType.includes(newItem.fieldType) && values[newItem.name]) {
         cur -= 1;
       }
@@ -125,6 +126,7 @@ function B3FilterMore<T, Y>({
     if (submitData) {
       const filterCountArr = [];
       const isNotFiltering = Object.keys(submitData).every((item) => submitData[item] === '');
+
       Object.keys(submitData).forEach((item) => {
         if (submitData[item] !== '') {
           filterCountArr.push(item);
@@ -139,6 +141,7 @@ function B3FilterMore<T, Y>({
   const handleSaveFilters = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     handleSubmit((data) => {
       const getPickerValues = pickerRef.current?.getPickerValue();
+
       if (onChange) {
         const submitData: any = {
           ...getPickerValues,
@@ -152,6 +155,7 @@ function B3FilterMore<T, Y>({
           ...data,
         });
       }
+
       handleClose();
     })(event);
   };
@@ -164,6 +168,7 @@ function B3FilterMore<T, Y>({
     if (resetFilterInfo) {
       resetFilterInfo();
     }
+
     pickerRef.current?.setClearPickerValue();
   };
 
@@ -176,6 +181,7 @@ function B3FilterMore<T, Y>({
       : {};
 
     handleClearFilters();
+
     const data = getValues();
 
     if (onChange) {
@@ -254,12 +260,12 @@ function B3FilterMore<T, Y>({
           {isFiltering && !isMobile && (
             <Button
               aria-label="clear-edit"
+              onClick={handleClearBtn}
               size="small"
               sx={{
                 marginLeft: '5px',
                 color: '#1976D2',
               }}
-              onClick={handleClearBtn}
             >
               {b3Lang('global.filter.clearFilters')}
             </Button>
@@ -268,12 +274,12 @@ function B3FilterMore<T, Y>({
       )}
 
       <B3Dialog
+        handRightClick={handleSaveFilters}
+        handleLeftClick={handleClose}
         isOpen={open}
         leftSizeBtn={b3Lang('global.filter.cancel')}
         rightSizeBtn={b3Lang('global.filter.apply')}
         title={b3Lang('global.filter.title')}
-        handleLeftClick={handleClose}
-        handRightClick={handleSaveFilters}
       >
         <Box
           sx={{
@@ -281,20 +287,20 @@ function B3FilterMore<T, Y>({
           }}
         >
           <B3CustomForm
-            formFields={filterMoreInfo}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={filterMoreInfo}
             getValues={getValues}
             setValue={setValue}
           />
-          <B3FilterPicker ref={pickerRef} startPicker={startPicker} endPicker={endPicker} />
+          <B3FilterPicker endPicker={endPicker} ref={pickerRef} startPicker={startPicker} />
         </Box>
         <CustomButton
+          onClick={handleClearFilters}
+          size="small"
           sx={{
             mt: 1,
           }}
-          onClick={handleClearFilters}
-          size="small"
         >
           {b3Lang('global.filter.clearFilters')}
         </CustomButton>

@@ -65,11 +65,13 @@ const usePurchasableQuote = (openQuickView: boolean) => {
         inventoryTracking: inventoryTracking === 'product' || inventoryTracking === 'variant',
         purchasingDisabled,
       };
+
       if (productInfoRef?.current) {
         productInfoRef.current = productPurchasable;
       }
 
       const isOOStock = isOOStockPurchaseQuantity(Number(productViewQty), productPurchasable);
+
       if (purchasingDisabled === '1' || isOOStock || availability !== 'available') {
         setBuyPurchasable(false);
       } else {
@@ -83,6 +85,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     let qtyDom: HTMLInputElement | null = document.querySelector('[name="qty[]"]') || null;
     let isDetailOpen = true;
     let dataQuantityChangeDom = document.querySelector('[data-quantity-change]') || null;
+
     // information about multiple products exists
     if (modal && modal.classList.contains('open')) {
       productViewSku = modal.querySelector('[data-product-sku]');
@@ -93,15 +96,19 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
     if (productViewSku && isEnableProduct) {
       const sku = productViewSku.innerHTML.trim();
+
       callback(sku, isDetailOpen, true);
     }
 
     const observer = new MutationObserver((mutations: MutationRecord[]) => {
       let sku = '';
+
       mutations.forEach((mutation) => {
         const myMutation: MyMutationRecord = mutation as MyMutationRecord;
+
         if (myMutation.type === 'childList' && myMutation.target.hasAttribute('data-product-sku')) {
           const newSkuValue = myMutation.target.innerHTML.trim();
+
           sku = newSkuValue;
         }
       });
@@ -149,6 +156,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
         if (action === 'dec' && (val === '0' || val === '1')) {
           judgmentBuyPurchasable(val);
+
           return;
         }
 
@@ -160,10 +168,12 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
     if (dataQuantityChangeDom && isEnableProduct) {
       const buttons = dataQuantityChangeDom.querySelectorAll('button');
+
       buttons.forEach((button) => {
         button.addEventListener('click', () => {
           handleBtnQuantityChange(button);
         });
+
         return () => {
           button.removeEventListener('click', () => {
             handleBtnQuantityChange(button);

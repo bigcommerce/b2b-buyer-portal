@@ -22,8 +22,8 @@ import { channelId, getActiveCurrencyInfo, storeHash } from '@/utils';
 
 import b2bLogger from '../b3Logger';
 
-import { conversionProductsList, ListItemProps, ProductInfoProps } from './shared/config';
 import getTaxRate from './b3TaxRate';
+import { conversionProductsList, ListItemProps, ProductInfoProps } from './shared/config';
 
 interface AdditionalCalculatedPricesProps {
   [key: string]: number;
@@ -72,7 +72,9 @@ export interface LineItem {
 
 const getModifiersPrice = (modifiers: CustomFieldItems[], options: CustomFieldItems) => {
   if (!modifiers.length || !options.length) return [];
+
   const modifierCalculatedPrices: AdditionalCalculatedPricesProps[] = [];
+
   modifiers.forEach((modifierItem: CustomFieldItems) => {
     if (modifierItem.option_values.length) {
       const modifierOptionValues =
@@ -82,6 +84,7 @@ const getModifiersPrice = (modifiers: CustomFieldItems[], options: CustomFieldIt
         modifierItem.option_values.find(
           (item: CustomFieldItems) => Number(item.id) === Number(modifierOptionValues),
         )?.adjusters?.price || null;
+
       if (adjustersPrice) {
         modifierCalculatedPrices.push({
           additionalCalculatedPrice: adjustersPrice.adjuster_value,
@@ -96,6 +99,7 @@ const getModifiersPrice = (modifiers: CustomFieldItems[], options: CustomFieldIt
 
 const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: CustomFieldItems) => {
   if (!modifiers.length || !options.length) return [];
+
   const modifiersItem =
     modifiers?.filter(
       (modifier: CustomFieldItems) => modifier.type === 'product_list_with_images',
@@ -110,10 +114,12 @@ const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: Cust
       const productListWithImagesValue =
         options.find((item: CustomFieldItems) => item.optionId.includes(modifier.id))
           ?.optionValue || '';
+
       if (productListWithImagesValue) {
         const additionalProductsParams = optionValues.find(
           (item: CustomFieldItems) => Number(item.id) === Number(productListWithImagesValue),
         );
+
         if (additionalProductsParams?.value_data?.product_id)
           productIds.push(additionalProductsParams.value_data.product_id);
       }
@@ -139,6 +145,7 @@ const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: Cust
       const additionalCalculatedItem = additionalVariants.find(
         (item: CustomFieldItems) => item.sku === additionalSku,
       );
+
       if (additionalCalculatedItem) {
         additionalCalculatedPrices.push({
           additionalCalculatedPrice: additionalCalculatedItem.bc_calculated_price.tax_exclusive,
@@ -149,6 +156,7 @@ const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: Cust
       }
     });
   }
+
   return additionalCalculatedPrices;
 };
 
@@ -170,17 +178,20 @@ const getQuickAddProductExtraPrice = (
       const productListWithImagesValue =
         newSelectOptionList.find((item: CustomFieldItems) => item.optionId.includes(optionId))
           ?.optionValue || '';
+
       if (productListWithImagesValue) {
         const productId =
           optionValues.find(
             (item: CustomFieldItems) => item.id.toString() === productListWithImagesValue,
           )?.value_data?.product_id || '';
+
         if (additionalProducts[productId]) {
           const additionalSku = additionalProducts[productId].sku;
           const additionalVariants = additionalProducts[productId].variants;
           const additionalCalculatedItem = additionalVariants.find(
             (item: CustomFieldItems) => item.sku === additionalSku,
           );
+
           if (additionalCalculatedItem) {
             additionalCalculatedPrices.push({
               additionalCalculatedPrice: additionalCalculatedItem.calculated_price,
@@ -200,18 +211,22 @@ const getQuickAddProductExtraPrice = (
 const getListModifierPrice = (allOptions: Partial<AllOptionProps>[], node: ProductInfoProps) => {
   const optionList = JSON.parse(node?.optionList || '[]');
   const modifierPrices: AdjustersPrice[] = [];
+
   if (optionList.length) {
     optionList.forEach((option: CustomFieldItems) => {
       const itemOption = allOptions.find((item: Partial<AllOptionProps>) =>
         option.option_id.includes(item.id),
       );
+
       if (itemOption && itemOption?.option_values && itemOption.option_values.length) {
         const optionValues = itemOption.option_values.find(
           (optionValue: Partial<OptionValue>) =>
             (optionValue?.id ? Number(optionValue.id) : 0) === Number(option.option_value),
         );
+
         if (optionValues && optionValues?.adjusters && optionValues?.adjusters?.price) {
           const { price } = optionValues.adjusters;
+
           if (price) {
             modifierPrices.push(price);
           }
@@ -225,6 +240,7 @@ const getListModifierPrice = (allOptions: Partial<AllOptionProps>[], node: Produ
 
 const setItemProductPrice = (newListProducts: ListItemProps[]) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
+
   newListProducts.forEach((item: ListItemProps) => {
     const {
       node: { modifierPrices = [], currentProductPrices, extraProductPrices = [], taxClassId },
@@ -241,6 +257,7 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
           case 'relative':
             singleCurrentPrice += modifierPrice.adjuster_value;
             break;
+
           default:
             singleCurrentPrice += (modifierPrice.adjuster_value * singleCurrentPrice) / 100;
             break;
@@ -254,10 +271,12 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
         singleAllTax += extraProductPrice.tax_exclusive * (rate / 100);
       });
     }
+
     const productPrice = singleCurrentPrice * ((100 + rate) / 100) + singleExtraProductPrice;
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax;
 
     const { node } = item ?? { node: {} };
+
     node.baseAllPrice = productPrice.toFixed(decimalPlaces);
     node.baseAllPriceTax = productTax.toFixed(decimalPlaces);
   });
@@ -278,11 +297,13 @@ const getExtraProductPricesProducts = async (
     const { node } = item;
 
     const extraProductPrices: BcCalculatedPrice[] = [];
+
     if (node?.pickListIds?.length) {
       node?.pickListIds.forEach((pickListId: number) => {
         const pickListItem = newPickListProducts.find(
           (product: Partial<Product>) => product?.id && Number(product.id) === Number(pickListId),
         );
+
         if (
           pickListItem &&
           pickListItem?.variants?.length &&
@@ -292,6 +313,7 @@ const getExtraProductPricesProducts = async (
         }
       });
     }
+
     node.extraProductPrices = extraProductPrices;
   });
 
@@ -316,18 +338,23 @@ const addTaxProductPrices = (
 
     // gets the associated product id
     const currentPickListIds: number[] = [];
+
     if (productInfo?.allOptions && productInfo?.allOptions.length) {
       const pickList = productInfo.allOptions.find(
         (item: Partial<AllOptionProps>) => item.type === 'product_list_with_images',
       );
+
       if (pickList && pickList?.option_values?.length) {
         const flag = optionList.some(
           (item: CustomFieldItems) => item.option_id.includes(pickList.id) && item.option_value,
         );
+
         if (flag) {
           pickList.option_values.forEach((list: Partial<ALlOptionValue>) => {
             const pickListProductId: number = list?.value_data?.product_id || 0;
+
             if (pickListProductId) currentPickListIds.push(pickListProductId);
+
             if (!pickListIds.includes(pickListProductId)) {
               pickListIds.push(pickListProductId);
             }
@@ -335,9 +362,11 @@ const addTaxProductPrices = (
         }
       }
     }
+
     // get modifier price
     if (productInfo?.variants?.length && productInfo?.allOptions?.length) {
       const modifierPrices = getListModifierPrice(productInfo.allOptions, node);
+
       node.modifierPrices = modifierPrices;
     }
 
@@ -345,9 +374,11 @@ const addTaxProductPrices = (
     const variantItem = productInfo?.variants?.find(
       (item: Partial<Variant>) => item.sku === node.variantSku,
     );
+
     if (variantItem) {
       node.currentProductPrices = variantItem.bc_calculated_price;
     }
+
     node.taxClassId = productInfo.taxClassId;
 
     node.pickListIds = currentPickListIds;
@@ -359,14 +390,18 @@ const addTaxProductPrices = (
 const getNewProductsList = async (listProducts: ListItemProps[]) => {
   try {
     const { currency_code: currencyCode } = getActiveCurrencyInfo();
+
     if (listProducts.length > 0) {
       const productIds: number[] = [];
+
       listProducts.forEach((item) => {
         const { node } = item;
+
         if (!productIds.includes(node.productId)) {
           productIds.push(node.productId);
         }
       });
+
       const currentState = store.getState();
       const { id: companyInfoId } = currentState.company.companyInfo;
       const { id: salesRepCompanyId } = currentState.b2bFeatures.masqueradeCompany;
@@ -401,6 +436,7 @@ const getNewProductsList = async (listProducts: ListItemProps[]) => {
   } catch (error) {
     b2bLogger.error(error, 'error');
   }
+
   return undefined;
 };
 
@@ -409,6 +445,7 @@ const getDateValuesArray = (id: number, value: number) => {
   const year = data.getFullYear();
   const month = data.getMonth() + 1;
   const day = data.getDate();
+
   return [
     {
       option_id: id,
@@ -429,6 +466,7 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
   let date = [];
   const dateTypes = ['year', 'month', 'day'] as const;
   const isIncludeDate = (date: string) => newOption.optionId.includes(date);
+
   if (isIncludeDate(dateTypes[0]) || isIncludeDate(dateTypes[1]) || isIncludeDate(dateTypes[2])) {
     date = [
       {
@@ -441,6 +479,7 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
     const year = data.getFullYear();
     const month = data.getMonth() + 1;
     const day = data.getDate();
+
     date = [
       {
         option_id: itemOption?.id ? Number(itemOption.id) : 0,
@@ -480,6 +519,7 @@ const getCalculatedParams = (
           ((select.type !== 'text' && select.option_values?.length) ||
             (select.type === 'date' && newOption.optionValue)),
       );
+
       if (itemOption && newOption.optionValue) {
         if (itemOption.type === 'date' && Number(newOption.optionValue)) {
           date.push(...calculatedDate(newOption, itemOption));
@@ -512,6 +552,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const calculatedNoTaxPrice = calculatedPrice.tax_exclusive;
   let enteredPrice = calculatedPrice.as_entered;
   const enteredInclusive = calculatedPrice.entered_inclusive;
+
   store.dispatch(setEnteredInclusiveTax(enteredInclusive));
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice;
@@ -520,6 +561,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   let finalDiscount = 0;
   let itemTotalTaxPrice = 0;
   let singlePrice = 0;
+
   bulkPrices.forEach(
     ({ minimum, maximum, discount_type: discountType, discount_amount: bulkPrice }: any) => {
       if (qty >= minimum && qty <= (maximum || qty)) {
@@ -528,12 +570,15 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
             finalDiscount = 0;
             enteredPrice = bulkPrice;
             break;
+
           case 'percent':
             finalDiscount = enteredPrice * Number((bulkPrice / 100).toFixed(decimalPlaces));
             break;
+
           case 'price':
             finalDiscount = bulkPrice;
             break;
+
           default:
             break;
         }
@@ -662,12 +707,14 @@ const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<A
           return true;
         }
       }
+
       return false;
     });
 
     if (matchedOption) {
       if (matchedOption.type === 'date') {
         const id = matchedOption.id ? Number(matchedOption.id) : 0;
+
         accumulator.push(...getDateValuesArray(id, Number(optionValueEntityId)));
       } else {
         accumulator.push({
@@ -685,6 +732,7 @@ const getSelectedOptions = (
   allOptions: Partial<AllOptionProps>[],
 ) => {
   if (selectedOptions.length === 0) return [];
+
   const newSelectedOptions: ProductOptionString[] = [];
 
   selectedOptions.forEach((option: ProductOption) => {
@@ -694,15 +742,18 @@ const getSelectedOptions = (
     const currentOptions = allOptions.find((option) => optionEntityId === option?.id);
 
     let isDate = false;
+
     if (currentOptions && !optionValueEntityId) {
       switch (currentOptions.type) {
         case 'date':
           isDate = true;
           optionValueEntityId = option.date.utc;
           break;
+
         case 'numbers_only_text':
           optionValueEntityId = option.number;
           break;
+
         default:
           optionValueEntityId = option.text;
           break;
@@ -758,6 +809,7 @@ const formatLineItemsToGetPrices = (items: LineItem[], productsSearch: ShoppingL
       if (!variantItem || !selectedProduct) {
         return formattedLineItems;
       }
+
       const { allOptions = [] } = selectedProduct;
 
       const options = formatOptionsSelections(selectedOptions, allOptions);
@@ -773,6 +825,7 @@ const formatLineItemsToGetPrices = (items: LineItem[], productsSearch: ShoppingL
         productsSearch: selectedProduct,
         optionSelections: getSelectedOptions(selectedOptions, allOptions),
       });
+
       return formattedLineItems;
     },
     { items: [], variants: [] },
@@ -802,6 +855,7 @@ const calculateProductsPrice = async (
       storeHash,
       ...data,
     });
+
     calculatedPrices = res.data;
   }
 
@@ -817,6 +871,7 @@ const calculateProductsPrice = async (
       product_id: productId,
     } = variants[index];
     const { taxPrice, itemPrice } = getBulkPrice(calculatedPrice, quantity);
+
     return {
       node: {
         id: uuid(),
@@ -839,10 +894,12 @@ const calculateProductsPrice = async (
 const calculateProductListPrice = async (products: Partial<Product>[], type = '1') => {
   const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
     getActiveCurrencyInfo();
+
   try {
     let isError = false;
     let i = 0;
     let itemsOptions: Partial<CalculatedItems>[] | [] = [];
+
     while (i < products.length && !isError) {
       let newSelectOptionList = [];
       let allOptions: Partial<AllOptionProps>[] = [];
@@ -882,6 +939,7 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
       if (variantItem) {
         const items =
           getCalculatedParams(newSelectOptionList, variantItem, allOptionsArr || []) || [];
+
         itemsOptions = [...itemsOptions, ...items];
       } else {
         isError = true;
@@ -932,9 +990,11 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
         productNode.node.calculatedValue = calculatedData[index];
       }
     });
+
     return products;
   } catch (error) {
     b2bLogger.error(error);
+
     return [];
   }
 };
@@ -976,18 +1036,22 @@ const setModifierQtyPrice = async (product: CustomFieldItems, qty: number, isReq
     return product;
   } catch (e) {
     b2bLogger.error(e);
+
     return product;
   }
 };
 
 const compareOption = (langList: CustomFieldItems[], shortList: CustomFieldItems[]) => {
   let flag = true;
+
   langList.forEach((item: CustomFieldItems) => {
     const option = shortList.find((list: CustomFieldItems) => list.optionId === item.optionId);
+
     if (!option) {
       if (item?.optionValue) flag = false;
     } else if (item.optionValue !== option.optionValue) flag = false;
   });
+
   return flag;
 };
 
@@ -996,10 +1060,12 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
 
   if (draftQuoteList.length === 0) {
     store.dispatch(setDraftQuoteList(products as QuoteItem[]));
+
     return;
   }
 
   const draftQuote = cloneDeep(draftQuoteList);
+
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList);
@@ -1015,6 +1081,7 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
 
       if (draftQuoteProduct) {
         draftQuoteProduct.node.quantity += quoteProduct.node.quantity;
+
         if (quoteProduct.node?.calculatedValue) {
           draftQuoteProduct.node.calculatedValue = quoteProduct.node.calculatedValue;
         }
@@ -1031,6 +1098,7 @@ const validProductQty = (products: CustomFieldItems) => {
   const { draftQuoteList } = store.getState().quoteInfo;
 
   let canAdd = true;
+
   products.forEach((product: CustomFieldItems) => {
     const draftQuote = draftQuoteList.find(
       (item) => item.node.variantSku === product.node.variantSku,
@@ -1129,6 +1197,7 @@ const getBCPrice = (basePrice: number, taxPrice: number) => {
   } = store.getState();
 
   let price: number;
+
   if (enteredInclusiveTax) {
     price = showInclusiveTaxPrice ? basePrice : basePrice - taxPrice;
   } else {
@@ -1145,6 +1214,7 @@ const getValidOptionsList = (
   const targetType = ['text', 'numbers_only_text', 'multi_line_text'];
   const originOptions = originProduct?.modifiers || originProduct?.allOptions;
   const newOptions: CustomFieldItems = [];
+
   options.forEach((option: { optionId: number | string; optionValue: number | string }) => {
     const currentOption = originOptions.find((item: { id: string | number }) => {
       const optionId = option.optionId.toString();
@@ -1163,11 +1233,13 @@ const getValidOptionsList = (
           (value: { value_data: { checked_value: boolean }; label: string }) =>
             !value?.value_data?.checked_value || value?.label === 'No',
         );
+
         newOptions.push({
           optionId: option.optionId,
           optionValue: checkboxValue.id.toString(),
         });
       }
+
       if (
         (targetType.includes(currentOption.type) || currentOption.type.includes('text')) &&
         option.optionValue
@@ -1204,6 +1276,7 @@ export const getProductInfoDisplayPrice = (
   if (inventoryTracking === 'none') {
     return currentPrice;
   }
+
   if (Number(quantity) > Number(inventoryLevel)) {
     return '';
   }
@@ -1237,6 +1310,7 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
     : newProductInfo?.variants || [];
 
   const variant = variants ? variants.find((item: Variant) => item.sku === variantSku) : {};
+
   if (variant && variant?.sku) {
     const { purchasing_disabled: purchasingDisabled, inventory_level: inventoryLevel } = variant;
 

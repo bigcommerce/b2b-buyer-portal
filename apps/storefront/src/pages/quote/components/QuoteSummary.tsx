@@ -1,3 +1,4 @@
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import {
   forwardRef,
   Ref,
@@ -7,7 +8,6 @@ import {
   useImperativeHandle,
   useState,
 } from 'react';
-import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
@@ -99,7 +99,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const cardId = useId();
 
   return (
-    <Card role="article" aria-labelledby={cardId}>
+    <Card aria-labelledby={cardId} role="article">
       <CardContent>
         <Box>
           <Typography id={cardId} variant="h5">
@@ -172,4 +172,5 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     </Card>
   );
 });
+
 export default QuoteSummary;

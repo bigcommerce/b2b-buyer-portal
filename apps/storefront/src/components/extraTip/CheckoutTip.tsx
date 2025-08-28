@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Dialog, DialogActions, DialogContent } from '@mui/material';
+import { useState } from 'react';
 
 import { CHECKOUT_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
@@ -29,13 +29,13 @@ function CheckoutTip(props: CheckoutTipProps) {
     role === 3 &&
     !isAgenting && (
       <Dialog
+        fullScreen={isMobile}
+        onClose={() => setOpen(true)}
+        open={open}
         sx={{
           zIndex: 99999999993,
           padding: '40px 40px 20px 40px',
         }}
-        open={open}
-        onClose={() => setOpen(true)}
-        fullScreen={isMobile}
       >
         <DialogContent>please select a company</DialogContent>
         <DialogActions

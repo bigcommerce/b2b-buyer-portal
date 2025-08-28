@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider } from '@mui/material';
+import { useState } from 'react';
 import { v1 as uuid } from 'uuid';
 
 import { B3CollapseContainer, B3Upload } from '@/components';
@@ -63,6 +63,7 @@ export default function AddToQuote(props: AddToListProps) {
       const { image_url: primaryImage = '', sku: variantSku } = variantInfo;
 
       let selectOptions;
+
       try {
         selectOptions = JSON.stringify(newSelectOptionList);
       } catch (error) {
@@ -107,6 +108,7 @@ export default function AddToQuote(props: AddToListProps) {
 
       return !(sku || variantSku);
     });
+
     if (noSkuProducts.length > 0) {
       snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'));
     }
@@ -171,10 +173,12 @@ export default function AddToQuote(props: AddToListProps) {
 
   const handleCSVAddToList = async (productsData: CustomFieldItems) => {
     setIsLoading(true);
+
     try {
       const { validProduct } = productsData;
 
       const productIds: number[] = [];
+
       validProduct.forEach((product: CustomFieldItems) => {
         const { products } = product;
 
@@ -194,6 +198,7 @@ export default function AddToQuote(props: AddToListProps) {
       let isSuccess = false;
 
       const newProducts: CustomFieldItems[] = [];
+
       validProduct.forEach((product: CustomFieldItems) => {
         const {
           products: { option, variantSku, productId, productName, variantId },
@@ -233,6 +238,7 @@ export default function AddToQuote(props: AddToListProps) {
         isSuccess = true;
       });
       isSuccess = validProductQty(newProducts);
+
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2');
 
@@ -267,20 +273,20 @@ export default function AddToQuote(props: AddToListProps) {
       >
         <B3CollapseContainer title={b3Lang('quoteDraft.collapseTitle.addToQuote')}>
           <SearchProduct
-            updateList={updateList}
-            addToList={addToList}
-            type="quote"
-            searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
             addButtonText={b3Lang('quoteDraft.searchProduct.addToQuoteButton')}
+            addToList={addToList}
+            searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
+            type="quote"
+            updateList={updateList}
           />
 
           <Divider />
 
           <QuickAdd
-            updateList={updateList}
-            quickAddToList={quickAddToList}
-            level={1}
             buttonText={b3Lang('quoteDraft.button.addProductsToAddToQuote')}
+            level={1}
+            quickAddToList={quickAddToList}
+            updateList={updateList}
           />
 
           <Divider />
@@ -290,7 +296,7 @@ export default function AddToQuote(props: AddToListProps) {
               margin: '20px 0 0',
             }}
           >
-            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
+            <CustomButton onClick={() => handleOpenUploadDiag()} variant="text">
               <UploadFileIcon
                 sx={{
                   marginRight: '8px',
@@ -301,10 +307,10 @@ export default function AddToQuote(props: AddToListProps) {
           </Box>
 
           <B3Upload
-            isOpen={isOpenBulkLoadCSV}
-            setIsOpen={setIsOpenBulkLoadCSV}
             handleAddToList={handleCSVAddToList}
             isLoading={isLoading}
+            isOpen={isOpenBulkLoadCSV}
+            setIsOpen={setIsOpenBulkLoadCSV}
             withModifiers
           />
         </B3CollapseContainer>

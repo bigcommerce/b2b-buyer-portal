@@ -1,15 +1,15 @@
-import { MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Alert, Box } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
+import { MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { RegisteredContext } from './context/RegisteredContext';
 import { Country, State, validateExtraFields } from './config';
+import { RegisteredContext } from './context/RegisteredContext';
 import { PrimaryButton } from './PrimaryButton';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
@@ -112,6 +112,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
   useEffect(() => {
     const countryValue = getValues('country');
     const stateValue = getValues('state');
+
     handleCountryChange(countryValue, stateValue);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +126,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         handleCountryChange(country, state);
       }
     });
+
     return () => subscription.unsubscribe();
     // disabling as we don't need watch in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +144,9 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
   const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) =>
     formFields.map((field) => {
       const item = field;
+
       item.default = formData[field.name] || field.default;
+
       return field;
     });
 
@@ -154,6 +158,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
     const data = [...companyInformation, ...companyAttachment, ...addressBasicList].reduce(
       (formValues: DetailsFormValues, field: RegisterFields) => {
         const values = formValues;
+
         values[field.name] = getValues(field.name) || field.default;
 
         return formValues;
@@ -181,6 +186,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
       const attachmentsFilesFiled = companyInformation.find(
         (info) => info.fieldId === 'field_attachments',
       );
+
       if (
         !isEmpty(attachmentsFilesFiled) &&
         attachmentsFilesFiled.required &&
@@ -194,6 +200,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         });
 
         showLoading(false);
+
         return true;
       }
     }
@@ -207,6 +214,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
     handleSubmit(async (data: CustomFieldItems) => {
       if (hasAttachmentsFilesError) return;
       showLoading(true);
+
       try {
         if (accountType === '1') {
           await Promise.all([
@@ -235,6 +243,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         if (typeof error === 'string') {
           setErrorMessage(error);
         }
+
         showLoading(false);
       }
     })(event);
@@ -273,12 +282,12 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm
-            formFields={[...companyInformation]}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={[...companyInformation]}
             getValues={getValues}
-            setValue={setValue}
             setError={setError}
+            setValue={setValue}
           />
         </Box>
       ) : null}
@@ -287,9 +296,9 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         <InformationFourLabels>{addressName}</InformationFourLabels>
 
         <B3CustomForm
-          formFields={addressBasicList}
-          errors={errors}
           control={control}
+          errors={errors}
+          formFields={addressBasicList}
           getValues={getValues}
           setValue={setValue}
         />

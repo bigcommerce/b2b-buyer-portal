@@ -1,4 +1,10 @@
 import { useParams } from 'react-router-dom';
+import { when } from 'vitest-when';
+
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
+import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
+import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { CompanyStatus, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -15,12 +21,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
-import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
-import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
 
@@ -339,6 +339,7 @@ it('displays the details of each product', async () => {
   });
 
   const searchProductsQuerySpy = vi.fn();
+
   server.use(
     graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', ({ query }) => {
@@ -378,6 +379,7 @@ describe('when the user clicks on a product name', () => {
 
     // crude spy to intercept the window.location.href setter
     const hrefSpy = vitest.fn();
+
     vi.spyOn(window, 'location', 'get').mockReturnValue(
       Object.defineProperty({ ...window.location }, 'href', { set: hrefSpy }),
     );
@@ -650,6 +652,7 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
+
     expect(within(rowOfLovelySocks).getByRole('cell', { name: '$98.00' })).toBeInTheDocument();
 
     getShoppingList.mockReturnValueOnce(
@@ -672,6 +675,7 @@ describe("when a product's quantity is increased", () => {
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
@@ -707,6 +711,7 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelyBoots = screen.getByRole('row', { name: /Lovely boots/ });
+
     within(rowOfLovelyBoots).getByRole('checkbox').click();
 
     getShoppingList.mockReturnValueOnce(
@@ -718,6 +723,7 @@ describe("when a product's quantity is increased", () => {
     );
 
     const quantityInput = within(rowOfLovelyBoots).getByRole('spinbutton');
+
     await userEvent.type(quantityInput, '3', {
       initialSelectionStart: 0,
       initialSelectionEnd: Infinity,
@@ -775,6 +781,7 @@ describe('when the user updates the product notes', () => {
     const noteModal = screen.getByRole('dialog');
 
     const noteInput = within(noteModal).getByPlaceholderText('Add notes to products');
+
     await userEvent.clear(noteInput);
 
     await userEvent.type(noteInput, 'Updated note');
@@ -832,6 +839,7 @@ describe('when the shopping list is ready for approval', () => {
 describe('when shopping list products verify inventory into add to cart', () => {
   it('it error on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
@@ -887,6 +895,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -937,6 +946,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('it error on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
@@ -992,6 +1002,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1042,6 +1053,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('it error on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
@@ -1097,6 +1109,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {

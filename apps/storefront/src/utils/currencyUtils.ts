@@ -18,6 +18,7 @@ const getDefaultCurrencyInfo = () => {
   const { currencies } = store.getState().storeConfigs.currencies;
 
   const defaultFoundCurrency = currencies.find((currency) => currency.is_default);
+
   return defaultFoundCurrency || defaultCurrency;
 };
 

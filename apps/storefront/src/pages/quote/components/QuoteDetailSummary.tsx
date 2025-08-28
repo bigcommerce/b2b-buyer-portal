@@ -37,6 +37,7 @@ export default function QuoteDetailSummary({
     if (enteredInclusiveTax) {
       return showInclusiveTaxPrice ? price : price - quoteDetailTax;
     }
+
     return showInclusiveTaxPrice ? price + quoteDetailTax : price;
   };
 
@@ -96,6 +97,7 @@ export default function QuoteDetailSummary({
 
   const subtotalPrice = Number(originalSubtotal);
   const quotedSubtotal = Number(originalSubtotal) - Number(discount);
+
   return (
     <Card>
       <CardContent>

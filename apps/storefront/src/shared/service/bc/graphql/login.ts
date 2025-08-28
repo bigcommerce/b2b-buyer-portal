@@ -59,6 +59,7 @@ const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
     }
   }
 }`;
+
 // customMessage: field used to determine whether to use a custom message
 export const b2bLogin = (variables: LoginData, customMessage = true): Promise<UserLoginResult> =>
   B3Request.graphqlB2B(

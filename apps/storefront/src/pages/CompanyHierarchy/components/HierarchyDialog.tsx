@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import B3Dialog from '@/components/B3Dialog';
 import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
@@ -29,6 +29,7 @@ interface HierarchyDialogProps {
   context?: string;
   dialogParams?: { [key: string]: string };
 }
+
 function HierarchyDialog({
   open = false,
   handleClose,
@@ -53,6 +54,7 @@ function HierarchyDialog({
 
   const handleSwitchCompanyClick = async () => {
     if (!currentRow) return;
+
     try {
       setLoading(true);
 
@@ -103,24 +105,34 @@ function HierarchyDialog({
 
   return (
     <B3Dialog
-      isOpen={open}
-      rightSizeBtn={b3Lang('global.button.next')}
-      title={title || b3Lang('companyHierarchy.dialog.title')}
+      dialogSx={{
+        '& .MuiDialogTitle-root': {
+          border: 0,
+        },
+        '& .MuiDialogActions-root': {
+          border: 0,
+        },
+      }}
       fullWidth
-      loading={loading}
-      handleLeftClick={handleClose}
       handRightClick={handleSwitchCompanyClick}
+      handleLeftClick={handleClose}
+      isOpen={open}
+      loading={loading}
       restDialogParams={{
         TransitionProps: {
           onExited: () => {
             if (!currentRow) return;
+
             const { companyId } = currentRow;
+
             if (companyId === Number(currentCompanyId)) {
               const { hash } = window.location;
+
               if (hash.includes('/shoppingList/')) {
                 navigate('/shoppingLists');
               }
             }
+
             if (companyId !== Number(currentCompanyId) && !isHasCurrentPagePermission) {
               const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
                 return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
@@ -137,14 +149,8 @@ function HierarchyDialog({
           },
         },
       }}
-      dialogSx={{
-        '& .MuiDialogTitle-root': {
-          border: 0,
-        },
-        '& .MuiDialogActions-root': {
-          border: 0,
-        },
-      }}
+      rightSizeBtn={b3Lang('global.button.next')}
+      title={title || b3Lang('companyHierarchy.dialog.title')}
       {...dialogParams}
     >
       <Box

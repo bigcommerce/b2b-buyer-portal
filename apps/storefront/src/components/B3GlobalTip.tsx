@@ -33,6 +33,7 @@ export default function B3GlobalTip() {
   const handleClose = (id: number | string) => {
     const msgs = globalTipMessage?.msgs || [];
     const newMsgs = msgs.filter((msg) => msg.id !== id);
+
     setMsgs(newMsgs);
   };
 
@@ -44,6 +45,7 @@ export default function B3GlobalTip() {
     flushSync(() => {
       if (msgs.length) {
         const newMsgs = msgs.filter((item: MsgsProps) => item.id !== id);
+
         dispatch({
           type: 'common',
           payload: {
@@ -60,11 +62,11 @@ export default function B3GlobalTip() {
   return (
     <B3Tip
       autoHideDuration={globalTipMessage?.autoHideDuration}
-      msgs={globalTipMessage?.msgs}
       handleAllClose={closeMsgs}
       handleItemClose={handleClose}
-      vertical="top"
       horizontal="right"
+      msgs={globalTipMessage?.msgs}
+      vertical="top"
     />
   );
 }

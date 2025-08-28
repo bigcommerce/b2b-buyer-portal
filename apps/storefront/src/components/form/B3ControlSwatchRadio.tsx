@@ -33,10 +33,10 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
           {(option.colors || []).map((color: string) => (
             <Box
               className="swatch-color-item"
+              key={color}
               sx={{
                 background: color,
               }}
-              key={color}
             />
           ))}
         </ColorContainer>
@@ -52,9 +52,9 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
   return (
     <B3ControlRectangle
       {...props}
-      options={newOptions}
       fieldType="rectangle"
       labelStyle={labelStyle}
+      options={newOptions}
     />
   );
 }

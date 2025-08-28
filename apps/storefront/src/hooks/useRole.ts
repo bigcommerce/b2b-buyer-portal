@@ -11,19 +11,24 @@ const useRole = () => {
 
   const getRole = (role: number, isAgenting: boolean) => {
     let roleStr = '';
+
     switch (role) {
       case CustomerRole.GUEST:
         roleStr = 'guest';
         break;
+
       case CustomerRole.B2C:
         roleStr = 'b2c';
         break;
+
       case CustomerRole.SUPER_ADMIN:
         roleStr = isAgenting ? 'b2b' : 'b2c';
         break;
+
       default:
         roleStr = 'b2b';
     }
+
     setRoleText(roleStr);
   };
 

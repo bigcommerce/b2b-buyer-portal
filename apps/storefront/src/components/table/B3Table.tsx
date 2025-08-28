@@ -1,4 +1,3 @@
-import { ChangeEvent, FC, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
 import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
@@ -19,6 +18,7 @@ import {
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { ChangeEvent, FC, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
 
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
@@ -151,12 +151,12 @@ function Row<Row>({
   return (
     <>
       <TableRow
+        data-testid="tableBody-Row"
+        hover={hover}
         // @ts-expect-error typed previously as an any
         key={`${node[tableKey || 'id'] + index}`}
-        hover={hover}
         onClick={() => onClickRow?.(node, index)}
         sx={clickableRowStyles}
-        data-testid="tableBody-Row"
       >
         {showCheckbox && selectedSymbol && (
           <TableCell
@@ -168,18 +168,18 @@ function Row<Row>({
             <Checkbox
               // @ts-expect-error typed previously as an any
               checked={selectCheckbox.includes(node[selectedSymbol])}
+              disabled={applyAllDisableCheckbox ? disableCheckbox : disableCurrentCheckbox}
               onChange={() => {
                 // @ts-expect-error typed previously as an any
                 if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
               }}
-              disabled={applyAllDisableCheckbox ? disableCheckbox : disableCurrentCheckbox}
             />
           </TableCell>
         )}
 
         {CollapseComponent && (
           <TableCell>
-            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+            <IconButton aria-label="expand row" onClick={() => setOpen(!open)} size="small">
               {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
             </IconButton>
           </TableCell>
@@ -187,12 +187,12 @@ function Row<Row>({
 
         {columnItems.map((column) => (
           <TableCell
+            data-testid={column?.key ? `tableBody-${column?.key}` : ''}
             key={column.title}
             sx={{
               ...column?.style,
               borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
             }}
-            data-testid={column?.key ? `tableBody-${column?.key}` : ''}
           >
             {/* @ts-expect-error typed previously as an any */}
             {column.render ? column.render(node, index) : node[column.key]}
@@ -201,7 +201,7 @@ function Row<Row>({
       </TableRow>
       {CollapseComponent && (
         <TableRow>
-          <TableCell style={{ padding: 0 }} colSpan={24}>
+          <TableCell colSpan={24} style={{ padding: 0 }}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <CollapseComponent row={node} />
             </Collapse>
@@ -310,8 +310,8 @@ export function B3Table<Row>({
                     ? isAllSelect
                     : selectCheckbox.length === listItems.length
                 }
-                onChange={handleSelectAllItems}
                 disabled={disableCheckbox}
+                onChange={handleSelectAllItems}
               />
               Select all
             </Box>
@@ -324,16 +324,17 @@ export function B3Table<Row>({
                 <Checkbox
                   // @ts-expect-error typed previously as an any
                   checked={selectCheckbox.includes(node[selectedSymbol])}
+                  disabled={disable || disableCheckbox}
                   onChange={() => {
                     // @ts-expect-error typed previously as an any
                     if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
                   }}
-                  disabled={disable || disableCheckbox}
                 />
               );
+
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={12} key={`${node[tableKey || 'id'] + index}`}>
+                <Grid item key={`${node[tableKey || 'id'] + index}`} xs={12}>
                   {node && renderItem && renderItem(node, index, checkBox)}
                 </Grid>
               );
@@ -341,9 +342,14 @@ export function B3Table<Row>({
           </Grid>
           {showPagination && (
             <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.perPage')}
               component="div"
+              count={count}
+              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.perPage')}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              page={first === 0 ? 0 : offset / first}
+              rowsPerPage={first}
+              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               sx={{
                 color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
                 marginTop: '1.5rem',
@@ -354,11 +360,6 @@ export function B3Table<Row>({
                   color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
                 },
               }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
             />
           )}
         </>
@@ -371,7 +372,7 @@ export function B3Table<Row>({
 
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={itemXs} key={`${node[tableKey || 'id'] + index}`}>
+                <Grid item key={`${node[tableKey || 'id'] + index}`} xs={itemXs}>
                   {node && renderItem && renderItem(node, index)}
                 </Grid>
               );
@@ -379,9 +380,14 @@ export function B3Table<Row>({
           </Grid>
           {showPagination && (
             <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.cardsPerPage')}
               component="div"
+              count={count}
+              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.cardsPerPage')}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              page={first === 0 ? 0 : offset / first}
+              rowsPerPage={first}
+              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               sx={{
                 color: customColor,
                 marginTop: '1.5rem',
@@ -392,11 +398,6 @@ export function B3Table<Row>({
                   color: customColor,
                 },
               }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
             />
           )}
         </>
@@ -427,8 +428,8 @@ export function B3Table<Row>({
                               ? isAllSelect
                               : selectCheckbox.length === listItems.length
                           }
-                          onChange={handleSelectAllItems}
                           disabled={disableCheckbox}
+                          onChange={handleSelectAllItems}
                         />
                       </TableCell>
                     )}
@@ -436,8 +437,9 @@ export function B3Table<Row>({
 
                     {columnItems.map((column) => (
                       <TableCell
+                        data-testid={column?.key ? `tableHead-${column?.key}` : ''}
                         key={column.title}
-                        width={column.width}
+                        sortDirection={column.key === orderBy ? sortDirection : false}
                         sx={
                           column?.style
                             ? {
@@ -445,8 +447,7 @@ export function B3Table<Row>({
                               }
                             : {}
                         }
-                        sortDirection={column.key === orderBy ? sortDirection : false}
-                        data-testid={column?.key ? `tableHead-${column?.key}` : ''}
+                        width={column.width}
                       >
                         {column?.isSortable ? (
                           <TableSortLabel
@@ -472,26 +473,27 @@ export function B3Table<Row>({
 
                   const lastItemBorderBottom =
                     index === listItems.length - 1 ? '1px solid rgba(224, 224, 224, 1)' : 'none';
+
                   return (
                     <Row
+                      CollapseComponent={CollapseComponent}
+                      applyAllDisableCheckbox={applyAllDisableCheckbox}
+                      clickableRowStyles={clickableRowStyles}
+                      columnItems={columnItems}
+                      disableCheckbox={disableCheckbox}
+                      handleSelectOneItem={handleSelectOneItem}
+                      hover={hover}
+                      index={index}
                       // @ts-expect-error typed previously as an any
                       key={`row-${node[tableKey || 'id'] + index}`}
-                      columnItems={columnItems}
+                      lastItemBorderBottom={lastItemBorderBottom}
                       node={node}
-                      index={index}
-                      showCheckbox={showCheckbox}
+                      onClickRow={onClickRow}
                       selectCheckbox={selectCheckbox}
                       selectedSymbol={selectedSymbol}
-                      disableCheckbox={disableCheckbox}
-                      applyAllDisableCheckbox={applyAllDisableCheckbox}
                       showBorder={showBorder}
-                      handleSelectOneItem={handleSelectOneItem}
-                      clickableRowStyles={clickableRowStyles}
-                      lastItemBorderBottom={lastItemBorderBottom}
-                      hover={hover}
+                      showCheckbox={showCheckbox}
                       tableKey={tableKey}
-                      onClickRow={onClickRow}
-                      CollapseComponent={CollapseComponent}
                     />
                   );
                 })}
@@ -500,20 +502,20 @@ export function B3Table<Row>({
           </TableContainer>
           {showPagination && (
             <TablePagination
-              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
-              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.rowsPerPage')}
               component="div"
+              count={count}
+              labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.rowsPerPage')}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              page={first === 0 ? 0 : offset / first}
+              rowsPerPage={first}
+              rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               sx={{
                 marginTop: '1.5rem',
                 '::-webkit-scrollbar': {
                   display: 'none',
                 },
               }}
-              count={count}
-              rowsPerPage={first}
-              page={first === 0 ? 0 : offset / first}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
             />
           )}
         </Card>

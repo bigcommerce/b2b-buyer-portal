@@ -18,8 +18,10 @@ const b3TriggerCartNumber = async () => {
 
     if (cartInfo.data.site.cart) {
       const items = cartInfo.data.site.cart.lineItems;
+
       productTypeKey.forEach((key) => {
         const productItem = items[key];
+
         if (productItem && productItem.length > 0) {
           if (key === 'giftCertificates') {
             number += productItem.length;

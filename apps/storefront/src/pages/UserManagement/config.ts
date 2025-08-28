@@ -108,6 +108,7 @@ const getFilterMoreList = (b3Lang: LangFormatFunction) => {
 
 const getUsersFiles = (type: string, b3Lang: LangFormatFunction, disabledUserRole = false) => {
   const roleArr = getFilterMoreList(b3Lang);
+
   roleArr[0].required = true;
   roleArr[0].disabled = disabledUserRole;
 

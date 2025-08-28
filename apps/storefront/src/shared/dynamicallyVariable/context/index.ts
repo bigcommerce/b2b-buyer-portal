@@ -53,16 +53,19 @@ export const reducer = (
         ...state,
         ...action.payload,
       };
+
     case 'tip':
       return {
         ...state,
         ...mulTip,
       };
+
     case 'globalTip':
       return {
         ...state,
         ...mulTip,
       };
+
     default:
       return state;
   }

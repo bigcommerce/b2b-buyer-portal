@@ -72,8 +72,11 @@ interface LineItemsProps {
 
 const addLoading = (b3CartToQuote: any) => {
   const loadingDiv = document.createElement('div');
+
   loadingDiv.setAttribute('id', 'b2b-div-loading');
+
   const loadingBtn = document.createElement('div');
+
   loadingBtn.setAttribute('class', 'b2b-btn-loading');
   loadingDiv.appendChild(loadingBtn);
   b3CartToQuote.appendChild(loadingDiv);
@@ -81,6 +84,7 @@ const addLoading = (b3CartToQuote: any) => {
 
 const removeElement = (_element: CustomFieldItems) => {
   const parentElement = _element.parentNode;
+
   if (parentElement) {
     parentElement.removeChild(_element);
   }
@@ -88,6 +92,7 @@ const removeElement = (_element: CustomFieldItems) => {
 
 const removeLoading = () => {
   const b2bLoading = document.querySelector('#b2b-div-loading');
+
   if (b2bLoading) removeElement(b2bLoading);
 };
 
@@ -108,8 +113,10 @@ const getCartProducts = (lineItems: LineItemsProps) =>
       (accumulator, { options = [], sku, ...product }) => {
         if (!sku) {
           accumulator.noSkuProducts.push(product);
+
           return accumulator;
         }
+
         if (!product.parentId) {
           accumulator.cartProductsList.push({
             ...product,
@@ -120,6 +127,7 @@ const getCartProducts = (lineItems: LineItemsProps) =>
             })),
           });
         }
+
         return accumulator;
       },
       { cartProductsList: [], noSkuProducts: [] },
@@ -162,6 +170,7 @@ const addProductsToDraftQuote = async (
   const productsList = await calculateProductsPrice(productsWithSKUOrVariantId, productsListSearch);
 
   const isSuccess = validProductQty(productsList);
+
   if (isSuccess) {
     addQuoteDraftProducts(productsList);
   }
@@ -184,6 +193,7 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormat
     try {
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error(b3Lang('pdp.cartToQuote.error.notFound'));
+
         return;
       }
 
@@ -198,11 +208,13 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormat
       if (cartProductsList.length === 0) {
         globalSnackbar.error(b3Lang('pdp.cartToQuote.error.empty'));
       }
+
       if (noSkuProducts.length === cartProductsList.length) return;
 
       const newCartProductsList = cartProductsList.filter(
         (product: PhysicalItemProps) => !product.parentEntityId,
       );
+
       await addProductsToDraftQuote(newCartProductsList, setOpenPage, b3Lang, entityId);
     } catch (e) {
       b2bLogger.error(e);
@@ -229,7 +241,9 @@ const addProductFromProductPageToQuote = (
   const addToQuote = async (node?: HTMLElement) => {
     try {
       const productView = node ? node.closest(config['dom.productView']) : document;
+
       if (!productView) return;
+
       const productId = (productView.querySelector('input[name=product_id]') as CustomFieldItems)
         ?.value;
       const qty = (productView.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1;
@@ -241,6 +255,7 @@ const addProductFromProductPageToQuote = (
 
         return;
       }
+
       const companyInfoId = store.getState().company.companyInfo.id;
       const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId');
       const { customerGroupId } = store.getState().company.customer;
@@ -262,8 +277,10 @@ const addProductFromProductPageToQuote = (
       const optionList = getProductOptionList(optionMap);
 
       const { isValid, message } = isAllRequiredOptionFilled(allOptions, optionList);
+
       if (!isValid) {
         globalSnackbar.error(message);
+
         return;
       }
 
@@ -278,6 +295,7 @@ const addProductFromProductPageToQuote = (
 
         const inventoryTracking = productsSearch[0]?.inventoryTracking || 'none';
         let inventoryLevel = productsSearch[0]?.inventoryLevel;
+
         if (inventoryTracking === 'variant') {
           const currentVariant = productsSearch[0]?.variants.find(
             (variant: CustomFieldItems) => variant.sku === sku,
@@ -296,6 +314,7 @@ const addProductFromProductPageToQuote = (
               : b3Lang('quoteDraft.productPageToQuote.unavailable');
 
           globalSnackbar.error(message);
+
           return;
         }
       }
@@ -309,6 +328,7 @@ const addProductFromProductPageToQuote = (
 
       const newProducts: CustomFieldItems = [quoteListitem];
       const isSuccess = validProductQty(newProducts);
+
       if (quoteListitem && isSuccess) {
         await addQuoteDraftProduce(quoteListitem, qty, optionList || []);
         globalSnackbar.success(b3Lang('global.notification.addProductSingular'), {

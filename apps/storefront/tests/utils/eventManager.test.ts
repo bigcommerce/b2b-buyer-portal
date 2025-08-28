@@ -5,6 +5,7 @@ describe('Callback manager', () => {
     const callbackManager = new CallbackManager();
 
     const callback = vi.fn();
+
     callbackManager.addEventListener('on-login', callback);
     callbackManager.dispatchEvent('on-login');
 

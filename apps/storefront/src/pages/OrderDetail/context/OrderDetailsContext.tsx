@@ -38,10 +38,12 @@ export interface OrderDetailsState {
   companyInfo?: CompanyInfoTypes;
   customerId?: number;
 }
+
 interface OrderDetailsAction {
   type: string;
   payload: OrderDetailsState;
 }
+
 export interface OrderDetailsContextType {
   state: OrderDetailsState;
   dispatch: Dispatch<OrderDetailsAction>;
@@ -115,16 +117,19 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
         ...state,
         ...action.payload,
       };
+
     case 'statusType':
       return {
         ...state,
         orderStatus: action.payload.orderStatus,
       };
+
     case 'addressLabel':
       return {
         ...state,
         addressLabelPermission: action.payload.addressLabelPermission,
       };
+
     default:
       return state;
   }

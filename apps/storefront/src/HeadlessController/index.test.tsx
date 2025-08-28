@@ -1,3 +1,7 @@
+import { when } from 'vitest-when';
+
+import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
+import { CustomerRole } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -8,10 +12,6 @@ import {
   startMockServer,
   stringContainingAll,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
-import { CustomerRole } from '@/types';
 
 import HeadlessController from '.';
 
@@ -83,6 +83,7 @@ describe('HeadlessController shopping lists utils', () => {
     );
 
     const mockSetOpenPage = vi.fn();
+
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />, {
       preloadedState: {
         company: buildCompanyStateWith({
@@ -135,7 +136,9 @@ describe('HeadlessController shopping lists utils', () => {
     );
 
     const mockSetOpenPage = vi.fn();
+
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
+
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toEqual(

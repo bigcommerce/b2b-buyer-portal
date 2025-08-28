@@ -1,7 +1,7 @@
+import { Box, ImageListItem, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Box, ImageListItem, Typography } from '@mui/material';
 
 import { B3Card, B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -60,11 +60,13 @@ export function ForgotPassword({
   const handleLoginClick = handleSubmit(async ({ email }) => {
     if (isEnabledOnStorefront && !captchaKey) {
       setIsCaptchaMissing(true);
+
       return;
     }
 
     try {
       setLoading(true);
+
       if (isEnabledOnStorefront && captchaKey) {
         try {
           await requestResetPassword(captchaKey, email);
@@ -102,14 +104,14 @@ export function ForgotPassword({
           {logo && (
             <LoginImage>
               <ImageListItem
-                sx={{
-                  maxWidth: isMobile ? '175px' : '250px',
-                }}
                 onClick={() => {
                   window.location.assign('/');
                 }}
+                sx={{
+                  maxWidth: isMobile ? '175px' : '250px',
+                }}
               >
-                <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
+                <img alt={b3Lang('global.tips.registerLogo')} loading="lazy" src={logo} />
               </ImageListItem>
             </LoginImage>
           )}
@@ -124,32 +126,31 @@ export function ForgotPassword({
           }}
         >
           <Typography
-            variant="h5"
             sx={{
               margin: '16px 0',
             }}
+            variant="h5"
           >
             {b3Lang('forgotPassword.resetPassword')}
           </Typography>
           <Typography
-            variant="body1"
             sx={{
               margin: '0 16px 16px 16px',
             }}
+            variant="body1"
           >
             {b3Lang('forgotPassword.requestEmail')}
           </Typography>
           <B3CustomForm
-            formFields={forgotPasswordFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={forgotPasswordFields}
             getValues={getValues}
             setValue={setValue}
             sx={{ margin: '0 16px', maxWidth: isMobile ? '311px' : '505px' }}
           />
           {isEnabledOnStorefront && isCaptchaMissing ? (
             <Typography
-              variant="body1"
               sx={{
                 color: 'red',
                 display: 'flex',
@@ -158,6 +159,7 @@ export function ForgotPassword({
                 marginTop: '2px',
                 fontSize: '13px',
               }}
+              variant="body1"
             >
               {b3Lang('login.loginText.missingCaptcha')}
             </Typography>
@@ -166,19 +168,19 @@ export function ForgotPassword({
           )}
           {isEnabledOnStorefront ? (
             <Box sx={{ marginTop: '20px' }}>
-              <Captcha siteKey={storefrontSiteKey} size="normal" handleGetKey={setCaptchaKey} />
+              <Captcha handleGetKey={setCaptchaKey} siteKey={storefrontSiteKey} size="normal" />
             </Box>
           ) : (
             ''
           )}
-          <B3Spin isSpinning={isLoading} size={20} isFlex={false}>
+          <B3Spin isFlex={false} isSpinning={isLoading} size={20}>
             <B3ResetPassWordButton>
               <CustomButton
-                type="submit"
-                size="medium"
                 onClick={handleLoginClick}
-                variant="contained"
+                size="medium"
                 sx={{ width: 'auto' }}
+                type="submit"
+                variant="contained"
               >
                 {b3Lang('forgotPassword.resetPasswordBtn')}
               </CustomButton>
@@ -215,9 +217,9 @@ export default function Page({ setOpenPage }: PageProps) {
 
   return (
     <ForgotPassword
-      setOpenPage={setOpenPage}
-      logo={loginPageDisplay.displayStoreLogo ? logo : undefined}
       isEnabledOnStorefront={isEnabledOnStorefront}
+      logo={loginPageDisplay.displayStoreLogo ? logo : undefined}
+      setOpenPage={setOpenPage}
       storefrontSiteKey={storefrontSiteKey}
     />
   );

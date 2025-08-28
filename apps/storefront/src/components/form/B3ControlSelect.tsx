@@ -1,6 +1,6 @@
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 import { ChangeEvent, useId } from 'react';
 import { Controller } from 'react-hook-form';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 
@@ -56,21 +56,21 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
 
   return ['dropdown'].includes(fieldType) ? (
     <FormControl
-      variant="filled"
+      disabled={disabled}
       style={{
         width: '100%',
         color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
       }}
-      disabled={disabled}
+      variant="filled"
     >
       {label && (
         <InputLabel
+          error={!!errors[name]}
+          id={`${id}-label`}
+          required={required}
           sx={{
             color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
           }}
-          error={!!errors[name]}
-          required={required}
-          id={`${id}-label`}
         >
           {label}
         </InputLabel>
@@ -83,10 +83,10 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
             {...field}
             {...muiAttributeProps}
             {...onChangeProps}
-            size={size}
             error={!!errors[name]}
-            labelId={`${id}-label`}
             id={`${id}-select`}
+            labelId={`${id}-label`}
+            size={size}
             sx={{
               ...extraPadding,
             }}

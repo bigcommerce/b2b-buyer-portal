@@ -7,6 +7,7 @@ interface VariantInfo {
 
 const b2bGetVariantImageByVariantInfo = (currentVariants: Variant[], variantInfo: VariantInfo) => {
   let currentImage = '';
+
   if (currentVariants && currentVariants.length > 0) {
     const currentProduct = currentVariants.find(
       (item: Variant) =>

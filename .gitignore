@@ -29,10 +29,10 @@ yarn-error.log*
 
 # turbo
 .turbo
-.vscode/settings.json
 
 # ide
-.vscode
+.vscode/**/*
+!.vscode/settings.example.json
 
 slack-message.json
 

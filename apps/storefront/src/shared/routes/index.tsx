@@ -136,8 +136,10 @@ const gotoAllowedAppPage = async (
 
   const { company } = currentState;
   const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
+
   if (!isLoggedIn) {
     gotoPage('/login?loginFlag=loggedOutLogin&&closeIsLogout=1');
+
     return;
   }
 
@@ -145,14 +147,17 @@ const gotoAllowedAppPage = async (
 
   if (denyInvoiceRoles.includes(role) && isInvoicePage()) {
     gotoPage('/login?loginFlag=invoiceErrorTip');
+
     return;
   }
+
   try {
     const isBcLogin = await b2bVerifyBcLoginStatus();
 
     if (!isBcLogin && isB2bTokenPage()) {
       logoutSession();
       gotoPage('/login?loginFlag=deviceCrowdingLogIn');
+
       return;
     }
   } catch (err: unknown) {
@@ -163,6 +168,7 @@ const gotoAllowedAppPage = async (
 
   if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
     let isB2BUser = false;
+
     if (
       company.customer.userType === UserTypes.MULTIPLE_B2C &&
       company.companyInfo.status === CompanyStatus.APPROVED
@@ -178,9 +184,11 @@ const gotoAllowedAppPage = async (
       case CustomerRole.JUNIOR_BUYER:
         url = '/shoppingLists';
         break;
+
       case CustomerRole.SUPER_ADMIN:
         url = '/dashboard';
         break;
+
       default:
         url = currentAuthorizedPages;
         break;
@@ -191,6 +199,7 @@ const gotoAllowedAppPage = async (
     if (matchPath(item.path, url) || isInvoicePage()) {
       return item.permissions.includes(Number(role));
     }
+
     return false;
   });
 
@@ -198,8 +207,10 @@ const gotoAllowedAppPage = async (
     if (url.includes('/login?') || url.includes('payment')) {
       return true;
     }
+
     return matchPath(item.path, url);
   });
+
   if (flag || isFirstLevelFlag) gotoPage(url);
 };
 

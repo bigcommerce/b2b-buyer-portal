@@ -1,3 +1,6 @@
+import { when } from 'vitest-when';
+
+import { permissionLevels } from '@/constants';
 import {
   buildCompanyStateWith,
   builder,
@@ -17,12 +20,10 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { permissionLevels } from '@/constants';
 
 import { InvoiceStatusCode } from './components/InvoiceStatus';
 import { triggerPdfDownload } from './components/triggerPdfDownload';
+
 import Invoice from './index';
 
 vi.mock('./components/triggerPdfDownload');
@@ -46,6 +47,7 @@ const buildInvoicePaymentNodeWith = builder(() => ({
 
 const buildInvoicePaymentHistoryResponseWith = builder(() => {
   const totalCount = faker.number.int({ min: 1, max: 5 });
+
   return {
     data: {
       allReceiptLines: {

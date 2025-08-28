@@ -74,6 +74,7 @@ export const getQuoteEnabled = (
           slBcUserEnabled = config?.extraFields?.b2c || false;
           slB2bUserEnabled = config?.extraFields?.b2b || false;
         }
+
         break;
 
       default:

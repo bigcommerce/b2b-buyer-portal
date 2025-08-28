@@ -1,6 +1,6 @@
+import { Box, Button, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography } from '@mui/material';
 
 import { B3NoData } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -41,16 +41,20 @@ interface RowProps {
   label: string;
   code: string;
 }
+
 function Row({ isRow = true, type = '', value, label, code }: RowProps) {
   const getNewVal = (): string | number | Date => {
     if (type === 'time') {
       return displayFormat(Number(value)) || '';
     }
+
     if (type === 'currency') {
       const val = Number(value || 0);
       const accountValue = handleGetCorrespondingCurrency(code, val);
+
       return accountValue;
     }
+
     if (type === 'paymentType') {
       let val = `${value}`.trim();
 
@@ -60,6 +64,7 @@ function Row({ isRow = true, type = '', value, label, code }: RowProps) {
 
       return val;
     }
+
     return value || '–';
   };
 
@@ -135,12 +140,12 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     <Box>
       {paymentSuccessKeys.map((item) => (
         <Row
-          key={item.key}
+          code={(list as CustomFieldItems)?.totalCode || 'SGD'}
           isRow={!!item.isRow}
+          key={item.key}
+          label={b3Lang(item.idLang)}
           type={item.type}
           value={(list as CustomFieldItems)[item.key]}
-          code={(list as CustomFieldItems)?.totalCode || 'SGD'}
-          label={b3Lang(item.idLang)}
         />
       ))}
       <Box
@@ -206,6 +211,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           const val = Number(value || 0);
 
           const accountValue = handleGetCorrespondingCurrency(code, val);
+
           return (
             <Box
               key={id}
@@ -246,6 +252,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+
       const { receipt } = await getInvoicePaymentInfo(Number(receiptId));
 
       setDetailData(receipt);
@@ -270,11 +277,11 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
 
   return (
     <B3Dialog
+      customActions={customActions}
       isOpen={open}
       leftSizeBtn=""
-      customActions={customActions}
-      title={b3Lang('payment.paymentSuccess')}
       showLeftBtn={false}
+      title={b3Lang('payment.paymentSuccess')}
     >
       <Box
         sx={{

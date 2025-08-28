@@ -1,8 +1,8 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
@@ -100,6 +100,7 @@ function useData() {
 
       return listProducts;
     }
+
     return undefined;
   };
 
@@ -203,6 +204,7 @@ function QuoteDetail() {
       if (isB2BUser) {
         const companyId = quoteDetail?.companyId?.id || null;
         const userEmail = quoteDetail?.contactInfo?.email || '';
+
         return {
           quotePurchasabilityPermission: purchasabilityPermission,
           quoteConvertToOrderPermission: verifyLevelPermission({
@@ -247,6 +249,7 @@ function QuoteDetail() {
     });
 
     const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
+
     if (isEnableProduct && isHandleApprove && isHideCheckout) {
       if (oosErrorList)
         snackbar.error(
@@ -276,6 +279,7 @@ function QuoteDetail() {
   const proceedingCheckoutFn = useCallback(() => {
     if (isHideQuoteCheckout) {
       const { oos, nonPurchasable } = noBuyerProductName;
+
       if (oos)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
@@ -290,14 +294,17 @@ function QuoteDetail() {
           }),
         );
     }
+
     return isHideQuoteCheckout;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName]);
 
   const classRates: TaxZoneRates[] = [];
+
   if (taxZoneRates?.length) {
     const defaultTaxZone = taxZoneRates?.find((taxZone: { id: number }) => taxZone.id === 1);
+
     if (defaultTaxZone) {
       const { rates = [] } = defaultTaxZone;
 
@@ -311,17 +318,21 @@ function QuoteDetail() {
     if (variants.length) {
       const taxExclusive = get(variants, '[0].bc_calculated_price.tax_exclusive', 0);
       const taxInclusive = get(variants, '[0].bc_calculated_price.tax_inclusive', 0);
+
       return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0;
     }
+
     if (classRates.length) {
       return (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) / 100;
     }
+
     return 0;
   };
 
   const getQuoteExtraFields = async (currentExtraFields: QuoteExtraFieldsData[]) => {
     const extraFieldsInfo = await getB2BQuoteExtraFields();
     const quoteCurrentExtraFields: QuoteExtraFieldsData[] = [];
+
     if (extraFieldsInfo.length) {
       extraFieldsInfo.forEach((item) => {
         const extraField = item;
@@ -367,6 +378,7 @@ function QuoteDetail() {
         setQuoteDetailTax(Number(quote.taxTotal));
       } else {
         let taxPrice = 0;
+
         productsWithMoreInfo?.forEach((product) => {
           const {
             quantity,
@@ -375,6 +387,7 @@ function QuoteDetail() {
           } = product;
 
           const taxRate = getTaxRate(taxClassId, variants);
+
           taxPrice += enteredInclusiveTax
             ? ((Number(offeredPrice) * taxRate) / (1 + taxRate)) * Number(quantity)
             : Number(offeredPrice) * taxRate * Number(quantity);
@@ -393,6 +406,7 @@ function QuoteDetail() {
       setHandleApprove(!!salesRep || !!salesRepEmail);
 
       const newFileList: CustomFieldItems[] = [];
+
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
           fileName: file.fileName,
@@ -432,7 +446,9 @@ function QuoteDetail() {
 
   const fetchPdfUrl = async (bool: boolean) => {
     setIsRequestLoading(true);
+
     const { id, createdAt } = quoteDetail;
+
     try {
       const data = {
         quoteId: Number(id),
@@ -452,6 +468,7 @@ function QuoteDetail() {
     } catch (err: any) {
       snackbar.error(err);
     }
+
     return {
       url: '',
       content: '',
@@ -461,6 +478,7 @@ function QuoteDetail() {
   const exportPdf = async () => {
     try {
       const { url: quotePdfUrl } = await fetchPdfUrl(false);
+
       if (quotePdfUrl) {
         window.open(`${quotePdfUrl}`, '_blank');
       }
@@ -476,6 +494,7 @@ function QuoteDetail() {
       const { content } = await fetchPdfUrl(true);
 
       const iframe = document.createElement('iframe');
+
       iframe.setAttribute('style', 'display:none;');
       document.getElementById('bundle-container')?.appendChild(iframe);
       iframe.contentDocument?.open();
@@ -493,6 +512,7 @@ function QuoteDetail() {
 
     if (allProductsList.length === 0) {
       const quote = await getQuoteDetail();
+
       allProductsList = quote?.productsList || [];
     }
 
@@ -505,6 +525,7 @@ function QuoteDetail() {
         totalCount: 0,
       };
     }
+
     const list = allProductsList.slice(startIndex, endIndex);
 
     return {
@@ -559,6 +580,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(false);
     }
   };
+
   useEffect(() => {
     if (location.search.includes('isCheckout') && id) {
       quoteGotoCheckout();
@@ -619,14 +641,14 @@ function QuoteDetail() {
         }}
       >
         <QuoteDetailHeader
-          status={quoteDetail.status}
-          quoteNumber={quoteDetail.quoteNumber}
-          issuedAt={quoteDetail.createdAt}
           expirationDate={quoteDetail.expiredAt}
           exportPdf={exportPdf}
+          issuedAt={quoteDetail.createdAt}
           printQuote={printQuote}
+          quoteNumber={quoteDetail.quoteNumber}
           role={role}
           salesRepInfo={quoteDetail.salesRepInfo}
+          status={quoteDetail.status}
         />
 
         <Box
@@ -635,17 +657,17 @@ function QuoteDetail() {
           }}
         >
           <QuoteInfo
-            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
-            contactInfo={quoteDetail.contactInfo}
-            shippingAddress={quoteDetail.shippingAddress}
             billingAddress={quoteDetail.billingAddress}
+            contactInfo={quoteDetail.contactInfo}
+            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
+            shippingAddress={quoteDetail.shippingAddress}
           />
         </Box>
 
         <Grid
           container
-          spacing={isMobile ? 2 : 0}
           rowSpacing={0}
+          spacing={isMobile ? 2 : 0}
           sx={{
             overflow: 'auto',
             flexWrap: isMobile ? 'wrap' : 'nowrap',
@@ -659,7 +681,6 @@ function QuoteDetail() {
         >
           <Grid
             item
-            xs={isMobile ? 12 : 8}
             rowSpacing={0}
             sx={
               isMobile
@@ -671,6 +692,7 @@ function QuoteDetail() {
                     mr: '16px',
                   }
             }
+            xs={isMobile ? 12 : 8}
           >
             <Box
               sx={
@@ -682,19 +704,18 @@ function QuoteDetail() {
               }
             >
               <QuoteDetailTable
-                total={productList.length}
                 currency={quoteDetail.currency}
-                isHandleApprove={isHandleApprove}
+                displayDiscount={quoteDetail.displayDiscount}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
-                displayDiscount={quoteDetail.displayDiscount}
+                isHandleApprove={isHandleApprove}
+                total={productList.length}
               />
             </Box>
           </Grid>
 
           <Grid
             item
-            xs={isMobile ? 12 : 4}
             rowSpacing={0}
             sx={
               isMobile
@@ -705,6 +726,7 @@ function QuoteDetail() {
                     pl: 0,
                   }
             }
+            xs={isMobile ? 12 : 4}
           >
             <Box
               sx={{
@@ -713,10 +735,10 @@ function QuoteDetail() {
             >
               <QuoteDetailSummary
                 isHideQuoteCheckout={isHideQuoteCheckout}
-                quoteSummary={quoteSummary}
-                quoteDetailTax={quoteDetailTax}
-                status={quoteDetail.status}
                 quoteDetail={quoteDetail}
+                quoteDetailTax={quoteDetailTax}
+                quoteSummary={quoteSummary}
+                status={quoteDetail.status}
               />
             </Box>
 
@@ -738,11 +760,11 @@ function QuoteDetail() {
               }}
             >
               <Message
-                id={id}
-                status={quoteDetail.status}
-                isB2BUser={isB2BUser}
                 email={emailAddress || ''}
+                id={id}
+                isB2BUser={isB2BUser}
                 msgs={quoteDetail?.trackingHistory || []}
+                status={quoteDetail.status}
               />
             </Box>
 
@@ -754,9 +776,9 @@ function QuoteDetail() {
             >
               <QuoteAttachment
                 allowUpload={Number(quoteDetail.status) !== 4}
+                defaultFileList={fileList}
                 quoteId={quoteDetail.id}
                 status={quoteDetail.status}
-                defaultFileList={fileList}
               />
             </Box>
 
@@ -780,11 +802,11 @@ function QuoteDetail() {
           isAutoEnableQuoteCheckout &&
           isEnableProductShowCheckout() && (
             <QuoteDetailFooter
+              isAgenting={isAgenting}
+              proceedingCheckoutFn={proceedingCheckoutFn}
               quoteId={quoteDetail.id}
               role={role}
-              isAgenting={isAgenting}
               status={quoteDetail.status}
-              proceedingCheckoutFn={proceedingCheckoutFn}
             />
           )}
       </Box>

@@ -94,6 +94,7 @@ export const validateBasePermissionWithComparisonType = ({
   permissions = [],
 }: ValidateBasePermissionWithComparisonTypeProps) => {
   if (!code) return false;
+
   const info = permissions.find((permission) => permission.code.includes(code));
 
   if (!info) return !!info;
@@ -141,14 +142,17 @@ export const levelComparison = ({
   switch (permissionLevel) {
     case permissionLevels.COMPANY_SUBSIDIARIES:
       return true;
+
     case permissionLevels.COMPANY:
       return Number(companyId) === Number(currentCompanyId);
+
     case permissionLevels.USER:
       return (
         userId === Number(customerId) ||
         userId === Number(customerB2BId) ||
         userEmail === customerEmail
       );
+
     default:
       return false;
   }

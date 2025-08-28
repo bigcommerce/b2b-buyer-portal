@@ -1,5 +1,12 @@
 import Cookies from 'js-cookie';
 import { set } from 'lodash-es';
+import { when } from 'vitest-when';
+
+import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
+import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { CompanyStatus, UserTypes } from '@/types';
+import { LineItem } from '@/utils/b3Product/b3Product';
 import {
   buildCompanyStateWith,
   builder,
@@ -15,13 +22,6 @@ import {
   userEvent,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
-import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
-import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, UserTypes } from '@/types';
-import { LineItem } from '@/utils/b3Product/b3Product';
 
 import QuickOrderPad from './components/QuickOrderPad';
 
@@ -368,6 +368,7 @@ describe('when search returns results', () => {
     );
 
     const searchBox = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchBox, 'Laugh Canister');
 
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));

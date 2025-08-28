@@ -1,7 +1,6 @@
-import { renderWithProviders } from 'tests/test-utils';
-
 import { B3Table } from '@/components';
 import { TableColumnItem } from '@/components/table/B3Table';
+import { renderWithProviders } from 'tests/test-utils';
 
 const columnItems: TableColumnItem<{ id: number }> = {
   key: 'key test1',
@@ -20,8 +19,8 @@ describe('B3Table component', async () => {
   it('renders correctly', () => {
     renderWithProviders(
       <B3Table
-        tableFixed
         columnItems={[columnItems]}
+        labelRowsPerPage="cards per page"
         listItems={listItems}
         pagination={{
           offset: 0,
@@ -30,7 +29,7 @@ describe('B3Table component', async () => {
         }}
         rowsPerPageOptions={[10, 20, 50]}
         showPagination
-        labelRowsPerPage="cards per page"
+        tableFixed
       />,
     );
   });

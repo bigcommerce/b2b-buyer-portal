@@ -1,6 +1,6 @@
-import { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Box, Collapse, Typography } from '@mui/material';
+import { ReactElement, ReactNode, useEffect, useState } from 'react';
 
 interface CollapseContainerProps {
   title?: string | ReactElement;
@@ -18,6 +18,7 @@ export default function B3CollapseContainer(props: CollapseContainerProps) {
   const handleClick = () => {
     setOpen(!open);
   };
+
   useEffect(() => {
     if (handleOnChange) handleOnChange(open);
   }, [handleOnChange, open]);

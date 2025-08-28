@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks';
@@ -49,7 +49,6 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       }}
     >
       <CustomButton
-        variant="contained"
         onClick={() => {
           handleQuoteCheckout({
             proceedingCheckoutFn,
@@ -62,6 +61,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         sx={{
           width: isMobile ? '100%' : 'auto',
         }}
+        variant="contained"
       >
         {b3Lang('quoteDetail.footer.proceedToCheckout')}
       </CustomButton>

@@ -1,4 +1,3 @@
-import { ReactElement, ReactNode, useRef } from 'react';
 import {
   Box,
   Breakpoint,
@@ -10,6 +9,7 @@ import {
   SxProps,
   Theme,
 } from '@mui/material';
+import { ReactElement, ReactNode, useRef } from 'react';
 
 import useMobile from '@/hooks/useMobile';
 import useScrollBar from '@/hooks/useScrollBar';
@@ -106,20 +106,21 @@ export default function B3Dialog<T>({
       <Box ref={container} />
 
       <Dialog
-        fullWidth={fullWidth}
-        open={isOpen && Boolean(container.current)}
-        container={container.current}
-        onClose={(_: object, reason: string) => handleCloseClick(reason)}
-        fullScreen={isMobile}
-        maxWidth={maxWidth}
-        aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        aria-labelledby="alert-dialog-title"
+        container={container.current}
+        fullScreen={isMobile}
+        fullWidth={fullWidth}
         id="b2b-dialog-container"
+        maxWidth={maxWidth}
+        onClose={(_: object, reason: string) => handleCloseClick(reason)}
+        open={isOpen && Boolean(container.current)}
         sx={customStyle}
         {...restDialogParams}
       >
         {title && (
           <DialogTitle
+            id="alert-dialog-title"
             sx={
               isShowBordered
                 ? {
@@ -128,7 +129,6 @@ export default function B3Dialog<T>({
                   }
                 : {}
             }
-            id="alert-dialog-title"
           >
             {title}
           </DialogTitle>
@@ -158,10 +158,10 @@ export default function B3Dialog<T>({
             <>
               {showLeftBtn && (
                 <CustomButton
+                  onClick={() => handleCloseClick('')}
                   sx={{
                     ...leftStyleBtn,
                   }}
-                  onClick={() => handleCloseClick('')}
                 >
                   {leftSizeBtn || b3Lang('global.dialog.cancel')}
                 </CustomButton>
@@ -169,14 +169,14 @@ export default function B3Dialog<T>({
 
               {showRightBtn && (
                 <CustomButton
+                  autoFocus
+                  disabled={disabledSaveBtn || loading}
+                  onClick={handleSaveClick}
                   sx={{
                     ...rightStyleBtn,
                   }}
-                  onClick={handleSaveClick}
-                  autoFocus
-                  disabled={disabledSaveBtn || loading}
                 >
-                  <B3Spin isSpinning={loading} tip="" size={16}>
+                  <B3Spin isSpinning={loading} size={16} tip="">
                     {rightSizeBtn || b3Lang('global.dialog.save')}
                   </B3Spin>
                 </CustomButton>

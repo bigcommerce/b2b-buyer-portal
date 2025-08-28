@@ -1,4 +1,3 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import {
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
@@ -8,6 +7,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 
 import { useMobile } from '@/hooks';
 import { disableLogoutButton } from '@/utils';
@@ -62,8 +62,8 @@ function B3DropDown(
     >
       {!disableLogoutButton ? (
         <ListItemButton
-          ref={listRef}
           onClick={() => setIsOpen(true)}
+          ref={listRef}
           sx={{
             pr: 0,
           }}
@@ -92,18 +92,14 @@ function B3DropDown(
       )}
       <Menu
         anchorEl={listRef.current}
-        open={isOpen}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
           horizontal: 'right',
         }}
         id="customized-menu"
         keepMounted
         onClose={close}
+        open={isOpen}
         sx={{
           '& .MuiList-root.MuiList-padding.MuiMenu-list': {
             pt: isMobile ? 0 : '8px',
@@ -111,22 +107,27 @@ function B3DropDown(
             maxHeight: isMobile ? 'auto' : '200px',
           },
         }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
         {...(menu || {})}
       >
         {list.length &&
           list.map((item) => {
             const { key } = item;
             const color = value === key ? '#3385d6' : 'black';
+
             return (
               <MenuItem
-                sx={{
-                  color,
-                  minWidth: isMobile ? 'auto' : width || '155px',
-                }}
                 key={key}
                 onClick={() => {
                   close();
                   if (handleItemClick) handleItemClick(key);
+                }}
+                sx={{
+                  color,
+                  minWidth: isMobile ? 'auto' : width || '155px',
                 }}
               >
                 {menuRenderItemName(item)}

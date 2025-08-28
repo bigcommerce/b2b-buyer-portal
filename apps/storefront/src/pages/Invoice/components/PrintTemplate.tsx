@@ -1,8 +1,8 @@
+import { Box } from '@mui/material';
+import PDFObject from 'pdfobject';
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { Resizable } from 'react-resizable';
-import { Box } from '@mui/material';
 // cspell:disable-next-line
-import PDFObject from 'pdfobject';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { snackbar } from '@/utils';
@@ -40,17 +40,20 @@ function PrintTemplate({ row }: PrintTemplateProps) {
   useEffect(() => {
     const viewPrint = async () => {
       setLoading(true);
+
       const { id: invoiceId } = row;
 
       const invoicePDFUrl = await handlePrintPDF(invoiceId);
 
       if (!invoicePDFUrl) {
         snackbar.error('pdf url resolution error');
+
         return;
       }
 
       if (!container?.current) return;
 
+      // eslint-disable-next-line import/no-named-as-default-member
       PDFObject.embed(invoicePDFUrl, container.current);
 
       setLoading(false);
@@ -99,9 +102,9 @@ function PrintTemplate({ row }: PrintTemplateProps) {
           className="box"
           height={height}
           minConstraints={[dom?.current?.offsetWidth || 0, 0]}
-          width={dom.current?.offsetWidth || 0}
           onResize={onFirstBoxResize}
           resizeHandles={['s']}
+          width={dom.current?.offsetWidth || 0}
         >
           <div style={{ width: '100%', height: `${height}px` }}>
             <div ref={container} style={{ height: '100%', width: '100%' }} />

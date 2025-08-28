@@ -1,7 +1,7 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
-import { useForm } from 'react-hook-form';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components';
 import { useMobile } from '@/hooks';
@@ -220,6 +220,7 @@ function ContactInfo(
 
       if (messageArr.length >= 2) {
         const field = quoteExtraFields?.find((field) => field.name === messageArr[0]);
+
         if (field && field.name) {
           setError(field.name, {
             type: 'manual',
@@ -229,8 +230,10 @@ function ContactInfo(
           return false;
         }
       }
+
       return false;
     }
+
     return true;
   };
 
@@ -240,6 +243,7 @@ function ContactInfo(
 
   const getContactInfoValue = async () => {
     let isValid = true;
+
     await handleSubmit(
       async (data) => {
         isValid = await validateEmailValue(data.email);
@@ -301,11 +305,11 @@ function ContactInfo(
           </Box>
 
           <B3CustomForm
-            formFields={data.infos}
-            errors={errors}
             control={control}
-            setError={setError}
+            errors={errors}
+            formFields={data.infos}
             getValues={getValues}
+            setError={setError}
             setValue={setValue}
           />
         </Box>

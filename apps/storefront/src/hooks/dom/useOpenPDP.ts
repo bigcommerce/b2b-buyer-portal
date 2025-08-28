@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useRef } from 'react';
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 
 import {
   getContrastColor,
@@ -28,6 +28,7 @@ interface MutationObserverProps {
   setOpenPage: SetOpenPage;
   role: number | string;
 }
+
 interface AddProductFromPageParams {
   role: number;
   storeDispatch: DispatchRedux<AnyAction>;
@@ -143,7 +144,9 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       : [];
 
     const wishlistSdd = document.querySelector('form[data-wishlist-add]');
+
     if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length) return;
+
     if (document.querySelectorAll('.b2b-add-to-list').length) {
       const cacheShoppingListDom = cache.current;
       const isAddStyle = Object.keys(cacheShoppingListDom).every(
@@ -151,10 +154,13 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
           (cacheShoppingListDom as CustomFieldItems)[key] ===
           (shoppingListBtn as CustomFieldItems)[key],
       );
+
       if (!isAddStyle) {
         const myShoppingListBtns = document.querySelectorAll('.b2b-add-to-list');
+
         myShoppingListBtns.forEach((button: CustomFieldItems) => {
           const myShoppingListBtn = button;
+
           myShoppingListBtn.innerHTML = myShoppingListBtnLabel;
           myShoppingListBtn.setAttribute('style', customCss);
           myShoppingListBtn.style.backgroundColor = color;
@@ -177,6 +183,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
         if (!children.length) {
           let shoppingBtnDom: CustomFieldItems | null = null;
+
           shoppingBtnDom = document.createElement('div');
           shoppingBtnDom.innerHTML = myShoppingListBtnLabel;
           shoppingBtnDom.setAttribute('style', customCss);
@@ -185,11 +192,13 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
           shoppingBtnDom.setAttribute('class', `b2b-add-to-list ${classSelector}`);
 
           setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`);
+
           if (CustomAddToShoppingListAll.length) {
             node.appendChild(shoppingBtnDom);
           } else {
             node.parentNode.appendChild(shoppingBtnDom);
           }
+
           shoppingBtnDom.addEventListener('click', pdpCallBack, {
             capture: true,
           });
@@ -199,15 +208,16 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'none';
     } else {
       const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list');
+
       shoppingListBtn.forEach((item: CustomFieldItems) => {
         removeElement(item);
       });
       if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'block';
     }
 
-    // eslint-disable-next-line
     return () => {
       const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list');
+
       shoppingListBtn.forEach((item: CustomFieldItems) => {
         item.removeEventListener('click', pdpCallBack);
       });

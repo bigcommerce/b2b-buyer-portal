@@ -1,6 +1,7 @@
 import { useMemo, useReducer } from 'react';
 
 import { DynamicallyVariableProviderProps, initState } from './config';
+
 import { DynamicallyVariableContext, reducer } from './index';
 
 export default function DynamicallyVariableProvider(props: DynamicallyVariableProviderProps) {

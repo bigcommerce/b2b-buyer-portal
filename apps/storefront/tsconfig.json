@@ -1,14 +1,35 @@
 {
-  "exclude": ["node_modules"],
-  "extends": "@b3/tsconfig/vite.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "types": ["vite/client", "vitest/globals"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": false,
+    "moduleResolution": "bundler",
+    "preserveWatchOutput": true,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"],
       "@/lib/*": ["./src/lib/*"],
     },
-    "types": ["vitest/globals"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js"],
+  "exclude": ["node_modules"]
 }

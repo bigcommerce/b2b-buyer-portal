@@ -24,7 +24,6 @@ export const assertQueryParams = (request: Request, params: Params) => {
   });
 
   if (!allMatched) {
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw HttpResponse.error();
   }
 
@@ -35,7 +34,6 @@ export const assertQueryParams = (request: Request, params: Params) => {
       Received: ${String(Array.from(searchParams))}
       `);
 
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw HttpResponse.error();
   }
 };

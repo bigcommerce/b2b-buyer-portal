@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 import { dispatchEvent } from '@/hooks';
 
@@ -26,6 +26,7 @@ export function B3LinkTipContent({
         return;
       }
     }
+
     if (isOutLink) {
       window.location.href = link;
     } else {
@@ -70,11 +71,11 @@ export const successTip = ({
   function componentTip() {
     return (
       <B3LinkTipContent
-        message={message}
+        isCustomEvent={isCustomEvent}
+        isOutLink={isOutLink}
         link={link}
         linkText={linkText}
-        isOutLink={isOutLink}
-        isCustomEvent={isCustomEvent}
+        message={message}
       />
     );
   };

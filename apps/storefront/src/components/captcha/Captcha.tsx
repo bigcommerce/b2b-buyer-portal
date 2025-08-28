@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { themeFrameSelector, useAppSelector } from '@/store';
 
+// eslint-disable-next-line import/extensions
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw';
 
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit';
@@ -16,6 +17,7 @@ interface CaptchaProps {
 export function loadCaptchaScript(iframeDocument: HTMLIFrameElement['contentDocument']) {
   if (iframeDocument?.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null) {
     const captchaScript = iframeDocument.createElement('script');
+
     captchaScript.src = CAPTCHA_URL;
     iframeDocument.head.appendChild(captchaScript);
   }
@@ -80,5 +82,5 @@ export function Captcha({ theme, size, handleGetKey, siteKey }: CaptchaProps) {
     initialized.current = true;
   }, [iframeDocument, widgetId]);
 
-  return <div id={widgetId} data-sitekey={siteKey} data-theme={theme} data-size={size} />;
+  return <div data-sitekey={siteKey} data-size={size} data-theme={theme} id={widgetId} />;
 }

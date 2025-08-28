@@ -1,8 +1,8 @@
-import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import createCache, { EmotionCache } from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
+import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { clearThemeFrame, setThemeFrame, useAppDispatch } from '@/store';
 
@@ -13,10 +13,12 @@ export function IFrameSetContent(
 ) {
   if (el) {
     const element = el;
+
     if ('srcdoc' in HTMLIFrameElement.prototype && !forceWrite) {
       element.srcdoc = content;
     } else {
       const iframeDoc = element.contentDocument;
+
       iframeDoc?.open('text/html', 'replace');
       iframeDoc?.write(content);
       iframeDoc?.close();
@@ -53,6 +55,7 @@ interface ThemeFrameProps {
   customStyles?: string;
   title?: string;
 }
+
 interface ThemeFramePortalProps {
   children: ReactNode;
   isSetupComplete: boolean;
@@ -71,6 +74,7 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
     if (iframeDocument) {
       dispatch(setThemeFrame(iframeDocument));
     }
+
     return () => {
       if (iframeDocument) {
         dispatch(clearThemeFrame());
@@ -107,24 +111,30 @@ export default function ThemeFrame(props: ThemeFrameProps) {
 
   useEffect(() => {
     const iframe = iframeRef.current;
+
     if (!iframe) {
       return;
     }
 
     IFrameSetContent(iframe, DefaultIframeContent, true);
+
     const doc = iframeRef.current?.contentDocument;
+
     if (!doc) {
       return;
     }
 
     if (fontUrl) {
       const font = doc.createElement('link');
+
       font.rel = 'stylesheet';
       font.href = fontUrl;
       doc.head.appendChild(font);
     }
+
     if (customStyles) {
       const customStyleElement = doc.createElement('style');
+
       customStyleElement.appendChild(document.createTextNode(customStyles));
       doc.head.appendChild(customStyleElement);
     }
@@ -144,6 +154,7 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     }
 
     setIsSetupComplete(true);
+
     const currentFrame = iframeRef.current;
     // eslint-disable-next-line
     return () => {
@@ -159,14 +170,14 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     <iframe
       allowFullScreen
       className={isSetupComplete ? className : undefined}
-      title={title}
       ref={iframeRef}
+      title={title}
     >
       <ThemeFramePortal
-        isSetupComplete={isSetupComplete}
+        bodyRef={bodyRef}
         emotionCache={emotionCache}
         iframeDocument={iframeRef.current?.contentDocument}
-        bodyRef={bodyRef}
+        isSetupComplete={isSetupComplete}
       >
         {children}
       </ThemeFramePortal>

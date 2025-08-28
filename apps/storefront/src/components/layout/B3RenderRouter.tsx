@@ -43,6 +43,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
   useEffect(
     () => {
       const [, page] = location.pathname.split('/');
+
       if (!page) return;
 
       dispatch(
@@ -71,27 +72,30 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
         >
           {newRoutes().map((route: RouteItem) => {
             const { path, component: Component } = route;
+
             return (
-              <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />
+              <Route element={<Component setOpenPage={setOpenPage} />} key={path} path={path} />
             );
           })}
         </Route>
         {firstLevelRouting.map((route: RouteFirstLevelItem) => {
           const { isProvider, path, component: Component } = route;
+
           if (isProvider) {
             return (
               <Route
-                key={path}
-                path={path}
                 element={
                   <RegisteredProvider>
                     <Component setOpenPage={setOpenPage} />
                   </RegisteredProvider>
                 }
+                key={path}
+                path={path}
               />
             );
           }
-          return <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />;
+
+          return <Route element={<Component setOpenPage={setOpenPage} />} key={path} path={path} />;
         })}
       </Routes>
     </Suspense>
