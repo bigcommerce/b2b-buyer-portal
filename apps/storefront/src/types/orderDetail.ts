@@ -194,6 +194,7 @@ export interface B2BOrderData {
   dateShipped: string;
   defaultCurrencyCode: string;
   defaultCurrencyId: number;
+  digitalProducts: OrderProductItem[];
   discountAmount: string;
   ebayOrderId: string;
   firstName: string;
