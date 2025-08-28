@@ -27,7 +27,7 @@ export default /* GraphQL */ `
     EMAIL_Z_A
   }
 
-  extend type Query {
+  extend type Customer {
     activeCompany: Company
     companies(
       filters: CompanyFiltersInput

@@ -32,7 +32,7 @@ export default /* GraphQL */ `
     status: ShoppingListStatus!
   }
 
-  extend type Query {
+  extend type Site {
     shoppingList(id: ID!): ShoppingListResult!
   }
 
