@@ -244,8 +244,8 @@ function Registered(props: PageProps) {
             : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
 
           window.b2b.callbacks.dispatchEvent('on-registered', {
-            email: customer.emailAddress,
-            password: customer.password,
+            email,
+            password,
             landingLoginLocation,
           });
           window.location.hash = '';
