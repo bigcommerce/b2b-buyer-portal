@@ -1,4 +1,3 @@
-import { useContext, useMemo, useState } from 'react';
 import {
   Business as BusinessIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -18,6 +17,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { useContext, useMemo, useState } from 'react';
 
 import useMobile from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -108,8 +108,8 @@ function CompanyTableRow<T extends TreeNodeProps>({
               {hasChildren ? (
                 <IconButton
                   data-testid={expanded ? 'collapse' : 'open'}
-                  size="small"
                   onClick={() => setExpanded(!expanded)}
+                  size="small"
                   sx={{ mr: 1 }}
                 >
                   <KeyboardArrowDownIcon
@@ -163,38 +163,38 @@ function CompanyTableRow<T extends TreeNodeProps>({
         <TableCell align="right" sx={{ width: 48, py: 1 }}>
           {node?.channelFlag && isDisabledAction && (
             <IconButton
-              size="small"
-              onClick={handleClick}
               aria-controls={open ? 'company-menu' : undefined}
-              aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
+              aria-haspopup="true"
               data-testid="actions"
+              onClick={handleClick}
+              size="small"
             >
               <MoreHorizIcon />
             </IconButton>
           )}
           <Menu
-            id="company-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
             MenuListProps={{
               'aria-labelledby': 'company-button',
             }}
+            anchorEl={anchorEl}
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'right',
             }}
+            id="company-menu"
+            onClose={handleClose}
+            open={open}
             transformOrigin={{
               vertical: 'top',
               horizontal: 'right',
             }}
           >
             <MenuItem
+              onClick={handleSwitchClick}
               sx={{
                 color: 'primary.main',
               }}
-              onClick={handleSwitchClick}
             >
               {b3Lang('companyHierarchy.dialog.title')}
             </MenuItem>
@@ -205,14 +205,14 @@ function CompanyTableRow<T extends TreeNodeProps>({
         hasChildren &&
         (node?.children || []).map((child) => (
           <CompanyTableRow
-            key={getNodeId(child)}
-            node={child}
-            level={level + 1}
             currentCompanyId={currentCompanyId}
-            selectCompanyId={selectCompanyId}
-            onSwitchCompany={onSwitchCompany}
             getDisplayName={getDisplayName}
             getNodeId={getNodeId}
+            key={getNodeId(child)}
+            level={level + 1}
+            node={child}
+            onSwitchCompany={onSwitchCompany}
+            selectCompanyId={selectCompanyId}
           />
         ))}
     </>
@@ -258,20 +258,20 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
         <div role="list">
           {mobileCompanyData.map((company) => (
             <CompanyTableRowCard
-              key={getNodeId(company)}
               company={company}
               currentCompanyId={currentCompanyId}
-              selectCompanyId={selectCompanyId}
-              onSwitchCompany={onSwitchCompany}
               getDisplayName={getDisplayName}
               getNodeId={getNodeId}
+              key={getNodeId(company)}
+              onSwitchCompany={onSwitchCompany}
+              selectCompanyId={selectCompanyId}
             />
           ))}
         </div>
       ) : (
         <Paper sx={{ width: '100%', minHeight: '100px', mx: 'auto', mt: 2 }}>
           <TableContainer>
-            <Table size="small" aria-label="company structure table">
+            <Table aria-label="company structure table" size="small">
               <TableHead>
                 <TableRow sx={{ height: '3.25rem' }}>
                   <TableCell sx={{ fontWeight: 500, pl: 8 }}>
@@ -283,13 +283,13 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
               <TableBody>
                 {data.map((company) => (
                   <CompanyTableRow
-                    key={getNodeId(company)}
-                    node={company}
                     currentCompanyId={currentCompanyId}
-                    selectCompanyId={selectCompanyId}
-                    onSwitchCompany={onSwitchCompany}
                     getDisplayName={getDisplayName}
                     getNodeId={getNodeId}
+                    key={getNodeId(company)}
+                    node={company}
+                    onSwitchCompany={onSwitchCompany}
+                    selectCompanyId={selectCompanyId}
                   />
                 ))}
               </TableBody>

@@ -1,8 +1,8 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, uniq } from 'lodash-es';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -201,10 +201,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+
       const setCustomInfo = (quoteInfo: any) => {
         const newInfo = {
           ...quoteInfo,
         };
+
         newInfo.contactInfo = {
           name: `${customer.firstName} ${customer.lastName}`,
           email: customer.emailAddress,
@@ -225,6 +227,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             const {
               addresses: { edges },
             } = await getB2BCustomerAddresses(id);
+
             return edges;
           };
 
@@ -261,6 +264,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
             quoteInfo.shippingAddress = addressItem as ShippingAddress;
           }
+
           if (
             billingDefaultAddress &&
             (!quoteInfo?.billingAddress || validateObject(quoteInfo, 'billingAddress'))
@@ -294,12 +298,15 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           const list = addressBCList.map((address: BCAddress) => ({
             node: convertBCToB2BAddress(address.node),
           }));
+
           setAddressList(list);
         }
 
         const extraFieldsInfo = await getB2BQuoteExtraFields();
+
         if (extraFieldsInfo.length) {
           setExtraFields(extraFieldsInfo);
+
           const preExtraFields = quoteInfo.extraFields;
           const defaultValues = extraFieldsInfo?.map((field) => {
             const defaultValue =
@@ -312,6 +319,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               value: defaultValue || '',
             };
           });
+
           quoteInfo.extraFields = defaultValues;
         }
 
@@ -326,6 +334,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         }
       } finally {
         const quoteUserId = customer.b2bId || customer.id || 0;
+
         dispatch(setQuoteUserId(Number(quoteUserId)));
 
         setLoading(false);
@@ -359,6 +368,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     if (billingRef?.current) {
       addressSaveInfo.billingAddress = billingRef.current.getContactInfoValue();
     }
+
     if (shippingRef?.current) {
       addressSaveInfo.shippingAddress = shippingRef.current.getContactInfoValue();
     }
@@ -373,9 +383,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const handleCollectingData = async (saveInfo: QuoteInfoType) => {
     if (contactInfoRef?.current) {
       const contactInfo = await contactInfoRef.current.getContactInfoValue();
+
       if (!contactInfo) return false;
 
       const currentRecipients = saveInfo?.recipients || [];
+
       if (contactInfo.ccEmail.trim().length) {
         saveInfo.recipients = uniq(concat(currentRecipients, [contactInfo.ccEmail]));
       }
@@ -394,17 +406,21 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         fieldName: field.name,
         value: field.name ? contactInfo[field.name] : '',
       }));
+
       saveInfo.extraFields = extraFieldsInfo;
 
       return true;
     }
+
     return false;
   };
 
   const handleSaveInfoClick = async () => {
     const saveInfo = cloneDeep(quoteInfoOrigin);
+
     if (contactInfoRef?.current) {
       const data = await handleCollectingData(saveInfo);
+
       if (!data) return;
     }
 
@@ -417,6 +433,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       if (key === 'phoneNumber' || key === 'companyName' || key === 'quoteTitle') {
         return true;
       }
+
       return !!saveInfo.contactInfo[key as ContactInfoKeys];
     });
 
@@ -485,8 +502,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
     try {
       const info = cloneDeep(quoteInfoOrigin);
+
       if (isEdit && contactInfoRef?.current) {
         const data = await handleCollectingData(info);
+
         if (!data) return;
       }
 
@@ -506,11 +525,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
       if (validateObject(quoteInfoOrigin, 'contactInfo') || !isComplete) {
         snackbar.error(b3Lang('quoteDraft.addQuoteInfo'));
+
         return;
       }
 
       if (!draftQuoteList || draftQuoteList.length === 0) {
         snackbar.error(b3Lang('quoteDraft.submit'));
+
         return;
       }
 
@@ -521,6 +542,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
         if (itHasInvalidProduct) {
           snackbar.error(b3Lang('quoteDraft.submit.errorTip'));
+
           return;
         }
       }
@@ -559,6 +581,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         if (typeof value === 'string' && value.includes('-')) {
           return `${new Date(value).getTime() / 1000}`;
         }
+
         return value;
       };
 
@@ -584,6 +607,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
         const variants = node?.productsSearch?.variants;
         let variantsItem;
+
         if (Array.isArray(variants)) {
           variantsItem = variants.find((item) => item.sku === node.variantSku);
         }
@@ -687,6 +711,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       Number(role) === 100
         ? b3Lang('quoteDraft.button.back')
         : b3Lang('quoteDraft.button.backToQuoteLists');
+
     if (openAPPParams?.quoteBtn === 'open') {
       text = b3Lang('quoteDraft.button.back');
     } else if (openAPPParams?.quoteBtn === 'add') {
@@ -724,12 +749,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           }}
         >
           <Box
-            sx={{
-              color: 'primary.main',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
             onClick={() => {
               if (openAPPParams?.quoteBtn || Number(role) === 100) {
                 navigate('/');
@@ -740,6 +759,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               } else {
                 navigate('/quotes');
               }
+            }}
+            sx={{
+              color: 'primary.main',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <ArrowBackIosNew
@@ -802,29 +827,29 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                   }}
                 >
                   <CustomButton
-                    variant="contained"
-                    size="small"
                     disabled={loading}
+                    onClick={handleSubmit}
+                    size="small"
                     sx={{
                       height: '38px',
                       width: '90%',
                     }}
-                    onClick={handleSubmit}
+                    variant="contained"
                   >
                     {b3Lang('quoteDraft.button.submit')}
                   </CustomButton>
                 </Box>
               ) : (
                 <CustomButton
-                  variant="contained"
-                  size="small"
                   disabled={loading}
+                  onClick={handleSubmit}
+                  size="small"
                   sx={{
                     padding: '8px 22px',
                     alignSelf: 'center',
                     marginBottom: '24px',
                   }}
-                  onClick={handleSubmit}
+                  variant="contained"
                 >
                   {b3Lang('quoteDraft.button.submit')}
                 </CustomButton>
@@ -836,25 +861,25 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         <Box>
           {!isEdit && (
             <QuoteInfo
-              quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
-              status="Draft"
-              contactInfo={quoteInfoOrigin?.contactInfo}
-              shippingAddress={quoteInfoOrigin?.shippingAddress}
               billingAddress={quoteInfoOrigin?.billingAddress || {}}
+              contactInfo={quoteInfoOrigin?.contactInfo}
               handleEditInfoClick={handleEditInfoClick}
+              quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
+              shippingAddress={quoteInfoOrigin?.shippingAddress}
+              status="Draft"
             />
           )}
           {isEdit && (
             <Container flexDirection="column">
               <ContactInfo
                 emailAddress={customer.emailAddress}
-                info={quoteInfoOrigin?.contactInfo}
-                referenceNumber={quoteInfoOrigin?.referenceNumber || ''}
-                quoteExtraFields={extraFields}
                 extraFieldsDefault={quoteInfoOrigin.extraFields || []}
-                recipients={quoteInfoOrigin?.recipients || []}
                 handleSaveCCEmail={handleSaveCCEmail}
+                info={quoteInfoOrigin?.contactInfo}
+                quoteExtraFields={extraFields}
+                recipients={quoteInfoOrigin?.recipients || []}
                 ref={contactInfoRef}
+                referenceNumber={quoteInfoOrigin?.referenceNumber || ''}
               />
               <Box
                 sx={{
@@ -864,37 +889,37 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                 }}
               >
                 <QuoteAddress
-                  title={b3Lang('quoteDraft.section.billing')}
-                  info={quoteInfoOrigin?.billingAddress}
+                  accountFormFields={accountFormFields}
                   addressList={addressList}
+                  info={quoteInfoOrigin?.billingAddress}
                   pr={isMobile ? 0 : '8px'}
                   ref={billingRef}
                   role={role}
-                  accountFormFields={accountFormFields}
-                  shippingSameAsBilling={shippingSameAsBilling}
-                  type="billing"
                   setBillingChange={setBillingChange}
+                  shippingSameAsBilling={shippingSameAsBilling}
+                  title={b3Lang('quoteDraft.section.billing')}
+                  type="billing"
                 />
                 <QuoteAddress
-                  title={b3Lang('quoteDraft.section.shipping')}
-                  info={quoteInfoOrigin?.shippingAddress}
+                  accountFormFields={accountFormFields}
                   addressList={addressList}
+                  info={quoteInfoOrigin?.shippingAddress}
                   pl={isMobile ? 0 : '8px'}
                   ref={shippingRef}
                   role={role}
-                  accountFormFields={accountFormFields}
-                  shippingSameAsBilling={shippingSameAsBilling}
-                  type="shipping"
                   setBillingChange={setBillingChange}
+                  shippingSameAsBilling={shippingSameAsBilling}
+                  title={b3Lang('quoteDraft.section.shipping')}
+                  type="shipping"
                 />
               </Box>
               <FormControlLabel
-                label={b3Lang('quoteDraft.checkbox.sameAddressShippingAndBilling')}
                 control={
                   <Checkbox
                     checked={shippingSameAsBilling}
                     onChange={(e) => {
                       setShippingSameAsBilling(e.target.checked);
+
                       if (billingRef.current) {
                         const billingAddress = billingRef.current.getContactInfoValue();
 
@@ -905,16 +930,17 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                     }}
                   />
                 }
+                label={b3Lang('quoteDraft.checkbox.sameAddressShippingAndBilling')}
                 sx={{
                   mt: 2,
                 }}
               />
               <CustomButton
+                onClick={handleSaveInfoClick}
                 sx={{
                   mt: '20px',
                   mb: '15px',
                 }}
-                onClick={handleSaveInfoClick}
                 variant="outlined"
               >
                 {b3Lang('quoteDraft.button.saveInfo')}
@@ -943,9 +969,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             }}
           >
             <QuoteTable
-              updateSummary={updateSummary}
-              total={draftQuoteList.length}
               items={draftQuoteList}
+              total={draftQuoteList.length}
+              updateSummary={updateSummary}
             />
           </Container>
 
@@ -966,7 +992,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               }}
             >
               <QuoteSummary ref={quoteSummaryRef} />
-              <AddToQuote updateList={updateSummary} addToQuote={addToQuote} />
+              <AddToQuote addToQuote={addToQuote} updateList={updateSummary} />
 
               <QuoteNote quoteStatus="Draft" />
 

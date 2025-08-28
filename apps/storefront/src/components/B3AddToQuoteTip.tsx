@@ -10,6 +10,7 @@ interface B3AddToQuoteTipProps {
 export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
   const { gotoQuoteDraft, msg } = props;
   const b3Lang = useB3Lang();
+
   return (
     <Box
       sx={{
@@ -26,11 +27,11 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
       </Box>
       <Button
         onClick={() => gotoQuoteDraft()}
-        variant="text"
         sx={{
           color: '#ffffff',
           padding: 0,
         }}
+        variant="text"
       >
         {b3Lang('quoteDraft.notification.openQuote')}
       </Button>

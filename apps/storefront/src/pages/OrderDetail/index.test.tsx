@@ -1,5 +1,19 @@
-import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
+import { useParams } from 'react-router-dom';
+import { when } from 'vitest-when';
+
+import { AddressConfig } from '@/shared/service/b2b/graphql/address';
+import {
+  CustomerOrderNode,
+  CustomerOrderShippingAddress,
+  CustomerOrderStatues,
+  CustomerOrderStatus,
+  GetCustomerOrder,
+  GetCustomerOrders,
+  OrderProduct,
+  Shipment,
+} from '@/shared/service/b2b/graphql/orders';
+import { CustomerRole, MoneyFormat } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -18,20 +32,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { AddressConfig } from '@/shared/service/b2b/graphql/address';
-import {
-  CustomerOrderNode,
-  CustomerOrderShippingAddress,
-  CustomerOrderStatues,
-  CustomerOrderStatus,
-  GetCustomerOrder,
-  GetCustomerOrders,
-  OrderProduct,
-  Shipment,
-} from '@/shared/service/b2b/graphql/orders';
-import { CustomerRole, MoneyFormat } from '@/types';
 
 import OrderDetails from '.';
 
@@ -800,21 +800,27 @@ describe('when a personal customer visits an order', () => {
     expect(screen.getByText('Purchased by Mike Wazowski on 4 May 2025.')).toBeInTheDocument();
 
     const tax = screen.getByRole('group', { name: 'Tax' });
+
     expect(tax).toHaveTextContent('Tax €13,50');
 
     const discountAmount = screen.getByRole('group', { name: 'Discount amount' });
+
     expect(discountAmount).toHaveTextContent('Discount amount -€37,93');
 
     const subTotal = screen.getByRole('group', { name: 'Sub total' });
+
     expect(subTotal).toHaveTextContent('Sub total €102,00');
 
     const shipping = screen.getByRole('group', { name: 'Shipping' });
+
     expect(shipping).toHaveTextContent('Shipping €332,00');
 
     const handlingFee = screen.getByRole('group', { name: 'Handling Fee' });
+
     expect(handlingFee).toHaveTextContent('Handling Fee €22,20');
 
     const grandTotal = screen.getByRole('group', { name: 'Grand total' });
+
     expect(grandTotal).toHaveTextContent('Grand total €100,00');
 
     expect(screen.getByRole('button', { name: 'Re-Order' })).toBeInTheDocument();
@@ -1653,6 +1659,7 @@ describe('when a personal customer visits an order', () => {
           ),
         )
         .thenReturn({});
+
       const createCustomerShoppingList = vi.fn();
 
       server.use(

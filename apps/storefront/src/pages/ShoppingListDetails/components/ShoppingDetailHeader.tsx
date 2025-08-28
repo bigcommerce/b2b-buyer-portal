@@ -1,7 +1,7 @@
-import { useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Grid, styled, Typography } from '@mui/material';
+import { useContext, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -116,6 +116,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
       : {
           xs,
         };
+
   return (
     <>
       <Box
@@ -125,12 +126,6 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         }}
       >
         <Box
-          sx={{
-            color: '#1976d2',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-          }}
           onClick={() => {
             if (openAPPParams.shoppingListBtn !== 'add') {
               goToShoppingLists();
@@ -141,6 +136,12 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 openUrl: '',
               });
             }
+          }}
+          sx={{
+            color: '#1976d2',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           <ArrowBackIosNew
@@ -189,11 +190,11 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             }}
           >
             <Typography
-              variant="h4"
               sx={{
                 marginRight: '1rem',
                 wordBreak: 'break-all',
               }}
+              variant="h4"
             >
               {`${shoppingListInfo?.name || ''}`}
             </Typography>
@@ -221,10 +222,10 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             {isB2BUser && (
               <StyledCreateName>
                 <Typography
-                  variant="subtitle2"
                   sx={{
                     marginRight: '0.5rem',
                   }}
+                  variant="subtitle2"
                 >
                   {b3Lang('shoppingList.header.createdBy')}
                 </Typography>
@@ -244,11 +245,11 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           {submitShoppingListPermission &&
             shoppingListInfo?.status === ShoppingListStatus.Draft && (
               <CustomButton
-                variant="outlined"
                 disabled={isDisabledBtn}
                 onClick={() => {
                   handleUpdateShoppingList(ShoppingListStatus.ReadyForApproval);
                 }}
+                variant="outlined"
               >
                 {b3Lang('shoppingList.header.submitForApproval')}
               </CustomButton>
@@ -257,22 +258,22 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval && (
               <Box>
                 <CustomButton
-                  variant="outlined"
-                  sx={{
-                    marginRight: '1rem',
-                  }}
                   onClick={() => {
                     handleUpdateShoppingList(ShoppingListStatus.Rejected);
                   }}
+                  sx={{
+                    marginRight: '1rem',
+                  }}
+                  variant="outlined"
                 >
                   {b3Lang('shoppingList.header.reject')}
                 </CustomButton>
                 {approveShoppingListPermission && (
                   <CustomButton
-                    variant="outlined"
                     onClick={() => {
                       handleUpdateShoppingList(ShoppingListStatus.Approved);
                     }}
+                    variant="outlined"
                   >
                     {b3Lang('shoppingList.header.approve')}
                   </CustomButton>

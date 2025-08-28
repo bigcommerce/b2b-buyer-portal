@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Alert, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
@@ -48,7 +48,7 @@ function CompanyCredit() {
         margin: '1rem 0',
       }}
     >
-      <Alert variant="filled" onClose={() => handleCompanyCreditCloseClick()} severity="warning">
+      <Alert onClose={() => handleCompanyCreditCloseClick()} severity="warning" variant="filled">
         {b3Lang('global.companyCredit.alert')}
       </Alert>
     </Box>

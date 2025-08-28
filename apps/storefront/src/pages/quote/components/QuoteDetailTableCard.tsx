@@ -68,11 +68,11 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   return (
     <Box
       key={quoteTableItem.id}
-      width="100%"
       sx={{
         borderTop: '1px solid #D9DCE9',
         borderBottom: itemIndex === len - 1 ? '1px solid #D9DCE9' : '',
       }}
+      width="100%"
     >
       <CardContent
         sx={{
@@ -82,7 +82,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
         }}
       >
         <Box>
-          <StyledImage src={imageUrl || PRODUCT_DEFAULT_IMAGE} alt="Product-img" loading="lazy" />
+          <StyledImage alt="Product-img" loading="lazy" src={imageUrl || PRODUCT_DEFAULT_IMAGE} />
         </Box>
         <Box
           sx={{
@@ -90,7 +90,6 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           }}
         >
           <Typography
-            variant="body1"
             color="#212121"
             onClick={() => {
               const {
@@ -104,10 +103,11 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
             sx={{
               cursor: 'pointer',
             }}
+            variant="body1"
           >
             {productName}
           </Typography>
-          <Typography variant="body1" color="#616161">
+          <Typography color="#616161" variant="body1">
             {sku}
           </Typography>
           <Box
@@ -119,12 +119,12 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               <Box>
                 {options.map((option: any) => (
                   <Typography
+                    key={option.optionName}
                     sx={{
                       fontSize: '0.75rem',
                       lineHeight: '1.5',
                       color: '#455A64',
                     }}
-                    key={option.optionName}
                   >
                     {`${option.optionName}: ${option.optionLabel}`}
                   </Typography>
@@ -132,7 +132,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               </Box>
             )}
           </Box>
-          <Typography variant="body1" color="#616161">
+          <Typography color="#616161" variant="body1">
             {notes}
           </Typography>
 

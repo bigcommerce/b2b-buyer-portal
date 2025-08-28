@@ -1,5 +1,5 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { Box } from '@mui/material';
+import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
 
 import { distanceDay } from '@/utils';
 
@@ -55,8 +55,10 @@ function B3FilterPickers(
       startValue,
       endValue,
     };
+
     return startPicker?.isEnabled ? data : {};
   };
+
   useImperativeHandle(ref, () => ({
     setClearPickerValue,
     getPickerValue,
@@ -64,6 +66,7 @@ function B3FilterPickers(
 
   const handleStartDatePickerChange = (value: Date | string | number) => {
     setStartValue(value);
+
     if (handleChange) {
       handleChange(startPicker?.pickerKey || 'start', value);
     }
@@ -71,6 +74,7 @@ function B3FilterPickers(
 
   const handleEndDatePickerChange = (value: Date | string | number) => {
     setEndValue(value);
+
     if (handleChange) {
       handleChange(endPicker?.pickerKey || 'end', value);
     }
@@ -97,9 +101,9 @@ function B3FilterPickers(
           }}
         >
           <B3Picker
+            label={startPicker?.label}
             onChange={handleStartDatePickerChange}
             value={startValue}
-            label={startPicker?.label}
             variant="filled"
           />
         </Box>
@@ -119,9 +123,9 @@ function B3FilterPickers(
           }}
         >
           <B3Picker
+            label={endPicker?.label}
             onChange={handleEndDatePickerChange}
             value={endValue}
-            label={endPicker?.label}
             variant="filled"
           />
         </Box>

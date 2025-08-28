@@ -137,6 +137,7 @@ const getFieldOptions = (
       number_limited: limitInput,
       number_highest_value: highest,
     } = config || {};
+
     return {
       min: limitInput ? lowest || undefined : undefined,
       max: limitInput ? highest || undefined : undefined,
@@ -146,6 +147,7 @@ const getFieldOptions = (
 
   if (fieldType === 'multiline') {
     const { text_max_length: maxLength } = config || {};
+
     return {
       rows: 3,
       maxLength: maxLength || undefined,
@@ -233,6 +235,7 @@ const getValueText = (
   option: Partial<AllOptionProps>,
 ) => {
   const { option_values: optionValues = [] } = option;
+
   if (['radio', 'productRadio', 'rectangle', 'swatch', 'dropdown'].includes(fieldType)) {
     return optionValues.find((option) => `${option.id}` === `${value}`)?.label || '';
   }
@@ -244,6 +247,7 @@ const getValueText = (
   if (fieldType === 'files') {
     return '';
   }
+
   return value;
 };
 
@@ -254,6 +258,7 @@ export const getProductOptionsFields = (
   const { allOptions = [] } = product || {};
 
   const list: CustomFieldItems[] = [];
+
   allOptions.forEach((option: Partial<AllOptionProps>) => {
     const {
       type,
@@ -281,6 +286,7 @@ export const getProductOptionsFields = (
 
       let optionIdKey: 'option_id' | 'optionId' = 'option_id';
       let optionValueKey: 'option_value' | 'optionValue' = 'option_value';
+
       if (selectOptions.length > 0 && !selectOptions[0][optionIdKey]) {
         optionIdKey = 'optionId';
         optionValueKey = 'optionValue';
@@ -289,6 +295,7 @@ export const getProductOptionsFields = (
       const selectOptionsJSON: {
         [key: string]: ShoppingListSelectProductOption;
       } = {};
+
       selectOptions.forEach((item: ShoppingListSelectProductOption) => {
         selectOptionsJSON[item[optionIdKey]] = item;
       });
@@ -298,6 +305,7 @@ export const getProductOptionsFields = (
 
         const checkedId: number | string =
           optionValues.find((values) => values.label === 'Yes')?.id || optionValues[0]?.id || '';
+
         value = optionValue === '1' || optionValue.includes(`${checkedId}`) ? [checkedId] : value;
       } else if (fieldType !== 'date') {
         value = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || value || '';
@@ -433,6 +441,7 @@ export const conversionProductsList = (products: Product[], listProduct: ListIte
     }));
 
     let price = variants[0]?.calculated_price || 0;
+
     variants.forEach((variant) => {
       price = Math.min(variant.calculated_price || 0, price);
     });
@@ -459,6 +468,7 @@ export const getOptionRequestData = (
   value: CustomFieldItems,
 ) => {
   const requestData = data;
+
   formFields.forEach((item: CustomFieldItems) => {
     const { fieldType, name } = item;
 
@@ -471,16 +481,19 @@ export const getOptionRequestData = (
 
     if (fieldType === 'number') {
       requestData[decodeName] = parseFloat(fieldValue) || '';
+
       return;
     }
 
     if (['radio', 'dropdown', 'rectangle', 'swatch', 'productRadio'].includes(fieldType)) {
       requestData[decodeName] = parseInt(fieldValue, 10) || '';
+
       return;
     }
 
     if (fieldType === 'checkbox') {
       requestData[decodeName] = fieldValue?.length > 0 ? fieldValue[0] : '';
+
       return;
     }
 
@@ -497,6 +510,7 @@ export const getOptionRequestData = (
       requestData[`${decodeName}[month]`] = month;
       requestData[`${decodeName}[day]`] = day;
       requestData[`${decodeName}[year]`] = year;
+
       return;
     }
 
@@ -551,6 +565,7 @@ export const addLineItems = (products: ProductsProps[]) => {
     const getOptionId = (id: number | string) => {
       if (typeof id === 'number') return id;
       if (id.includes('attribute')) return Number(id.split('[')[1].split(']')[0]);
+
       return Number(id);
     };
 
@@ -567,13 +582,16 @@ export const addLineItems = (products: ProductsProps[]) => {
         let month = '';
         let day = '';
         let year = '';
+
         optionList.forEach((list: OptionListProps) => {
           if (list.option_id === `${splicedId}[month]`) {
             month = list.option_value;
           }
+
           if (list.option_id === `${splicedId}[day]`) {
             day = list.option_value;
           }
+
           if (list.option_id === `${splicedId}[year]`) {
             year = list.option_value;
           }
@@ -591,6 +609,7 @@ export const addLineItems = (products: ProductsProps[]) => {
         }
       } else {
         const listItem = optionList.find((list: OptionListProps) => list.option_id === splicedId);
+
         if (listItem && listItem?.option_value) {
           optionValue.push({
             optionId: getOptionId(listItem.option_id),

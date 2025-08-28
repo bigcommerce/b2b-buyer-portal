@@ -26,6 +26,7 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
+
       return response.text();
     })
     .then((responseData) => responseData);
@@ -50,6 +51,7 @@ function sendEmail(data: any, extraFields: any) {
       extraFields.filter((item: CustomFieldItems) => item.required && item.custom) || [];
     const formData = new URLSearchParams();
     const token = getXsrfToken() || '';
+
     formData.append('FormField[1][1]', email);
     formData.append('FormField[1][24]', currentPassword);
     formData.append('FormField[1][2]', newPassword);
@@ -65,10 +67,14 @@ function sendEmail(data: any, extraFields: any) {
           const val = formFields.find(
             (field: Partial<Fields>) => field.name === item.bcLabel,
           ).value;
+
           if (item.type === 'date') {
             const time = val.split('-');
+
             if (!val && time.length !== 3) return;
+
             const [year, month, day] = time;
+
             formData.append(`FormFieldYear[1][${key}]`, year);
             formData.append(`FormFieldMonth[1][${key}]`, month);
             formData.append(`FormFieldDay[1][${key}]`, day);
@@ -84,6 +90,7 @@ function sendEmail(data: any, extraFields: any) {
     sendUpdateAccountRequest(requestBody)
       .then((response) => {
         const isFlag = response.includes('alertBox--error');
+
         resolve(!isFlag);
       })
       .catch((error) => {
@@ -102,17 +109,22 @@ export const initB2BInfo = (
   additionalInformation: Partial<Fields>[],
 ) => {
   const extraFields = accountSettings?.extraFields || [];
+
   contactInformation.forEach((item: Partial<Fields>) => {
     const contactItem = item;
+
     if (deCodeField(item?.name || '') === 'first_name') {
       contactItem.default = accountSettings.firstName;
     }
+
     if (deCodeField(item?.name || '') === 'last_name') {
       contactItem.default = accountSettings.lastName;
     }
+
     if (deCodeField(item?.name || '') === 'phone') {
       contactItem.default = accountSettings.phoneNumber;
     }
+
     if (deCodeField(item?.name || '') === 'email') {
       contactItem.default = accountSettings.email;
       contactItem.validate = emailValidate;
@@ -135,6 +147,7 @@ export const initB2BInfo = (
 
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item;
+
     if (item.name === 'role') {
       formField.default = accountSettings.companyRoleName;
       formField.disabled = true;
@@ -149,6 +162,7 @@ export const initB2BInfo = (
       (field: Partial<Fields>) => field.name === item.bcLabel,
     );
     const infoItem = item;
+
     if (formFields) infoItem.default = formFields.value;
   });
 
@@ -162,19 +176,24 @@ export const initBcInfo = (
 ) => {
   contactInformation.forEach((item: Partial<Fields>) => {
     const contactInfoItem = item;
+
     if (deCodeField(item?.name || '') === 'first_name') {
       contactInfoItem.default = accountSettings.firstName;
     }
+
     if (deCodeField(item?.name || '') === 'last_name') {
       contactInfoItem.default = accountSettings.lastName;
     }
+
     if (deCodeField(item?.name || '') === 'phone') {
       contactInfoItem.default = accountSettings.phoneNumber;
     }
+
     if (deCodeField(item?.name || '') === 'email') {
       contactInfoItem.default = accountSettings.email;
       contactInfoItem.validate = emailValidate;
     }
+
     if (deCodeField(item?.name || '') === 'company') {
       contactInfoItem.default = accountSettings.company;
     }
@@ -185,6 +204,7 @@ export const initBcInfo = (
       (field: Partial<Fields>) => field.name === item.bcLabel,
     );
     const infoItem = item;
+
     if (formFields) infoItem.default = formFields.value;
   });
 
@@ -200,7 +220,9 @@ export const b2bSubmitDataProcessing = (
   const userExtraFields = accountSettings?.extraFields || [];
 
   const param: Partial<ParamProps> = {};
+
   param.formFields = [];
+
   let pristine = true;
   let flag = true;
   let useExtraFieldsFlag = false;
@@ -209,30 +231,37 @@ export const b2bSubmitDataProcessing = (
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
         flag = false;
+
         if (deCodeField(item.name) === 'first_name') {
           if (accountSettings.firstName !== data[item.name]) pristine = false;
           param.firstName = data[item.name];
         }
+
         if (deCodeField(item.name) === 'last_name') {
           if (accountSettings.lastName !== data[item.name]) pristine = false;
           param.lastName = data[item.name];
         }
+
         if (deCodeField(item.name) === 'phone') {
           if (accountSettings.phoneNumber !== data[item.name]) pristine = false;
           param.phoneNumber = data[item.name];
         }
+
         if (deCodeField(item.name) === 'email') {
           if (accountSettings.email !== data[item.name]) pristine = false;
           param.email = data[item.name];
         }
+
         if (item.custom) {
           const currentField = userExtraFields.find(
             (field: CustomFieldItems) => field.fieldName === deCodeField(item?.name || ''),
           );
+
           if (currentField?.fieldValue !== data[item.name]) useExtraFieldsFlag = true;
         }
       }
     });
+
     if (useExtraFieldsFlag) {
       pristine = false;
     }
@@ -241,14 +270,17 @@ export const b2bSubmitDataProcessing = (
       extraFields.forEach((field: Partial<Fields>) => {
         if (field.fieldId === key && param?.formFields) {
           const { name } = field;
+
           param.formFields.push({
             name: field?.bcLabel || '',
             value: data[key],
           });
           flag = false;
+
           const account = (accountSettings?.formFields || []).find(
             (formField: Partial<Fields>) => formField.name === field.bcLabel,
           );
+
           if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) {
             pristine = false;
           }
@@ -259,6 +291,7 @@ export const b2bSubmitDataProcessing = (
         }
       });
     }
+
     if (flag) {
       if (key === 'password') {
         param.newPassword = data[key];
@@ -267,6 +300,7 @@ export const b2bSubmitDataProcessing = (
         param[key] = data[key];
       }
     }
+
     flag = true;
   });
 
@@ -288,29 +322,37 @@ export const bcSubmitDataProcessing = (
   extraFields: Partial<Fields>[],
 ) => {
   const param: Partial<ParamProps> = {};
+
   param.formFields = [];
+
   let pristine = true;
   let flag = true;
+
   Object.keys(data).forEach((key: string) => {
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
         flag = false;
+
         if (deCodeField(item.name) === 'first_name') {
           if (accountSettings.firstName !== data[item.name]) pristine = false;
           param.firstName = data[item.name];
         }
+
         if (deCodeField(item.name) === 'last_name') {
           if (accountSettings.lastName !== data[item.name]) pristine = false;
           param.lastName = data[item.name];
         }
+
         if (deCodeField(item.name) === 'phone') {
           if (accountSettings.phoneNumber !== data[item.name]) pristine = false;
           param.phoneNumber = data[item.name];
         }
+
         if (deCodeField(item.name) === 'email') {
           if (accountSettings.email !== data[item.name]) pristine = false;
           param.email = data[item.name];
         }
+
         if (deCodeField(item.name) === 'company') {
           if (accountSettings.company !== data[item.name]) pristine = false;
           param.company = data[item.name];
@@ -326,9 +368,11 @@ export const bcSubmitDataProcessing = (
             value: data[key],
           });
           flag = false;
+
           const account = (accountSettings?.formFields || []).find(
             (formField: Partial<Fields>) => formField.name === field.bcLabel,
           );
+
           if (account && JSON.stringify(account.value) !== JSON.stringify(data[key]))
             pristine = false;
         }
@@ -343,6 +387,7 @@ export const bcSubmitDataProcessing = (
         param[key] = data[key];
       }
     }
+
     flag = true;
   });
 

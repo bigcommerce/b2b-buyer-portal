@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import { B3QuantityTextField } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -190,9 +190,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     isValid: boolean,
   ) => {
     const newProduct: ProductsProps[] = [...products];
+
     newProduct[index].node.quantity = Number(value);
     newProduct[index].isValid = isValid;
+
     const calculateProduct = await setModifierQtyPrice(newProduct[index].node, Number(value));
+
     if (calculateProduct) {
       (newProduct[index] as CustomFieldItems).node = calculateProduct;
       setValidateFailureProducts(newProduct);
@@ -207,6 +210,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const deleteProduct = (index: number) => {
     const newProduct: ProductsProps[] = [...products];
+
     newProduct.splice(index, 1);
     setValidateFailureProducts(newProduct);
   };
@@ -216,8 +220,10 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
     if (!isValidate) {
       snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
+
       return;
     }
+
     try {
       setLoading(true);
 
@@ -227,6 +233,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
       if (!res.errors) {
         handleCancelClicked();
+
         if (
           allowJuniorPlaceOrder &&
           submitShoppingListPermission &&
@@ -263,6 +270,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       (item: ProductsProps) => item.isStock === '0' || item.stock !== 0,
     );
     const requestArr: Promise<any>[] = [];
+
     newProduct.forEach((product) => {
       const item = product;
       const {
@@ -274,11 +282,13 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       } = product;
 
       const quantityNumber = parseInt(`${quantity}`, 10) || 0;
+
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
         item.node.quantity = minQuantity;
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         item.node.quantity = maxQuantity;
       }
+
       if (isStock !== '0' && stock && (quantity ? Number(quantity) : 0) > stock) {
         item.node.quantity = stock;
       }
@@ -300,20 +310,20 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      handleLeftClick={handleCancelClicked}
       handRightClick={handRightClick}
-      title={
-        allowJuniorPlaceOrder
-          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
-          : b3Lang('shoppingList.reAddToCart.addToCart')
-      }
+      handleLeftClick={handleCancelClicked}
+      isOpen={isOpen}
+      maxWidth="xl"
       rightSizeBtn={
         allowJuniorPlaceOrder
           ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
           : b3Lang('shoppingList.reAddToCart.addToCart')
       }
-      maxWidth="xl"
+      title={
+        allowJuniorPlaceOrder
+          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
+          : b3Lang('shoppingList.reAddToCart.addToCart')
+      }
     >
       <Grid>
         <Box
@@ -321,7 +331,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             m: '0 0 1rem 0',
           }}
         >
-          <Alert variant="filled" severity="success">
+          <Alert severity="success" variant="filled">
             {allowJuniorPlaceOrder
               ? b3Lang('shoppingList.reAddToCart.productsCanCheckout', {
                   successProducts,
@@ -337,7 +347,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             m: '1rem 0',
           }}
         >
-          <Alert variant="filled" severity="error">
+          <Alert severity="error" variant="filled">
             {allowJuniorPlaceOrder
               ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
                   quantity: products.length,
@@ -347,7 +357,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 })}
           </Alert>
         </Box>
-        <B3Spin isSpinning={loading} size={16} isFlex={false}>
+        <B3Spin isFlex={false} isSpinning={loading} size={16}>
           <Box
             sx={{
               display: 'flex',
@@ -433,22 +443,22 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                           marginLeft: '16px',
                         }}
                       >
-                        <Typography variant="body1" color="#212121">
+                        <Typography color="#212121" variant="body1">
                           {productName}
                         </Typography>
-                        <Typography variant="body1" color="#616161">
+                        <Typography color="#616161" variant="body1">
                           {variantSku}
                         </Typography>
                         {newOptionList.length > 0 &&
                           optionsValue.length > 0 &&
                           optionsValue.map((option: CustomFieldItems) => (
                             <Typography
+                              key={option.valueLabel}
                               sx={{
                                 fontSize: '0.75rem',
                                 lineHeight: '1.5',
                                 color: '#455A64',
                               }}
-                              key={option.valueLabel}
                             >
                               {`${option.valueLabel}: ${option.valueText}`}
                             </Typography>
@@ -464,11 +474,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                         isStock={isStock}
                         maxQuantity={maxQuantity}
                         minQuantity={minQuantity}
-                        stock={stock}
-                        value={quantity}
                         onChange={(value, isValid) => {
                           handleUpdateProductQty(index, value, isValid);
                         }}
+                        stock={stock}
+                        value={quantity}
                       />
                     </FlexItem>
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
@@ -478,12 +488,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
                     <FlexItem {...itemStyle.delete}>
                       <Delete
+                        onClick={() => {
+                          deleteProduct(index);
+                        }}
                         sx={{
                           cursor: 'pointer',
                           color: 'rgba(0, 0, 0, 0.54)',
-                        }}
-                        onClick={() => {
-                          deleteProduct(index);
                         }}
                       />
                     </FlexItem>

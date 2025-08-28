@@ -54,6 +54,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
       if (childNodeList && childNodeList.length > 0) {
         childNodeList.forEach((childNode) => {
           const child = childNode as HTMLAnchorElement;
+
           if (child && (child?.title === 'search' || child?.name === 'search')) {
             isSearchNode = true;
           }
@@ -98,16 +99,21 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           if (isSearchNode || isCheckoutNormalHref) return false;
           e.preventDefault();
           e.stopPropagation();
+
           const isRegisterArrInclude = registerArr.includes(e.target as Element);
           const tagHref = (e.target as HTMLAnchorElement)?.href;
           let href = tagHref || authorizedPages;
+
           if (!tagHref || typeof tagHref !== 'string') {
             let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
             let parentHref = (parentNode as HTMLAnchorElement)?.href;
             let number = 0;
+
             while (number < 3 && !parentHref) {
               parentNode = (parentNode as HTMLAnchorElement)?.parentNode;
+
               const newUrl = (parentNode as HTMLAnchorElement)?.href;
+
               if (newUrl && typeof newUrl === 'string') {
                 parentHref = newUrl;
                 number += 3;
@@ -115,13 +121,16 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
                 number += 1;
               }
             }
+
             if (parentHref) {
               href = parentHref || authorizedPages;
             } else {
               const childNodeList = (e.target as HTMLAnchorElement)?.childNodes;
+
               if (childNodeList.length > 0) {
                 childNodeList.forEach((node: ChildNodeListProps) => {
                   const nodeHref = node?.href;
+
                   if (nodeHref && node.localName === 'a') {
                     href = nodeHref || authorizedPages;
                   }
@@ -132,6 +141,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
 
           const isLogin = role !== CustomerRole.GUEST;
           const hrefArr = href.split('/#');
+
           if (hrefArr[1] === '') {
             href = isLogin ? authorizedPages : '/login';
           }
@@ -149,16 +159,19 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
             initOpenState.handleEnterClick(href, isRegisterArrInclude);
           }
         }
+
         return false;
       };
 
       window.addEventListener('click', handleTriggerClick, {
         capture: true,
       });
+
       return () => {
         window.removeEventListener('click', handleTriggerClick);
       };
     }
+
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutRegisterNumber, initOpenState, role]);

@@ -16,6 +16,7 @@ const b2bVerifyBcLoginStatus = async () => {
   try {
     if (Number(role) !== CustomerRole.GUEST) {
       const bcToken = await getCurrentCustomerJWT(getAppClientId());
+
       isBcLogin = !!bcToken;
 
       return isBcLogin;

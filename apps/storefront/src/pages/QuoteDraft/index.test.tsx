@@ -1,4 +1,8 @@
 import { PersistPartial } from 'redux-persist/es/persistReducer';
+
+import { QuoteInfoState } from '@/store/slices/quoteInfo';
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { QuoteInfo, QuoteItem } from '@/types/quotes';
 import {
   buildCompanyStateWith,
   builder,
@@ -14,10 +18,6 @@ import {
   userEvent,
   within,
 } from 'tests/test-utils';
-
-import { QuoteInfoState } from '@/store/slices/quoteInfo';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
 
@@ -509,10 +509,12 @@ describe('when buyer info is changed and then saved', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
     const phoneInput = screen.getByRole('textbox', { name: 'Phone' });
+
     await userEvent.clear(phoneInput);
     await userEvent.type(phoneInput, '1234567890');
 
     const companyInput = screen.getByRole('textbox', { name: 'Company name' });
+
     await userEvent.clear(companyInput);
     await userEvent.type(companyInput, "Jack's Slacks");
 
@@ -559,17 +561,21 @@ describe('when quote info is changed and then saved', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
     const phoneInput = screen.getByRole('textbox', { name: 'Quote Title' });
+
     await userEvent.type(phoneInput, 'Lots of nice things');
 
     const companyInput = screen.getByRole('textbox', { name: 'Reference number' });
+
     await userEvent.type(companyInput, '818767');
 
     const ccInput = screen.getByRole('textbox', { name: 'CC email' });
+
     await userEvent.type(ccInput, 'fred@acme.com');
 
     await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
 
     const quoteInfoSummary = await screen.findByRole('article', { name: 'Quote info' });
+
     expect(within(quoteInfoSummary).getByText('Title: Lots of nice things')).toBeInTheDocument();
     expect(within(quoteInfoSummary).getByText('Reference: 818767')).toBeInTheDocument();
     expect(within(quoteInfoSummary).getByText('CC: fred@acme.com')).toBeInTheDocument();

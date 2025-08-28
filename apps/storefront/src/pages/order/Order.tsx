@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
@@ -13,8 +13,6 @@ import { CustomerRole } from '@/types';
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
-import { orderStatusTranslationVariables } from './shared/getOrderStatus';
-import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   assertSortKey,
   FilterSearchProps,
@@ -32,6 +30,8 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from './orders';
+import { orderStatusTranslationVariables } from './shared/getOrderStatus';
+import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 
 interface CompanyInfoProps {
   companyId: string;
@@ -112,6 +112,7 @@ const getEmail = (haystack: string = '') => {
 const getName = (haystack: string = '') => {
   const getCreatedByReg = /^[^(]+/;
   const createdByUserRegArr = getCreatedByReg.exec(haystack);
+
   return createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : '';
 };
 
@@ -189,6 +190,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
       const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
         const translatedElement = element;
+
         translatedElement.label = b3Lang(element.idLang);
 
         if (element.name === 'orderStatus') {
@@ -196,6 +198,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             (option: { customLabel: string; systemLabel: string }) => {
               const optionLabel = orderStatusTranslationVariables[option.systemLabel];
               const elementOption = option;
+
               elementOption.customLabel =
                 b3Lang(optionLabel) === elementOption.systemLabel
                   ? elementOption.customLabel
@@ -292,7 +295,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       key: 'status',
       title: b3Lang('orders.orderStatus'),
       render: ({ status }) => (
-        <OrderStatus text={getOrderStatusText(status, getOrderStatuses)} code={status} />
+        <OrderStatus code={status} text={getOrderStatusText(status, getOrderStatuses)} />
       ),
       width: '10%',
       isSortable: true,
@@ -316,12 +319,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const getColumnItems = (): TableColumnItem<ListItem>[] => {
     const getNewColumnItems = columnAllItems.filter((item) => {
       const { key } = item;
+
       if (!isB2BUser && key === 'companyName') return false;
       if ((!isB2BUser || (Number(role) === 3 && !isAgenting)) && key === 'placedBy') return false;
 
       if (key === 'placedBy' && !(Number(role) === 3 && !isAgenting) && !isCompanyOrder) {
         return false;
       }
+
       return true;
     });
 
@@ -339,6 +344,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const handleFilterChange = (value: SearchChangeProps) => {
     let currentStatus = value?.orderStatus || '';
+
     if (currentStatus) {
       const originStatus = getOrderStatuses.find(
         (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
@@ -403,12 +409,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             </Box>
           )}
           <B3Filter
-            startPicker={{
-              isEnabled: true,
-              label: b3Lang('orders.from'),
-              defaultValue: filterData?.beginDateAt || null,
-              pickerKey: 'start',
-            }}
             endPicker={{
               isEnabled: true,
               label: b3Lang('orders.to'),
@@ -418,25 +418,31 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             filterMoreInfo={filterInfo}
             handleChange={handleChange}
             handleFilterChange={handleFilterChange}
-            pcTotalWidth="100%"
             pcContainerWidth="100%"
             pcSearchContainerWidth="100%"
+            pcTotalWidth="100%"
+            startPicker={{
+              isEnabled: true,
+              label: b3Lang('orders.from'),
+              defaultValue: filterData?.beginDateAt || null,
+              pickerKey: 'start',
+            }}
           />
         </Box>
 
         <B3Table
           columnItems={columnItems}
-          listItems={data?.edges || []}
-          pagination={{ ...pagination, count: data?.totalCount || 0 }}
-          onPaginationChange={setPagination}
           isInfiniteScroll={isMobile}
-          renderItem={(row, index) => (
-            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
-          )}
+          listItems={data?.edges || []}
           onClickRow={goToDetail}
-          sortDirection={orderBy.dir}
-          sortByFn={handleSetOrderBy}
+          onPaginationChange={setPagination}
           orderBy={orderBy.key}
+          pagination={{ ...pagination, count: data?.totalCount || 0 }}
+          renderItem={(row, index) => (
+            <OrderItemCard goToDetail={() => goToDetail(row, index)} item={row} key={row.orderId} />
+          )}
+          sortByFn={handleSetOrderBy}
+          sortDirection={orderBy.dir}
         />
       </Box>
     </B3Spin>

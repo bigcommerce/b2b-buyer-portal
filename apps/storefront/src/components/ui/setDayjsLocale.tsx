@@ -12,6 +12,8 @@ import 'dayjs/locale/es';
 
 const setDayjsLocale = (localeKey: string) => {
   const locale = localeKey || 'en';
+
+  // eslint-disable-next-line import/no-named-as-default-member
   dayjs.locale(locale);
 
   const activeLang = SUPPORT_LANGUAGE.find((item) => locale.includes(item)) || 'en';

@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowBackIosNew, InfoOutlined } from '@mui/icons-material';
 import { Box, Grid, Stack, Typography } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
@@ -23,8 +23,6 @@ import b2bLogger from '@/utils/b3Logger';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
-import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
-import convertB2BOrderDetails from './shared/B2BOrderData';
 import {
   DetailPagination,
   OrderAction,
@@ -32,6 +30,8 @@ import {
   OrderHistory,
   OrderShipping,
 } from './components';
+import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
+import convertB2BOrderDetails from './shared/B2BOrderData';
 
 const convertBCOrderDetails = convertB2BOrderDetails;
 
@@ -100,6 +100,7 @@ function OrderDetail() {
     if (orderId) {
       const getOrderDetails = async () => {
         const id = parseInt(orderId, 10);
+
         if (!id) {
           return;
         }
@@ -127,6 +128,7 @@ function OrderDetail() {
             const data = isB2BUser
               ? convertB2BOrderDetails(newOrder, b3Lang)
               : convertBCOrderDetails(newOrder, b3Lang);
+
             dispatch({
               type: 'all',
               payload: data,
@@ -170,8 +172,10 @@ function OrderDetail() {
     const getAddressLabelPermission = async () => {
       try {
         let configList = addressConfig;
+
         if (!configList) {
           const { addressConfig: newConfig } = await getB2BAddressConfig();
+
           configList = newConfig;
 
           globalDispatch({
@@ -185,6 +189,7 @@ function OrderDetail() {
         const permission =
           (configList || []).find((config: AddressConfigItem) => config.key === 'address_label')
             ?.isEnabled === '1';
+
         dispatch({
           type: 'addressLabel',
           payload: {
@@ -195,6 +200,7 @@ function OrderDetail() {
         b2bLogger.error(error);
       }
     };
+
     getAddressLabelPermission();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,18 +211,21 @@ function OrderDetail() {
       (item: OrderStatusItem) => item.systemLabel === status,
     );
     let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
+
     if (currentOrderStatus) {
       const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
+
       activeStatusLabel =
         optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel
           ? b3Lang(optionLabel)
           : activeStatusLabel;
     }
+
     return activeStatusLabel;
   };
 
   return (
-    <B3Spin isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">
+    <B3Spin background="rgba(255,255,255,0.2)" isSpinning={isRequestLoading}>
       <Box
         sx={{
           overflow: 'auto',
@@ -230,6 +239,7 @@ function OrderDetail() {
           }}
         >
           <Box
+            onClick={goToOrders}
             sx={{
               color: 'primary.main',
               cursor: 'pointer',
@@ -237,7 +247,6 @@ function OrderDetail() {
               display: 'flex',
               alignItems: 'center',
             }}
-            onClick={goToOrders}
           >
             {location.state !== null ? (
               <>
@@ -258,19 +267,19 @@ function OrderDetail() {
         <Grid container spacing={2}>
           <Grid
             item
-            xs={isMobile ? 12 : 8}
             sx={{
               display: 'flex',
               alignItems: 'center',
               gap: '15px',
               order: isMobile ? 1 : 0,
             }}
+            xs={isMobile ? 12 : 8}
           >
             <Typography
-              variant="h4"
               sx={{
                 color: b3HexToRgb(customColor, 0.87) || '#263238',
               }}
+              variant="h4"
             >
               {b3Lang('orderDetail.orderId', { orderId })}
               {b3Lang('orderDetail.purchaseOrderNumber', {
@@ -282,17 +291,17 @@ function OrderDetail() {
           <Grid
             container
             item
-            xs={isMobile ? 12 : 4}
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
             }}
+            xs={isMobile ? 12 : 4}
           >
             {location?.state && (
               <DetailPagination
-                onChange={(orderId) => handlePageChange(orderId)}
                 color={customColor}
+                onChange={(orderId) => handlePageChange(orderId)}
               />
             )}
           </Grid>

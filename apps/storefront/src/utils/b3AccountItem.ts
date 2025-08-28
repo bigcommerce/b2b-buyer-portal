@@ -52,6 +52,7 @@ const redirectBcMenus = (
     switch (role) {
       case CustomerRole.SUPER_ADMIN:
         return '/dashboard';
+
       default:
         return authorizedPages;
     }
@@ -107,6 +108,7 @@ const openPageByClick = ({
   if (href?.includes('register')) {
     return '/register';
   }
+
   if (href?.includes('/orders')) {
     return currentRole !== CustomerRole.GUEST ? authorizedPages : '/login';
   }
@@ -121,6 +123,7 @@ const openPageByClick = ({
   ) {
     return authorizedPages;
   }
+
   // register and login click
   if (href?.includes('/login') || isRegisterAndLogin || currentRole === CustomerRole.GUEST) {
     return getCurrentLoginUrl(href);

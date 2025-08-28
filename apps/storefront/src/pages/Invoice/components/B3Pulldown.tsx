@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
@@ -59,6 +59,7 @@ function B3Pulldown({
 
   const handleMoreActionsClick = () => {
     const { id } = row;
+
     setInvoiceId(id);
     setIsOpen(true);
   };
@@ -76,10 +77,12 @@ function B3Pulldown({
 
     if (!pdfUrl) {
       snackbar.error('pdf url resolution error');
+
       return;
     }
 
     const { href } = window.location;
+
     if (!href.includes('invoice')) {
       return;
     }
@@ -89,6 +92,7 @@ function B3Pulldown({
 
   const handleViewOrder = () => {
     const { orderNumber } = row;
+
     close();
     navigate(`/orderDetail/${orderNumber}`);
   };
@@ -127,6 +131,7 @@ function B3Pulldown({
 
     close();
     setIsRequestLoading(true);
+
     const url = await getInvoiceDownloadPDFUrl(id);
 
     setIsRequestLoading(false);
@@ -140,6 +145,7 @@ function B3Pulldown({
       Number(openBalance.value) > 0 && invoicePayPermission && purchasabilityPermission;
 
     const isPayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
+
     setIsPay(isPayInvoice);
 
     const viewOrderPermission = verifyLevelPermission({
@@ -156,25 +162,25 @@ function B3Pulldown({
   return (
     <>
       <IconButton
+        aria-haspopup="menu"
+        aria-label={b3Lang('invoice.actions.moreActions')}
         onClick={handleMoreActionsClick}
         ref={ref}
-        aria-label={b3Lang('invoice.actions.moreActions')}
-        aria-haspopup="menu"
       >
         <MoreHorizIcon />
       </IconButton>
       <StyledMenu
-        id="basic-menu"
-        anchorEl={ref.current}
-        open={isOpen}
-        onClose={close}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
+        anchorEl={ref.current}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
         }}
+        id="basic-menu"
+        onClose={close}
+        open={isOpen}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
@@ -182,22 +188,22 @@ function B3Pulldown({
       >
         <MenuItem
           key="View-invoice"
-          sx={{
-            color: 'primary.main',
-          }}
           onClick={() =>
             handleViewInvoice(row.status !== 2 && invoicePayPermission && purchasabilityPermission)
           }
+          sx={{
+            color: 'primary.main',
+          }}
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
         {isCanViewOrder && (
           <MenuItem
             key="View-Order"
+            onClick={handleViewOrder}
             sx={{
               color: 'primary.main',
             }}
-            onClick={handleViewOrder}
           >
             {b3Lang('invoice.actions.viewOrder')}
           </MenuItem>
@@ -206,10 +212,10 @@ function B3Pulldown({
         {row.status !== 0 && (
           <MenuItem
             key="View-payment-history"
+            onClick={viewPaymentHistory}
             sx={{
               color: 'primary.main',
             }}
-            onClick={viewPaymentHistory}
           >
             {b3Lang('invoice.actions.viewPaymentHistory')}
           </MenuItem>
@@ -217,31 +223,31 @@ function B3Pulldown({
         {isPay && (
           <MenuItem
             key="Pay"
+            onClick={handlePay}
             sx={{
               color: 'primary.main',
             }}
-            onClick={handlePay}
           >
             {b3Lang('invoice.actions.pay')}
           </MenuItem>
         )}
         <MenuItem
           key="Print"
-          sx={{
-            color: 'primary.main',
-          }}
           onClick={() =>
             handleViewInvoice(row.status !== 2 && invoicePayPermission && purchasabilityPermission)
           }
+          sx={{
+            color: 'primary.main',
+          }}
         >
           {b3Lang('invoice.actions.print')}
         </MenuItem>
         <MenuItem
           key="Download"
+          onClick={() => handleDownloadPDF()}
           sx={{
             color: 'primary.main',
           }}
-          onClick={() => handleDownloadPDF()}
         >
           {b3Lang('invoice.actions.download')}
         </MenuItem>

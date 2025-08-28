@@ -22,8 +22,10 @@ const getOrderShipping = (data: B2BOrderData) => {
     const { items } = shipment;
 
     const itemsInfo: OrderProductItem[] = [];
+
     items.forEach((item) => {
       const product = products.find((product) => product.id === item.order_product_id);
+
       if (product) {
         itemsInfo.push({
           ...product,
@@ -76,8 +78,10 @@ const getOrderBilling = (data: B2BOrderData) => {
 
 const formatPrice = (price: string | number) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
+
   try {
     const priceNumber = parseFloat(price.toString()) || 0;
+
     return priceNumber.toFixed(decimalPlaces);
   } catch (error) {
     return '0.00';
@@ -114,6 +118,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     const key = b3Lang('orderDetail.summary.coupon', {
       couponCode: coupon?.code ? `(${coupon.code})` : '',
     });
+
     couponLabel[key] = key;
     couponPrice[key] = coupon?.discount;
     couponSymbol[key] = 'coupon';

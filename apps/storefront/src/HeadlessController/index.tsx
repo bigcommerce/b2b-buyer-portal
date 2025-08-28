@@ -1,5 +1,5 @@
-import { useContext, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
+import { useContext, useEffect, useRef } from 'react';
 
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
@@ -150,9 +150,12 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           setTimeout(() => {
             if (page === 'CLOSE') {
               setOpenPage({ isOpen: false });
+
               return;
             }
+
             const openUrl = page.startsWith('/') ? page : HeadlessRoutes[page];
+
             setOpenPage({ isOpen: true, openUrl });
           }, 0),
         setConfig: (key: string, value: string) => {
@@ -199,6 +202,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
                 companies: [],
               };
             }
+
             // get companies list
             const {
               superAdminCompanies: { edges: companies = [] },

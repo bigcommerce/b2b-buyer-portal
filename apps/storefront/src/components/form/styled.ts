@@ -83,6 +83,7 @@ interface StyleNumberTextFieldProps {
 
 export const StyleNumberTextField = styled(TextField)((props: StyleNumberTextFieldProps) => {
   const { allowarrow = 0 } = props;
+
   return allowarrow
     ? {}
     : {

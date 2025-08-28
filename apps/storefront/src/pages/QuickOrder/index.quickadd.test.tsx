@@ -1,5 +1,10 @@
 import Cookies from 'js-cookie';
 import { set } from 'lodash-es';
+import { when } from 'vitest-when';
+
+import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { CompanyStatus, UserTypes } from '@/types';
+import { LineItem } from '@/utils/b3Product/b3Product';
 import {
   buildCompanyStateWith,
   builder,
@@ -14,11 +19,6 @@ import {
   userEvent,
   waitFor,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, UserTypes } from '@/types';
-import { LineItem } from '@/utils/b3Product/b3Product';
 
 import QuickOrderPad from './components/QuickOrderPad';
 

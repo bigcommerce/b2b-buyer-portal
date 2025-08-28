@@ -1,13 +1,13 @@
-import { ReactNode, useContext } from 'react';
 import { Box, Step, StepLabel, Stepper, useTheme } from '@mui/material';
+import { ReactNode, useContext } from 'react';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { B3SStorage } from '@/utils';
 
-import { RegisteredContext } from './context/RegisteredContext';
 import { steps } from './config';
+import { RegisteredContext } from './context/RegisteredContext';
 
 interface RegisteredStepProps {
   children: ReactNode;
@@ -34,6 +34,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
     accountType === '1' ? registerCompleteText : b3Lang('register.title.accountCreated');
 
   const customColor = getContrastColor(backgroundColor);
+
   return (
     <Box
       component="div"

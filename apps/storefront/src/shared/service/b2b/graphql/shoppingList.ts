@@ -23,9 +23,11 @@ const getStatus = (status: any): string => {
 
     return `status: ${status}`;
   }
+
   if (typeof status === 'object') {
     return `status: [${status}]`;
   }
+
   return '';
 };
 

@@ -10,12 +10,12 @@ export function PrimaryButton({ onClick, children }: Props) {
 
   return (
     <Button
-      variant="contained"
-      type="button"
       onClick={onClick}
       sx={{
         backgroundColor: theme.palette.primary.main,
       }}
+      type="button"
+      variant="contained"
     >
       {children}
     </Button>

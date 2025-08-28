@@ -4,10 +4,12 @@ export interface ShoppingListDetailsState {
   id?: number;
   isLoading?: boolean;
 }
+
 interface ShoppingListDetailsAction {
   type: string;
   payload: ShoppingListDetailsState;
 }
+
 export interface ShoppingListDetailsContextType {
   state: ShoppingListDetailsState;
   dispatch: Dispatch<ShoppingListDetailsAction>;
@@ -34,16 +36,19 @@ const reducer = (state: ShoppingListDetailsState, action: ShoppingListDetailsAct
         ...state,
         ...action.payload,
       };
+
     case 'init':
       return {
         ...state,
         id: action.payload.id,
       };
+
     case 'loading':
       return {
         ...state,
         isLoading: action.payload.isLoading,
       };
+
     default:
       return state;
   }

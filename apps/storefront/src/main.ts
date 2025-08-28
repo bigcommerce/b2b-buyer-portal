@@ -15,6 +15,7 @@ window.b2b = {
     // so that the same runtime files can dynamically choose the cdn base url location
     // based on environment it is deployed to
     const environment: Environment = window.B3?.setting?.environment ?? Environment.Production;
+
     return `${ENVIRONMENT_CDN_BASE_PATH[environment]}${filename}`;
   },
 };
@@ -33,6 +34,7 @@ window.b2b = {
     // and bind links to load the app
     bindLinks();
     window.addEventListener('beforeunload', unbindLinks);
+
     // and observe global flag to simulate click
     window.b2b.initializationEnvironment.isInitListener = () => {
       unbindLinks();

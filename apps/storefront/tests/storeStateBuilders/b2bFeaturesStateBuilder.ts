@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
-import { builder } from 'tests/builder';
 
 import { MasqueradeCompany } from '@/store/slices/b2bFeatures';
+import { builder } from 'tests/builder';
 
 export const buildB2BFeaturesStateWith = builder<MasqueradeCompany & PersistPartial>(() => ({
   masqueradeCompany: {

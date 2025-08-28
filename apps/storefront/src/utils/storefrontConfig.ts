@@ -176,16 +176,19 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
   const obj: Partial<CustomStyleButtonState> | {} = {};
   let blockPendingAccountOrderCreation = true;
   let blockPendingAccountViewPrice = true;
+
   storefrontConfigs.forEach((currentItem: CustomFieldItems) => {
     const item = currentItem;
     const storefrontKey: StorefrontKeysProps | undefined = storefrontKeys.find(
       (option) => option.key === item.key,
     );
     const storefrontConfig = item;
+
     if (!isEmpty(storefrontKey)) {
       if (storefrontKey.key === 'quote_logo') {
         logo = item.value;
       }
+
       if (storefrontKey.key === 'quote_on_product_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
@@ -201,6 +204,7 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
           classSelector: item.extraFields?.classSelector || 'button',
         };
       }
+
       if (storefrontKey.key === 'masquerade_button') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
@@ -331,7 +335,9 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
 
 export const getAccountHierarchyIsEnabled = async () => {
   const { storeConfigSwitchStatus } = await getStoreConfigsSwitchStatus('account_hierarchy');
+
   if (!storeConfigSwitchStatus) return false;
+
   const { isEnabled } = storeConfigSwitchStatus;
 
   return isEnabled === '1';
@@ -342,6 +348,7 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig();
   const { currencies } = await getCurrencies(channelId);
+
   store.dispatch(setCurrencies(currencies));
 
   const {
@@ -352,6 +359,7 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
 
   if (language && language.includes('-')) {
     const [lang] = language.split('-');
+
     langCode = lang;
   }
 
@@ -382,10 +390,12 @@ const getStoreTaxZoneRates = async () => {
     const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
       (taxZone: { id: number }) => taxZone.id === 1,
     );
+
     if (defaultTaxZone) {
       const {
         priceDisplaySettings: { showInclusive },
       } = defaultTaxZone;
+
       B3SStorage.set('showInclusiveTaxPrice', showInclusive);
       store.dispatch(setShowInclusiveTaxPrice(showInclusive));
     }

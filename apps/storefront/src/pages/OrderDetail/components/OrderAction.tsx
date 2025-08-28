@@ -1,8 +1,8 @@
-import { Fragment, ReactNode, useCallback, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
+import { Fragment, ReactNode, useCallback, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '@/components/button/CustomButton';
 import { useB3Lang } from '@/lib/lang';
@@ -154,6 +154,7 @@ function OrderCard(props: OrderCardProps) {
 
   let infoKey: string[] = [];
   let infoValue: string[] = [];
+
   if (typeof infos !== 'string') {
     const { info } = infos;
 
@@ -182,15 +183,20 @@ function OrderCard(props: OrderCardProps) {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`);
     } else {
       const isNeedSwitch = handleShowSwitchCompanyModal();
+
       if (isNeedSwitch) return;
+
       if (!isAgenting && Number(role) === 3) {
         snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'));
+
         return;
       }
+
       setOpen(true);
       setType(name);
 
       const newDialogData = dialogData.find((data: DialogData) => data.type === name);
+
       setCurrentDialogData(newDialogData);
     }
   };
@@ -203,6 +209,7 @@ function OrderCard(props: OrderCardProps) {
     showedInformation = infos;
   } else if (infos?.money) {
     const symbol = infos?.symbol || {};
+
     showedInformation = infoKey?.map((key: string, index: number) => (
       <Fragment key={key}>
         {symbol[key] === 'grandTotal' && (
@@ -214,7 +221,7 @@ function OrderCard(props: OrderCardProps) {
           />
         )}
 
-        <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
+        <ItemContainer aria-label={key} key={key} nameKey={symbol[key]} role="group">
           <p id="item-name-key">{key}</p>{' '}
           {displayAsNegativeNumber.includes(symbol[key]) ? (
             <p>
@@ -266,13 +273,13 @@ function OrderCard(props: OrderCardProps) {
             <Fragment key={button.key}>
               {button.isCanShow && (
                 <CustomButton
-                  value={button.value}
                   key={button.key}
                   name={button.name}
-                  variant={button.variant}
                   onClick={throttle(() => {
                     handleOpenDialog(button.name);
                   }, 2000)}
+                  value={button.value}
+                  variant={button.variant}
                 >
                   {button.value}
                 </CustomButton>
@@ -282,27 +289,27 @@ function OrderCard(props: OrderCardProps) {
       </StyledCardActions>
 
       <OrderDialog
-        open={open}
-        products={products}
         currentDialogData={currentDialogData}
-        type={type}
-        setOpen={setOpen}
         itemKey={itemKey}
+        open={open}
         orderId={Number(orderId)}
+        products={products}
+        setOpen={setOpen}
+        type={type}
       />
 
       <HierarchyDialog
-        open={openSwitchCompany}
+        context={b3Lang('orderDetail.switchCompany.content.tipsText')}
         currentRow={{
           companyId: Number(switchCompanyId || 0),
         }}
-        handleClose={() => setOpenSwitchCompany(false)}
-        // loading
-        title={b3Lang('orderDetail.switchCompany.title')}
-        context={b3Lang('orderDetail.switchCompany.content.tipsText')}
         dialogParams={{
           rightSizeBtn: b3Lang('global.B2BSwitchCompanyModal.confirm.button'),
         }}
+        handleClose={() => setOpenSwitchCompany(false)}
+        open={openSwitchCompany}
+        // loading
+        title={b3Lang('orderDetail.switchCompany.title')}
       />
     </Card>
   );
@@ -364,6 +371,7 @@ export default function OrderAction(props: OrderActionProps) {
         paidDate: displayFormat(createAt, true),
       });
     }
+
     return message;
   }, [poNumber, createAt, b3Lang]);
 
@@ -393,6 +401,7 @@ export default function OrderAction(props: OrderActionProps) {
     if (!billingAddress) {
       return {};
     }
+
     const {
       first_name: firstName,
       last_name: lastName,
@@ -433,6 +442,7 @@ export default function OrderAction(props: OrderActionProps) {
         const isHaveTitle = item.trim().includes(':');
 
         let message = isHaveTitle ? item : b3Lang('orderDetail.itemComments', { item });
+
         if (dividingLine.includes(item)) {
           message = item;
         }
@@ -527,15 +537,15 @@ export default function OrderAction(props: OrderActionProps) {
       {orderData &&
         orderData.map((item: OrderData) => (
           <OrderCard
-            products={products!}
             orderId={orderId.toString()}
+            products={products!}
             {...item}
-            itemKey={item.key}
-            role={role}
-            ipStatus={ipStatus}
             invoiceId={invoiceId}
-            key={item.key}
+            ipStatus={ipStatus}
             isCurrentCompany={isCurrentCompany}
+            itemKey={item.key}
+            key={item.key}
+            role={role}
             switchCompanyId={companyId}
           />
         ))}

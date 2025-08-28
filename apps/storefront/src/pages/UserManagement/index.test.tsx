@@ -1,3 +1,6 @@
+import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermissions';
+import { UserEmailCheckResponse } from '@/shared/service/b2b/graphql/users';
+import { UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -13,13 +16,10 @@ import {
   within,
 } from 'tests/test-utils';
 
-import { CompanyRolesResponse } from '@/shared/service/b2b/graphql/roleAndPermissions';
-import { UserEmailCheckResponse } from '@/shared/service/b2b/graphql/users';
-import { UserTypes } from '@/types';
-
 import { UserResponse } from './getUser';
 import { UsersResponse } from './getUsers';
 import { UserExtraFieldsInfoResponse } from './getUsersExtraFieldsInfo';
+
 import UserManagement from './index';
 
 const { server } = startMockServer();
@@ -232,6 +232,7 @@ describe.each([
 
   it('does not apply any filters by default', async () => {
     const getUsersVariablesSpy = vi.fn();
+
     server.use(
       graphql.query('GetUserExtraFields', () =>
         HttpResponse.json(buildUserExtraFieldsResponseWith('WHATEVER_VALUES')),
@@ -457,6 +458,7 @@ describe.each([
       );
 
       const emailField = within(modal).getByRole('textbox', { name: 'Email' });
+
       expect(emailField).toHaveValue('troy.mcclure@acme.org');
       expect(emailField).toBeDisabled();
 
@@ -690,6 +692,7 @@ describe.each([
       expect(within(modal).getByRole('combobox', { name: 'User role' })).toHaveValue('');
 
       const emailField = within(modal).getByRole('textbox', { name: 'Email' });
+
       expect(emailField).toHaveValue('');
       expect(emailField).not.toBeDisabled();
 
@@ -965,6 +968,7 @@ describe('when the "Add new user" modal is open', () => {
     const customMultilineFieldLabel = within(modal).getByRole('textbox', {
       name: /Custom multiline field/,
     });
+
     expect(customMultilineFieldLabel).toHaveValue('Multiline\nworks just fine');
     expect(customMultilineFieldLabel).toHaveAttribute('rows', '5');
   });
@@ -1018,6 +1022,7 @@ describe('when the "Edit user" modal is open and the user has a custom field val
     const customTextFieldLabel = within(modal).getByRole('textbox', {
       name: /Custom text field/,
     });
+
     expect(customTextFieldLabel).toHaveValue('Troy says hello');
     expect(customTextFieldLabel).not.toHaveValue('Some short amount of text');
   });

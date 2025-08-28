@@ -1,6 +1,5 @@
-import { renderWithProviders, screen } from 'tests/test-utils';
-
 import QuickOrder from '@/pages/QuickOrder';
+import { renderWithProviders, screen } from 'tests/test-utils';
 
 import { mockActiveCurrency, mockCurrencies } from './mock';
 

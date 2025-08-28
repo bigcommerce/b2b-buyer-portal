@@ -1,4 +1,8 @@
 import { useParams } from 'react-router-dom';
+
+import { B2BProducts } from '@/shared/service/b2b/graphql/product';
+import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
+import { CompanyStatus, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -12,10 +16,6 @@ import {
   startMockServer,
   within,
 } from 'tests/test-utils';
-
-import { B2BProducts } from '@/shared/service/b2b/graphql/product';
-import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
-import { CompanyStatus, UserTypes } from '@/types';
 
 import QuoteDetail from './index';
 

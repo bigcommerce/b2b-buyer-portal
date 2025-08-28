@@ -1,4 +1,3 @@
-import { PropsWithChildren } from 'react';
 import styled from '@emotion/styled';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Theme, useTheme } from '@mui/material';
@@ -7,6 +6,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { PropsWithChildren } from 'react';
 
 import { B3Tag } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -78,12 +78,12 @@ export function AddressItemCard({
       >
         {addressInfo.label && (
           <Typography
-            variant="h5"
             sx={{
               marginBottom:
                 isDefaultShipping || isDefaultBilling ? theme.spacing(1) : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
+            variant="h5"
           >
             {addressInfo.label}
           </Typography>
@@ -109,11 +109,11 @@ export function AddressItemCard({
           <Flex>
             {onSetDefault && (
               <CustomButton
-                variant="text"
+                onClick={onSetDefault}
                 sx={{
                   ml: '-8px',
                 }}
-                onClick={onSetDefault}
+                variant="text"
               >
                 {b3Lang('addresses.addressItemCard.setAsDefault')}
               </CustomButton>
@@ -127,13 +127,13 @@ export function AddressItemCard({
               }}
             >
               {onEdit && (
-                <IconButton aria-label="edit" size="small" onClick={onEdit}>
+                <IconButton aria-label="edit" onClick={onEdit} size="small">
                   <EditIcon fontSize="inherit" />
                 </IconButton>
               )}
 
               {onDelete && (
-                <IconButton aria-label="delete" size="small" onClick={onDelete}>
+                <IconButton aria-label="delete" onClick={onDelete} size="small">
                   <DeleteIcon fontSize="inherit" />
                 </IconButton>
               )}

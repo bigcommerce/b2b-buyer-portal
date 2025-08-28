@@ -1,6 +1,6 @@
+import { Box, Grid, Typography } from '@mui/material';
 import { KeyboardEventHandler, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Grid, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -50,6 +50,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
   useEffect(() => {
     let formFields: CustomFieldItems[] = [];
+
     loopRows(rows, (index) => {
       formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)];
     });
@@ -113,6 +114,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   const getProductData = (value: CustomFieldItems) => {
     const skuValue: SimpleObject = {};
     let isValid = true;
+
     loopRows(rows, (index) => {
       const sku = value[`sku-${index}`];
       const qty = value[`qty-${index}`];
@@ -121,6 +123,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       if (isValid && sku) {
         const quantity = parseInt(qty, 10) || 0;
+
         skuValue[sku] = skuValue[sku] ? (skuValue[sku] as number) + quantity : quantity;
       }
     });
@@ -148,6 +151,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (!variantInfo) {
           notFoundSku.push(sku);
+
           return;
         }
 
@@ -165,12 +169,14 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (purchasingDisabled === '1' && type !== 'shoppingList') {
           notPurchaseSku.push(sku);
+
           return;
         }
 
         const notPassedModifier = defaultModifiers.filter(
           (modifier: CustomFieldItems) => !modifier.isVerified,
         );
+
         if (notPassedModifier.length > 0) {
           notAddAble.push(sku);
 
@@ -179,6 +185,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (Number(quantity) < 1 || Number(quantity) > 1000000) {
           numberLimit.push(sku);
+
           return;
         }
 
@@ -186,10 +193,12 @@ export default function QuickAdd(props: AddToListContentProps) {
           (arr: ShoppingListAddProductOption[], optionStr: string) => {
             try {
               const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
+
               arr.push({
                 optionId: `attribute[${option.option_id}]`,
                 optionValue: `${option.id}`,
               });
+
               return arr;
             } catch (error) {
               return arr;
@@ -203,6 +212,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
           if (type === 'date') {
             const { defaultValue } = modifier;
+
             Object.keys(defaultValue).forEach((key) => {
               optionList.push({
                 optionId: `attribute[${modifier.option_id}][${key}]`,
@@ -220,6 +230,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         passSku.push(sku);
 
         const quoteDraftItem = draftQuoteList.find((item) => item.node.variantSku === variantSku);
+
         if (quoteDraftItem) {
           const oldOptionList = JSON.parse(quoteDraftItem.node.optionList);
           let { quantity: quoteDraftItemQuantity } = quoteDraftItem.node;
@@ -232,8 +243,10 @@ export default function QuickAdd(props: AddToListContentProps) {
           if (isAdd) {
             quoteDraftItemQuantity += quantity;
           }
+
           if (quoteDraftItemQuantity > 1000000) {
             numberLimit.push(sku);
+
             return;
           }
         }
@@ -303,12 +316,14 @@ export default function QuickAdd(props: AddToListContentProps) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.',
       );
+
       return;
     }
 
     handleSubmit(async (value) => {
       try {
         setIsLoading(true);
+
         const { skuValue, isValid, skus } = getProductData(value);
 
         if (!isValid || skus.length <= 0) {
@@ -404,13 +419,13 @@ export default function QuickAdd(props: AddToListContentProps) {
           </Grid>
           <Grid item>
             <CustomButton
-              variant="text"
+              onClick={handleAddRowsClick}
               sx={{
                 textTransform: 'initial',
                 ml: '-8px',
                 fontWeight: '400',
               }}
-              onClick={handleAddRowsClick}
+              variant="text"
             >
               {b3Lang('shoppingList.quickAdd.showMoreRows')}
             </CustomButton>
@@ -426,24 +441,24 @@ export default function QuickAdd(props: AddToListContentProps) {
           }}
         >
           <B3CustomForm
-            formFields={formFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={formFields}
             getValues={getValues}
             setValue={setValue}
           />
         </Box>
 
         <CustomButton
-          variant="outlined"
-          fullWidth
           disabled={isLoading}
+          fullWidth
           onClick={handleAddToList}
           sx={{
             margin: '20px 0',
           }}
+          variant="outlined"
         >
-          <B3Spin isSpinning={buttonLoading ? isLoading : false} tip="" size={16}>
+          <B3Spin isSpinning={buttonLoading ? isLoading : false} size={16} tip="">
             <Box
               sx={{
                 flex: 1,

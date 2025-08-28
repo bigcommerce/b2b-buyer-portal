@@ -42,22 +42,22 @@ function QuoteSubmissionResponse({
       }}
     >
       <B3Dialog
-        isOpen={isOpen}
-        title={quoteSubmissionResponseInfo.title}
-        showLeftBtn={false}
         handRightClick={onClose}
+        isOpen={isOpen}
         isShowBordered={false}
-        rightSizeBtn={b3Lang('quoteDraft.submission.response.button.text')}
         maxWidth={false}
+        rightSizeBtn={b3Lang('quoteDraft.submission.response.button.text')}
+        showLeftBtn={false}
+        title={quoteSubmissionResponseInfo.title}
       >
         {messageArr.map((item) => {
           return (
             <Typography
               key={item}
-              variant="subtitle2"
               sx={{
                 marginTop: '1rem',
               }}
+              variant="subtitle2"
             >
               {item}
             </Typography>

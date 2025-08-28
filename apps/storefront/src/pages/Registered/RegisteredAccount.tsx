@@ -1,6 +1,6 @@
+import { Alert, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { ChangeEvent, MouseEvent, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -15,8 +15,8 @@ import { themeFrameSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
-import { RegisteredContext } from './context/RegisteredContext';
 import { Base64, emailError } from './config';
+import { RegisteredContext } from './context/RegisteredContext';
 import { PrimaryButton } from './PrimaryButton';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
@@ -67,6 +67,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
 
   const newContactInformation = contactInformation?.map((contactInfo: CustomFieldItems) => {
     const info = contactInfo;
+
     if (contactInfo.fieldId === 'field_email' && accountType === '1') {
       info.isTip = true;
       info.tipText = 'This email will be used to sign in to your account';
@@ -106,8 +107,10 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
 
   const validateEmailValue = async (email: string) => {
     const isRegisterAsB2BUser = accountType === '1';
+
     try {
       showLoading(true);
+
       const {
         isValid,
         userType,
@@ -149,15 +152,19 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
 
       const newContactInfo = contactInfo.map((item: RegisterFields) => {
         const newContactItem = item;
+
         newContactItem.default = data[item.name] || item.default;
+
         if (item.fieldId === 'field_email_marketing_newsletter' && item.fieldType === 'checkbox') {
           newContactItem.isChecked = data[item.name].length > 0;
         }
+
         return item;
       });
 
       try {
         showLoading(true);
+
         if (accountType === '1') {
           const extraCompanyUserInformation = newContactInfo.filter(
             (item: RegisterFields) => !!item.custom,
@@ -166,6 +173,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
             fieldName: Base64.decode(field.name),
             fieldValue: data[field.name] || field.default,
           }));
+
           if (extraFields.length > 0) {
             const res = await validateBCCompanyUserExtraFields({
               extraFields,
@@ -180,20 +188,25 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
                 const field = extraCompanyUserInformation.find(
                   (field: RegisterFields) => Base64.decode(field.name) === messageArr[0],
                 );
+
                 if (field) {
                   setError(field.name, {
                     type: 'manual',
                     message: messageArr[1],
                   });
                   showLoading(false);
+
                   return;
                 }
               }
+
               setErrorTips(message);
               showLoading(false);
+
               return;
             }
           }
+
           setErrorTips('');
         }
       } catch (error) {
@@ -203,11 +216,14 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
       }
 
       let newAdditionalInformation: Array<RegisterFields> = [];
+
       if (additionalInfo) {
         newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map(
           (item: RegisterFields) => {
             const additionalInfoItem = item;
+
             additionalInfoItem.default = data[item.name] || item.default;
+
             return item;
           },
         );
@@ -251,7 +267,6 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
         <RadioGroup
           aria-labelledby="demo-row-radio-buttons-group-label"
           name="row-radio-buttons-group"
-          value={accountType}
           onChange={handleChange}
           sx={{
             '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label': {
@@ -261,19 +276,20 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
               color: b3HexToRgb(customColor, 0.6),
             },
           }}
+          value={accountType}
         >
           {accountLoginRegistration.b2b && (
             <FormControlLabel
-              value="1"
               control={<Radio />}
               label={b3Lang('register.registeredAccount.businessAccount')}
+              value="1"
             />
           )}
           {accountLoginRegistration.b2c && (
             <FormControlLabel
-              value="2"
               control={<Radio />}
               label={b3Lang('register.registeredAccount.personalAccount')}
+              value="2"
             />
           )}
         </RadioGroup>
@@ -299,9 +315,9 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
       >
         <InformationFourLabels>{contactInformationLabel}</InformationFourLabels>
         <B3CustomForm
-          formFields={contactInfo}
-          errors={errors}
           control={control}
+          errors={errors}
+          formFields={contactInfo}
           getValues={getValues}
           setValue={setValue}
         />
@@ -324,9 +340,9 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
         >
           <InformationFourLabels>{additionalInformationLabel}</InformationFourLabels>
           <B3CustomForm
-            formFields={additionalInfo}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={additionalInfo}
             getValues={getValues}
             setValue={setValue}
           />

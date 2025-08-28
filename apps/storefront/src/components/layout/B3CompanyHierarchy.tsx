@@ -1,6 +1,6 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Check as CheckIcon } from '@mui/icons-material';
 import { Box, Chip, Grid } from '@mui/material';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
@@ -84,6 +84,7 @@ function B3CompanyHierarchy() {
   };
   const handleRowClick = (key: number) => {
     const item = info.list.find((list) => Number(list.key) === key);
+
     if (!item) return;
     setCurrentRow({
       companyId: Number(item.key),
@@ -149,19 +150,19 @@ function B3CompanyHierarchy() {
         }}
       >
         <B3DropDown
-          ref={dropDownRef}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
           }}
+          handleItemClick={(item) => handleRowClick(Number(item))}
+          list={info?.list || []}
+          menuRenderItemName={menuRenderItemName}
+          ref={dropDownRef}
+          title={info?.title || ''}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
           }}
-          menuRenderItemName={menuRenderItemName}
-          title={info?.title || ''}
-          handleItemClick={(item) => handleRowClick(Number(item))}
-          list={info?.list || []}
         />
 
         <Chip
@@ -178,7 +179,7 @@ function B3CompanyHierarchy() {
         />
       </Box>
 
-      <HierarchyDialog open={open} handleClose={handleClose} currentRow={currentRow} />
+      <HierarchyDialog currentRow={currentRow} handleClose={handleClose} open={open} />
     </>
   );
 }

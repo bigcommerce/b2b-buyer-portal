@@ -80,26 +80,26 @@ export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
 
   return (
     <StyledNumberNoTopTextField
-      size="small"
-      type="number"
-      variant="filled"
       disabled={disabled}
-      hiddenLabel={hiddenLabel}
-      label={label}
-      value={value}
       error={!!validMessage}
       helperText={validMessage}
+      hiddenLabel={hiddenLabel}
       inputProps={{
         inputMode: 'numeric',
         pattern: '[0-9]*',
       }}
-      onChange={(e) => {
-        handleChange(e.target.value);
-      }}
+      label={label}
       onBlur={() => {
         handleBlur();
       }}
+      onChange={(e) => {
+        handleChange(e.target.value);
+      }}
+      size="small"
       sx={sx}
+      type="number"
+      value={value}
+      variant="filled"
     />
   );
 }

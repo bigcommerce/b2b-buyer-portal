@@ -1,7 +1,7 @@
-import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 import noop from 'lodash-es/noop';
+import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
@@ -181,6 +181,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   const handleSelectAllChange = () => {
     const newList = [...list];
+
     if (newList.length === products.length) {
       setList([]);
     } else {
@@ -191,11 +192,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
   const handleSelectChange = (product: ProductItem) => {
     const newList = [...list];
     const index = newList.findIndex((item) => item.id === product.id);
+
     if (index !== -1) {
       newList.splice(index, 1);
     } else {
       newList.push(product);
     }
+
     setList(newList);
   };
 
@@ -222,6 +225,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         isProduct: true,
       });
     }
+
     if (type === 'shoppingList' || type === 'quickOrder') {
       const { isPriceHidden } = product;
       const isBuyerProduct = judgmentBuyerProduct({
@@ -229,6 +233,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         productInfo: product,
         isProduct: true,
       });
+
       return isPriceHidden && !isBuyerProduct ? '' : newMoney;
     }
 
@@ -266,10 +271,10 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
       {isMobile && showCheckbox && (
         <FormControlLabel
-          label={selectAllText}
           control={
             <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           }
+          label={selectAllText}
           sx={{
             paddingLeft: '0.6rem',
           }}
@@ -282,6 +287,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         const originQuantity = Number(product.quantity) || 1;
 
         let discountAccountForSingleProduct = 0;
+
         appliedDiscounts.forEach((discount) => {
           if (discount.target === 'product') {
             discountAccountForSingleProduct += Number(discount.amount) / originQuantity;
@@ -290,6 +296,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
         const currentVariant = variants[0];
         let productPrice = Number(product.base_price);
+
         if (currentVariant) {
           const bcCalculatedPrice = currentVariant.bc_calculated_price;
 
@@ -325,8 +332,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         ) => {
           return (
             <FlexItem
-              textAlignLocation={textAlign}
               padding={quantityEditable ? '10px 0 0' : ''}
+              textAlignLocation={textAlign}
               {...itemStyle.default}
               sx={
                 isMobile
@@ -381,7 +388,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                 }}
               >
                 <Typography
-                  variant="body1"
                   color="#212121"
                   onClick={() => {
                     if (canToProduct) {
@@ -396,10 +402,11 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                   sx={{
                     cursor: 'pointer',
                   }}
+                  variant="body1"
                 >
                   {product.name}
                 </Typography>
-                <Typography variant="body1" color="#616161">
+                <Typography color="#616161" variant="body1">
                   {product.sku}
                 </Typography>
                 {(product.product_options || []).map((option) => (
@@ -424,14 +431,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             >
               {quantityEditable ? (
                 <TextField
-                  type="number"
-                  variant="filled"
+                  error={!!product.helperText}
+                  helperText={product.helperText}
                   hiddenLabel={!isMobile}
                   label={isMobile ? 'Qty' : ''}
-                  value={quantity}
+                  onBlur={handleNumberInputBlur(product)}
                   onChange={handleProductQuantityChange(product.id)}
                   onKeyDown={handleNumberInputKeyDown}
-                  onBlur={handleNumberInputBlur(product)}
                   size="small"
                   sx={{
                     width: isMobile ? '110px' : '72px',
@@ -440,8 +446,9 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                       marginRight: '0',
                     },
                   }}
-                  error={!!product.helperText}
-                  helperText={product.helperText}
+                  type="number"
+                  value={quantity}
+                  variant="filled"
                 />
               ) : (
                 <>

@@ -1,6 +1,7 @@
 interface OrderStatusConfig {
   [k: string]: string;
 }
+
 export const orderStatusCode: OrderStatusConfig = {
   0: 'Incomplete',
   1: 'Pending',

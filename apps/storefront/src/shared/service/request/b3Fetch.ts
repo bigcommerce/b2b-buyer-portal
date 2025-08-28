@@ -41,6 +41,7 @@ function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
       ...getToken,
     },
   };
+
   return b3Fetch(url, init);
 }
 
@@ -55,6 +56,7 @@ function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   };
 
   const url = GraphqlEndpointsFn(type);
+
   return b3Fetch(url, init);
 }
 
@@ -127,6 +129,7 @@ const B3Request = {
     const config = {
       Authorization: `Bearer  ${bcGraphqlToken}`,
     };
+
     return graphqlRequest(RequestType.BCGraphql, data, config);
   },
   /**
@@ -149,11 +152,13 @@ const B3Request = {
   get: function get<T, Y>(url: string, type: RequestTypeKeys, data?: T, config?: Y): Promise<any> {
     if (data) {
       const params = queryParse(data);
+
       return request(`${url}?${params}`, {
         method: 'GET',
         ...config,
       });
     }
+
     return request(
       url,
       {

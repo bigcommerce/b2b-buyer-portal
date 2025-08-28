@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { getCompanySubsidiaries } from '@/shared/service/b2b';
@@ -72,17 +72,17 @@ function CompanyHierarchy() {
         }}
       >
         <CompanyHierarchyTableTree<CompanyHierarchyProps>
+          currentCompanyId={currentCompanyId}
           data={data}
           onSwitchCompany={handleRowClick}
-          currentCompanyId={currentCompanyId}
           selectCompanyId={selectCompanyHierarchyId}
         />
 
         <HierarchyDialog
-          open={open}
-          handleClose={handleClose}
-          currentRow={currentRow}
           companyHierarchyAllList={originDataRef?.current || []}
+          currentRow={currentRow}
+          handleClose={handleClose}
+          open={open}
         />
       </Box>
     </B3Spin>
