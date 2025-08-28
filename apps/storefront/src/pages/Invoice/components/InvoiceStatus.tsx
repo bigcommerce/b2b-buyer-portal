@@ -1,4 +1,5 @@
 import { B3Tag } from '@/components';
+import { useB3Lang } from '@/lib/lang';
 
 interface StatusProps {
   code: InvoiceStatusCode;
@@ -19,27 +20,28 @@ export enum InvoiceStatusCode {
 
 export default function InvoiceStatus(props: StatusProps) {
   const { code } = props;
+  const b3Lang = useB3Lang();
 
   const getInvoiceStatus = (code: number) => {
     const invoiceStatus: InvoiceStatusProps = {
       [InvoiceStatusCode.Open]: {
         textColor: '#000000',
-        name: 'Open',
+        name: b3Lang('invoice.filterStatus.open'),
         color: '#F1C224',
       },
       [InvoiceStatusCode.PartiallyPaid]: {
         textColor: '#FFFFFF',
-        name: 'Partially paid',
+        name: b3Lang('invoice.filterStatus.partiallyPaid'),
         color: '#516FAE',
       },
       [InvoiceStatusCode.Paid]: {
         textColor: '#000000',
-        name: 'Paid',
+        name: b3Lang('invoice.filterStatus.paid'),
         color: '#C4DD6C',
       },
       [InvoiceStatusCode.Overdue]: {
         textColor: '#FFFFFF',
-        name: 'Overdue',
+        name: b3Lang('invoice.filterStatus.overdue'),
         color: '#D32F2F',
       },
     };
