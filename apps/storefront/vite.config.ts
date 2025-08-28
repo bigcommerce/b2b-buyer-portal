@@ -50,6 +50,10 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       environment: 'jsdom',
       globalSetup: './tests/global-setup.ts',
       setupFiles: ['./tests/jsdom-polyfills.ts', './tests/setup-test-environment.ts'],
+      reporters: ['default', 'junit'],
+      outputFile: {
+        junit: 'coverage/junit.xml',
+      },
       coverage: {
         provider: 'istanbul',
         cleanOnRerun: process.env.CI === 'true',
