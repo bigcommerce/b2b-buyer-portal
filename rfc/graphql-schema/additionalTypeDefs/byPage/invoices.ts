@@ -158,7 +158,7 @@ export default /* GraphQL */ `
     receiptLineSet: [ReceiptLineSet!]!
   }
 
-  extend type Query {
+  extend type Site {
     invoice(invoiceId: ID!): Invoice!
     receipt(receiptId: ID!): Receipt!
   }

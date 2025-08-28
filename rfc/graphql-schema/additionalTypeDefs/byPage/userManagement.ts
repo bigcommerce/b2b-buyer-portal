@@ -54,7 +54,7 @@ export default /* GraphQL */ `
       SomeChangeCustomerRoleError
     | AnotherChangeCustomerRoleError
 
-  input ChangeCustomerRoleDataInput{
+  input ChangeCustomerRoleDataInput {
     roleId: ID!
   }
 
@@ -115,7 +115,9 @@ export default /* GraphQL */ `
   }
 
   type CompanyMutations {
-    changeCustomerRole(input: ChangeCustomerRoleInput!): ChangeCustomerRoleResult!
+    changeCustomerRole(
+      input: ChangeCustomerRoleInput!
+    ): ChangeCustomerRoleResult!
     deregisterCustomer(input: DeregisterCustomerInput!): DeregistrationResult!
     registerCustomer(
       input: RegisterCompanyCustomerInput!
@@ -126,7 +128,7 @@ export default /* GraphQL */ `
     company: CompanyMutations!
   }
 
-  extend type Query {
+  extend type Site {
     company(id: ID!): Company!
   }
 `

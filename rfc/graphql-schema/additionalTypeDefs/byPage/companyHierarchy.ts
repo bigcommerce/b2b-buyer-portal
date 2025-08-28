@@ -8,8 +8,11 @@ export default /* GraphQL */ `
     subsidiaries: CompanyConnection!
   }
 
-  extend type Query {
+  extend type Customer {
     activeCompany: Company
+  }
+
+  extend type Site {
     company(id: ID!): Company!
   }
 
