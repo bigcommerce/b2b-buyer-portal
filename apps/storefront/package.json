@@ -94,6 +94,6 @@
     "vitest": "^3.2.4",
     "vitest-fail-on-console": "^0.7.1",
     "vitest-location-mock": "^1.0.4",
-    "vitest-when": "^0.6.1"
+    "vitest-when": "^0.7.0"
   }
 }
