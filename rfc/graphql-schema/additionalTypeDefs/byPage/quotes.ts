@@ -35,8 +35,16 @@ export default /* GraphQL */ `
 
   input QuotesFiltersInput {
     searchTerm: String
-    createdBy: ID
-    salesRep: ID
+    salesRepId: ID
+    status: [QuoteStatus]
+    dateRange: QuotesDateRangeFilterInput
+  }
+
+  input CompanyQuotesFiltersInput {
+    searchTerm: String
+    companyUserId: ID
+    companyId: [ID!]
+    salesRepId: ID
     status: [QuoteStatus]
     dateRange: QuotesDateRangeFilterInput
   }
@@ -55,8 +63,10 @@ export default /* GraphQL */ `
   enum QuotesSortInput {
     TITLE_A_TO_Z
     TITLE_Z_TO_A
-    CREATED_BY_A_TO_Z
-    CREATED_BY_Z_TO_A
+    COMPANY_USER_A_TO_Z
+    COMPANY_USER_Z_TO_A
+    COMPANY_A_TO_Z
+    COMPANY_Z_TO_A
     SALES_REP_A_TO_Z
     SALES_REP_Z_TO_A
     CREATED_AT_NEWEST
@@ -75,7 +85,24 @@ export default /* GraphQL */ `
     collectionInfo: CollectionInfo!
   }
 
-  extend type Query {
+  extend type Company {
+    quotes(
+      filters: CompanyQuotesFiltersInput
+      sortBy: QuotesSortInput
+      before: String
+      after: String
+      first: Int
+      last: Int
+    ): QuotesConnection!
+    salesRep(
+      before: String
+      after: String
+      first: Int
+      last: Int
+    ): SalesRepsConnection!
+  }
+
+  extend type Customer {
     quotes(
       filters: QuotesFiltersInput
       sortBy: QuotesSortInput
@@ -85,8 +112,8 @@ export default /* GraphQL */ `
       last: Int
     ): QuotesConnection!
     # Used to populate the "sales rep" quote filter options
-    # this would list all reps, not just ones attached to quotes
-    salesReps(
+    # this would list the sales reps that have sent you quotes
+    salesRep(
       before: String
       after: String
       first: Int
