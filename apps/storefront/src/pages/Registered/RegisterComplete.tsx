@@ -207,7 +207,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       ...bcFields,
     };
 
-    return createBCCompanyUser(userItem);
+    return createBCCompanyUser(userItem, captchaKey);
   };
 
   const getB2BFieldsValue = async (
