@@ -119,7 +119,7 @@ export default /* GraphQL */ `
     ): QuoteAttachmentsConnection!
   }
 
-  extend type Query {
+  extend type Site {
     quote(id: ID!): Quote
   }
 
@@ -141,6 +141,11 @@ export default /* GraphQL */ `
     errors: [AddMessageResultError!]!
     message: QuoteMessage
   }
+  
+  input AddMessageInput {
+    id: ID!
+    message: String!
+  }
 
   # Placeholder for real domain errors
   type SomeAddAttachmentResultError implements Error {
@@ -161,6 +166,11 @@ export default /* GraphQL */ `
     attachment: QuoteAttachment
   }
 
+  input AddAttachmentInput {
+    id: ID!
+    attachmentId: ID!
+  }
+
   # Placeholder for real domain errors
   type SomeRemoveAttachmentResultError implements Error {
     message: String!
@@ -177,6 +187,11 @@ export default /* GraphQL */ `
 
   type RemoveAttachmentResult {
     errors: [RemoveAttachmentResultError!]!
+  }
+
+  input RemoveAttachmentInput {
+    id: ID!
+    attachmentId: ID!
   }
 
   # Placeholder for real domain errors
@@ -214,10 +229,6 @@ export default /* GraphQL */ `
 
   union CreateCartError = SomeCreateCartError | AnotherCreateCartError
 
-  interface QuotePDF {
-    url: String!
-  }
-
   interface CartFromQuoteDetails {
     cartId: ID!
     cartUrl: String!
@@ -229,15 +240,23 @@ export default /* GraphQL */ `
     cartDetails: CartFromQuoteDetails
   }
 
+  input CreatePDFInput {
+    quoteId: ID!
+  }
+
+  input CreateCartInput {
+    quoteId: ID!
+  }
+
   type QuoteMutations {
-    addMessage(message: String!): AddMessageResult!
-    addAttachment(id: ID!): AddAttachmentResult!
-    removeAttachment(id: ID!): RemoveAttachmentResult!
-    createPDF: CreatePDFResult!
-    createCart: CreateCartResult!
+    addMessage(input: AddMessageInput!): AddMessageResult!
+    addAttachment(input: AddAttachmentInput!): AddAttachmentResult!
+    removeAttachment(input: RemoveAttachmentInput!): RemoveAttachmentResult!
+    createPDF(input: CreatePDFInput!): CreatePDFResult!
+    createCart(input: CreateCartInput!): CreateCartResult!
   }
 
   extend type Mutation {
-    quote(id: ID!): QuoteMutations
+    quote: QuoteMutations
   }
 `
