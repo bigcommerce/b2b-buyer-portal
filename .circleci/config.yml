@@ -59,6 +59,8 @@ jobs:
       - test-coverage-reporter/store-report:
           coverage-format: lcov
           additional-args: ./apps/storefront/coverage/lcov.info
+      - store_test_results:
+          path: ./apps/storefront/coverage/junit.xml
       - store_artifacts:
           path: ./apps/storefront/coverage/lcov-report
 
