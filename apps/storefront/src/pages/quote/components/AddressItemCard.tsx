@@ -10,7 +10,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import { AddressItemType } from '../../../types/address';
 
-export interface OrderItemCardProps {
+interface OrderItemCardProps {
   item: AddressItemType;
   onSetAddress: (data: AddressItemType) => void;
 }

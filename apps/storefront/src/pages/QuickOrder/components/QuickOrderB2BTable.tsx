@@ -106,9 +106,9 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }));
 
-export const defaultSortKey = 'lastOrderedAt';
+const defaultSortKey = 'lastOrderedAt';
 
-export const sortKeys = {
+const sortKeys = {
   product: 'productName',
   lastOrderedAt: 'lastOrderedAt',
 };

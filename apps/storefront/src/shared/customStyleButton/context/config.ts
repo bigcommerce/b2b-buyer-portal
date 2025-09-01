@@ -43,7 +43,7 @@ interface BtnStyle {
   css?: string;
 }
 
-export interface BtnProperties {
+interface BtnProperties {
   classSelector: string;
   color: string;
   customCss: string;
@@ -177,7 +177,8 @@ export interface CustomStyleButtonAction {
   payload: Partial<CustomStyleButtonState>;
 }
 
-export type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>;
+type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>;
+
 export interface CustomStyleButtonContext {
   state: CustomStyleButtonState;
   dispatch: DispatchProps;

@@ -39,7 +39,7 @@ interface ModifierPrices {
   adjuster_value: number;
 }
 
-export interface ProductInfoProps {
+interface ProductInfoProps {
   basePrice: number | string;
   baseSku: string;
   createdAt: number;
@@ -69,12 +69,6 @@ export interface ProductInfoProps {
 
 export interface ListItemProps {
   node: ProductInfoProps;
-}
-
-export interface CurrencyProps {
-  is_default: boolean;
-  currency_code: string;
-  token: string;
 }
 
 export interface SearchProps {

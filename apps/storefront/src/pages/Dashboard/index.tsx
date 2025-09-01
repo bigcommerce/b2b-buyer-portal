@@ -34,9 +34,9 @@ type ConfirmState =
       type: 'end';
     };
 
-export const defaultSortKey = 'companyName';
+const defaultSortKey = 'companyName';
 
-export const sortKeys = {
+const sortKeys = {
   companyName: 'companyName',
   companyAdminName: 'companyAdminName',
   companyEmail: 'companyEmail',

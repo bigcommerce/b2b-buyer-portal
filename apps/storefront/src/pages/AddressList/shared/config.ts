@@ -1,6 +1,6 @@
 import { AddressItemType, BCAddressItemType } from '../../../types/address';
 
-export interface B2bShippingBillingChildProps {
+interface B2bShippingBillingChildProps {
   name: string;
   label: string;
   default: string;

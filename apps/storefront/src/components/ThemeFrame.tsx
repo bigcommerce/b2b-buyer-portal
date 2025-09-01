@@ -6,11 +6,7 @@ import { CssBaseline } from '@mui/material';
 
 import { clearThemeFrame, setThemeFrame, useAppDispatch } from '@/store';
 
-export function IFrameSetContent(
-  el: HTMLIFrameElement | null,
-  content: string,
-  forceWrite = false,
-) {
+function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWrite = false) {
   if (el) {
     const element = el;
     if ('srcdoc' in HTMLIFrameElement.prototype && !forceWrite) {

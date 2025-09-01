@@ -1,4 +1,4 @@
-export interface AddressExtraFieldType {
+interface AddressExtraFieldType {
   fieldName: string;
   fieldValue: string;
 }
@@ -36,7 +36,7 @@ export interface AddressItemType {
   [key: string]: any;
 }
 
-export interface BcAddressExtraFieldType {
+interface BcAddressExtraFieldType {
   name: string;
   value: string;
   addressId: string;

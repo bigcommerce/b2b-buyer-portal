@@ -67,5 +67,3 @@ export const handleQuoteCheckout = async ({
     b2bLogger.error(err);
   }
 };
-
-export default handleQuoteCheckout;

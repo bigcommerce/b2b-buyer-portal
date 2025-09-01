@@ -40,7 +40,7 @@ export interface ShippingAddress {
   zipCode: string;
 }
 
-export interface FileInfo {
+interface FileInfo {
   id?: string;
   fileName: string;
   fileType: string;
@@ -51,7 +51,7 @@ export interface FileInfo {
   isCustomer?: boolean;
 }
 
-export interface AdditionalCalculatedPricesProps {
+interface AdditionalCalculatedPricesProps {
   additionalCalculatedPrice: number;
   additionalCalculatedPriceTax: number;
 }
@@ -62,13 +62,6 @@ export type CalculatedValue = Record<
 >;
 
 export type ContactInfoKeys = keyof ContactInfo;
-
-export interface BcCalculatedPrice {
-  as_entered: number;
-  entered_inclusive: boolean;
-  tax_exclusive: number;
-  tax_inclusive: number;
-}
 
 export interface QuoteItem {
   node: {
@@ -117,21 +110,7 @@ export interface QuoteInfoAndExtrafieldsItemProps {
   recipients: string[];
 }
 
-export interface B2bExtraFieldsProps {
-  defaultValue: string;
-  fieldName: string;
-  fieldType: 0 | 1 | 2 | 3;
-  isRequired: boolean;
-  labelName: string;
-  listOfValue: null | Array<string>;
-  maximumLength: string | number | null;
-  maximumValue: string | number | null;
-  numberOfRows: string | number | null;
-  visibleToEnduser: boolean;
-  id: number | string;
-}
-
-export interface FieldsOptionProps {
+interface FieldsOptionProps {
   label: Maybe<string>;
   value: Maybe<string>;
 }

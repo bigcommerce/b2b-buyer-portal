@@ -2,18 +2,14 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import isEmpty from 'lodash-es/isEmpty';
 import { v1 as uuid } from 'uuid';
 
-import { getProductPricing, searchProducts } from '@/shared/service/b2b';
+import { getProductPricing } from '@/shared/service/b2b';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
 import { Modifiers, ShoppingListProductItem } from '@/types';
 import {
-  AdjustersPrice,
   AllOptionProps,
-  ALlOptionValue,
-  BcCalculatedPrice,
   CalculatedItems,
   CalculatedOptions,
-  OptionValue,
   Product,
   Variant,
 } from '@/types/products';
@@ -21,13 +17,6 @@ import { QuoteItem } from '@/types/quotes';
 import { channelId, getActiveCurrencyInfo, storeHash } from '@/utils';
 
 import b2bLogger from '../b3Logger';
-
-import { conversionProductsList, ListItemProps, ProductInfoProps } from './shared/config';
-import getTaxRate from './b3TaxRate';
-
-interface AdditionalCalculatedPricesProps {
-  [key: string]: number;
-}
 
 interface NewOptionProps {
   optionId: string;
@@ -69,340 +58,6 @@ export interface LineItem {
   sku?: string;
   variantEntityId?: number;
 }
-
-const getModifiersPrice = (modifiers: CustomFieldItems[], options: CustomFieldItems) => {
-  if (!modifiers.length || !options.length) return [];
-  const modifierCalculatedPrices: AdditionalCalculatedPricesProps[] = [];
-  modifiers.forEach((modifierItem: CustomFieldItems) => {
-    if (modifierItem.option_values.length) {
-      const modifierOptionValues =
-        options.find((option: CustomFieldItems) => option.optionId.includes(modifierItem.id))
-          ?.optionValue || '';
-      const adjustersPrice =
-        modifierItem.option_values.find(
-          (item: CustomFieldItems) => Number(item.id) === Number(modifierOptionValues),
-        )?.adjusters?.price || null;
-      if (adjustersPrice) {
-        modifierCalculatedPrices.push({
-          additionalCalculatedPrice: adjustersPrice.adjuster_value,
-          additionalCalculatedPriceTax: 0,
-        });
-      }
-    }
-  });
-
-  return modifierCalculatedPrices;
-};
-
-const getProductExtraPrice = async (modifiers: CustomFieldItems[], options: CustomFieldItems) => {
-  if (!modifiers.length || !options.length) return [];
-  const modifiersItem =
-    modifiers?.filter(
-      (modifier: CustomFieldItems) => modifier.type === 'product_list_with_images',
-    ) || [];
-  const additionalCalculatedPrices: AdditionalCalculatedPricesProps[] = [];
-
-  const productIds: number[] = [];
-
-  if (modifiersItem.length > 0) {
-    modifiersItem.forEach((modifier: CustomFieldItems) => {
-      const optionValues = modifier.option_values;
-      const productListWithImagesValue =
-        options.find((item: CustomFieldItems) => item.optionId.includes(modifier.id))
-          ?.optionValue || '';
-      if (productListWithImagesValue) {
-        const additionalProductsParams = optionValues.find(
-          (item: CustomFieldItems) => Number(item.id) === Number(productListWithImagesValue),
-        );
-        if (additionalProductsParams?.value_data?.product_id)
-          productIds.push(additionalProductsParams.value_data.product_id);
-      }
-    });
-  }
-
-  if (productIds.length) {
-    const { masqueradeCompany } = store.getState().b2bFeatures;
-    const salesRepCompanyId = masqueradeCompany.id;
-    const currentState = store.getState();
-    const companyInfoId = currentState.company.companyInfo.id;
-    const { customerGroupId } = currentState.company.customer;
-    const companyId = companyInfoId || salesRepCompanyId;
-    const { productsSearch: additionalProductsSearch } = await searchProducts({
-      productIds,
-      companyId,
-      customerGroupId,
-    });
-
-    additionalProductsSearch.forEach((item: CustomFieldItems) => {
-      const additionalSku = item.sku;
-      const additionalVariants = item.variants;
-      const additionalCalculatedItem = additionalVariants.find(
-        (item: CustomFieldItems) => item.sku === additionalSku,
-      );
-      if (additionalCalculatedItem) {
-        additionalCalculatedPrices.push({
-          additionalCalculatedPrice: additionalCalculatedItem.bc_calculated_price.tax_exclusive,
-          additionalCalculatedPriceTax:
-            additionalCalculatedItem.bc_calculated_price.tax_inclusive -
-            additionalCalculatedItem.bc_calculated_price.tax_exclusive,
-        });
-      }
-    });
-  }
-  return additionalCalculatedPrices;
-};
-
-const getQuickAddProductExtraPrice = (
-  allOptions: CustomFieldItems[],
-  newSelectOptionList: CustomFieldItems,
-  additionalProducts: any,
-) => {
-  const productListWithImages = allOptions.filter(
-    (item: CustomFieldItems) => item.type === 'product_list_with_images',
-  );
-
-  const additionalCalculatedPrices: CustomFieldItems[] = [];
-
-  if (productListWithImages.length) {
-    productListWithImages.forEach((option: CustomFieldItems) => {
-      const optionId = option.id;
-      const optionValues = option?.option_values || [];
-      const productListWithImagesValue =
-        newSelectOptionList.find((item: CustomFieldItems) => item.optionId.includes(optionId))
-          ?.optionValue || '';
-      if (productListWithImagesValue) {
-        const productId =
-          optionValues.find(
-            (item: CustomFieldItems) => item.id.toString() === productListWithImagesValue,
-          )?.value_data?.product_id || '';
-        if (additionalProducts[productId]) {
-          const additionalSku = additionalProducts[productId].sku;
-          const additionalVariants = additionalProducts[productId].variants;
-          const additionalCalculatedItem = additionalVariants.find(
-            (item: CustomFieldItems) => item.sku === additionalSku,
-          );
-          if (additionalCalculatedItem) {
-            additionalCalculatedPrices.push({
-              additionalCalculatedPrice: additionalCalculatedItem.calculated_price,
-              additionalCalculatedPriceTax:
-                additionalCalculatedItem.bc_calculated_price.tax_inclusive -
-                additionalCalculatedItem.bc_calculated_price.tax_exclusive,
-            });
-          }
-        }
-      }
-    });
-  }
-
-  return additionalCalculatedPrices;
-};
-
-const getListModifierPrice = (allOptions: Partial<AllOptionProps>[], node: ProductInfoProps) => {
-  const optionList = JSON.parse(node?.optionList || '[]');
-  const modifierPrices: AdjustersPrice[] = [];
-  if (optionList.length) {
-    optionList.forEach((option: CustomFieldItems) => {
-      const itemOption = allOptions.find((item: Partial<AllOptionProps>) =>
-        option.option_id.includes(item.id),
-      );
-      if (itemOption && itemOption?.option_values && itemOption.option_values.length) {
-        const optionValues = itemOption.option_values.find(
-          (optionValue: Partial<OptionValue>) =>
-            (optionValue?.id ? Number(optionValue.id) : 0) === Number(option.option_value),
-        );
-        if (optionValues && optionValues?.adjusters && optionValues?.adjusters?.price) {
-          const { price } = optionValues.adjusters;
-          if (price) {
-            modifierPrices.push(price);
-          }
-        }
-      }
-    });
-  }
-
-  return modifierPrices;
-};
-
-const setItemProductPrice = (newListProducts: ListItemProps[]) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
-  newListProducts.forEach((item: ListItemProps) => {
-    const {
-      node: { modifierPrices = [], currentProductPrices, extraProductPrices = [], taxClassId },
-    } = item;
-    const rate = getTaxRate(taxClassId);
-
-    let singleCurrentPrice = currentProductPrices?.tax_exclusive || 0;
-    let singleAllTax = 0;
-    let singleExtraProductPrice = 0;
-
-    if (modifierPrices.length) {
-      modifierPrices.forEach((modifierPrice) => {
-        switch (modifierPrice?.adjuster) {
-          case 'relative':
-            singleCurrentPrice += modifierPrice.adjuster_value;
-            break;
-          default:
-            singleCurrentPrice += (modifierPrice.adjuster_value * singleCurrentPrice) / 100;
-            break;
-        }
-      });
-    }
-
-    if (extraProductPrices.length) {
-      extraProductPrices.forEach((extraProductPrice) => {
-        singleExtraProductPrice += extraProductPrice.tax_exclusive * ((100 + rate) / 100);
-        singleAllTax += extraProductPrice.tax_exclusive * (rate / 100);
-      });
-    }
-    const productPrice = singleCurrentPrice * ((100 + rate) / 100) + singleExtraProductPrice;
-    const productTax = singleCurrentPrice * (rate / 100) + singleAllTax;
-
-    const { node } = item ?? { node: {} };
-    node.baseAllPrice = productPrice.toFixed(decimalPlaces);
-    node.baseAllPriceTax = productTax.toFixed(decimalPlaces);
-  });
-};
-
-const getExtraProductPricesProducts = async (
-  listProducts: ListItemProps[],
-  pickListIds: number[],
-) => {
-  const { currency_code: currencyCode } = getActiveCurrencyInfo();
-  const { productsSearch: pickListProductsSearch } = await searchProducts({
-    productIds: pickListIds,
-    currencyCode,
-  });
-  const newPickListProducts: Partial<Product>[] = conversionProductsList(pickListProductsSearch);
-
-  listProducts.forEach((item) => {
-    const { node } = item;
-
-    const extraProductPrices: BcCalculatedPrice[] = [];
-    if (node?.pickListIds?.length) {
-      node?.pickListIds.forEach((pickListId: number) => {
-        const pickListItem = newPickListProducts.find(
-          (product: Partial<Product>) => product?.id && Number(product.id) === Number(pickListId),
-        );
-        if (
-          pickListItem &&
-          pickListItem?.variants?.length &&
-          pickListItem.variants[0]?.bc_calculated_price
-        ) {
-          extraProductPrices.push(pickListItem.variants[0]?.bc_calculated_price);
-        }
-      });
-    }
-    node.extraProductPrices = extraProductPrices;
-  });
-
-  return listProducts;
-};
-
-const addTaxProductPrices = (
-  listProducts: ListItemProps[],
-  newProductsSearch: Partial<Product>[],
-  pickListIds: number[],
-) => {
-  listProducts.forEach((item) => {
-    const { node } = item;
-    const optionList = JSON.parse(node?.optionList || '[]');
-
-    const productInfo: Partial<Product> =
-      newProductsSearch.find((search: Partial<Product>) => {
-        const { id: productId } = search;
-
-        return node.productId === productId;
-      }) || {};
-
-    // gets the associated product id
-    const currentPickListIds: number[] = [];
-    if (productInfo?.allOptions && productInfo?.allOptions.length) {
-      const pickList = productInfo.allOptions.find(
-        (item: Partial<AllOptionProps>) => item.type === 'product_list_with_images',
-      );
-      if (pickList && pickList?.option_values?.length) {
-        const flag = optionList.some(
-          (item: CustomFieldItems) => item.option_id.includes(pickList.id) && item.option_value,
-        );
-        if (flag) {
-          pickList.option_values.forEach((list: Partial<ALlOptionValue>) => {
-            const pickListProductId: number = list?.value_data?.product_id || 0;
-            if (pickListProductId) currentPickListIds.push(pickListProductId);
-            if (!pickListIds.includes(pickListProductId)) {
-              pickListIds.push(pickListProductId);
-            }
-          });
-        }
-      }
-    }
-    // get modifier price
-    if (productInfo?.variants?.length && productInfo?.allOptions?.length) {
-      const modifierPrices = getListModifierPrice(productInfo.allOptions, node);
-      node.modifierPrices = modifierPrices;
-    }
-
-    // get current  price and tax price
-    const variantItem = productInfo?.variants?.find(
-      (item: Partial<Variant>) => item.sku === node.variantSku,
-    );
-    if (variantItem) {
-      node.currentProductPrices = variantItem.bc_calculated_price;
-    }
-    node.taxClassId = productInfo.taxClassId;
-
-    node.pickListIds = currentPickListIds;
-
-    node.productsSearch = productInfo || {};
-  });
-};
-
-const getNewProductsList = async (listProducts: ListItemProps[]) => {
-  try {
-    const { currency_code: currencyCode } = getActiveCurrencyInfo();
-    if (listProducts.length > 0) {
-      const productIds: number[] = [];
-      listProducts.forEach((item) => {
-        const { node } = item;
-        if (!productIds.includes(node.productId)) {
-          productIds.push(node.productId);
-        }
-      });
-      const currentState = store.getState();
-      const { id: companyInfoId } = currentState.company.companyInfo;
-      const { id: salesRepCompanyId } = currentState.b2bFeatures.masqueradeCompany;
-      const companyId = companyInfoId || salesRepCompanyId;
-      const { customerGroupId } = currentState.company.customer;
-
-      const { productsSearch } = await searchProducts({
-        productIds,
-        currencyCode,
-        companyId,
-        customerGroupId,
-      });
-
-      const newProductsSearch: Partial<Product>[] = conversionProductsList(productsSearch);
-
-      const pickListIds: number[] = [];
-
-      // add modifier price,  current  price and tax price, get the associated product id
-      addTaxProductPrices(listProducts, newProductsSearch, pickListIds);
-
-      let newListProducts: ListItemProps[] = listProducts;
-
-      // Get a collection of related products
-      if (pickListIds.length) {
-        newListProducts = await getExtraProductPricesProducts(listProducts, pickListIds);
-      }
-
-      setItemProductPrice(newListProducts);
-
-      return newListProducts;
-    }
-  } catch (error) {
-    b2bLogger.error(error, 'error');
-  }
-  return undefined;
-};
 
 const getDateValuesArray = (id: number, value: number) => {
   const data = new Date(value * 1000);
@@ -1108,18 +763,6 @@ const addQuoteDraftProduce = async (
   store.dispatch(setDraftQuoteList(draftList));
 };
 
-const calculateIsInclude = (price: number | string, tax: number | string) => {
-  const {
-    storeConfigs: {
-      currencies: { enteredInclusiveTax },
-    },
-  } = store.getState();
-
-  if (enteredInclusiveTax) return Number(price);
-
-  return Number(price) + Number(tax);
-};
-
 const getBCPrice = (basePrice: number, taxPrice: number) => {
   const {
     global: { showInclusiveTaxPrice },
@@ -1359,18 +1002,12 @@ const judgmentBuyerProduct = ({ productInfo, isProduct, price }: DisplayPricePro
 export {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
-  calculateIsInclude,
   calculateProductListPrice,
   calculateProductsPrice,
   compareOption,
   getBCPrice,
-  getCalculatedParams,
   getCalculatedProductPrice,
   getDisplayPrice,
-  getModifiersPrice,
-  getNewProductsList,
-  getProductExtraPrice,
-  getQuickAddProductExtraPrice,
   getValidOptionsList,
   judgmentBuyerProduct,
   setModifierQtyPrice,

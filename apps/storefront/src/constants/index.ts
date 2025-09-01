@@ -43,8 +43,6 @@ export enum HeadlessRoutes {
   CLOSE = 'close',
 }
 
-export type HeadlessRoute = keyof typeof HeadlessRoutes;
-
 export const StatusNotifications = {
   pendingOrderingBlocked: 'global.statusNotifications.orderingWillBeEnabledAfterAccountApproval',
   pendingOrderingNotBlocked: 'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',

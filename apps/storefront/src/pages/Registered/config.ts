@@ -9,22 +9,13 @@ import { RegisterFields } from './types';
 
 const inputFormat = 'yyyy-MM-dd';
 
-export interface QuoteConfig {
-  [key: string]: string;
-}
-
-export interface ValidateOptions extends Record<string, any> {
-  max?: string | number;
-  min?: string | number;
-}
-
 interface ValidateOptionItems extends Record<string, any> {
   max?: number;
   min?: number;
 }
 
-export type ContactInformationItems = Array<RegisterFields>;
-export interface FieldSXConfigs {
+type ContactInformationItems = Array<RegisterFields>;
+interface FieldSXConfigs {
   [key: string]: string | number;
 }
 
@@ -212,7 +203,7 @@ export const deCodeField = (fieldName: string) => {
   return Base64.decode(fieldName);
 };
 
-export const enCodeFieldName = (fieldName: string) => {
+const enCodeFieldName = (fieldName: string) => {
   if (noEncryptFieldList.includes(fieldName)) {
     return fieldName;
   }
@@ -230,7 +221,7 @@ const bcFieldName = (fieldName: string) => {
   return fieldName;
 };
 
-export const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
+const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
   const requiredItems = {
     id: item.id || item.fieldName,
     name: bcFieldName(item.name) || enCodeFieldName(item.fieldName),
@@ -262,7 +253,7 @@ export const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFi
 
 export const toHump = (name: string) => name.replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
 
-export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
+const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   const getFormFields: any = {};
 
   FormFields.forEach((item: CustomFieldItems) => {

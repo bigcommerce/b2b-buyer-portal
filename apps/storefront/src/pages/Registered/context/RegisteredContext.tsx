@@ -34,7 +34,7 @@ interface RegisterAction {
   type: string;
   payload: RegisterState;
 }
-export interface RegisterContext {
+interface RegisterContext {
   state: RegisterState;
   dispatch: Dispatch<RegisterAction>;
 }

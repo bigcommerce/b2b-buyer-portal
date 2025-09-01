@@ -24,7 +24,7 @@ export type WithRowControls<T> = T & {
   disableCurrentCheckbox?: boolean;
 };
 
-export interface Pagination {
+interface Pagination {
   offset: number;
   first: number;
   count: number;

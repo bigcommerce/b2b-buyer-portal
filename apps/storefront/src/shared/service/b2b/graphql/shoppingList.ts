@@ -402,12 +402,6 @@ const createCustomerShoppingList = (
   }
 }`;
 
-const deleteCustomerShoppingList = (id: number) => `mutation{
-  customerShoppingListsDelete (id: ${id}) {
-    message
-  }
-}`;
-
 const getCustomerShoppingListDetails = (data: CustomFieldItems) => `{
   customerShoppingList (
     id: ${data.id}
@@ -622,11 +616,6 @@ export const updateBcShoppingList = (data: Partial<ShoppingListParams>) =>
         channelId: data?.channelId ? Number(data.channelId) : 1,
       },
     },
-  });
-
-export const deleteBcShoppingList = (id: number) =>
-  B3Request.graphqlB2B({
-    query: deleteCustomerShoppingList(id),
   });
 
 export const getBcShoppingListDetails = (data: CustomFieldItems = {}) =>

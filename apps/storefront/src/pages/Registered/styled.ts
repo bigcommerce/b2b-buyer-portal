@@ -22,12 +22,6 @@ export const TipContent = styled('div')({
   alignItems: 'center',
 });
 
-export const TipLogin = styled('div')(() => ({
-  cursor: 'pointer',
-  color: '#1976d2',
-  borderBottom: '1px solid #1976d2',
-}));
-
 export const RegisteredContainer = styled('div')((props: CustomFieldItems) => {
   const { isMobile = false } = props;
   const style = isMobile

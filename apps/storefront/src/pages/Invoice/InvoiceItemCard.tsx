@@ -11,7 +11,7 @@ import { currencyFormat, displayFormat } from '@/utils';
 import B3Pulldown from './components/B3Pulldown';
 import InvoiceStatus from './components/InvoiceStatus';
 
-export interface InvoiceItemCardProps {
+interface InvoiceItemCardProps {
   item: any;
   checkBox?: (disable: boolean) => ReactElement;
   handleSetSelectedInvoiceAccount: (value: string, id: string) => void;

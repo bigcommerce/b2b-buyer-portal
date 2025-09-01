@@ -85,35 +85,6 @@ const getAccountFormFields = (type: number) => `query B2BAccountFormFields {
     }
 }`;
 
-const getCompanyExtraFields = () => `{
-  companyExtraFields(storeHash: "${storeHash}") {
-    fieldName,
-    fieldType,
-    isRequired,
-    defaultValue,
-    maximumLength,
-    maximumLength,
-    maximumValue,
-    listOfValue,
-    visibleToEnduser,
-    labelName,
-    numberOfRows,
-  }
-}`;
-
-const getRegisterLogo = () => `{
-  quoteConfig(storeHash: "${storeHash}") {
-    switchStatus{
-      key
-      isEnabled
-    }
-    otherConfigs{
-      key
-      value
-    }
-  }
-}`;
-
 const getCustomerInfo = () => `{
   customerInfo {
     userType,
@@ -146,12 +117,6 @@ const getCountries = () => `query Countries {
   }
 }`;
 
-const storeBasicInfo = () => `{
-  storeBasicInfo(storeHash:"${storeHash}") {
-    storeName
-  }
-}`;
-
 const createCompanyUser = (data: any) => `mutation{
   companyCreate(companyData: {
     customerId: "${data.customerId}",
@@ -180,24 +145,6 @@ const createCompanyUser = (data: any) => `mutation{
     company {
       id,
       companyStatus,
-    }
-  }
-}`;
-
-const getLoginPageConfig = () => `{
-  loginPageConfig(storeHash: "${storeHash}") {
-    id
-    value{
-      displayStoreLogo
-      pageTitle
-      signInButtonText
-      createAccountButtonText
-      primaryButtonColor
-      createAccountPanelHtml
-      topHtmlRegionHtml
-      topHtmlRegionEnabled
-      bottomHtmlRegionHtml
-      bottomHtmlRegionEnabled
     }
   }
 }`;
@@ -272,16 +219,6 @@ export const getB2BCompanyUserInfo = () =>
     query: getCustomerInfo(),
   });
 
-export const getB2BRegisterLogo = () =>
-  B3Request.graphqlB2B({
-    query: getRegisterLogo(),
-  });
-
-export const getB2BRegisterCustomFields = () =>
-  B3Request.graphqlB2B({
-    query: getCompanyExtraFields(),
-  });
-
 export const getB2BCountries = () =>
   B3Request.graphqlB2B({
     query: getCountries(),
@@ -290,16 +227,6 @@ export const getB2BCountries = () =>
 export const createB2BCompanyUser = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: createCompanyUser(data),
-  });
-
-export const storeB2BBasicInfo = () =>
-  B3Request.graphqlB2B({
-    query: storeBasicInfo(),
-  });
-
-export const getB2BLoginPageConfig = () =>
-  B3Request.graphqlB2B({
-    query: getLoginPageConfig(),
   });
 
 export const getBCForcePasswordReset = (email: string) =>

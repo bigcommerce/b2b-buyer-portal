@@ -1,6 +1,6 @@
 import { CustomerRole, FeatureEnabled } from '@/types';
 
-export interface QuoteConfigItem {
+interface QuoteConfigItem {
   [key: string]: string;
 }
 

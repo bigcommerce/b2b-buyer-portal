@@ -1,97 +1,7 @@
-import Cookies from 'js-cookie';
-
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { validatorRules } from '@/utils';
-import b2bLogger from '@/utils/b3Logger';
-import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 
 import { deCodeField } from '../Registered/config';
-
-function sendUpdateAccountRequest(data: string): Promise<string> {
-  const requestOptions: RequestInit = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: data,
-    mode: 'cors',
-    credentials: 'include',
-  };
-
-  return fetch(
-    `${BigCommerceStorefrontAPIBaseURL}/account.php?action=update_account`,
-    requestOptions,
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.text();
-    })
-    .then((responseData) => responseData);
-}
-
-const getXsrfToken = (): string | undefined => {
-  const token = Cookies.get('XSRF-TOKEN');
-
-  if (!token) {
-    return undefined;
-  }
-
-  return decodeURIComponent(token);
-};
-
-// Password and email Change Send emails
-function sendEmail(data: any, extraFields: any) {
-  return new Promise<boolean>((resolve, reject) => {
-    const { email, confirmPassword, newPassword, currentPassword } = data;
-
-    const requiredCustomFields =
-      extraFields.filter((item: CustomFieldItems) => item.required && item.custom) || [];
-    const formData = new URLSearchParams();
-    const token = getXsrfToken() || '';
-    formData.append('FormField[1][1]', email);
-    formData.append('FormField[1][24]', currentPassword);
-    formData.append('FormField[1][2]', newPassword);
-    formData.append('FormField[1][3]', confirmPassword);
-    formData.append('authenticity_token', token);
-
-    // extra
-    if (requiredCustomFields.length) {
-      requiredCustomFields.forEach((item: Partial<Fields>) => {
-        if (item.name?.includes('_')) {
-          const key = item.name?.split('_')[1];
-          const { formFields } = data;
-          const val = formFields.find(
-            (field: Partial<Fields>) => field.name === item.bcLabel,
-          ).value;
-          if (item.type === 'date') {
-            const time = val.split('-');
-            if (!val && time.length !== 3) return;
-            const [year, month, day] = time;
-            formData.append(`FormFieldYear[1][${key}]`, year);
-            formData.append(`FormFieldMonth[1][${key}]`, month);
-            formData.append(`FormFieldDay[1][${key}]`, day);
-          } else {
-            formData.append(`FormField[1][${key}]`, val);
-          }
-        }
-      });
-    }
-
-    const requestBody: string = formData.toString();
-
-    sendUpdateAccountRequest(requestBody)
-      .then((response) => {
-        const isFlag = response.includes('alertBox--error');
-        resolve(!isFlag);
-      })
-      .catch((error) => {
-        b2bLogger.error('Error:', error);
-        reject();
-      });
-  });
-}
 
 const emailValidate = validatorRules(['email']);
 
@@ -352,5 +262,3 @@ export const bcSubmitDataProcessing = (
 
   return param;
 };
-
-export default sendEmail;

@@ -2,7 +2,7 @@ import { LangFormatFunction } from '@/lib/lang';
 
 import { re } from '../constants';
 
-export interface ValidateOptions extends Record<string, any> {
+interface ValidateOptions extends Record<string, any> {
   max?: string | number;
   min?: string | number;
 }

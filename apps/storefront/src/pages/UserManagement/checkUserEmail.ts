@@ -16,7 +16,7 @@ const checkUserB2BEmail = `
   }
 `;
 
-export interface UserEmailCheckResponse {
+interface UserEmailCheckResponse {
   data: {
     userEmailCheck: {
       userType: UserTypes;

@@ -27,7 +27,7 @@ export interface Fields {
   disabled: boolean;
 }
 
-export interface BcFormFieldsProps {
+interface BcFormFieldsProps {
   name: string;
   value: any;
 }

@@ -31,7 +31,7 @@ export interface UserResponse {
   };
 }
 
-export interface GetUserVariables {
+interface GetUserVariables {
   userId: string;
   companyId: string;
 }

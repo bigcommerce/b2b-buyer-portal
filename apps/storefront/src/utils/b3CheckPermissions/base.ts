@@ -153,5 +153,3 @@ export const levelComparison = ({
       return false;
   }
 };
-
-export default checkPermissionCode;

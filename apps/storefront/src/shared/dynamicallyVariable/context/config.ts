@@ -50,7 +50,8 @@ export interface DynamicallyVariableAction {
   payload: Partial<DynamicallyVariableState>;
 }
 
-export type DispatchProps = Dispatch<Partial<DynamicallyVariableAction>>;
+type DispatchProps = Dispatch<Partial<DynamicallyVariableAction>>;
+
 export interface DynamicallyVariableContextInterface {
   state: DynamicallyVariableState;
   dispatch: DispatchProps;

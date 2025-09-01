@@ -19,7 +19,7 @@ import { useAppSelector } from '@/store';
 import CustomButton from './button/CustomButton';
 import B3Spin from './spin/B3Spin';
 
-export interface B3DialogProps<T> {
+interface B3DialogProps<T> {
   customActions?: () => ReactElement;
   isOpen: boolean;
   leftStyleBtn?: { [key: string]: string };

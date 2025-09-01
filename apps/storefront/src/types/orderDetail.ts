@@ -74,13 +74,13 @@ export interface EditableProductItem extends OrderProductItem {
   helperText?: string;
 }
 
-export interface OrderShipmentProductItem {
+interface OrderShipmentProductItem {
   order_product_id: number;
   product_id: number;
   quantity: number;
 }
 
-export interface OrderShipmentItem {
+interface OrderShipmentItem {
   billing_address: Address;
   comments: string;
   customer_id: number;
@@ -103,7 +103,7 @@ export interface OrderShippedItem extends OrderShipmentItem {
   itemsInfo: OrderProductItem[];
 }
 
-export interface OrderShippingAddressItem extends Address {
+interface OrderShippingAddressItem extends Address {
   base_cost: string;
   base_handling_cost: string;
   cost_ex_tax: string;
@@ -138,14 +138,6 @@ export interface OrderHistoryItem {
   status: string;
 }
 
-export interface OrderCurrency {
-  currency_location?: string;
-  currency_token?: string;
-  decimal_places?: number;
-  decimal_token?: string;
-  thousands_token?: string;
-}
-
 export interface MoneyFormat {
   currency_location: 'left' | 'right';
   currency_token: string;
@@ -167,7 +159,7 @@ export interface OrderBillings {
   digitalProducts: OrderProductItem[];
 }
 
-export interface CouponsInfo {
+interface CouponsInfo {
   amount: string;
   code: string;
   coupon_id: number;
@@ -255,11 +247,6 @@ export interface B2BOrderData {
   companyInfo: CompanyInfoTypes;
 }
 
-export interface OrderDetailsResponse {
-  order?: B2BOrderData;
-  customerOrder?: B2BOrderData;
-}
-
 export interface OrderSummary {
   createAt: string;
   name: string;
@@ -269,10 +256,4 @@ export interface OrderSummary {
   priceSymbol: {
     [k: string]: string;
   };
-}
-
-export interface OrderVariantImages {
-  variantId: number;
-  variantImage: string;
-  variantSku?: string;
 }

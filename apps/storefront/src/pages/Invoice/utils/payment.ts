@@ -5,7 +5,7 @@ import { BcCartData } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 
-export const getCheckoutUrlAndCart = async (params: BcCartData) => {
+const getCheckoutUrlAndCart = async (params: BcCartData) => {
   const {
     invoiceCreateBcCart: {
       result: { checkoutUrl, cartId },

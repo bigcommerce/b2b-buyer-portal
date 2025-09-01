@@ -34,18 +34,6 @@ query GetVariantInfoBySkus {
   }
 }`;
 
-const getSkusInfo = ({ skus = [] }) => `{
-  variantSku (
-    variantSkus: ${convertArrayToGraphql(skus)},
-    storeHash: "${storeHash}"
-    channelId: ${channelId}
-  ){
-    isStock,
-    stock,
-    purchasingDisabled,
-  }
-}`;
-
 const getProductPurchasable = ({ sku = '', isProduct = true, productId }: ProductPurchasable) => `{
   productPurchasable(
     storeHash: "${storeHash}"
@@ -57,15 +45,6 @@ const getProductPurchasable = ({ sku = '', isProduct = true, productId }: Produc
     inventoryLevel
     inventoryTracking
     purchasingDisabled
-  }
-}`;
-
-const getVariantSkuByProductId = (productId: string) => `{
-  productVariantsInfo (
-    productId: "${productId}"
-  ){
-    sku,
-    variantId,
   }
 }`;
 
@@ -148,19 +127,9 @@ const productAnonUploadBulkUploadCSV = (data: CustomFieldItems) => `mutation {
 export const getVariantInfoBySkus = (skuList: string[] = []) =>
   B3Request.graphqlB2B({ query: getVariantInfoBySkusQuery(skuList) });
 
-export const getB2BSkusInfo = (data: CustomFieldItems) =>
-  B3Request.graphqlB2B({
-    query: getSkusInfo(data),
-  });
-
 export const getB2BProductPurchasable = (data: ProductPurchasable) =>
   B3Request.graphqlB2B({
     query: getProductPurchasable(data),
-  });
-
-export const getB2BVariantSkuByProductId = (productId: string) =>
-  B3Request.graphqlB2B({
-    query: getVariantSkuByProductId(productId),
   });
 
 export interface B2BProducts {

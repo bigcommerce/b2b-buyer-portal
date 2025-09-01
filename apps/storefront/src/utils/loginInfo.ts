@@ -37,70 +37,7 @@ import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
 
-const { VITE_IS_LOCAL_ENVIRONMENT } = import.meta.env;
-
-interface ChannelIdProps {
-  channelId: number;
-  urls: Array<string>;
-  b2bEnabled: boolean;
-  channelLogo: string;
-  b3ChannelId?: number;
-  type: string;
-  platform: string;
-  isEnabled: boolean;
-  translationVersion: number;
-}
-
-export interface ChannelStoreSites {
-  storeSites?: Array<ChannelIdProps> | [];
-}
-
-export const getCurrentStoreInfo = (
-  storeSites: Array<ChannelIdProps>,
-  multiStorefrontEnabled: boolean,
-): ChannelIdProps | undefined => {
-  const enabledStores = storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || [];
-
-  let store;
-
-  if (VITE_IS_LOCAL_ENVIRONMENT) {
-    store = {
-      channelId: 1,
-      urls: [],
-      b2bEnabled: true,
-      channelLogo: '',
-      b3ChannelId: 16,
-      type: 'storefront',
-      platform: 'bigcommerce',
-      isEnabled: true,
-      translationVersion: 0,
-    };
-  }
-
-  if (!multiStorefrontEnabled) {
-    store = {
-      channelId: 1,
-      urls: [],
-      b2bEnabled: true,
-      channelLogo: '',
-      b3ChannelId: 1,
-      type: 'storefront',
-      platform: 'bigcommerce',
-      isEnabled: true,
-      translationVersion: 0,
-    };
-  }
-
-  const { origin } = window.location;
-  const cleanedOrigin = origin.replace('-1.', '.');
-  const storeItem = enabledStores.find((item: ChannelIdProps) =>
-    item.urls.map((url) => url.replace('-1.', '.')).includes(cleanedOrigin),
-  );
-
-  return storeItem || store;
-};
-
-export const getLoginTokenInfo = () => {
+const getLoginTokenInfo = () => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const oneWeekInSeconds = 7 * 24 * 60 * 60;
   const expiresTimestamp = currentTimestamp + oneWeekInSeconds;
@@ -124,7 +61,7 @@ export const loginInfo = async () => {
   }
 };
 
-export const clearCurrentCustomerInfo = async () => {
+const clearCurrentCustomerInfo = async () => {
   store.dispatch(setB2BToken(''));
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
@@ -200,7 +137,7 @@ export const getCompanyInfo = async (
   return companyInfo;
 };
 
-export const agentInfo = async (customerId: number | string, role: number) => {
+const agentInfo = async (customerId: number | string, role: number) => {
   if (Number(role) === CustomerRole.SUPER_ADMIN) {
     try {
       const data: any = await getAgentInfo(customerId);
@@ -224,7 +161,7 @@ export const agentInfo = async (customerId: number | string, role: number) => {
   }
 };
 
-export const getCompanyUserInfo = async () => {
+const getCompanyUserInfo = async () => {
   try {
     const {
       customerInfo: {

@@ -341,7 +341,6 @@ const addProductFromProductPageToQuote = (
 };
 
 export {
-  addLoading,
   addProductFromProductPageToQuote,
   addProductsFromCartToQuote,
   addProductsToDraftQuote,

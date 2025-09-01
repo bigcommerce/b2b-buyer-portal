@@ -42,7 +42,8 @@ interface OrderDetailsAction {
   type: string;
   payload: OrderDetailsState;
 }
-export interface OrderDetailsContextType {
+
+interface OrderDetailsContextType {
   state: OrderDetailsState;
   dispatch: Dispatch<OrderDetailsAction>;
 }

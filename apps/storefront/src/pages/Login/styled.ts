@@ -1,4 +1,3 @@
-import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 
 interface LoginContainerProps {
@@ -16,10 +15,6 @@ export const LoginImage = styled('div')({
   alignItems: 'center',
   width: '100%',
   height: '100%',
-});
-
-export const B3ForgotButton = styled(Button)({
-  height: '40px',
 });
 
 export const B3ResetPassWordButton = styled('div')({

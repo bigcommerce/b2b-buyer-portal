@@ -1,4 +1,4 @@
-export type AlertColor = 'success' | 'info' | 'warning' | 'error';
+type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export type LoginFlagType =
   | 'resetPassword'

@@ -5,7 +5,7 @@ import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/gr
 
 import { LineItem } from './b3Product/b3Product';
 
-export const handleSplitOptionId = (id: string | number) => {
+const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
     const idRight = id.split('[')[1];
 
@@ -68,7 +68,7 @@ const cartLineItems = (products: any) => {
   return items;
 };
 
-export const newDataCart = (productData: any) => ({
+const newDataCart = (productData: any) => ({
   createCartInput: {
     lineItems: cartLineItems(productData),
   },
@@ -93,7 +93,7 @@ const getLineItemsData = (cartInfo: any, productData: any) => {
   };
 };
 
-export const createNewShoppingCart = async (products: any) => {
+const createNewShoppingCart = async (products: any) => {
   const cartData = newDataCart(products);
   const res = await createNewCart(cartData);
   if (res?.errors?.length) {

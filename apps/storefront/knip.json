@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/main.ts", "src/headless.ts"],
+  "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
+  "rules": {
+    "binaries": "off",
+    "classMembers": "off",
+    "dependencies": "off",
+    "devDependencies": "off",
+    "optionalPeerDependencies": "off",
+    "duplicates": "error",
+    "enumMembers": "off",
+    "exports": "error",
+    "files": "error",
+    "nsExports": "error",
+    "nsTypes": "error",
+    "types": "error",
+    "unlisted": "off",
+    "unresolved": "off"
+  },
+  "ignore": ["src/types/gql/graphql.ts"]
+}
