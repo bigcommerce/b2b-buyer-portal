@@ -125,7 +125,7 @@ declare interface Window {
   b2b: {
     callbacks: {
       dispatchEvent: (
-        callbackKey: import('./useB2BCallback').EventType,
+        callbackKey: import('@/hooks/useB2BCallback').EventType,
 
         data?: Record<string, any>,
       ) => boolean;

@@ -16,7 +16,7 @@
     "nsTypes": "error",
     "types": "error",
     "unlisted": "off",
-    "unresolved": "off"
+    "unresolved": "error"
   },
   "ignore": ["src/types/gql/graphql.ts"]
 }
