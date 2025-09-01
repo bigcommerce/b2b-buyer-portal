@@ -62,54 +62,6 @@ export interface GetCustomerOrders {
   };
 }
 
-export type CompanyOrderNode = {
-  node: {
-    orderId?: string;
-    createdAt: number;
-    updatedAt: number;
-    totalIncTax?: number;
-    currencyCode?: string;
-    usdIncTax?: number;
-    money?: unknown;
-    items?: number;
-    cartId?: string;
-    userId: number;
-    poNumber?: string;
-    referenceNumber?: string;
-    status: string;
-    customStatus?: string;
-    statusCode: number;
-    isArchived?: boolean;
-    isInvoiceOrder: 'A_0' | 'A_1';
-    invoiceId?: string;
-    invoiceNumber?: string;
-    invoiceStatus?: string;
-    ipStatus?: 'A_0' | 'A_1' | 'A_2';
-    flag?: 'A_0' | 'A_1' | 'A_2' | 'A_3';
-    billingName?: string;
-    companyName?: string;
-    firstName?: string;
-    lastName?: string;
-    merchantEmail?: string;
-    companyInfo?: {
-      companyName: string;
-    };
-  };
-};
-
-export interface GetCompanyOrders {
-  data: {
-    allOrders: {
-      totalCount: number;
-      pageInfo: {
-        hasNextPage: boolean;
-        hasPreviousPage: boolean;
-      };
-      edges: Array<CustomerOrderNode>;
-    };
-  };
-}
-
 const allOrders = (data: CustomFieldItems, fn: 'allOrders' | 'customerOrders') => `
 query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   ${fn}(
@@ -407,12 +359,6 @@ export interface CustomerOrderStatues {
   };
 }
 
-export interface CompanyOrderStatuses {
-  data: {
-    orderStatuses: CustomerOrderStatus[];
-  };
-}
-
 const getOrderStatusTypeQl = (fn: 'orderStatuses' | 'bcOrderStatuses') => `
 query ${fn === 'orderStatuses' ? 'GetOrderStatuses' : 'GetCustomerOrderStatuses'} {
   ${fn} {
@@ -421,17 +367,6 @@ query ${fn === 'orderStatuses' ? 'GetOrderStatuses' : 'GetCustomerOrderStatuses'
     statusCode,
   }
 }`;
-
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `
-  query GetOrdersCreatedByUser {
-    ${fn}(
-      companyId: ${companyId},
-      module: ${module},
-    ){
-      results,
-    }
-  }
-`;
 
 export const getB2BAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
@@ -462,8 +397,3 @@ export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   }).then((res) => res.bcOrderStatuses);
-
-export const getOrdersCreatedByUser = (companyId: number, module: number) =>
-  B3Request.graphqlB2B({
-    query: getCreatedByUser(companyId, module, 'createdByUser'),
-  });

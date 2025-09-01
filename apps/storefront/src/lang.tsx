@@ -39,7 +39,3 @@ export function LangWrapper({ children }: { children: React.ReactNode }) {
 
   return <LangProvider customText={customText}>{children}</LangProvider>;
 }
-
-export default {
-  LangWrapper,
-};

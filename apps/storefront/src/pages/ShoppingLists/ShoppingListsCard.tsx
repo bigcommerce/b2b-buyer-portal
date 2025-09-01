@@ -22,7 +22,7 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingListStatusTag } from './ShoppingListStatusTag';
 
-export interface OrderItemCardProps {
+interface OrderItemCardProps {
   item: ShoppingListsItemsProps;
   onEdit: (data: ShoppingListsItemsProps) => void;
   onDelete: (data: ShoppingListsItemsProps) => void;

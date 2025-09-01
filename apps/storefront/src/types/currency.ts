@@ -4,7 +4,7 @@ export interface Currencies {
   enteredInclusiveTax: boolean;
 }
 
-export interface ChannelCurrencies {
+interface ChannelCurrencies {
   channel_id: number;
   enabled_currencies: string[];
   default_currency: string;
@@ -29,7 +29,7 @@ export interface Currency {
   thousands_token: string;
 }
 
-export interface Node {
+interface Node {
   isActive: boolean;
   entityId: number;
 }

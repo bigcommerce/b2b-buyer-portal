@@ -72,7 +72,7 @@ type B2BAddress = {
   node: AddressItemType;
 };
 
-export interface Country {
+interface Country {
   countryCode: string;
   countryName: string;
   id?: string;

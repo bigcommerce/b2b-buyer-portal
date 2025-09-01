@@ -1,23 +1,6 @@
 interface OrderStatusConfig {
   [k: string]: string;
 }
-export const orderStatusCode: OrderStatusConfig = {
-  0: 'Incomplete',
-  1: 'Pending',
-  2: 'Shipped',
-  3: 'Partially Shipped',
-  4: 'Refunded',
-  5: 'Cancelled',
-  6: 'Declined',
-  7: 'Awaiting Payment',
-  8: 'Awaiting Pickup',
-  9: 'Awaiting Shipment',
-  10: 'Completed',
-  11: 'Awaiting Fulfillment',
-  12: 'Manual Verification Required',
-  13: 'Disputed',
-  14: 'Partially Refunded',
-};
 
 const orderStatusColor: OrderStatusConfig = {
   'Partially Refunded': '#F4CC46',

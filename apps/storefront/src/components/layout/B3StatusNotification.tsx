@@ -10,7 +10,7 @@ import { setLoginType } from '@/store/slices/company';
 import { LoginTypes } from '@/types';
 import { B3SStorage } from '@/utils';
 
-export type AlertColor = 'success' | 'info' | 'warning' | 'error';
+type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 interface B3StatusNotificationProps {
   title: string;

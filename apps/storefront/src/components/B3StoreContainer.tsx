@@ -11,23 +11,6 @@ interface B3StoreContainerProps {
   children: ReactNode;
 }
 
-export interface StoreItem {
-  channelId: number;
-  urls: Array<string>;
-  b2bEnabled: boolean;
-  channelLogo: string;
-  isEnabled: boolean;
-  b3ChannelId: number;
-  type: string;
-  platform: string;
-  translationVersion: number;
-}
-
-export interface StoreBasicInfo {
-  storeSites?: Array<StoreItem> | [];
-  storeName: string;
-}
-
 type ZIndexType = keyof typeof Z_INDEX;
 const setZIndexVariables = () => {
   Object.keys(Z_INDEX).forEach((key) => {

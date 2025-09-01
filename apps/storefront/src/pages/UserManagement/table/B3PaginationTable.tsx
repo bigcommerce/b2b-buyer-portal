@@ -16,7 +16,7 @@ import { forwardRefWithGenerics, memoWithGenerics } from '@/utils';
 
 import { B3Table, isNodeWrapper, PossibleNodeWrapper, WithRowControls } from './B3Table';
 
-export interface TablePagination {
+interface TablePagination {
   offset: number;
   first: number;
 }

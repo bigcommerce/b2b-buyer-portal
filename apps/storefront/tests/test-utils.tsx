@@ -6,7 +6,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
-import { B3GlobalTip } from '@/components';
+import B3GlobalTip from '@/components/B3GlobalTip';
 import B3LayoutTip from '@/components/layout/B3LayoutTip';
 import { LangProvider } from '@/lib/lang';
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';

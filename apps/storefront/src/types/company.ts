@@ -77,12 +77,6 @@ export enum FeatureEnabled {
   ENABLED = '1',
 }
 
-export enum B2BPermissionsLevel {
-  USER = 1,
-  COMPANY = 2,
-  COMPANY_AND_SUBSIDIARIES = 3,
-}
-
 export interface CompanyHierarchyListProps {
   companyId: number;
   companyName: string;

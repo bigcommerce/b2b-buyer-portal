@@ -38,5 +38,3 @@ export const handlePrintPDF = async (invoiceId: string, isPayNow = false): Promi
     return url;
   }
 };
-
-export default handlePrintPDF;

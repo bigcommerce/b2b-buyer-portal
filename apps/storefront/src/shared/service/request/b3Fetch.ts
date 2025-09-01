@@ -68,7 +68,7 @@ interface B2bGQLResponse {
   }>;
 }
 
-export interface GQLRequest {
+interface GQLRequest {
   query: string;
   variables?: any;
 }

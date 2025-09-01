@@ -20,7 +20,7 @@ interface ListItem {
   createdAt: string;
 }
 
-export interface OrderItemCardProps {
+interface OrderItemCardProps {
   goToDetail: () => void;
   item: ListItem;
 }

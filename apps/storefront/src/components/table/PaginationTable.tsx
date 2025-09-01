@@ -4,7 +4,7 @@ import { useMobile } from '@/hooks';
 
 import { B3Table, isNodeWrapper, PossibleNodeWrapper, TableColumnItem } from './B3Table';
 
-export interface TablePagination {
+interface TablePagination {
   offset: number;
   first: number;
 }

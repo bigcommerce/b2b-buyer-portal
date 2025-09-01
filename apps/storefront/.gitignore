@@ -24,3 +24,4 @@ stats*
 *.njsproj
 *.sln
 *.sw?
+.tsbuildinfo

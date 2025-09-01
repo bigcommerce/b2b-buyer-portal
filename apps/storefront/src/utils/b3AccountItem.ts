@@ -130,4 +130,4 @@ const openPageByClick = ({
   return redirectBcMenus(href, Number(currentRole), isAgenting, authorizedPages);
 };
 
-export { getCurrentLoginUrl, openPageByClick, redirectBcMenus, removeBCMenus };
+export { openPageByClick, redirectBcMenus, removeBCMenus };

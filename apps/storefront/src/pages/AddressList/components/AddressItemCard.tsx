@@ -14,7 +14,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import { AddressItemType } from '../../../types/address';
 
-export interface OrderItemCardProps {
+interface OrderItemCardProps {
   item: AddressItemType;
   onEdit?: () => void;
   onDelete?: () => void;

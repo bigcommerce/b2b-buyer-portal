@@ -17,7 +17,7 @@ interface ListItem {
   quoteNumber: string;
 }
 
-export interface QuoteItemCardProps {
+interface QuoteItemCardProps {
   goToDetail: (val: ListItem, status: number) => void;
   item: ListItem;
 }

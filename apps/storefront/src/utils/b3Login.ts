@@ -42,5 +42,3 @@ export const loginJump = (navigate: NavigateFunction, isClearSession = false) =>
 
   return true;
 };
-
-export default loginJump;

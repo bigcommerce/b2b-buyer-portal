@@ -3,59 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { permissionLevels } from '@/constants';
 import { useAppSelector } from '@/store';
 import {
-  levelComparison,
   validateBasePermissionWithComparisonType,
   ValidatePermissionWithComparisonTypeProps,
-  VerifyLevelPermissionProps,
 } from '@/utils';
-
-export const useVerifyLevelPermission = ({
-  code,
-  companyId = 0,
-  userEmail = '',
-  userId = 0,
-}: VerifyLevelPermissionProps) => {
-  const [isVerified, setIsVerified] = useState(false);
-
-  const { selectCompanyHierarchyId } = useAppSelector(
-    ({ company }) => company.companyHierarchyInfo,
-  );
-  const { companyInfo, customer, permissions } = useAppSelector(({ company }) => company);
-
-  useEffect(() => {
-    const info = permissions.find((permission) => permission.code.includes(code));
-
-    if (!info) return;
-
-    const { permissionLevel } = info;
-
-    if (!permissionLevel) return;
-
-    setIsVerified(
-      levelComparison({
-        permissionLevel: Number(permissionLevel),
-        customer,
-        companyInfo,
-        params: {
-          companyId,
-          userEmail,
-          userId,
-        },
-      }),
-    );
-  }, [
-    selectCompanyHierarchyId,
-    code,
-    companyId,
-    userEmail,
-    userId,
-    companyInfo,
-    customer,
-    permissions,
-  ]);
-
-  return [isVerified];
-};
 
 export const useValidatePermissionWithComparisonType = ({
   level = 0,

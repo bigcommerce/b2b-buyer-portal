@@ -5,12 +5,12 @@ import { OrderedProductType, ProductInfoType } from '@/types/gql/graphql';
 import { snackbar } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
 
-export interface ProductInfo extends OrderedProductType {
+interface ProductInfo extends OrderedProductType {
   productsSearch: ProductInfoType;
   quantity: number;
 }
 
-export interface CommonProducts extends ProductInfoType {
+interface CommonProducts extends ProductInfoType {
   quantity: number;
   variantId?: string;
 }
@@ -19,7 +19,7 @@ export interface CheckedProduct {
   node: ProductInfo;
 }
 
-export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunction) => {
+const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunction) => {
   const {
     variantId,
     variants,

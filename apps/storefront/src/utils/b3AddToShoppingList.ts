@@ -1,27 +1,4 @@
-import { searchProducts } from '@/shared/service/b2b';
-import { store } from '@/store';
-
-import { conversionProductsList } from './b3Product/shared/config';
-
-export const handleGetCurrentProductInfo = async (productId: number | string) => {
-  const currentState = store.getState();
-  const { customerGroupId } = currentState.company.customer;
-  const { id: salesRepCompanyId } = currentState.b2bFeatures.masqueradeCompany;
-  const { id: companyInfoId } = currentState.company.companyInfo;
-  const companyId = companyInfoId || salesRepCompanyId;
-
-  const { productsSearch } = await searchProducts({
-    productIds: [Number(productId)],
-    companyId,
-    customerGroupId,
-  });
-
-  const currentProductInfo = conversionProductsList(productsSearch);
-
-  return currentProductInfo;
-};
-
-export const isModifierMultiLineTextValid = (option: any, optionVal: any) => {
+const isModifierMultiLineTextValid = (option: any, optionVal: any) => {
   let isOptionValid = true;
   let errMsg = '';
 
@@ -73,7 +50,7 @@ export const isModifierMultiLineTextValid = (option: any, optionVal: any) => {
   };
 };
 
-export const isModifierTextValid = (option: any, optionVal: any) => {
+const isModifierTextValid = (option: any, optionVal: any) => {
   let isOptionValid = true;
   let errMsg = '';
 
@@ -104,7 +81,7 @@ export const isModifierTextValid = (option: any, optionVal: any) => {
   };
 };
 
-export const isModifierNumberTextValid = (option: any, optionVal: any) => {
+const isModifierNumberTextValid = (option: any, optionVal: any) => {
   let isOptionValid = true;
   let errMsg = '';
   const {

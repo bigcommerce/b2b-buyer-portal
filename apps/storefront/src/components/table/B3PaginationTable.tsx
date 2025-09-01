@@ -23,7 +23,7 @@ import {
   WithRowControls,
 } from './B3Table';
 
-export interface TablePagination {
+interface TablePagination {
   offset: number;
   first: number;
 }

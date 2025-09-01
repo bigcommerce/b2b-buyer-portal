@@ -3,7 +3,7 @@ import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-export const StyledMenu = styled(Menu)(() => ({
+const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
     boxShadow:
       '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',

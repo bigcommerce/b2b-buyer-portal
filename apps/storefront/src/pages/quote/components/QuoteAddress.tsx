@@ -40,34 +40,6 @@ interface AddressProps {
   setBillingChange: (value: boolean) => void;
 }
 
-export interface FormFieldsProps extends Record<string, any> {
-  name: string;
-  label?: string;
-  required?: boolean;
-  fieldType?: string;
-  default?: string | Array<any> | number;
-  xs: number;
-  variant: string;
-  size: string;
-  options?: any[];
-  replaceOptions?: {
-    label: string;
-    value: string;
-  };
-}
-
-export interface Country {
-  countryCode: string;
-  countryName: string;
-  id?: string;
-  states: [];
-}
-export interface State {
-  stateCode?: string;
-  stateName?: string;
-  id?: string;
-}
-
 function QuoteAddress(
   {
     title,

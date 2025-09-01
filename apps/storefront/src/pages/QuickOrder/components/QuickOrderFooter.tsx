@@ -31,31 +31,6 @@ import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList'
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
 import { addCartProductToVerify, CheckedProduct } from '../utils';
 
-export interface ProductInfoProps {
-  basePrice: number | string;
-  baseSku: string;
-  createdAt: number;
-  discount: number | string;
-  enteredInclusive: boolean;
-  id: number | string;
-  itemId: number;
-  optionList: CustomFieldItems;
-  primaryImage: string;
-  productId: number;
-  productName: string;
-  productUrl: string;
-  quantity: number | string;
-  tax: number | string;
-  updatedAt: number;
-  variantId: number;
-  variantSku: string;
-  productsSearch: CustomFieldItems;
-}
-
-export interface ListItemProps {
-  node: ProductInfoProps;
-}
-
 interface NodeProps {
   basePrice: number | string;
   baseSku: string;

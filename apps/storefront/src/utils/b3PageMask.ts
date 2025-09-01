@@ -17,15 +17,4 @@ const showPageMask = (showMask: boolean) => {
   }
 };
 
-const createFrameLoading = () => {
-  if (!document.getElementById('body-mask')) {
-    const maskDiv = document.createElement('div');
-    maskDiv.setAttribute('id', 'body-mask');
-    maskDiv.innerHTML = '<p class="body-mask-loadding">Loading...</p>';
-
-    document.body.appendChild(maskDiv);
-    maskDiv.style.display = 'none';
-  }
-};
-
-export { createFrameLoading, showPageMask };
+export { showPageMask };

@@ -1,6 +1,6 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react';
 
-export interface ShoppingListDetailsState {
+interface ShoppingListDetailsState {
   id?: number;
   isLoading?: boolean;
 }
@@ -8,7 +8,7 @@ interface ShoppingListDetailsAction {
   type: string;
   payload: ShoppingListDetailsState;
 }
-export interface ShoppingListDetailsContextType {
+interface ShoppingListDetailsContextType {
   state: ShoppingListDetailsState;
   dispatch: Dispatch<ShoppingListDetailsAction>;
 }

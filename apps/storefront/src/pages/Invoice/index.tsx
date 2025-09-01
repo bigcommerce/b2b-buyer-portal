@@ -46,7 +46,7 @@ import { formattingNumericValues } from './utils/payment';
 import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
 
-export interface FilterSearchProps {
+interface FilterSearchProps {
   [key: string]: string | number | number[] | null;
   q: string;
   startValue: number | string;

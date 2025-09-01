@@ -341,17 +341,6 @@ const quoteAttachFileDelete = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getCreatedByUser = (companyId: number, module: number, fn: string) => `
-  query GetQuotesCreatedByUser {
-    ${fn}(
-      companyId: ${companyId},
-      module: ${module},
-    ){
-      results,
-    }
-  }
-`;
-
 const getStorefrontProductSettings = `
 query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
   storefrontProductSettings(storeHash: $storeHash, channelId: $channelId) {
@@ -657,11 +646,6 @@ export const quoteDetailAttachFileCreate = (data: CustomFieldItems) =>
 export const quoteDetailAttachFileDelete = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: quoteAttachFileDelete(data),
-  });
-
-export const getQuoteCreatedByUsers = (companyId: number, module: number) =>
-  B3Request.graphqlB2B({
-    query: getCreatedByUser(companyId, module, 'createdByUser'),
   });
 
 export const getBCStorefrontProductSettings = () =>

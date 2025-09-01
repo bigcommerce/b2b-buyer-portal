@@ -9,7 +9,7 @@ import RegisteredAccount from './RegisteredAccount';
 import RegisteredDetail from './RegisteredDetail';
 import RegisteredFinish from './RegisteredFinish';
 
-export const StyledRegisterContent = styled(Box)({
+const StyledRegisterContent = styled(Box)({
   '& #b3-customForm-id-name': {
     '& label[data-shrink="true"]': {
       whiteSpace: 'break-spaces',

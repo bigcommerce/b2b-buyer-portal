@@ -35,7 +35,7 @@ interface User {
 export type Edit = (userId: string) => void;
 export type Delete = (userId: string) => void;
 
-export interface OrderItemCardProps {
+interface OrderItemCardProps {
   item: User;
   onEdit: Edit;
   onDelete: Delete;

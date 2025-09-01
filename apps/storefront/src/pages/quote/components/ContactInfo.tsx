@@ -16,7 +16,7 @@ import {
 } from '@/types/quotes';
 import { validatorRules } from '@/utils';
 
-export interface GetQuoteInfoProps {
+interface GetQuoteInfoProps {
   isMobile: boolean;
   b3Lang: LangFormatFunction;
   quoteExtraFields: QuoteFormattedItemsProps[];

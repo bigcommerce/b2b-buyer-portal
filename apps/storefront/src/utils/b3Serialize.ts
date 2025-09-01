@@ -43,5 +43,3 @@ export const serialize = (form: HTMLFormElement) => {
 
   return formValue;
 };
-
-export default serialize;

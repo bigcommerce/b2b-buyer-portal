@@ -37,44 +37,6 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   }
 }`;
 
-export interface UsersResponse {
-  data: {
-    users: {
-      totalCount: number;
-      pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean };
-      edges: Array<{
-        node: {
-          id: string;
-          createdAt: number;
-          updatedAt: number;
-          firstName: string;
-          lastName: string;
-          email: string;
-          phone: string;
-          bcId: number;
-          role: number;
-          uuid: string | null;
-          extraFields: { fieldName: string; fieldValue: string }[];
-          companyRoleId: number;
-          companyRoleName: string;
-          masqueradingCompanyId: string | null;
-          companyInfo: {
-            companyId: string;
-            companyName: string;
-            companyAddress: string;
-            companyCountry: string;
-            companyState: string;
-            companyCity: string;
-            companyZipCode: string;
-            phoneNumber: string;
-            bcId: string;
-          };
-        };
-      }>;
-    };
-  };
-}
-
 export interface UserEmailCheckResponse {
   data: {
     userEmailCheck: {

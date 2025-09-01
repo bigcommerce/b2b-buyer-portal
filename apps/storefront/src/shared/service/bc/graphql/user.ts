@@ -16,9 +16,4 @@ const getCustomerInfo = () =>
     query: getCustomer(),
   });
 
-const customerExists = () =>
-  B3Request.graphqlBCProxy({
-    query: getCustomer(),
-  });
-
-export { customerExists, getCustomerInfo };
+export { getCustomerInfo };

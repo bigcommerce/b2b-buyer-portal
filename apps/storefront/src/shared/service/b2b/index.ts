@@ -40,13 +40,11 @@ import {
   getBCAllOrders,
   getBCOrderDetails,
   getBcOrderStatusType,
-  getOrdersCreatedByUser,
   getOrderStatusType,
 } from './graphql/orders';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
-  getB2BSkusInfo,
   getVariantInfoBySkus,
   guestProductsBulkUploadCSV,
   searchProducts,
@@ -61,7 +59,6 @@ import {
   getBcQuoteDetail,
   getBCQuotesList,
   getBCStorefrontProductSettings,
-  getQuoteCreatedByUsers,
   getQuoteExtraFieldsConfig,
   quoteCheckout,
   quoteDetailAttachFileCreate,
@@ -74,19 +71,11 @@ import {
   getB2BAccountFormFields,
   getB2BCompanyUserInfo,
   getB2BCountries,
-  getB2BLoginPageConfig,
-  getB2BRegisterCustomFields,
-  getB2BRegisterLogo,
   getBCForcePasswordReset,
   getBCStoreChannelId,
   sendSubscribersState,
-  storeB2BBasicInfo,
 } from './graphql/register';
-import {
-  getB2BCompanyRoleAndPermissionsDetails,
-  getB2BPermissions,
-  getB2BRoleList,
-} from './graphql/roleAndPermissions';
+import { getB2BRoleList } from './graphql/roleAndPermissions';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
@@ -156,18 +145,12 @@ export {
   getB2BCountries,
   getB2BCustomerAddresses,
   getB2BJuniorPlaceOrder,
-  getB2BLoginPageConfig,
   getB2BOrderDetails,
   getB2BQuoteDetail,
   getB2BQuotesList,
-  getB2BRegisterCustomFields,
-  getB2BRegisterLogo,
   getB2BShoppingList,
   getB2BShoppingListDetails,
-  getB2BSkusInfo,
   getB2BToken,
-  getB2BCompanyRoleAndPermissionsDetails,
-  getB2BPermissions,
   getB2BRoleList,
   getBCAllOrders,
   getBCCustomerAddress,
@@ -188,9 +171,7 @@ export {
   getVariantInfoBySkus,
   getCompanyCreditConfig,
   getCurrencies,
-  getOrdersCreatedByUser,
   getOrderStatusType,
-  getQuoteCreatedByUsers,
   getQuoteExtraFieldsConfig,
   getShoppingListsCreatedByUser,
   getStorefrontConfig,
@@ -206,7 +187,6 @@ export {
   searchProducts,
   sendSubscribersState,
   setChannelStoreType,
-  storeB2BBasicInfo,
   superAdminBeginMasquerade,
   superAdminCompanies,
   superAdminEndMasquerade,
@@ -223,5 +203,3 @@ export {
   validateBCCompanyUserExtraFields,
   validateQuoteExtraFields,
 };
-
-export { default as getTranslation } from './api/translation';

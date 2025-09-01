@@ -38,12 +38,6 @@ export const CardContainer = styled('div')(() => ({
   },
 }));
 
-export const StyledNumberTextField = styled(TextField)(() => ({
-  '& input': {
-    paddingTop: '12px',
-    paddingRight: '6px',
-  },
-}));
 export const StyledNumberNoTopTextField = styled(TextField)(() => ({
   '& input': {
     paddingRight: '6px',

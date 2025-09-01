@@ -1,4 +1,4 @@
-export interface GetFilterMoreListProps {
+interface GetFilterMoreListProps {
   fieldId: string;
   rows?: string | number;
   name: string;

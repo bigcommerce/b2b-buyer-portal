@@ -31,17 +31,6 @@ interface Summary {
   grandTotal: number;
 }
 
-export const compareOption = (langList: CustomFieldItems[], shortList: CustomFieldItems[]) => {
-  let flag = true;
-  langList.forEach((item: CustomFieldItems) => {
-    const option = shortList.find((list: CustomFieldItems) => list.optionId === item.optionId);
-    if (!option) {
-      if (item?.optionValue) flag = false;
-    } else if (item.optionValue !== option.optionValue) flag = false;
-  });
-  return flag;
-};
-
 const defaultSummary: Summary = {
   subtotal: 0,
   shipping: 0,

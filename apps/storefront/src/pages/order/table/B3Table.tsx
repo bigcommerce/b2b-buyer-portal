@@ -25,15 +25,14 @@ interface NodeWrapper<T extends object> {
 
 export type PossibleNodeWrapper<T extends object> = T | NodeWrapper<T>;
 
-export const isNodeWrapper = <T extends object>(
-  item: PossibleNodeWrapper<T>,
-): item is NodeWrapper<T> => 'node' in item;
+const isNodeWrapper = <T extends object>(item: PossibleNodeWrapper<T>): item is NodeWrapper<T> =>
+  'node' in item;
 
-export type WithRowControls<T> = T & {
+type WithRowControls<T> = T & {
   id?: string | number;
 };
 
-export interface Pagination {
+interface Pagination {
   offset: number;
   first: number;
   count: number;

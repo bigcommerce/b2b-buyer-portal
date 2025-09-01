@@ -21,7 +21,7 @@ interface Tokens {
   currentCustomerJWT: string;
 }
 
-export interface PermissionsCodesProps {
+interface PermissionsCodesProps {
   code: string;
   permissionLevel: number;
 }
@@ -170,17 +170,13 @@ const companySlice = createSlice({
 export const {
   clearCompanySlice,
   setCompanyInfo,
-  clearCompanyInfo,
   setCompanyStatus,
   setCustomerInfo,
-  clearCustomer,
-  setTokens,
   setB2BToken,
   setBcGraphQLToken,
   setCurrentCustomerJWT,
   setLoginType,
   setPermissionModules,
-  setCompanyHierarchyListModules,
   setCompanyHierarchyInfoModules,
   setPagesSubsidiariesPermission,
 } = companySlice.actions;

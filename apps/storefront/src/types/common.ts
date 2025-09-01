@@ -30,7 +30,7 @@ export interface Modifiers {
   isVariantOption?: boolean;
 }
 
-export interface ModifiersOption {
+interface ModifiersOption {
   id: number;
   is_default: boolean;
   label: string;

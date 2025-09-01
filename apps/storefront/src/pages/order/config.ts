@@ -14,14 +14,6 @@ export interface FilterSearchProps {
   companyIds: number[];
 }
 
-export interface FilterMoreProps {
-  startValue?: string;
-  endValue?: string;
-  PlacedBy?: string;
-  company?: string;
-  orderStatus?: string | number;
-}
-
 export const sortKeys = {
   orderId: 'bcOrderId',
   poNumber: 'poNumber',

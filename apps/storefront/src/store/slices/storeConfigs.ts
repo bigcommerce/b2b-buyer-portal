@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ActiveCurrency, Currencies, Currency } from '@/types';
 
-export interface StoreConfigState {
+interface StoreConfigState {
   currencies: Currencies;
   activeCurrency?: ActiveCurrency;
 }
@@ -42,7 +42,7 @@ const initialState: StoreConfigState = {
   activeCurrency: undefined,
 };
 
-export const storeConfigSlice = createSlice({
+const storeConfigSlice = createSlice({
   name: 'storeConfigs',
   initialState,
   reducers: {
@@ -59,7 +59,7 @@ export const storeConfigSlice = createSlice({
   },
 });
 
-export const { clearState, setCurrencies, setActiveCurrency, setEnteredInclusiveTax } =
+export const { setCurrencies, setActiveCurrency, setEnteredInclusiveTax } =
   storeConfigSlice.actions;
 
 export default storeConfigSlice.reducer;

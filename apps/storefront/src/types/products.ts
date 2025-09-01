@@ -11,7 +11,7 @@ export interface OptionValueProps {
   optionValue: string | DateProps;
 }
 
-export interface ProductOptionsItem {
+interface ProductOptionsItem {
   option_id: number;
   display_name: string;
   display_value: string;
@@ -24,14 +24,14 @@ export interface BcCalculatedPrice {
   tax_inclusive: number;
 }
 
-export interface VariantsProps {
+interface VariantsProps {
   bc_calculated_price: BcCalculatedPrice;
   sku: string;
   product_id: number | string;
   variant_id: number | string;
 }
 
-export interface AppliedDiscount {
+interface AppliedDiscount {
   amount: string | number;
   code: string | null;
   id: string | number;
@@ -58,25 +58,7 @@ export interface ProductItem {
   applied_discounts?: AppliedDiscount[];
 }
 
-export interface ProductVariantSkuInfo {
-  baseSku: string;
-  calculatedPrice: string;
-  categories: string[];
-  isStock: string;
-  isVisible: string;
-  maxQuantity: number;
-  minQuantity: number;
-  modifiers: string[];
-  option: string[];
-  productId: string;
-  productName: string;
-  purchasingDisabled: string;
-  stock: number;
-  variantId: string;
-  variantSku: string;
-}
-
-export interface OptionValue {
+interface OptionValue {
   id: number;
   label: string;
   option_display_name: string;
@@ -97,11 +79,6 @@ export interface Variant {
   cost_price?: number;
   inventory_level: number;
   bc_calculated_price: BcCalculatedPrice;
-}
-
-export interface AdjustersPrice {
-  adjuster: string;
-  adjuster_value: number;
 }
 
 export interface ALlOptionValue {
@@ -194,13 +171,6 @@ export interface Product {
   [key: string]: any;
 }
 
-export interface OptionListProduct {
-  optionId: string;
-  optionValue: string;
-  option_id: string;
-  option_value: string;
-}
-
 export interface CalculatedOptions {
   option_id: number;
   value_id: number;
@@ -210,11 +180,4 @@ export interface CalculatedItems {
   product_id: number;
   variant_id: number;
   options: Partial<CalculatedOptions>[];
-}
-
-export interface CalculatedProducts {
-  channel_id: number;
-  customer_group_id: number;
-  items: Partial<CalculatedItems>[];
-  currency_code: string;
 }
