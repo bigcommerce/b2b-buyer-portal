@@ -1,15 +1,15 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 
-import { OrderBillings } from '../../../types';
+import { OrderBillings, ProductItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 import B3Dialog from '@/components/B3Dialog';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import { DigitalDownloadLineItem, getDigitalDownloadElements } from '@/shared/service/b2b/graphql/orders';
+import { getDigitalDownloadElements } from '@/shared/service/b2b/graphql/orders';
 import CustomButton from '@/components/button/CustomButton';
 import { snackbar } from '@/utils';
 import { getBlobFileName } from '@/utils/getBlobFileName';
@@ -41,11 +41,10 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
 
   const [isDigitalDownloadOpen, setIsDigitalDownloadOpen] = useState(false);
   const [isDigitalProductLoading, setIsDigitalProductLoading] = useState(false);
-  const [digitalProducts, setDigitalProducts] = useState<any>(null);
-  const [currentDigitalProduct, setCurrentDigitalProduct] = useState<any>(null);
+  const [digitalProducts, setDigitalProducts] = useState<ProductItem[]>([]);
+  const [currentDigitalProduct, setCurrentDigitalProduct] = useState<ProductItem | undefined>(undefined);
 
-  useEffect(() => {
-    const getDigitalProductsInformation = async () => {
+  const getDigitalProductsInformation = useCallback(async () => {
       setIsDigitalProductLoading(true);
       let elements = [];
       try {
@@ -60,24 +59,26 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
         ? elements?.map((item: DigitalProduct) => item.node) 
         : null;
 
-      const digitalProducts = billings[0].digitalProducts.map((product: any) => {
-        const fileUrls = digitalProductsData?.find((item: any) => item.productEntityId === product.product_id)?.downloadFileUrls || [];
-        console.log(fileUrls)
+      const digitalProducts = billings[0].digitalProducts.map((product: ProductItem) => {
+        const fileUrls = digitalProductsData?.find((item: DigitalProductNode) => item.productEntityId === product.product_id)?.downloadFileUrls || [];
 
         return {
           ...product,
           downloadFileUrls: fileUrls,
         };
       });
+
       setDigitalProducts(digitalProducts);
-    };
+  }, [orderId])
+
+  useEffect(() => {
     if (orderId) {
       getDigitalProductsInformation();
     }
   }, [orderId]);
 
   const getCurrentDigitalProduct = (productId: number) => {
-    const current = digitalProducts.find((product: any) => product.product_id === productId);
+    const current = digitalProducts.find((product: ProductItem) => product.product_id === productId);
     setCurrentDigitalProduct(current);
     setIsDigitalDownloadOpen(!isDigitalDownloadOpen);
   };
@@ -122,10 +123,10 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     return null;
   }
 
-  const handleDownloadDigitalFile = async (file: string) => {
+  const handleDownloadDigitalFile = async (fileUrl: string) => {
     let blob;
     try {
-        const res = await fetch(file);
+        const res = await fetch(fileUrl);
         blob = await res.blob();
         let filename = getBlobFileName(blob, res.headers);
         handleBlobDownload(blob, filename);
@@ -178,7 +179,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             </Box>
 
             <B3ProductList
-              products={digitalProducts || []}
+              products={digitalProducts}
               totalText="Total"
               canToProduct={isCurrentCompany}
               textAlign={isMobile ? 'left' : 'right'}
@@ -198,7 +199,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
               showRightBtn={false}
             >
               {
-                currentDigitalProduct?.downloadFileUrls.map((file: any, index: number) => (
+                currentDigitalProduct?.downloadFileUrls?.map((fileUrl: any, index: number) => (
                   <Box
                     sx={{
                       display: 'flex',
@@ -230,7 +231,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
                       </Typography>
                     </Box>
                     <CustomButton
-                      onClick={() => handleDownloadDigitalFile(file)}
+                      onClick={() => handleDownloadDigitalFile(fileUrl)}
                       sx={{
                         color: '#1976D2',
                         textDecoration: 'none',
@@ -242,7 +243,6 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
                   </Box>
                 ))
               }
-              <div></div>
             </B3Dialog>          
         </Card>
       ))}

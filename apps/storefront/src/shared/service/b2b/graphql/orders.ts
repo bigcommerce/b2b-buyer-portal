@@ -1,4 +1,4 @@
-import { B2BOrderData, MoneyFormat, OrderStatusItem } from '@/types';
+import { B2BOrderData, MoneyFormat, OrderStatusItem, ProductItem } from '@/types';
 
 import { convertArrayToGraphql } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
@@ -75,13 +75,13 @@ export type DigitalDownloadElementsResponse = {
   data: {
     site: {
       order: {
-        consignments: Array<{
+        consignments: {
           downloads: Array<{
             lineItems: {
               edges: DigitalDownloadLineItem[];
             };
           }>;
-        }>;
+        }
       };
     };
   };
@@ -197,6 +197,7 @@ export type OrderProduct = {
   order_address_id: number;
   quantity_shipped: number;
   type: 'physical' | 'digital';
+  product_id: number;
 };
 
 export interface Shipment {

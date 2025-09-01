@@ -26,6 +26,7 @@ import {
   CustomerOrderShippingAddress,
   CustomerOrderStatues,
   CustomerOrderStatus,
+  DigitalDownloadElementsResponse,
   GetCustomerOrder,
   GetCustomerOrders,
   OrderProduct,
@@ -118,6 +119,7 @@ const buildProductWith = builder<OrderProduct>(() => ({
   order_address_id: faker.number.int(),
   quantity_shipped: faker.number.int(),
   type: faker.helpers.arrayElement(['physical', 'digital']),
+  product_id: faker.number.int(),
 }));
 
 const buildShippingAddressWith = builder<CustomerOrderShippingAddress>(() => ({
@@ -216,6 +218,32 @@ const buildCustomerOrderNodeWith = builder<CustomerOrderNode>(() => ({
     flag: faker.helpers.arrayElement(['A_0', 'A_1', 'A_2', 'A_3']),
     billingName: faker.person.fullName(),
     merchantEmail: faker.internet.email(),
+  },
+}));
+
+const buildDigitalProductNodeWith = builder<DigitalDownloadElementsResponse>(() => ({
+  data: {
+    site: {
+      order: {
+        consignments:
+        {
+          downloads: [
+            {
+              lineItems: {
+                edges: [{
+                  node: {
+                    downloadFileUrls: [faker.internet.url(), faker.internet.url()],
+                    downloadPageUrl: faker.internet.url(),
+                    name: faker.commerce.productName(),
+                    productEntityId: faker.number.int(),
+                  },
+                }],
+              },
+            },
+          ],
+        },
+      },
+    },
   },
 }));
 
@@ -755,6 +783,113 @@ describe('when a personal customer visits an order', () => {
       expect(screen.getByText('112')).toBeInTheDocument();
       expect(screen.getByText('€2.502,08')).toBeInTheDocument();
       expect(screen.getByText('Format: ePub')).toBeInTheDocument();
+    });
+
+    it('displays the view files link for digital products in an order', async () => {
+      const digitalProduct = buildProductWith({
+        name: 'Digital Product',
+        sku: 'DIGI-001',
+        price_ex_tax: '10.00',
+        quantity: 1,
+        product_options: [],
+        type: 'digital',
+        product_id: 1234,
+      });
+
+      const digitalNode = {
+        name: '',
+        downloadPageUrl: '',
+        downloadFileUrls: ['cat.com', 'meow.com'],
+        productEntityId: 1234
+      }
+
+      const digitalDownloadElements = buildDigitalProductNodeWith({
+        data: {
+          site: {
+            order: {
+              consignments: {
+                downloads: [
+                  {
+                    lineItems: {
+                      edges: [{ node: { ...digitalNode } }],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  money: euro,
+                  products: [digitalProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetDigitalDownloadLinks', () =>
+          HttpResponse.json(digitalDownloadElements),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByText('Digital products')).toBeInTheDocument();
+      expect(await screen.findByText('View files')).toBeInTheDocument();
+      userEvent.click(await screen.findByText('View files'));
+      // validate if download files modal is opened
+      expect(await screen.findByText('Files to download')).toBeInTheDocument();
+    });
+
+    it('not displays the view files link for digital products in an order', async () => {
+      const physicalProduct = buildProductWith({
+        type: 'physical',
+      });
+
+      const digitalDownloadElements = buildDigitalProductNodeWith({
+        data: {
+          site: {
+            order: {
+              consignments: {
+                downloads: [],
+              },
+            },
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  money: euro,
+                  products: [physicalProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetDigitalDownloadLinks', () =>
+          HttpResponse.json(digitalDownloadElements),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
 
