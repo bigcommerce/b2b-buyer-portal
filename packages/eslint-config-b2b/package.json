@@ -14,7 +14,6 @@
     "@bigcommerce/eslint-plugin": "^1.2.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -28,7 +27,12 @@
     "eslint-plugin-testing-library": "^6.2.2"
   },
   "devDependencies": {
+    "eslint": "^8.2.0",
     "@rushstack/eslint-patch": "^1.12.0",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "eslint": "^8.2.0",
     "typescript": "^5.9.2"
   }
 }

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/main.ts", "src/headless.ts"],
+  "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
+  "rules": {
+    "binaries": "off",
+    "classMembers": "off",
+    "enumMembers": "off",
+    
+    "dependencies": "error",
+    "devDependencies": "error",
+    "optionalPeerDependencies": "error",
+    "duplicates": "error",
+    "exports": "error",
+    "files": "error",
+    "nsExports": "error",
+    "nsTypes": "error",
+    "types": "error",
+    "unlisted": "error",
+    "unresolved": "error"
+  },
+  "babel": true,
+  "ignoreDependencies": [
+    "eslint", // Not really sure why this is reported as unused
+    "graphql", // used to generate graphql types
+    "@mui/styles", // used by react-mui-dropzone
+    "@testing-library/dom", // used by @testing-library/react
+    "terser" // Since Vite v3, terser has become an optional dependency. You need to install it.
+  ],
+  "ignore": ["src/types/gql/graphql.ts"]
+}
