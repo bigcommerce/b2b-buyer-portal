@@ -15,7 +15,8 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - node-modules-cache-i1-{{ checksum "package.json" }}
+            # Change this back to `package.json` when we remove the monorepo
+            - node-modules-cache-i1-{{ checksum "yarn.lock" }}
 
       - run:
           name: Enable corepack
@@ -36,7 +37,7 @@ commands:
 
       - save_cache:
           name: Saving node_modules cache
-          key: node-modules-cache-i1-{{ checksum "package.json" }}
+          key: node-modules-cache-i1-{{ checksum "yarn.lock" }}
           paths:
             - /tmp/bc/caches
 

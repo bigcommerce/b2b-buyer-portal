@@ -1,4 +1,4 @@
-{
+module.exports = {
   "extends": ["b2b"],
   "rules": {
     "no-restricted-imports": [

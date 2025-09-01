@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import getTranslation from '@/shared/service/b2b/api/translation';
 
-import { AppDispatch, RootState } from '.';
+import type { AppDispatch, RootState } from '.';
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;

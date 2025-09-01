@@ -27,5 +27,6 @@
     "@testing-library/dom", // used by @testing-library/react
     "terser" // Since Vite v3, terser has become an optional dependency. You need to install it.
   ],
+  "prettier": true,
   "ignore": ["src/types/gql/graphql.ts"]
 }

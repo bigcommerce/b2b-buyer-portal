@@ -1,7 +1,8 @@
-export * from '@/store';
 import { vi } from 'vitest';
 
 import { setupStore } from '@/store';
+
+export * from '@/store';
 
 beforeEach(() => {
   const store = setupStore();

@@ -2,7 +2,7 @@ require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
   root: true,
-  ignorePatterns: ['dist/', 'out/', 'build/'],
+  ignorePatterns: ['dist/', 'out/', 'build/', 'coverage/'],
   env: {
     browser: true,
     es2021: true,
@@ -75,7 +75,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
     project: true,
-    tsconfigRootDir: '.',
+    tsconfigRootDir: process.cwd(),
   },
   rules: {
     'prettier/prettier': ['warn'],
@@ -89,6 +89,7 @@ module.exports = {
           '**/tests/**/*.tsx',
           '**/*.test.ts',
           '**/*.test.tsx',
+          '**/__mocks__/**',
           'vite.config.ts',
         ],
       },
