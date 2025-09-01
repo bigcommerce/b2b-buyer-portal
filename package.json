@@ -23,7 +23,7 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint": "^8.2.0",
     "eslint-config-b2b": "*",
     "patch-package": "^8.0.0",
     "prettier": "^2.8.8",

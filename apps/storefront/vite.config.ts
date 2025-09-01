@@ -98,7 +98,6 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             router: ['react-router-dom'],
             lodashEs: ['lodash-es'],
             dropzone: ['react-dropzone'],
-            draggable: ['react-draggable'],
             eCache: ['@emotion/cache'],
           },
         },
