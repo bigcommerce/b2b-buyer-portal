@@ -1,3 +1,9 @@
+import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+
+import { reducer } from './reducer';
+
 export * from './selectors';
 export * from './appAsyncThunks';
 export * from './slices/global';
@@ -6,12 +12,6 @@ export * from './slices/theme';
 export * from './slices/b2bFeatures';
 export * from './slices/quoteInfo';
 export * from './slices/storeInfo';
-
-import { configureStore } from '@reduxjs/toolkit';
-import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
-import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
-
-import { reducer } from './reducer';
 
 export { reducer };
 

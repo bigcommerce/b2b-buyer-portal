@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
 import storageSession from 'redux-persist/lib/storage/session';
@@ -152,7 +151,7 @@ const companySlice = createSlice({
       state,
       { payload }: PayloadAction<Partial<CompanyHierarchyInfoProps>>,
     ) => {
-      let companyHierarchyList = state.companyHierarchyInfo.companyHierarchyList;
+      let { companyHierarchyList } = state.companyHierarchyInfo;
 
       if (payload.companyHierarchyAllList?.length) {
         companyHierarchyList = payload.companyHierarchyAllList.filter((item) => item.channelFlag);

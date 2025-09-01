@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ActiveCurrency, Currencies, Currency } from '@/types';
