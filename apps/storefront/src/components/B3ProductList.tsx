@@ -1,6 +1,6 @@
 import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { Box, Checkbox, FormControlLabel, Link, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 import noop from 'lodash-es/noop';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
@@ -11,6 +11,7 @@ import { currencyFormat, ordersCurrencyFormat } from '@/utils';
 import { getDisplayPrice, judgmentBuyerProduct } from '@/utils/b3Product/b3Product';
 
 import { MoneyFormat, ProductItem } from '../types';
+
 import CustomButton from './button/CustomButton';
 
 interface FlexProps {
@@ -30,19 +31,19 @@ interface FlexItemProps {
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   const headerStyle = isHeader
     ? {
-      borderBottom: '1px solid #D9DCE9',
-      paddingBottom: '8px',
-    }
+        borderBottom: '1px solid #D9DCE9',
+        paddingBottom: '8px',
+      }
     : {};
 
   const mobileStyle = isMobile
     ? {
-      borderTop: '1px solid #D9DCE9',
-      padding: '12px 0 12px',
-      '&:first-of-type': {
-        marginTop: '12px',
-      },
-    }
+        borderTop: '1px solid #D9DCE9',
+        padding: '12px 0 12px',
+        '&:first-of-type': {
+          marginTop: '12px',
+        },
+      }
     : {};
 
   const flexWrap = isMobile ? 'wrap' : 'initial';
@@ -405,8 +406,9 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                 <Typography variant="body1" color="#616161">
                   {product.sku}
                 </Typography>
-                {
-                  product.type === 'digital' && product.downloadFileUrls && product.downloadFileUrls.length > 0 && (
+                {product.type === 'digital' &&
+                  product.downloadFileUrls &&
+                  product.downloadFileUrls.length > 0 && (
                     <CustomButton
                       sx={{
                         m: '0 0 0 -8px',
@@ -416,9 +418,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                       onClick={() => getDigitalDownloadLinks(product.product_id)}
                     >
                       {b3Lang('orderDetail.digitalProducts.viewFiles')}
-                    </CustomButton>               
-                  )
-                }
+                    </CustomButton>
+                  )}
                 {(product.product_options || []).map((option) => (
                   <ProductOptionText
                     key={`${option.option_id}`}

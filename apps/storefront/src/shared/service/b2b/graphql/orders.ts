@@ -1,4 +1,4 @@
-import { B2BOrderData, MoneyFormat, OrderStatusItem, ProductItem } from '@/types';
+import { B2BOrderData, MoneyFormat, OrderStatusItem } from '@/types';
 
 import { convertArrayToGraphql } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
@@ -81,7 +81,7 @@ export type DigitalDownloadElementsResponse = {
               edges: DigitalDownloadLineItem[];
             };
           }>;
-        }
+        };
       };
     };
   };
@@ -452,5 +452,5 @@ export const getDigitalDownloadElements = (orderId: number | string) =>
     query: getDigitalDownloadLinks,
     variables: { orderId },
   }).then((res) => {
-    return res.data.site.order.consignments.downloads[0]?.lineItems.edges || []
+    return res.data.site.order.consignments.downloads[0]?.lineItems.edges || [];
   });

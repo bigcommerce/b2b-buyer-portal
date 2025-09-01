@@ -225,19 +225,20 @@ const buildDigitalProductNodeWith = builder<DigitalDownloadElementsResponse>(() 
   data: {
     site: {
       order: {
-        consignments:
-        {
+        consignments: {
           downloads: [
             {
               lineItems: {
-                edges: [{
-                  node: {
-                    downloadFileUrls: [faker.internet.url(), faker.internet.url()],
-                    downloadPageUrl: faker.internet.url(),
-                    name: faker.commerce.productName(),
-                    productEntityId: faker.number.int(),
+                edges: [
+                  {
+                    node: {
+                      downloadFileUrls: [faker.internet.url(), faker.internet.url()],
+                      downloadPageUrl: faker.internet.url(),
+                      name: faker.commerce.productName(),
+                      productEntityId: faker.number.int(),
+                    },
                   },
-                }],
+                ],
               },
             },
           ],
@@ -800,8 +801,8 @@ describe('when a personal customer visits an order', () => {
         name: '',
         downloadPageUrl: '',
         downloadFileUrls: ['cat.com', 'meow.com'],
-        productEntityId: 1234
-      }
+        productEntityId: 1234,
+      };
 
       const digitalDownloadElements = buildDigitalProductNodeWith({
         data: {
@@ -834,9 +835,7 @@ describe('when a personal customer visits an order', () => {
             }),
           ),
         ),
-        graphql.query('GetDigitalDownloadLinks', () =>
-          HttpResponse.json(digitalDownloadElements),
-        ),
+        graphql.query('GetDigitalDownloadLinks', () => HttpResponse.json(digitalDownloadElements)),
       );
 
       renderWithProviders(<OrderDetails />, { preloadedState });
@@ -845,7 +844,7 @@ describe('when a personal customer visits an order', () => {
 
       expect(screen.getByText('Digital products')).toBeInTheDocument();
       expect(await screen.findByText('View files')).toBeInTheDocument();
-      userEvent.click(await screen.findByText('View files'));
+      await userEvent.click(await screen.findByText('View files'));
       // validate if download files modal is opened
       expect(await screen.findByText('Files to download')).toBeInTheDocument();
     });
@@ -880,9 +879,7 @@ describe('when a personal customer visits an order', () => {
             }),
           ),
         ),
-        graphql.query('GetDigitalDownloadLinks', () =>
-          HttpResponse.json(digitalDownloadElements),
-        ),
+        graphql.query('GetDigitalDownloadLinks', () => HttpResponse.json(digitalDownloadElements)),
       );
 
       renderWithProviders(<OrderDetails />, { preloadedState });
