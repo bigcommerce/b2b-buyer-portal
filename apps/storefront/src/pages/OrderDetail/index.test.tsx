@@ -848,21 +848,35 @@ describe('when a personal customer visits an order', () => {
       expect(await screen.findByText('Files to download')).toBeInTheDocument();
     });
 
-    it('not displays the view files link for digital products in an order', async () => {
+    it('does not render the view files link for physical products and digital products with no file in an order', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
       const physicalProduct = buildProductWith({
+        id: 123,
+        order_address_id: address.id,
+        name: 'Phone',
+        price_ex_tax: '100.00',
+        quantity: 2,
+        quantity_shipped: 2,
         type: 'physical',
       });
-
-      const digitalDownloadElements = buildDigitalProductNodeWith({
-        data: {
-          site: {
-            order: {
-              consignments: {
-                downloads: [],
-              },
-            },
+      const digitalProduct = buildProductWith({
+        name: 'Digital Product',
+        price_ex_tax: '10.00',
+        quantity: 1,
+        product_options: [],
+        type: 'digital',
+        product_id: 1234,
+      });
+      const shipmentOfAllPhysicalProduct = buildShipmentWith({
+        id: 2,
+        shipping_method: 'Test Shipping',
+        order_address_id: address.id,
+        items: [
+          {
+            quantity: physicalProduct.quantity_shipped,
+            order_product_id: physicalProduct.id,
           },
-        },
+        ],
       });
 
       server.use(
@@ -872,19 +886,25 @@ describe('when a personal customer visits an order', () => {
               data: {
                 customerOrder: {
                   money: euro,
-                  products: [physicalProduct],
+                  products: [physicalProduct, digitalProduct],
+                  shippingAddress: [address, buildShippingAddressWith('WHATEVER_VALUES')],
+                  shipments: [
+                    shipmentOfAllPhysicalProduct,
+                  ],
                 },
               },
             }),
           ),
         ),
-        graphql.query('GetDigitalDownloadLinks', () => HttpResponse.json(digitalDownloadElements)),
       );
 
       renderWithProviders(<OrderDetails />, { preloadedState });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
+      await new Promise(res => setTimeout(res, 1000));
+
+      expect(screen.getByText('Phone')).toBeInTheDocument();
       expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
