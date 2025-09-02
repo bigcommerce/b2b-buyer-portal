@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { InsertDriveFileOutlined } from '@mui/icons-material';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { v1 as uuid } from 'uuid';
 
 import { B3ProductList } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -206,7 +207,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
           >
             {currentDigitalProduct?.downloadFileUrls?.map((fileUrl: string, index: number) => (
               <Box
-                key={currentDigitalProduct.id + index}
+                key={uuid()}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
