@@ -888,9 +888,7 @@ describe('when a personal customer visits an order', () => {
                   money: euro,
                   products: [physicalProduct, digitalProduct],
                   shippingAddress: [address, buildShippingAddressWith('WHATEVER_VALUES')],
-                  shipments: [
-                    shipmentOfAllPhysicalProduct,
-                  ],
+                  shipments: [shipmentOfAllPhysicalProduct],
                 },
               },
             }),
@@ -902,9 +900,8 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      await new Promise(res => setTimeout(res, 1000));
-
       expect(screen.getByText('Phone')).toBeInTheDocument();
+      expect(screen.getByText('Digital Product')).toBeInTheDocument();
       expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
