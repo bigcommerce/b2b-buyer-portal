@@ -206,6 +206,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
           >
             {currentDigitalProduct?.downloadFileUrls?.map((fileUrl: string, index: number) => (
               <Box
+                key={currentDigitalProduct.id + index}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',

@@ -860,12 +860,11 @@ describe('when a personal customer visits an order', () => {
         type: 'physical',
       });
       const digitalProduct = buildProductWith({
-        name: 'Digital Product',
+        name: 'How to meow',
         price_ex_tax: '10.00',
         quantity: 1,
         product_options: [],
         type: 'digital',
-        product_id: 1234,
       });
       const shipmentOfAllPhysicalProduct = buildShipmentWith({
         id: 2,
@@ -900,8 +899,8 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByText('Phone')).toBeInTheDocument();
-      expect(screen.getByText('Digital Product')).toBeInTheDocument();
+      expect(await screen.findByText('Phone')).toBeInTheDocument();
+      expect(await screen.findByText('How to meow')).toBeInTheDocument();
       expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
