@@ -197,7 +197,6 @@ export type OrderProduct = {
   order_address_id: number;
   quantity_shipped: number;
   type: 'physical' | 'digital';
-  product_id: number;
 };
 
 export interface Shipment {

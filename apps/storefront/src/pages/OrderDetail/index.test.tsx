@@ -119,7 +119,6 @@ const buildProductWith = builder<OrderProduct>(() => ({
   order_address_id: faker.number.int(),
   quantity_shipped: faker.number.int(),
   type: faker.helpers.arrayElement(['physical', 'digital']),
-  product_id: faker.number.int(),
 }));
 
 const buildShippingAddressWith = builder<CustomerOrderShippingAddress>(() => ({

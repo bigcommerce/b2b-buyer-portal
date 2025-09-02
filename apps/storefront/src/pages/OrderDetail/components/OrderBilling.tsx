@@ -1,19 +1,18 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { InsertDriveFileOutlined } from '@mui/icons-material';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';
-import { useMobile } from '@/hooks';
-import { useB3Lang } from '@/lib/lang';
-
-import { InsertDriveFileOutlined } from '@mui/icons-material';
 import B3Dialog from '@/components/B3Dialog';
 import CustomButton from '@/components/button/CustomButton';
+import { useMobile } from '@/hooks';
+import { useB3Lang } from '@/lib/lang';
 import { getDigitalDownloadElements } from '@/shared/service/b2b/graphql/orders';
 import { snackbar } from '@/utils';
 import { getBlobFileName } from '@/utils/getBlobFileName';
 import { handleBlobDownload } from '@/utils/handleBlobDownload';
 
-import { OrderBillings, ProductItem } from '../../../types';
+import { OrderBillings, OrderProductItem, ProductItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 type OrderBillingProps = {
@@ -42,7 +41,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
 
   const [isDigitalDownloadOpen, setIsDigitalDownloadOpen] = useState(false);
   const [isDigitalProductLoading, setIsDigitalProductLoading] = useState(false);
-  const [digitalProducts, setDigitalProducts] = useState<ProductItem[]>([]);
+  const [digitalProducts, setDigitalProducts] = useState<OrderProductItem[]>([]);
   const [currentDigitalProduct, setCurrentDigitalProduct] = useState<ProductItem | undefined>(
     undefined,
   );
@@ -61,7 +60,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     const digitalProductsData =
       elements.length > 0 ? elements?.map((item: DigitalProduct) => item.node) : null;
 
-    const digitalProducts = billings[0].digitalProducts.map((product: ProductItem) => {
+    const digitalProducts = billings[0].digitalProducts.map((product: OrderProductItem) => {
       const fileUrls =
         digitalProductsData?.find(
           (item: DigitalProductNode) => item.productEntityId === product.product_id,
@@ -186,7 +185,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             </Box>
 
             <B3ProductList
-              products={digitalProducts}
+              products={digitalProducts.length ? digitalProducts : billingItem.digitalProducts}
               totalText="Total"
               canToProduct={isCurrentCompany}
               textAlign={isMobile ? 'left' : 'right'}
