@@ -56,8 +56,8 @@ export interface ProductItem {
   inventoryLevel?: number;
   isPriceHidden?: boolean;
   applied_discounts?: AppliedDiscount[];
-  type: string;
-  product_id: number;
+  type?: string;
+  product_id?: number;
   downloadFileUrls?: string[];
 }
 
