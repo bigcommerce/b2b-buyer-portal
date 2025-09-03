@@ -83,7 +83,7 @@ jobs:
       - run:
           name: "Build distribution files"
           command: |
-             yarn build:production
+             yarn build
              mv apps/storefront/dist ${CIRCLE_SHA1}
              mv config ${CIRCLE_SHA1}
              tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
