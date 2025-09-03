@@ -11,15 +11,44 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
+import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
+
+export interface VariantInfoResponse {
+  data: {
+    variantSku: VariantInfo[];
+  };
+}
+
+export interface VariantInfo {
+  isStock: '1' | '0';
+  stock: number;
+  calculatedPrice: string;
+  productId: string;
+  variantId: string;
+  baseSku: string;
+  productName: string;
+  categories: string[];
+  option: unknown[];
+  isVisible: '1' | '0';
+  minQuantity: number;
+  maxQuantity: number;
+  modifiers: unknown[];
+  purchasingDisabled: '1' | '0';
+  variantSku: string;
+  imageUrl: string;
+}
 
 const { server } = startMockServer();
 
@@ -125,6 +154,236 @@ const buildQuoteInfoStateWith = builder<QuoteInfoState & PersistPartial>(() => (
   },
   quoteDetailToCheckoutUrl: faker.internet.url(),
   _persist: { version: 1, rehydrated: true },
+}));
+
+const buildVariantOptionsWith = builder(() => ({
+  id: faker.number.int(),
+  label: faker.commerce.productAdjective(),
+  option_id: faker.number.int(),
+  option_display_name: faker.commerce.productMaterial(),
+}));
+
+const buildVariantWith = builder<
+  SearchProductsResponse['data']['productsSearch'][number]['variants'][number]
+>(() => ({
+  variant_id: faker.number.int({ min: 1, max: 10000 }),
+  product_id: faker.number.int(),
+  sku: faker.string.uuid(),
+  option_values: bulk(buildVariantOptionsWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  calculated_price: Number(faker.commerce.price()),
+  image_url: faker.image.url(),
+  has_price_list: faker.datatype.boolean(),
+  bulk_prices: [],
+  purchasing_disabled: faker.datatype.boolean(),
+  cost_price: Number(faker.commerce.price()),
+  inventory_level: faker.number.int(),
+  bc_calculated_price: {
+    as_entered: Number(faker.commerce.price()),
+    tax_inclusive: Number(faker.commerce.price()),
+    tax_exclusive: Number(faker.commerce.price()),
+    entered_inclusive: faker.datatype.boolean(),
+  },
+}));
+
+type SearchProduct = SearchProductsResponse['data']['productsSearch'][number];
+type SearchProductV3Option = SearchProduct['optionsV3'][number];
+type SearchProductV3OptionValue = SearchProductV3Option['option_values'][number];
+
+type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number];
+type SearchB2BProductV3Option = SearchB2BProduct['optionsV3'][number];
+type SearchB2BProductV3OptionValue = SearchB2BProductV3Option['option_values'][number];
+type SearchB2BProductVariants = SearchB2BProduct['variants'][number];
+
+const buildPrice = builder(() => ({
+  asEntered: Number(faker.commerce.price()),
+  enteredInclusive: faker.datatype.boolean(),
+  taxExclusive: Number(faker.commerce.price()),
+  taxInclusive: Number(faker.commerce.price()),
+}));
+
+const buildProductPriceWith = builder(() => ({
+  productId: faker.number.int(),
+  variantId: faker.number.int(),
+  options: [],
+  referenceRequest: {
+    productId: faker.number.int(),
+    variantId: faker.number.int(),
+    options: null,
+  },
+  retailPrice: null,
+  salePrice: null,
+  minimumAdvertisedPrice: null,
+  saved: null,
+  price: buildPrice('WHATEVER_VALUES'),
+  calculatedPrice: buildPrice('WHATEVER_VALUES'),
+  priceRange: {
+    minimum: buildPrice('WHATEVER_VALUES'),
+    maximum: buildPrice('WHATEVER_VALUES'),
+  },
+  retailPriceRange: null,
+  bulkPricing: [],
+}));
+
+const buildSearchProductOptionsWith = builder(() => ({
+  option_id: faker.number.int(),
+  display_name: faker.commerce.productMaterial(),
+  sort_order: faker.number.int(),
+  is_required: faker.datatype.boolean(),
+}));
+
+const buildSearchProductV3OptionValueWith = builder<SearchProductV3OptionValue>(() => ({
+  id: faker.number.int(),
+  label: faker.commerce.productAdjective(),
+  sort_order: faker.number.int(),
+  value_data: null,
+  is_default: faker.datatype.boolean(),
+}));
+
+const buildSearchProductV3OptionWith = builder<SearchProductV3Option>(() => ({
+  id: faker.number.int(),
+  product_id: faker.number.int(),
+  name: faker.commerce.productMaterial(),
+  display_name: faker.commerce.productMaterial(),
+  type: faker.helpers.arrayElement(['rectangles', 'swatch']),
+  sort_order: faker.number.int(),
+  option_values: bulk(buildSearchProductV3OptionValueWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  config: [],
+}));
+
+const buildSearchProductWith = builder<SearchProduct>(() => ({
+  id: faker.number.int(),
+  name: faker.commerce.productName(),
+  sku: faker.string.uuid(),
+  costPrice: faker.commerce.price(),
+  inventoryLevel: faker.number.int(),
+  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'variant']),
+  availability: faker.helpers.arrayElement(['available', 'unavailable']),
+  orderQuantityMinimum: faker.number.int(),
+  orderQuantityMaximum: faker.number.int(),
+  variants: bulk(buildVariantWith, 'WHATEVER_VALUES').times(faker.number.int({ min: 0, max: 10 })),
+  currencyCode: faker.finance.currencyCode(),
+  imageUrl: faker.image.url(),
+  modifiers: [],
+  options: bulk(buildSearchProductOptionsWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  optionsV3: bulk(buildSearchProductV3OptionWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  channelId: [],
+  productUrl: faker.internet.url(),
+  taxClassId: faker.number.int(),
+  isPriceHidden: faker.datatype.boolean(),
+}));
+
+const buildVariantInfoWith = builder<VariantInfo>(() => ({
+  isStock: faker.helpers.arrayElement(['0', '1']),
+  stock: faker.number.int(),
+  calculatedPrice: faker.commerce.price(),
+  productId: faker.number.int().toString(),
+  variantId: faker.number.int().toString(),
+  baseSku: faker.string.uuid(),
+  productName: faker.commerce.productName(),
+  categories: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () =>
+    faker.number.int().toString(),
+  ),
+  imageUrl: faker.image.url(),
+  option: [],
+  isVisible: faker.helpers.arrayElement(['0', '1']),
+  minQuantity: faker.number.int(),
+  maxQuantity: faker.number.int(),
+  modifiers: [],
+  purchasingDisabled: faker.helpers.arrayElement(['0', '1']),
+  variantSku: faker.string.uuid(),
+}));
+
+const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
+  data: {
+    variantSku: bulk(buildVariantInfoWith, 'WHATEVER_VALUES').times(
+      faker.number.int({ min: 1, max: 5 }),
+    ),
+  },
+}));
+
+const buildSearchB2BProductV3OptionValueWith = builder<SearchB2BProductV3OptionValue>(() => ({
+  id: faker.number.int(),
+  label: faker.commerce.productAdjective(),
+  sort_order: faker.number.int(),
+  value_data: null,
+  is_default: faker.datatype.boolean(),
+}));
+
+const buildSearchB2BProductV3OptionWith = builder<SearchB2BProductV3Option>(() => ({
+  id: faker.number.int(),
+  product_id: faker.number.int(),
+  name: faker.commerce.productMaterial(),
+  display_name: faker.commerce.productMaterial(),
+  type: faker.helpers.arrayElement(['rectangles', 'swatch']),
+  sort_order: faker.number.int(),
+  option_values: bulk(buildSearchB2BProductV3OptionValueWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  config: [],
+}));
+
+const buildSearchB2BProductVariantWith = builder<SearchB2BProductVariants>(() => ({
+  variant_id: faker.number.int({ min: 1, max: 10000 }),
+  product_id: faker.number.int(),
+  sku: faker.number.int().toString(),
+  option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    id: faker.number.int(),
+    label: faker.commerce.productAdjective(),
+    option_id: faker.number.int(),
+    option_display_name: faker.commerce.productMaterial(),
+  })),
+  calculated_price: Number(faker.commerce.price()),
+  image_url: faker.image.url(),
+  has_price_list: faker.datatype.boolean(),
+  bulk_prices: [],
+  purchasing_disabled: faker.datatype.boolean(),
+  cost_price: Number(faker.commerce.price()),
+  inventory_level: faker.number.int(),
+  bc_calculated_price: {
+    as_entered: Number(faker.commerce.price()),
+    tax_inclusive: Number(faker.commerce.price()),
+    tax_exclusive: Number(faker.commerce.price()),
+    entered_inclusive: faker.datatype.boolean(),
+  },
+}));
+
+const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
+  id: faker.number.int(),
+  name: faker.commerce.productName(),
+  sku: faker.number.int().toString(),
+  costPrice: faker.commerce.price(),
+  inventoryLevel: faker.number.int(),
+  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'variant']),
+  availability: faker.helpers.arrayElement(['available', 'unavailable']),
+  orderQuantityMinimum: faker.number.int(),
+  orderQuantityMaximum: faker.number.int(),
+  variants: bulk(buildSearchB2BProductVariantWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  currencyCode: faker.finance.currencyCode(),
+  imageUrl: faker.image.url(),
+  modifiers: [],
+  options: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    option_id: faker.number.int(),
+    display_name: faker.commerce.productMaterial(),
+    sort_order: faker.number.int(),
+    is_required: faker.datatype.boolean(),
+  })),
+  optionsV3: bulk(buildSearchB2BProductV3OptionWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
+  channelId: [],
+  productUrl: faker.internet.url(),
+  taxClassId: faker.number.int(),
+  isPriceHidden: faker.datatype.boolean(),
 }));
 
 const customerEmail = 'info@abc.net';
@@ -740,5 +999,217 @@ describe('when a shipping address is added and then saved', () => {
     expect(within(shippingSummary).getByText('South Nelson')).toBeInTheDocument();
     expect(within(shippingSummary).getByText('Big Town, Alabama, 62799, US')).toBeInTheDocument();
     expect(within(shippingSummary).getByText('04747613123')).toBeInTheDocument();
+  });
+});
+
+describe('when the user is a B2B customer', () => {
+  it('shows the results in a modal and allows adding to quote', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const variant = buildVariantWith({
+      purchasing_disabled: false,
+      bc_calculated_price: {
+        tax_exclusive: 123,
+      },
+    });
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: variant.product_id,
+              name: 'Laugh Canister',
+              sku: 'LC-123',
+              optionsV3: [],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [variant],
+            }),
+          ],
+        },
+      });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+    when(getPriceProducts)
+      .calledWith({
+        storeHash: 'store-hash',
+        channelId: 1,
+        currencyCode: 'USD',
+        items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+        customerGroupId: 0,
+      })
+      .thenReturn({
+        data: {
+          priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+        },
+      });
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('priceProducts', ({ variables }) =>
+        HttpResponse.json(getPriceProducts(variables)),
+      ),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByText('Add to quote'));
+    const searchProduct = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchProduct, 'Laugh Canister');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+    const dialog = await screen.findByRole('dialog');
+
+    const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+
+    await userEvent.click(addToQuote);
+
+    expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+  });
+
+  it('add product by sku to draft quote', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const variant = buildVariantWith({
+      purchasing_disabled: false,
+      bc_calculated_price: {
+        tax_exclusive: 123,
+      },
+    });
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: variant.product_id,
+              name: 'Laugh Canister',
+              sku: 'LC-123',
+              optionsV3: [],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [variant],
+            }),
+          ],
+        },
+      });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+    when(getPriceProducts)
+      .calledWith({
+        storeHash: 'store-hash',
+        channelId: 1,
+        currencyCode: 'USD',
+        items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+        customerGroupId: 0,
+      })
+      .thenReturn({
+        data: {
+          priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+        },
+      });
+
+    const getVariantInfoBySkus = vi.fn();
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LC-123',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 50,
+      productId: variant.product_id.toString(),
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["LC-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: variant.product_id,
+                sku: variant.sku,
+                variants: [
+                  buildSearchB2BProductVariantWith({
+                    sku: variant.sku,
+                    variant_id: variant.variant_id,
+                  }),
+                ],
+              }),
+            ],
+          },
+        }),
+      ),
+      graphql.query('priceProducts', ({ variables }) =>
+        HttpResponse.json(getPriceProducts(variables)),
+      ),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+    );
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: { ...preloadedState, quoteInfo },
+    });
+
+    await userEvent.click(screen.getByText('Add to quote'));
+    const quickAddProduct = screen.getByLabelText('SKU#');
+    await userEvent.type(quickAddProduct, 'LC-123');
+    const quantityProduct = screen.getByLabelText('Qty');
+    await userEvent.type(quantityProduct, '1');
+    await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
+
+    expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
   });
 });

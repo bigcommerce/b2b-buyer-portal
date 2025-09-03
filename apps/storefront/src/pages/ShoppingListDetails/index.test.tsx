@@ -147,6 +147,7 @@ const b2bCompanyWithShoppingListPermissions = buildCompanyStateWith({
 type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number];
 type SearchB2BProductV3Option = SearchB2BProduct['optionsV3'][number];
 type SearchB2BProductV3OptionValue = SearchB2BProductV3Option['option_values'][number];
+type SearchB2BProductVariants = SearchB2BProduct['variants'][number];
 
 const buildSearchB2BProductV3OptionValueWith = builder<SearchB2BProductV3OptionValue>(() => ({
   id: faker.number.int(),
@@ -169,6 +170,31 @@ const buildSearchB2BProductV3OptionWith = builder<SearchB2BProductV3Option>(() =
   config: [],
 }));
 
+const buildSearchB2BProductVariantWith = builder<SearchB2BProductVariants>(() => ({
+  variant_id: faker.number.int({ min: 1, max: 10000 }),
+  product_id: faker.number.int(),
+  sku: faker.number.int().toString(),
+  option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    id: faker.number.int(),
+    label: faker.commerce.productAdjective(),
+    option_id: faker.number.int(),
+    option_display_name: faker.commerce.productMaterial(),
+  })),
+  calculated_price: Number(faker.commerce.price()),
+  image_url: faker.image.url(),
+  has_price_list: faker.datatype.boolean(),
+  bulk_prices: [],
+  purchasing_disabled: faker.datatype.boolean(),
+  cost_price: Number(faker.commerce.price()),
+  inventory_level: faker.number.int(),
+  bc_calculated_price: {
+    as_entered: Number(faker.commerce.price()),
+    tax_inclusive: Number(faker.commerce.price()),
+    tax_exclusive: Number(faker.commerce.price()),
+    entered_inclusive: faker.datatype.boolean(),
+  },
+}));
+
 const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   id: faker.number.int(),
   name: faker.commerce.productName(),
@@ -179,30 +205,9 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   availability: faker.helpers.arrayElement(['available', 'unavailable']),
   orderQuantityMinimum: faker.number.int(),
   orderQuantityMaximum: faker.number.int(),
-  variants: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-    variant_id: faker.number.int({ min: 1, max: 10000 }),
-    product_id: faker.number.int(),
-    sku: faker.number.int().toString(),
-    option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-      id: faker.number.int(),
-      label: faker.commerce.productAdjective(),
-      option_id: faker.number.int(),
-      option_display_name: faker.commerce.productMaterial(),
-    })),
-    calculated_price: Number(faker.commerce.price()),
-    image_url: faker.image.url(),
-    has_price_list: faker.datatype.boolean(),
-    bulk_prices: [],
-    purchasing_disabled: faker.datatype.boolean(),
-    cost_price: Number(faker.commerce.price()),
-    inventory_level: faker.number.int(),
-    bc_calculated_price: {
-      as_entered: Number(faker.commerce.price()),
-      tax_inclusive: Number(faker.commerce.price()),
-      tax_exclusive: Number(faker.commerce.price()),
-      entered_inclusive: faker.datatype.boolean(),
-    },
-  })),
+  variants: bulk(buildSearchB2BProductVariantWith, 'WHATEVER_VALUES').times(
+    faker.number.int({ min: 0, max: 10 }),
+  ),
   currencyCode: faker.finance.currencyCode(),
   imageUrl: faker.image.url(),
   modifiers: [],
@@ -1143,5 +1148,116 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
 
     spy.mockRestore();
+  });
+});
+
+describe('Add to quote', () => {
+  it('add shopping list to draft quote', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const getVariantInfoBySkus = vi.fn();
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      maxQuantity: 3,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 5,
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 73737,
+        variantSku: 'LVLY-SK-123',
+        productNote: 'Decorative wool socks',
+        primaryImage: 'https://example.com/socks.jpg',
+        basePrice: '49.00',
+        tax: '0.00',
+        discount: '0.00',
+        quantity: 4,
+        optionList: JSON.stringify([
+          { valueLabel: 'color', valueText: 'red' },
+          { valueLabel: 'size', valueText: 'large' },
+        ]),
+      },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 },
+      },
+    });
+
+    const lovelySocksSearchProduct = buildSearchB2BProductWith({
+      id: lovelySocksProductEdge.node.productId,
+      name: lovelySocksProductEdge.node.productName,
+      isPriceHidden: false,
+      sku: lovelySocksProductEdge.node.variantSku,
+      variants: [
+        buildSearchB2BProductVariantWith({
+          sku: lovelySocksProductEdge.node.variantSku,
+        }),
+      ],
+      optionsV3: [
+        buildSearchB2BProductV3OptionWith({
+          display_name: 'Size',
+          option_values: [
+            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
+          ],
+        }),
+      ],
+    });
+
+    const searchProductsQuerySpy = vi.fn();
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        searchProductsQuerySpy(query);
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
+      expect.stringContaining('productIds: [73737]'),
+    );
+
+    const row = screen.getByRole('row', { name: /Lovely socks/ });
+
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '4' })).toBeInTheDocument();
+
+    const checkbox = within(row).getByRole('checkbox');
+
+    await userEvent.click(checkbox);
+
+    expect(within(row).getByRole('checkbox')).toBeChecked();
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
+
+    await screen.findByText('Products were added to your quote');
   });
 });
