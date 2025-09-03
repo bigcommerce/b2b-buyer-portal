@@ -1,0 +1,3 @@
+- '**/*.csv': {
+  cache_control: 'no-cache, max-age=0'
+}
