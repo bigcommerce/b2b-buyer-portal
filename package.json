@@ -14,12 +14,10 @@
     "format": "turbo run format --parallel --continue",
     "test": "turbo run test",
     "clean": "yarn run clean:node-modules",
-    "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "postinstall": "patch-package"
+    "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
     "eslint": "^8.2.0",
-    "patch-package": "^8.0.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.4"
   },
