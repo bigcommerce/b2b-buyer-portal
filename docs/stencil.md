@@ -74,9 +74,11 @@ Building your buyer portal application requires you to run the `yarn build` comm
 
 Make sure that you have configured the following `.env` values correctly before building:
 - `VITE_IS_LOCAL_ENVIRONMENT`: Set this to `FALSE`
-- `VITE_ASSETS_ABSOLUTE_PATH`: Set this to the URL where the assets folder is hosted. **Note that this needs to be the absolute URL to the `/assets` folder location where the build will be served from in production.** Also please include the trailing `/`.
+- `VITE_ASSETS_ABSOLUTE_PATH`: Set this to the URL where the assets folder is hosted. Also please include the trailing `/`.
 
-  For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
+  For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/.
+
+- `VITE_DISABLE_BUILD_HASH`: Set this to `TRUE` if you want to disable the hash in the build files. This is useful if you want to avoid updating the file names in your headless app on each deployment and you would like to have a stable reference. 
 
 Once you have uploaded the contents of the `dist` folder to your hosting provider, you need to update your scripts in your BigCommerce storefront that points to the newly uploaded files.
 
