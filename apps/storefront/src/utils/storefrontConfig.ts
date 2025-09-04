@@ -16,6 +16,7 @@ import { store } from '@/store';
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
+  setFeatureFlags,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
   setShowInclusiveTaxPrice,
@@ -23,6 +24,7 @@ import {
 } from '@/store/slices/global';
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage, channelId } from '@/utils';
+import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
 
 interface StorefrontKeysProps {
   key: string;
@@ -162,10 +164,7 @@ const storefrontKeys: StorefrontKeysProps[] = [
     key: 'quote_submission_response',
     name: 'quoteSubmissionResponse',
   },
-  {
-    key: 'B2B-3318.move_stock_and_backorder_validation_to_backend',
-    name: 'moveStockAndBackorderValidationToBackend',
-  },
+  ...featureFlags,
 ];
 
 const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
@@ -291,6 +290,14 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
             key: item.key,
             value: item.value,
             ...item.extraFields,
+          }),
+        );
+      }
+
+      if (featureFlags.some((ff) => ff.key === storefrontKey.key)) {
+        store.dispatch(
+          setFeatureFlags({
+            [storefrontKey.key as FeatureFlagKey]: item.value === '1',
           }),
         );
       }

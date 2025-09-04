@@ -17,6 +17,7 @@ import {
   LineItem,
   validProductQty,
 } from '@/utils/b3Product/b3Product';
+import { FeatureFlags } from '@/utils/featureFlags';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
@@ -226,6 +227,7 @@ const addProductFromProductPageToQuote = (
   setOpenPage: SetOpenPage,
   isEnableProduct: boolean,
   b3Lang: LangFormatFunction,
+  featureFlags: FeatureFlags,
 ) => {
   const addToQuote = async (node?: HTMLElement) => {
     try {
@@ -268,8 +270,7 @@ const addProductFromProductPageToQuote = (
         return;
       }
 
-      const featureFlag = true;
-      if (featureFlag) {
+      if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
         // Is this the correct way to get the variantId?
         const variantId = newProductInfo[0]?.variants.find(
           (variant: CustomFieldItems) => variant.sku === sku,
@@ -279,8 +280,6 @@ const addProductFromProductPageToQuote = (
           optionId: Number(option.optionId.split('[')[1].split(']')[0]),
           optionValue: option.optionValue,
         }));
-
-        console.log(productOptions);
 
         const { responseType, message } = await validateProduct({
           productId: Number(productId),

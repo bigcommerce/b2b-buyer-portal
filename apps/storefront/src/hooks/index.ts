@@ -12,3 +12,4 @@ export { default as useSetOpen } from './useSetOpen';
 export { default as useSort } from './useSort';
 export { default as useTableRef } from './useTableRef';
 export * from './useVerifyPermission';
+export * from './useFeatureFlags';

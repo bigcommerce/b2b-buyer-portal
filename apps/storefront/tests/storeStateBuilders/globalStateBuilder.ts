@@ -49,4 +49,5 @@ export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => 
     version: 1,
     rehydrated: true,
   },
+  featureFlags: {},
 }));

@@ -10,6 +10,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import {
   dispatchEvent,
+  useFeatureFlags,
   useMobile,
   useSetCountry,
   useValidatePermissionWithComparisonType,
@@ -144,10 +145,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
-
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
+  const featureFlags = useFeatureFlags();
 
   const {
     state: {
@@ -438,8 +439,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    const featureFlag = true;
-    if (featureFlag) {
+    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
       const validationPromises = products.map(({ node: product }) => {
         const { productId, quantity, productsSearch } = product;
         const { variantId, newSelectOptionList } = productsSearch;
