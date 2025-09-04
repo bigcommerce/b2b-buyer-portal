@@ -26,7 +26,6 @@ import {
   CustomerOrderShippingAddress,
   CustomerOrderStatues,
   CustomerOrderStatus,
-  DigitalDownloadElementsResponse,
   GetCustomerOrder,
   GetCustomerOrders,
   OrderProduct,
@@ -34,6 +33,7 @@ import {
 } from '@/shared/service/b2b/graphql/orders';
 import { CustomerRole, MoneyFormat } from '@/types';
 
+import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
 
 vi.mock('react-router-dom');

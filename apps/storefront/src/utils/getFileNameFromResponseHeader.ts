@@ -1,8 +1,5 @@
-export const getBlobFileName = (blob: Blob, headers: Headers): string => {
+export const getFileNameFromResponseHeader = (headers: Headers): string => {
   let filename = '';
-  if (blob.type === 'text/html') {
-    throw new Error();
-  }
   const disposition = headers.get('content-disposition');
   const dispositionParams = disposition?.split(';') ?? [];
 

@@ -62,31 +62,6 @@ export interface GetCustomerOrders {
   };
 }
 
-export type DigitalDownloadLineItem = {
-  node: {
-    name: string;
-    downloadPageUrl: string;
-    downloadFileUrls: string[];
-    productEntityId: number;
-  };
-};
-
-export type DigitalDownloadElementsResponse = {
-  data: {
-    site: {
-      order: {
-        consignments: {
-          downloads: Array<{
-            lineItems: {
-              edges: DigitalDownloadLineItem[];
-            };
-          }>;
-        };
-      };
-    };
-  };
-};
-
 const allOrders = (data: CustomFieldItems, fn: 'allOrders' | 'customerOrders') => `
 query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   ${fn}(
@@ -372,29 +347,6 @@ query ${fn === 'order' ? 'GetOrder' : 'GetCustomerOrder'} {
   }
 }`;
 
-const getDigitalDownloadLinks = `
-  query GetDigitalDownloadLinks($orderId: Int!) {
-    site {
-      order(filter: {entityId: $orderId}) {
-        consignments {
-          downloads {           
-            lineItems {
-              edges {
-                node {
-                  name
-                  downloadPageUrl
-                  downloadFileUrls
-                  productEntityId
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 export interface CustomerOrderStatus {
   systemLabel: string;
   customLabel: string;
@@ -445,11 +397,3 @@ export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   }).then((res) => res.bcOrderStatuses);
-
-export const getDigitalDownloadElements = (orderId: number | string) =>
-  B3Request.graphqlBCProxy({
-    query: getDigitalDownloadLinks,
-    variables: { orderId },
-  }).then((res) => {
-    return res.data.site.order.consignments.downloads[0]?.lineItems.edges || [];
-  });
