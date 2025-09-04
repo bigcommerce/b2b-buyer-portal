@@ -1,7 +1,7 @@
 import { Fragment, useContext, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
-import format from 'date-fns/format';
+import { format } from 'date-fns/format';
 import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components';
