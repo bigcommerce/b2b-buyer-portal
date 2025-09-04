@@ -5,14 +5,14 @@ import { mergeWith, range } from 'lodash-es';
 type DeepPartialObjects<T> = unknown extends T
   ? T
   : T extends object
-  ? {
-      [P in keyof T]?: T[P] extends Array<infer U>
-        ? Array<U>
-        : T[P] extends ReadonlyArray<infer U>
-        ? ReadonlyArray<U>
-        : DeepPartialObjects<T[P]>;
-    }
-  : T;
+    ? {
+        [P in keyof T]?: T[P] extends Array<infer U>
+          ? Array<U>
+          : T[P] extends ReadonlyArray<infer U>
+            ? ReadonlyArray<U>
+            : DeepPartialObjects<T[P]>;
+      }
+    : T;
 
 const mergeCustomizer = <T>(objValue: T, srcValue: T) =>
   // Replace, rather than merge, arrays for more predictable results

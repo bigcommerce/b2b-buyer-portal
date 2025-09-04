@@ -554,9 +554,8 @@ export default function RegisteredBCToB2B(props: PageProps) {
 
         let isCompanyUserValidate = true;
         if (companyUserExtraFields.length > 0) {
-          isCompanyUserValidate = await handleValidateCompanyUserExtraFields(
-            companyUserExtraFields,
-          );
+          isCompanyUserValidate =
+            await handleValidateCompanyUserExtraFields(companyUserExtraFields);
         }
         if (!isCompanyUserValidate) {
           return;
