@@ -1,5 +1,5 @@
 import { UseFormSetError } from 'react-hook-form';
-import format from 'date-fns/format';
+import { format } from 'date-fns/format';
 
 import { LangFormatFunction } from '@/lib/lang';
 import { validateAddressExtraFields, validateBCCompanyExtraFields } from '@/shared/service/b2b';

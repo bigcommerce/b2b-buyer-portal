@@ -1,4 +1,4 @@
-import format from 'date-fns/format';
+import { format } from 'date-fns/format';
 import isEmpty from 'lodash-es/isEmpty';
 
 import { LangFormatFunction } from '@/lib/lang';
