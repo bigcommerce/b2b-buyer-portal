@@ -18,6 +18,7 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';
+import { validateProduct } from '@/shared/service/b2b/graphql/product';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
   activeCurrencyInfoSelector,
@@ -39,7 +40,7 @@ import {
   QuoteInfo as QuoteInfoType,
   ShippingAddress,
 } from '@/types/quotes';
-import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
+import { B3LStorage, channelId, globalSnackbar, snackbar, storeHash } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import b2bLogger from '@/utils/b3Logger';
@@ -436,8 +437,57 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     quoteSummaryRef.current?.refreshSummary();
   };
 
-  const addToQuote = (products: CustomFieldItems[]) => {
-    addQuoteDraftProducts(products);
+  const addToQuote = async (products: CustomFieldItems[]) => {
+    const featureFlag = true;
+    if (featureFlag) {
+      const validationPromises = products.map(({ node: product }) => {
+        const { productId, quantity, productsSearch } = product;
+        const { variantId, newSelectOptionList } = productsSearch;
+        const productOptions = newSelectOptionList.map((option: CustomFieldItems) => ({
+          optionId: Number(option.optionId.split('[')[1].split(']')[0]),
+          optionValue: option.optionValue,
+        }));
+
+        return validateProduct({
+          productId,
+          variantId,
+          quantity,
+          productOptions,
+        });
+      });
+
+      // Should we use Promise.allSettled or Promise.all?
+      const settledResults = await Promise.allSettled(validationPromises);
+
+      settledResults.forEach((result) => {
+        if (result.status === 'rejected') {
+          // Network or unexpected error
+          globalSnackbar.error('Product validation failed.');
+          return;
+        }
+
+        const { responseType, message } = result.value;
+
+        if (responseType === 'ERROR') {
+          globalSnackbar.error(message);
+        } else if (responseType === 'WARNING') {
+          // Should we show a warning here or rely on the warnings from the product table?
+          globalSnackbar.warning(message);
+        }
+      });
+
+      const validProducts = products.filter((_, index) => {
+        const res = settledResults[index];
+
+        return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
+      });
+
+      if (validProducts.length > 0) {
+        addQuoteDraftProducts(validProducts);
+      }
+    } else {
+      addQuoteDraftProducts(products);
+    }
   };
 
   const getFileList = (files: CustomFieldItems[]) => {

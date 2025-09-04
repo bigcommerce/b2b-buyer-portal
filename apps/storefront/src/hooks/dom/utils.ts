@@ -2,6 +2,7 @@ import config from '@/lib/config';
 import { LangFormatFunction } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchProducts } from '@/shared/service/b2b';
+import { validateProduct } from '@/shared/service/b2b/graphql/product';
 import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
@@ -267,7 +268,37 @@ const addProductFromProductPageToQuote = (
         return;
       }
 
-      if (!isEnableProduct) {
+      const featureFlag = true;
+      if (featureFlag) {
+        // Is this the correct way to get the variantId?
+        const variantId = newProductInfo[0]?.variants.find(
+          (variant: CustomFieldItems) => variant.sku === sku,
+        )?.variant_id;
+
+        const productOptions = optionList.map((option: CustomFieldItems) => ({
+          optionId: Number(option.optionId.split('[')[1].split(']')[0]),
+          optionValue: option.optionValue,
+        }));
+
+        console.log(productOptions);
+
+        const { responseType, message } = await validateProduct({
+          productId: Number(productId),
+          variantId: Number(variantId),
+          quantity: Number(qty),
+          productOptions,
+        });
+
+        if (responseType === 'ERROR') {
+          globalSnackbar.error(message);
+
+          return;
+        }
+
+        if (responseType === 'WARNING') {
+          globalSnackbar.warning(message);
+        }
+      } else if (!isEnableProduct) {
         const currentProduct = getVariantInfoOOSAndPurchase({
           ...productsSearch[0],
           quantity: qty,

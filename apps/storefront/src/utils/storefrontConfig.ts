@@ -162,6 +162,10 @@ const storefrontKeys: StorefrontKeysProps[] = [
     key: 'quote_submission_response',
     name: 'quoteSubmissionResponse',
   },
+  {
+    key: 'B2B-3318.move_stock_and_backorder_validation_to_backend',
+    name: 'moveStockAndBackorderValidationToBackend',
+  },
 ];
 
 const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {

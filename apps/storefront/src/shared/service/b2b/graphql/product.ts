@@ -8,6 +8,15 @@ interface ProductPurchasable {
   sku: string;
 }
 
+interface ValidateProductResponse {
+  data: {
+    validateProduct: {
+      responseType: string;
+      message: string;
+    };
+  };
+}
+
 const getVariantInfoBySkusQuery = (skuList: string[]) => `
 query GetVariantInfoBySkus {
   variantSku (
@@ -79,6 +88,22 @@ const getSearchProductsQuery = (data: CustomFieldItems) => `
       productUrl,
       taxClassId,
       isPriceHidden,
+    }
+  }
+`;
+
+const getValidateProductQuery = (data: CustomFieldItems) => `
+  query ValidateProduct {
+    validateProduct(
+      productId: ${data.productId || 0}
+      variantId: ${data.variantId || 0}
+      quantity: ${data.quantity || 0}
+      productOptions: ${convertArrayToGraphql(data.productOptions || [])}
+      storeHash: "${storeHash}"
+      channelId: ${channelId}
+    ) {
+      responseType
+      message
     }
   }
 `;
@@ -279,6 +304,12 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       currencyCode: data?.currencyCode || currencyCode,
     }),
   });
+};
+
+export const validateProduct = (data: CustomFieldItems = {}) => {
+  return B3Request.graphqlB2B<ValidateProductResponse>({
+    query: getValidateProductQuery(data),
+  }).then((res) => res.validateProduct);
 };
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
