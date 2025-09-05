@@ -10,10 +10,6 @@
   "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
   "scripts": {
     "build": "turbo run build",
-    "build:production": "turbo run build",
-    "build:staging": "turbo run build:staging",
-    "build:staging-atx": "turbo run build:staging",
-    "build:tier1": "turbo run build:tier1",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint --parallel --continue",
     "format": "turbo run format --parallel --continue",
