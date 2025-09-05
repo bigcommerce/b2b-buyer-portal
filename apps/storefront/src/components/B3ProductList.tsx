@@ -124,7 +124,7 @@ interface ProductProps<T> {
   canToProduct?: boolean;
   textAlign?: string;
   type?: string;
-  getDigitalDownloadLinks?: (productId: number | undefined) => void;
+  getCurrentProductUrls?: (productId: number | undefined) => void;
 }
 
 export default function B3ProductList<T>(props: ProductProps<T>) {
@@ -143,7 +143,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
     textAlign = 'left',
     money,
     type,
-    getDigitalDownloadLinks,
+    getCurrentProductUrls,
   } = props;
 
   const [list, setList] = useState<ProductItem[]>([]);
@@ -413,7 +413,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                         minWidth: 0,
                       }}
                       variant="text"
-                      onClick={() => getDigitalDownloadLinks?.(product.product_id)}
+                      onClick={() => getCurrentProductUrls?.(product.product_id)}
                     >
                       {b3Lang('orderDetail.digitalProducts.viewFiles')}
                     </Button>

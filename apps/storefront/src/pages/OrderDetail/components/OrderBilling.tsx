@@ -27,7 +27,6 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
 
   const b3Lang = useB3Lang();
 
-  const [isDigitalDownloadOpen, setIsDigitalDownloadOpen] = useState(false);
   const [digitalProductsWithUrl, setDigitalProductsWithUrl] = useState<OrderProductItem[]>([]);
   const [currentDigitalProduct, setCurrentDigitalProduct] = useState<OrderProductItem>();
 
@@ -60,12 +59,11 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     }
   }, [digitalProducts, orderId]);
 
-  const getCurrentDigitalProduct = (productId: number | undefined) => {
+  const getCurrentProductUrls = (productId: number | undefined) => {
     const currentProduct = digitalProductsWithUrl?.find(
       (product) => product.product_id === productId,
     );
     setCurrentDigitalProduct(currentProduct);
-    setIsDigitalDownloadOpen(!isDigitalDownloadOpen);
   };
 
   const getFullName = (billingAddress: Address) => {
@@ -166,12 +164,12 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             canToProduct={isCurrentCompany}
             textAlign={isMobile ? 'left' : 'right'}
             money={money}
-            getDigitalDownloadLinks={getCurrentDigitalProduct}
+            getCurrentProductUrls={getCurrentProductUrls}
           />
         </CardContent>
         <DownloadDigitalProductsDialog
-          isOpen={isDigitalDownloadOpen}
-          onClose={() => setIsDigitalDownloadOpen(false)}
+          isOpen={!!currentDigitalProduct}
+          onClose={() => setCurrentDigitalProduct(undefined)}
           product={currentDigitalProduct}
           b3Lang={b3Lang}
           handleDownloadDigitalFile={handleDownloadDigitalFile}
