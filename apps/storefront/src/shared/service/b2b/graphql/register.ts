@@ -185,8 +185,8 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
   }
 }`;
 
-const customerCreateBC = `mutation customerCreate($customerData: CustomerInputType!) {
-  customerCreate(customerData: $customerData) {
+const customerCreateBC = `mutation customerCreate($customerData: CustomerInputType!, $recaptchaUserResponse: String) {
+  customerCreate(customerData: $customerData, recaptchaUserResponse: $recaptchaUserResponse) {
     customer {
       id
       email
@@ -240,10 +240,16 @@ export const getBCStoreChannelId = () =>
     variables: { storeHash, bcChannelId: channelId },
   });
 
-export const createBCCompanyUser = (customerData: Partial<CreateCustomer>) =>
+export const createBCCompanyUser = (
+  customerData: Partial<CreateCustomer>,
+  recaptchaUserResponse: string,
+) =>
   B3Request.graphqlB2B({
     query: customerCreateBC,
-    variables: { customerData: convertObjectOrArrayKeysToCamel(customerData) },
+    variables: {
+      customerData: convertObjectOrArrayKeysToCamel(customerData),
+      recaptchaUserResponse,
+    },
   });
 
 export const sendSubscribersState = (data: Partial<CustomerSubscribers>) =>
