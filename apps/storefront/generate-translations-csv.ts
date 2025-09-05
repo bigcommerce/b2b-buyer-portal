@@ -1,12 +1,15 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --experimental-strip-types --no-warnings
 
+import { stringify } from 'csv-stringify/sync';
 import { readFileSync, writeFileSync } from 'fs';
-import { json2csv } from 'json-2-csv';
-import path from 'path';
 
-const file = readFileSync(path.resolve('./src/lib/lang/locales/en.json'), 'utf-8');
+const fileName = 'src/lib/lang/locales/en.json';
 
-const locales = JSON.parse(file);
+const { log } = console;
+
+const locales = JSON.parse(readFileSync(fileName, 'utf-8'));
+
+log('🔍', `Parsed '${fileName}' file with ${Object.keys(locales).length} entries.`);
 
 const data = Object.entries(locales).map(([key, value]) => ({
   VARIABLE: key,
@@ -14,10 +17,11 @@ const data = Object.entries(locales).map(([key, value]) => ({
   CUSTOM_VALUE: '',
 }));
 
-const headers = ['VARIABLE', 'DEFAULT_VALUE', 'CUSTOM_VALUE'];
-
-const result = json2csv(data, {
-  sortHeader: (a, b) => headers.indexOf(a) - headers.indexOf(b),
+const result = stringify(data, {
+  columns: ['VARIABLE', 'DEFAULT_VALUE', 'CUSTOM_VALUE'],
+  header: true,
 });
 
 writeFileSync('dist/translation-template.csv', result);
+
+log('✅', `Written 'translation-template.csv' file with ${data.length} entries.`);
