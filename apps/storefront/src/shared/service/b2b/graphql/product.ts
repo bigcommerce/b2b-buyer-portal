@@ -8,15 +8,6 @@ interface ProductPurchasable {
   sku: string;
 }
 
-interface ValidateProductResponse {
-  data: {
-    validateProduct: {
-      responseType: string;
-      message: string;
-    };
-  };
-}
-
 const getVariantInfoBySkusQuery = (skuList: string[]) => `
 query GetVariantInfoBySkus {
   variantSku (
@@ -292,6 +283,15 @@ export interface SearchProductsResponse {
       taxClassId: number;
       isPriceHidden: boolean;
     }>;
+  };
+}
+
+export interface ValidateProductResponse {
+  data: {
+    validateProduct: {
+      responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
+      message: string;
+    };
   };
 }
 
