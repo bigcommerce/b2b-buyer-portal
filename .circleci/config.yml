@@ -81,11 +81,13 @@ jobs:
     steps:
       - ci/pre-setup
       - install-dependencies
-      - ci/gcloud_login
       - run:
           name: "Build distribution files"
+          command: yarn build
+      - ci/gcloud_login
+      - run:
+          name: "Publish build files"
           command: |
-             yarn build
              mv apps/storefront/dist ${CIRCLE_SHA1}
              mv config ${CIRCLE_SHA1}
              tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
