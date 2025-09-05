@@ -11,15 +11,6 @@ type DigitalProduct = {
   node: DigitalProductNode;
 };
 
-type DigitalDownloadLineItem = {
-  node: {
-    name: string;
-    downloadPageUrl: string;
-    downloadFileUrls: string[];
-    productEntityId: number;
-  };
-};
-
 export type DigitalDownloadElementsResponse = {
   data: {
     site: {
@@ -27,7 +18,7 @@ export type DigitalDownloadElementsResponse = {
         consignments: {
           downloads: Array<{
             lineItems: {
-              edges: DigitalDownloadLineItem[];
+              edges: DigitalProduct[];
             };
           }>;
         };

@@ -1,17 +1,13 @@
 import { InsertDriveFileOutlined } from '@mui/icons-material';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, useTheme } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
+import { ProductItem } from '@/types';
 
 interface DownloadDigitalProductsDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  product?: {
-    downloadFileUrls?: string[];
-    product_id?: number;
-    name?: string;
-    sku?: string;
-  };
+  product?: ProductItem;
   b3Lang: (key: string) => string;
   handleDownloadDigitalFile: (fileUrl: string) => void;
 }
@@ -23,13 +19,15 @@ function DownloadDigitalProductsDialog({
   b3Lang,
   handleDownloadDigitalFile,
 }: DownloadDigitalProductsDialogProps) {
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+
   return (
     <B3Dialog
       isOpen={isOpen}
       fullWidth
       handleLeftClick={onClose}
       title={b3Lang('orderDetail.digitalProducts.filesToDownload')}
-      rightSizeBtn={undefined}
       leftSizeBtn={b3Lang('orderDetail.digitalProducts.close')}
       maxWidth="md"
       showRightBtn={false}
@@ -45,7 +43,9 @@ function DownloadDigitalProductsDialog({
               justifyContent: 'space-between',
               padding: '8px 0',
               margin: '15px 0 15px 0',
-              border: '1px solid #1976D2',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: primaryColor,
               borderRadius: '10px',
               p: 2,
             }}
@@ -53,13 +53,13 @@ function DownloadDigitalProductsDialog({
             <Box sx={{ display: 'flex' }}>
               <InsertDriveFileOutlined
                 sx={{
-                  color: '#1976D2',
+                  color: primaryColor,
                   fontSize: '40px',
                 }}
               />
               <Typography
                 sx={{
-                  color: '#1976D2',
+                  color: primaryColor,
                   fontSize: '14px',
                   alignSelf: 'center',
                 }}
@@ -70,7 +70,7 @@ function DownloadDigitalProductsDialog({
             <Button
               onClick={() => handleDownloadDigitalFile(fileUrl)}
               sx={{
-                color: '#1976D2',
+                color: primaryColor,
                 textDecoration: 'none',
                 fontSize: '14px',
               }}

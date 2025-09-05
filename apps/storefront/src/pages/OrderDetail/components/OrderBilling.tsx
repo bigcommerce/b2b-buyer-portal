@@ -8,7 +8,7 @@ import { snackbar } from '@/utils';
 import { getFileNameFromResponseHeader } from '@/utils/getFileNameFromResponseHeader';
 import { handleBlobDownload } from '@/utils/handleBlobDownload';
 
-import { OrderBillings, OrderProductItem, ProductItem } from '../../../types';
+import { Address, OrderProductItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 import DownloadDigitalProductsDialog from './DownloadDigitalProductsDialog';
@@ -20,7 +20,7 @@ type OrderBillingProps = {
 
 export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
-    state: { billings = [], addressLabelPermission, orderId, money },
+    state: { billingAddress, digitalProducts = [], addressLabelPermission, orderId, money },
   } = useContext(OrderDetailsContext);
 
   const [isMobile] = useMobile();
@@ -28,10 +28,8 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const b3Lang = useB3Lang();
 
   const [isDigitalDownloadOpen, setIsDigitalDownloadOpen] = useState(false);
-  const [digitalProducts, setDigitalProducts] = useState<OrderProductItem[]>([]);
-  const [currentDigitalProduct, setCurrentDigitalProduct] = useState<ProductItem | undefined>(
-    undefined,
-  );
+  const [digitalProductsWithUrl, setDigitalProductsWithUrl] = useState<OrderProductItem[]>([]);
+  const [currentDigitalProduct, setCurrentDigitalProduct] = useState<OrderProductItem>();
 
   useEffect(() => {
     const getDigitalProductsInformation = async (id: number | string) => {
@@ -43,7 +41,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
 
       const digitalProductsData = elements.map((item) => item.node);
 
-      const digitalProducts = billings[0].digitalProducts.map((product: OrderProductItem) => {
+      const digitalProductsUrls = digitalProducts.map((product: OrderProductItem) => {
         const fileUrls =
           digitalProductsData.find(({ productEntityId }) => productEntityId === product.product_id)
             ?.downloadFileUrls || [];
@@ -54,23 +52,23 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
         };
       });
 
-      setDigitalProducts(digitalProducts);
+      setDigitalProductsWithUrl(digitalProductsUrls);
     };
 
     if (orderId) {
       getDigitalProductsInformation(orderId);
     }
-  }, [billings, orderId]);
+  }, [digitalProducts, orderId]);
 
   const getCurrentDigitalProduct = (productId: number | undefined) => {
-    const current = digitalProducts.find((product) => product.product_id === productId);
-    setCurrentDigitalProduct(current);
+    const currentProduct = digitalProductsWithUrl?.find(
+      (product) => product.product_id === productId,
+    );
+    setCurrentDigitalProduct(currentProduct);
     setIsDigitalDownloadOpen(!isDigitalDownloadOpen);
   };
 
-  const getFullName = (billing: OrderBillings) => {
-    const { billingAddress } = billing;
-
+  const getFullName = (billingAddress: Address) => {
     if (billingAddress) {
       const { first_name: firstName, last_name: lastName } = billingAddress;
 
@@ -80,9 +78,7 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     return '';
   };
 
-  const getFullAddress = (billing: OrderBillings) => {
-    const { billingAddress } = billing;
-
+  const getFullAddress = (billingAddress: Address) => {
     if (billingAddress) {
       const { street_1: street1, city, state, zip, country } = billingAddress;
 
@@ -102,12 +98,6 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     return company.substring(index + 1, company.length);
   };
 
-  const hasDigitalProducts = billings.some((billing) => billing.digitalProducts.length > 0);
-
-  if (!hasDigitalProducts) {
-    return null;
-  }
-
   const handleDownloadDigitalFile = async (fileUrl: string) => {
     try {
       const res = await fetch(fileUrl);
@@ -122,67 +112,71 @@ export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
     }
   };
 
+  const fullName = billingAddress ? getFullName(billingAddress) : '';
+  const companyName = billingAddress ? getCompanyName(billingAddress.company || '') : '';
+  const fullAddress = billingAddress ? getFullAddress(billingAddress) : '';
+
   return (
     <Stack spacing={2}>
-      {billings.map((billingItem: OrderBillings) => (
-        <Card key={`billing-${orderId}`}>
-          <CardContent>
-            <Box
+      <Card key={`billing-${orderId}`}>
+        <CardContent>
+          <Box
+            sx={{
+              wordBreak: 'break-word',
+              color: 'rgba(0, 0, 0, 0.87)',
+            }}
+          >
+            <Typography
+              variant="h6"
               sx={{
-                wordBreak: 'break-word',
-                color: 'rgba(0, 0, 0, 0.87)',
+                fontSize: '24px',
+                fontWeight: '400',
               }}
             >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: '24px',
-                  fontWeight: '400',
-                }}
-              >
-                {getFullName(billingItem)}
-                {' – '}
-                {getCompanyName(billingItem.billingAddress.company || '')}
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: '24px',
-                  fontWeight: '400',
-                }}
-              >
-                {getFullAddress(billingItem)}
-              </Typography>
-            </Box>
-
-            <Box
+              {fullName}
+              {' – '}
+              {companyName}
+            </Typography>
+            <Typography
+              variant="h6"
               sx={{
-                margin: '20px 0 2px',
+                fontSize: '24px',
+                fontWeight: '400',
               }}
             >
-              <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#313440' }}>
-                {b3Lang('orderDetail.billing.digitalProducts')}
-              </Typography>
-            </Box>
+              {fullAddress}
+            </Typography>
+          </Box>
 
-            <B3ProductList
-              products={digitalProducts.length ? digitalProducts : billingItem.digitalProducts}
-              totalText="Total"
-              canToProduct={isCurrentCompany}
-              textAlign={isMobile ? 'left' : 'right'}
-              money={money}
-              getDigitalDownloadLinks={getCurrentDigitalProduct}
-            />
-          </CardContent>
-          <DownloadDigitalProductsDialog
-            isOpen={isDigitalDownloadOpen}
-            onClose={() => setIsDigitalDownloadOpen(false)}
-            product={currentDigitalProduct}
-            b3Lang={b3Lang}
-            handleDownloadDigitalFile={handleDownloadDigitalFile}
+          <Box
+            sx={{
+              margin: '20px 0 2px',
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#313440' }}>
+              {b3Lang('orderDetail.billing.digitalProducts')}
+            </Typography>
+          </Box>
+
+          <B3ProductList
+            products={
+              digitalProductsWithUrl.length ? digitalProductsWithUrl : digitalProducts || []
+            }
+            totalText="Total"
+            canToProduct={isCurrentCompany}
+            textAlign={isMobile ? 'left' : 'right'}
+            money={money}
+            getDigitalDownloadLinks={getCurrentDigitalProduct}
           />
-        </Card>
-      ))}
+        </CardContent>
+        <DownloadDigitalProductsDialog
+          isOpen={isDigitalDownloadOpen}
+          onClose={() => setIsDigitalDownloadOpen(false)}
+          product={currentDigitalProduct}
+          b3Lang={b3Lang}
+          handleDownloadDigitalFile={handleDownloadDigitalFile}
+        />
+      </Card>
     </Stack>
   );
 }
