@@ -91,7 +91,7 @@ module.exports = {
           '**/*.test.tsx',
           '**/__mocks__/**',
           'vite.config.ts',
-          './generate-translations-csv.js',
+          './generate-translations-csv.ts',
         ],
       },
     ],
