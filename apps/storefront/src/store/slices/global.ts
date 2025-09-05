@@ -4,6 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { OpenPageState } from '@/types/hooks';
+import { FeatureFlags } from '@/utils/featureFlags';
 
 export interface TaxZoneRates {
   rate?: number;
@@ -77,6 +78,7 @@ export interface GlobalState {
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
   isOpenCompanyHierarchyDropDown: boolean;
+  featureFlags: FeatureFlags;
 }
 
 const initialState: GlobalState = {
@@ -120,6 +122,7 @@ const initialState: GlobalState = {
     title: '',
   },
   isOpenCompanyHierarchyDropDown: false,
+  featureFlags: {},
 };
 
 export const globalSlice = createSlice({
@@ -173,6 +176,12 @@ export const globalSlice = createSlice({
     setOpenCompanyHierarchyDropDown: (state, { payload }: PayloadAction<boolean>) => {
       state.isOpenCompanyHierarchyDropDown = payload;
     },
+    setFeatureFlags: (state, { payload }: PayloadAction<FeatureFlags>) => {
+      state.featureFlags = {
+        ...state.featureFlags,
+        ...payload,
+      };
+    },
   },
 });
 
@@ -189,6 +198,7 @@ export const {
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
   setOpenCompanyHierarchyDropDown,
+  setFeatureFlags,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

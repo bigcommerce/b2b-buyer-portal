@@ -22,6 +22,7 @@ import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { setCartPermissions } from '@/utils';
 
+import { useFeatureFlags } from '../useFeatureFlags';
 import useGetButtonText from '../useGetButtonText';
 
 import useDomVariation from './useDomVariation';
@@ -40,6 +41,7 @@ interface MutationObserverProps {
 const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserverProps) => {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
+  const featureFlags = useFeatureFlags();
   const quoteDraftUserId = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const isEnableProduct =
@@ -74,6 +76,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     setOpenPage,
     isEnableProduct,
     b3Lang,
+    featureFlags,
   );
 
   const quoteCallBack = useCallback(
