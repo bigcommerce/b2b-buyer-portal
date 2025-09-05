@@ -1,6 +1,7 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react';
 
 import {
+  Address,
   CompanyInfoTypes,
   MoneyFormat,
   OrderBillings,
@@ -37,6 +38,8 @@ export interface OrderDetailsState {
   orderIsDigital?: boolean;
   companyInfo?: CompanyInfoTypes;
   customerId?: number;
+  digitalProducts?: OrderProductItem[];
+  billingAddress?: Address;
 }
 interface OrderDetailsAction {
   type: string;
@@ -101,6 +104,21 @@ const initState = {
     companyZipCode: '',
     phoneNumber: '',
     bcId: '',
+  },
+  digitalProducts: [],
+  billingAddress: {
+    city: '',
+    company: '',
+    country: '',
+    country_iso2: '',
+    email: '',
+    first_name: '',
+    last_name: '',
+    phone: '',
+    state: '',
+    street_1: '',
+    street_2: '',
+    zip: '',
   },
 };
 
