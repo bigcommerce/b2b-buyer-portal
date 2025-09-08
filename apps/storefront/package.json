@@ -37,7 +37,7 @@
     "copy-to-clipboard": "^3.3.3",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
-    "graphql": "^16.8.1",
+    "graphql": "^16.11.0",
     "js-cookie": "^3.0.5",
     "lodash-es": "^4.17.21",
     "pdfobject": "^2.3.1",
