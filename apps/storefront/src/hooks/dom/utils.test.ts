@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { when } from 'vitest-when';
 
 import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
-import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
+import {
+  SearchProductsResponse,
+  ValidateProductResponse,
+} from '@/shared/service/b2b/graphql/product';
 import { globalSnackbar } from '@/utils';
 import { getProductOptionList } from '@/utils/b3AddToShoppingList';
 import b2bLogger from '@/utils/b3Logger';
@@ -21,6 +24,7 @@ vi.mock('@/utils', async (importOriginal) => {
     globalSnackbar: {
       error: vi.fn(),
       success: vi.fn(),
+      warning: vi.fn(),
     },
   };
 });
@@ -90,6 +94,7 @@ type PriceProduct = PriceProductsResponse['data']['priceProducts'][number];
 type Price = PriceProduct['price'];
 type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number];
 type ProductVariant = SearchB2BProduct['variants'][number];
+type ValidateProduct = ValidateProductResponse['data']['validateProduct'];
 
 const buildPriceWith = builder<Price>(() => ({
   asEntered: Number(faker.commerce.price()),
@@ -182,6 +187,11 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   isPriceHidden: faker.datatype.boolean(),
 }));
 
+const buildValidateProductWith = builder<ValidateProduct>(() => ({
+  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
+  message: faker.lorem.sentence(),
+}));
+
 const priceProduct = vi.fn<(variables: unknown) => PriceProduct>();
 const searchProduct = vi.fn<(query: string) => SearchB2BProduct>();
 const setOpenPage = vi.fn();
@@ -211,7 +221,7 @@ describe('addProductFromProductPageToQuote', () => {
   it('shows error when SKU is missing from DOM', async () => {
     createDOM({ productId: 123, qty: 1, sku: '' });
 
-    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('cantAddNoSku');
@@ -233,7 +243,7 @@ describe('addProductFromProductPageToQuote', () => {
         }),
       );
 
-    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('Please fill out product options first.');
@@ -262,7 +272,7 @@ describe('addProductFromProductPageToQuote', () => {
       )
       .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
     await addToQuote();
 
     expect(globalSnackbar.error).toHaveBeenCalledWith('maximumPurchaseExceed', expect.any(Object));
@@ -276,38 +286,16 @@ describe('addProductFromProductPageToQuote', () => {
 
     createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
-    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+    const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
     await addToQuote();
 
     expect(b2bLogger.error).toHaveBeenCalledWith(new Error('test'));
   });
 
-  describe('when NP&OOS setting is disabled', () => {
-    it('shows error when product is unavailable', async () => {
-      createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
-
-      when(searchProduct)
-        .calledWith(expect.stringContaining('productIds: [123]'))
-        .thenReturn(
-          buildSearchB2BProductWith({
-            id: 123,
-            sku: 'SKU123',
-            name: 'Product Name',
-            variants: [buildProductVariantWith({ sku: 'SKU123' })],
-            availability: 'disabled',
-          }),
-        );
-
-      const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
-      await addToQuote();
-
-      expect(globalSnackbar.error).toHaveBeenCalledWith('unavailable');
-      expect(addQuoteDraftProduce).not.toHaveBeenCalled();
-    });
-
-    describe('product level inventory', () => {
-      it('shows error when product is out of stock', async () => {
-        createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
+  describe('when the feature flag is disabled', () => {
+    describe('when NP&OOS setting is disabled', () => {
+      it('shows error when product is unavailable', async () => {
+        createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
         when(searchProduct)
           .calledWith(expect.stringContaining('productIds: [123]'))
@@ -316,21 +304,139 @@ describe('addProductFromProductPageToQuote', () => {
               id: 123,
               sku: 'SKU123',
               name: 'Product Name',
-              variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
-              availability: 'available',
-              inventoryLevel: 10,
-              inventoryTracking: 'product',
+              variants: [buildProductVariantWith({ sku: 'SKU123' })],
+              availability: 'disabled',
             }),
           );
 
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {});
         await addToQuote();
 
-        expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
+        expect(globalSnackbar.error).toHaveBeenCalledWith('unavailable');
         expect(addQuoteDraftProduce).not.toHaveBeenCalled();
       });
 
-      it('adds product successfully when product is in stock', async () => {
+      describe('product level inventory', () => {
+        it('shows error when product is out of stock', async () => {
+          createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
+                availability: 'available',
+                inventoryLevel: 10,
+                inventoryTracking: 'product',
+              }),
+            );
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {});
+          await addToQuote();
+
+          expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
+          expect(addQuoteDraftProduce).not.toHaveBeenCalled();
+        });
+
+        it('adds product successfully when product is in stock', async () => {
+          createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
+                availability: 'available',
+                inventoryLevel: 10,
+                inventoryTracking: 'product',
+              }),
+            );
+
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {});
+          await addToQuote();
+
+          expect(globalSnackbar.success).toHaveBeenCalled();
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+        });
+      });
+
+      describe('variant level inventory', () => {
+        it('shows error when variant is out of stock', async () => {
+          createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [
+                  buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
+                ],
+                availability: 'available',
+                inventoryTracking: 'variant',
+              }),
+            );
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {});
+          await addToQuote();
+
+          expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
+          expect(addQuoteDraftProduce).not.toHaveBeenCalled();
+        });
+
+        it('adds product successfully when variant is in stock', async () => {
+          createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [
+                  buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
+                ],
+                availability: 'available',
+                inventoryTracking: 'variant',
+              }),
+            );
+
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {});
+          await addToQuote();
+
+          expect(globalSnackbar.success).toHaveBeenCalled();
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('when NP&OOS setting is enabled', () => {
+      it('adds product successfully when product is unavailable', async () => {
         createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
         when(searchProduct)
@@ -341,9 +447,7 @@ describe('addProductFromProductPageToQuote', () => {
               sku: 'SKU123',
               name: 'Product Name',
               variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
-              availability: 'available',
-              inventoryLevel: 10,
-              inventoryTracking: 'product',
+              availability: 'disabled',
             }),
           );
 
@@ -355,77 +459,167 @@ describe('addProductFromProductPageToQuote', () => {
           )
           .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
+        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
         await addToQuote();
 
         expect(globalSnackbar.success).toHaveBeenCalled();
         expect(addQuoteDraftProduce).toHaveBeenCalled();
       });
-    });
 
-    describe('variant level inventory', () => {
-      it('shows error when variant is out of stock', async () => {
-        createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
+      describe('product level inventory', () => {
+        it('adds product successfully when product is out of stock', async () => {
+          createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [
-                buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
-              ],
-              availability: 'available',
-              inventoryTracking: 'variant',
-            }),
-          );
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
+                availability: 'available',
+                inventoryLevel: 10,
+                inventoryTracking: 'product',
+              }),
+            );
 
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
-        await addToQuote();
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-        expect(globalSnackbar.error).toHaveBeenCalledWith('outOfStock:Product Name:10');
-        expect(addQuoteDraftProduce).not.toHaveBeenCalled();
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
+          await addToQuote();
+
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+          expect(globalSnackbar.success).toHaveBeenCalled();
+        });
+
+        it('adds product successfully when product is in stock', async () => {
+          createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
+                availability: 'available',
+                inventoryLevel: 10,
+                inventoryTracking: 'product',
+              }),
+            );
+
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
+          await addToQuote();
+
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+          expect(globalSnackbar.success).toHaveBeenCalled();
+        });
       });
 
-      it('adds product successfully when variant is in stock', async () => {
-        createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+      describe('variant level inventory', () => {
+        it('adds product successfully when variant is out of stock', async () => {
+          createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [
-                buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
-              ],
-              availability: 'available',
-              inventoryTracking: 'variant',
-            }),
-          );
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [
+                  buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
+                ],
+                availability: 'available',
+                inventoryTracking: 'variant',
+              }),
+            );
 
-        when(priceProduct)
-          .calledWith(
-            expect.objectContaining({
-              items: [expect.objectContaining({ productId: 123 })],
-            }),
-          )
-          .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang);
-        await addToQuote();
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
+          await addToQuote();
 
-        expect(globalSnackbar.success).toHaveBeenCalled();
-        expect(addQuoteDraftProduce).toHaveBeenCalled();
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+          expect(globalSnackbar.success).toHaveBeenCalled();
+        });
+
+        it('adds product successfully when variant is in stock', async () => {
+          createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+          when(searchProduct)
+            .calledWith(expect.stringContaining('productIds: [123]'))
+            .thenReturn(
+              buildSearchB2BProductWith({
+                id: 123,
+                sku: 'SKU123',
+                name: 'Product Name',
+                variants: [
+                  buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
+                ],
+                availability: 'available',
+                inventoryTracking: 'variant',
+              }),
+            );
+
+          when(priceProduct)
+            .calledWith(
+              expect.objectContaining({
+                items: [expect.objectContaining({ productId: 123 })],
+              }),
+            )
+            .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+          const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang, {});
+          await addToQuote();
+
+          expect(addQuoteDraftProduce).toHaveBeenCalled();
+          expect(globalSnackbar.success).toHaveBeenCalled();
+        });
       });
     });
   });
 
-  describe('when NP&OOS setting is enabled', () => {
-    it('adds product successfully when product is unavailable', async () => {
+  describe('when the feature flag is enabled', () => {
+    const featureFlags = {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    };
+
+    const validateProduct = vi.fn();
+
+    beforeEach(() => {
+      server.use(
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json({
+            data: { validateProduct: validateProduct(variables) },
+          }),
+        ),
+      );
+    });
+
+    it('shows error when validateProduct returns an error', async () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
@@ -435,8 +629,7 @@ describe('addProductFromProductPageToQuote', () => {
             id: 123,
             sku: 'SKU123',
             name: 'Product Name',
-            variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
-            availability: 'disabled',
+            variants: [buildProductVariantWith({ variant_id: 1, sku: 'SKU123', product_id: 123 })],
           }),
         );
 
@@ -448,145 +641,117 @@ describe('addProductFromProductPageToQuote', () => {
         )
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-      const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 123,
+            variantId: 1,
+            quantity: 1,
+            productOptions: [],
+          }),
+        )
+        .thenReturn(buildValidateProductWith({ responseType: 'ERROR', message: 'test' }));
+
+      const { addToQuote } = addProductFromProductPageToQuote(
+        setOpenPage,
+        false,
+        b3Lang,
+        featureFlags,
+      );
+      await addToQuote();
+
+      expect(globalSnackbar.error).toHaveBeenCalledWith('test');
+      expect(addQuoteDraftProduce).not.toHaveBeenCalled();
+    });
+
+    it('adds product and shows warning when validateProduct returns a warning', async () => {
+      createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+      when(searchProduct)
+        .calledWith(expect.stringContaining('productIds: [123]'))
+        .thenReturn(
+          buildSearchB2BProductWith({
+            id: 123,
+            sku: 'SKU123',
+            name: 'Product Name',
+            variants: [buildProductVariantWith({ variant_id: 1, sku: 'SKU123', product_id: 123 })],
+          }),
+        );
+
+      when(priceProduct)
+        .calledWith(
+          expect.objectContaining({
+            items: [expect.objectContaining({ productId: 123 })],
+          }),
+        )
+        .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 123,
+            variantId: 1,
+            quantity: 1,
+            productOptions: [],
+          }),
+        )
+        .thenReturn(buildValidateProductWith({ responseType: 'WARNING', message: 'test' }));
+
+      const { addToQuote } = addProductFromProductPageToQuote(
+        setOpenPage,
+        false,
+        b3Lang,
+        featureFlags,
+      );
+      await addToQuote();
+
+      expect(globalSnackbar.warning).toHaveBeenCalledWith('test');
+      expect(addQuoteDraftProduce).toHaveBeenCalled();
+    });
+
+    it('adds product successfully when validateProduct returns a success', async () => {
+      createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
+
+      when(searchProduct)
+        .calledWith(expect.stringContaining('productIds: [123]'))
+        .thenReturn(
+          buildSearchB2BProductWith({
+            id: 123,
+            sku: 'SKU123',
+            name: 'Product Name',
+            variants: [buildProductVariantWith({ variant_id: 1, sku: 'SKU123', product_id: 123 })],
+          }),
+        );
+
+      when(priceProduct)
+        .calledWith(
+          expect.objectContaining({
+            items: [expect.objectContaining({ productId: 123 })],
+          }),
+        )
+        .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 123,
+            variantId: 1,
+            quantity: 1,
+            productOptions: [],
+          }),
+        )
+        .thenReturn(buildValidateProductWith({ responseType: 'SUCCESS', message: '' }));
+
+      const { addToQuote } = addProductFromProductPageToQuote(
+        setOpenPage,
+        false,
+        b3Lang,
+        featureFlags,
+      );
       await addToQuote();
 
       expect(globalSnackbar.success).toHaveBeenCalled();
       expect(addQuoteDraftProduce).toHaveBeenCalled();
-    });
-
-    describe('product level inventory', () => {
-      it('adds product successfully when product is out of stock', async () => {
-        createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
-
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
-              availability: 'available',
-              inventoryLevel: 10,
-              inventoryTracking: 'product',
-            }),
-          );
-
-        when(priceProduct)
-          .calledWith(
-            expect.objectContaining({
-              items: [expect.objectContaining({ productId: 123 })],
-            }),
-          )
-          .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
-
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
-        await addToQuote();
-
-        expect(addQuoteDraftProduce).toHaveBeenCalled();
-        expect(globalSnackbar.success).toHaveBeenCalled();
-      });
-
-      it('adds product successfully when product is in stock', async () => {
-        createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
-
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [buildProductVariantWith({ sku: 'SKU123', product_id: 123 })],
-              availability: 'available',
-              inventoryLevel: 10,
-              inventoryTracking: 'product',
-            }),
-          );
-
-        when(priceProduct)
-          .calledWith(
-            expect.objectContaining({
-              items: [expect.objectContaining({ productId: 123 })],
-            }),
-          )
-          .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
-
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
-        await addToQuote();
-
-        expect(addQuoteDraftProduce).toHaveBeenCalled();
-        expect(globalSnackbar.success).toHaveBeenCalled();
-      });
-    });
-
-    describe('variant level inventory', () => {
-      it('adds product successfully when variant is out of stock', async () => {
-        createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
-
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [
-                buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
-              ],
-              availability: 'available',
-              inventoryTracking: 'variant',
-            }),
-          );
-
-        when(priceProduct)
-          .calledWith(
-            expect.objectContaining({
-              items: [expect.objectContaining({ productId: 123 })],
-            }),
-          )
-          .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
-
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
-        await addToQuote();
-
-        expect(addQuoteDraftProduce).toHaveBeenCalled();
-        expect(globalSnackbar.success).toHaveBeenCalled();
-      });
-
-      it('adds product successfully when variant is in stock', async () => {
-        createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
-
-        when(searchProduct)
-          .calledWith(expect.stringContaining('productIds: [123]'))
-          .thenReturn(
-            buildSearchB2BProductWith({
-              id: 123,
-              sku: 'SKU123',
-              name: 'Product Name',
-              variants: [
-                buildProductVariantWith({ sku: 'SKU123', product_id: 123, inventory_level: 10 }),
-              ],
-              availability: 'available',
-              inventoryTracking: 'variant',
-            }),
-          );
-
-        when(priceProduct)
-          .calledWith(
-            expect.objectContaining({
-              items: [expect.objectContaining({ productId: 123 })],
-            }),
-          )
-          .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
-
-        const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, true, b3Lang);
-        await addToQuote();
-
-        expect(addQuoteDraftProduce).toHaveBeenCalled();
-        expect(globalSnackbar.success).toHaveBeenCalled();
-      });
     });
   });
 });
