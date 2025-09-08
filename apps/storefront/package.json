@@ -36,7 +36,7 @@
     "@types/react-resizable": "^3.0.8",
     "copy-to-clipboard": "^3.3.3",
     "date-fns": "^4.1.0",
-    "dayjs": "^1.11.10",
+    "dayjs": "^1.11.18",
     "graphql": "^16.8.1",
     "js-cookie": "^3.0.5",
     "lodash-es": "^4.17.21",
