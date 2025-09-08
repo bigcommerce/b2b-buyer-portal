@@ -12,6 +12,7 @@ import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
+import { cartInventoryErrorMessage, executeVerifyInventory } from '@/shared/utils';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -43,6 +44,7 @@ interface ShoppingDetailFooterProps {
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
+  backOrderingEnabled: boolean;
 }
 
 interface ProductInfoProps {
@@ -114,6 +116,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     customColor,
     isCanEditShoppingList,
     role,
+    backOrderingEnabled,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -204,7 +207,76 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   };
 
   // Add selected product to cart
-  const handleAddProductsToCart = async () => {
+  const handleProductVerifyOnBackend = async () => {
+    if (checkedArr.length === 0) {
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
+    }
+
+    handleClose();
+    setLoading(true);
+    const items = checkedArr.map(({ node }: ProductsProps) => {
+      return { node };
+    });
+    try {
+      const skus: string[] = [];
+
+      checkedArr.forEach((item: ProductsProps) => {
+        const { node } = item;
+        skus.push(node.variantSku);
+      });
+
+      if (skus.length === 0) {
+        snackbar.error(
+          allowJuniorPlaceOrder
+            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
+            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
+        );
+        return;
+      }
+
+      const lineItems = addLineItems(items);
+      const deleteCartObject = deleteCartData(items);
+      const cartInfo = await getCart();
+      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
+      if (allowJuniorPlaceOrder && cartInfo.length) {
+        await deleteCart(deleteCartObject);
+        await updateCart(cartInfo, lineItems);
+      } else {
+        await callCart(lineItems);
+        b3TriggerCartNumber();
+      }
+      if (
+        allowJuniorPlaceOrder &&
+        b2bSubmitShoppingListPermission &&
+        shoppingListInfo?.status === ShoppingListStatus.Approved
+      ) {
+        window.location.href = CHECKOUT_URL;
+      } else {
+        snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+          action: {
+            label: b3Lang('shoppingList.reAddToCart.viewCart'),
+            onClick: () => {
+              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+                window.location.href = CART_URL;
+              }
+            },
+          },
+        });
+        b3TriggerCartNumber();
+        setValidateSuccessProducts(items || []);
+      }
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        cartInventoryErrorMessage(e.message, b3Lang, snackbar, items[0]?.node?.productName);
+        setValidateFailureProducts(items);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProductVerifyOnFrontend = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
       return;
@@ -294,6 +366,15 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add selected product to cart
+  const handleAddProductsToCart = async () => {
+    await executeVerifyInventory(
+      backOrderingEnabled,
+      handleProductVerifyOnFrontend,
+      handleProductVerifyOnBackend,
+    );
   };
 
   // Add selected to quote
