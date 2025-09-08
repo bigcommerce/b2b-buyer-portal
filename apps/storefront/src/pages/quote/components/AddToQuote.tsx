@@ -24,7 +24,7 @@ import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
 
 interface AddToListProps {
   updateList: () => void;
-  addToQuote: (products: CustomFieldItems[]) => void;
+  addToQuote: (products: CustomFieldItems[]) => Promise<void>;
 }
 
 export default function AddToQuote(props: AddToListProps) {
@@ -113,7 +113,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     if (noSkuProducts.length === products.length) return [];
 
-    addToQuote(newProducts);
+    await addToQuote(newProducts);
 
     snackbar.success(b3Lang('quoteDraft.notification.productSingular'));
 
@@ -149,7 +149,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     const newProducts = getNewQuoteProduct(productList);
 
-    addToQuote(newProducts);
+    await addToQuote(newProducts);
 
     snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
 

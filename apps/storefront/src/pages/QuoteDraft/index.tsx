@@ -10,6 +10,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import {
   dispatchEvent,
+  useFeatureFlags,
   useMobile,
   useSetCountry,
   useValidatePermissionWithComparisonType,
@@ -18,6 +19,7 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';
+import { validateProduct } from '@/shared/service/b2b/graphql/product';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
   activeCurrencyInfoSelector,
@@ -121,12 +123,14 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const {
     state: { countriesList, openAPPParams },
   } = useContext(GlobalContext);
+  const dispatch = useAppDispatch();
+  const featureFlags = useFeatureFlags();
+
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
   const companyName = useAppSelector(({ company }) => company.companyInfo.companyName);
   const customer = useAppSelector(({ company }) => company.customer);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const dispatch = useAppDispatch();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -143,7 +147,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
-
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
@@ -436,8 +439,56 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     quoteSummaryRef.current?.refreshSummary();
   };
 
-  const addToQuote = (products: CustomFieldItems[]) => {
-    addQuoteDraftProducts(products);
+  const addToQuote = async (products: CustomFieldItems[]) => {
+    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+      const validationPromises = products.map(({ node: product }) => {
+        const { productId, quantity, productsSearch } = product;
+        const { variantId, newSelectOptionList } = productsSearch;
+
+        const productOptions = newSelectOptionList.map((option: CustomFieldItems) => ({
+          optionId: Number(option.optionId.split('[')[1].split(']')[0]),
+          optionValue: option.optionValue,
+        }));
+
+        return validateProduct({
+          productId,
+          variantId,
+          quantity,
+          productOptions,
+        });
+      });
+
+      const settledResults = await Promise.allSettled(validationPromises);
+
+      settledResults.forEach((result) => {
+        if (result.status === 'rejected') {
+          // Network or unexpected error
+          snackbar.error('Product validation failed.');
+
+          return;
+        }
+
+        const { responseType, message } = result.value;
+
+        if (responseType === 'ERROR') {
+          snackbar.error(message);
+        } else if (responseType === 'WARNING') {
+          snackbar.warning(message);
+        }
+      });
+
+      const validProducts = products.filter((_, index) => {
+        const res = settledResults[index];
+
+        return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
+      });
+
+      if (validProducts.length > 0) {
+        addQuoteDraftProducts(validProducts);
+      }
+    } else {
+      addQuoteDraftProducts(products);
+    }
   };
 
   const getFileList = (files: CustomFieldItems[]) => {

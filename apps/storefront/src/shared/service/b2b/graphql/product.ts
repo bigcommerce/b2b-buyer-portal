@@ -83,6 +83,22 @@ const getSearchProductsQuery = (data: CustomFieldItems) => `
   }
 `;
 
+const getValidateProductQuery = (data: CustomFieldItems) => `
+  query ValidateProduct {
+    validateProduct(
+      productId: ${data.productId || 0}
+      variantId: ${data.variantId || 0}
+      quantity: ${data.quantity || 0}
+      productOptions: ${convertArrayToGraphql(data.productOptions || [])}
+      storeHash: "${storeHash}"
+      channelId: ${channelId}
+    ) {
+      responseType
+      message
+    }
+  }
+`;
+
 const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
   productUpload (
     productListData: {
@@ -270,6 +286,15 @@ export interface SearchProductsResponse {
   };
 }
 
+export interface ValidateProductResponse {
+  data: {
+    validateProduct: {
+      responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
+      message: string;
+    };
+  };
+}
+
 export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
@@ -279,6 +304,12 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       currencyCode: data?.currencyCode || currencyCode,
     }),
   });
+};
+
+export const validateProduct = (data: CustomFieldItems = {}) => {
+  return B3Request.graphqlB2B<ValidateProductResponse>({
+    query: getValidateProductQuery(data),
+  }).then((res) => res.validateProduct);
 };
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
