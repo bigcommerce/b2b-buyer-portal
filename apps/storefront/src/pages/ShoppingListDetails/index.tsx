@@ -83,7 +83,7 @@ const calculateSubTotal = (checkedArr: CustomFieldItems) => {
 function useData() {
   const { id = '' } = useParams();
   const {
-    state: { openAPPParams, productQuoteEnabled = false },
+    state: { openAPPParams, productQuoteEnabled = false, quoteConfig },
   } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
@@ -123,6 +123,11 @@ function useData() {
     return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
   };
 
+  const backOrderingEnabled =
+    quoteConfig.find(
+      (item) => item.key === 'B2B-3318.move_stock_and_backorder_validation_to_backend',
+    )?.value === 'true';
+
   return {
     id,
     openAPPParams,
@@ -137,6 +142,7 @@ function useData() {
     getProducts,
     getShoppingList,
     deleteShoppingListItem,
+    backOrderingEnabled,
   };
 }
 
@@ -157,6 +163,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     getProducts,
     getShoppingList,
     deleteShoppingListItem,
+    backOrderingEnabled,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -521,6 +528,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
+              backOrderingEnabled={backOrderingEnabled}
             />
           )}
       </Box>
@@ -534,6 +542,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
         textAlign={isMobile ? 'left' : 'right'}
+        backOrderingEnabled={backOrderingEnabled}
       />
 
       <ShoppingDetailDeleteItems
