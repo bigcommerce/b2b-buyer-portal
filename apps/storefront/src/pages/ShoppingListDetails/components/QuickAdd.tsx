@@ -17,7 +17,7 @@ import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
 
 interface AddToListContentProps {
   updateList: () => void;
-  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
+  quickAddToList: (products: CustomFieldItems[]) => Promise<void>;
   level?: number;
   buttonText?: string;
   buttonLoading?: boolean;

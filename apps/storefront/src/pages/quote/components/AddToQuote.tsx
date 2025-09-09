@@ -12,11 +12,7 @@ import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import {
-  addQuoteDraftProducts,
-  calculateProductListPrice,
-  validProductQty,
-} from '@/utils/b3Product/b3Product';
+import { calculateProductListPrice, validProductQty } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 
 import QuickAdd from '../../ShoppingListDetails/components/QuickAdd';
@@ -24,7 +20,7 @@ import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
 
 interface AddToListProps {
   updateList: () => void;
-  addToQuote: (products: CustomFieldItems[]) => void;
+  addToQuote: (products: CustomFieldItems[]) => Promise<boolean>;
 }
 
 export default function AddToQuote(props: AddToListProps) {
@@ -111,13 +107,13 @@ export default function AddToQuote(props: AddToListProps) {
       snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'));
     }
 
-    if (noSkuProducts.length === products.length) return [];
+    if (noSkuProducts.length === products.length) return;
 
-    addToQuote(newProducts);
+    const success = await addToQuote(newProducts);
 
-    snackbar.success(b3Lang('quoteDraft.notification.productSingular'));
-
-    return products;
+    if (success) {
+      snackbar.success(b3Lang('quoteDraft.notification.productSingular'));
+    }
   };
 
   const quickAddToList = async (variantProducts: CustomFieldItems[]) => {
@@ -149,11 +145,11 @@ export default function AddToQuote(props: AddToListProps) {
 
     const newProducts = getNewQuoteProduct(productList);
 
-    addToQuote(newProducts);
+    const success = await addToQuote(newProducts);
 
-    snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
-
-    return variantProducts;
+    if (success) {
+      snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
+    }
   };
 
   const getOptionsList = (options: CustomFieldItems) => {
@@ -191,8 +187,6 @@ export default function AddToQuote(props: AddToListProps) {
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
 
-      let isSuccess = false;
-
       const newProducts: CustomFieldItems[] = [];
       validProduct.forEach((product: CustomFieldItems) => {
         const {
@@ -215,7 +209,11 @@ export default function AddToQuote(props: AddToListProps) {
             id: uuid(),
             variantSku: variantItem?.sku,
             variantId,
-            productsSearch: currentProductSearch,
+            productsSearch: {
+              ...currentProductSearch,
+              newSelectOptionList: optionsList,
+              variantId,
+            },
             primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
             quantity: Number(qty) || 1,
@@ -229,15 +227,16 @@ export default function AddToQuote(props: AddToListProps) {
         };
 
         newProducts.push(quoteListitem);
-
-        isSuccess = true;
       });
-      isSuccess = validProductQty(newProducts);
+
+      const isSuccess = validProductQty(newProducts);
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2');
 
-        addQuoteDraftProducts(newProducts);
-        snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
+        const success = await addToQuote(newProducts);
+        if (success) {
+          snackbar.success(b3Lang('quoteDraft.notification.productPlural'));
+        }
         updateList();
         setIsOpenBulkLoadCSV(false);
       } else {

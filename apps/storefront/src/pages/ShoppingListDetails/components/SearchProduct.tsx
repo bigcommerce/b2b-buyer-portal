@@ -19,7 +19,7 @@ import ProductListDialog from './ProductListDialog';
 
 interface SearchProductProps {
   updateList?: () => void;
-  addToList: (products: CustomFieldItems[]) => void;
+  addToList: (products: CustomFieldItems[]) => Promise<void>;
   searchDialogTitle?: string;
   addButtonText?: string;
   type?: string;
