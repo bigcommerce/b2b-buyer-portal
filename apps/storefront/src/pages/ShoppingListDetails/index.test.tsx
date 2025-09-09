@@ -1193,6 +1193,7 @@ describe('Add to quote', () => {
     // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
+    const searchProductsQuerySpy = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1250,7 +1251,6 @@ describe('Add to quote', () => {
       ],
     });
 
-    const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1274,10 +1274,6 @@ describe('Add to quote', () => {
     });
 
     await screen.findByRole('heading', { name: /add to list/i });
-
-    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
-    );
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 

@@ -1671,13 +1671,7 @@ describe('when adding to quote', () => {
     );
 
     renderWithProviders(<QuickOrder />, {
-      preloadedState: {
-        company: {
-          ...preloadedState.company,
-          permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
-        },
-        storeInfo: storeInfoWithDateFormat,
-      },
+      preloadedState,
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
 
