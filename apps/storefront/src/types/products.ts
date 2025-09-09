@@ -184,3 +184,8 @@ export interface CalculatedItems {
   variant_id: number;
   options: Partial<CalculatedOptions>[];
 }
+
+export interface ProductValidation {
+  responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
+  message: string;
+}

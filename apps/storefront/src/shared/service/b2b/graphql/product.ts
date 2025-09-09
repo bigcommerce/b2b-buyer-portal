@@ -1,3 +1,4 @@
+import { ProductValidation } from '@/types';
 import { channelId, convertArrayToGraphql, getActiveCurrencyInfo, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
@@ -288,10 +289,7 @@ export interface SearchProductsResponse {
 
 export interface ValidateProductResponse {
   data: {
-    validateProduct: {
-      responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
-      message: string;
-    };
+    validateProduct: ProductValidation;
   };
 }
 
