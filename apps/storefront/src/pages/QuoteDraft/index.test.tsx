@@ -25,13 +25,13 @@ import { QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
 
-export interface VariantInfoResponse {
+interface VariantInfoResponse {
   data: {
     variantSku: VariantInfo[];
   };
 }
 
-export interface VariantInfo {
+interface VariantInfo {
   isStock: '1' | '0';
   stock: number;
   calculatedPrice: string;
