@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { themeFrameSelector, useAppSelector } from '@/store';
 
+// eslint-disable-next-line import/extensions
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw';
 
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit';

@@ -4,8 +4,7 @@
   "private": true,
   "license": "MIT",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
   "scripts": {
@@ -20,7 +19,6 @@
   },
   "devDependencies": {
     "eslint": "^8.2.0",
-    "eslint-config-b2b": "*",
     "patch-package": "^8.0.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.4"
