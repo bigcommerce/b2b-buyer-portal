@@ -1,3 +1,4 @@
+// eslint-disable-next-line testing-library/no-manual-cleanup
 import { cleanup } from '@testing-library/react';
 import Cookies from 'js-cookie';
 import { unset } from 'lodash-es';
