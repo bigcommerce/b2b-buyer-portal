@@ -10,6 +10,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import {
   dispatchEvent,
+  useFeatureFlags,
   useMobile,
   useSetCountry,
   useValidatePermissionWithComparisonType,
@@ -46,6 +47,7 @@ import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
 import { convertBCToB2BAddress } from '../AddressList/shared/config';
@@ -121,12 +123,14 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const {
     state: { countriesList, openAPPParams },
   } = useContext(GlobalContext);
+  const dispatch = useAppDispatch();
+  const featureFlags = useFeatureFlags();
+
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
   const companyName = useAppSelector(({ company }) => company.companyInfo.companyName);
   const customer = useAppSelector(({ company }) => company.customer);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const dispatch = useAppDispatch();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -143,7 +147,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
-
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
@@ -436,8 +439,18 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     quoteSummaryRef.current?.refreshSummary();
   };
 
-  const addToQuote = (products: CustomFieldItems[]) => {
+  const addToQuote = async (products: CustomFieldItems[]) => {
+    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+      const validatedProducts = await validateProducts(products, b3Lang);
+
+      addQuoteDraftProducts(validatedProducts);
+
+      return validatedProducts.length > 0;
+    }
+
     addQuoteDraftProducts(products);
+
+    return true;
   };
 
   const getFileList = (files: CustomFieldItems[]) => {

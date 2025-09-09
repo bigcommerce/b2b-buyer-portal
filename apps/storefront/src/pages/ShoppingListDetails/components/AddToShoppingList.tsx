@@ -55,20 +55,17 @@ export default function AddToShoppingList(props: AddToListProps) {
         };
       });
 
-      const res = await addItemsToShoppingList({
+      await addItemsToShoppingList({
         shoppingListId: id,
         items,
       });
 
       snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'));
-
-      return res;
     } catch (e: any) {
       if (e.message.length > 0) {
         snackbar.error(e.message);
       }
     }
-    return true;
   };
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
@@ -85,14 +82,12 @@ export default function AddToShoppingList(props: AddToListProps) {
       };
     });
 
-    const res = await addItemsToShoppingList({
+    await addItemsToShoppingList({
       shoppingListId: id,
       items,
     });
 
     snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'));
-
-    return res;
   };
 
   const getValidProducts = (products: CustomFieldItems) => {

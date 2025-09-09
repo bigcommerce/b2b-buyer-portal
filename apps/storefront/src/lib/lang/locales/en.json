@@ -231,6 +231,7 @@
   "quotes.quoteItemCard.expirationDate": "Expiration date",
   "quotes.quoteItemCard.subtotal": "Subtotal",
   "quotes.quoteItemCard.view": "VIEW",
+  "quotes.productValidationFailed": "Product validation failed for {productName}",
   "shoppingLists.createNew": "Create new",
   "shoppingLists.deleteSuccess": "The shopping list was successfully deleted",
   "shoppingLists.deleteShoppingList": "Delete shopping list",
