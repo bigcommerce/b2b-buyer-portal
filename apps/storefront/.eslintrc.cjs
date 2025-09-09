@@ -1,175 +1,175 @@
 module.exports = {
-  "extends": ["b2b"],
-  "rules": {
-    "no-restricted-imports": [
-      "error",
+  extends: ['b2b'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
       {
-        "paths": [
+        paths: [
           {
-            "name": "lodash",
-            "message": "Import from lodash-es"
-          }
+            name: 'lodash',
+            message: 'Import from lodash-es',
+          },
         ],
-        "patterns": [
+        patterns: [
           {
-            "group": ["@mui/icons-material/*"],
-            "message": "Use `import { IconName } from '@mui/icons-material';`"
-          }
-        ]
-      }
-    ]
+            group: ['@mui/icons-material/*'],
+            message: "Use `import { IconName } from '@mui/icons-material';`",
+          },
+        ],
+      },
+    ],
   },
-  "overrides": [
+  overrides: [
     {
-      "files": ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
-      "rules": {
-        "no-restricted-imports": [
-          "error",
+      files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
           {
-            "name": "msw",
-            "message": "Import from tests/test-utils"
-          }
-        ]
-      }
+            name: 'msw',
+            message: 'Import from tests/test-utils',
+          },
+        ],
+      },
     },
     {
-      "files": ["src/pages/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
-      "rules": {
-        "no-param-reassign": 0
-      }
+      files: ['src/pages/**/*.{ts,tsx}', 'src/components/**/*.{ts,tsx}'],
+      rules: {
+        'no-param-reassign': 0,
+      },
     },
     {
-      "files": ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
-      "rules": {
-        "react/jsx-props-no-spreading": 0
-      }
+      files: ['src/components/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
+      rules: {
+        'react/jsx-props-no-spreading': 0,
+      },
     },
     {
-      "files": [
-        "src/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}",
-        "src/pages/**/*.{ts,tsx}",
-        "src/hooks/**/*.ts",
-        "src/hooks/*.ts",
-        "src/utils/**/*.ts",
-        "src/utils/*.ts",
-        "**.**.ts"
+      files: [
+        'src/*.{ts,tsx}',
+        'src/components/**/*.{ts,tsx}',
+        'src/pages/**/*.{ts,tsx}',
+        'src/hooks/**/*.ts',
+        'src/hooks/*.ts',
+        'src/utils/**/*.ts',
+        'src/utils/*.ts',
+        '**.**.ts',
       ],
-      "rules": {
-        "@typescript-eslint/no-shadow": 0
-      }
+      rules: {
+        '@typescript-eslint/no-shadow': 0,
+      },
     },
     {
-      "files": [
-        "src/pages/AccountSetting/index.tsx",
-        "src/pages/AccountSetting/utils.ts",
-        "src/pages/AddressList/components/AddressForm.tsx",
-        "src/pages/AddressList/index.tsx",
-        "src/pages/Invoice/InvoiceItemCard.tsx",
-        "src/pages/Login/config.ts",
-        "src/pages/OrderDetail/components/OrderDialog.tsx",
-        "src/pages/PDP/index.tsx",
-        "src/pages/QuickOrder/components/QuickOrderCard.tsx",
-        "src/pages/QuickOrder/components/QuickOrderPad.tsx",
-        "src/pages/QuickOrder/components/QuickOrderB2BTable.tsx",
-        "src/pages/Registered/RegisterComplete.tsx",
-        "src/pages/Registered/RegisteredAccount.tsx",
-        "src/pages/Registered/RegisteredStep.tsx",
-        "src/pages/Registered/component/RegisteredStepButton.tsx",
-        "src/pages/Registered/config.ts",
-        "src/pages/Registered/types.ts",
-        "src/pages/RegisteredBCToB2B/index.tsx",
-        "src/pages/ShoppingListDetails/components/AddToShoppingList.tsx",
-        "src/pages/ShoppingListDetails/components/ChooseOptionsDialog.tsx",
-        "src/pages/ShoppingListDetails/components/ReAddToCart.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailCard.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailFooter.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailHeader.tsx",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx",
-        "src/pages/ShoppingListDetails/index.tsx",
-        "src/pages/ShoppingListDetails/ShoppingListDetails.tsx",
-        "src/pages/ShoppingLists/config.ts",
-        "src/pages/ShoppingLists/index.tsx",
-        "src/pages/ShoppingLists/ShoppingLists.tsx",
-        "src/pages/UserManagement/config.ts",
-        "src/pages/UserManagement/getUserExtraFields.ts",
-        "src/pages/order/Order.tsx",
-        "src/pages/order/OrderItemCard.tsx",
-        "src/pages/order/config.ts",
-        "src/pages/QuoteDetail/index.tsx",
-        "src/pages/QuoteDraft/index.tsx",
-        "src/pages/QuotesList/index.tsx",
-        "src/pages/quote/components/ContactInfo.tsx",
-        "src/pages/quote/components/QuoteAddress.tsx",
-        "src/pages/quote/components/QuoteDetailTable.tsx",
-        "src/pages/quote/components/QuoteDetailTableCard.tsx",
-        "src/pages/QuotesList/QuoteItemCard.tsx",
-        "src/pages/quote/components/QuoteTable.tsx",
-        "src/pages/quote/components/QuoteTableCard.tsx",
-        "src/components/*.tsx",
-        "src/components/button/*.tsx",
-        "src/components/filter/*.tsx",
-        "src/components/form/*.{ts,tsx}",
-        "src/components/table/*.tsx",
-        "src/components/ui/*.tsx",
-        "src/components/upload/*.tsx",
-        "src/hooks/**/*.ts",
-        "src/hooks/*.ts",
-        "src/shared/service/**/graphql/*.ts",
-        "src/shared/service/request/*.ts",
-        "src/types/*.ts",
-        "src/utils/b3Product/shared/*.ts",
-        "src/utils/b3AddToShoppingList.ts",
-        "src/utils/b3Product/*.ts",
-        "src/utils/*.ts",
-        "src/**.d.ts"
+      files: [
+        'src/pages/AccountSetting/index.tsx',
+        'src/pages/AccountSetting/utils.ts',
+        'src/pages/AddressList/components/AddressForm.tsx',
+        'src/pages/AddressList/index.tsx',
+        'src/pages/Invoice/InvoiceItemCard.tsx',
+        'src/pages/Login/config.ts',
+        'src/pages/OrderDetail/components/OrderDialog.tsx',
+        'src/pages/PDP/index.tsx',
+        'src/pages/QuickOrder/components/QuickOrderCard.tsx',
+        'src/pages/QuickOrder/components/QuickOrderPad.tsx',
+        'src/pages/QuickOrder/components/QuickOrderB2BTable.tsx',
+        'src/pages/Registered/RegisterComplete.tsx',
+        'src/pages/Registered/RegisteredAccount.tsx',
+        'src/pages/Registered/RegisteredStep.tsx',
+        'src/pages/Registered/component/RegisteredStepButton.tsx',
+        'src/pages/Registered/config.ts',
+        'src/pages/Registered/types.ts',
+        'src/pages/RegisteredBCToB2B/index.tsx',
+        'src/pages/ShoppingListDetails/components/AddToShoppingList.tsx',
+        'src/pages/ShoppingListDetails/components/ChooseOptionsDialog.tsx',
+        'src/pages/ShoppingListDetails/components/ReAddToCart.tsx',
+        'src/pages/ShoppingListDetails/components/ShoppingDetailCard.tsx',
+        'src/pages/ShoppingListDetails/components/ShoppingDetailFooter.tsx',
+        'src/pages/ShoppingListDetails/components/ShoppingDetailHeader.tsx',
+        'src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx',
+        'src/pages/ShoppingListDetails/index.tsx',
+        'src/pages/ShoppingListDetails/ShoppingListDetails.tsx',
+        'src/pages/ShoppingLists/config.ts',
+        'src/pages/ShoppingLists/index.tsx',
+        'src/pages/ShoppingLists/ShoppingLists.tsx',
+        'src/pages/UserManagement/config.ts',
+        'src/pages/UserManagement/getUserExtraFields.ts',
+        'src/pages/order/Order.tsx',
+        'src/pages/order/OrderItemCard.tsx',
+        'src/pages/order/config.ts',
+        'src/pages/QuoteDetail/index.tsx',
+        'src/pages/QuoteDraft/index.tsx',
+        'src/pages/QuotesList/index.tsx',
+        'src/pages/quote/components/ContactInfo.tsx',
+        'src/pages/quote/components/QuoteAddress.tsx',
+        'src/pages/quote/components/QuoteDetailTable.tsx',
+        'src/pages/quote/components/QuoteDetailTableCard.tsx',
+        'src/pages/QuotesList/QuoteItemCard.tsx',
+        'src/pages/quote/components/QuoteTable.tsx',
+        'src/pages/quote/components/QuoteTableCard.tsx',
+        'src/components/*.tsx',
+        'src/components/button/*.tsx',
+        'src/components/filter/*.tsx',
+        'src/components/form/*.{ts,tsx}',
+        'src/components/table/*.tsx',
+        'src/components/ui/*.tsx',
+        'src/components/upload/*.tsx',
+        'src/hooks/**/*.ts',
+        'src/hooks/*.ts',
+        'src/shared/service/**/graphql/*.ts',
+        'src/shared/service/request/*.ts',
+        'src/types/*.ts',
+        'src/utils/b3Product/shared/*.ts',
+        'src/utils/b3AddToShoppingList.ts',
+        'src/utils/b3Product/*.ts',
+        'src/utils/*.ts',
+        'src/**.d.ts',
       ],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": 0
-      }
+      rules: {
+        '@typescript-eslint/no-explicit-any': 0,
+      },
     },
     {
-      "files": ["src/utils/b3Logger.ts"],
-      "rules": {
-        "no-console": 0
-      }
+      files: ['src/utils/b3Logger.ts'],
+      rules: {
+        'no-console': 0,
+      },
     },
     {
-      "files": [
-        "src/components/form/*.ts",
-        "src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx",
-        "src/pages/QuotesList/QuoteItemCard.tsx",
-        "src/pages/QuotesList/index.tsx",
-        "src/utils/*.ts",
-        "tests/components/captcha/*.*.tsx"
+      files: [
+        'src/components/form/*.ts',
+        'src/pages/ShoppingListDetails/components/ShoppingDetailTable.tsx',
+        'src/pages/QuotesList/QuoteItemCard.tsx',
+        'src/pages/QuotesList/index.tsx',
+        'src/utils/*.ts',
+        'tests/components/captcha/*.*.tsx',
       ],
-      "rules": {
-        "@typescript-eslint/ban-types": 0
-      }
+      rules: {
+        '@typescript-eslint/ban-types': 0,
+      },
     },
     {
-      "files": ["src/components/form/ui.ts"],
-      "rules": { "@typescript-eslint/no-namespace": 0 }
+      files: ['src/components/form/ui.ts'],
+      rules: { '@typescript-eslint/no-namespace': 0 },
     },
     {
-      "files": ["src/components/upload/*.tsx"],
-      "rules": { "react/destructuring-assignment": 0 }
+      files: ['src/components/upload/*.tsx'],
+      rules: { 'react/destructuring-assignment': 0 },
     },
     {
-      "files": ["src/pages/**/*.{ts,tsx}"],
-      "rules": { "@typescript-eslint/no-non-null-assertion": 0 }
+      files: ['src/pages/**/*.{ts,tsx}'],
+      rules: { '@typescript-eslint/no-non-null-assertion': 0 },
     },
     {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
-      "rules": { "react/jsx-wrap-multilines": 0 }
+      files: ['src/components/**/*.tsx', 'src/pages/**/*.{ts,tsx}'],
+      rules: { 'react/jsx-wrap-multilines': 0 },
     },
     {
-      "files": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
-      "rules": { "import/extensions": 0 }
+      files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+      rules: { 'import/extensions': 0 },
     },
     {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
-      "rules": { "@bigcommerce/jsx-short-circuit-conditionals": 0 }
-    }
-  ]
-}
+      files: ['src/components/**/*.tsx', 'src/pages/**/*.{ts,tsx}'],
+      rules: { '@bigcommerce/jsx-short-circuit-conditionals': 0 },
+    },
+  ],
+};
