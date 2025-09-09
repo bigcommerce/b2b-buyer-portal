@@ -1294,7 +1294,7 @@ describe('Add to quote', () => {
   });
 });
 
-describe.only('CSV upload and add to quote flow', () => {
+describe('CSV upload and add to quote flow', () => {
   it('should successfully upload CSV products and add them to quote', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
