@@ -635,7 +635,7 @@ describe('when there is no shipping address assigned', () => {
   });
 });
 
-it('displays the quote info"', async () => {
+it('displays the quote info', async () => {
   server.use(
     graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
     graphql.query('Addresses', () =>
@@ -1163,10 +1163,117 @@ describe('when the user is a B2B customer', () => {
     expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
   });
 
+  it('shows stock warning in the product table', async () => {
+    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+    );
+
+    const product = buildDraftQuoteItemWith({
+      node: {
+        quantity: 100,
+        variantSku: 'LC-123',
+        productsSearch: buildProductWith({
+          inventoryLevel: 10,
+          inventoryTracking: 'product',
+          variants: [
+            buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
+          ],
+        }),
+      },
+    });
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        // email is checked on save and must match the company.customer in state for the save to succeed
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+      draftQuoteList: [product],
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalStateWith({
+          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+        }),
+      },
+    });
+
+    const productTable = await screen.findByRole('table');
+
+    expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
+  });
+
   describe('when the backordering feature flag is enabled', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
+
+    it('does not show stock warning in the product table', async () => {
+      const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+      const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+      );
+
+      const product = buildDraftQuoteItemWith({
+        node: {
+          quantity: 100,
+          variantSku: 'LC-123',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            variants: [
+              buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
+            ],
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          // email is checked on save and must match the company.customer in state for the save to succeed
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+        draftQuoteList: [product],
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags,
+          }),
+        },
+      });
+
+      const productTable = await screen.findByRole('table');
+
+      expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+    });
 
     describe('product search modal', () => {
       it('adds product successfully when validateProduct returns a success', async () => {
