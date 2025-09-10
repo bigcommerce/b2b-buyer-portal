@@ -10,7 +10,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
-import { cartInventoryErrorMessage, executeVerifyInventory } from '@/shared/utils';
+import { cartInventoryErrorMessage, inventoryValidationStrategy } from '@/shared/utils';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -304,7 +304,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
   };
 
   const addOrProceedToCheckout = () =>
-    executeVerifyInventory(
+    inventoryValidationStrategy(
       backOrderingEnabled,
       handRightClick,
       addToCartOrProceedToCheckoutBackOrdered,

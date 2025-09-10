@@ -12,7 +12,7 @@ import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
-import { cartInventoryErrorMessage, executeVerifyInventory } from '@/shared/utils';
+import { cartInventoryErrorMessage, inventoryValidationStrategy } from '@/shared/utils';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -370,7 +370,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   // Add selected product to cart
   const handleAddProductsToCart = async () => {
-    await executeVerifyInventory(
+    await inventoryValidationStrategy(
       backOrderingEnabled,
       handleProductVerifyOnFrontend,
       handleProductVerifyOnBackend,
