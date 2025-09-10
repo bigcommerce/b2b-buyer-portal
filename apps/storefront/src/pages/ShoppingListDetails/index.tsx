@@ -83,7 +83,7 @@ const calculateSubTotal = (checkedArr: CustomFieldItems) => {
 function useData() {
   const { id = '' } = useParams();
   const {
-    state: { openAPPParams, productQuoteEnabled = false, quoteConfig },
+    state: { openAPPParams, productQuoteEnabled = false },
   } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
@@ -523,7 +523,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
-              backOrderingEnabled={featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']}
+              backOrderingEnabled={
+                featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
+              }
             />
           )}
       </Box>
@@ -537,7 +539,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
         textAlign={isMobile ? 'left' : 'right'}
-        backOrderingEnabled={featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']}
+        backOrderingEnabled={
+          featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
+        }
       />
 
       <ShoppingDetailDeleteItems
