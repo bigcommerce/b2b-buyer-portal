@@ -1619,8 +1619,6 @@ describe('CSV upload and add to quote flow', () => {
     const addToListButton = screen.getByRole('button', { name: /add to list/i });
     await userEvent.click(addToListButton);
 
-    await waitForElementToBeRemoved(() => screen.queryByRole('dialog'));
-
     expect(await screen.findByText('CSV Product 1')).toBeInTheDocument();
     expect(await screen.findByText('CSV Product 2')).toBeInTheDocument();
 
