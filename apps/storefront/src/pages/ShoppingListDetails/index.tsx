@@ -123,8 +123,6 @@ function useData() {
     return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
   };
 
-  console.log("---------->", quoteConfig.find((flags) => flags.key === 'B2B-3318.move_stock_and_backorder_validation_to_backend'))
-
   return {
     id,
     openAPPParams,
