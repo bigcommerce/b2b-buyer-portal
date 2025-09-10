@@ -99,7 +99,7 @@ const validateProductQuery = `
   }
 `;
 
-const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
+const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation ProductUpload {
   productUpload (
     productListData: {
       currencyCode: "${data.currencyCode || ''}"
