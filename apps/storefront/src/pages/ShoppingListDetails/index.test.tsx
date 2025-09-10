@@ -350,6 +350,7 @@ const buildProductUploadResponseWith = builder(() => ({
               itemId: parseInt(product.products.variantId, 10),
               id: faker.number.int(),
             },
+            row: faker.number.int(),
           })),
         stockErrorFile: '',
         stockErrorSkus: [],
@@ -1567,7 +1568,7 @@ describe('CSV upload and add to quote flow', () => {
             data: {
               productUpload: {
                 result: {
-                  validProduct: csvProducts.map((product) => ({
+                  validProduct: csvProducts.map((product, index) => ({
                     ...product,
                     id: 33223,
                     products: {
@@ -1575,6 +1576,7 @@ describe('CSV upload and add to quote flow', () => {
                       itemId: parseInt(product.products.variantId, 10),
                       id: 33223,
                     },
+                    row: index + 1,
                   })),
                 },
               },
