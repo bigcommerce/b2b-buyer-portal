@@ -5,7 +5,7 @@ type Snackbar = {
   error: (message: string) => void;
 };
 
-export const executeVerifyInventory = (
+export const inventoryValidationStrategy = (
   backOrderingFlag: boolean,
   frontendValidation: CallBack,
   backendValidation: CallBack,
