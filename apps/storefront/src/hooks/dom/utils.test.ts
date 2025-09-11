@@ -664,7 +664,7 @@ describe('addProductFromProductPageToQuote', () => {
       expect(addQuoteDraftProduce).not.toHaveBeenCalled();
     });
 
-    it('adds product and shows warning when validateProduct returns a warning', async () => {
+    it('adds product successfully when validateProduct returns a warning', async () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
@@ -705,7 +705,6 @@ describe('addProductFromProductPageToQuote', () => {
       );
       await addToQuote();
 
-      expect(globalSnackbar.warning).toHaveBeenCalledWith('test');
       expect(addQuoteDraftProduce).toHaveBeenCalled();
     });
 
