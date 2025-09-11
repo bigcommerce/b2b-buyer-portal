@@ -29,6 +29,10 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import {
+  CartValidationStrategyTypes,
+  useCartInventoryValidation,
+} from '@/hooks/useInventoryValidation';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -75,6 +79,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
+  const cartValidation = useCartInventoryValidation();
 
   const {
     state: { productQuoteEnabled = false },
@@ -190,83 +195,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     };
   };
 
-  const handleProductVerifyOnBackend = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
-    }
-
-    handleClose();
-    setLoading(true);
-    const items = checkedArr.map(({ node }: ProductsProps) => {
-      return { node };
-    });
-    try {
-      const skus: string[] = [];
-
-      checkedArr.forEach((item: ProductsProps) => {
-        const { node } = item;
-        skus.push(node.variantSku);
-      });
-
-      if (skus.length === 0) {
-        snackbar.error(
-          allowJuniorPlaceOrder
-            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-        );
-        return;
-      }
-
-      const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
-      const cartInfo = await getCart();
-      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-      if (allowJuniorPlaceOrder && cartInfo.length) {
-        await deleteCart(deleteCartObject);
-        await updateCart(cartInfo, lineItems);
-      } else {
-        await callCart(lineItems);
-        b3TriggerCartNumber();
-      }
-      if (
-        allowJuniorPlaceOrder &&
-        b2bSubmitShoppingListPermission &&
-        shoppingListInfo?.status === ShoppingListStatus.Approved
-      ) {
-        window.location.href = CHECKOUT_URL;
-      } else {
-        snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-          action: {
-            label: b3Lang('shoppingList.reAddToCart.viewCart'),
-            onClick: () => {
-              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                window.location.href = CART_URL;
-              }
-            },
+  const successInventoryValidation = () => {
+    if (
+      allowJuniorPlaceOrder &&
+      b2bSubmitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
           },
-        });
-        b3TriggerCartNumber();
-        setValidateSuccessProducts(items || []);
-      }
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        cartInventoryErrorMessage(e.message, b3Lang, snackbar, items[0]?.node?.productName);
-        setValidateFailureProducts(items);
-      }
-    } finally {
-      setLoading(false);
+        },
+      });
+      b3TriggerCartNumber();
     }
   };
 
   const handleProductVerifyOnFrontend = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
-    }
-
-    handleClose();
-    setLoading(true);
     try {
       const skus: string[] = [];
 
@@ -322,25 +273,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         if (res && res.errors) {
           snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
-          if (
-            allowJuniorPlaceOrder &&
-            b2bSubmitShoppingListPermission &&
-            shoppingListInfo?.status === ShoppingListStatus.Approved
-          ) {
-            window.location.href = CHECKOUT_URL;
-          } else {
-            snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-              action: {
-                label: b3Lang('shoppingList.reAddToCart.viewCart'),
-                onClick: () => {
-                  if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                    window.location.href = CART_URL;
-                  }
-                },
-              },
-            });
-            b3TriggerCartNumber();
-          }
+          successInventoryValidation();
         }
       }
 
@@ -353,11 +286,38 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   // Add selected product to cart
   const handleAddProductsToCart = async () => {
-    await inventoryValidationStrategy(
+    // await inventoryValidationStrategy(
+    //   backOrderingEnabled,
+    //   handleProductVerifyOnFrontend,
+    //   handleProductVerifyOnBackend,
+    // );
+    if (checkedArr.length === 0) {
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
+    }
+
+    handleClose();
+    setLoading(true);
+    const {
+      errors,
+      isFallback = false,
+      failureProducts,
+    } = await cartValidation(checkedArr, {
+      type: CartValidationStrategyTypes.SHOPPING_LIST_FOOTER,
       backOrderingEnabled,
-      handleProductVerifyOnFrontend,
-      handleProductVerifyOnBackend,
-    );
+      fallback: handleProductVerifyOnFrontend,
+      b3Lang,
+      allowJuniorPlaceOrder,
+      addLineItems,
+      setValidateFailureProducts,
+      setValidateSuccessProducts,
+    });
+    if (errors) {
+      cartInventoryErrorMessage(errors, b3Lang, snackbar, failureProducts?.[0]?.node?.productName);
+    } else if (!errors && !isFallback) {
+      successInventoryValidation();
+    }
+    setLoading(false);
   };
 
   // Add selected to quote
