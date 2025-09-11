@@ -292,10 +292,6 @@ const addProductFromProductPageToQuote = (
 
           return;
         }
-
-        if (responseType === 'WARNING') {
-          globalSnackbar.warning(message);
-        }
       } else if (!isEnableProduct) {
         const currentProduct = getVariantInfoOOSAndPurchase({
           ...productsSearch[0],
