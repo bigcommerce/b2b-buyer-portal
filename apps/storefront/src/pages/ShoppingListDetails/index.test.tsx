@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   bulk,
   faker,
   graphql,
@@ -1639,3 +1640,5 @@ describe('CSV upload and add to quote flow', () => {
     expect(screen.getByText(/view quote/i)).toBeInTheDocument();
   });
 });
+
+
