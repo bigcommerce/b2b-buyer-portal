@@ -6,7 +6,7 @@
     "binaries": "off",
     "classMembers": "off",
     "enumMembers": "off",
-    
+
     "dependencies": "error",
     "devDependencies": "error",
     "optionalPeerDependencies": "error",
@@ -22,6 +22,8 @@
   "babel": true,
   "ignoreDependencies": [
     "eslint", // Not really sure why this is reported as unused
+    "eslint-plugin-jsx-a11y", // peer dependency of airbnb eslint config
+    "eslint-plugin-react-hooks", // peer dependency of airbnb eslint config
     "graphql", // used to generate graphql types
     "@mui/styles", // used by react-mui-dropzone
     "@testing-library/dom", // used by @testing-library/react

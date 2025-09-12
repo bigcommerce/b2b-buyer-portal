@@ -1,5 +1,6 @@
 import { Control } from 'react-hook-form';
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Form {
   export interface B3CustomFormValue {
     name: string;
