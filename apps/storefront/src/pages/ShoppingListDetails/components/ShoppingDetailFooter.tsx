@@ -8,10 +8,15 @@ import { v1 as uuid } from 'uuid';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
+import {
+  CartValidationStrategyTypes,
+  useCartInventoryValidation,
+} from '@/hooks/useInventoryValidation';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
+import { cartInventoryErrorMessage } from '@/shared/utils';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -42,6 +47,7 @@ interface ShoppingDetailFooterProps {
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
+  backOrderingEnabled: boolean;
 }
 
 interface ProductInfoProps {
@@ -73,6 +79,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
+  const cartValidation = useCartInventoryValidation();
 
   const {
     state: { productQuoteEnabled = false },
@@ -112,6 +119,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     customColor,
     isCanEditShoppingList,
     role,
+    backOrderingEnabled,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -187,15 +195,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     };
   };
 
-  // Add selected product to cart
-  const handleAddProductsToCart = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
+  const shouldRedirectCheckout = () => {
+    if (
+      allowJuniorPlaceOrder &&
+      b2bSubmitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
+          },
+        },
+      });
+      b3TriggerCartNumber();
     }
+  };
 
-    handleClose();
-    setLoading(true);
+  const handleProductVerifyOnFrontend = async () => {
     try {
       const skus: string[] = [];
 
@@ -251,25 +273,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         if (res && res.errors) {
           snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
-          if (
-            allowJuniorPlaceOrder &&
-            b2bSubmitShoppingListPermission &&
-            shoppingListInfo?.status === ShoppingListStatus.Approved
-          ) {
-            window.location.href = CHECKOUT_URL;
-          } else {
-            snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-              action: {
-                label: b3Lang('shoppingList.reAddToCart.viewCart'),
-                onClick: () => {
-                  if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                    window.location.href = CART_URL;
-                  }
-                },
-              },
-            });
-            b3TriggerCartNumber();
-          }
+          shouldRedirectCheckout();
         }
       }
 
@@ -278,6 +282,37 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add selected product to cart
+  const handleAddProductsToCart = async () => {
+    if (checkedArr.length === 0) {
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
+    }
+
+    handleClose();
+    setLoading(true);
+    const {
+      errors,
+      isFallback = false,
+      failureProducts,
+    } = await cartValidation(checkedArr, {
+      type: CartValidationStrategyTypes.SHOPPING_LIST_FOOTER,
+      backOrderingEnabled,
+      fallback: handleProductVerifyOnFrontend,
+      b3Lang,
+      allowJuniorPlaceOrder,
+      addLineItems,
+      setValidateFailureProducts,
+      setValidateSuccessProducts,
+    });
+    if (errors) {
+      cartInventoryErrorMessage(errors, b3Lang, snackbar, failureProducts?.[0]?.node?.productName);
+    } else if (!errors && !isFallback) {
+      shouldRedirectCheckout();
+    }
+    setLoading(false);
   };
 
   // Add selected to quote

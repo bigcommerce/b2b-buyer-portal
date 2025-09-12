@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useMobile } from '@/hooks';
+import { useFeatureFlags, useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -165,6 +165,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const b3Lang = useB3Lang();
 
   const tableRef = useRef<TableRefProps | null>(null);
+
+  const featureFlags = useFeatureFlags();
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
@@ -521,6 +523,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
+              backOrderingEnabled={
+                featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
+              }
             />
           )}
       </Box>
@@ -534,6 +539,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
         textAlign={isMobile ? 'left' : 'right'}
+        backOrderingEnabled={
+          featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
+        }
       />
 
       <ShoppingDetailDeleteItems
