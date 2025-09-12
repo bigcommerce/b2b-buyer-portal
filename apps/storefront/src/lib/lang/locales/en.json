@@ -17,6 +17,7 @@
   "global.filter.cancel": "Cancel",
   "global.filter.apply": "Apply",
   "global.pagination.rowsPerPage": "Rows per page:",
+  "global.pagination.pageXOfY": "{from}–{to} of {count}",
   "global.pagination.perPage": "per page:",
   "global.pagination.cardsPerPage": "Cards per page:",
   "global.createShoppingList.createNew": "Create new",
