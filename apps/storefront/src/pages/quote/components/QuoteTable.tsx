@@ -6,6 +6,7 @@ import ceil from 'lodash-es/ceil';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useFeatureFlags } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import {
   deleteProductFromDraftQuoteList,
@@ -76,6 +77,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   const { total, items, idEdit = true, updateSummary } = props;
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
+  const featureFlags = useFeatureFlags();
+
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
   const [optionsProduct, setOptionsProduct] = useState<any>(null);
@@ -217,17 +220,36 @@ function QuoteTable(props: ShoppingDetailTableProps) {
 
         const optionList = JSON.parse(row.optionList);
         const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
-        const currentProduct = getVariantInfoOOSAndPurchase(row);
-        const inventoryTracking =
-          row?.productsSearch?.inventoryTracking || row?.inventoryTracking || 'none';
 
-        let inventoryLevel = row?.productsSearch?.inventoryLevel || row?.inventoryLevel || 0;
-        if (inventoryTracking === 'variant') {
-          const currentVariant = row?.productsSearch?.variants.find(
-            (variant: CustomFieldItems) => variant.sku === row.variantSku,
-          );
+        let warningMessage: string | null = null;
+        let warningDetails: string | null = null;
 
-          inventoryLevel = currentVariant?.inventory_level;
+        if (!featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+          const currentProduct = getVariantInfoOOSAndPurchase(row);
+          const showWarning = !isEnableProduct && currentProduct?.name;
+
+          if (showWarning) {
+            if (currentProduct?.type === 'oos') {
+              const inventoryTracking =
+                product.inventoryTracking || row.inventoryTracking || 'none';
+
+              let inventoryLevel = product.inventoryLevel || row.inventoryLevel || 0;
+              if (inventoryTracking === 'variant') {
+                const currentVariant = product.variants.find(
+                  (variant: CustomFieldItems) => variant.sku === row.variantSku,
+                );
+
+                inventoryLevel = currentVariant?.inventory_level;
+              }
+
+              warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+              warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+                qty: inventoryLevel,
+              });
+            } else {
+              warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
+            }
+          }
         }
 
         return (
@@ -281,7 +303,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                 </Box>
               )}
 
-              {!isEnableProduct && currentProduct?.name && (
+              {warningMessage && (
                 <Box sx={{ color: 'red' }}>
                   <Box
                     sx={{
@@ -292,17 +314,9 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                     }}
                   >
                     <WarningIcon color="error" fontSize="small" />
-                    {currentProduct?.type === 'oos'
-                      ? b3Lang('quoteDraft.quoteTable.outOfStock.tip')
-                      : b3Lang('quoteDraft.quoteTable.unavailable.tip')}
+                    {warningMessage}
                   </Box>
-                  {currentProduct?.type === 'oos' && (
-                    <Box>
-                      {b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-                        qty: inventoryLevel,
-                      })}
-                    </Box>
-                  )}
+                  {warningDetails && <Box>{warningDetails}</Box>}
                 </Box>
               )}
             </Box>
