@@ -1,20 +1,7 @@
 import { LangFormatFunction } from '@/lib/lang';
 
-type CallBack = () => Promise<void>;
 type Snackbar = {
   error: (message: string) => void;
-};
-
-export const inventoryValidationStrategy = (
-  backOrderingFlag: boolean,
-  frontendValidation: CallBack,
-  backendValidation: CallBack,
-) => {
-  if (backOrderingFlag) {
-    backendValidation();
-  } else {
-    frontendValidation();
-  }
 };
 
 export const cartInventoryErrorMessage = (

@@ -8,11 +8,15 @@ import { v1 as uuid } from 'uuid';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useFeatureFlags, useMobile } from '@/hooks';
+import {
+  CartValidationStrategyTypes,
+  useCartInventoryValidation,
+} from '@/hooks/useInventoryValidation';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
-import { cartInventoryErrorMessage, inventoryValidationStrategy } from '@/shared/utils';
+import { cartInventoryErrorMessage } from '@/shared/utils';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -30,10 +34,6 @@ import {
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
-import {
-  CartValidationStrategyTypes,
-  useCartInventoryValidation,
-} from '@/hooks/useInventoryValidation';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -330,7 +330,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         if (res && res.errors) {
           snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
-          successInventoryValidation();
+          shouldRedirectCheckout();
         }
       }
 
@@ -343,11 +343,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   // Add selected product to cart
   const handleAddProductsToCart = async () => {
-    // await inventoryValidationStrategy(
-    //   backOrderingEnabled,
-    //   handleProductVerifyOnFrontend,
-    //   handleProductVerifyOnBackend,
-    // );
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
       return;
@@ -372,7 +367,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     if (errors) {
       cartInventoryErrorMessage(errors, b3Lang, snackbar, failureProducts?.[0]?.node?.productName);
     } else if (!errors && !isFallback) {
-      successInventoryValidation();
+      shouldRedirectCheckout();
     }
     setLoading(false);
   };

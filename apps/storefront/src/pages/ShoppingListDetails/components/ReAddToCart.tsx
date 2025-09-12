@@ -9,8 +9,12 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
+import {
+  CartValidationStrategyTypes,
+  useCartInventoryValidation,
+} from '@/hooks/useInventoryValidation';
 import { useB3Lang } from '@/lib/lang';
-import { cartInventoryErrorMessage, inventoryValidationStrategy } from '@/shared/utils';
+import { cartInventoryErrorMessage } from '@/shared/utils';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -171,6 +175,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
+  const cartValidation = useCartInventoryValidation();
   const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
@@ -214,6 +219,29 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     setValidateFailureProducts(newProduct);
   };
 
+  const shouldRedirectToCheckout = () => {
+    handleCancelClicked();
+    if (
+      allowJuniorPlaceOrder &&
+      submitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
+          },
+        },
+      });
+      b3TriggerCartNumber();
+    }
+  };
+
   const handRightClick = async () => {
     const isValidate = products.every((item: ProductsProps) => item.isValid);
 
@@ -229,26 +257,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       const res = await callCart(lineItems);
 
       if (!res.errors) {
-        handleCancelClicked();
-        if (
-          allowJuniorPlaceOrder &&
-          submitShoppingListPermission &&
-          shoppingListInfo?.status === ShoppingListStatus.Approved
-        ) {
-          window.location.href = CHECKOUT_URL;
-        } else {
-          snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
-            action: {
-              label: b3Lang('shoppingList.reAddToCart.viewCart'),
-              onClick: () => {
-                if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                  window.location.href = CART_URL;
-                }
-              },
-            },
-          });
-          b3TriggerCartNumber();
-        }
+        shouldRedirectToCheckout();
       }
 
       if (res.errors) {
@@ -261,53 +270,29 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   };
 
-  // this function will replace the handRight function if the backOrderingEnabled is true
-  const addToCartOrProceedToCheckoutBackOrdered = async () => {
+  const addOrProceedToCheckout = async () => {
     setLoading(true);
-    try {
-      const lineItems = addLineItems(products);
-      const response = await callCart(lineItems);
-      if (response.errors) {
-        // Maybe add a snackbar error? - snackbar.error("An error occurred adding items to the cart.");
-        return;
-      }
-      handleCancelClicked();
-      b3TriggerCartNumber(); // This is now called only once on success, removing redundancy.
-      const canProceedToCheckout =
-        allowJuniorPlaceOrder &&
-        submitShoppingListPermission &&
-        shoppingListInfo?.status === ShoppingListStatus.Approved;
-      if (canProceedToCheckout) {
-        window.location.href = CHECKOUT_URL;
-      } else {
-        snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
-          action: {
-            label: b3Lang('shoppingList.reAddToCart.viewCart'),
-            onClick: () => {
-              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                window.location.href = CART_URL;
-              }
-            },
-          },
-        });
-      }
-    } catch (error) {
-      // This block handles thrown exceptions like network failures.
-      if (error instanceof Error) {
-        const productToAddName = products[0]?.node?.productName;
-        cartInventoryErrorMessage(error.message, b3Lang, snackbar, productToAddName);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const addOrProceedToCheckout = () =>
-    inventoryValidationStrategy(
+    const { errors, isFallback = false } = await cartValidation(products, {
+      type: CartValidationStrategyTypes.SHOPPING_LIST_RE_ADD,
       backOrderingEnabled,
-      handRightClick,
-      addToCartOrProceedToCheckoutBackOrdered,
-    );
+      fallback: handRightClick,
+      b3Lang,
+      allowJuniorPlaceOrder,
+      submitShoppingListPermission,
+      shoppingListInfo,
+      addLineItems,
+    });
+
+    if (errors) {
+      const productToAddName = products[0]?.node?.productName;
+      cartInventoryErrorMessage(errors, b3Lang, snackbar, productToAddName);
+    } else if (!errors && !isFallback) {
+      shouldRedirectToCheckout();
+    }
+
+    setLoading(false);
+  };
 
   const handleClearNoStock = async () => {
     const newProduct = products.filter(
