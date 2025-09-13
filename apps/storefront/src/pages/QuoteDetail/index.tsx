@@ -564,7 +564,7 @@ function QuoteDetail() {
       quoteGotoCheckout();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, location, proceedingCheckoutFn]);
+  }, [id, isHideQuoteCheckout]);
 
   const isAutoEnableQuoteCheckout = useMemo(() => {
     const isAutoEnable =
