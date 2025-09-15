@@ -341,6 +341,9 @@ export function B3Table<Row>({
           </Grid>
           {showPagination && (
             <TablePagination
+              labelDisplayedRows={({ from, to, count }) =>
+                b3Lang('global.pagination.pageXOfY', { from, to, count })
+              }
               rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.perPage')}
               component="div"
@@ -379,6 +382,9 @@ export function B3Table<Row>({
           </Grid>
           {showPagination && (
             <TablePagination
+              labelDisplayedRows={({ from, to, count }) =>
+                b3Lang('global.pagination.pageXOfY', { from, to, count })
+              }
               rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.cardsPerPage')}
               component="div"
@@ -500,6 +506,9 @@ export function B3Table<Row>({
           </TableContainer>
           {showPagination && (
             <TablePagination
+              labelDisplayedRows={({ from, to, count }) =>
+                b3Lang('global.pagination.pageXOfY', { from, to, count })
+              }
               rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
               labelRowsPerPage={labelRowsPerPage || b3Lang('global.pagination.rowsPerPage')}
               component="div"
