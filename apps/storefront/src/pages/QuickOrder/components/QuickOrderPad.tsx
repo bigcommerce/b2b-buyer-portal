@@ -5,7 +5,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL } from '@/constants';
-import { useBlockPendingAccountViewPrice } from '@/hooks';
+import { useBlockPendingAccountViewPrice, useFeatureFlags } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
@@ -28,6 +28,9 @@ export default function QuickOrderPad() {
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart');
   const [isLoading, setIsLoading] = useState(false);
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
+  const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
 
@@ -273,6 +276,16 @@ export default function QuickOrderPad() {
     }
   };
 
+  const handleBackendQuickSearchAddToCart = async (productData: CustomFieldItems[]) => {
+    try {
+      await quickAddToList(productData);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        snackbar.error(e.message);
+      }
+    }
+  };
+
   useEffect(() => {
     if (productData?.length > 0) {
       setAddBtnText(
@@ -291,7 +304,13 @@ export default function QuickOrderPad() {
             {b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
           </Typography>
 
-          <SearchProduct addToList={handleQuickSearchAddCart} />
+          <SearchProduct
+            addToList={
+              backendValidationEnabled
+                ? handleBackendQuickSearchAddToCart
+                : handleQuickSearchAddCart
+            }
+          />
 
           <Divider />
 
