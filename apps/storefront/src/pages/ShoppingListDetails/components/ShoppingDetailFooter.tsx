@@ -8,15 +8,10 @@ import { v1 as uuid } from 'uuid';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useFeatureFlags, useMobile } from '@/hooks';
-import {
-  CartValidationStrategyTypes,
-  useCartInventoryValidation,
-} from '@/hooks/useInventoryValidation';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
-import { cartInventoryErrorMessage } from '@/shared/utils';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -48,7 +43,7 @@ interface ShoppingDetailFooterProps {
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
-  backOrderingEnabled: boolean;
+  backendValidationEnabled: boolean;
 }
 
 interface ProductInfoProps {
@@ -81,7 +76,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
   const featureFlags = useFeatureFlags();
-  const cartValidation = useCartInventoryValidation();
 
   const {
     state: { productQuoteEnabled = false },
@@ -121,7 +115,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     customColor,
     isCanEditShoppingList,
     role,
-    backOrderingEnabled,
+    backendValidationEnabled,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -274,7 +268,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   }
   };
 
-  const handleProductVerifyOnFrontend = async () => {
+  const handleAddToCartOnFrontend = async () => {
     try {
       const skus: string[] = [];
 
@@ -341,6 +335,51 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
   };
 
+  const handleAddToCartBackend = async () => {
+    const items = checkedArr.map(({ node }: ProductsProps) => {
+      return { node };
+    });
+    try {
+      const skus: string[] = [];
+
+      items.forEach((item: ProductsProps) => {
+        const { node } = item;
+        skus.push(node.variantSku);
+      });
+
+      if (skus.length === 0) {
+        snackbar.error(
+          allowJuniorPlaceOrder
+            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
+            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
+        );
+        return;
+      }
+
+      const lineItems = addLineItems(items);
+      const deleteCartObject = deleteCartData(items);
+      const cartInfo = await getCart();
+
+      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
+      if (allowJuniorPlaceOrder && cartInfo.length) {
+        await deleteCart(deleteCartObject);
+        await updateCart(cartInfo, lineItems);
+      } else {
+        await callCart(lineItems);
+        b3TriggerCartNumber();
+      }
+      shouldRedirectCheckout();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setValidateFailureProducts(items as ProductsProps[]);
+        snackbar.error(e.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+    setValidateSuccessProducts(items as ProductsProps[]);
+  };
+
   // Add selected product to cart
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
@@ -349,27 +388,14 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
 
     handleClose();
+
     setLoading(true);
-    const {
-      errors,
-      isFallback = false,
-      failureProducts,
-    } = await cartValidation(checkedArr, {
-      type: CartValidationStrategyTypes.SHOPPING_LIST_FOOTER,
-      backOrderingEnabled,
-      fallback: handleProductVerifyOnFrontend,
-      b3Lang,
-      allowJuniorPlaceOrder,
-      addLineItems,
-      setValidateFailureProducts,
-      setValidateSuccessProducts,
-    });
-    if (errors) {
-      cartInventoryErrorMessage(errors, b3Lang, snackbar, failureProducts?.[0]?.node?.productName);
-    } else if (!errors && !isFallback) {
-      shouldRedirectCheckout();
+
+    if (backendValidationEnabled) {
+      await handleAddToCartBackend();
+    } else {
+      await handleAddToCartOnFrontend();
     }
-    setLoading(false);
   };
 
   // Add selected to quote

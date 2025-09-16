@@ -9,12 +9,7 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
-import {
-  CartValidationStrategyTypes,
-  useCartInventoryValidation,
-} from '@/hooks/useInventoryValidation';
 import { useB3Lang } from '@/lib/lang';
-import { cartInventoryErrorMessage } from '@/shared/utils';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
@@ -38,7 +33,7 @@ interface ShoppingProductsProps {
   setValidateFailureProducts: (arr: ProductsProps[]) => void;
   setValidateSuccessProducts: (arr: ProductsProps[]) => void;
   textAlign?: string;
-  backOrderingEnabled: boolean;
+  backendValidationEnabled: boolean;
 }
 
 interface FlexProps {
@@ -169,13 +164,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     setValidateFailureProducts,
     setValidateSuccessProducts,
     textAlign = 'left',
-    backOrderingEnabled,
+    backendValidationEnabled,
   } = props;
 
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
-  const cartValidation = useCartInventoryValidation();
   const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
@@ -270,30 +264,36 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   };
 
-  const addOrProceedToCheckout = async () => {
+  const handleReAddAddToCartBackend = async () => {
     setLoading(true);
 
-    const { errors, isFallback = false } = await cartValidation(products, {
-      type: CartValidationStrategyTypes.SHOPPING_LIST_RE_ADD,
-      backOrderingEnabled,
-      fallback: handRightClick,
-      b3Lang,
-      allowJuniorPlaceOrder,
-      submitShoppingListPermission,
-      shoppingListInfo,
-      addLineItems,
-    });
+    try {
+      const lineItems = addLineItems(products);
+      const res = await callCart(lineItems);
 
-    if (errors) {
-      const productToAddName = products[0]?.node?.productName;
-      cartInventoryErrorMessage(errors, b3Lang, snackbar, productToAddName);
-    } else if (!errors && !isFallback) {
-      shouldRedirectToCheckout();
+      if (!res.errors) {
+        shouldRedirectToCheckout();
+      }
+
+      b3TriggerCartNumber();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        snackbar.error(e.message);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
+  const addOrProceedToCheckout = async () => {
+    if (backendValidationEnabled) {
+      await handleReAddAddToCartBackend();
+    } else {
+      handRightClick();
+    }
+  };
+
+  // this need the information of the SearchGraphlQuery endpoint change https://bigcommercecloud.atlassian.net/browse/B2B-3516
   const handleClearNoStock = async () => {
     const newProduct = products.filter(
       (item: ProductsProps) => item.isStock === '0' || item.stock !== 0,
@@ -400,11 +400,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 quantity: products.length,
               })}
             </Box>
-            {!backOrderingEnabled && (
-              <CustomButton onClick={() => handleClearNoStock()}>
-                {b3Lang('shoppingList.reAddToCart.adjustQuantity')}
-              </CustomButton>
-            )}
+            <CustomButton onClick={() => handleClearNoStock()}>
+              {b3Lang('shoppingList.reAddToCart.adjustQuantity')}
+            </CustomButton>
           </Box>
 
           {products.length > 0 ? (

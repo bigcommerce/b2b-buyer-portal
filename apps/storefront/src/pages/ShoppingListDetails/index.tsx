@@ -167,6 +167,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const tableRef = useRef<TableRefProps | null>(null);
 
   const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
@@ -523,9 +525,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
-              backOrderingEnabled={
-                featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
-              }
+              backendValidationEnabled={backendValidationEnabled}
             />
           )}
       </Box>
@@ -539,9 +539,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
         textAlign={isMobile ? 'left' : 'right'}
-        backOrderingEnabled={
-          featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']
-        }
+        backendValidationEnabled={backendValidationEnabled}
       />
 
       <ShoppingDetailDeleteItems
