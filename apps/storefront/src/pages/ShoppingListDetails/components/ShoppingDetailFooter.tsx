@@ -7,7 +7,7 @@ import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useMobile } from '@/hooks';
+import { useFeatureFlags, useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
@@ -28,6 +28,7 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -73,6 +74,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
+  const featureFlags = useFeatureFlags();
 
   const {
     state: { productQuoteEnabled = false },
@@ -185,6 +187,20 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       validateFailureArr,
       validateSuccessArr,
     };
+  };
+
+  const addToQuote = async (products: CustomFieldItems[]) => {
+    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+      const validatedProducts = await validateProducts(products, b3Lang);
+
+      addQuoteDraftProducts(validatedProducts);
+
+      return validatedProducts.length > 0;
+    }
+
+    addQuoteDraftProducts(products);
+
+    return true;
   };
 
   // Add selected product to cart
@@ -344,7 +360,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       });
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
-      let isSuccess = false;
       let errorMessage = '';
       let isFondVariant = true;
 
@@ -385,7 +400,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             id: uuid(),
             variantSku: variantItem?.sku || variantSku,
             variantId,
-            productsSearch: currentProductSearch,
+            productsSearch: {
+              ...currentProductSearch,
+              newSelectOptionList: optionsList,
+              variantId,
+            },
             primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
             quantity: Number(quantity) || 1,
@@ -397,11 +416,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         };
 
         newProducts.push(quoteListitem);
-
-        isSuccess = true;
       });
 
-      isSuccess = validProductQty(newProducts);
+      const isValidQty = validProductQty(newProducts);
 
       if (!isFondVariant) {
         snackbar.error(errorMessage);
@@ -409,17 +426,20 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         return;
       }
 
-      if (isSuccess) {
+      if (isValidQty) {
         await calculateProductListPrice(newProducts, '2');
-        addQuoteDraftProducts(newProducts);
-        snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
-          action: {
-            label: b3Lang('shoppingList.footer.viewQuote'),
-            onClick: () => {
-              navigate('/quoteDraft');
+
+        const success = await addToQuote(newProducts);
+        if (success) {
+          snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
+            action: {
+              label: b3Lang('shoppingList.footer.viewQuote'),
+              onClick: () => {
+                navigate('/quoteDraft');
+              },
             },
-          },
-        });
+          });
+        }
       } else {
         snackbar.error(b3Lang('shoppingList.footer.productsLimit'), {
           action: {

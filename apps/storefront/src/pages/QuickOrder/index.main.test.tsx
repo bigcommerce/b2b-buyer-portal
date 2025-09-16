@@ -23,7 +23,10 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
+import {
+  SearchProductsResponse,
+  ValidateProductResponse,
+} from '@/shared/service/b2b/graphql/product';
 import {
   OrderedProductNode,
   RecentlyOrderedProductsResponse,
@@ -72,6 +75,8 @@ const buildRecentlyOrderedProductNodeWith = builder<OrderedProductNode>(() => ({
 type SearchProduct = SearchProductsResponse['data']['productsSearch'][number];
 type SearchProductV3Option = SearchProduct['optionsV3'][number];
 type SearchProductV3OptionValue = SearchProductV3Option['option_values'][number];
+
+type ValidateProduct = ValidateProductResponse['data']['validateProduct'];
 
 const buildSearchProductV3OptionValueWith = builder<SearchProductV3OptionValue>(() => ({
   id: faker.number.int(),
@@ -211,6 +216,11 @@ const buildGetCartWith = builder<GetCart>(() => {
     },
   };
 });
+
+const buildValidateProductWith = builder<ValidateProduct>(() => ({
+  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
+  message: faker.lorem.sentence(),
+}));
 
 const approvedB2BCompany = buildCompanyStateWith({
   permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
@@ -1690,6 +1700,96 @@ describe('when adding to quote', () => {
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
 
+    expect(await screen.findByText('Products were added to your quote')).toBeInTheDocument();
+  });
+
+  it('calls validateProducts query when feature flag is enabled', async () => {
+    const featureFlags = {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    };
+
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              sku: 'SKU-123',
+              orderQuantityMaximum: 5,
+              orderQuantityMinimum: 0,
+              inventoryTracking: 'none',
+              variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
+            }),
+          ],
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(laughCanister.node.productId),
+          variantId: Number(laughCanister.node.variantId),
+          quantity: 4,
+          productOptions: [],
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, {
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({ featureFlags }),
+      },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '4');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
+
+    expect(validateProduct).toHaveBeenCalled();
     expect(await screen.findByText('Products were added to your quote')).toBeInTheDocument();
   });
 });
