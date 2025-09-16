@@ -92,7 +92,7 @@
     "eslint-plugin-testing-library": "^7.6.8",
     "jsdom": "^26.1.0",
     "knip": "^5.63.0",
-    "msw": "^2.8.4",
+    "msw": "^2.11.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "terser": "^5.43.1",
     "typescript": "^5.9.2",
