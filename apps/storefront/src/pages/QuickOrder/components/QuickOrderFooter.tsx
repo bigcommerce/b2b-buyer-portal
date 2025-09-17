@@ -25,8 +25,8 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
@@ -194,7 +194,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const lineItems = handleSetCartLineItems(getInventoryInfos || []);
 
-      const res = await callCart(lineItems);
+      const res = await createOrUpdateExistingCart(lineItems);
 
       if (res && !res.errors) {
         snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {

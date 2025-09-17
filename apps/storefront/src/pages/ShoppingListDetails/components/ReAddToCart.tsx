@@ -20,7 +20,7 @@ import {
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart } from '@/utils/cartUtils';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 interface ShoppingProductsProps {
   shoppingListInfo: any;
@@ -236,7 +236,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   };
 
-  const handRightClick = async () => {
+  const handlePrimaryAction = async () => {
     const isValidate = products.every((item: ProductsProps) => item.isValid);
 
     if (!isValidate) {
@@ -248,7 +248,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
       const lineItems = addLineItems(products);
 
-      const res = await callCart(lineItems);
+      const res = await createOrUpdateExistingCart(lineItems);
 
       if (!res.errors) {
         shouldRedirectToCheckout();
@@ -264,12 +264,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   };
 
-  const handleReAddAddToCartBackend = async () => {
+  const handleReAddToCartBackend = async () => {
     setLoading(true);
 
     try {
       const lineItems = addLineItems(products);
-      const res = await callCart(lineItems);
+      const res = await createOrUpdateExistingCart(lineItems);
 
       if (!res.errors) {
         shouldRedirectToCheckout();
@@ -287,9 +287,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const addOrProceedToCheckout = async () => {
     if (backendValidationEnabled) {
-      await handleReAddAddToCartBackend();
+      await handleReAddToCartBackend();
     } else {
-      handRightClick();
+      handlePrimaryAction();
     }
   };
 

@@ -27,8 +27,8 @@ import {
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
+import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -318,7 +318,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           await deleteCart(deleteCartObject);
           res = await updateCart(cartInfo, lineItems);
         } else {
-          res = await callCart(lineItems);
+          res = await createOrUpdateExistingCart(lineItems);
           b3TriggerCartNumber();
         }
         if (res && res.errors) {
@@ -365,7 +365,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         await deleteCart(deleteCartObject);
         await updateCart(cartInfo, lineItems);
       } else {
-        await callCart(lineItems);
+        await createOrUpdateExistingCart(lineItems);
         b3TriggerCartNumber();
       }
       shouldRedirectCheckout();
