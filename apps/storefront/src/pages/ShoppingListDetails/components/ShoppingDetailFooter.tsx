@@ -27,8 +27,8 @@ import {
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { validateProducts } from '@/utils/validateProducts';
 import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -205,67 +205,26 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     return true;
   };
 
-  // Add selected product to cart
-  const handleProductVerifyOnBackend = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
-    }
-
-    handleClose();
-    setLoading(true);
-    const items = checkedArr.map(({ node }: ProductsProps) => {
-      return { node };
-    });
-    try {
-      const skus: string[] = [];
-
-      checkedArr.forEach((item: ProductsProps) => {
-        const { node } = item;
-        skus.push(node.variantSku);
-      });
-
-      if (skus.length === 0) {
-        snackbar.error(
-          allowJuniorPlaceOrder
-            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-        );
-        return;
-      }
-
-      const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
-      const cartInfo = await getCart();
-      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-      if (allowJuniorPlaceOrder && cartInfo.length) {
-        await deleteCart(deleteCartObject);
-        await updateCart(cartInfo, lineItems);
-      } else {
-        await callCart(lineItems);
-        b3TriggerCartNumber();
-      }
-      if (
-        allowJuniorPlaceOrder &&
-        b2bSubmitShoppingListPermission &&
-        shoppingListInfo?.status === ShoppingListStatus.Approved
-      ) {
-        window.location.href = CHECKOUT_URL;
-      } else {
-        snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-          action: {
-            label: b3Lang('shoppingList.reAddToCart.viewCart'),
-            onClick: () => {
-              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                window.location.href = CART_URL;
-              }
-            },
+  const shouldRedirectCheckout = () => {
+    if (
+      allowJuniorPlaceOrder &&
+      b2bSubmitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
           },
         },
-      );
+      });
       b3TriggerCartNumber();
     }
-  }
   };
 
   const handleAddToCartOnFrontend = async () => {

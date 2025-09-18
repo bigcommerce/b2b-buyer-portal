@@ -25,8 +25,8 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { validateProducts } from '@/utils/validateProducts';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
