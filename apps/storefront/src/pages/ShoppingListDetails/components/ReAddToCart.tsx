@@ -293,7 +293,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   };
 
-  // this need the information of the SearchGraphlQuery endpoint change https://bigcommercecloud.atlassian.net/browse/B2B-3516
+  // this need the information of the SearchGraphlQuery endpoint change
   const handleClearNoStock = async () => {
     const newProduct = products.filter(
       (item: ProductsProps) => item.isStock === '0' || item.stock !== 0,

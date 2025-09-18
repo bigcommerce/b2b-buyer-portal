@@ -340,12 +340,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       return { node };
     });
     try {
-      const skus: string[] = [];
-
-      items.forEach((item: ProductsProps) => {
-        const { node } = item;
-        skus.push(node.variantSku);
-      });
+      const skus = items.map(({ node }: ProductsProps) => node.variantSku);
 
       if (skus.length === 0) {
         snackbar.error(
@@ -360,8 +355,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       const deleteCartObject = deleteCartData(items);
       const cartInfo = await getCart();
 
-      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-      if (allowJuniorPlaceOrder && cartInfo.length) {
+      if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
         await deleteCart(deleteCartObject);
         await updateCart(cartInfo, lineItems);
       } else {
@@ -371,13 +365,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       shouldRedirectCheckout();
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(items as ProductsProps[]);
+        setValidateFailureProducts(items);
         snackbar.error(e.message);
       }
     } finally {
       setLoading(false);
     }
-    setValidateSuccessProducts(items as ProductsProps[]);
+    setValidateSuccessProducts(items);
   };
 
   // Add selected product to cart

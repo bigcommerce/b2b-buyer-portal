@@ -1782,7 +1782,7 @@ describe('CSV upload and add to quote flow', () => {
   });
 });
 
-describe('when backOrderingEnabled is true', () => {
+describe('when backend validation is enabled', () => {
   it('it error on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
