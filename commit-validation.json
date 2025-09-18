@@ -17,6 +17,7 @@
     "company-hierarchy",
     "company-orders",
     "invoices",
-    "invoice-payment"
+    "invoice-payment",
+    "register"
   ]
 }

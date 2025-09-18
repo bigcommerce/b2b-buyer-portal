@@ -107,6 +107,7 @@ export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = [
 ] as const;
 
 export const LOGIN_LANDING_LOCATIONS = {
-  HOME: '1',
   BUYER_PORTAL: '0',
+  HOME: '1',
+  CHECKOUT: '2',
 };
