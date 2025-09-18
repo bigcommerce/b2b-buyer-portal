@@ -81,6 +81,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+  const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const isShowCartAction = isB2BUser ? purchasabilityPermission : true;
 
@@ -161,25 +164,21 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     return lineItems;
   };
 
-  const handleAddSelectedToCart = async () => {
-    setIsRequestLoading(true);
-    handleClose();
+  const showAddToCartSuccessMessage = () => {
+    snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {
+      action: {
+        label: b3Lang('purchasedProducts.footer.viewCart'),
+        onClick: () => {
+          if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+            window.location.href = CART_URL;
+          }
+        },
+      },
+    });
+  };
+
+  const handleFrontedAddSelectedToCart = async (productIds: number[]) => {
     try {
-      const productIds: number[] = [];
-
-      checkedArr.forEach((item: CheckedProduct) => {
-        const { node } = item;
-
-        if (!productIds.includes(Number(node.productId))) {
-          productIds.push(Number(node.productId));
-        }
-      });
-
-      if (productIds.length === 0) {
-        snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
-        return;
-      }
-
       const isPassVerify = await addCartProductToVerify(checkedArr, b3Lang);
 
       if (!isPassVerify) return;
@@ -197,16 +196,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const res = await createOrUpdateExistingCart(lineItems);
 
       if (res && !res.errors) {
-        snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {
-          action: {
-            label: b3Lang('purchasedProducts.footer.viewCart'),
-            onClick: () => {
-              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                window.location.href = CART_URL;
-              }
-            },
-          },
-        });
+        showAddToCartSuccessMessage();
       } else if (res && res.errors) {
         snackbar.error(res.errors[0].message);
       } else {
@@ -215,6 +205,50 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     } finally {
       b3TriggerCartNumber();
       setIsRequestLoading(false);
+    }
+  };
+
+  const handleBackendAddSelectedToCart = async (productIds: number[]) => {
+    try {
+      const { productsSearch: getInventoryInfos } = await searchProducts({
+        productIds,
+        companyId: companyInfoId,
+        customerGroupId,
+      });
+      const lineItems = handleSetCartLineItems(getInventoryInfos || []);
+      await callCart(lineItems);
+      showAddToCartSuccessMessage();
+    } catch (e) {
+      if (e instanceof Error) {
+        snackbar.error(e.message);
+      }
+    } finally {
+      b3TriggerCartNumber();
+      setIsRequestLoading(false);
+    }
+  };
+
+  const handleAddSelectedToCart = async () => {
+    setIsRequestLoading(true);
+    handleClose();
+    const productIds: number[] = [];
+
+    checkedArr.forEach((item: CheckedProduct) => {
+      const { node } = item;
+
+      if (!productIds.includes(Number(node.productId))) {
+        productIds.push(Number(node.productId));
+      }
+    });
+
+    if (productIds.length === 0) {
+      snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
+      return;
+    }
+    if (backendValidationEnabled) {
+      handleBackendAddSelectedToCart(productIds);
+    } else {
+      handleFrontedAddSelectedToCart(productIds);
     }
   };
 
