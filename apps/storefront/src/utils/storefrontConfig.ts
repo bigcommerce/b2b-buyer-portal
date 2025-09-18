@@ -297,7 +297,7 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
       if (featureFlags.some((ff) => ff.key === storefrontKey.key)) {
         store.dispatch(
           setFeatureFlags({
-            [storefrontKey.key as FeatureFlagKey]: item.value === '1',
+            [storefrontKey.key as FeatureFlagKey]: item.value === 'true',
           }),
         );
       }

@@ -6,7 +6,7 @@ import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useMobile } from '@/hooks';
+import { useFeatureFlags, useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -26,6 +26,7 @@ import {
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
@@ -75,6 +76,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobalContext);
   const b3Lang = useB3Lang();
+  const featureFlags = useFeatureFlags();
+
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
@@ -235,6 +238,20 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     return option;
   };
 
+  const addToQuote = async (products: CustomFieldItems[]) => {
+    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+      const validatedProducts = await validateProducts(products, b3Lang);
+
+      addQuoteDraftProducts(validatedProducts);
+
+      return validatedProducts.length > 0;
+    }
+
+    addQuoteDraftProducts(products);
+
+    return true;
+  };
+
   const handleAddSelectedToQuote = async () => {
     setIsRequestLoading(true);
     handleClose();
@@ -276,7 +293,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       });
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
-      let isSuccess = false;
       let errorMessage = '';
       let isFondVariant = true;
 
@@ -317,7 +333,11 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
             id: uuid(),
             variantSku: variantItem?.sku || variantSku,
             variantId,
-            productsSearch: currentProductSearch,
+            productsSearch: {
+              ...currentProductSearch,
+              newSelectOptionList: optionsList,
+              variantId,
+            },
             primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
             quantity: Number(quantity) || 1,
@@ -329,11 +349,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         };
 
         newProducts.push(quoteListitem);
-
-        isSuccess = true;
       });
 
-      isSuccess = validProductQty(newProducts);
+      const isValidQty = validProductQty(newProducts);
 
       if (!isFondVariant) {
         snackbar.error(errorMessage);
@@ -341,17 +359,20 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return;
       }
 
-      if (isSuccess) {
+      if (isValidQty) {
         await calculateProductListPrice(newProducts, '2');
-        addQuoteDraftProducts(newProducts);
-        snackbar.success(b3Lang('purchasedProducts.footer.productsAddedToQuote'), {
-          action: {
-            label: b3Lang('purchasedProducts.footer.viewQuote'),
-            onClick: () => {
-              navigate('/quoteDraft');
+
+        const success = await addToQuote(newProducts);
+        if (success) {
+          snackbar.success(b3Lang('purchasedProducts.footer.productsAddedToQuote'), {
+            action: {
+              label: b3Lang('purchasedProducts.footer.viewQuote'),
+              onClick: () => {
+                navigate('/quoteDraft');
+              },
             },
-          },
-        });
+          });
+        }
       } else {
         snackbar.error(b3Lang('purchasedProducts.footer.productsLimit'), {
           action: {
