@@ -159,13 +159,9 @@ const gotoAllowedAppPage = async (
     b2bLogger.error(err);
   }
 
-  let targetUrl = hash.substring(1); // Remove '#'
-  let internalPathname = new URL(targetUrl, window.location.origin).pathname ?? '';
+  let url = hash.split('#')[1] || '';
 
-  if (
-    (!internalPathname && role !== CustomerRole.GUEST && pathname.includes('account.php')) ||
-    isAccountEnter
-  ) {
+  if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
     let isB2BUser = false;
     if (
       company.customer.userType === UserTypes.MULTIPLE_B2C &&
@@ -180,38 +176,31 @@ const gotoAllowedAppPage = async (
 
     switch (Number(role)) {
       case CustomerRole.JUNIOR_BUYER:
-        internalPathname = '/shoppingLists';
+        url = '/shoppingLists';
         break;
       case CustomerRole.SUPER_ADMIN:
-        internalPathname = '/dashboard';
+        url = '/dashboard';
         break;
       default:
-        internalPathname = currentAuthorizedPages;
+        url = currentAuthorizedPages;
         break;
     }
-
-    targetUrl = internalPathname;
   }
 
-  const flag = routes.some((item) => {
-    if (matchPath(item.path, internalPathname) || isInvoicePage()) {
+  const flag = routes.some((item: RouteItem) => {
+    if (matchPath(item.path, url) || isInvoicePage()) {
       return item.permissions.includes(Number(role));
     }
-
     return false;
   });
 
-  const isFirstLevelFlag = firstLevelRouting.some(({ path }) => {
-    if (internalPathname.includes('/login?') || internalPathname.includes('payment')) {
+  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => {
+    if (url.includes('/login?') || url.includes('payment')) {
       return true;
     }
-
-    return matchPath(path, internalPathname);
+    return matchPath(item.path, url);
   });
-
-  if (flag || isFirstLevelFlag) {
-    gotoPage(targetUrl);
-  }
+  if (flag || isFirstLevelFlag) gotoPage(url);
 };
 
 const getIsTokenGotoPage = (url: string): boolean => {
