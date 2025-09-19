@@ -12,7 +12,7 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart } from '@/utils/cartUtils';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 import { addCartProductToVerify } from '../utils';
 
@@ -49,7 +49,7 @@ export default function QuickOrderPad() {
   };
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
-    const res = await callCart(products);
+    const res = await createOrUpdateExistingCart(products);
 
     if (res && res.errors) {
       snackbar.error(res.errors[0].message);
@@ -168,7 +168,7 @@ export default function QuickOrderPad() {
       } = getValidProducts(validProduct);
 
       if (productItems.length > 0) {
-        const res = await callCart(productItems);
+        const res = await createOrUpdateExistingCart(productItems);
 
         getSnackbarMessage(res);
         b3TriggerCartNumber();

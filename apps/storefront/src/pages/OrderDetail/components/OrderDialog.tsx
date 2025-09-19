@@ -18,7 +18,7 @@ import { isB2BUserSelector, useAppSelector } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart } from '@/utils/cartUtils';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
 import getReturnFormFields from '../shared/config';
@@ -228,7 +228,7 @@ export default function OrderDialog({
         snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'));
         return;
       }
-      const res = await callCart(items);
+      const res = await createOrUpdateExistingCart(items);
 
       const status = res && (res.data.cart.createCart || res.data.cart.addCartLineItems);
 

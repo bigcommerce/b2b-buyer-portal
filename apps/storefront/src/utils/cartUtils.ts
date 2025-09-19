@@ -118,7 +118,7 @@ export const updateCart = async (cartInfo: any, productData: any) => {
   return res;
 };
 
-export const callCart = async (lineItems: LineItem[] | CustomFieldItems[]) => {
+export const createOrUpdateExistingCart = async (lineItems: LineItem[] | CustomFieldItems[]) => {
   const cartInfo = await getCart();
 
   const res = cartInfo?.data?.site?.cart
