@@ -240,7 +240,7 @@ function Registered(props: PageProps) {
 
         if (platform === 'catalyst') {
           const landingLoginLocation =
-            params.get('redirectTo') === 'checkout'
+            params.get('redirectTo') === 'check-out'
               ? LOGIN_LANDING_LOCATIONS.CHECKOUT
               : loginLandingLocation;
 
