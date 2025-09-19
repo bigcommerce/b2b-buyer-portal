@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } fro
 import { useNavigate } from 'react-router-dom';
 import { ArrowDropDown } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, SxProps, Typography, useMediaQuery } from '@mui/material';
+import uniq from 'lodash-es/uniq';
 import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -81,7 +82,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
-  const featureFlags = useFeatureFlags();
   const backendValidationEnabled =
     featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
@@ -208,14 +208,15 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     }
   };
 
-  const handleBackendAddSelectedToCart = async (productIds: number[]) => {
+  const handleBackendAddSelectedToCart = async () => {
     try {
-      const { productsSearch: getInventoryInfos } = await searchProducts({
-        productIds,
-        companyId: companyInfoId,
-        customerGroupId,
-      });
-      const lineItems = handleSetCartLineItems(getInventoryInfos || []);
+      const lineItems = checkedArr.map(({ node }) => ({
+        productId: Number(node.productId),
+        variantId: Number(node.variantId),
+        quantity: node.quantity,
+        optionSelections: node.optionSelections,
+        allOptions: node.optionList,
+      }));
       await callCart(lineItems);
       showAddToCartSuccessMessage();
     } catch (e) {
@@ -231,22 +232,15 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const handleAddSelectedToCart = async () => {
     setIsRequestLoading(true);
     handleClose();
-    const productIds: number[] = [];
 
-    checkedArr.forEach((item: CheckedProduct) => {
-      const { node } = item;
-
-      if (!productIds.includes(Number(node.productId))) {
-        productIds.push(Number(node.productId));
-      }
-    });
+    const productIds = uniq(checkedArr.map(({ node }) => Number(node.productId)));
 
     if (productIds.length === 0) {
       snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
       return;
     }
     if (backendValidationEnabled) {
-      handleBackendAddSelectedToCart(productIds);
+      handleBackendAddSelectedToCart();
     } else {
       handleFrontedAddSelectedToCart(productIds);
     }
