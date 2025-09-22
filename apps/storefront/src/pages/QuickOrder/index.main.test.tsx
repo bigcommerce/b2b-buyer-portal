@@ -1826,7 +1826,7 @@ describe('when adding to quote', () => {
 });
 
 describe('When backend validation', () => {
-  it('displays an error message when trying to add to cart', async () => {
+  it('displays an error message when adding to cart fails', async () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
@@ -2088,7 +2088,7 @@ describe('When backend validation', () => {
     expect(Cookies.get('cartId')).toBeUndefined();
   });
 
-  it('displays an error message when trying to add to an existing cart', async () => {
+  it('displays an error message when trying to add to an existing cart and fails', async () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({

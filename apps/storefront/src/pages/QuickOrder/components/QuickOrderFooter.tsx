@@ -217,7 +217,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         optionSelections: node.optionSelections,
         allOptions: node.optionList,
       }));
-      await callCart(lineItems);
+      await createOrUpdateExistingCart(lineItems);
       showAddToCartSuccessMessage();
     } catch (e) {
       if (e instanceof Error) {
