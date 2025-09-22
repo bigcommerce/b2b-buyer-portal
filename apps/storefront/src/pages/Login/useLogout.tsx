@@ -38,7 +38,7 @@ export const useLogout = () => {
   const endMasquerade = useEndMasquerade();
   const endCompanyMasquerading = useEndCompanyMasquerading();
 
-  return async () => {
+  return async (showLogoutBanner: boolean = true) => {
     try {
       const { result } = (await bcLogoutLogin()).data.logout;
 
@@ -53,7 +53,9 @@ export const useLogout = () => {
       // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
       window.sessionStorage.clear();
       logoutSession();
-      dispatchEvent('on-logout');
+      if (showLogoutBanner) {
+        dispatchEvent('on-logout');
+      }
     }
   };
 };

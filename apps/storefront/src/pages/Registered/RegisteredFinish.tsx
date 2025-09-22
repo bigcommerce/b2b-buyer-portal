@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { Alert, Box } from '@mui/material';
+import { useContext, useRef } from 'react';
+import { Box } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
@@ -13,13 +13,14 @@ import { PrimaryButton } from './PrimaryButton';
 import { StyleTipContainer } from './styled';
 
 interface Props {
-  handleFinish: () => void;
+  handleFinish: (shouldAutoLogin: boolean) => void;
   isBCToB2B?: boolean;
 }
 
 export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Props) {
   const { state } = useContext(RegisteredContext);
   const b3Lang = useB3Lang();
+  const shouldAutoLogin = useRef(false);
 
   const {
     state: {
@@ -34,48 +35,67 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
 
   const { accountType, submitSuccess, isAutoApproval } = state;
 
-  const blockPendingAccountOrderCreation =
-    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval;
+  const blockPendingAccountOrderCreation = B3SStorage.get('blockPendingAccountOrderCreation');
+  const blockPendingAccountViewPrice = B3SStorage.get('blockPendingAccountViewPrice');
 
   const renderB2BSuccessPage = () => {
+    // Business Account
     if (accountType === '1') {
-      return isAutoApproval ? (
-        <StyleTipContainer>
-          {b3Lang('global.registerFinish.autoApproved.tip', { storeName })}
-        </StyleTipContainer>
-      ) : (
-        <>
-          {blockPendingAccountOrderCreation && (
-            <Alert
-              severity="warning"
-              variant="filled"
-              sx={{
-                margin: 'auto',
-                borderRadius: '4px',
-                padding: '6px 16px',
-                maxWidth: '820px',
-              }}
-            >
-              {b3Lang('global.registerFinish.blockPendingAccountOrderCreation.tip')}
-            </Alert>
-          )}
+      if (isAutoApproval) {
+        shouldAutoLogin.current = true;
+        return (
           <StyleTipContainer>
-            {blockPendingAccountOrderCreation
-              ? b3Lang('global.registerFinish.notAutoApproved.warningTip')
-              : b3Lang('global.registerFinish.notAutoApproved.tip')}
+            {b3Lang('global.registerFinish.autoApproved.tip', { storeName })}
           </StyleTipContainer>
-        </>
+        );
+      }
+
+      // Pending approval, check feature blocks
+      shouldAutoLogin.current = false;
+
+      if (blockPendingAccountViewPrice && !blockPendingAccountOrderCreation) {
+        return (
+          <StyleTipContainer>
+            {b3Lang(
+              'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
+            )}
+          </StyleTipContainer>
+        );
+      }
+
+      if (blockPendingAccountViewPrice && blockPendingAccountOrderCreation) {
+        return (
+          <StyleTipContainer>
+            {b3Lang(
+              'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+            )}
+          </StyleTipContainer>
+        );
+      }
+
+      return (
+        <StyleTipContainer>
+          {b3Lang('global.statusNotifications.willGainAccessToBusinessFeatAfterApproval')}
+        </StyleTipContainer>
       );
     }
 
+    // Personal Account
     if (accountType === '2') {
+      shouldAutoLogin.current = true;
       return (
         <StyleTipContainer>
           {b3Lang('global.registerFinish.bcSuccess.tip', { storeName })}
         </StyleTipContainer>
       );
     }
+
+    // Unknown account type
     return undefined;
+  };
+
+  const onFinishClick = () => {
+    handleFinish(shouldAutoLogin.current);
   };
 
   return (
@@ -114,7 +134,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
               pt: 2,
             }}
           >
-            <PrimaryButton onClick={handleFinish}>{b3Lang('global.button.finish')}</PrimaryButton>
+            <PrimaryButton onClick={onFinishClick}>{b3Lang('global.button.finish')}</PrimaryButton>
           </Box>
         </>
       )}

@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
@@ -38,6 +39,15 @@ export default function RegisterContent({
 }: RegisterContentProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const handleFinishClick = (shouldAutoLogin: boolean) => {
+    if (shouldAutoLogin) {
+      handleFinish({ email, password });
+    } else {
+      navigate('/login');
+    }
+  };
 
   const renderStep = (step: number): ReactNode => {
     switch (step) {
@@ -66,7 +76,7 @@ export default function RegisterContent({
         );
 
       case 3:
-        return <RegisteredFinish handleFinish={() => handleFinish({ email, password })} />;
+        return <RegisteredFinish handleFinish={handleFinishClick} />;
 
       default:
         return null;

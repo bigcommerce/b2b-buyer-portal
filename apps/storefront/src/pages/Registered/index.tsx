@@ -17,6 +17,7 @@ import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { getTemPlateConfig } from '@/utils/storefrontConfig';
 
 import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
@@ -47,7 +48,10 @@ function Registered(props: PageProps) {
 
   const IframeDocument = useAppSelector(themeFrameSelector);
 
-  const { isCheckout, isCloseGotoBCHome, logo, registerEnabled } = useContext(GlobalContext).state;
+  const {
+    state: { isCheckout, isCloseGotoBCHome, logo, registerEnabled },
+    dispatch: globalDispatch,
+  } = useContext(GlobalContext);
 
   const {
     state: { isLoading },
@@ -55,9 +59,12 @@ function Registered(props: PageProps) {
   } = useContext(RegisteredContext);
 
   const {
-    accountLoginRegistration,
-    portalStyle: { backgroundColor = '#FEF9F5' },
-  } = useContext(CustomStyleContext).state;
+    state: {
+      accountLoginRegistration,
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+    dispatch: styleDispatch,
+  } = useContext(CustomStyleContext);
 
   useEffect(() => {
     if (!registerEnabled) {
@@ -82,6 +89,9 @@ function Registered(props: PageProps) {
             },
           });
         }
+
+        // update the storefront config in the context
+        getTemPlateConfig(styleDispatch, globalDispatch);
 
         const accountFormAllFields = formType.map((item: number) => getB2BAccountFormFields(item));
 
