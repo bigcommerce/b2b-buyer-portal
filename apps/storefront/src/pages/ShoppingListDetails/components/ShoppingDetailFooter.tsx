@@ -27,7 +27,7 @@ import {
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
@@ -43,6 +43,7 @@ interface ShoppingDetailFooterProps {
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
+  backendValidationEnabled: boolean;
 }
 
 interface ProductInfoProps {
@@ -114,6 +115,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     customColor,
     isCanEditShoppingList,
     role,
+    backendValidationEnabled,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -203,15 +205,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     return true;
   };
 
-  // Add selected product to cart
-  const handleAddProductsToCart = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
+  const shouldRedirectCheckout = () => {
+    if (
+      allowJuniorPlaceOrder &&
+      b2bSubmitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
+          },
+        },
+      });
+      b3TriggerCartNumber();
     }
+  };
 
-    handleClose();
-    setLoading(true);
+  const handleAddToCartOnFrontend = async () => {
     try {
       const skus: string[] = [];
 
@@ -261,31 +277,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           await deleteCart(deleteCartObject);
           res = await updateCart(cartInfo, lineItems);
         } else {
-          res = await callCart(lineItems);
+          res = await createOrUpdateExistingCart(lineItems);
           b3TriggerCartNumber();
         }
         if (res && res.errors) {
           snackbar.error(res.errors[0].message);
         } else if (validateFailureArr.length === 0) {
-          if (
-            allowJuniorPlaceOrder &&
-            b2bSubmitShoppingListPermission &&
-            shoppingListInfo?.status === ShoppingListStatus.Approved
-          ) {
-            window.location.href = CHECKOUT_URL;
-          } else {
-            snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-              action: {
-                label: b3Lang('shoppingList.reAddToCart.viewCart'),
-                onClick: () => {
-                  if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                    window.location.href = CART_URL;
-                  }
-                },
-              },
-            });
-            b3TriggerCartNumber();
-          }
+          shouldRedirectCheckout();
         }
       }
 
@@ -293,6 +291,63 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       setValidateSuccessProducts(validateSuccessArr);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddToCartBackend = async () => {
+    const items = checkedArr.map(({ node }: ProductsProps) => {
+      return { node };
+    });
+    try {
+      const skus = items.map(({ node }: ProductsProps) => node.variantSku);
+
+      if (skus.length === 0) {
+        snackbar.error(
+          allowJuniorPlaceOrder
+            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
+            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
+        );
+        return;
+      }
+
+      const lineItems = addLineItems(items);
+      const deleteCartObject = deleteCartData(items);
+      const cartInfo = await getCart();
+
+      if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
+        await deleteCart(deleteCartObject);
+        await updateCart(cartInfo, lineItems);
+      } else {
+        await createOrUpdateExistingCart(lineItems);
+        b3TriggerCartNumber();
+      }
+      shouldRedirectCheckout();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setValidateFailureProducts(items);
+        snackbar.error(e.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+    setValidateSuccessProducts(items);
+  };
+
+  // Add selected product to cart
+  const handleAddProductsToCart = async () => {
+    if (checkedArr.length === 0) {
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
+    }
+
+    handleClose();
+
+    setLoading(true);
+
+    if (backendValidationEnabled) {
+      await handleAddToCartBackend();
+    } else {
+      await handleAddToCartOnFrontend();
     }
   };
 
