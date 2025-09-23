@@ -98,6 +98,12 @@ interface VariantInfo {
   imageUrl: string;
 }
 
+interface VariantInfoResponse {
+  data: {
+    variantSku: VariantInfo[];
+  };
+}
+
 const buildSearchProductV3OptionValueWith = builder<SearchProductV3OptionValue>(() => ({
   id: faker.number.int(),
   label: faker.commerce.productAdjective(),
@@ -297,6 +303,12 @@ const buildVariantInfoWith = builder<VariantInfo>(() => ({
   modifiers: [],
   purchasingDisabled: faker.helpers.arrayElement(['0', '1']),
   variantSku: faker.string.uuid(),
+}));
+
+const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
+  data: {
+    variantSku: [],
+  },
 }));
 
 const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } });
