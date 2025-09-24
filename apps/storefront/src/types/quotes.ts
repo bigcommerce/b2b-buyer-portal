@@ -145,3 +145,11 @@ export interface QuoteExtraFieldsData {
   fieldName: string | undefined;
   fieldValue: string | number;
 }
+
+export interface CreateQuoteResponse {
+  data: {
+    quoteCreate: {
+      quote: { id: number; createdAt: string };
+    };
+  };
+}

@@ -1,8 +1,10 @@
+import { set } from 'lodash-es';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 import {
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
+  buildQuoteWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -14,6 +16,7 @@ import {
   startMockServer,
   stringContainingAll,
   userEvent,
+  waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
@@ -25,7 +28,7 @@ import {
 } from '@/shared/service/b2b/graphql/product';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { QuoteInfo, QuoteItem } from '@/types/quotes';
+import { CreateQuoteResponse, QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
 
@@ -349,6 +352,12 @@ const buildCSVUploadWith = builder(() => ({
     ),
     stockErrorFile: '',
     stockErrorSkus: [],
+  },
+}));
+
+const buildQuoteCreateResponseWith = builder<CreateQuoteResponse>(() => ({
+  data: {
+    quoteCreate: { quote: { id: faker.number.int(), createdAt: faker.date.anytime().toString() } },
   },
 }));
 
@@ -1273,6 +1282,332 @@ describe('when the user is a B2B customer', () => {
       const productTable = await screen.findByRole('table');
 
       expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+    });
+
+    it('creates successfully a new quote when submitting the draft quote and gets redirected to quote detail', async () => {
+      set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+      const deleteCart = vi
+        .fn()
+        .mockReturnValue({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } });
+      const quote = buildQuoteWith({ data: { quote: { id: '272989', quoteNumber: '911911' } } });
+
+      const state = { stateName: 'Jalisco', stateCode: 'JL' };
+      const country = { id: '123', countryName: 'Mexico', countryCode: 'MX', states: [state] };
+
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+      );
+
+      const companyInfo = buildCompanyStateWith({
+        companyInfo: { status: CompanyStatus.APPROVED },
+        customer: {
+          userType: UserTypes.MULTIPLE_B2C,
+          role: CustomerRole.SENIOR_BUYER,
+          emailAddress: customerEmail,
+        },
+        permissions: [
+          {
+            code: 'create_quote',
+            permissionLevel: 2,
+          },
+        ],
+      });
+
+      const preloadedState = { company: companyInfo, storeInfo: storeInfoWithDateFormat };
+
+      const product = buildDraftQuoteItemWith({
+        node: {
+          primaryImage: 'url',
+          quantity: 100,
+          variantSku: 'test',
+          basePrice: 10,
+          taxPrice: 5,
+          productName: 'Unbranded Rubber Cheese',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            sku: 'test',
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            productId: 1,
+            imageUrl: 'url',
+            id: 4451490883947128,
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+          referenceNumber: '123',
+          note: 'meow',
+        },
+        draftQuoteList: [product],
+      });
+
+      const { navigation } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags: {
+              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            },
+            quoteSubmissionResponse: {
+              value: '0',
+            },
+          }),
+        },
+      });
+
+      server.use(
+        graphql.mutation('CreateQuote', () =>
+          HttpResponse.json(
+            buildQuoteCreateResponseWith({
+              data: {
+                quoteCreate: { quote: { id: 123, createdAt: '1245' } },
+              },
+            }),
+          ),
+        ),
+        graphql.mutation('DeleteCart', ({ variables }) => HttpResponse.json(deleteCart(variables))),
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
+      );
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(await screen.findByRole('button', { name: /Submit/i }));
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-quote-create', {
+        channelId: 1,
+        companyId: 0,
+        storeHash: 'store-hash',
+        userEmail: customerEmail,
+        subtotal: '1000.00',
+        contactInfo: quoteInfo.draftQuoteInfo.contactInfo,
+        taxTotal: '500.00',
+        productList: [
+          {
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            discount: '0.00',
+            imageUrl: 'url',
+            itemId: expect.stringMatching(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/),
+            options: [],
+            productId: 4451490883947128,
+            productName: 'Unbranded Rubber Cheese',
+            quantity: 100,
+            sku: 'test',
+            variantId: undefined,
+          },
+        ],
+        quoteTitle: '',
+        recipients: [],
+        discount: '0.00',
+        extraFields: [],
+        fileList: [],
+        legalTerms: '',
+        shippingAddress: noAddress,
+        billingAddress: noAddress,
+        referenceNumber: '123',
+        currency: {
+          currencyCode: 'USD',
+          currencyExchangeRate: '1.0000000000',
+          decimalPlaces: 2,
+          decimalToken: '.',
+          location: 'left',
+          thousandsToken: ',',
+          token: '$',
+        },
+        message: 'meow',
+        grandTotal: '1000.00',
+        totalAmount: '1500.00',
+      });
+
+      expect(navigation).toHaveBeenCalled();
+      expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245');
+    });
+
+    it('renders snackbar error if mutation throws product validation erros', async () => {
+      set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+      const getVariantInfoOOSAndPurchase = vi.fn();
+
+      const state = { stateName: 'Jalisco', stateCode: 'JL' };
+      const country = { id: '123', countryName: 'Mexico', countryCode: 'MX', states: [state] };
+
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+      );
+
+      const companyInfo = buildCompanyStateWith({
+        companyInfo: { status: CompanyStatus.APPROVED },
+        customer: {
+          userType: UserTypes.MULTIPLE_B2C,
+          role: CustomerRole.SENIOR_BUYER,
+          emailAddress: customerEmail,
+        },
+        permissions: [
+          {
+            code: 'create_quote',
+            permissionLevel: 2,
+          },
+        ],
+      });
+
+      const preloadedState = { company: companyInfo, storeInfo: storeInfoWithDateFormat };
+
+      const product = buildDraftQuoteItemWith({
+        node: {
+          primaryImage: 'url',
+          quantity: 100,
+          variantSku: 'test',
+          basePrice: 10,
+          taxPrice: 5,
+          productName: 'Unbranded Rubber Cheese',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            sku: 'test',
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            productId: 1,
+            imageUrl: 'url',
+            id: 4451490883947128,
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+          referenceNumber: '123',
+          note: 'meow',
+        },
+        draftQuoteList: [product],
+      });
+
+      const { navigation } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags: {
+              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            },
+            quoteSubmissionResponse: {
+              value: '0',
+            },
+          }),
+        },
+      });
+
+      server.use(
+        graphql.mutation('CreateQuote', () =>
+          HttpResponse.json(
+            {
+              errors: [
+                {
+                  path: ['quoteCreate'],
+                  extensions: {
+                    productValidationErrors: [
+                      {
+                        itemId: '1abc070d-8c4c-4f0d-9d8a-162843c10333',
+                        productId: 112,
+                        variantId: 77,
+                        responseType: 'ERROR',
+                        code: 'OOS',
+                        productName: 'out of stock prod',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            { status: 400 },
+          ),
+        ),
+      );
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      navigation.mockClear();
+
+      await userEvent.click(await screen.findByRole('button', { name: /Submit/i }));
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-quote-create', {
+        channelId: 1,
+        companyId: 0,
+        storeHash: 'store-hash',
+        userEmail: customerEmail,
+        subtotal: '1000.00',
+        contactInfo: quoteInfo.draftQuoteInfo.contactInfo,
+        taxTotal: '500.00',
+        productList: [
+          {
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            discount: '0.00',
+            imageUrl: 'url',
+            itemId: expect.stringMatching(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/),
+            options: [],
+            productId: 4451490883947128,
+            productName: 'Unbranded Rubber Cheese',
+            quantity: 100,
+            sku: 'test',
+            variantId: undefined,
+          },
+        ],
+        quoteTitle: '',
+        recipients: [],
+        discount: '0.00',
+        extraFields: [],
+        fileList: [],
+        legalTerms: '',
+        shippingAddress: noAddress,
+        billingAddress: noAddress,
+        referenceNumber: '123',
+        currency: {
+          currencyCode: 'USD',
+          currencyExchangeRate: '1.0000000000',
+          decimalPlaces: 2,
+          decimalToken: '.',
+          location: 'left',
+          thousandsToken: ',',
+          token: '$',
+        },
+        message: 'meow',
+        grandTotal: '1000.00',
+        totalAmount: '1500.00',
+      });
+
+      expect(getVariantInfoOOSAndPurchase).not.toHaveBeenCalled();
+
+      expect(
+        await screen.findByText(
+          'Product 112 is out of stock or unavailable for purchase. Please remove the product or modify the quantity of the product',
+        ),
+      ).toBeInTheDocument();
+
+      expect(navigation).not.toHaveBeenCalled();
     });
 
     describe('product search modal', () => {

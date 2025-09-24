@@ -134,5 +134,6 @@ export { default as userEvent } from '@testing-library/user-event';
 
 export { builder, bulk } from 'tests/builder';
 export * from 'tests/storeStateBuilders';
+export * from 'tests/quoteBuilders';
 export { faker } from '@faker-js/faker';
 export { getUnixTime } from 'date-fns';
