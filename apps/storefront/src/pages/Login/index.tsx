@@ -32,6 +32,15 @@ import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 import { useLogout } from './useLogout';
 
+const errorMap: Record<string, string> = {
+  'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
+    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
+  'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.':
+    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+  'Your business account is pending approval. You will gain access to business account features after account approval.':
+    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
+};
+
 function Login(props: PageProps) {
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
@@ -239,8 +248,16 @@ function Login(props: PageProps) {
 
           navigate(path);
         }
-      } catch (error) {
-        snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          const i18nKey = errorMap[error.message];
+          if (i18nKey) {
+            snackbar.error(b3Lang(i18nKey));
+            await logout(false);
+          } else {
+            snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
+          }
+        }
       } finally {
         setLoading(false);
       }

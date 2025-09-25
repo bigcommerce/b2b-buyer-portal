@@ -1,10 +1,9 @@
-import { ReactNode, useContext } from 'react';
+import { ReactNode, useContext, useMemo } from 'react';
 import { Box, Step, StepLabel, Stepper, useTheme } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
-import { B3SStorage } from '@/utils';
 
 import { RegisteredContext } from './context/RegisteredContext';
 import { steps } from './config';
@@ -22,16 +21,17 @@ export default function RegisteredStep(props: RegisteredStepProps) {
   const [isMobile] = useMobile();
   const theme = useTheme();
 
-  const { state } = useContext(RegisteredContext);
-  const { accountType, submitSuccess, isAutoApproval } = state;
-  const blockPendingAccountOrderCreation =
-    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval;
-  const registerCompleteText = blockPendingAccountOrderCreation
-    ? b3Lang('register.title.registerCompleteWarning')
-    : b3Lang('register.title.registerComplete');
+  const {
+    state: { accountType, submitSuccess },
+  } = useContext(RegisteredContext);
 
-  const newPageTitle =
-    accountType === '1' ? registerCompleteText : b3Lang('register.title.accountCreated');
+  const pageTitle = useMemo(() => {
+    return submitSuccess
+      ? b3Lang(
+          accountType === '1' ? 'register.title.registerComplete' : 'register.title.accountCreated',
+        )
+      : b3Lang('register.title.accountRegister');
+  }, [submitSuccess, accountType, b3Lang]);
 
   const customColor = getContrastColor(backgroundColor);
   return (
@@ -60,7 +60,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           color: customColor,
         }}
       >
-        {submitSuccess ? newPageTitle : b3Lang('register.title.accountRegister')}
+        {pageTitle}
       </Box>
       {!submitSuccess && (
         <Stepper
