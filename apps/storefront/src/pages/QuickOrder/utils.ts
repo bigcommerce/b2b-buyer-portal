@@ -1,7 +1,6 @@
 import { LangFormatFunction } from '@/lib/lang';
 import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
-import { ShoppingListAddProductOption } from '@/types';
 import { OrderedProductType, ProductInfoType } from '@/types/gql/graphql';
 import { snackbar } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
@@ -157,19 +156,4 @@ export const addCartProductToVerify = async (
   return addCommonProducts.every((product) => {
     return handleVerifyProduct(product, b3lang).isVerify;
   });
-};
-
-export const parseOptionList = (options: string[] | undefined): ShoppingListAddProductOption[] => {
-  return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
-    try {
-      const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
-      arr.push({
-        optionId: `attribute[${option.option_id}]`,
-        optionValue: `${option.id}`,
-      });
-      return arr;
-    } catch (error) {
-      return arr;
-    }
-  }, []);
 };

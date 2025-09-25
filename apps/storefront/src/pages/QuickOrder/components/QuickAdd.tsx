@@ -12,14 +12,29 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 
-import { SimpleObject } from '../../../types';
-import { getCartProductInfo, parseOptionList } from '../utils';
+import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
+import { getCartProductInfo } from '../utils';
 
 interface AddToListContentProps {
   quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
 }
 
 const LEVEL = 3;
+
+const parseOptionList = (options: string[] | undefined): ShoppingListAddProductOption[] => {
+  return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
+    try {
+      const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
+      arr.push({
+        optionId: `attribute[${option.option_id}]`,
+        optionValue: `${option.id}`,
+      });
+      return arr;
+    } catch (error) {
+      return arr;
+    }
+  }, []);
+};
 
 export default function QuickAdd(props: AddToListContentProps) {
   const b3Lang = useB3Lang();
