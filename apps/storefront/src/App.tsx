@@ -120,7 +120,7 @@ export default function App() {
   // open storefront
   useSetOpen(isOpen, openUrl, params);
 
-  const { pathname, href, search } = window.location;
+  const { pathname, search } = window.location;
 
   const loginAndRegister = () => {
     dispatch({
@@ -130,7 +130,7 @@ export default function App() {
       },
     });
 
-    if (pathname.includes('login.php') && !href.includes('change_password')) {
+    if (pathname.includes('login.php') && !search.includes('change_password')) {
       dispatch({
         type: 'common',
         payload: {
@@ -202,7 +202,7 @@ export default function App() {
       }
 
       // background login enter judgment and refresh
-      if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
+      if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
         await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
       } else {
         showPageMask(false);

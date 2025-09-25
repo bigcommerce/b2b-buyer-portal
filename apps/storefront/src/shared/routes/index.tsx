@@ -159,7 +159,7 @@ const gotoAllowedAppPage = async (
     b2bLogger.error(err);
   }
 
-  let url = hash.split('#')[1] || '';
+  let url = hash.substring(1);
 
   if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
     let isB2BUser = false;
@@ -186,9 +186,10 @@ const gotoAllowedAppPage = async (
         break;
     }
   }
+  const [realPath] = url.split('?');
 
   const flag = routes.some((item: RouteItem) => {
-    if (matchPath(item.path, url) || isInvoicePage()) {
+    if (matchPath(item.path, realPath) || isInvoicePage()) {
       return item.permissions.includes(Number(role));
     }
     return false;
@@ -198,7 +199,7 @@ const gotoAllowedAppPage = async (
     if (url.includes('/login?') || url.includes('payment')) {
       return true;
     }
-    return matchPath(item.path, url);
+    return matchPath(item.path, realPath);
   });
   if (flag || isFirstLevelFlag) gotoPage(url);
 };

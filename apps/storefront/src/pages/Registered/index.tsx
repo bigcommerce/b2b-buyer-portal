@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, ImageListItem } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
@@ -47,6 +47,8 @@ function Registered(props: PageProps) {
   const navigate = useNavigate();
 
   const IframeDocument = useAppSelector(themeFrameSelector);
+  const loginLandingLocation = useAppSelector(({ global }) => global.loginLandingLocation);
+  const [params] = useSearchParams();
 
   const {
     state: { isCheckout, isCloseGotoBCHome, logo, registerEnabled },
@@ -246,21 +248,24 @@ function Registered(props: PageProps) {
 
         clearRegisterInfo();
 
-        const isLoginLandLocation = loginJump(navigate);
-
         if (platform === 'catalyst') {
-          const landingLoginLocation = isLoginLandLocation
-            ? LOGIN_LANDING_LOCATIONS.HOME
-            : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
+          const landingLoginLocation =
+            params.get('redirectTo') === 'check-out'
+              ? LOGIN_LANDING_LOCATIONS.CHECKOUT
+              : loginLandingLocation;
 
           window.b2b.callbacks.dispatchEvent('on-registered', {
             email,
             password,
             landingLoginLocation,
           });
+
           window.location.hash = '';
+
           return;
         }
+
+        const isLoginLandLocation = loginJump(navigate);
 
         if (!isLoginLandLocation) return;
 
