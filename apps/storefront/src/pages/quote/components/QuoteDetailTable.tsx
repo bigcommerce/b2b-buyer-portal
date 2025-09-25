@@ -189,7 +189,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                           }}
                           key={`${option.optionId}_${option.optionName}_${option.optionLabel}`}
                         >
-                          ${option.optionName}: ${option.optionLabel}
+                          {option.optionName}: {option.optionLabel}
                         </Typography>
                       ),
                   )}
