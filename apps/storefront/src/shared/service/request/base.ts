@@ -11,7 +11,7 @@ const ENVIRONMENT_B2B_API_URL: EnvSpecificConfig<string> = {
 const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
   local: import.meta.env.VITE_LOCAL_APP_CLIENT_ID ?? 'dl7c39mdpul6hyc489yk0vzxl6jesyx',
   integration: '28cflecujxmsbsuhn2ua0rhefvciowp',
-  staging: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
+  staging: 'sp4zailqe8uiep5ewafez3tc2emopz8',
   production: 'dl7c39mdpul6hyc489yk0vzxl6jesyx',
 };
 // cspell:enable
