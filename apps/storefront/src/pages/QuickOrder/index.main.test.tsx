@@ -2568,10 +2568,10 @@ describe('When backend validation', () => {
 
     expect(Cookies.get('cartId')).toBeUndefined();
   });
-  it('displays an error message when trying to add out of stock product to new cart', async () => {
+  it('quick add displays an error message when trying to add out of stock product to new cart', async () => {
     const getVariantInfoBySkus = vi.fn();
     const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
-    const createCartSimple = vi.fn();
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
     const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
       data: {
@@ -2595,24 +2595,22 @@ describe('When backend validation', () => {
       .calledWith(expect.stringContaining('variantSkus: ["OOS-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
-    when(createCartSimple)
+    when(validateProduct)
       .calledWith(
         expect.objectContaining({
-          createCartInput: {
-            lineItems: [
-              expect.objectContaining({
-                productEntityId: 123,
-                variantEntityId: 456,
-                quantity: 2,
-                selectedOptions: { multipleChoices: [], textFields: [] },
-              }),
-            ],
-          },
+          productId: 123,
+          variantId: 456,
+          quantity: 2,
+          productOptions: [],
         }),
       )
       .thenReturn({
-        data: { cart: { createCart: null } },
-        errors: [{ message: 'SKU OOS-123 is out of stock' }],
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'SKU OOS-123 is out of stock',
+          }),
+        },
       });
 
     server.use(
@@ -2624,8 +2622,8 @@ describe('When backend validation', () => {
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
-      graphql.mutation('createCartSimple', ({ variables }) =>
-        HttpResponse.json(createCartSimple(variables)),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -2648,9 +2646,9 @@ describe('When backend validation', () => {
     expect(error).toBeInTheDocument();
   });
 
-  it('displays an error message when trying to add out of stock product to existing cart', async () => {
+  it('quick add displays an error message when trying to add out of stock product to existing cart', async () => {
     const getVariantInfoBySkus = vi.fn();
-    const addCartLineItemsTwo = vi.fn();
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
     const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
       data: {
@@ -2690,27 +2688,22 @@ describe('When backend validation', () => {
       .calledWith(expect.stringContaining('variantSkus: ["OOS-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
-    when(addCartLineItemsTwo)
+    when(validateProduct)
       .calledWith(
         expect.objectContaining({
-          addCartLineItemsInput: {
-            cartEntityId: '12345',
-            data: {
-              lineItems: [
-                expect.objectContaining({
-                  productEntityId: 123,
-                  variantEntityId: 456,
-                  quantity: 3,
-                  selectedOptions: { multipleChoices: [], textFields: [] },
-                }),
-              ],
-            },
-          },
+          productId: 123,
+          variantId: 456,
+          quantity: 3,
+          productOptions: [],
         }),
       )
       .thenReturn({
-        data: null,
-        errors: [{ message: 'Product OOS-123 has insufficient stock' }],
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product OOS-123 has insufficient stock',
+          }),
+        },
       });
 
     server.use(
@@ -2722,8 +2715,8 @@ describe('When backend validation', () => {
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () => HttpResponse.json(existingCart)),
-      graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
-        HttpResponse.json(addCartLineItemsTwo(variables)),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -2745,5 +2738,56 @@ describe('When backend validation', () => {
     await waitFor(() => {
       expect(screen.getByText('Product OOS-123 has insufficient stock')).toBeInTheDocument();
     });
+  });
+
+  it('quick add displays an error message when trying to add non-existent SKU', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["NON-EXISTENT-SKU"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+    const skuInput = skuInputs[0];
+    const qtyInput = qtyInputs[0];
+
+    await userEvent.type(skuInput, 'NON-EXISTENT-SKU');
+    await userEvent.type(qtyInput, '1');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    const error = await screen.findByText(
+      'SKU NON-EXISTENT-SKU were not found, please check entered values',
+    );
+    expect(error).toBeInTheDocument();
   });
 });

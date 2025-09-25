@@ -11,6 +11,7 @@ import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
+import { validateProducts } from '@/utils/validateProducts';
 
 import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
@@ -367,20 +368,61 @@ export default function QuickAdd(props: AddToListContentProps) {
         let passSku: string[] = [];
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          productItems = variantInfoList.map((variant: CustomFieldItems) => {
-            const matchingSku = Object.keys(skuValue).find(
-              (sku) => sku.toUpperCase() === variant.variantSku.toUpperCase(),
+          if (variantInfoList.length <= 0) {
+            snackbar.error(
+              b3Lang('purchasedProducts.quickAdd.notFoundSku', {
+                notFoundSku: skus.join(','),
+              }),
             );
-            const quantity = matchingSku ? (skuValue[matchingSku] as number) : 0;
+            return;
+          }
+          // Map catalog products to format expected by backend validation
+          const productsToValidate = variantInfoList.map((catalogProduct: CustomFieldItems) => {
+            const matchingSkuFromInput = Object.keys(skuValue).find(
+              (inputSku) => inputSku.toUpperCase() === catalogProduct.variantSku.toUpperCase(),
+            );
+            const requestedQuantity = matchingSkuFromInput
+              ? (skuValue[matchingSkuFromInput] as number)
+              : 0;
             return {
-              ...variant,
-              newSelectOptionList: parseOptionList(variant.option),
-              productId: parseInt(variant.productId, 10) || 0,
-              quantity,
-              variantId: parseInt(variant.variantId, 10) || 0,
+              node: {
+                productId: parseInt(catalogProduct.productId, 10) || 0,
+                quantity: requestedQuantity,
+                productsSearch: {
+                  variantId: parseInt(catalogProduct.variantId, 10) || 0,
+                  newSelectOptionList: parseOptionList(catalogProduct.option),
+                },
+              },
             };
           });
-          passSku = skus;
+
+          const backendValidatedProducts = await validateProducts(productsToValidate, b3Lang);
+
+          productItems = backendValidatedProducts.map(
+            ({ node: validatedProduct }: CustomFieldItems) => {
+              const originalProductInfo = variantInfoList.find(
+                (catalogProduct: CustomFieldItems) =>
+                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
+              );
+              return {
+                ...originalProductInfo,
+                newSelectOptionList: validatedProduct.productsSearch.newSelectOptionList,
+                productId: validatedProduct.productId,
+                quantity: validatedProduct.quantity,
+                variantId: validatedProduct.productsSearch.variantId,
+              };
+            },
+          );
+
+          passSku = backendValidatedProducts
+            .map(({ node: validatedProduct }: CustomFieldItems) => {
+              const originalProductInfo = variantInfoList.find(
+                (catalogProduct: CustomFieldItems) =>
+                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
+              );
+              return originalProductInfo?.variantSku || '';
+            })
+            .filter(Boolean);
         } else {
           ({ productItems, passSku } = await handleFrontendValidation(
             value,
