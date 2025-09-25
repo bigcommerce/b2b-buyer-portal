@@ -12,8 +12,8 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 
-import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
-import { getCartProductInfo } from '../utils';
+import { SimpleObject } from '../../../types';
+import { getCartProductInfo, parseOptionList } from '../utils';
 
 interface AddToListContentProps {
   quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
@@ -118,21 +118,6 @@ export default function QuickAdd(props: AddToListContentProps) {
       isValid,
       skus: Object.keys(skuValue),
     };
-  };
-
-  const parseOptionList = (options: string[] | undefined): ShoppingListAddProductOption[] => {
-    return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
-      try {
-        const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
-        arr.push({
-          optionId: `attribute[${option.option_id}]`,
-          optionValue: `${option.id}`,
-        });
-        return arr;
-      } catch (error) {
-        return arr;
-      }
-    }, []);
   };
 
   const getProductItems = async (

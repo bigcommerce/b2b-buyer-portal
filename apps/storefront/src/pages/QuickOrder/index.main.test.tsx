@@ -2582,11 +2582,7 @@ describe('When backend validation', () => {
       },
     });
 
-    const searchProducts = vi.fn().mockReturnValue({
-      data: {
-        productsSearch: [],
-      },
-    });
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
 
     const variantInfo = buildVariantInfoWith({
       productId: '123',
@@ -2615,16 +2611,8 @@ describe('When backend validation', () => {
         }),
       )
       .thenReturn({
-        data: {
-          cart: {
-            createCart: null,
-          },
-        },
-        errors: [
-          {
-            message: 'SKU OOS-123 is out of stock',
-          },
-        ],
+        data: { cart: { createCart: null } },
+        errors: [{ message: 'SKU OOS-123 is out of stock' }],
       });
 
     server.use(
@@ -2673,11 +2661,7 @@ describe('When backend validation', () => {
       },
     });
 
-    const searchProducts = vi.fn().mockReturnValue({
-      data: {
-        productsSearch: [],
-      },
-    });
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
 
     const existingCart = buildGetCartWith({
       data: {
@@ -2694,8 +2678,6 @@ describe('When backend validation', () => {
         },
       },
     });
-
-    const getCart = vi.fn().mockReturnValue(existingCart);
 
     const variantInfo = buildVariantInfoWith({
       productId: '123',
@@ -2728,11 +2710,7 @@ describe('When backend validation', () => {
       )
       .thenReturn({
         data: null,
-        errors: [
-          {
-            message: 'Product OOS-123 has insufficient stock',
-          },
-        ],
+        errors: [{ message: 'Product OOS-123 has insufficient stock' }],
       });
 
     server.use(
@@ -2743,7 +2721,7 @@ describe('When backend validation', () => {
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
-      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.query('getCart', () => HttpResponse.json(existingCart)),
       graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
         HttpResponse.json(addCartLineItemsTwo(variables)),
       ),
