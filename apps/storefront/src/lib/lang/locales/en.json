@@ -538,6 +538,7 @@
   "quoteDraft.notification.errorRangeProducts": "The quantity of each product in Quote is 1-1000000.",
   "quoteDraft.notification.businessAccountPendingActivation": "Your business account is pending approval. This feature is currently disabled.",
   "quoteDraft.notification.openQuote": "Open quote",
+  "quoteDraft.notification.productCannotBeAddedToQuote": "Product {productId} is out of stock or unavailable for purchase. Please remove the product or modify the quantity of the product",
   "quoteDraft.collapseTitle.addToQuote": "Add to quote",
   "quoteDraft.modalTitle.addToQuote": "Add to quote",
   "quoteDraft.button.addProductsToAddToQuote": "Add products to Quote",

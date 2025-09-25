@@ -58,12 +58,21 @@ function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   return b3Fetch(url, init);
 }
 
+type ProductValidationError = {
+  itemId: string;
+  productId: number;
+  variantId: number;
+  responseType: string;
+  code: string;
+};
+
 interface B2bGQLResponse {
   data: any;
   errors?: Array<{
     message: string;
     extensions: {
       code: number;
+      productValidationErrors: ProductValidationError[];
     };
   }>;
 }
@@ -106,6 +115,10 @@ const B3Request = {
         }
 
         return new Promise(() => {});
+      }
+
+      if (extensions && extensions?.productValidationErrors) {
+        return { ...value.data, error };
       }
 
       if (message) {

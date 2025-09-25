@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, uniq } from 'lodash-es';
+import { v4 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -156,6 +157,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext);
+
+  const isMoveStockAndBackorderValidationToBackend =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const quotesActionsPermission = useMemo(() => {
     if (isB2BUser) {
@@ -440,7 +444,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+    if (isMoveStockAndBackorderValidationToBackend) {
       const validatedProducts = await validateProducts(products, b3Lang);
 
       addQuoteDraftProducts(validatedProducts);
@@ -527,7 +531,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         return;
       }
 
-      if (!isEnableProduct) {
+      if (!isEnableProduct && !isMoveStockAndBackorderValidationToBackend) {
         const itHasInvalidProduct = draftQuoteList.some((item) => {
           return getVariantInfoOOSAndPurchase(item)?.name;
         });
@@ -616,6 +620,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           imageUrl: node.primaryImage,
           productName: node.productName,
           options: optionsList,
+          itemId: uuid(),
         };
 
         return items;
@@ -661,11 +666,29 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         throw new Error();
       }
 
+      const response = await createQuote(data);
+
+      if (isMoveStockAndBackorderValidationToBackend) {
+        if (response?.error?.extensions?.productValidationErrors?.length) {
+          response.error.extensions.productValidationErrors.forEach(
+            (err: { productId: number }) => {
+              snackbar.error(
+                b3Lang('quoteDraft.notification.productCannotBeAddedToQuote', {
+                  productId: err.productId,
+                }),
+              );
+            },
+          );
+
+          return;
+        }
+      }
+
       const {
         quoteCreate: {
           quote: { id, createdAt },
         },
-      } = await createQuote(data);
+      } = response;
 
       setQuoteId(id);
       setCurrentCreatedAt(createdAt);
