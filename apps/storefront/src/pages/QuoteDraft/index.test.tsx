@@ -508,6 +508,61 @@ it('displays the buyer info', async () => {
   expect(within(buyerInfo).getByText('04747666333')).toBeInTheDocument();
 });
 
+it('displays buyer information for users with not addresses permission', async () => {
+  server.use(
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Addresses', () =>
+      HttpResponse.json({
+        errors: [
+          {
+            message: 'Permission denied.',
+            locations: [{ line: 2, column: 3 }],
+            path: ['addresses'],
+          },
+        ],
+        data: { addresses: null },
+      }),
+    ),
+    graphql.query('getQuoteExtraFields', () =>
+      HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+    ),
+  );
+
+  const customRoleCompany = buildCompanyStateWith({
+    companyInfo: { status: CompanyStatus.APPROVED },
+    customer: {
+      userType: UserTypes.MULTIPLE_B2C,
+      role: CustomerRole.CUSTOM_ROLE,
+    },
+  });
+
+  const quoteInfo = buildQuoteInfoStateWith({
+    draftQuoteInfo: {
+      contactInfo: {
+        name: 'Custom User',
+        email: 'custom.user@example.com',
+        companyName: 'Custom Role Company',
+        phoneNumber: '555-0123',
+      },
+    },
+  });
+
+  renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+    preloadedState: {
+      company: customRoleCompany,
+      storeInfo: storeInfoWithDateFormat,
+      quoteInfo,
+    },
+  });
+
+  const buyerInfo = await screen.findByRole('article', { name: 'Buyer info' });
+
+  expect(within(buyerInfo).getByText('Custom User')).toBeInTheDocument();
+  expect(within(buyerInfo).getByText('custom.user@example.com')).toBeInTheDocument();
+  expect(within(buyerInfo).getByText('Custom Role Company')).toBeInTheDocument();
+  expect(within(buyerInfo).getByText('555-0123')).toBeInTheDocument();
+});
+
 describe('when there is a billing address assigned', () => {
   it('displays the billing address', async () => {
     server.use(

@@ -229,10 +229,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
           let addressB2BList = [];
           const fetchAddresses = async (id: number) => {
-            const {
-              addresses: { edges },
-            } = await getB2BCustomerAddresses(id);
-            return edges;
+            try {
+              const response = await getB2BCustomerAddresses(id, true);
+
+              return response.addresses.edges;
+            } catch {
+              return null;
+            }
           };
 
           if (!selectCompanyHierarchyId) {
@@ -241,58 +244,60 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             addressB2BList = await fetchAddresses(Number(selectCompanyHierarchyId));
           }
 
-          const shippingDefaultAddress = addressB2BList.find(
-            (item: B2BAddress) => item?.node?.isDefaultShipping === 1,
-          );
-          const billingDefaultAddress = addressB2BList.find(
-            (item: B2BAddress) => item?.node?.isDefaultBilling === 1,
-          );
+          if (addressB2BList) {
+            const shippingDefaultAddress = addressB2BList.find(
+              (item: B2BAddress) => item?.node?.isDefaultShipping === 1,
+            );
+            const billingDefaultAddress = addressB2BList.find(
+              (item: B2BAddress) => item?.node?.isDefaultBilling === 1,
+            );
 
-          if (shippingDefaultAddress && validateObject(quoteInfo, 'shippingAddress')) {
-            const addressItem = {
-              label: shippingDefaultAddress?.node?.label || '',
-              firstName: shippingDefaultAddress?.node?.firstName || '',
-              lastName: shippingDefaultAddress?.node?.lastName || '',
-              companyName: shippingDefaultAddress?.node?.company || '',
-              country: shippingDefaultAddress?.node?.countryCode || '',
-              address: shippingDefaultAddress?.node?.addressLine1 || '',
-              apartment: shippingDefaultAddress?.node?.addressLine2 || '',
-              city: shippingDefaultAddress?.node?.city || '',
-              state: shippingDefaultAddress?.node?.state || '',
-              zipCode: shippingDefaultAddress?.node?.zipCode || '',
-              phoneNumber: shippingDefaultAddress?.node?.phoneNumber || '',
-              addressId: shippingDefaultAddress?.node?.id
-                ? Number(shippingDefaultAddress.node.id)
-                : 0,
-            };
+            if (shippingDefaultAddress && validateObject(quoteInfo, 'shippingAddress')) {
+              const addressItem = {
+                label: shippingDefaultAddress?.node?.label || '',
+                firstName: shippingDefaultAddress?.node?.firstName || '',
+                lastName: shippingDefaultAddress?.node?.lastName || '',
+                companyName: shippingDefaultAddress?.node?.company || '',
+                country: shippingDefaultAddress?.node?.countryCode || '',
+                address: shippingDefaultAddress?.node?.addressLine1 || '',
+                apartment: shippingDefaultAddress?.node?.addressLine2 || '',
+                city: shippingDefaultAddress?.node?.city || '',
+                state: shippingDefaultAddress?.node?.state || '',
+                zipCode: shippingDefaultAddress?.node?.zipCode || '',
+                phoneNumber: shippingDefaultAddress?.node?.phoneNumber || '',
+                addressId: shippingDefaultAddress?.node?.id
+                  ? Number(shippingDefaultAddress.node.id)
+                  : 0,
+              };
 
-            quoteInfo.shippingAddress = addressItem as ShippingAddress;
+              quoteInfo.shippingAddress = addressItem as ShippingAddress;
+            }
+            if (
+              billingDefaultAddress &&
+              (!quoteInfo?.billingAddress || validateObject(quoteInfo, 'billingAddress'))
+            ) {
+              const addressItem = {
+                label: billingDefaultAddress?.node?.label || '',
+                firstName: billingDefaultAddress?.node?.firstName || '',
+                lastName: billingDefaultAddress?.node?.lastName || '',
+                companyName: billingDefaultAddress?.node?.company || '',
+                country: billingDefaultAddress?.node?.countryCode || '',
+                address: billingDefaultAddress?.node?.addressLine1 || '',
+                apartment: billingDefaultAddress?.node?.addressLine2 || '',
+                city: billingDefaultAddress?.node?.city || '',
+                state: billingDefaultAddress?.node?.state || '',
+                zipCode: billingDefaultAddress?.node?.zipCode || '',
+                phoneNumber: billingDefaultAddress?.node?.phoneNumber || '',
+                addressId: billingDefaultAddress?.node?.id
+                  ? Number(billingDefaultAddress.node.id)
+                  : 0,
+              };
+
+              quoteInfo.billingAddress = addressItem as BillingAddress;
+            }
+
+            setAddressList(addressB2BList);
           }
-          if (
-            billingDefaultAddress &&
-            (!quoteInfo?.billingAddress || validateObject(quoteInfo, 'billingAddress'))
-          ) {
-            const addressItem = {
-              label: billingDefaultAddress?.node?.label || '',
-              firstName: billingDefaultAddress?.node?.firstName || '',
-              lastName: billingDefaultAddress?.node?.lastName || '',
-              companyName: billingDefaultAddress?.node?.company || '',
-              country: billingDefaultAddress?.node?.countryCode || '',
-              address: billingDefaultAddress?.node?.addressLine1 || '',
-              apartment: billingDefaultAddress?.node?.addressLine2 || '',
-              city: billingDefaultAddress?.node?.city || '',
-              state: billingDefaultAddress?.node?.state || '',
-              zipCode: billingDefaultAddress?.node?.zipCode || '',
-              phoneNumber: billingDefaultAddress?.node?.phoneNumber || '',
-              addressId: billingDefaultAddress?.node?.id
-                ? Number(billingDefaultAddress.node.id)
-                : 0,
-            };
-
-            quoteInfo.billingAddress = addressItem as BillingAddress;
-          }
-
-          setAddressList(addressB2BList);
         } else if (role !== 100) {
           const {
             customerAddresses: { edges: addressBCList = [] },

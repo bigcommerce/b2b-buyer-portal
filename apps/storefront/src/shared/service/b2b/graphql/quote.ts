@@ -373,10 +373,13 @@ export const getBCCustomerAddresses = () =>
     query: getCustomerAddresses(),
   });
 
-export const getB2BCustomerAddresses = (companyId: number) =>
-  B3Request.graphqlB2B({
-    query: getAddresses(companyId),
-  });
+export const getB2BCustomerAddresses = (companyId: number, customMessage: boolean) =>
+  B3Request.graphqlB2B(
+    {
+      query: getAddresses(companyId),
+    },
+    customMessage,
+  );
 
 export enum QuoteStatus {
   OPEN = 1,
