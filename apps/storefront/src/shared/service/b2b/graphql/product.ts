@@ -34,17 +34,23 @@ query GetVariantInfoBySkus {
   }
 }`;
 
-const getProductPurchasable = ({ sku = '', isProduct = true, productId }: ProductPurchasable) => `{
+const getProductPurchasable = ({
+  sku = '',
+  isProduct = true,
+  productId,
+}: ProductPurchasable) => `query GetProductPurchasable {
   productPurchasable(
     storeHash: "${storeHash}"
     productId: ${Number(productId)},
-    sku:"${sku}",
+    sku: "${sku}",
     isProduct: ${isProduct}
     ){
     availability
     inventoryLevel
     inventoryTracking
     purchasingDisabled
+    availableToSell
+    unlimitedBackorder
   }
 }`;
 

@@ -126,6 +126,30 @@ export function stringContainingAll(...substrings: string[]) {
   };
 }
 
+interface ProductData {
+  productId: string;
+  quantity: string;
+  sku: string;
+  options: Record<string, string>;
+}
+
+export function FakeProductDataProvider({ productId, quantity, sku, options }: ProductData) {
+  return (
+    <div className="productView">
+      <input name="product_id" defaultValue={productId} />
+      <input name="qty[]" defaultValue={quantity} />
+      <span data-product-sku>{sku}</span>
+      <form data-cart-item-add>
+        {Object.entries(options).map(([key, value]) => (
+          <input key={key} name={key} defaultValue={value} />
+        ))}
+        <input id="form-action-addToCart" type="submit" value="Add to Cart" />
+      </form>
+      <a href="#bar">Shopping List Click Node</a>
+    </div>
+  );
+}
+
 export { startMockServer } from './mockServer';
 export { graphql, http, HttpResponse } from 'msw';
 export { assertQueryParams } from './assertQueryParams';

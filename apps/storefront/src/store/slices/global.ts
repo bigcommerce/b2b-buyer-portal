@@ -81,7 +81,7 @@ export interface GlobalState {
   featureFlags: FeatureFlags;
 }
 
-const initialState: GlobalState = {
+export const initialState: GlobalState = {
   taxZoneRates: [],
   isClickEnterBtn: false,
   currentClickedUrl: '',
