@@ -282,6 +282,8 @@ const buildSearchProductWith = builder<SearchProduct>(() => ({
   productUrl: faker.internet.url(),
   taxClassId: faker.number.int(),
   isPriceHidden: faker.datatype.boolean(),
+  availableToSell: faker.number.int({ min: 0, max: 20 }),
+  unlimitedBackorder: faker.datatype.boolean(),
 }));
 
 const buildVariantInfoWith = builder<VariantInfo>(() => ({
@@ -1282,6 +1284,63 @@ describe('when the user is a B2B customer', () => {
       const productTable = await screen.findByRole('table');
 
       expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+    });
+
+    it('does show stock warning in the product table if inventory tracking is enabled and quantity exceeds stock', async () => {
+      const alabama = { stateName: 'Alabama', stateCode: 'AL' };
+      const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
+
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+      );
+
+      const product = buildDraftQuoteItemWith({
+        node: {
+          quantity: 10,
+          variantSku: 'LC-123',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            variants: [
+              buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
+            ],
+            availableToSell: 5,
+            unlimitedBackorder: false,
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          // email is checked on save and must match the company.customer in state for the save to succeed
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+        draftQuoteList: [product],
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags,
+          }),
+        },
+      });
+
+      const productTable = await screen.findByRole('table');
+
+      expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
+      expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
     });
 
     it('creates successfully a new quote when submitting the draft quote and gets redirected to quote detail', async () => {

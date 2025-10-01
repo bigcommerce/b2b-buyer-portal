@@ -79,6 +79,8 @@ const getSearchProductsQuery = (data: CustomFieldItems) => `
       productUrl,
       taxClassId,
       isPriceHidden,
+      availableToSell,
+      unlimitedBackorder,
     }
   }
 `;
@@ -282,6 +284,8 @@ export interface SearchProductsResponse {
       productUrl: string;
       taxClassId: number;
       isPriceHidden: boolean;
+      availableToSell: number | null;
+      unlimitedBackorder: boolean | null;
     }>;
   };
 }

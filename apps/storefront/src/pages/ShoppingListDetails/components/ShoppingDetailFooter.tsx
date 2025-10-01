@@ -298,8 +298,20 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     const items = checkedArr.map(({ node }: ProductsProps) => {
       return { node };
     });
+
+    let updatedItems = [];
     try {
       const skus = items.map(({ node }: ProductsProps) => node.variantSku);
+
+      updatedItems = items.map((item: ProductsProps) => {
+        return {
+          ...item,
+          isStock: item?.node?.productsSearch?.inventoryTracking === 'none' ? '0' : '1',
+          minQuantity: item?.node?.productsSearch?.orderQuantityMinimum,
+          maxQuantity: item?.node?.productsSearch?.orderQuantityMaximum,
+          stock: item?.node?.productsSearch?.availableToSell,
+        };
+      });
 
       if (skus.length === 0) {
         snackbar.error(
@@ -324,12 +336,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       shouldRedirectCheckout();
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(items);
+        setValidateFailureProducts(updatedItems);
         snackbar.error(e.message);
       }
     } finally {
       setLoading(false);
     }
+
     setValidateSuccessProducts(items);
   };
 
