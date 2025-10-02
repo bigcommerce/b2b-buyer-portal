@@ -151,6 +151,8 @@ const buildSearchProductWith = builder<SearchProduct>(() => ({
   productUrl: faker.internet.url(),
   taxClassId: faker.number.int(),
   isPriceHidden: faker.datatype.boolean(),
+  availableToSell: faker.number.int({ min: 0, max: 20 }),
+  unlimitedBackorder: faker.datatype.boolean(),
 }));
 
 const buildGetCartWith = builder<GetCart>(() => {

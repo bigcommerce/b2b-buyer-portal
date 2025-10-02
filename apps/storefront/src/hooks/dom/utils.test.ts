@@ -185,6 +185,8 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   productUrl: faker.internet.url(),
   taxClassId: faker.number.int({ min: 1 }),
   isPriceHidden: faker.datatype.boolean(),
+  availableToSell: faker.number.int({ min: 1 }),
+  unlimitedBackorder: faker.datatype.boolean(),
 }));
 
 const buildValidateProductWith = builder<ValidateProduct>(() => ({
