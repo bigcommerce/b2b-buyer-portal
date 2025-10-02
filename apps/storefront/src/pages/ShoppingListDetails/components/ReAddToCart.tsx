@@ -21,6 +21,7 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { sanitizeErrorMessage } from '@/utils/sanitizeErrorMessage';
 
 interface ShoppingProductsProps {
   shoppingListInfo: any;
@@ -278,7 +279,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       b3TriggerCartNumber();
     } catch (e: unknown) {
       if (e instanceof Error) {
-        snackbar.error(e.message);
+        snackbar.error(sanitizeErrorMessage(e.message));
       }
     } finally {
       setLoading(false);

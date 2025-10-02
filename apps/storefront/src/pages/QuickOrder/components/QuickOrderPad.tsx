@@ -13,6 +13,7 @@ import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { sanitizeErrorMessage } from '@/utils/sanitizeErrorMessage';
 
 import { addCartProductToVerify } from '../utils';
 
@@ -55,7 +56,7 @@ export default function QuickOrderPad() {
     const res = await createOrUpdateExistingCart(products);
 
     if (res && res.errors) {
-      snackbar.error(res.errors[0].message);
+      snackbar.error(sanitizeErrorMessage(res.errors[0].message));
     } else {
       snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
         action: {
@@ -281,7 +282,7 @@ export default function QuickOrderPad() {
       await quickAddToList(productData);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        snackbar.error(e.message);
+        snackbar.error(sanitizeErrorMessage(e.message));
       }
     }
   };

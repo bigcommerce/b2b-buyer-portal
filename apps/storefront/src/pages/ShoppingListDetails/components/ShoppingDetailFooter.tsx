@@ -28,6 +28,7 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { sanitizeErrorMessage } from '@/utils/sanitizeErrorMessage';
 import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
@@ -311,7 +312,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       }
 
       const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
+      const deleteCartObject = deleteCartData(cartEntityId);
       const cartInfo = await getCart();
 
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
@@ -325,7 +326,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     } catch (e: unknown) {
       if (e instanceof Error) {
         setValidateFailureProducts(items);
-        snackbar.error(e.message);
+        snackbar.error(sanitizeErrorMessage(e.message));
       }
     } finally {
       setLoading(false);

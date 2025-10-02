@@ -27,6 +27,7 @@ import {
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { sanitizeErrorMessage } from '@/utils/sanitizeErrorMessage';
 import { validateProducts } from '@/utils/validateProducts';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
@@ -221,7 +222,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       showAddToCartSuccessMessage();
     } catch (e) {
       if (e instanceof Error) {
-        snackbar.error(e.message);
+        snackbar.error(sanitizeErrorMessage(e.message));
       }
     } finally {
       b3TriggerCartNumber();
