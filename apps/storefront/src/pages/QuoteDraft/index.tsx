@@ -449,7 +449,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (isMoveStockAndBackorderValidationToBackend) {
+    if (!isEnableProduct && isMoveStockAndBackorderValidationToBackend) {
       const validatedProducts = await validateProducts(products, b3Lang);
 
       addQuoteDraftProducts(validatedProducts);

@@ -17,6 +17,7 @@ import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useFeatureFlags } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -140,20 +141,30 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [newPrice, setNewPrice] = useState<number>(0);
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
+  const featureFlags = useFeatureFlags();
 
   useEffect(() => {
     if (type === 'quote' && product) {
       if (variantSku) {
         const newProduct = product as CustomFieldItems;
         newProduct.quantity = quantity;
-        const isPrice = !!getVariantInfoDisplayPrice(newProduct.base_price, newProduct, {
-          sku: variantSku,
-        });
+        const isPrice = !!getVariantInfoDisplayPrice(
+          newProduct.base_price,
+          newProduct,
+          featureFlags,
+          {
+            sku: variantSku,
+          },
+        );
         setShowPrice(isPrice);
       } else {
         const newProduct = product as CustomFieldItems;
         newProduct.quantity = quantity;
-        const isPrice = !!getProductInfoDisplayPrice(newProduct.base_price, newProduct);
+        const isPrice = !!getProductInfoDisplayPrice(
+          newProduct.base_price,
+          newProduct,
+          featureFlags,
+        );
         if (!isPrice) {
           setShowPrice(false);
         }
@@ -161,7 +172,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     } else if ((type === 'shoppingList' || type === 'quickOrder') && product) {
       setShowPrice(!product?.isPriceHidden);
     }
-  }, [variantSku, quantity, product, type]);
+  }, [variantSku, quantity, product, type, featureFlags]);
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
