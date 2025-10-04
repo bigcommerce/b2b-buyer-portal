@@ -357,15 +357,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             m: '0 0 1rem 0',
           }}
         >
-          <Alert variant="filled" severity="success">
-            {allowJuniorPlaceOrder
-              ? b3Lang('shoppingList.reAddToCart.productsCanCheckout', {
-                  successProducts,
-                })
-              : b3Lang('shoppingList.reAddToCart.productsAddedToCart', {
-                  successProducts,
-                })}
-          </Alert>
+          {successProducts > 0 && (
+            <Alert variant="filled" severity="success">
+              {allowJuniorPlaceOrder
+                ? b3Lang('shoppingList.reAddToCart.productsCanCheckout', {
+                    successProducts,
+                  })
+                : b3Lang('shoppingList.reAddToCart.productsAddedToCart', {
+                    successProducts,
+                  })}
+            </Alert>
+          )}
         </Box>
 
         <Box
@@ -373,15 +375,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             m: '1rem 0',
           }}
         >
-          <Alert variant="filled" severity="error">
-            {allowJuniorPlaceOrder
-              ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
-                  quantity: products.length,
-                })
-              : b3Lang('shoppingList.reAddToCart.productsNotAddedToCart', {
-                  quantity: products.length,
-                })}
-          </Alert>
+          {products.length > 0 && (
+            <Alert variant="filled" severity="error">
+              {allowJuniorPlaceOrder
+                ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
+                    quantity: products.length,
+                  })
+                : b3Lang('shoppingList.reAddToCart.productsNotAddedToCart', {
+                    quantity: products.length,
+                  })}
+            </Alert>
+          )}
         </Box>
         <B3Spin isSpinning={loading} size={16} isFlex={false}>
           <Box
