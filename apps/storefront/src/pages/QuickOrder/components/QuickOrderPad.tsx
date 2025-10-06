@@ -309,18 +309,6 @@ export default function QuickOrderPad() {
         } else {
           // Show other cart API errors as they come
           snackbar.error(errorMessage);
-
-          // If there's an error file, provide download option
-          if (stockErrorFile) {
-            snackbar.error('Some products could not be added to cart', {
-              action: {
-                label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
-                onClick: () => {
-                  window.location.href = stockErrorFile;
-                },
-              },
-            });
-          }
         }
       }
     } finally {

@@ -2936,13 +2936,11 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Open bulk upload dialog
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
 
-      // Create CSV file and upload it
       const csvContent = 'variant_sku,qty\nTEST-SKU-123,2';
       const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
@@ -2953,21 +2951,17 @@ describe('When backend validation', () => {
 
       await userEvent.upload(dropzoneInput, [file]);
 
-      // Wait for the CSV upload to be processed
       await waitFor(() => {
         expect(csvUpload).toHaveBeenCalled();
       });
 
-      // Wait for file processing and products to appear in table
       await waitFor(() => {
         expect(screen.getByText('TEST-SKU-123')).toBeInTheDocument();
       });
 
-      // Click add to cart button
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
       await userEvent.click(addToCartButton);
 
-      // Verify success message
       await waitFor(
         () => {
           expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
@@ -3009,7 +3003,6 @@ describe('When backend validation', () => {
           },
         });
 
-        // Mock getCart to return null (no existing cart)
         const getCart = vi.fn().mockReturnValue({
           data: { site: { cart: null } },
         });
@@ -3018,7 +3011,6 @@ describe('When backend validation', () => {
           data: { cart: { createCart: { cart: { entityId: '67890' } } } },
         });
 
-        // Add missing addCartLineItemsTwo mock for consistency
         const addCartLineItemsTwo = vi.fn().mockReturnValue(
           buildAddCartLineItemsResponseWith({
             data: {
@@ -3047,13 +3039,11 @@ describe('When backend validation', () => {
 
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-        // Open bulk upload dialog
         const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
         await userEvent.click(bulkUploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
 
-        // Create CSV file and upload it
         const csvContent = 'variant_sku,qty\nNEW-CART-SKU-123,3';
         const file = new File([csvContent], 'new-cart.csv', { type: 'text/csv' });
 
@@ -3064,16 +3054,13 @@ describe('When backend validation', () => {
 
         await userEvent.upload(dropzoneInput, [file]);
 
-        // Wait for file processing and products to appear in table
         await waitFor(() => {
           expect(screen.getByText('NEW-CART-SKU-123')).toBeInTheDocument();
         });
 
-        // Click add to cart button
         const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
         await userEvent.click(addToCartButton);
 
-        // Verify success message
         await waitFor(
           () => {
             expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
@@ -3081,7 +3068,6 @@ describe('When backend validation', () => {
           { timeout: 8000 },
         );
 
-        // Verify dialog is closed
         await waitFor(
           () => {
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -3089,7 +3075,6 @@ describe('When backend validation', () => {
           { timeout: 8000 },
         );
 
-        // Verify createCartSimple was called (not addCartLineItemsTwo)
         expect(createCartSimple).toHaveBeenCalled();
       },
     );
@@ -3148,13 +3133,11 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Open bulk upload dialog
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
 
-      // Create CSV file and upload it
       const csvContent = 'variant_sku,qty\nFAIL-CART-SKU-123,2';
       const file = new File([csvContent], 'fail-cart.csv', { type: 'text/csv' });
 
@@ -3165,21 +3148,17 @@ describe('When backend validation', () => {
 
       await userEvent.upload(dropzoneInput, [file]);
 
-      // Wait for file processing and products to appear in table
       await waitFor(() => {
         expect(screen.getByText('FAIL-CART-SKU-123')).toBeInTheDocument();
       });
 
-      // Click add to cart button
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
       await userEvent.click(addToCartButton);
 
-      // Verify error message is displayed
       await waitFor(() => {
         expect(screen.getByText(/Failed to create cart due to server error/i)).toBeInTheDocument();
       });
 
-      // Modal should stay open to show error
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
@@ -3252,11 +3231,9 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Click bulk upload CSV button
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
-      // Simulate CSV file upload
       const file = new File(['variant_sku,qty\nVALID-SKU-123,1\nINVALID-SKU-456,1'], 'test.csv', {
         type: 'text/csv',
       });
@@ -3273,18 +3250,14 @@ describe('When backend validation', () => {
 
       fireEvent.change(fileInput);
 
-      // Wait for products to appear in modal table
       await waitFor(() => {
         expect(screen.getByText('Valid (1)')).toBeInTheDocument();
       });
 
-      // Verify error products are shown in the modal with errors
       expect(screen.getByText('Product not found')).toBeInTheDocument();
 
-      // Verify download errors CSV link is available
       expect(screen.getByText('Download error results')).toBeInTheDocument();
 
-      // Modal should remain open to show errors
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
@@ -3355,7 +3328,6 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Click bulk upload CSV and upload file
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
@@ -3373,7 +3345,6 @@ describe('When backend validation', () => {
 
       fireEvent.change(fileInput);
 
-      // Wait for product to appear and try to add to cart
       await waitFor(() => {
         expect(screen.getByText('OOS-SKU-123')).toBeInTheDocument();
       });
@@ -3381,16 +3352,10 @@ describe('When backend validation', () => {
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
       await userEvent.click(addToCartButton);
 
-      // Verify out of stock error message is displayed
       await waitFor(() => {
         expect(screen.getByText(/out of stock/i)).toBeInTheDocument();
       });
 
-      // Verify CSV download action is available (may be in a separate snackbar)
-      // Note: The download action might appear in a different snackbar or timing
-      // For now, we'll just verify the error is shown and modal stays open
-
-      // Modal should stay open to allow user to see errors and download CSV
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
@@ -3460,7 +3425,6 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Upload CSV with min quantity issue
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
@@ -3487,14 +3451,12 @@ describe('When backend validation', () => {
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
       await userEvent.click(addToCartButton);
 
-      // Verify min quantity error message is displayed
       await waitFor(() => {
         expect(
           screen.getByText('You need to purchase a minimum of 5 of the MIN-QTY-SKU-123 per order.'),
         ).toBeInTheDocument();
       });
 
-      // Modal should stay open for user to see error
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
@@ -3564,7 +3526,6 @@ describe('When backend validation', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      // Upload CSV and try to add to cart
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
@@ -3589,7 +3550,6 @@ describe('When backend validation', () => {
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
       await userEvent.click(addToCartButton);
 
-      // Verify generic error message is displayed
       await waitFor(() => {
         expect(
           screen.getByText('Product is discontinued and cannot be purchased'),
