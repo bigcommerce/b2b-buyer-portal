@@ -244,6 +244,90 @@ export default function QuickOrderPad() {
     }
   };
 
+  const handleAddCSVToCart = async (productsData: CustomFieldItems) => {
+    setIsLoading(true);
+    try {
+      const { validProduct } = productsData;
+
+      // Convert products to cart format
+      const productItems = validProduct.map((item: CustomFieldItems) => ({
+        productId: Number(item.products?.productId) || 0,
+        variantId: Number(item.products?.variantId) || 0,
+        quantity: Number(item.qty) || 0,
+        optionSelections:
+          item.products?.option?.map((opt: CustomFieldItems) => ({
+            optionId: opt.option_id,
+            optionValue: opt.id,
+          })) || [],
+        allOptions: item.products?.modifiers || [],
+      }));
+
+      const res = await createOrUpdateExistingCart(productItems);
+
+      getSnackbarMessage(res);
+      b3TriggerCartNumber();
+
+      setIsOpenBulkLoadCSV(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        // Handle cart API errors
+        const errorMessage = error.message;
+        const { stockErrorFile } = productsData;
+        const sanitizedMessage = sanitizeErrorMessage(errorMessage);
+
+        // Check if it's an out of stock error (typically contains product/variant info)
+        const isOutOfStock =
+          errorMessage.toLowerCase().includes('out of stock') ||
+          errorMessage.toLowerCase().includes('insufficient stock');
+
+        if (isOutOfStock) {
+          // Extract SKUs from error message if possible, otherwise use a generic message
+          const skuMatch = errorMessage.match(/SKU[:\s]*([A-Za-z0-9\-_]+)/i);
+          const outOfStockSku = skuMatch ? skuMatch[1] : 'product';
+
+          if (stockErrorFile) {
+            snackbar.error(
+              b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
+                outOfStock: outOfStockSku,
+              }),
+              {
+                action: {
+                  label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
+                  onClick: () => {
+                    window.location.href = stockErrorFile;
+                  },
+                },
+              },
+            );
+          } else {
+            snackbar.error(
+              b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
+                outOfStock: outOfStockSku,
+              }),
+            );
+          }
+        } else {
+          // Show other cart API errors as they come
+          snackbar.error(sanitizedMessage);
+
+          // If there's an error file, provide download option
+          if (stockErrorFile) {
+            snackbar.error('Some products could not be added to cart', {
+              action: {
+                label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
+                onClick: () => {
+                  window.location.href = stockErrorFile;
+                },
+              },
+            });
+          }
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
     const currentProducts = productData.map((item) => {
       return {
@@ -330,7 +414,7 @@ export default function QuickOrderPad() {
       <B3Upload
         isOpen={isOpenBulkLoadCSV}
         setIsOpen={setIsOpenBulkLoadCSV}
-        handleAddToList={handleAddToCart}
+        handleAddToList={backendValidationEnabled ? handleAddCSVToCart : handleAddToCart}
         setProductData={setProductData}
         addBtnText={addBtnText}
         isLoading={isLoading}
