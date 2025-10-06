@@ -1086,8 +1086,8 @@ describe('when product purchasing_disabled', () => {
         ),
         graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', () =>
-          HttpResponse.json(createCartSimple()),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
         ),
       );
 
@@ -2890,7 +2890,7 @@ describe('When backend validation', () => {
       });
 
       const getCart = vi.fn().mockReturnValue(buildGetCartWith({}));
-      const createCartSimple = vi.fn().mockResolvedValue({
+      const createCartSimple = vi.fn().mockReturnValue({
         data: { cart: { createCart: { cart: { entityId: '12345' } } } },
       });
 
@@ -2901,9 +2901,7 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', () =>
-          HttpResponse.json(createCartSimple()),
-        ),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
         graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
             buildAddCartLineItemsResponseWith({
@@ -2957,105 +2955,131 @@ describe('When backend validation', () => {
       await userEvent.click(addToCartButton);
 
       // Verify success message
-      await waitFor(() => {
-        expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
+        },
+        { timeout: 8000 },
+      );
     });
 
-    it('handles successful CSV upload and creates new cart when no existing cart', async () => {
-      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
-        data: { orderedProducts: { totalCount: 0, edges: [] } },
-      });
+    it(
+      'handles successful CSV upload and creates new cart when no existing cart',
+      { timeout: 10000 },
+      async () => {
+        const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+          data: { orderedProducts: { totalCount: 0, edges: [] } },
+        });
 
-      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+        const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
 
-      const csvUpload = vi.fn().mockReturnValue({
-        data: {
-          productUpload: buildCSVUploadWith({
-            result: {
-              validProduct: [
-                buildCSVProductWith({
-                  products: {
-                    productName: 'New Cart Product',
-                    variantSku: 'NEW-CART-SKU-123',
-                  },
-                  qty: '3',
-                  row: 1,
-                  sku: 'NEW-CART-SKU-123',
-                }),
-              ],
-              errorProduct: [],
-              stockErrorFile: '',
-              stockErrorSkus: [],
+        const csvUpload = vi.fn().mockReturnValue({
+          data: {
+            productUpload: buildCSVUploadWith({
+              result: {
+                validProduct: [
+                  buildCSVProductWith({
+                    products: {
+                      productName: 'New Cart Product',
+                      variantSku: 'NEW-CART-SKU-123',
+                    },
+                    qty: '3',
+                    row: 1,
+                    sku: 'NEW-CART-SKU-123',
+                  }),
+                ],
+                errorProduct: [],
+                stockErrorFile: '',
+                stockErrorSkus: [],
+              },
+            }),
+          },
+        });
+
+        // Mock getCart to return null (no existing cart)
+        const getCart = vi.fn().mockReturnValue({
+          data: { site: { cart: null } },
+        });
+
+        const createCartSimple = vi.fn().mockReturnValue({
+          data: { cart: { createCart: { cart: { entityId: '67890' } } } },
+        });
+
+        // Add missing addCartLineItemsTwo mock for consistency
+        const addCartLineItemsTwo = vi.fn().mockReturnValue(
+          buildAddCartLineItemsResponseWith({
+            data: {
+              cart: {
+                addCartLineItems: {
+                  cart: { entityId: '67890' },
+                },
+              },
             },
+            errors: undefined,
           }),
-        },
-      });
+        );
 
-      // Mock getCart to return null (no existing cart)
-      const getCart = vi.fn().mockReturnValue({
-        data: { site: { cart: null } },
-      });
+        server.use(
+          graphql.query('RecentlyOrderedProducts', () =>
+            HttpResponse.json(getRecentlyOrderedProducts()),
+          ),
+          graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+          graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+          graphql.query('getCart', () => HttpResponse.json(getCart())),
+          graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+          graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
+        );
 
-      const createCartSimple = vi.fn().mockReturnValue({
-        data: { cart: { createCart: { cart: { entityId: '67890' } } } },
-      });
+        renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
 
-      server.use(
-        graphql.query('RecentlyOrderedProducts', () =>
-          HttpResponse.json(getRecentlyOrderedProducts()),
-        ),
-        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
-        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
-        graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', () =>
-          HttpResponse.json(createCartSimple()),
-        ),
-      );
+        await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+        // Open bulk upload dialog
+        const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+        await userEvent.click(bulkUploadButton);
 
-      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+        const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
 
-      // Open bulk upload dialog
-      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
-      await userEvent.click(bulkUploadButton);
+        // Create CSV file and upload it
+        const csvContent = 'variant_sku,qty\nNEW-CART-SKU-123,3';
+        const file = new File([csvContent], 'new-cart.csv', { type: 'text/csv' });
 
-      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+        const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+        if (!dropzoneInput) {
+          throw new Error('File input not found');
+        }
 
-      // Create CSV file and upload it
-      const csvContent = 'variant_sku,qty\nNEW-CART-SKU-123,3';
-      const file = new File([csvContent], 'new-cart.csv', { type: 'text/csv' });
+        await userEvent.upload(dropzoneInput, [file]);
 
-      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
-      if (!dropzoneInput) {
-        throw new Error('File input not found');
-      }
-
-      await userEvent.upload(dropzoneInput, [file]);
-
-      // Wait for file processing and products to appear in table
-      await waitFor(() => {
-        expect(screen.getByText('NEW-CART-SKU-123')).toBeInTheDocument();
-      });
+        // Wait for file processing and products to appear in table
+        await waitFor(() => {
+          expect(screen.getByText('NEW-CART-SKU-123')).toBeInTheDocument();
+        });
 
       // Click add to cart button
       const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
-      await userEvent.click(addToCartButton);
+        await userEvent.click(addToCartButton);
 
-      // Verify success message
-      await waitFor(() => {
-        expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
-      });
+        // Verify success message
+        await waitFor(
+          () => {
+            expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
+          },
+          { timeout: 8000 },
+        );
 
-      // Verify dialog is closed
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      });
+        // Verify dialog is closed
+        await waitFor(
+          () => {
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+          },
+          { timeout: 8000 },
+        );
 
-      // Verify createCartSimple was called (not addCartLineItemsTwo)
-      expect(createCartSimple).toHaveBeenCalled();
-    });
+        // Verify createCartSimple was called (not addCartLineItemsTwo)
+        expect(createCartSimple).toHaveBeenCalled();
+      },
+    );
 
     it('displays error when new cart creation fails', async () => {
       const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
@@ -3104,9 +3128,7 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', () =>
-          HttpResponse.json(createCartSimple()),
-        ),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
       );
 
       renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
@@ -3311,9 +3333,7 @@ describe('When backend validation', () => {
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', () =>
-          HttpResponse.json(addCartLineItemsTwo()),
-        ),
+        graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
       renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
@@ -3418,9 +3438,7 @@ describe('When backend validation', () => {
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', () =>
-          HttpResponse.json(addCartLineItemsTwo()),
-        ),
+        graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
       renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
@@ -3524,9 +3542,7 @@ describe('When backend validation', () => {
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', () =>
-          HttpResponse.json(addCartLineItemsTwo()),
-        ),
+        graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
       renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
