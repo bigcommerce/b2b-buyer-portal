@@ -3056,8 +3056,8 @@ describe('When backend validation', () => {
           expect(screen.getByText('NEW-CART-SKU-123')).toBeInTheDocument();
         });
 
-      // Click add to cart button
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+        // Click add to cart button
+        const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
         await userEvent.click(addToCartButton);
 
         // Verify success message
