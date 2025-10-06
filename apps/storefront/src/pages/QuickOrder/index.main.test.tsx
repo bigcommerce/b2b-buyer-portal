@@ -337,19 +337,32 @@ const buildCSVProductWith = builder(() => ({
   row: faker.number.int(),
 }));
 
-const buildCSVErrorProductWith = builder(() => ({
+interface CSVErrorProduct {
+  products: {
+    name: string;
+    variantSku: string;
+  };
+  qty: string;
+  error: string;
+  sku: string;
+  row: number;
+}
+
+const buildCSVErrorProductWith = builder<CSVErrorProduct>(() => ({
   products: {
     name: faker.commerce.productName(),
     variantSku: faker.string.uuid(),
   },
   qty: faker.number.int({ min: 1, max: 10 }).toString(),
   error: faker.lorem.sentence(),
+  sku: faker.string.uuid(),
+  row: faker.number.int({ min: 0, max: 100 }),
 }));
 
 const buildCSVUploadWith = builder(() => ({
   result: {
     errorFile: '',
-    errorProduct: [] as any[],
+    errorProduct: [] as CSVErrorProduct[],
     validProduct: bulk(buildCSVProductWith, 'WHATEVER_VALUES').times(
       faker.number.int({ min: 1, max: 5 }),
     ),
@@ -3200,6 +3213,8 @@ describe('When backend validation', () => {
                   },
                   qty: '1',
                   error: 'Product not found',
+                  sku: 'INVALID-SKU-456',
+                  row: 2,
                 }),
               ],
               stockErrorFile: 'https://example.com/errors.csv',
@@ -3238,7 +3253,7 @@ describe('When backend validation', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       // Click bulk upload CSV button
-      const bulkUploadButton = screen.getByText('Bulk upload CSV');
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       // Simulate CSV file upload
@@ -3341,7 +3356,7 @@ describe('When backend validation', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       // Click bulk upload CSV and upload file
-      const bulkUploadButton = screen.getByText('Bulk upload CSV');
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nOOS-SKU-123,5'], 'test.csv', { type: 'text/csv' });
@@ -3446,7 +3461,7 @@ describe('When backend validation', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       // Upload CSV with min quantity issue
-      const bulkUploadButton = screen.getByText('Bulk upload CSV');
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nMIN-QTY-SKU-123,1'], 'test.csv', {
@@ -3550,7 +3565,7 @@ describe('When backend validation', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       // Upload CSV and try to add to cart
-      const bulkUploadButton = screen.getByText('Bulk upload CSV');
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nERROR-SKU-123,1'], 'test.csv', { type: 'text/csv' });
