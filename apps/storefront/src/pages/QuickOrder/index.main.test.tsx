@@ -1086,8 +1086,8 @@ describe('when product purchasing_disabled', () => {
         ),
         graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
-          HttpResponse.json(createCartSimple(variables)),
+        graphql.mutation('createCartSimple', () =>
+          HttpResponse.json(createCartSimple()),
         ),
       );
 
@@ -2901,10 +2901,10 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
-          HttpResponse.json(createCartSimple(variables)),
+        graphql.mutation('createCartSimple', () =>
+          HttpResponse.json(createCartSimple()),
         ),
-        graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
+        graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
             buildAddCartLineItemsResponseWith({
               data: {
@@ -3008,8 +3008,8 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
-          HttpResponse.json(createCartSimple(variables)),
+        graphql.mutation('createCartSimple', () =>
+          HttpResponse.json(createCartSimple()),
         ),
       );
 
@@ -3104,8 +3104,8 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
-          HttpResponse.json(createCartSimple(variables)),
+        graphql.mutation('createCartSimple', () =>
+          HttpResponse.json(createCartSimple()),
         ),
       );
 
@@ -3194,7 +3194,7 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(buildGetCartWith({}))),
-        graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
+        graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
             buildAddCartLineItemsResponseWith({
               data: {
@@ -3306,13 +3306,13 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
+        graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
-          HttpResponse.json(addCartLineItemsTwo(variables)),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(addCartLineItemsTwo()),
         ),
       );
 
@@ -3413,13 +3413,13 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
+        graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
-          HttpResponse.json(addCartLineItemsTwo(variables)),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(addCartLineItemsTwo()),
         ),
       );
 
@@ -3519,13 +3519,13 @@ describe('When backend validation', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
-        graphql.mutation('createCartSimple', ({ variables }) =>
+        graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
           }),
         ),
-        graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
-          HttpResponse.json(addCartLineItemsTwo(variables)),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(addCartLineItemsTwo()),
         ),
       );
 

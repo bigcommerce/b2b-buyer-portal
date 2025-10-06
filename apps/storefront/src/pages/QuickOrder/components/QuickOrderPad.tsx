@@ -273,7 +273,7 @@ export default function QuickOrderPad() {
         // Handle cart API errors
         const errorMessage = error.message;
         const { stockErrorFile } = productsData;
-        const sanitizedMessage = sanitizeErrorMessage(errorMessage);
+        // const sanitizedMessage = sanitizeErrorMessage(errorMessage);
 
         // Check if it's an out of stock error (typically contains product/variant info)
         const isOutOfStock =
@@ -308,7 +308,7 @@ export default function QuickOrderPad() {
           }
         } else {
           // Show other cart API errors as they come
-          snackbar.error(sanitizedMessage);
+          snackbar.error(errorMessage);
 
           // If there's an error file, provide download option
           if (stockErrorFile) {
