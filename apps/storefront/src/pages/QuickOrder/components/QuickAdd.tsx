@@ -11,6 +11,7 @@ import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
+import { sanitizeErrorMessage } from '@/utils/sanitizeErrorMessage';
 import { validateProducts } from '@/utils/validateProducts';
 
 import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
@@ -437,7 +438,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         }
       } catch (e) {
         if (e instanceof Error) {
-          snackbar.error(e.message);
+          snackbar.error(sanitizeErrorMessage(e.message));
         }
       } finally {
         setIsLoading(false);
