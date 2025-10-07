@@ -1904,6 +1904,7 @@ describe('when backend validation is enabled', () => {
 
     await screen.findByText('Lovely socks, out of stock');
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
+    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('1 in stock');
 
@@ -2036,6 +2037,7 @@ describe('when backend validation is enabled', () => {
       'Minimum Purchase: You can only purchase a minimum of 3 of the min product per order.',
     );
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
+    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('Min is 3');
 
@@ -2163,6 +2165,7 @@ describe('when backend validation is enabled', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
+    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('Max is 6');
   });

@@ -334,6 +334,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         b3TriggerCartNumber();
       }
       shouldRedirectCheckout();
+      setValidateSuccessProducts(items);
     } catch (e: unknown) {
       if (e instanceof Error) {
         setValidateFailureProducts(mapToProductsFailedArray(items));
@@ -342,8 +343,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     } finally {
       setLoading(false);
     }
-
-    setValidateSuccessProducts(items);
   };
 
   // Add selected product to cart
