@@ -326,7 +326,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       const lineItems = addLineItems(items);
       const deleteCartObject = deleteCartData(items);
       const cartInfo = await getCart();
-
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
         await deleteCart(deleteCartObject);
         await updateCart(cartInfo, lineItems);

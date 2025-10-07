@@ -16,6 +16,7 @@ import {
   searchProducts,
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { Product } from '@/types';
 import { currencyFormat, getProductPriceIncTaxOrExTaxBySetting, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import {
@@ -33,43 +34,54 @@ import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList'
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
 import { addCartProductToVerify, CheckedProduct } from '../utils';
 
-interface NodeProps {
-  basePrice: number | string;
-  baseSku: string;
-  createdAt: number;
-  discount: number | string;
-  enteredInclusive: boolean;
-  id: number | string;
-  itemId: number;
-  optionList: CustomFieldItems;
-  primaryImage: string;
-  productId: number;
-  productName: string;
-  productUrl: string;
-  quantity: number | string;
-  tax: number | string;
-  updatedAt: number;
-  variantId: number;
-  variantSku: string;
-  productsSearch: CustomFieldItems;
-  optionSelections: CustomFieldItems;
-}
-
-interface ProductsProps {
-  maxQuantity?: number;
-  minQuantity?: number;
-  stock?: number;
-  isStock?: string;
-  node: NodeProps;
-  isValid?: boolean;
-}
-
 interface QuickOrderFooterProps {
   checkedArr: CheckedProduct[];
   isAgenting: boolean;
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
   isB2BUser: boolean;
 }
+
+const transformToCartLineItems = (productsSearch: Product[], checkedArr: CheckedProduct[]) => {
+  const lineItems: CustomFieldItems[] = [];
+
+  checkedArr.forEach((item: CheckedProduct) => {
+    const { node } = item;
+
+    const currentProduct: CustomFieldItems | undefined = productsSearch.find(
+      (inventory: CustomFieldItems) => Number(node.productId) === inventory.id,
+    );
+    if (currentProduct) {
+      const { variants }: CustomFieldItems = currentProduct;
+
+      if (variants.length > 0) {
+        const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
+          (variant: CustomFieldItems) =>
+            node.variantSku === variant.sku &&
+            Number(node.variantId) === Number(variant.variant_id),
+        );
+
+        if (currentInventoryInfo) {
+          const { optionList, quantity } = node;
+
+          const options = optionList.map((option: CustomFieldItems) => ({
+            optionId: option.product_option_id,
+            optionValue: option.value,
+          }));
+
+          lineItems.push({
+            optionSelections: options,
+            allOptions: optionList,
+            productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
+            quantity,
+            variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
+          });
+        }
+      }
+    }
+  });
+
+  return lineItems;
+};
 
 function QuickOrderFooter(props: QuickOrderFooterProps) {
   const { checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props;
@@ -121,49 +133,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setIsOpen(false);
   };
 
-  // Add selected to cart
-  const handleSetCartLineItems = (inventoryInfos: ProductsProps[]) => {
-    const lineItems: CustomFieldItems[] = [];
-
-    checkedArr.forEach((item: CheckedProduct) => {
-      const { node } = item;
-
-      const currentProduct: CustomFieldItems | undefined = inventoryInfos.find(
-        (inventory: CustomFieldItems) => Number(node.productId) === inventory.id,
-      );
-      if (currentProduct) {
-        const { variants }: CustomFieldItems = currentProduct;
-
-        if (variants.length > 0) {
-          const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
-            (variant: CustomFieldItems) =>
-              node.variantSku === variant.sku &&
-              Number(node.variantId) === Number(variant.variant_id),
-          );
-
-          if (currentInventoryInfo) {
-            const { optionList, quantity } = node;
-
-            const options = optionList.map((option: CustomFieldItems) => ({
-              optionId: option.product_option_id,
-              optionValue: option.value,
-            }));
-
-            lineItems.push({
-              optionSelections: options,
-              allOptions: optionList,
-              productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
-              quantity,
-              variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
-            });
-          }
-        }
-      }
-    });
-
-    return lineItems;
-  };
-
   const showAddToCartSuccessMessage = () => {
     snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {
       action: {
@@ -177,21 +146,23 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     });
   };
 
-  const handleFrontedAddSelectedToCart = async (productIds: number[]) => {
+  const getProductsSearchInfo = async () => {
+    const { productsSearch } = await searchProducts({
+      productIds: uniq(checkedArr.map(({ node }) => Number(node.productId))),
+      companyId: companyInfoId,
+      customerGroupId,
+    });
+
+    return transformToCartLineItems(productsSearch || [], checkedArr);
+  };
+
+  const handleFrontedAddSelectedToCart = async () => {
     try {
       const isPassVerify = await addCartProductToVerify(checkedArr, b3Lang);
 
       if (!isPassVerify) return;
 
-      const companyId = companyInfoId;
-
-      const { productsSearch: getInventoryInfos } = await searchProducts({
-        productIds,
-        companyId,
-        customerGroupId,
-      });
-
-      const lineItems = handleSetCartLineItems(getInventoryInfos || []);
+      const lineItems = await getProductsSearchInfo();
 
       const res = await createOrUpdateExistingCart(lineItems);
 
@@ -210,13 +181,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const handleBackendAddSelectedToCart = async () => {
     try {
-      const lineItems = checkedArr.map(({ node }) => ({
-        productId: Number(node.productId),
-        variantId: Number(node.variantId),
-        quantity: node.quantity,
-        optionSelections: node.optionSelections,
-        allOptions: node.optionList,
-      }));
+      const lineItems = await getProductsSearchInfo();
       await createOrUpdateExistingCart(lineItems);
       showAddToCartSuccessMessage();
     } catch (e) {
@@ -233,20 +198,13 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setIsRequestLoading(true);
     handleClose();
 
-    const productIds = uniq(checkedArr.map(({ node }) => Number(node.productId)));
-
-    if (productIds.length === 0) {
-      snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
-      return;
-    }
     if (backendValidationEnabled) {
       handleBackendAddSelectedToCart();
     } else {
-      handleFrontedAddSelectedToCart(productIds);
+      handleFrontedAddSelectedToCart();
     }
   };
 
-  // Add selected to quote
   const getOptionsList = (options: CustomFieldItems) => {
     if (options?.length === 0) return [];
 
@@ -418,7 +376,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     }
   };
 
-  // Add selected to shopping list
   const gotoShoppingDetail = (id: string | number) => {
     navigate(`/shoppingList/${id}`);
   };
