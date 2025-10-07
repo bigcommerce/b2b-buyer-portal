@@ -79,6 +79,8 @@ const getSearchProductsQuery = (data: CustomFieldItems) => `
       productUrl,
       taxClassId,
       isPriceHidden,
+      availableToSell,
+      unlimitedBackorder
     }
   }
 `;
@@ -246,6 +248,8 @@ export interface SearchProductsResponse {
         purchasing_disabled: boolean;
         cost_price: number;
         inventory_level: number;
+        available_to_sell: number;
+        unlimited_backorder: boolean;
         bc_calculated_price: {
           as_entered: number;
           tax_inclusive: number;
@@ -282,6 +286,8 @@ export interface SearchProductsResponse {
       productUrl: string;
       taxClassId: number;
       isPriceHidden: boolean;
+      availableToSell: number;
+      unlimitedBackorder: boolean;
     }>;
   };
 }
