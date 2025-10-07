@@ -19,7 +19,7 @@
   "devDependencies": {
     "eslint": "^8.2.0",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.4"
+    "turbo": "^2.5.8"
   },
   "engines": {
     "node": ">=22.16.0"
