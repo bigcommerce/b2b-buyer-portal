@@ -437,7 +437,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 </Flex>
               )}
               {products.map((product: ProductsProps, index: number) => {
-                const { isStock, maxQuantity, minQuantity, stock } = product;
+                const { isStock, maxQuantity, minQuantity, stock, node } = product;
 
                 const {
                   quantity = 1,
@@ -502,8 +502,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       <B3QuantityTextField
                         isStock={isStock}
-                        maxQuantity={maxQuantity}
-                        minQuantity={minQuantity}
+                        maxQuantity={maxQuantity || node.productsSearch?.orderQuantityMaximum}
+                        minQuantity={minQuantity || node.productsSearch?.orderQuantityMinimum}
                         stock={stock}
                         value={quantity}
                         onChange={(value, isValid) => {

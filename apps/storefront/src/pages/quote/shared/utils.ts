@@ -5,13 +5,14 @@ const getQuoteDraftShowPriceTBD = (products: CustomFieldItems[]) => {
   const {
     global: {
       blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+      featureFlags,
     },
   } = store.getState();
 
   if (!isEnableProduct) return false;
 
   const isHidePrice = products.some((product) => {
-    if (!getVariantInfoDisplayPrice(product.node.basePrice, product)) return true;
+    if (!getVariantInfoDisplayPrice(product.node.basePrice, product, featureFlags)) return true;
 
     return false;
   });

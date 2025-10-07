@@ -71,6 +71,18 @@ interface ListItemProps {
   node: ProductInfoProps;
 }
 
+const mapToProductsFailedArray = (items: ProductsProps[]) => {
+  return items.map((item: ProductsProps) => {
+    return {
+      ...item,
+      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
+      minQuantity: item.node.productsSearch.orderQuantityMinimum,
+      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
+      stock: item.node.productsSearch.availableToSell,
+    };
+  });
+};
+
 function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
@@ -298,6 +310,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     const items = checkedArr.map(({ node }: ProductsProps) => {
       return { node };
     });
+
     try {
       const skus = items.map(({ node }: ProductsProps) => node.variantSku);
 
@@ -313,7 +326,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       const lineItems = addLineItems(items);
       const deleteCartObject = deleteCartData(items);
       const cartInfo = await getCart();
-
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
         await deleteCart(deleteCartObject);
         await updateCart(cartInfo, lineItems);
@@ -325,7 +337,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       setValidateSuccessProducts(items);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(items);
+        setValidateFailureProducts(mapToProductsFailedArray(items));
         snackbar.error(e.message);
       }
     } finally {

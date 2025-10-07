@@ -149,6 +149,8 @@ const buildProductVariantWith = builder<ProductVariant>(() => ({
     tax_exclusive: Number(faker.commerce.price()),
     entered_inclusive: faker.datatype.boolean(),
   },
+  available_to_sell: faker.number.int(),
+  unlimited_backorder: faker.datatype.boolean(),
 }));
 
 const buildProductModifierWith = builder(() => ({
@@ -185,6 +187,8 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   productUrl: faker.internet.url(),
   taxClassId: faker.number.int({ min: 1 }),
   isPriceHidden: faker.datatype.boolean(),
+  availableToSell: faker.number.int(),
+  unlimitedBackorder: faker.datatype.boolean(),
 }));
 
 const buildValidateProductWith = builder<ValidateProduct>(() => ({

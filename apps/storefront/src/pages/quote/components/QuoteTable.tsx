@@ -217,6 +217,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
           selectOptions: row.optionList,
         };
         const productFields = getProductOptionsFields(product, {});
+        const isInventoryTrackingEnabled = product.inventoryTracking !== 'none';
 
         const optionList = JSON.parse(row.optionList);
         const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
@@ -249,6 +250,14 @@ function QuoteTable(props: ShoppingDetailTableProps) {
             } else {
               warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
             }
+          }
+        } else if (!product.unlimitedBackorder) {
+          const productStock = isInventoryTrackingEnabled ? product.availableToSell : row.quantity;
+          if (isInventoryTrackingEnabled && productStock < row.quantity) {
+            warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+            warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+              qty: productStock,
+            });
           }
         }
 
