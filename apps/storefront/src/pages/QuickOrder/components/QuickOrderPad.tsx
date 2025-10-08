@@ -244,6 +244,63 @@ export default function QuickOrderPad() {
     }
   };
 
+  const handleAddCSVToCart = async (productsData: CustomFieldItems) => {
+    setIsLoading(true);
+    try {
+      const { validProduct } = productsData;
+
+      // Convert products to cart format
+      const productItems = validProduct.map((item: CustomFieldItems) => ({
+        productId: Number(item.products?.productId) || 0,
+        variantId: Number(item.products?.variantId) || 0,
+        quantity: Number(item.qty) || 0,
+        optionSelections:
+          item.products?.option?.map((opt: CustomFieldItems) => ({
+            optionId: opt.option_id,
+            optionValue: opt.id,
+          })) || [],
+        allOptions: item.products?.modifiers || [],
+      }));
+
+      const res = await createOrUpdateExistingCart(productItems);
+
+      getSnackbarMessage(res);
+      b3TriggerCartNumber();
+
+      setIsOpenBulkLoadCSV(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+        const { stockErrorFile } = productsData;
+        // const sanitizedMessage = sanitizeErrorMessage(errorMessage);
+
+        const isOutOfStock =
+          errorMessage.toLowerCase().includes('out of stock') ||
+          errorMessage.toLowerCase().includes('insufficient stock');
+
+        if (isOutOfStock) {
+          if (stockErrorFile) {
+            snackbar.error(errorMessage, {
+              action: {
+                label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
+                onClick: () => {
+                  window.location.href = stockErrorFile;
+                },
+              },
+            });
+          } else {
+            snackbar.error(errorMessage);
+          }
+        } else {
+          // Show other cart API errors as they come
+          snackbar.error(errorMessage);
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
     const currentProducts = productData.map((item) => {
       return {
@@ -330,7 +387,7 @@ export default function QuickOrderPad() {
       <B3Upload
         isOpen={isOpenBulkLoadCSV}
         setIsOpen={setIsOpenBulkLoadCSV}
-        handleAddToList={handleAddToCart}
+        handleAddToList={backendValidationEnabled ? handleAddCSVToCart : handleAddToCart}
         setProductData={setProductData}
         addBtnText={addBtnText}
         isLoading={isLoading}
