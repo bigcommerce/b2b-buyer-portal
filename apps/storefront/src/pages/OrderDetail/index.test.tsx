@@ -1686,32 +1686,6 @@ describe('when a personal customer visits an order', () => {
       });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () =>
-          HttpResponse.json(
-            buildCustomerShoppingListResponseWith({
-              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
-            }),
-          ),
-        ),
-        graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
-        ),
-      );
-
-      when(addItemsToCustomerShoppingList)
-        .calledWith(
-          stringContainingAll(
-            'productId: 123,',
-            'variantId: 456,',
-            'quantity: 2,',
-            '{optionId: "attribute[22]", optionValue: "bar" },',
-            'shoppingListId: 992,',
-          ),
-        )
-        .thenReturn({});
-
-      server.use(
         graphql.query('GetCustomerOrderStatuses', () =>
           HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
         ),
@@ -1725,7 +1699,6 @@ describe('when a personal customer visits an order', () => {
             }),
           ),
         ),
-
         graphql.query('CustomerShoppingLists', () =>
           HttpResponse.json(
             buildCustomerShoppingListResponseWith({
@@ -1742,10 +1715,40 @@ describe('when a personal customer visits an order', () => {
             },
           }),
         ),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
-        ),
+        graphql.mutation('AddItemsToCustomerShoppingList', ({ query, variables }) => {
+          return HttpResponse.json(addItemsToCustomerShoppingList({ query, variables }));
+        }),
       );
+
+      when(addItemsToCustomerShoppingList)
+        .calledWith(
+          expect.objectContaining({
+            query: expect.any(String),
+            variables: expect.objectContaining({
+              shoppingListId: 992,
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  productId: 123,
+                  variantId: 456,
+                  quantity: 2,
+                  optionList: expect.arrayContaining([
+                    expect.objectContaining({
+                      optionId: 'attribute[22]',
+                      optionValue: 'bar',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          }),
+        )
+        .thenReturn({
+          data: {
+            customerShoppingListsItemsCreate: {
+              shoppingListsItems: [],
+            },
+          },
+        });
 
       renderWithProviders(<OrderDetails />, {
         preloadedState,
@@ -1796,15 +1799,34 @@ describe('when a personal customer visits an order', () => {
 
       when(addItemsToCustomerShoppingList)
         .calledWith(
-          stringContainingAll(
-            'productId: 123,',
-            'variantId: 456,',
-            'quantity: 2,',
-            '{optionId: "attribute[22]", optionValue: "bar" },',
-            'shoppingListId: 992,',
-          ),
+          expect.objectContaining({
+            query: expect.any(String),
+            variables: expect.objectContaining({
+              shoppingListId: 992,
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  productId: 123,
+                  variantId: 456,
+                  quantity: 2,
+                  optionList: expect.arrayContaining([
+                    expect.objectContaining({
+                      optionId: 'attribute[22]',
+                      optionValue: 'bar',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          }),
         )
-        .thenReturn({});
+        .thenReturn({
+          data: {
+            customerShoppingListsItemsCreate: {
+              shoppingListsItems: [],
+            },
+          },
+        });
+
       const createCustomerShoppingList = vi.fn();
 
       server.use(
@@ -1825,8 +1847,8 @@ describe('when a personal customer visits an order', () => {
           HttpResponse.json(getCustomerShoppingLists(query)),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
+        graphql.mutation('AddItemsToCustomerShoppingList', ({ query, variables }) =>
+          HttpResponse.json(addItemsToCustomerShoppingList({ query, variables })),
         ),
         graphql.mutation('CreateCustomerShoppingList', ({ variables }) =>
           HttpResponse.json(createCustomerShoppingList(variables)),
@@ -1912,32 +1934,6 @@ describe('when a personal customer visits an order', () => {
       });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () =>
-          HttpResponse.json(
-            buildCustomerShoppingListResponseWith({
-              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
-            }),
-          ),
-        ),
-        graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
-        ),
-      );
-
-      when(addItemsToCustomerShoppingList)
-        .calledWith(
-          stringContainingAll(
-            'productId: 123,',
-            'variantId: 456,',
-            'quantity: 2,',
-            '{optionId: "attribute[22]", optionValue: "bar" },',
-            'shoppingListId: 992,',
-          ),
-        )
-        .thenReturn({});
-
-      server.use(
         graphql.query('GetCustomerOrderStatuses', () =>
           HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
         ),
@@ -1959,10 +1955,40 @@ describe('when a personal customer visits an order', () => {
           ),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
+        graphql.mutation('AddItemsToCustomerShoppingList', ({ query, variables }) =>
+          HttpResponse.json(addItemsToCustomerShoppingList({ query, variables })),
         ),
       );
+
+      when(addItemsToCustomerShoppingList)
+        .calledWith(
+          expect.objectContaining({
+            query: expect.any(String),
+            variables: expect.objectContaining({
+              shoppingListId: 992,
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  productId: 123,
+                  variantId: 456,
+                  quantity: 2,
+                  optionList: expect.arrayContaining([
+                    expect.objectContaining({
+                      optionId: 'attribute[22]',
+                      optionValue: 'bar',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          }),
+        )
+        .thenReturn({
+          data: {
+            customerShoppingListsItemsCreate: {
+              shoppingListsItems: [],
+            },
+          },
+        });
 
       renderWithProviders(<OrderDetails />, {
         preloadedState,
@@ -2022,36 +2048,6 @@ describe('when a personal customer visits an order', () => {
       });
 
       server.use(
-        graphql.query('CustomerShoppingLists', () =>
-          HttpResponse.json(
-            buildCustomerShoppingListResponseWith({
-              data: { customerShoppingLists: { totalCount: 1, edges: [shoppingList] } },
-            }),
-          ),
-        ),
-        graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
-        ),
-      );
-
-      when(addItemsToCustomerShoppingList)
-        .calledWith(
-          stringContainingAll(
-            'productId: 123,',
-            'variantId: 456,',
-            'quantity: 1,',
-
-            'productId: 789,',
-            'variantId: 1011,',
-            'quantity: 2,',
-
-            'shoppingListId: 992,',
-          ),
-        )
-        .thenReturn({});
-
-      server.use(
         graphql.query('GetCustomerOrderStatuses', () =>
           HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
         ),
@@ -2065,7 +2061,6 @@ describe('when a personal customer visits an order', () => {
             }),
           ),
         ),
-
         graphql.query('CustomerShoppingLists', () =>
           HttpResponse.json(
             buildCustomerShoppingListResponseWith({
@@ -2074,10 +2069,41 @@ describe('when a personal customer visits an order', () => {
           ),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
-        graphql.mutation('AddItemsToCustomerShoppingList', ({ query }) =>
-          HttpResponse.json(addItemsToCustomerShoppingList(query)),
+        graphql.mutation('AddItemsToCustomerShoppingList', ({ query, variables }) =>
+          HttpResponse.json(addItemsToCustomerShoppingList({ query, variables })),
         ),
       );
+
+      when(addItemsToCustomerShoppingList)
+        .calledWith(
+          expect.objectContaining({
+            query: expect.any(String),
+            variables: expect.objectContaining({
+              shoppingListId: 992,
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  productId: 123,
+                  variantId: 456,
+                  quantity: 1,
+                  optionList: [],
+                }),
+                expect.objectContaining({
+                  productId: 789,
+                  variantId: 1011,
+                  quantity: 2,
+                  optionList: [],
+                }),
+              ]),
+            }),
+          }),
+        )
+        .thenReturn({
+          data: {
+            customerShoppingListsItemsCreate: {
+              shoppingListsItems: [],
+            },
+          },
+        });
 
       renderWithProviders(<OrderDetails />, {
         preloadedState,

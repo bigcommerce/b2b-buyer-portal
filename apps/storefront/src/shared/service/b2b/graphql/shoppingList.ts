@@ -1,5 +1,5 @@
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils';
+import { convertObjectToGraphql } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
@@ -303,32 +303,40 @@ const getShoppingListDetails = (data: CustomFieldItems) => `
   }
 `;
 
-const addItemsToShoppingList = (data: CustomFieldItems) => `mutation AddItemsToShoppingList {
-  shoppingListsItemsCreate(
-    shoppingListId: ${data.shoppingListId},
-    items: ${convertArrayToGraphql(data.items || [])}
-  ) {
-    shoppingListsItems {
-      id,
-      createdAt,
-      updatedAt,
-      productId,
-      variantId,
-      quantity,
-      productName,
-      optionList,
-      itemId,
-      baseSku,
-      variantSku,
-      basePrice,
-      discount,
-      tax,
-      enteredInclusive,
-      productUrl,
-      primaryImage,
+const addItemsToShoppingList = (data: CustomFieldItems) => ({
+  query: `
+    mutation AddItemsToShoppingList($shoppingListId: Int!, $items: [ShoppingListsItemsInputType!]!) {
+      shoppingListsItemsCreate(
+        shoppingListId: $shoppingListId,
+        items: $items
+      ) {
+        shoppingListsItems {
+          id,
+          createdAt,
+          updatedAt,
+          productId,
+          variantId,
+          quantity,
+          productName,
+          optionList,
+          itemId,
+          baseSku,
+          variantSku,
+          basePrice,
+          discount,
+          tax,
+          enteredInclusive,
+          productUrl,
+          primaryImage,
+        }
+      }
     }
-  }
-}`;
+  `,
+  variables: {
+    shoppingListId: data.shoppingListId,
+    items: data.items,
+  },
+});
 
 const deleteShoppingListItem = (data: CustomFieldItems) => `mutation {
   shoppingListsItemsDelete(
@@ -450,34 +458,40 @@ const getCustomerShoppingListDetails = (data: CustomFieldItems) => `{
   }
 }`;
 
-const addItemsToBcShoppingList = (
-  data: CustomFieldItems,
-) => `mutation AddItemsToCustomerShoppingList {
-  customerShoppingListsItemsCreate (
-    shoppingListId: ${data.shoppingListId},
-    items: ${convertArrayToGraphql(data.items || [])}
-  ) {
-    shoppingListsItems {
-      id,
-      createdAt,
-      updatedAt,
-      productId,
-      variantId,
-      quantity,
-      productName,
-      optionList,
-      itemId,
-      baseSku,
-      variantSku,
-      basePrice,
-      discount,
-      tax,
-      enteredInclusive,
-      productUrl,
-      primaryImage,
+const addItemsToBcShoppingList = (data: CustomFieldItems) => ({
+  query: `
+    mutation AddItemsToCustomerShoppingList($shoppingListId: Int!, $items: [ShoppingListsItemsInputType!]!) {
+      customerShoppingListsItemsCreate(
+        shoppingListId: $shoppingListId,
+        items: $items
+      ) {
+        shoppingListsItems {
+          id,
+          createdAt,
+          updatedAt,
+          productId,
+          variantId,
+          quantity,
+          productName,
+          optionList,
+          itemId,
+          baseSku,
+          variantSku,
+          basePrice,
+          discount,
+          tax,
+          enteredInclusive,
+          productUrl,
+          primaryImage,
+        }
+      }
     }
-  }
-}`;
+  `,
+  variables: {
+    shoppingListId: data.shoppingListId,
+    items: data.items,
+  },
+});
 
 const updateCustomerShoppingListsItem = (data: CustomFieldItems) => `mutation {
   customerShoppingListsItemsUpdate (
@@ -575,7 +589,8 @@ export const getB2BShoppingListDetails = (data: CustomFieldItems = {}) =>
 
 export const addProductToShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
-    query: addItemsToShoppingList(data),
+    query: addItemsToShoppingList(data).query,
+    variables: addItemsToShoppingList(data).variables,
   });
 
 export const updateB2BShoppingListsItem = (data: CustomFieldItems = {}) =>
@@ -625,7 +640,8 @@ export const getBcShoppingListDetails = (data: CustomFieldItems = {}) =>
 
 export const addProductToBcShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
-    query: addItemsToBcShoppingList(data),
+    query: addItemsToBcShoppingList(data).query,
+    variables: addItemsToBcShoppingList(data).variables,
   });
 
 export const updateBcShoppingListsItem = (data: CustomFieldItems = {}) =>
