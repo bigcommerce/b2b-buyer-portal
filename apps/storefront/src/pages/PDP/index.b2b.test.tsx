@@ -159,21 +159,39 @@ describe('stencil', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'quantity: 2,',
-          '{optionId: "attribute[114]", optionValue: "104" }',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                quantity: 2,
+                optionList: expect.arrayContaining([
+                  expect.objectContaining({
+                    optionId: 'attribute[114]',
+                    optionValue: '104',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     const shoppingListClickNode = screen.getByRole('link', { name: 'Shopping List Click Node' });
 
@@ -228,22 +246,40 @@ describe('stencil', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'variantId: 333,', // this time it includes the variant ID
-          'quantity: 2,',
-          '{optionId: "attribute[114]", optionValue: "104" }',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                variantId: 333, // this time it includes the variant ID
+                quantity: 2,
+                optionList: expect.arrayContaining([
+                  expect.objectContaining({
+                    optionId: 'attribute[114]',
+                    optionValue: '104',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     const shoppingListClickNode = screen.getByRole('link', { name: 'Shopping List Click Node' });
 
@@ -281,8 +317,8 @@ describe('stencil', () => {
         HttpResponse.json(createShoppingList(variables)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
@@ -319,14 +355,27 @@ describe('stencil', () => {
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'quantity: 1,',
-          'optionList: [],',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                quantity: 1,
+                optionList: [],
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     render(<FakeProductDataProvider productId="123" sku="SKU-123" quantity="1" options={{}} />);
 
@@ -588,21 +637,39 @@ describe('other/catalyst', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'quantity: 2,',
-          '{optionId: "attribute[114]", optionValue: "104" }',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                quantity: 2,
+                optionList: expect.arrayContaining([
+                  expect.objectContaining({
+                    optionId: 'attribute[114]',
+                    optionValue: '104',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListsItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     renderWithProviders(<PDP />, { preloadedState });
 
@@ -652,22 +719,40 @@ describe('other/catalyst', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
-      ),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) => {
+        return HttpResponse.json(addItemsToShoppingList({ query, variables }));
+      }),
     );
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'variantId: 333,', // this time it includes the variant ID
-          'quantity: 2,',
-          '{optionId: "attribute[114]", optionValue: "104" }',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                variantId: 333, // this time it includes the variant ID
+                quantity: 2,
+                optionList: expect.arrayContaining([
+                  expect.objectContaining({
+                    optionId: 'attribute[114]',
+                    optionValue: '104',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListsItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     renderWithProviders(<PDP />, { preloadedState });
 
@@ -719,21 +804,39 @@ describe('other/catalyst', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'quantity: 2,',
-          '{optionId: "attribute[114]", optionValue: "104" }',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                quantity: 2,
+                optionList: expect.arrayContaining([
+                  expect.objectContaining({
+                    optionId: 'attribute[114]',
+                    optionValue: '104',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListsItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     renderWithProviders(<PDP />, { preloadedState });
 
@@ -766,8 +869,8 @@ describe('other/catalyst', () => {
         HttpResponse.json(createShoppingList(variables)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      graphql.mutation('AddItemsToShoppingList', ({ query }) =>
-        HttpResponse.json(addItemsToShoppingList(query)),
+      graphql.mutation('AddItemsToShoppingList', ({ query, variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ query, variables })),
       ),
     );
 
@@ -804,14 +907,27 @@ describe('other/catalyst', () => {
 
     when(addItemsToShoppingList)
       .calledWith(
-        stringContainingAll(
-          'productId: 123,',
-          'quantity: 1,',
-          'optionList: [],',
-          'shoppingListId: 992,',
-        ),
+        expect.objectContaining({
+          query: expect.any(String),
+          variables: expect.objectContaining({
+            shoppingListId: '992',
+            items: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 123,
+                quantity: 1,
+                optionList: [],
+              }),
+            ]),
+          }),
+        }),
       )
-      .thenReturn({});
+      .thenReturn({
+        data: {
+          shoppingListsItemsCreate: {
+            shoppingListsItems: [],
+          },
+        },
+      });
 
     set(window, 'b2b.utils.shoppingList.itemFromCurrentPage', [
       {
