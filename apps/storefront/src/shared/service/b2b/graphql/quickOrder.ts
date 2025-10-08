@@ -5,7 +5,7 @@ interface OptionSelection {
   value_id: number;
 }
 
-interface OptionList {
+export interface OptionList {
   id: number;
   option_id: number;
   order_product_id: number;
