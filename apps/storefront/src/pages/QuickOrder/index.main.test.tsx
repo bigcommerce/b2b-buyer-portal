@@ -30,6 +30,7 @@ import {
   ValidateProductResponse,
 } from '@/shared/service/b2b/graphql/product';
 import {
+  OptionList,
   OrderedProductNode,
   RecentlyOrderedProductsResponse,
 } from '@/shared/service/b2b/graphql/quickOrder';
@@ -44,6 +45,23 @@ const { server } = startMockServer();
 const buildMoneyWith = builder(() => ({
   currencyCode: faker.finance.currencyCode(),
   value: faker.number.float(),
+}));
+
+const buildRecentlyOrderedProductNodeOptionListWith = builder<OptionList>(() => ({
+  id: faker.number.int(),
+  option_id: faker.number.int(),
+  order_product_id: faker.number.int(),
+  product_option_id: faker.number.int(),
+  display_name: faker.commerce.productName(),
+  display_name_customer: faker.commerce.productName(),
+  display_name_merchant: faker.commerce.productName(),
+  display_value: faker.commerce.productAdjective(),
+  display_value_customer: faker.commerce.productAdjective(),
+  display_value_merchant: faker.commerce.productAdjective(),
+  value: faker.commerce.productMaterial(),
+  type: faker.commerce.productDescription(),
+  name: faker.commerce.productName(),
+  display_style: '',
 }));
 
 const buildRecentlyOrderedProductNodeWith = builder<OrderedProductNode>(() => ({
@@ -1954,7 +1972,7 @@ describe('when adding to quote', () => {
   });
 });
 
-describe('When backend validation', () => {
+describe('When backend validation feature flag is on', () => {
   const featureFlags = {
     'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
   };
@@ -2652,6 +2670,7 @@ describe('When backend validation', () => {
 
     expect(Cookies.get('cartId')).toBeUndefined();
   });
+
   it('quick add displays an error message when trying to add out of stock product to new cart', async () => {
     const getVariantInfoBySkus = vi.fn();
     const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
@@ -2873,6 +2892,123 @@ describe('When backend validation', () => {
       'SKU NON-EXISTENT-SKU were not found, please check entered values',
     );
     expect(error).toBeInTheDocument();
+  });
+
+  it('adds a product to the cart succesfully', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+    const createCartSimple = vi.fn();
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Laugh Canister',
+        basePrice: '122.33',
+        optionList: [
+          buildRecentlyOrderedProductNodeOptionListWith({ product_option_id: 111, value: '8' }),
+        ],
+        optionSelections: [
+          {
+            option_id: 111,
+            value_id: 8,
+          },
+        ],
+      },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 10,
+              orderQuantityMinimum: 5,
+              inventoryLevel: 100,
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    when(createCartSimple)
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            {
+              productEntityId: Number(laughCanister.node.productId),
+              variantEntityId: Number(laughCanister.node.variantId),
+              quantity: 1,
+              selectedOptions: {
+                multipleChoices: [{ optionEntityId: 111, optionValueEntityId: 8 }],
+                textFields: [],
+              },
+            },
+          ],
+        },
+      })
+      .thenReturn({
+        data: {
+          cart: {
+            createCart: {
+              cart: {
+                entityId: '12345',
+              },
+            },
+          },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+    });
+
+    expect(Cookies.get('cartId')).toBe('12345');
+    expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+      cartId: '12345',
+    });
   });
 
   describe('CSV bulk upload with backend validation', () => {
