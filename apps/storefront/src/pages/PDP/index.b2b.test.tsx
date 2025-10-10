@@ -4,6 +4,7 @@ import {
   builder,
   buildGlobalStateWith,
   bulk,
+  FakeProductDataProvider,
   faker,
   getUnixTime,
   graphql,
@@ -28,29 +29,6 @@ const { server } = startMockServer();
 beforeEach(() => {
   vi.spyOn(window, 'scrollTo').mockReturnValue();
 });
-
-interface ProductData {
-  productId: string;
-  quantity: string;
-  sku: string;
-  options: Record<string, string>;
-}
-
-function FakeProductDataProvider({ productId, quantity, sku, options }: ProductData) {
-  return (
-    <div className="productView">
-      <input name="product_id" defaultValue={productId} />
-      <input name="qty[]" defaultValue={quantity} />
-      <span data-product-sku>{sku}</span>
-      <form data-cart-item-add>
-        {Object.entries(options).map(([key, value]) => (
-          <input key={key} name={key} defaultValue={value} />
-        ))}
-      </form>
-      <a href="#bar">Shopping List Click Node</a>
-    </div>
-  );
-}
 
 const buildShoppingListNodeWith = builder(() => ({
   node: {

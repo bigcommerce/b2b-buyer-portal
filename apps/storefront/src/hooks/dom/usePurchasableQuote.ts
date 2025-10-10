@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getB2BProductPurchasable } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
+
+import { useFeatureFlags } from '../useFeatureFlags';
 
 interface MyMutationRecord extends MutationRecord {
   target: HTMLElement;
@@ -12,10 +14,13 @@ interface ProductInfoProps {
   inventoryLevel: number;
   inventoryTracking: boolean;
   purchasingDisabled: boolean;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
 }
 
 const usePurchasableQuote = (openQuickView: boolean) => {
   const [isBuyPurchasable, setBuyPurchasable] = useState<boolean>(true);
+  const featureFlags = useFeatureFlags();
 
   const productInfoRef = useRef<ProductInfoProps>({
     availability: false,
@@ -27,16 +32,29 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
-  const isOOStockPurchaseQuantity = (
-    qty: number,
-    productPurchasable: ProductInfoProps,
-  ): boolean => {
-    const { inventoryLevel, inventoryTracking } = productPurchasable;
+  const isOutOfStockPurchaseQuantity = useCallback(
+    (qty: number, productPurchasable: ProductInfoProps): boolean => {
+      const { inventoryLevel, inventoryTracking, availableToSell, unlimitedBackorder } =
+        productPurchasable;
 
-    if (inventoryTracking && qty > inventoryLevel) return true;
+      if (!inventoryTracking) {
+        return false;
+      }
 
-    return false;
-  };
+      if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+        if (unlimitedBackorder) {
+          return false;
+        }
+
+        if (availableToSell) {
+          return qty > availableToSell;
+        }
+      }
+
+      return qty > inventoryLevel;
+    },
+    [featureFlags],
+  );
 
   useEffect(() => {
     const callback = async (
@@ -52,7 +70,14 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       const productId = (dom.querySelector('input[name=product_id]') as CustomFieldItems)?.value;
 
       const {
-        productPurchasable: { availability, inventoryLevel, inventoryTracking, purchasingDisabled },
+        productPurchasable: {
+          availability,
+          inventoryLevel,
+          inventoryTracking,
+          purchasingDisabled,
+          availableToSell,
+          unlimitedBackorder,
+        },
       } = await getB2BProductPurchasable({
         productId,
         sku: newSkuValue || '',
@@ -64,12 +89,14 @@ const usePurchasableQuote = (openQuickView: boolean) => {
         inventoryLevel,
         inventoryTracking: inventoryTracking === 'product' || inventoryTracking === 'variant',
         purchasingDisabled,
+        availableToSell,
+        unlimitedBackorder,
       };
       if (productInfoRef?.current) {
         productInfoRef.current = productPurchasable;
       }
 
-      const isOOStock = isOOStockPurchaseQuantity(Number(productViewQty), productPurchasable);
+      const isOOStock = isOutOfStockPurchaseQuantity(Number(productViewQty), productPurchasable);
       if (purchasingDisabled === '1' || isOOStock || availability !== 'available') {
         setBuyPurchasable(false);
       } else {
@@ -115,7 +142,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     }
 
     const judgmentBuyPurchasable = (newQuantity: number | string) => {
-      const isOOStock = isOOStockPurchaseQuantity(Number(newQuantity), productInfoRef.current);
+      const isOOStock = isOutOfStockPurchaseQuantity(Number(newQuantity), productInfoRef.current);
 
       if (isOOStock) {
         setBuyPurchasable(false);
@@ -176,7 +203,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       if (observer) observer.disconnect();
       if (qtyDom) qtyDom.removeEventListener('input', handleQuantityChange);
     };
-  }, [openQuickView, isEnableProduct]);
+  }, [openQuickView, isEnableProduct, isOutOfStockPurchaseQuantity]);
 
   return [isBuyPurchasable];
 };
