@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cloneDeep, concat, uniq } from 'lodash-es';
+import { cloneDeep, concat, isEqual, omit, uniq } from 'lodash-es';
 import { v4 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -80,6 +80,11 @@ interface Country {
   countryName: string;
   id?: string;
 }
+
+// should be ShippingAddress or BillingAddress with selectedAddress field added for internal use
+type AddressWithSelected = (ShippingAddress | BillingAddress) & {
+  selectedAddress?: Partial<AddressItemType> & { addressId: number };
+};
 
 interface InfoRefProps extends HTMLInputElement {
   getContactInfoValue: () => any;
@@ -498,6 +503,47 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     }
   };
 
+  /**
+   * Clone address and compare with selectedAddress to decide if addressId can be reused.
+   *
+   * @param address - Address with optional selectedAddress for comparison
+   * @returns Cloned address, potentially with reused addressId if no changes detected
+   *
+   * Cases:
+   * 1. No Selected Address: return cloned address
+   * 2. Selected Address copy exists and address unchanged: return cloned address with addressId
+   * 3. Selected Address copy exists but address changed: return cloned address without addressId
+   */
+  const cloneAddressWithId = (address: AddressWithSelected): ShippingAddress | BillingAddress => {
+    const selectedAddress = address?.selectedAddress;
+
+    if (!selectedAddress) {
+      return cloneDeep(omit(address, ['selectedAddress']));
+    }
+
+    const normalizedSelectedAddress = {
+      ...selectedAddress,
+      companyName: selectedAddress.company || '',
+    };
+
+    const cleanAddress = omit(address, ['selectedAddress']);
+
+    const addressForComparison = omit(cleanAddress, ['addressId']);
+    const normalizedAddressForComparison = omit(normalizedSelectedAddress, [
+      'addressId',
+      'company',
+    ]);
+
+    if (isEqual(addressForComparison, normalizedAddressForComparison)) {
+      return {
+        ...cleanAddress,
+        addressId: selectedAddress.addressId,
+      };
+    }
+
+    return cleanAddress;
+  };
+
   const handleSubmit = async () => {
     if (loading) {
       return;
@@ -550,8 +596,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       const note = info?.note || '';
       const newNote = note.trim().replace(/[\r\n]/g, '\\n');
 
-      const perfectAddress = (address: ShippingAddress | BillingAddress) => {
-        const newAddress = cloneDeep(address);
+      const perfectAddress = (address: AddressWithSelected) => {
+        const newAddress = cloneAddressWithId(address);
 
         const countryItem = countriesList?.find(
           (item: Country) => item.countryCode === newAddress.country,

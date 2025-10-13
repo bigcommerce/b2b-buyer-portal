@@ -60,6 +60,7 @@ function QuoteAddress(
     getValues,
     formState: { errors },
     setValue,
+    reset,
   } = useForm({
     mode: 'onSubmit',
   });
@@ -106,6 +107,7 @@ function QuoteAddress(
   };
 
   const handleChangeAddress = (address: AddressItemType) => {
+    reset(); // reset the form before setting new values
     const addressItem: any = {
       label: address?.label || '',
       firstName: address?.firstName || '',
@@ -118,6 +120,13 @@ function QuoteAddress(
       state: address?.state || '',
       zipCode: address?.zipCode || '',
       phoneNumber: address?.phoneNumber || '',
+    };
+
+    // selectedAddress temporarily stores the original address to detect changes before submitting the quote.
+    // This field will be removed once address comparison is handled.
+    addressItem.selectedAddress = {
+      ...cloneDeep(addressItem),
+      addressId: Number(address?.id),
     };
 
     Object.keys(addressItem).forEach((item: string) => {
