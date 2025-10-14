@@ -6673,10 +6673,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-knip@^5.64.1:
-  version "5.64.1"
-  resolved "https://registry.yarnpkg.com/knip/-/knip-5.64.1.tgz#313e5de65e89ba747e8acea999df8be0e46b5d33"
-  integrity sha512-80XnLsyeXuyxj1F4+NBtQFHxaRH0xWRw8EKwfQ6EkVZZ0bSz/kqqan08k/Qg8ajWsFPhFq+0S2RbLCBGIQtuOg==
+knip@^5.65.0:
+  version "5.65.0"
+  resolved "https://registry.yarnpkg.com/knip/-/knip-5.65.0.tgz#487016f8f25f8bf599c8f0b34aff0d74d1bd9f77"
+  integrity sha512-wMSca3O1JGs/JgEQx7uZUZYMnZvGqhNjL4b2w8LJGxFzEckNWcvyHopsCwkC7M6aeWgIASCT9vCFDXklvvey3g==
   dependencies:
     "@nodelib/fs.walk" "^1.2.3"
     fast-glob "^3.3.3"
