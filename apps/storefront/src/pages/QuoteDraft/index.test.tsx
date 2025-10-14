@@ -16,6 +16,7 @@ import {
   startMockServer,
   stringContainingAll,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -3852,6 +3853,265 @@ describe('when the user is a B2B customer', () => {
         expect(validateProduct).not.toHaveBeenCalled();
         expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Address Id validation when selecting from saved addresses', () => {
+    const state = { stateName: 'Alabama', stateCode: 'AL' };
+    const country = {
+      id: '226',
+      countryName: 'United States',
+      countryCode: 'US',
+      states: [state],
+    };
+    const BILLING_ADDRESS_ID = '1111111111';
+    const SHIPPING_ADDRESS_ID = '2222222222';
+
+    const billingAddress = {
+      ...buildAddressWith({
+        country: country.countryCode,
+        state: state.stateName,
+      }),
+      id: BILLING_ADDRESS_ID,
+      isShipping: 0,
+      isBilling: 1,
+      isDefaultShipping: 0,
+      isDefaultBilling: 0,
+    };
+
+    const shippingAddress = {
+      ...buildAddressWith({
+        country: country.countryCode,
+        state: state.stateName,
+      }),
+      id: SHIPPING_ADDRESS_ID,
+      isShipping: 1,
+      isBilling: 0,
+      isDefaultShipping: 0,
+      isDefaultBilling: 0,
+    };
+
+    const defaultShippingAddress = buildAddressWith({
+      country: country.countryCode,
+      state: state.stateName,
+    });
+
+    const defaultBillingAddress = buildAddressWith({
+      country: country.countryCode,
+      state: state.stateName,
+    });
+
+    const companyInfo = buildCompanyStateWith({
+      companyInfo: { status: CompanyStatus.APPROVED },
+      customer: {
+        userType: UserTypes.MULTIPLE_B2C,
+        role: CustomerRole.SENIOR_BUYER,
+        emailAddress: customerEmail,
+      },
+      permissions: [
+        {
+          code: 'create_quote',
+          permissionLevel: 2,
+        },
+      ],
+    });
+
+    const product = buildDraftQuoteItemWith({
+      node: {
+        primaryImage: 'url',
+        quantity: 1,
+        variantSku: 'test',
+        basePrice: 10,
+        taxPrice: 5,
+        productName: 'Test Product',
+        productsSearch: buildProductWith({
+          inventoryLevel: 10,
+          inventoryTracking: 'product',
+          sku: 'test',
+          basePrice: '10.00',
+          offeredPrice: '10.00',
+          productId: 1,
+          imageUrl: 'url',
+          id: 4451490883947128,
+        }),
+      },
+    });
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { email: customerEmail },
+      },
+      draftQuoteList: [product],
+    });
+
+    const getPreloadedState = (
+      billingAddress: Address = noAddress,
+      shippingAddress: Address = noAddress,
+    ) => ({
+      preloadedState: {
+        company: companyInfo,
+        storeInfo: storeInfoWithDateFormat,
+        quoteInfo: {
+          ...quoteInfo,
+          draftQuoteInfo: {
+            ...quoteInfo.draftQuoteInfo,
+            billingAddress,
+            shippingAddress,
+          },
+        },
+      },
+    });
+
+    const createQuoteMutation = vi.fn();
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({
+            data: {
+              addresses: {
+                totalCount: 2,
+                edges: [{ node: { ...billingAddress } }, { node: { ...shippingAddress } }],
+              },
+            },
+          }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+        graphql.query('GetQuoteInfoB2B', () =>
+          HttpResponse.json({ data: { quote: { id: '272989', quoteNumber: '911911' } } }),
+        ),
+        http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
+        graphql.mutation('CreateQuote', async ({ request }: { request: Request }) => {
+          const body = await request.json();
+          createQuoteMutation(body.query);
+          return HttpResponse.json(
+            buildQuoteCreateResponseWith({
+              data: {
+                quoteCreate: { quote: { id: 123, createdAt: '1245' } },
+              },
+            }),
+          );
+        }),
+      );
+    });
+
+    it('should preserve billing address ID when selecting from saved addresses', async () => {
+      renderWithProviders(
+        <QuoteDraft setOpenPage={vi.fn()} />,
+        getPreloadedState(defaultBillingAddress, defaultShippingAddress),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.click(within(billingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(BILLING_ADDRESS_ID);
+      expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
+    });
+
+    it('should use billing address ID for shipping when same address option is selected', async () => {
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.click(within(billingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      await userEvent.click(
+        screen.getByLabelText('My shipping address is the same as my billing address'),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(BILLING_ADDRESS_ID);
+      expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
+    });
+
+    it('should preserve separate address IDs when selecting different saved addresses', async () => {
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.click(within(billingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+      await userEvent.click(within(shippingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => {
+        expect(createQuoteMutation).toHaveBeenCalled();
+      });
+
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(BILLING_ADDRESS_ID);
+      expect(mutationData).toContain(SHIPPING_ADDRESS_ID);
+    });
+    it('excludes address IDs when saved addresses are modified', async () => {
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.click(within(billingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.type(
+        within(billingFields).getByRole('textbox', { name: 'First name' }),
+        'Joey',
+      );
+
+      const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+      await userEvent.click(within(shippingFields).getByText('Choose from saved'));
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.type(
+        within(shippingFields).getByRole('textbox', { name: 'First name' }),
+        'Joey',
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).not.toContain(BILLING_ADDRESS_ID);
+      expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
     });
   });
 });

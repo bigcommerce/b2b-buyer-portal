@@ -93,7 +93,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
         <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
 
-        <Flex>
+        <Flex theme={theme}>
           <CustomButton
             variant="text"
             onClick={() => {
