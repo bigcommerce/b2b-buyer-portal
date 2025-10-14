@@ -94,7 +94,7 @@
     "knip": "^5.65.0",
     "msw": "^2.11.2",
     "rollup-plugin-visualizer": "^6.0.3",
-    "terser": "^5.43.1",
+    "terser": "^5.44.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.5",
     "vitest": "^3.2.4",
