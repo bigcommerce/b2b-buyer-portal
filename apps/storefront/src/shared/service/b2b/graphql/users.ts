@@ -37,6 +37,22 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   }
 }`;
 
+const companyHierarchyAndMasquerading = () => `
+query CompanyHierarchyAndMasquerading {
+	companySubsidiaries {
+		companyId
+		companyName
+		parentCompanyId
+		parentCompanyName
+		channelFlag
+	}
+	userMasqueradingCompany {
+		companyId
+		companyName
+		bcId
+	}
+}`;
+
 export interface UserEmailCheckResponse {
   data: {
     userEmailCheck: {
@@ -71,3 +87,8 @@ export const checkUserBCEmail = (data: CustomFieldItems) =>
     ...res.customerEmailCheck,
     isValid: res.customerEmailCheck.userType !== UserTypes.B2C,
   }));
+
+export const getCompanyHierarchyAndMasquerading = () =>
+  B3Request.graphqlB2B({
+    query: companyHierarchyAndMasquerading(),
+  });
