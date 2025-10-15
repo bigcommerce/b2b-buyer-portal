@@ -1,6 +1,7 @@
 export * from './useB2BCallback';
 export { default as useB3AppOpen } from './useB3AppOpen';
 export { default as useBlockPendingAccountViewPrice } from './useBlockPendingAccountViewPrice';
+export * from './useCompanyHierarchy';
 export { default as useCardListColumn } from './useCardListColumn';
 export { default as useDebounce } from './useDebounce';
 export { default as useGetButtonText } from './useGetButtonText';
