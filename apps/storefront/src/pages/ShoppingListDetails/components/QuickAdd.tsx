@@ -21,7 +21,7 @@ interface AddToListContentProps {
   level?: number;
   buttonText?: string;
   buttonLoading?: boolean;
-  type?: string;
+  type: 'shoppingList' | 'quoteDraft';
 }
 
 export default function QuickAdd(props: AddToListContentProps) {
@@ -35,6 +35,9 @@ export default function QuickAdd(props: AddToListContentProps) {
     type,
   } = props;
 
+  const allowAddNonPurchasableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct || false,
+  );
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
   const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
 
@@ -163,7 +166,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         const quantity = (skuValue[sku] as number) || 0;
 
-        if (purchasingDisabled === '1' && type !== 'shoppingList') {
+        if (purchasingDisabled === '1' && !allowAddNonPurchasableProduct && type === 'quoteDraft') {
           notPurchaseSku.push(sku);
           return;
         }
@@ -256,7 +259,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         numberLimit,
       };
     },
-    [draftQuoteList, type],
+    [allowAddNonPurchasableProduct, draftQuoteList, type],
   );
 
   const showErrors = (
