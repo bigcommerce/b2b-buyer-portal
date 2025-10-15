@@ -427,14 +427,6 @@ const userMasqueradingCompanyEnd = `mutation userMasqueradingCompanyEnd {
 	}
 }`;
 
-const userMasqueradingCompany = `query {
-	userMasqueradingCompany {
-		companyId
-		companyName
-		bcId
-	}
-}`;
-
 const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
 	storeConfigSwitchStatus(
 		key: $key,
@@ -530,11 +522,6 @@ export const startUserMasqueradingCompany = (companyId: number) =>
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
     query: userMasqueradingCompanyEnd,
-  });
-
-export const getUserMasqueradingCompany = () =>
-  B3Request.graphqlB2B({
-    query: userMasqueradingCompany,
   });
 
 export const getStoreConfigsSwitchStatus = (key: string): Promise<ConfigsSwitchStatus> =>

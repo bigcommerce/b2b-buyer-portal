@@ -10,6 +10,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
+import { initializeCompanyHierarchy } from '@/shared/service/b2b/companyHierarchy';
 import {
   b2bJumpPath,
   getQuoteEnabled,
@@ -68,6 +69,7 @@ export default function App() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+
   const role = useAppSelector((state) => state.company.customer.role);
   const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
@@ -200,6 +202,8 @@ export default function App() {
           userInfo.role = info?.role;
         }
       }
+
+      await initializeCompanyHierarchy();
 
       // background login enter judgment and refresh
       if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
