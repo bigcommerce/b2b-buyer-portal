@@ -3856,7 +3856,13 @@ describe('when the user is a B2B customer', () => {
     });
   });
 
-  describe('Address Id validation when selecting from saved addresses', () => {
+  describe('Address Id validation when submitting the quote', () => {
+    const emptyAddress = {
+      ...noAddress,
+      addressId: 0,
+      companyName: '',
+      addressLabel: '',
+    };
     const state = { stateName: 'Alabama', stateCode: 'AL' };
     const country = {
       id: '226',
@@ -3866,6 +3872,8 @@ describe('when the user is a B2B customer', () => {
     };
     const BILLING_ADDRESS_ID = '1111111111';
     const SHIPPING_ADDRESS_ID = '2222222222';
+    const DEFAULT_SHIPPING_ADDRESS_ID = 3333333333;
+    const DEFAULT_BILLING_ADDRESS_ID = 4444444444;
 
     const billingAddress = {
       ...buildAddressWith({
@@ -3891,15 +3899,29 @@ describe('when the user is a B2B customer', () => {
       isDefaultBilling: 0,
     };
 
-    const defaultShippingAddress = buildAddressWith({
-      country: country.countryCode,
-      state: state.stateName,
-    });
+    const defaultShippingAddress = {
+      ...buildAddressWith({
+        country: country.countryCode,
+        state: state.stateName,
+      }),
+      id: DEFAULT_SHIPPING_ADDRESS_ID,
+      isShipping: 1,
+      isBilling: 0,
+      isDefaultShipping: 1,
+      isDefaultBilling: 0,
+    };
 
-    const defaultBillingAddress = buildAddressWith({
-      country: country.countryCode,
-      state: state.stateName,
-    });
+    const defaultBillingAddress = {
+      ...buildAddressWith({
+        country: country.countryCode,
+        state: state.stateName,
+      }),
+      id: DEFAULT_BILLING_ADDRESS_ID,
+      isShipping: 0,
+      isBilling: 1,
+      isDefaultShipping: 0,
+      isDefaultBilling: 1,
+    };
 
     const companyInfo = buildCompanyStateWith({
       companyInfo: { status: CompanyStatus.APPROVED },
@@ -3945,8 +3967,8 @@ describe('when the user is a B2B customer', () => {
     });
 
     const getPreloadedState = (
-      billingAddress: Address = noAddress,
-      shippingAddress: Address = noAddress,
+      billingAddress: Address = emptyAddress,
+      shippingAddress: Address = emptyAddress,
     ) => ({
       preloadedState: {
         company: companyInfo,
@@ -3965,7 +3987,6 @@ describe('when the user is a B2B customer', () => {
     const createQuoteMutation = vi.fn();
 
     beforeEach(() => {
-      vi.clearAllMocks();
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
       server.use(
         graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
@@ -3973,8 +3994,13 @@ describe('when the user is a B2B customer', () => {
           HttpResponse.json({
             data: {
               addresses: {
-                totalCount: 2,
-                edges: [{ node: { ...billingAddress } }, { node: { ...shippingAddress } }],
+                totalCount: 4,
+                edges: [
+                  { node: { ...billingAddress } },
+                  { node: { ...shippingAddress } },
+                  { node: { ...defaultBillingAddress } },
+                  { node: { ...defaultShippingAddress } },
+                ],
               },
             },
           }),
@@ -3986,9 +4012,8 @@ describe('when the user is a B2B customer', () => {
           HttpResponse.json({ data: { quote: { id: '272989', quoteNumber: '911911' } } }),
         ),
         http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
-        graphql.mutation('CreateQuote', async ({ request }: { request: Request }) => {
-          const body = await request.json();
-          createQuoteMutation(body.query);
+        graphql.mutation('CreateQuote', ({ query }) => {
+          createQuoteMutation(query);
           return HttpResponse.json(
             buildQuoteCreateResponseWith({
               data: {
@@ -3998,6 +4023,35 @@ describe('when the user is a B2B customer', () => {
           );
         }),
       );
+    });
+
+    it('should submit the quote with the correct default addresses', async () => {
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(DEFAULT_BILLING_ADDRESS_ID);
+      expect(mutationData).toContain(DEFAULT_SHIPPING_ADDRESS_ID);
+    });
+
+    it('should submit the quote with the billing address id as 0 when default billing address modified', async () => {
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.type(
+        within(billingFields).getByRole('textbox', { name: 'First name' }),
+        'Joey',
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).not.toContain(DEFAULT_BILLING_ADDRESS_ID);
+      expect(mutationData).toContain(DEFAULT_SHIPPING_ADDRESS_ID);
     });
 
     it('should preserve billing address ID when selecting from saved addresses', async () => {
@@ -4013,10 +4067,10 @@ describe('when the user is a B2B customer', () => {
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
-      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
       const mutationData = createQuoteMutation.mock.calls[0][0];
@@ -4034,13 +4088,13 @@ describe('when the user is a B2B customer', () => {
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
 
       await userEvent.click(
         screen.getByLabelText('My shipping address is the same as my billing address'),
       );
       await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
-      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
       const mutationData = createQuoteMutation.mock.calls[0][0];
@@ -4058,17 +4112,17 @@ describe('when the user is a B2B customer', () => {
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
 
       const shippingFields = screen.getByRole('group', { name: 'Shipping' });
       await userEvent.click(within(shippingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
-      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => {
         expect(createQuoteMutation).toHaveBeenCalled();
@@ -4088,7 +4142,7 @@ describe('when the user is a B2B customer', () => {
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
       await userEvent.type(
         within(billingFields).getByRole('textbox', { name: 'First name' }),
         'Joey',
@@ -4099,14 +4153,14 @@ describe('when the user is a B2B customer', () => {
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
       );
-      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+      await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
       await userEvent.type(
         within(shippingFields).getByRole('textbox', { name: 'First name' }),
         'Joey',
       );
 
       await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
-      await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
       const mutationData = createQuoteMutation.mock.calls[0][0];
