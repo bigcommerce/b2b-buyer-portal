@@ -120,14 +120,11 @@ function QuoteAddress(
       state: address?.state || '',
       zipCode: address?.zipCode || '',
       phoneNumber: address?.phoneNumber || '',
+      addressId: Number(address?.id) || 0,
     };
 
-    // selectedAddress temporarily stores the original address to detect changes before submitting the quote.
-    // This field will be removed once address comparison is handled.
-    addressItem.selectedAddress = {
-      ...cloneDeep(addressItem),
-      addressId: Number(address?.id),
-    };
+    // masterCopy temporarily stores the original address to detect changes and will be removed before submitting the quote.
+    addressItem.masterCopy = cloneDeep(addressItem);
 
     Object.keys(addressItem).forEach((item: string) => {
       if (item === 'company') return;

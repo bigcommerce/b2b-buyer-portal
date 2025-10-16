@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cloneDeep, concat, isEqual, omit, uniq } from 'lodash-es';
+import { cloneDeep, concat, has, isEqual, omit, uniq } from 'lodash-es';
 import { v4 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -81,9 +81,9 @@ interface Country {
   id?: string;
 }
 
-// should be ShippingAddress or BillingAddress with selectedAddress field added for internal use
-type AddressWithSelected = (ShippingAddress | BillingAddress) & {
-  selectedAddress?: Partial<AddressItemType> & { addressId: number };
+// should be ShippingAddress or BillingAddress with masterCopy field added for internal use
+type AddressWithMasterCopy = (ShippingAddress | BillingAddress) & {
+  masterCopy?: Partial<AddressItemType>;
 };
 
 interface InfoRefProps extends HTMLInputElement {
@@ -250,55 +250,54 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           }
 
           if (addressB2BList) {
-            const shippingDefaultAddress = addressB2BList.find(
-              (item: B2BAddress) => item?.node?.isDefaultShipping === 1,
-            );
-            const billingDefaultAddress = addressB2BList.find(
-              (item: B2BAddress) => item?.node?.isDefaultBilling === 1,
-            );
+            const { node: shippingDefaultAddress } =
+              addressB2BList.find((item: B2BAddress) => item?.node?.isDefaultShipping === 1) || {};
+            const { node: billingDefaultAddress } =
+              addressB2BList.find((item: B2BAddress) => item?.node?.isDefaultBilling === 1) || {};
 
-            if (shippingDefaultAddress && validateObject(quoteInfo, 'shippingAddress')) {
-              const addressItem = {
-                label: shippingDefaultAddress?.node?.label || '',
-                firstName: shippingDefaultAddress?.node?.firstName || '',
-                lastName: shippingDefaultAddress?.node?.lastName || '',
-                companyName: shippingDefaultAddress?.node?.company || '',
-                country: shippingDefaultAddress?.node?.countryCode || '',
-                address: shippingDefaultAddress?.node?.addressLine1 || '',
-                apartment: shippingDefaultAddress?.node?.addressLine2 || '',
-                city: shippingDefaultAddress?.node?.city || '',
-                state: shippingDefaultAddress?.node?.state || '',
-                zipCode: shippingDefaultAddress?.node?.zipCode || '',
-                phoneNumber: shippingDefaultAddress?.node?.phoneNumber || '',
-                addressId: shippingDefaultAddress?.node?.id
-                  ? Number(shippingDefaultAddress.node.id)
-                  : 0,
+            if (
+              shippingDefaultAddress &&
+              (!quoteInfo?.shippingAddress || validateObject(quoteInfo, 'shippingAddress'))
+            ) {
+              const addressItem: AddressWithMasterCopy = {
+                label: shippingDefaultAddress.label || '',
+                firstName: shippingDefaultAddress.firstName || '',
+                lastName: shippingDefaultAddress.lastName || '',
+                companyName: shippingDefaultAddress.company || '',
+                country: shippingDefaultAddress.countryCode || '',
+                address: shippingDefaultAddress.addressLine1 || '',
+                apartment: shippingDefaultAddress.addressLine2 || '',
+                city: shippingDefaultAddress.city || '',
+                state: shippingDefaultAddress.state || '',
+                zipCode: shippingDefaultAddress.zipCode || '',
+                phoneNumber: shippingDefaultAddress.phoneNumber || '',
+                addressId: Number(shippingDefaultAddress.id) || 0,
               };
+              addressItem.masterCopy = { ...addressItem };
 
-              quoteInfo.shippingAddress = addressItem as ShippingAddress;
+              quoteInfo.shippingAddress = addressItem;
             }
             if (
               billingDefaultAddress &&
               (!quoteInfo?.billingAddress || validateObject(quoteInfo, 'billingAddress'))
             ) {
-              const addressItem = {
-                label: billingDefaultAddress?.node?.label || '',
-                firstName: billingDefaultAddress?.node?.firstName || '',
-                lastName: billingDefaultAddress?.node?.lastName || '',
-                companyName: billingDefaultAddress?.node?.company || '',
-                country: billingDefaultAddress?.node?.countryCode || '',
-                address: billingDefaultAddress?.node?.addressLine1 || '',
-                apartment: billingDefaultAddress?.node?.addressLine2 || '',
-                city: billingDefaultAddress?.node?.city || '',
-                state: billingDefaultAddress?.node?.state || '',
-                zipCode: billingDefaultAddress?.node?.zipCode || '',
-                phoneNumber: billingDefaultAddress?.node?.phoneNumber || '',
-                addressId: billingDefaultAddress?.node?.id
-                  ? Number(billingDefaultAddress.node.id)
-                  : 0,
+              const addressItem: AddressWithMasterCopy = {
+                label: billingDefaultAddress.label || '',
+                firstName: billingDefaultAddress.firstName || '',
+                lastName: billingDefaultAddress.lastName || '',
+                companyName: billingDefaultAddress.company || '',
+                country: billingDefaultAddress.countryCode || '',
+                address: billingDefaultAddress.addressLine1 || '',
+                apartment: billingDefaultAddress.addressLine2 || '',
+                city: billingDefaultAddress.city || '',
+                state: billingDefaultAddress.state || '',
+                zipCode: billingDefaultAddress.zipCode || '',
+                phoneNumber: billingDefaultAddress.phoneNumber || '',
+                addressId: Number(billingDefaultAddress.id) || 0,
               };
+              addressItem.masterCopy = { ...addressItem };
 
-              quoteInfo.billingAddress = addressItem as BillingAddress;
+              quoteInfo.billingAddress = addressItem;
             }
 
             setAddressList(addressB2BList);
@@ -504,44 +503,35 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   /**
-   * Clone address and compare with selectedAddress to decide if addressId can be reused.
+   * Clone address and compare with masterCopy to decide if addressId can be reused.
    *
-   * @param address - Address with optional selectedAddress for comparison
+   * @param address - Address with optional masterCopy for comparison
    * @returns Cloned address, potentially with reused addressId if no changes detected
    *
    * Cases:
-   * 1. No Selected Address: return cloned address
-   * 2. Selected Address copy exists and address unchanged: return cloned address with addressId
-   * 3. Selected Address copy exists but address changed: return cloned address without addressId
+   * 1. No Master Copy: return cloned address
+   * 2. Master Copy exists and address unchanged: return cloned address with addressId
+   * 3. Master Copy exists but address changed: return cloned address with addressId set to 0
    */
-  const cloneAddressWithId = (address: AddressWithSelected): ShippingAddress | BillingAddress => {
-    const selectedAddress = address?.selectedAddress;
-
-    if (!selectedAddress) {
-      return cloneDeep(omit(address, ['selectedAddress']));
+  const cloneAddressWithId = ({
+    masterCopy,
+    ...address
+  }: AddressWithMasterCopy): ShippingAddress | BillingAddress => {
+    if (!masterCopy) {
+      return address;
     }
 
-    const normalizedSelectedAddress = {
-      ...selectedAddress,
-      companyName: selectedAddress.company || '',
+    if (has(masterCopy, 'company')) {
+      masterCopy.companyName = masterCopy.company || '';
+    }
+
+    const addressForComparison = omit(address, ['addressId']);
+    const masterCopyForComparison = omit(masterCopy, ['addressId', 'company']);
+
+    return {
+      ...address,
+      addressId: isEqual(addressForComparison, masterCopyForComparison) ? masterCopy.addressId : 0,
     };
-
-    const cleanAddress = omit(address, ['selectedAddress']);
-
-    const addressForComparison = omit(cleanAddress, ['addressId']);
-    const normalizedAddressForComparison = omit(normalizedSelectedAddress, [
-      'addressId',
-      'company',
-    ]);
-
-    if (isEqual(addressForComparison, normalizedAddressForComparison)) {
-      return {
-        ...cleanAddress,
-        addressId: selectedAddress.addressId,
-      };
-    }
-
-    return cleanAddress;
   };
 
   const handleSubmit = async () => {
@@ -596,7 +586,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       const note = info?.note || '';
       const newNote = note.trim().replace(/[\r\n]/g, '\\n');
 
-      const perfectAddress = (address: AddressWithSelected) => {
+      const perfectAddress = (address: AddressWithMasterCopy) => {
         const newAddress = cloneAddressWithId(address);
 
         const countryItem = countriesList?.find(
