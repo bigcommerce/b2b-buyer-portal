@@ -6,6 +6,7 @@ import GlobalDialog from '@/components/extraTip/GlobalDialog';
 import B3RenderRouter from '@/components/layout/B3RenderRouter';
 import { useB3AppOpen, useSetOpen } from '@/hooks';
 import useDomHooks from '@/hooks/dom/useDomHooks';
+import { useCompanyHierarchy } from '@/hooks/useCompanyHierarchy';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
@@ -57,6 +58,7 @@ const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap';
 
 export default function App() {
+  useCompanyHierarchy();
   const showPageMask = usePageMask();
   const {
     state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled },
@@ -68,6 +70,7 @@ export default function App() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+
   const role = useAppSelector((state) => state.company.customer.role);
   const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
