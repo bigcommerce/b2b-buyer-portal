@@ -633,7 +633,7 @@ export const addProductToBcShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: addItemsToBcShoppingListQuery,
     variables: {
-      shoppingListId: data.shoppingListId,
+      shoppingListId: Number(data.shoppingListId),
       items: data.items,
     },
   });
