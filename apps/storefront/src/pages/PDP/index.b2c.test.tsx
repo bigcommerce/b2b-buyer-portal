@@ -52,7 +52,7 @@ function FakeProductDataProvider({ productId, quantity, sku, options }: ProductD
 
 const buildCustomerShoppingListNodeWith = builder(() => ({
   node: {
-    id: faker.number.int().toString(),
+    id: faker.number.int(),
     name: faker.lorem.word(),
     description: faker.lorem.sentence(),
     updatedAt: getUnixTime(faker.date.recent()),
@@ -114,7 +114,7 @@ describe('stencil', () => {
     const addItemsToCustomerShoppingList = vi.fn();
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
@@ -143,7 +143,7 @@ describe('stencil', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -202,7 +202,7 @@ describe('stencil', () => {
     const addItemsToCustomerShoppingList = vi.fn();
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
@@ -229,7 +229,7 @@ describe('stencil', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -325,7 +325,7 @@ describe('stencil', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -366,7 +366,7 @@ describe('stencil', () => {
     await userEvent.type(descriptionInput, 'This is a new shopping list');
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'New Shopping List' },
+      node: { id: 992, name: 'New Shopping List' },
     });
 
     when(getCustomerShoppingLists, { times: 1 })
@@ -390,7 +390,7 @@ describe('stencil', () => {
 
   it('navigates to the shopping list page when the "View Shopping List" button is clicked', async () => {
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
@@ -579,7 +579,7 @@ describe('other/catalyst', () => {
     const addItemsToCustomerShoppingList = vi.fn();
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
@@ -608,7 +608,7 @@ describe('other/catalyst', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -662,7 +662,7 @@ describe('other/catalyst', () => {
     const addItemsToCustomerShoppingList = vi.fn();
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
@@ -689,7 +689,7 @@ describe('other/catalyst', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -780,7 +780,7 @@ describe('other/catalyst', () => {
       .calledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
-            shoppingListId: '992',
+            shoppingListId: 992,
             items: expect.arrayContaining([
               expect.objectContaining({
                 productId: 123,
@@ -822,7 +822,7 @@ describe('other/catalyst', () => {
     await userEvent.type(descriptionInput, 'This is a new shopping list');
 
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'New Shopping List' },
+      node: { id: 992, name: 'New Shopping List' },
     });
 
     when(getCustomerShoppingLists, { times: 1 })
@@ -846,7 +846,7 @@ describe('other/catalyst', () => {
 
   it('navigates to the shopping list page when the "View Shopping List" button is clicked', async () => {
     const shoppingList = buildCustomerShoppingListNodeWith({
-      node: { id: '992', name: 'Foo Bar Shopping List' },
+      node: { id: 992, name: 'Foo Bar Shopping List' },
     });
 
     server.use(
