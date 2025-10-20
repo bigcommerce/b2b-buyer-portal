@@ -251,10 +251,10 @@ function QuoteTable(props: ShoppingDetailTableProps) {
               warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
             }
           }
-        } else {
+        } else if (isInventoryTrackingEnabled) {
           let hasUnlimitedBackorder = product.unlimitedBackorder;
 
-          if (isInventoryTrackingEnabled && product.inventoryTracking === 'variant') {
+          if (product.inventoryTracking === 'variant') {
             const currentVariant = product.variants.find(
               (variant: CustomFieldItems) => variant.sku === row.variantSku,
             );
@@ -262,11 +262,9 @@ function QuoteTable(props: ShoppingDetailTableProps) {
           }
 
           if (!hasUnlimitedBackorder) {
-            const availableStock = isInventoryTrackingEnabled
-              ? product.availableToSell
-              : row.quantity;
+            const availableStock = product.availableToSell;
 
-            if (isInventoryTrackingEnabled && availableStock < row.quantity) {
+            if (availableStock < row.quantity) {
               warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
               warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
                 qty: availableStock,

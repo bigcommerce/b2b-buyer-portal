@@ -1286,14 +1286,13 @@ describe('when the user is a B2B customer', () => {
     expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
   });
 
-  it('should show stock warning for variant with insufficient stock when NP&OOS is disabled', async () => {
+  it('show stock warning for variant with insufficient stock when NP&OOS is disabled', async () => {
     const product = buildDraftQuoteItemWith({
       node: {
         quantity: 100,
         variantSku: 'ABCBLK',
         productsSearch: buildProductWith({
           inventoryTracking: 'variant',
-          unlimitedBackorder: false,
           availableToSell: 10,
           variants: [
             buildVariantWith({
@@ -1301,7 +1300,6 @@ describe('when the user is a B2B customer', () => {
               available_to_sell: 10,
               purchasing_disabled: false,
               sku: 'ABCBLK',
-              unlimited_backorder: true,
             }),
           ],
         }),
