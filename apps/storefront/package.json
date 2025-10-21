@@ -93,7 +93,7 @@
     "jsdom": "^26.1.0",
     "knip": "^5.65.0",
     "msw": "^2.11.2",
-    "rollup-plugin-visualizer": "^6.0.3",
+    "rollup-plugin-visualizer": "^6.0.5",
     "terser": "^5.44.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.11",
