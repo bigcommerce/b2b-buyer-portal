@@ -9027,10 +9027,10 @@ vitest-location-mock@^1.0.4:
   dependencies:
     "@jedmao/location" "^3.0.0"
 
-vitest-when@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/vitest-when/-/vitest-when-0.8.0.tgz#1f33e13fe52f9bed80084b597b64a2815e866ee1"
-  integrity sha512-/QaV+1Wm9nC3i4RiYeNSkNLPjwfeGbxOnj740vCpdSkS1cI8e7BYfuft/ERcCYyYWzWckvzYcNV3+mnkeb04ZQ==
+vitest-when@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/vitest-when/-/vitest-when-0.8.1.tgz#c05e3c63680b7380384483d0f2aa3b46c2902b84"
+  integrity sha512-D1yUXeQMDlf2RING3ou7lii6wNyNeKRHxO4Mrw6qMiKSB3itm2PMSYWV8zlohglOV/sYlJq210Co2cp0OIdJQA==
   dependencies:
     pretty-format "^30.0.2"
 
