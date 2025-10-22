@@ -251,13 +251,25 @@ function QuoteTable(props: ShoppingDetailTableProps) {
               warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
             }
           }
-        } else if (!product.unlimitedBackorder) {
-          const productStock = isInventoryTrackingEnabled ? product.availableToSell : row.quantity;
-          if (isInventoryTrackingEnabled && productStock < row.quantity) {
-            warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
-            warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-              qty: productStock,
-            });
+        } else if (isInventoryTrackingEnabled) {
+          let hasUnlimitedBackorder = product.unlimitedBackorder;
+
+          if (product.inventoryTracking === 'variant') {
+            const currentVariant = product.variants.find(
+              (variant: CustomFieldItems) => variant.sku === row.variantSku,
+            );
+            hasUnlimitedBackorder = currentVariant?.unlimited_backorder || false;
+          }
+
+          if (!hasUnlimitedBackorder) {
+            const availableStock = product.availableToSell;
+
+            if (availableStock < row.quantity) {
+              warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+              warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+                qty: availableStock,
+              });
+            }
           }
         }
 

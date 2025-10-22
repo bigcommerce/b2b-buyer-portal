@@ -1286,6 +1286,54 @@ describe('when the user is a B2B customer', () => {
     expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
   });
 
+  it('show stock warning for variant with insufficient stock when NP&OOS is disabled', async () => {
+    const product = buildDraftQuoteItemWith({
+      node: {
+        quantity: 100,
+        variantSku: 'ABCBLK',
+        productsSearch: buildProductWith({
+          inventoryTracking: 'variant',
+          availableToSell: 10,
+          variants: [
+            buildVariantWith({
+              inventory_level: 10,
+              available_to_sell: 10,
+              purchasing_disabled: false,
+              sku: 'ABCBLK',
+            }),
+          ],
+        }),
+      },
+    });
+
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+      draftQuoteList: [product],
+    });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalStateWith({
+          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': false,
+          },
+        }),
+      },
+    });
+
+    const productTable = await screen.findByRole('table');
+
+    expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
+    expect(within(productTable).getByText('In stock: 10')).toBeInTheDocument();
+  });
+
   describe('when the backordering feature flag is enabled', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
@@ -1676,6 +1724,52 @@ describe('when the user is a B2B customer', () => {
 
       expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
       expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
+    });
+
+    it('should not show stock warning for variant with unlimited backorder when NP&OOS is disabled', async () => {
+      const product = buildDraftQuoteItemWith({
+        node: {
+          quantity: 1000,
+          variantSku: 'ABCBLK',
+          productsSearch: buildProductWith({
+            inventoryTracking: 'variant',
+            unlimitedBackorder: false,
+            availableToSell: 10,
+            variants: [
+              buildVariantWith({
+                inventory_level: 10,
+                purchasing_disabled: false,
+                sku: 'ABCBLK',
+                unlimited_backorder: true,
+              }),
+            ],
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+        draftQuoteList: [product],
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags,
+          }),
+        },
+      });
+
+      const productTable = await screen.findByRole('table');
+
+      expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
     });
 
     it('creates successfully a new quote when submitting the draft quote and gets redirected to quote detail', async () => {
