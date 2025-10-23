@@ -143,7 +143,7 @@ const userCompanyQl = (userId: number) => `{
 	}
 }`;
 
-const storefrontConfig = () => `{
+const storefrontConfigWithCompanyHierarchy = () => `{
 	storefrontConfig(
 		storeHash: "${storeHash}"
 	) {
@@ -168,6 +168,18 @@ const storefrontConfig = () => `{
 			wishLists,
 		}
 		configId,
+	}
+	companySubsidiaries {
+		companyId
+		companyName
+		parentCompanyId
+		parentCompanyName
+		channelFlag
+	}
+	userMasqueradingCompany {
+		companyId
+		companyName
+		bcId
 	}
 }`;
 
@@ -467,9 +479,9 @@ export const getUserCompany = (userId: number) =>
     query: userCompanyQl(userId),
   });
 
-export const getStorefrontConfig = () =>
+export const getStorefrontConfigWithCompanyHierarchy = () =>
   B3Request.graphqlB2B({
-    query: storefrontConfig(),
+    query: storefrontConfigWithCompanyHierarchy(),
   });
 
 export const getCurrencies = (channelId: string | number) =>
