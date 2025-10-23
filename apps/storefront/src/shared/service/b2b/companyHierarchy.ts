@@ -35,7 +35,7 @@ export const initializeCompanyHierarchy = async () => {
           await getCompanyHierarchyAndMasquerading();
 
         const shouldEndCompanyMasqueradingOnLogin =
-          featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'];
+          featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
 
         if (userMasqueradingCompany?.companyId && !shouldEndCompanyMasqueradingOnLogin) {
           await endUserMasqueradingCompany();
