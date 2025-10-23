@@ -84,8 +84,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   const [optionsProduct, setOptionsProduct] = useState<any>(null);
   const [optionsProductId, setOptionsProductId] = useState<string>('');
 
-  const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  const showAvailabilityWarnings = useAppSelector(
+    ({ global }) => !global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
   const handleUpdateProductQty = async (row: any, value: number | string) => {
@@ -227,7 +227,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
 
         if (!featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
           const currentProduct = getVariantInfoOOSAndPurchase(row);
-          const showWarning = !isEnableProduct && currentProduct?.name;
+          const showWarning = currentProduct?.name;
 
           if (showWarning) {
             if (currentProduct?.type === 'oos') {
@@ -273,6 +273,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
           }
         }
 
+        const productUrl = row.productsSearch?.productUrl;
+
         return (
           <Box
             sx={{
@@ -290,12 +292,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                 variant="body1"
                 color="#212121"
                 onClick={() => {
-                  const {
-                    location: { origin },
-                  } = window;
-
-                  if (product?.productUrl) {
-                    window.location.href = `${origin}${product?.productUrl}`;
+                  if (productUrl) {
+                    window.location.href = `${window.location.origin}${productUrl}`;
                   }
                 }}
                 sx={{
@@ -324,7 +322,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                 </Box>
               )}
 
-              {warningMessage && (
+              {showAvailabilityWarnings && warningMessage && (
                 <Box sx={{ color: 'red' }}>
                   <Box
                     sx={{
