@@ -168,7 +168,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const featureFlags = useFeatureFlags();
   const backendValidationEnabled =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
