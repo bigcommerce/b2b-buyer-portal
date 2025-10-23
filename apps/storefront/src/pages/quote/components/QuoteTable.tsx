@@ -7,7 +7,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useFeatureFlags } from '@/hooks';
-import { useB3Lang } from '@/lib/lang';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import {
   deleteProductFromDraftQuoteList,
   setDraftProduct,
@@ -72,6 +72,109 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }));
 const QUOTE_PRODUCT_QTY_MAX = 1000000;
+
+interface AvailabilityWarnings {
+  warningMessage: string | null;
+  warningDetails: string | null;
+}
+
+function getAvailabilityWarningsFrontend(
+  row: QuoteItem['node'],
+  b3Lang: LangFormatFunction,
+): AvailabilityWarnings {
+  const product = {
+    ...row.productsSearch,
+    selectOptions: row.optionList,
+  };
+
+  let warningMessage: string | null = null;
+  let warningDetails: string | null = null;
+
+  const currentProduct = getVariantInfoOOSAndPurchase(row);
+  const showWarning = currentProduct?.name;
+
+  if (showWarning) {
+    if (currentProduct?.type === 'oos') {
+      const inventoryTracking = product.inventoryTracking || row.inventoryTracking || 'none';
+
+      let inventoryLevel = product.inventoryLevel || row.inventoryLevel || 0;
+      if (inventoryTracking === 'variant' && product.variants) {
+        const currentVariant = product.variants.find(
+          (variant: CustomFieldItems) => variant.sku === row.variantSku,
+        );
+
+        inventoryLevel = currentVariant?.inventory_level ?? 0;
+      }
+
+      warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+      warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+        qty: inventoryLevel,
+      });
+    } else {
+      warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
+    }
+  }
+
+  return { warningMessage, warningDetails };
+}
+
+function getAvailabilityWarningsBackend(
+  row: QuoteItem['node'],
+  b3Lang: LangFormatFunction,
+): AvailabilityWarnings {
+  const product = {
+    ...row.productsSearch,
+    selectOptions: row.optionList,
+  };
+
+  let warningMessage: string | null = null;
+  let warningDetails: string | null = null;
+
+  const isInventoryTrackingEnabled = product.inventoryTracking !== 'none';
+
+  if (isInventoryTrackingEnabled) {
+    let hasUnlimitedBackorder = product.unlimitedBackorder;
+
+    if (product.inventoryTracking === 'variant' && product.variants) {
+      const currentVariant = product.variants.find(
+        (variant: CustomFieldItems) => variant.sku === row.variantSku,
+      );
+      hasUnlimitedBackorder = currentVariant?.unlimited_backorder || false;
+    }
+
+    if (!hasUnlimitedBackorder) {
+      const availableStock = product.availableToSell;
+
+      if (availableStock < row.quantity) {
+        warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+        warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+          qty: availableStock,
+        });
+      }
+    }
+  }
+
+  return { warningMessage, warningDetails };
+}
+
+interface Options {
+  valueLabel: string;
+  valueText: string;
+}
+
+const getProductOptionsValues = (
+  productsSearch: QuoteItem['node']['productsSearch'],
+  optionList: string,
+) => {
+  const productFields = getProductOptionsFields(
+    { ...productsSearch, selectOptions: optionList },
+    {},
+  ) as Options[];
+
+  const options: unknown[] = JSON.parse(optionList);
+
+  return options.length > 0 ? productFields.filter((item) => item.valueText) : [];
+};
 
 function QuoteTable(props: ShoppingDetailTableProps) {
   const { total, items, idEdit = true, updateSummary } = props;
@@ -207,71 +310,20 @@ function QuoteTable(props: ShoppingDetailTableProps) {
     snackbar.success(b3Lang('quoteDraft.quoteTable.productUpdated'));
   };
 
+  const getAvailabilityWarnings = featureFlags[
+    'B2B-3318.move_stock_and_backorder_validation_to_backend'
+  ]
+    ? getAvailabilityWarningsBackend
+    : getAvailabilityWarningsFrontend;
+
   const columnItems: TableColumnItem<QuoteItem['node']>[] = [
     {
       key: 'Product',
       title: b3Lang('quoteDraft.quoteTable.product'),
-      render: (row: CustomFieldItems) => {
-        const product: any = {
-          ...row.productsSearch,
-          selectOptions: row.optionList,
-        };
-        const productFields = getProductOptionsFields(product, {});
-        const isInventoryTrackingEnabled = product.inventoryTracking !== 'none';
-
-        const optionList = JSON.parse(row.optionList);
-        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
-
-        let warningMessage: string | null = null;
-        let warningDetails: string | null = null;
-
-        if (!featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          const currentProduct = getVariantInfoOOSAndPurchase(row);
-          const showWarning = currentProduct?.name;
-
-          if (showWarning) {
-            if (currentProduct?.type === 'oos') {
-              const inventoryTracking =
-                product.inventoryTracking || row.inventoryTracking || 'none';
-
-              let inventoryLevel = product.inventoryLevel || row.inventoryLevel || 0;
-              if (inventoryTracking === 'variant') {
-                const currentVariant = product.variants.find(
-                  (variant: CustomFieldItems) => variant.sku === row.variantSku,
-                );
-
-                inventoryLevel = currentVariant?.inventory_level;
-              }
-
-              warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
-              warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-                qty: inventoryLevel,
-              });
-            } else {
-              warningMessage = b3Lang('quoteDraft.quoteTable.unavailable.tip');
-            }
-          }
-        } else if (isInventoryTrackingEnabled) {
-          let hasUnlimitedBackorder = product.unlimitedBackorder;
-
-          if (product.inventoryTracking === 'variant') {
-            const currentVariant = product.variants.find(
-              (variant: CustomFieldItems) => variant.sku === row.variantSku,
-            );
-            hasUnlimitedBackorder = currentVariant?.unlimited_backorder || false;
-          }
-
-          if (!hasUnlimitedBackorder) {
-            const availableStock = product.availableToSell;
-
-            if (availableStock < row.quantity) {
-              warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
-              warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-                qty: availableStock,
-              });
-            }
-          }
-        }
+      render: (row: QuoteItem['node']) => {
+        const productUrl = row.productsSearch?.productUrl;
+        const productOptionsValues = getProductOptionsValues(row.productsSearch, row.optionList);
+        const { warningMessage, warningDetails } = getAvailabilityWarnings(row, b3Lang);
 
         return (
           <Box
@@ -290,8 +342,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                 variant="body1"
                 color="#212121"
                 onClick={() => {
-                  if (product?.productUrl) {
-                    window.location.href = `${window.location.origin}${product?.productUrl}`;
+                  if (productUrl) {
+                    window.location.href = `${window.location.origin}${productUrl}`;
                   }
                 }}
                 sx={{
@@ -303,9 +355,9 @@ function QuoteTable(props: ShoppingDetailTableProps) {
               <Typography variant="body1" color="#616161">
                 {row.variantSku}
               </Typography>
-              {optionList.length > 0 && optionsValue.length > 0 && (
+              {productOptionsValues.length > 0 && (
                 <Box>
-                  {optionsValue.map((option: any) => (
+                  {productOptionsValues.map((option) => (
                     <Typography
                       sx={{
                         fontSize: '0.75rem',
@@ -314,7 +366,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                       }}
                       key={option.valueLabel}
                     >
-                      {`${option.valueLabel}: ${option.valueText}`}
+                      {option.valueLabel}: {option.valueText}
                     </Typography>
                   ))}
                 </Box>
