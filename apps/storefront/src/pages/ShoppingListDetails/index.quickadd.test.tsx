@@ -106,6 +106,8 @@ const buildProductWith = builder<Product>(() => ({
   productUrl: faker.internet.url(),
   quantity: faker.number.int(),
   product_options: [],
+  unlimitedBackorder: faker.datatype.boolean(),
+  availableToSell: faker.number.int(),
 }));
 
 const buildDraftQuoteItemWith = builder<QuoteItem>(() => ({
