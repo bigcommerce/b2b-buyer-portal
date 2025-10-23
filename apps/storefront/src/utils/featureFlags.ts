@@ -10,4 +10,4 @@ export const featureFlags = [
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
-export type FeatureFlags = { [key in FeatureFlagKey]: boolean } | Record<string, never>;
+export type FeatureFlags = Partial<{ [key in FeatureFlagKey]: boolean }>;
