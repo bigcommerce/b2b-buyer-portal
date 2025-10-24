@@ -1,6 +1,6 @@
-import { Box, Grid, Typography } from '@mui/material';
 import { KeyboardEventHandler, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Box, Grid, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -13,29 +13,23 @@ import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 import { validateProducts } from '@/utils/validateProducts';
 
-import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
+import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
+
+import {
+  CatalogProduct,
+  extractValidatedSkus,
+  findNotFoundSkus,
+  mapCatalogToValidationPayload,
+  mergeValidatedWithCatalog,
+  parseOptionList,
+} from './QuickAdd.validation';
 
 interface AddToListContentProps {
   quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
 }
 
 const LEVEL = 3;
-
-const parseOptionList = (options: string[] | undefined): ShoppingListAddProductOption[] => {
-  return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
-    try {
-      const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
-      arr.push({
-        optionId: `attribute[${option.option_id}]`,
-        optionValue: `${option.id}`,
-      });
-      return arr;
-    } catch (error) {
-      return arr;
-    }
-  }, []);
-};
 
 export default function QuickAdd(props: AddToListContentProps) {
   const b3Lang = useB3Lang();
@@ -346,6 +340,28 @@ export default function QuickAdd(props: AddToListContentProps) {
     return { productItems, passSku };
   };
 
+  const handleBackendValidation = async (
+    variantInfoList: CatalogProduct[],
+    skuValue: SimpleObject,
+    skus: string[],
+  ): Promise<{ productItems: CustomFieldItems[]; passSku: string[]; notFoundSkus: string[] }> => {
+    const notFoundSkus = findNotFoundSkus(skus, variantInfoList);
+
+    if (variantInfoList.length === 0) {
+      return { productItems: [], passSku: [], notFoundSkus };
+    }
+
+    const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
+
+    const backendValidatedProducts = await validateProducts(productsToValidate, b3Lang);
+
+    const productItems = mergeValidatedWithCatalog(backendValidatedProducts, variantInfoList);
+
+    const passSku = extractValidatedSkus(backendValidatedProducts, variantInfoList);
+
+    return { productItems, passSku, notFoundSkus };
+  };
+
   const handleAddToList = () => {
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
@@ -355,7 +371,6 @@ export default function QuickAdd(props: AddToListContentProps) {
     }
 
     handleSubmit(async (value) => {
-      let notFoundSkus: string[] = [];
       try {
         setIsLoading(true);
         const { skuValue, isValid, skus } = getProductData(value);
@@ -365,81 +380,16 @@ export default function QuickAdd(props: AddToListContentProps) {
         }
 
         const variantInfoList = await getVariantList(skus);
-        let productItems: CustomFieldItems[] = [];
-        let passSku: string[] = [];
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          // Find SKUs not found in catalog (compare input vs response)
-          const foundSkus = variantInfoList.map((v: CustomFieldItems) =>
-            v.variantSku.toUpperCase(),
-          );
-          notFoundSkus = skus.filter((sku) => !foundSkus.includes(sku.toUpperCase()));
+          const result = await handleBackendValidation(variantInfoList, skuValue, skus);
+          const { productItems, passSku, notFoundSkus } = result;
 
-          // If no SKUs were found at all, show error and return
-          if (variantInfoList.length === 0) {
-            snackbar.error(
-              b3Lang('purchasedProducts.quickAdd.notFoundSku', {
-                notFoundSku: skus.join(','),
-              }),
-            );
-            return;
-          }
-
-          // Map catalog products to format expected by backend validation
-          const productsToValidate = variantInfoList.map((catalogProduct: CustomFieldItems) => {
-            const matchingSkuFromInput = Object.keys(skuValue).find(
-              (inputSku) => inputSku.toUpperCase() === catalogProduct.variantSku.toUpperCase(),
-            );
-            const requestedQuantity = matchingSkuFromInput
-              ? (skuValue[matchingSkuFromInput] as number)
-              : 0;
-            return {
-              node: {
-                productId: parseInt(catalogProduct.productId, 10) || 0,
-                quantity: requestedQuantity,
-                productsSearch: {
-                  variantId: parseInt(catalogProduct.variantId, 10) || 0,
-                  newSelectOptionList: parseOptionList(catalogProduct.option),
-                },
-              },
-            };
-          });
-
-          const backendValidatedProducts = await validateProducts(productsToValidate, b3Lang);
-
-          productItems = backendValidatedProducts.map(
-            ({ node: validatedProduct }: CustomFieldItems) => {
-              const originalProductInfo = variantInfoList.find(
-                (catalogProduct: CustomFieldItems) =>
-                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
-              );
-              return {
-                ...originalProductInfo,
-                newSelectOptionList: validatedProduct.productsSearch.newSelectOptionList,
-                productId: validatedProduct.productId,
-                quantity: validatedProduct.quantity,
-                variantId: validatedProduct.productsSearch.variantId,
-              };
-            },
-          );
-
-          passSku = backendValidatedProducts
-            .map(({ node: validatedProduct }: CustomFieldItems) => {
-              const originalProductInfo = variantInfoList.find(
-                (catalogProduct: CustomFieldItems) =>
-                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
-              );
-              return originalProductInfo?.variantSku || '';
-            })
-            .filter(Boolean);
-
-          // Add valid products to cart
           if (productItems.length > 0) {
             await quickAddToList(productItems);
             clearInputValue(value, passSku);
           }
 
-          // Show not-found errors AFTER cart operation completes (better UX)
           if (notFoundSkus.length > 0) {
             snackbar.error(
               b3Lang('purchasedProducts.quickAdd.notFoundSku', {
@@ -448,12 +398,12 @@ export default function QuickAdd(props: AddToListContentProps) {
             );
           }
         } else {
-          ({ productItems, passSku } = await handleFrontendValidation(
+          const { productItems, passSku } = await handleFrontendValidation(
             value,
             variantInfoList,
             skuValue,
             skus,
-          ));
+          );
 
           if (productItems.length > 0) {
             await quickAddToList(productItems);
@@ -463,14 +413,6 @@ export default function QuickAdd(props: AddToListContentProps) {
       } catch (e) {
         if (e instanceof Error) {
           snackbar.error(e.message);
-        }
-        // Also show not-found SKUs if any exist
-        if (notFoundSkus.length > 0) {
-          snackbar.error(
-            b3Lang('purchasedProducts.quickAdd.notFoundSku', {
-              notFoundSku: notFoundSkus.join(','),
-            }),
-          );
         }
       } finally {
         setIsLoading(false);
