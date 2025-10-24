@@ -12,7 +12,7 @@ export interface CatalogProduct {
   minQuantity?: number;
 }
 
-export interface ValidationPayloadItem {
+interface ValidationPayloadItem {
   node: {
     productId: number;
     quantity: number;
@@ -23,7 +23,7 @@ export interface ValidationPayloadItem {
   };
 }
 
-export interface CartItem {
+interface CartItem {
   productId: number;
   quantity: number;
   variantId: number;
