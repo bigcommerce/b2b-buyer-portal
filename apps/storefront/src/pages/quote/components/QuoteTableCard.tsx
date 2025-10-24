@@ -3,19 +3,18 @@ import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import { Product } from '@/types';
+import { QuoteItem } from '@/types/quotes';
 import { currencyFormat } from '@/utils';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
-
-import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';
+import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
 interface QuoteTableCardProps {
-  item: any;
-  onEdit: (item: any, itemId: string) => void;
+  item: QuoteItem['node'];
+  onEdit: (item: Product, itemId: string) => void;
   onDelete: (id: string) => void;
-  handleUpdateProductQty: (id: number | string, value: number | string) => void;
-  idEdit: boolean;
-  len: number;
-  itemIndex?: number;
+  handleUpdateProductQty: (item: QuoteItem['node'], quantity: number) => void;
+  isLast: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -24,17 +23,13 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }));
 
-function QuoteTableCard(props: QuoteTableCardProps) {
-  const {
-    item: quoteTableItem,
-    onEdit,
-    onDelete,
-    handleUpdateProductQty,
-    idEdit,
-    len,
-    itemIndex,
-  } = props;
-
+function QuoteTableCard({
+  item,
+  onEdit,
+  onDelete,
+  handleUpdateProductQty,
+  isLast,
+}: QuoteTableCardProps) {
   const {
     basePrice,
     quantity,
@@ -44,7 +39,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     variantSku,
     productsSearch,
     taxPrice = 0,
-  } = quoteTableItem;
+  } = item;
 
   const b3Lang = useB3Lang();
 
@@ -52,37 +47,37 @@ function QuoteTableCard(props: QuoteTableCardProps) {
 
   const total = price * Number(quantity);
 
-  const product: any = {
-    ...quoteTableItem.productsSearch,
-    selectOptions: quoteTableItem.optionList,
+  const product = {
+    ...item.productsSearch,
+    selectOptions: item.optionList,
   };
 
   const productFields = getProductOptionsFields(product, {});
 
-  const optionList = JSON.parse(quoteTableItem.optionList);
+  const optionList = JSON.parse(item.optionList);
   const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
   const { productUrl } = productsSearch;
 
   const singlePrice = getDisplayPrice({
     price: currencyFormat(price),
-    productInfo: quoteTableItem,
+    productInfo: item,
     showText: b3Lang('quoteDraft.quoteSummary.tbd'),
   });
 
   const totalPrice = getDisplayPrice({
     price: currencyFormat(total),
-    productInfo: quoteTableItem,
+    productInfo: item,
     showText: b3Lang('quoteDraft.quoteSummary.tbd'),
   });
 
   return (
     <Box
-      key={quoteTableItem.id}
+      key={id}
       width="100%"
       sx={{
         borderTop: '1px solid #D9DCE9',
-        borderBottom: itemIndex === len - 1 ? '1px solid #D9DCE9' : '',
+        borderBottom: isLast ? '1px solid #D9DCE9' : '',
       }}
     >
       <CardContent
@@ -108,12 +103,8 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             variant="body1"
             color="#212121"
             onClick={() => {
-              const {
-                location: { origin },
-              } = window;
-
               if (productUrl) {
-                window.location.href = `${origin}${productUrl}`;
+                window.location.href = `${window.location.origin}${productUrl}`;
               }
             }}
             sx={{
@@ -132,7 +123,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
           >
             {optionList.length > 0 && optionsValue.length > 0 && (
               <Box>
-                {optionsValue.map((option: any) => (
+                {optionsValue.map((option) => (
                   <Typography
                     sx={{
                       fontSize: '0.75rem',
@@ -141,21 +132,20 @@ function QuoteTableCard(props: QuoteTableCardProps) {
                     }}
                     key={option.valueLabel}
                   >
-                    {`${option.valueLabel}: ${option.valueText}`}
+                    {option.valueLabel}: {option.valueText}
                   </Typography>
                 ))}
               </Box>
             )}
           </Box>
 
-          <Typography sx={{ fontSize: '14px' }}>{`Price: ${singlePrice}`}</Typography>
+          <Typography sx={{ fontSize: '14px' }}>Price: {singlePrice}</Typography>
 
           <TextField
             size="small"
             type="number"
             variant="filled"
             label="qty"
-            disabled={!idEdit}
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
@@ -173,10 +163,10 @@ function QuoteTableCard(props: QuoteTableCardProps) {
               },
             }}
             onChange={(e) => {
-              handleUpdateProductQty(quoteTableItem, e.target.value);
+              handleUpdateProductQty(item, Number(e.target.value));
             }}
           />
-          <Typography sx={{ fontSize: '14px' }}>{`Total: ${totalPrice}`}</Typography>
+          <Typography sx={{ fontSize: '14px' }}>Total: {totalPrice}</Typography>
           <Box
             sx={{
               marginTop: '1rem',
@@ -184,7 +174,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             }}
             id="shoppingList-actionList-mobile"
           >
-            {optionList.length > 0 && idEdit && (
+            {optionList.length > 0 && (
               <Edit
                 sx={{
                   marginRight: '0.5rem',
@@ -196,24 +186,19 @@ function QuoteTableCard(props: QuoteTableCardProps) {
                     {
                       ...productsSearch,
                       quantity,
-                      selectOptions: quoteTableItem.optionList,
+                      selectOptions: item.optionList,
                     },
                     id,
                   );
                 }}
               />
             )}
-            {idEdit && (
-              <Delete
-                sx={{
-                  cursor: 'pointer',
-                  color: 'rgba(0, 0, 0, 0.54)',
-                }}
-                onClick={() => {
-                  onDelete(id);
-                }}
-              />
-            )}
+            <Delete
+              sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
+              onClick={() => {
+                onDelete(id);
+              }}
+            />
           </Box>
         </Box>
       </CardContent>

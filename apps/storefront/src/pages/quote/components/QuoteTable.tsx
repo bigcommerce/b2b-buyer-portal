@@ -30,13 +30,6 @@ import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOpti
 
 import QuoteTableCard from './QuoteTableCard';
 
-interface ShoppingDetailTableProps {
-  total: number;
-  items: any[];
-  idEdit?: boolean;
-  updateSummary: () => void;
-}
-
 const StyledQuoteTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
   padding: '0',
@@ -164,23 +157,28 @@ function getAvailabilityWarningsBackend(
   return { warningMessage, warningDetails };
 }
 
-function QuoteTable(props: ShoppingDetailTableProps) {
-  const { total, items, idEdit = true, updateSummary } = props;
+interface QuoteTableProps {
+  total: number;
+  items: QuoteItem[];
+  updateSummary: () => void;
+}
+
+function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
   const featureFlags = useFeatureFlags();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
-  const [optionsProduct, setOptionsProduct] = useState<any>(null);
+  const [optionsProduct, setOptionsProduct] = useState<Product>();
   const [optionsProductId, setOptionsProductId] = useState<string>('');
 
   const showAvailabilityWarnings = useAppSelector(
     ({ global }) => !global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
-  const handleUpdateProductQty = async (row: any, value: number | string) => {
-    const product = await setModifierQtyPrice(row, Number(value));
+  const handleUpdateProductQty = async (row: QuoteItem['node'], quantity: number) => {
+    const product = await setModifierQtyPrice(row, quantity);
 
     dispatch(
       setDraftProduct({
@@ -193,19 +191,19 @@ function QuoteTable(props: ShoppingDetailTableProps) {
     updateSummary();
   };
 
-  const handleCheckProductQty = async (row: any, value: number | string) => {
-    let newQty = ceil(Number(value));
-    if (newQty === Number(value) && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) return;
+  const handleCheckProductQty = async (item: QuoteItem['node'], quantity: number) => {
+    let newQty = ceil(quantity);
+    if (newQty === Number(quantity) && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) return;
 
-    if (Number(value) < 1) {
+    if (quantity < 1) {
       newQty = 1;
     }
 
-    if (Number(value) > QUOTE_PRODUCT_QTY_MAX) {
+    if (quantity > QUOTE_PRODUCT_QTY_MAX) {
       newQty = QUOTE_PRODUCT_QTY_MAX;
     }
 
-    handleUpdateProductQty(row, newQty);
+    handleUpdateProductQty(item, newQty);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -416,7 +414,6 @@ function QuoteTable(props: ShoppingDetailTableProps) {
           size="small"
           type="number"
           variant="filled"
-          disabled={!idEdit}
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric',
@@ -469,7 +466,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
               }}
               id="shoppingList-actionList"
             >
-              {optionList.length > 0 && idEdit && (
+              {optionList.length > 0 && (
                 <Edit
                   sx={{
                     marginRight: '0.5rem',
@@ -490,18 +487,12 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                   }}
                 />
               )}
-              {idEdit && (
-                <Delete
-                  sx={{
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
-                  onClick={() => {
-                    const { id } = row;
-                    handleDeleteClick(id);
-                  }}
-                />
-              )}
+              <Delete
+                sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
+                onClick={() => {
+                  handleDeleteClick(row.id);
+                }}
+              />{' '}
             </Box>
           </Box>
         );
@@ -542,15 +533,13 @@ function QuoteTable(props: ShoppingDetailTableProps) {
         showBorder={false}
         itemIsMobileSpacing={0}
         noDataText={b3Lang('quoteDraft.quoteTable.noProducts')}
-        renderItem={(row, index?) => (
+        renderItem={(row, index = 0) => (
           <QuoteTableCard
-            len={total || 0}
             item={row}
-            itemIndex={index}
+            isLast={index === total - 1}
             onEdit={handleOpenProductEdit}
             onDelete={handleDeleteClick}
             handleUpdateProductQty={handleUpdateProductQty}
-            idEdit={idEdit}
           />
         )}
       />
