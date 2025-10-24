@@ -1,6 +1,6 @@
+import { Box, Grid, Typography } from '@mui/material';
 import { KeyboardEventHandler, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Grid, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
@@ -355,6 +355,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     }
 
     handleSubmit(async (value) => {
+      let notFoundSkus: string[] = [];
       try {
         setIsLoading(true);
         const { skuValue, isValid, skus } = getProductData(value);
@@ -368,7 +369,14 @@ export default function QuickAdd(props: AddToListContentProps) {
         let passSku: string[] = [];
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          if (variantInfoList.length <= 0) {
+          // Find SKUs not found in catalog (compare input vs response)
+          const foundSkus = variantInfoList.map((v: CustomFieldItems) =>
+            v.variantSku.toUpperCase(),
+          );
+          notFoundSkus = skus.filter((sku) => !foundSkus.includes(sku.toUpperCase()));
+
+          // If no SKUs were found at all, show error and return
+          if (variantInfoList.length === 0) {
             snackbar.error(
               b3Lang('purchasedProducts.quickAdd.notFoundSku', {
                 notFoundSku: skus.join(','),
@@ -376,6 +384,7 @@ export default function QuickAdd(props: AddToListContentProps) {
             );
             return;
           }
+
           // Map catalog products to format expected by backend validation
           const productsToValidate = variantInfoList.map((catalogProduct: CustomFieldItems) => {
             const matchingSkuFromInput = Object.keys(skuValue).find(
@@ -423,6 +432,21 @@ export default function QuickAdd(props: AddToListContentProps) {
               return originalProductInfo?.variantSku || '';
             })
             .filter(Boolean);
+
+          // Add valid products to cart
+          if (productItems.length > 0) {
+            await quickAddToList(productItems);
+            clearInputValue(value, passSku);
+          }
+
+          // Show not-found errors AFTER cart operation completes (better UX)
+          if (notFoundSkus.length > 0) {
+            snackbar.error(
+              b3Lang('purchasedProducts.quickAdd.notFoundSku', {
+                notFoundSku: notFoundSkus.join(','),
+              }),
+            );
+          }
         } else {
           ({ productItems, passSku } = await handleFrontendValidation(
             value,
@@ -430,14 +454,23 @@ export default function QuickAdd(props: AddToListContentProps) {
             skuValue,
             skus,
           ));
-        }
-        if (productItems.length > 0) {
-          await quickAddToList(productItems);
-          clearInputValue(value, passSku);
+
+          if (productItems.length > 0) {
+            await quickAddToList(productItems);
+            clearInputValue(value, passSku);
+          }
         }
       } catch (e) {
         if (e instanceof Error) {
           snackbar.error(e.message);
+        }
+        // Also show not-found SKUs if any exist
+        if (notFoundSkus.length > 0) {
+          snackbar.error(
+            b3Lang('purchasedProducts.quickAdd.notFoundSku', {
+              notFoundSku: notFoundSkus.join(','),
+            }),
+          );
         }
       } finally {
         setIsLoading(false);
