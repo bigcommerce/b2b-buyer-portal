@@ -4226,6 +4226,7 @@ describe('when the user is a B2B customer', () => {
       expect(mutationData).toContain(BILLING_ADDRESS_ID);
       expect(mutationData).toContain(SHIPPING_ADDRESS_ID);
     });
+
     it('excludes address IDs when saved addresses are modified', async () => {
       renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
 
@@ -4263,106 +4264,218 @@ describe('when the user is a B2B customer', () => {
     });
   });
 
-  it('adds a product with purchasing disabled when NP&OOS setting is enabled', async () => {
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+  describe('when adding products to quote with Non-Purchasable & Out of Stock enabled', () => {
+    it('can add a product with purchasing disabled', async () => {
+      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
-    const variant = buildVariantWith({
-      purchasing_disabled: false,
-      bc_calculated_price: {
-        tax_exclusive: 123,
-      },
-    });
-
-    when(searchProducts)
-      .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: variant.product_id,
-              name: 'Laugh Canister',
-              sku: 'LC-123',
-              optionsV3: [],
-              isPriceHidden: false,
-              orderQuantityMinimum: 0,
-              orderQuantityMaximum: 0,
-              inventoryLevel: 100,
-              variants: [variant],
-            }),
-          ],
+      const variant = buildVariantWith({
+        purchasing_disabled: false,
+        bc_calculated_price: {
+          tax_exclusive: 123,
         },
       });
 
-    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
-
-    when(getPriceProducts)
-      .calledWith({
-        storeHash: 'store-hash',
-        channelId: 1,
-        currencyCode: 'USD',
-        items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
-        customerGroupId: 0,
-      })
-      .thenReturn({
-        data: {
-          priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
-        },
-      });
-
-    const getVariantInfoBySkus = vi.fn();
-
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LC-123',
-      minQuantity: 0,
-      purchasingDisabled: '1',
-      isStock: '1',
-      stock: 50,
-      productId: variant.product_id.toString(),
-      variantId: variant.variant_id.toString(),
-    });
-
-    when(getVariantInfoBySkus)
-      .calledWith(expect.stringContaining('variantSkus: ["LC-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-    server.use(
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
-      graphql.query('priceProducts', ({ variables }) =>
-        HttpResponse.json(getPriceProducts(variables)),
-      ),
-      graphql.query('GetVariantInfoBySkus', ({ query }) =>
-        HttpResponse.json(getVariantInfoBySkus(query)),
-      ),
-    );
-
-    const quoteInfo = buildQuoteInfoStateWith({
-      draftQuoteInfo: {
-        contactInfo: { email: customerEmail },
-        billingAddress: noAddress,
-        shippingAddress: noAddress,
-      },
-    });
-
-    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-      preloadedState: {
-        ...preloadedState,
-        quoteInfo,
-        global: buildGlobalStateWith({
-          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+      when(searchProducts)
+        .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+        .thenReturn({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: variant.product_id,
+                name: 'Laugh Canister',
+                sku: 'LC-123',
+                optionsV3: [],
+                isPriceHidden: false,
+                orderQuantityMinimum: 0,
+                orderQuantityMaximum: 0,
+                inventoryLevel: 100,
+                variants: [variant],
+              }),
+            ],
           },
-        }),
-      },
+        });
+
+      const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+      when(getPriceProducts)
+        .calledWith({
+          storeHash: 'store-hash',
+          channelId: 1,
+          currencyCode: 'USD',
+          items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+          customerGroupId: 0,
+        })
+        .thenReturn({
+          data: {
+            priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+          },
+        });
+
+      const getVariantInfoBySkus = vi.fn();
+
+      const variantInfo = buildVariantInfoWith({
+        variantSku: 'LC-123',
+        minQuantity: 0,
+        purchasingDisabled: '1',
+        isStock: '1',
+        stock: 50,
+        productId: variant.product_id.toString(),
+        variantId: variant.variant_id.toString(),
+      });
+
+      when(getVariantInfoBySkus)
+        .calledWith(expect.stringContaining('variantSkus: ["LC-123"]'))
+        .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+      server.use(
+        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+        graphql.query('priceProducts', ({ variables }) =>
+          HttpResponse.json(getPriceProducts(variables)),
+        ),
+        graphql.query('GetVariantInfoBySkus', ({ query }) =>
+          HttpResponse.json(getVariantInfoBySkus(query)),
+        ),
+      );
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+            featureFlags: {
+              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            },
+          }),
+        },
+      });
+
+      await userEvent.click(screen.getByText('Add to quote'));
+      const quickAddProduct = screen.getByLabelText('SKU#');
+      await userEvent.type(quickAddProduct, 'LC-123');
+      const quantityProduct = screen.getByLabelText('Qty');
+      await userEvent.type(quantityProduct, '1');
+      await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
+
+      expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText('Add to quote'));
-    const quickAddProduct = screen.getByLabelText('SKU#');
-    await userEvent.type(quickAddProduct, 'LC-123');
-    const quantityProduct = screen.getByLabelText('Qty');
-    await userEvent.type(quantityProduct, '1');
-    await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
+    it('adds a product without enough stock and shows no warnings', async () => {
+      const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
-    expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
+      const variant = buildVariantWith({
+        sku: 'LC-123',
+        purchasing_disabled: false,
+      });
+
+      when(searchProducts)
+        .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+        .thenReturn({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: variant.product_id,
+                name: 'Laugh Canister',
+                sku: 'LC-123',
+                optionsV3: [],
+                isPriceHidden: false,
+                availableToSell: 0,
+                orderQuantityMinimum: 0,
+                orderQuantityMaximum: 0,
+                unlimitedBackorder: false,
+                inventoryLevel: 0,
+                inventoryTracking: 'product',
+                variants: [variant],
+              }),
+            ],
+          },
+        });
+
+      const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+      when(getPriceProducts)
+        .calledWith({
+          storeHash: 'store-hash',
+          channelId: 1,
+          currencyCode: 'USD',
+          items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+          customerGroupId: 0,
+        })
+        .thenReturn({
+          data: {
+            priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+          },
+        });
+
+      const getVariantInfoBySkus = vi.fn();
+
+      const variantInfo = buildVariantInfoWith({
+        variantSku: 'LC-123',
+        minQuantity: 0,
+        purchasingDisabled: '1',
+        isStock: '1',
+        stock: 50,
+        productId: variant.product_id.toString(),
+        variantId: variant.variant_id.toString(),
+      });
+
+      when(getVariantInfoBySkus)
+        .calledWith(expect.stringContaining('variantSkus: ["LC-123"]'))
+        .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+      server.use(
+        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+        graphql.query('priceProducts', ({ variables }) =>
+          HttpResponse.json(getPriceProducts(variables)),
+        ),
+        graphql.query('GetVariantInfoBySkus', ({ query }) =>
+          HttpResponse.json(getVariantInfoBySkus(query)),
+        ),
+      );
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+            featureFlags: {
+              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            },
+          }),
+        },
+      });
+
+      await userEvent.click(screen.getByText('Add to quote'));
+
+      await userEvent.type(screen.getByLabelText('SKU#'), 'LC-123');
+      await userEvent.type(screen.getByLabelText('Qty'), '1');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products were added to your quote.')).toBeInTheDocument();
+      });
+
+      const cell = await screen.findByRole('cell', { name: /LC-123/ });
+
+      expect(within(cell).queryByText('Insufficient stock')).not.toBeInTheDocument();
+    });
   });
 });

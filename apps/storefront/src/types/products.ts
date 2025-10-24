@@ -82,6 +82,7 @@ export interface Variant {
   cost_price?: number;
   inventory_level: number;
   bc_calculated_price: BcCalculatedPrice;
+  unlimited_backorder: boolean;
 }
 
 export interface ALlOptionValue {
@@ -171,6 +172,8 @@ export interface Product {
   productUrl: string;
   quantity: number;
   product_options?: ProductOptionsItem[];
+  unlimitedBackorder: boolean;
+  availableToSell: number;
   [key: string]: any;
 }
 

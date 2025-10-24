@@ -77,6 +77,8 @@ export interface QuoteItem {
     variantSku?: string;
     calculatedValue: CalculatedValue;
     productsSearch: Product;
+    inventoryTracking?: 'none' | 'product' | 'variant';
+    inventoryLevel?: number;
     additionalCalculatedPrices?:
       | AdditionalCalculatedPricesProps
       | AdditionalCalculatedPricesProps[];

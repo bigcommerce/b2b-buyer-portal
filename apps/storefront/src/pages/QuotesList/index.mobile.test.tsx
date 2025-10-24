@@ -100,6 +100,8 @@ const productSearchItem = builder<QuoteItem['node']['productsSearch']>(() => ({
   productUrl: faker.internet.url(),
   quantity: faker.number.int(),
   product_options: [],
+  availableToSell: faker.number.int(),
+  unlimitedBackorder: faker.datatype.boolean(),
 }));
 
 const buildDraftQuoteItemWith = builder<QuoteItem>(() => ({
