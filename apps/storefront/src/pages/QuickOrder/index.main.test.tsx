@@ -2894,6 +2894,252 @@ describe('When backend validation feature flag is on', () => {
     expect(error).toBeInTheDocument();
   });
 
+  it('quick add shows not-found SKU error after adding valid products to cart', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const validVariant = buildVariantInfoWith({
+      variantSku: 'VALID-SKU',
+      productId: '123',
+      variantId: '456',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 100,
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["VALID-SKU","NOT-FOUND-SKU"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [validVariant] } }));
+
+    const validateProduct = vi.fn().mockReturnValue({
+      data: {
+        validateProduct: buildValidateProductWith({
+          responseType: 'SUCCESS',
+          message: '',
+        }),
+      },
+    });
+
+    const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith(
+        expect.objectContaining({
+          createCartInput: expect.objectContaining({
+            lineItems: expect.arrayContaining([
+              expect.objectContaining({
+                quantity: 2,
+                productEntityId: Number(validVariant.productId),
+                variantEntityId: Number(validVariant.variantId),
+              }),
+            ]),
+          }),
+        }),
+      )
+      .thenReturn({
+        data: {
+          cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+
+    await userEvent.type(skuInputs[0], 'VALID-SKU');
+    await userEvent.type(qtyInputs[0], '2');
+
+    await userEvent.type(skuInputs[1], 'NOT-FOUND-SKU');
+    await userEvent.type(qtyInputs[1], '3');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
+
+    expect(
+      await screen.findByText('SKU NOT-FOUND-SKU were not found, please check entered values'),
+    ).toBeInTheDocument();
+  });
+
+  it('quick add shows not-found SKU error with validation errors for mixed scenario', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const validVariant = buildVariantInfoWith({
+      variantSku: 'VALID-SKU',
+      productId: '123',
+      variantId: '456',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 100,
+    });
+
+    const outOfStockVariant = buildVariantInfoWith({
+      variantSku: 'OUT-OF-STOCK-SKU',
+      productId: '789',
+      variantId: '012',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 5,
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(
+        expect.stringContaining('variantSkus: ["VALID-SKU","OUT-OF-STOCK-SKU","NOT-FOUND-SKU"]'),
+      )
+      .thenDo(() =>
+        buildVariantInfoResponseWith({ data: { variantSku: [validVariant, outOfStockVariant] } }),
+      );
+
+    const validateProduct = vi.fn();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(validVariant.productId),
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'SUCCESS',
+            message: '',
+          }),
+        },
+      });
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(outOfStockVariant.productId),
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
+          }),
+        },
+      });
+
+    const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith(
+        expect.objectContaining({
+          createCartInput: expect.objectContaining({
+            lineItems: expect.arrayContaining([
+              expect.objectContaining({
+                quantity: 2,
+                productEntityId: Number(validVariant.productId),
+                variantEntityId: Number(validVariant.variantId),
+              }),
+            ]),
+          }),
+        }),
+      )
+      .thenReturn({
+        data: {
+          cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+
+    await userEvent.type(skuInputs[0], 'VALID-SKU');
+    await userEvent.type(qtyInputs[0], '2');
+
+    await userEvent.type(skuInputs[1], 'OUT-OF-STOCK-SKU');
+    await userEvent.type(qtyInputs[1], '10');
+
+    await userEvent.type(skuInputs[2], 'NOT-FOUND-SKU');
+    await userEvent.type(qtyInputs[2], '3');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    expect(
+      await screen.findByText(
+        'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
+      ),
+    ).toBeInTheDocument();
+
+    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
+
+    expect(
+      await screen.findByText('SKU NOT-FOUND-SKU were not found, please check entered values'),
+    ).toBeInTheDocument();
+  });
+
   it('adds a product to the cart succesfully', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
