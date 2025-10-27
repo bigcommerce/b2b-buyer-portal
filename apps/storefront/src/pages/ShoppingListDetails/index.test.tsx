@@ -805,7 +805,6 @@ describe("when a product's quantity is increased", () => {
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
       node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
@@ -840,7 +839,7 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelyBoots = screen.getByRole('row', { name: /Lovely boots/ });
-    within(rowOfLovelyBoots).getByRole('checkbox').click();
+    await userEvent.click(within(rowOfLovelyBoots).getByRole('checkbox'));
 
     getShoppingList.mockReturnValueOnce(
       buildShoppingListGraphQLResponseWith({
@@ -856,7 +855,7 @@ describe("when a product's quantity is increased", () => {
       initialSelectionEnd: Infinity,
     });
     expect(getShoppingList).toHaveBeenCalledTimes(2);
-    quantityInput.blur();
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(getShoppingList).toHaveBeenCalledTimes(3);
@@ -964,7 +963,6 @@ describe('when the shopping list is ready for approval', () => {
 describe('when shopping list products verify inventory into add to cart', () => {
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1065,7 +1063,6 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1166,7 +1163,6 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1273,7 +1269,6 @@ describe('when shopping list products verify inventory into add to cart', () => 
 describe('Add to quote', () => {
   it('add shopping list to draft quote', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const searchProductsQuerySpy = vi.fn();
 
@@ -2067,7 +2062,7 @@ describe('when backend validation is enabled', () => {
 
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2169,7 +2164,7 @@ describe('when backend validation is enabled', () => {
 
   it('respects unlimited backorder stock', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2280,7 +2275,7 @@ describe('when backend validation is enabled', () => {
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2382,7 +2377,7 @@ describe('when backend validation is enabled', () => {
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2584,7 +2579,6 @@ describe('when backend validation is enabled', () => {
 
   it('shows only the most recent error for the product added to the cart', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -2747,7 +2741,6 @@ describe('when backend validation is enabled', () => {
 
   it('succeeds adding to cart when initial add works (no validation needed)', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 
@@ -2813,7 +2806,6 @@ describe('when backend validation is enabled', () => {
 
   it('adds valid products to cart while showing failed products in dialog', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 
@@ -2948,7 +2940,6 @@ describe('when backend validation is enabled', () => {
 
   it('shows all products as failed when all validation fails', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const product1 = buildShoppingListProductEdgeWith({
       node: {
@@ -3045,7 +3036,6 @@ describe('when backend validation is enabled', () => {
 
   it('treats products with WARNING validation response as failures', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const warningProduct = buildShoppingListProductEdgeWith({
       node: {
@@ -3125,7 +3115,7 @@ describe('when backend validation is enabled', () => {
 
   it('shows all products as failed when second cart add fails after validation', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const product = buildShoppingListProductEdgeWith({
       node: {
@@ -3208,7 +3198,7 @@ describe('when backend validation is enabled', () => {
 
   it('does not validate products on network error and shows all products as failed', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const product = buildShoppingListProductEdgeWith({
       node: {

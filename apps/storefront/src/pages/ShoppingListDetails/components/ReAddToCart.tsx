@@ -84,7 +84,9 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   };
 });
 
-const FlexItem = styled(Box)(
+const FlexItem = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'textAlignLocation',
+})(
   ({
     width,
     padding = '0',
