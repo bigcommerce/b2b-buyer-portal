@@ -56,7 +56,7 @@ interface FlexItemProps {
     | 'column-reverse'
     | 'row'
     | 'row-reverse';
-  textAlignLocation?: string;
+  $textAlignLocation?: string;
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -93,17 +93,12 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   };
 });
 
-const FlexItem = styled(Box)(
-  ({
-    width,
-    padding = '0',
-    flexBasis,
-    flexDirection = 'row',
-    alignItems,
-    textAlignLocation,
-  }: FlexItemProps) => ({
+const ignoreDollarProps = (prop: string): boolean => !prop.startsWith('$');
+
+const FlexItem = styled(Box, { shouldForwardProp: ignoreDollarProps })<FlexItemProps>(
+  ({ width, padding = '0', flexBasis, flexDirection = 'row', alignItems, $textAlignLocation }) => ({
     display: 'flex',
-    justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
+    justifyContent: $textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
     flexDirection,
     flexGrow: width ? 0 : 1,
     flexShrink: width ? 0 : 1,
@@ -155,18 +150,16 @@ const mobileItemStyle = {
   },
 };
 
-export default function ReAddToCart(props: ShoppingProductsProps) {
-  const {
-    shoppingListInfo,
-    products,
-    successProducts,
-    allowJuniorPlaceOrder,
-    setValidateFailureProducts,
-    setValidateSuccessProducts,
-    textAlign = 'left',
-    backendValidationEnabled,
-  } = props;
-
+export default function ReAddToCart({
+  shoppingListInfo,
+  products,
+  successProducts,
+  allowJuniorPlaceOrder,
+  setValidateFailureProducts,
+  setValidateSuccessProducts,
+  textAlign = 'left',
+  backendValidationEnabled,
+}: ShoppingProductsProps) {
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
@@ -416,7 +409,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                   <FlexItem>
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.product')}</ProductHead>
                   </FlexItem>
-                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                  <FlexItem {...itemStyle.default} $textAlignLocation={textAlign}>
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.price')}</ProductHead>
                   </FlexItem>
                   <FlexItem
@@ -424,11 +417,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                       justifyContent: 'center',
                     }}
                     {...itemStyle.default}
-                    textAlignLocation={textAlign}
+                    $textAlignLocation={textAlign}
                   >
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.quantity')}</ProductHead>
                   </FlexItem>
-                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                  <FlexItem {...itemStyle.default} $textAlignLocation={textAlign}>
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.total')}</ProductHead>
                   </FlexItem>
                   <FlexItem {...itemStyle.delete}>
@@ -495,11 +488,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                           ))}
                       </Box>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <FlexItem {...itemStyle.default} $textAlignLocation={textAlign}>
                       {isMobile && <span>Price: </span>}
                       {currencyFormat(price)}
                     </FlexItem>
-                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <FlexItem {...itemStyle.default} $textAlignLocation={textAlign}>
                       <B3QuantityTextField
                         isStock={isStock}
                         maxQuantity={maxQuantity || node.productsSearch?.orderQuantityMaximum}
@@ -511,7 +504,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                         }}
                       />
                     </FlexItem>
-                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <FlexItem {...itemStyle.default} $textAlignLocation={textAlign}>
                       {isMobile && <div>Total: </div>}
                       {currencyFormat(total)}
                     </FlexItem>

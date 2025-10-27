@@ -788,7 +788,6 @@ describe("when a product's quantity is increased", () => {
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
       node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
@@ -845,7 +844,6 @@ describe("when a product's quantity is increased", () => {
       expect(getShoppingList).toHaveBeenCalledTimes(3);
     });
     expect(within(rowOfLovelyBoots).getByRole('checkbox')).toBeChecked();
-    spy.mockRestore();
   });
 });
 
@@ -948,7 +946,6 @@ describe('when the shopping list is ready for approval', () => {
 describe('when shopping list products verify inventory into add to cart', () => {
   it('it error on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
 
@@ -1047,13 +1044,10 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-
-    spy.mockRestore();
   });
 
   it('it error on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
 
@@ -1152,13 +1146,10 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-
-    spy.mockRestore();
   });
 
   it('it error on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
 
@@ -1261,15 +1252,12 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-
-    spy.mockRestore();
   });
 });
 
 describe('Add to quote', () => {
   it('add shopping list to draft quote', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
     const searchProductsQuerySpy = vi.fn();
@@ -1789,7 +1777,6 @@ describe('CSV upload and add to quote flow', () => {
 describe('when backend validation is enabled', () => {
   it('it error on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
 
@@ -1907,13 +1894,10 @@ describe('when backend validation is enabled', () => {
     expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('1 in stock');
-
-    spy.mockRestore();
   });
 
   it('it error on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const getVariantInfoBySkus = vi.fn();
 
@@ -2040,8 +2024,6 @@ describe('when backend validation is enabled', () => {
     expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('Min is 3');
-
-    spy.mockRestore();
   });
 
   it('it error on max quantity exceed', async () => {
