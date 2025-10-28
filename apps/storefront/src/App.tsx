@@ -335,9 +335,12 @@ export default function App() {
   }, [isOpen]);
 
   useEffect(() => {
-    const { hash = '' } = window.location;
-
-    const handleHashChange = () => (!hash || hash === '#/') && setOpenPage({ isOpen: false });
+    const handleHashChange = () => {
+      const { hash } = window.location;
+      if (!hash || hash === '#/') {
+        setOpenPage({ isOpen: false });
+      }
+    };
 
     window.addEventListener('hashchange', handleHashChange);
 
