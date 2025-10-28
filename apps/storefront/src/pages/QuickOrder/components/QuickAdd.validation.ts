@@ -31,10 +31,6 @@ interface CartItem {
   variantSku: string;
 }
 
-/**
- * Parses option strings into ShoppingListAddProductOption format.
- * Handles both string and object inputs gracefully.
- */
 export function parseOptionList(options: string[] | undefined): ShoppingListAddProductOption[] {
   return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
     try {
@@ -109,22 +105,4 @@ export function mergeValidatedWithCatalog(
       variantSku: originalProductInfo?.variantSku || '',
     };
   });
-}
-
-/**
- * Extracts the list of SKUs that passed validation.
- * Used to clear form inputs after successful cart addition.
- */
-export function extractValidatedSkus(
-  validatedProducts: CustomFieldItems[],
-  catalogProducts: CatalogProduct[],
-): string[] {
-  return validatedProducts
-    .map(({ node: validatedProduct }: CustomFieldItems) => {
-      const originalProductInfo = catalogProducts.find(
-        (catalogProduct) => parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
-      );
-      return originalProductInfo?.variantSku || '';
-    })
-    .filter(Boolean);
 }

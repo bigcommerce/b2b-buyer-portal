@@ -454,11 +454,19 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (!isEnableProduct && isMoveStockAndBackorderValidationToBackend) {
-      const validatedProducts = await validateProducts(products, b3Lang);
+      const { validProducts, errors } = await validateProducts(products);
 
-      addQuoteDraftProducts(validatedProducts);
+      errors.forEach((error) => {
+        if (error.translationKey && error.translationParams) {
+          snackbar.error(b3Lang(error.translationKey, error.translationParams));
+        } else if (error.message) {
+          snackbar.error(error.message);
+        }
+      });
 
-      return validatedProducts.length > 0;
+      addQuoteDraftProducts(validProducts);
+
+      return validProducts.length > 0;
     }
 
     addQuoteDraftProducts(products);
