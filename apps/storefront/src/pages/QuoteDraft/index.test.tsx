@@ -383,9 +383,16 @@ const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display:
 
 const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
 
+const fakeCountry = {
+  id: '9999',
+  countryName: 'Fake Country',
+  countryCode: 'FC',
+  states: [],
+};
+
 it('displays a page title of "Quote" and label "Draft"', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
     ),
@@ -402,7 +409,7 @@ it('displays a page title of "Quote" and label "Draft"', async () => {
 
 it('displays a summary of the products within the quote draft', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
     ),
@@ -441,7 +448,7 @@ it('displays a summary of the products within the quote draft', async () => {
 
 it('displays a quote summary', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
     ),
@@ -483,7 +490,7 @@ it('displays a quote summary', async () => {
 
 it('displays the buyer info', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
     ),
@@ -517,7 +524,7 @@ it('displays the buyer info', async () => {
 
 it('displays buyer information for users with not addresses permission', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({
         errors: [
@@ -573,7 +580,7 @@ it('displays buyer information for users with not addresses permission', async (
 describe('when there is a billing address assigned', () => {
   it('displays the billing address', async () => {
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -617,7 +624,7 @@ describe('when there is a billing address assigned', () => {
 describe('when there is no billing address assigned', () => {
   it('displays a message of "Please add billing address"', async () => {
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -641,7 +648,7 @@ describe('when there is no billing address assigned', () => {
 describe('when there is a shipping address assigned', () => {
   it('displays the shipping address', async () => {
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -685,7 +692,7 @@ describe('when there is a shipping address assigned', () => {
 describe('when there is no shipping address assigned', () => {
   it('displays a message of "Please add shipping address"', async () => {
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -708,7 +715,7 @@ describe('when there is no shipping address assigned', () => {
 
 it('displays the quote info', async () => {
   server.use(
-    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [] } })),
+    graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
     graphql.query('Addresses', () =>
       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
     ),
@@ -739,12 +746,10 @@ it('displays the quote info', async () => {
 
 describe('when editing the buyer info', () => {
   it('displays the "Contact person" and "Email" fields as disabled', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+    const fakeAddress = buildAddressWith({ country: fakeCountry.countryCode, state: 'Fake State' });
 
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -756,8 +761,8 @@ describe('when editing the buyer info', () => {
     const quoteInfo = buildQuoteInfoStateWith({
       draftQuoteInfo: {
         contactInfo: { name: 'Joey Johnson', email: 'joey.johnson@abc.com' },
-        shippingAddress: usAddress,
-        billingAddress: usAddress,
+        shippingAddress: fakeAddress,
+        billingAddress: fakeAddress,
       },
     });
 
@@ -774,12 +779,10 @@ describe('when editing the buyer info', () => {
 
 describe('when buyer info is changed and then saved', () => {
   it('displays the updated buyer info details', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+    const fakeAddress = buildAddressWith({ country: fakeCountry.countryCode, state: 'Fake State' });
 
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -793,8 +796,8 @@ describe('when buyer info is changed and then saved', () => {
       draftQuoteInfo: {
         // email is checked on save and must match the company.customer in state for the save to succeed
         contactInfo: { companyName: 'ABC Inc', phoneNumber: '04747666333', email: customerEmail },
-        shippingAddress: usAddress,
-        billingAddress: usAddress,
+        shippingAddress: fakeAddress,
+        billingAddress: fakeAddress,
       },
     });
 
@@ -823,12 +826,10 @@ describe('when buyer info is changed and then saved', () => {
 
 describe('when quote info is changed and then saved', () => {
   it('displays the updated quote info details', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-    const usAddress = buildAddressWith({ country: usa.countryCode, state: alabama.stateCode });
+    const fakeAddress = buildAddressWith({ country: fakeCountry.countryCode, state: 'Fake State' });
 
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -843,8 +844,8 @@ describe('when quote info is changed and then saved', () => {
         // email is checked on save and must match the company.customer in state for the save to succeed
         contactInfo: { email: customerEmail, quoteTitle: '' },
         referenceNumber: '',
-        shippingAddress: usAddress,
-        billingAddress: usAddress,
+        shippingAddress: fakeAddress,
+        billingAddress: fakeAddress,
       },
     });
 
@@ -1041,9 +1042,6 @@ describe('when a shipping address is added and then saved', () => {
 
 describe('when the user is a B2B customer', () => {
   it('shows the results in a modal and allows adding to quote', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     const variant = buildVariantWith({
@@ -1090,7 +1088,7 @@ describe('when the user is a B2B customer', () => {
       });
 
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -1130,9 +1128,6 @@ describe('when the user is a B2B customer', () => {
   });
 
   it('add product by sku to draft quote', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     const variant = buildVariantWith({
@@ -1195,7 +1190,7 @@ describe('when the user is a B2B customer', () => {
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -1234,11 +1229,8 @@ describe('when the user is a B2B customer', () => {
   });
 
   it('shows stock warning in the product table', async () => {
-    const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-    const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-
     server.use(
-      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
       graphql.query('Addresses', () =>
         HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
       ),
@@ -1340,11 +1332,8 @@ describe('when the user is a B2B customer', () => {
     };
 
     it('does not show stock warning in the product table', async () => {
-      const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-      const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-
       server.use(
-        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
         graphql.query('Addresses', () =>
           HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
         ),
@@ -1670,11 +1659,8 @@ describe('when the user is a B2B customer', () => {
     });
 
     it('does show stock warning in the product table if inventory tracking is enabled and quantity exceeds stock', async () => {
-      const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-      const usa = { id: '226', countryName: 'United States', countryCode: 'US', states: [alabama] };
-
       server.use(
-        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
         graphql.query('Addresses', () =>
           HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
         ),
@@ -2100,14 +2086,6 @@ describe('when the user is a B2B customer', () => {
 
     describe('product search modal', () => {
       it('adds product successfully when validateProduct returns a success', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2171,7 +2149,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -2222,14 +2202,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('adds product successfully when validateProduct returns a warning', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2296,7 +2268,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -2347,14 +2321,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('does not add product when validateProduct returns an error', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2421,7 +2387,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -2581,14 +2549,6 @@ describe('when the user is a B2B customer', () => {
 
     describe('quick add', () => {
       it('adds product successfully when validateProduct returns a success', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2671,7 +2631,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -2721,14 +2683,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('adds product successfully when validateProduct returns a warning', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2811,7 +2765,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -2861,14 +2817,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('does not add product when validateProduct returns an error', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2951,7 +2899,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -3129,14 +3079,6 @@ describe('when the user is a B2B customer', () => {
 
     describe('csv upload', () => {
       it('adds product successfully when validateProduct returns a success', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const csvProducts = [
           buildCSVProductWith({
             id: '73737',
@@ -3268,7 +3210,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -3336,14 +3280,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('adds product successfully when validateProduct returns a warning', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const csvProducts = [
           buildCSVProductWith({
             id: '73737',
@@ -3478,7 +3414,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -3546,14 +3484,6 @@ describe('when the user is a B2B customer', () => {
       });
 
       it('does not add product when validateProduct returns an error', async () => {
-        const alabama = { stateName: 'Alabama', stateCode: 'AL' };
-        const usa = {
-          id: '226',
-          countryName: 'United States',
-          countryCode: 'US',
-          states: [alabama],
-        };
-
         const csvProducts = [
           buildCSVProductWith({
             id: '73737',
@@ -3688,7 +3618,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('Countries', () => HttpResponse.json({ data: { countries: [usa] } })),
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
           graphql.query('Addresses', () =>
             HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
           ),
@@ -4439,6 +4371,13 @@ describe('when the user is a B2B customer', () => {
         graphql.query('GetVariantInfoBySkus', ({ query }) =>
           HttpResponse.json(getVariantInfoBySkus(query)),
         ),
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({
@@ -4462,6 +4401,8 @@ describe('when the user is a B2B customer', () => {
           }),
         },
       });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       await userEvent.click(screen.getByText('Add to quote'));
 
