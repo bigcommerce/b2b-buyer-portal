@@ -1,4 +1,4 @@
-import { KeyboardEventHandler, useEffect, useState } from 'react';
+import { KeyboardEventHandler, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Grid, Typography } from '@mui/material';
 
@@ -28,7 +28,7 @@ interface AddToListContentProps {
   quickAddToList: (products: CustomFieldItems[]) => Promise<CustomFieldItems>;
 }
 
-const LEVEL = 3;
+const INITIAL_NUM_ROWS = 3;
 
 export default function QuickAdd(props: AddToListContentProps) {
   const b3Lang = useB3Lang();
@@ -37,26 +37,13 @@ export default function QuickAdd(props: AddToListContentProps) {
   const featureFlags = useFeatureFlags();
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
-  const [rows, setRows] = useState(LEVEL);
-  const [formFields, setFormFields] = useState<CustomFieldItems[]>([]);
+  const [numRows, setNumRows] = useState(INITIAL_NUM_ROWS);
   const [isLoading, setIsLoading] = useState(false);
-
-  const loopRows = (rows: number, fn: (index: number) => void) => {
-    new Array(rows).fill(1).forEach((_, index) => fn(index));
-  };
-
-  useEffect(() => {
-    let formFields: CustomFieldItems[] = [];
-    loopRows(rows, (index) => {
-      formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)];
-    });
-    setFormFields(formFields);
-  }, [b3Lang, rows]);
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const handleAddRowsClick = () => {
-    setRows(rows + LEVEL);
+    setNumRows((current) => current + INITIAL_NUM_ROWS);
   };
 
   const {
@@ -70,10 +57,15 @@ export default function QuickAdd(props: AddToListContentProps) {
     mode: 'all',
   });
 
+  const skuQuantityInputFields = useMemo(
+    () => [...Array(numRows).keys()].map((row) => getQuickAddRowFields(row, b3Lang)).flat(),
+    [numRows, b3Lang],
+  );
+
   const convertFormInputToValidProducts = (formData: Record<string, string>) => {
     const skuQuantityMap: Record<string, number> = {};
     let allRowsValid = true;
-    for (let index = 0; index < rows; index += 1) {
+    for (let index = 0; index < numRows; index += 1) {
       const sku = formData[`sku-${index}`];
       const qty = formData[`qty-${index}`];
 
@@ -474,7 +466,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           }}
         >
           <B3CustomForm
-            formFields={formFields}
+            formFields={skuQuantityInputFields}
             errors={errors}
             control={control}
             getValues={getValues}
