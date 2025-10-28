@@ -4447,6 +4447,7 @@ describe('when the user is a B2B customer', () => {
           billingAddress: noAddress,
           shippingAddress: noAddress,
         },
+        draftQuoteList: [],
       });
 
       renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
