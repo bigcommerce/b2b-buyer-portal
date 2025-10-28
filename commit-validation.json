@@ -18,6 +18,7 @@
     "company-orders",
     "invoices",
     "invoice-payment",
-    "register"
+    "register",
+    "login"
   ]
 }
