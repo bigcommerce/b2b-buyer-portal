@@ -82,6 +82,7 @@ export interface Variant {
   cost_price?: number;
   inventory_level: number;
   bc_calculated_price: BcCalculatedPrice;
+  available_to_sell: number;
   unlimited_backorder: boolean;
 }
 
