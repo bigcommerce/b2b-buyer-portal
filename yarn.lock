@@ -1808,15 +1808,15 @@
     yaml "^2.3.1"
     yargs "^17.0.0"
 
-"@graphql-codegen/client-preset@^5.0.0", "@graphql-codegen/client-preset@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@graphql-codegen/client-preset/-/client-preset-5.1.0.tgz#8160fe408f517050736dda588ca4aa234c02d41f"
-  integrity sha512-MYMy9dIlAgT3q1U8WUys6Y8yt/T9WLsm1DczRtrCpV5N11v4Rlg3hGWQmEvhJtBbWxgzfYoHZHb0TohtbLkJ+g==
+"@graphql-codegen/client-preset@^5.0.0", "@graphql-codegen/client-preset@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/client-preset/-/client-preset-5.1.1.tgz#cef6fbd0df1ee2608c95044296df29492baa4298"
+  integrity sha512-d7a4KdZJBOPt/O55JneBz9WwvpWar/P5yyxfjZvvoRErXPRsWtswLp+CBKKPkRcEIz9MXfTdQ1GL3kQg16DLfg==
   dependencies:
     "@babel/helper-plugin-utils" "^7.20.2"
     "@babel/template" "^7.20.7"
     "@graphql-codegen/add" "^6.0.0"
-    "@graphql-codegen/gql-tag-operations" "5.0.2"
+    "@graphql-codegen/gql-tag-operations" "5.0.3"
     "@graphql-codegen/plugin-helpers" "^6.0.0"
     "@graphql-codegen/typed-document-node" "^6.0.2"
     "@graphql-codegen/typescript" "^5.0.2"
@@ -1837,10 +1837,10 @@
     "@graphql-tools/utils" "^10.0.0"
     tslib "~2.6.0"
 
-"@graphql-codegen/gql-tag-operations@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@graphql-codegen/gql-tag-operations/-/gql-tag-operations-5.0.2.tgz#68cffeb09bad1e34080eb575046df66403ae4b2d"
-  integrity sha512-iK+LFGv4ihHKeerADFPTL7Iq4iNr+J1jm2+GUMtwTSAL4nGk+BdfyruV7eR53R7Des8NFdI+9hBzKbbob7VwGQ==
+"@graphql-codegen/gql-tag-operations@5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/gql-tag-operations/-/gql-tag-operations-5.0.3.tgz#4b4d356b1d60486e74790b5e6207aed4888e1280"
+  integrity sha512-G6YqeDMMuwMvAtlW+MUaQDoYgQtBuBrfp89IOSnj7YXqSc/TMOma3X5XeXM4/oeNDQyfm2A66j5H8DYf04mJZg==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^6.0.0"
     "@graphql-codegen/visitor-plugin-common" "6.1.0"
