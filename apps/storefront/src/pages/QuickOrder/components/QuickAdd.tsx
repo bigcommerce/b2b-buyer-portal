@@ -25,7 +25,7 @@ import {
 } from './QuickAdd.validation';
 
 interface AddToListContentProps {
-  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
+  quickAddToList: (products: CustomFieldItems[]) => Promise<CustomFieldItems>;
 }
 
 const LEVEL = 3;
@@ -70,62 +70,49 @@ export default function QuickAdd(props: AddToListContentProps) {
     mode: 'all',
   });
 
-  const validateSkuInput = (index: number, sku: string, qty: string) => {
-    if (!sku && !qty) {
-      return true;
-    }
+  const convertFormInputToValidProducts = (formData: Record<string, string>) => {
+    const skuQuantityMap: Record<string, number> = {};
+    let allRowsValid = true;
+    for (let index = 0; index < rows; index += 1) {
+      const sku = formData[`sku-${index}`];
+      const qty = formData[`qty-${index}`];
 
-    let isValid = true;
-    const quantity = parseInt(qty, 10) || 0;
+      if (sku || qty) {
+        let isValidRow = true;
 
-    if (!sku) {
-      setError(`sku-${index}`, {
-        type: 'manual',
-        message: b3Lang('global.validate.required', {
-          label: b3Lang('purchasedProducts.quickAdd.sku'),
-        }),
-      });
-      isValid = false;
-    }
+        const quantity = parseInt(qty, 10);
+        if (Number.isNaN(quantity) || quantity < 0) {
+          setError(`qty-${index}`, {
+            type: 'manual',
+            message: b3Lang('global.validate.required', {
+              label: b3Lang('purchasedProducts.quickAdd.qty'),
+            }),
+          });
+          isValidRow = false;
+        }
 
-    if (!qty) {
-      setError(`qty-${index}`, {
-        type: 'manual',
-        message: b3Lang('global.validate.required', {
-          label: b3Lang('purchasedProducts.quickAdd.qty'),
-        }),
-      });
-      isValid = false;
-    } else if (quantity <= 0) {
-      setError(`qty-${index}`, {
-        type: 'manual',
-        message: 'incorrect number',
-      });
-      isValid = false;
-    }
+        if (!sku) {
+          setError(`sku-${index}`, {
+            type: 'manual',
+            message: b3Lang('global.validate.required', {
+              label: b3Lang('purchasedProducts.quickAdd.sku'),
+            }),
+          });
+          isValidRow = false;
+        }
 
-    return isValid;
-  };
-
-  const getProductData = (value: CustomFieldItems) => {
-    const skuValue: SimpleObject = {};
-    let isValid = true;
-    loopRows(rows, (index) => {
-      const sku = value[`sku-${index}`];
-      const qty = value[`qty-${index}`];
-
-      isValid = validateSkuInput(index, sku, qty) === false ? false : isValid;
-
-      if (isValid && sku) {
-        const quantity = parseInt(qty, 10) || 0;
-        skuValue[sku] = skuValue[sku] ? (skuValue[sku] as number) + quantity : quantity;
+        if (isValidRow) {
+          skuQuantityMap[sku] = (skuQuantityMap[sku] ?? 0) + quantity;
+        } else {
+          allRowsValid = false;
+        }
       }
-    });
+    }
 
     return {
-      skuValue,
-      isValid,
-      skus: Object.keys(skuValue),
+      skuQuantityMap,
+      allRowsValid,
+      skus: Object.keys(skuQuantityMap),
     };
   };
 
@@ -374,24 +361,24 @@ export default function QuickAdd(props: AddToListContentProps) {
       return;
     }
 
-    handleSubmit(async (value) => {
+    handleSubmit(async (formData) => {
       try {
         setIsLoading(true);
-        const { skuValue, isValid, skus } = getProductData(value);
+        const { skuQuantityMap, allRowsValid, skus } = convertFormInputToValidProducts(formData);
 
-        if (!isValid || skus.length <= 0) {
+        if (!allRowsValid || skus.length <= 0) {
           return;
         }
 
         const variantInfoList = await getVariantList(skus);
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          const result = await handleBackendValidation(variantInfoList, skuValue, skus);
+          const result = await handleBackendValidation(variantInfoList, skuQuantityMap, skus);
           const { productItems, passSku, notFoundSkus, validationErrors } = result;
 
           if (productItems.length > 0) {
             await quickAddToList(productItems);
-            clearInputValue(value, passSku);
+            clearInputValue(formData, passSku);
           }
 
           validationErrors.forEach((error) => {
@@ -411,15 +398,15 @@ export default function QuickAdd(props: AddToListContentProps) {
           }
         } else {
           const { productItems, passSku } = await handleFrontendValidation(
-            value,
+            formData,
             variantInfoList,
-            skuValue,
+            skuQuantityMap,
             skus,
           );
 
           if (productItems.length > 0) {
             await quickAddToList(productItems);
-            clearInputValue(value, passSku);
+            clearInputValue(formData, passSku);
           }
         }
       } catch (e) {
