@@ -12,7 +12,7 @@ export interface ValidationError {
   translationParams?: Record<string, string | number>;
 }
 
-export interface ValidationResult {
+interface ValidationResult {
   validProducts: CustomFieldItems[];
   errors: ValidationError[];
 }
