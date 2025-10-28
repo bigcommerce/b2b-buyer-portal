@@ -66,12 +66,18 @@ export default function QuickAdd(props: AddToListContentProps) {
         let isValidRow = true;
 
         const quantity = parseInt(qty, 10);
-        if (Number.isNaN(quantity) || quantity < 0) {
+        if (Number.isNaN(quantity)) {
           setError(`qty-${index}`, {
             type: 'manual',
             message: b3Lang('global.validate.required', {
               label: b3Lang('purchasedProducts.quickAdd.qty'),
             }),
+          });
+          isValidRow = false;
+        } else if (quantity <= 0) {
+          setError(`qty-${index}`, {
+            type: 'manual',
+            message: 'incorrect number',
           });
           isValidRow = false;
         }
