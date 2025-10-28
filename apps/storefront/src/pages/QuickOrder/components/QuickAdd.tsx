@@ -11,14 +11,13 @@ import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
-import { validateProducts } from '@/utils/validateProducts';
+import { validateProducts, ValidationError } from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
 
 import {
   CatalogProduct,
-  extractValidatedSkus,
   findNotFoundSkus,
   mapCatalogToValidationPayload,
   mergeValidatedWithCatalog,
@@ -344,22 +343,27 @@ export default function QuickAdd(props: AddToListContentProps) {
     variantInfoList: CatalogProduct[],
     skuValue: SimpleObject,
     skus: string[],
-  ): Promise<{ productItems: CustomFieldItems[]; passSku: string[]; notFoundSkus: string[] }> => {
+  ): Promise<{
+    productItems: CustomFieldItems[];
+    passSku: string[];
+    notFoundSkus: string[];
+    validationErrors: ValidationError[];
+  }> => {
     const notFoundSkus = findNotFoundSkus(skus, variantInfoList);
 
     if (variantInfoList.length === 0) {
-      return { productItems: [], passSku: [], notFoundSkus };
+      return { productItems: [], passSku: [], notFoundSkus, validationErrors: [] };
     }
 
     const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
 
-    const backendValidatedProducts = await validateProducts(productsToValidate, b3Lang);
+    const { validProducts, errors } = await validateProducts(productsToValidate);
 
-    const productItems = mergeValidatedWithCatalog(backendValidatedProducts, variantInfoList);
+    const productItems = mergeValidatedWithCatalog(validProducts, variantInfoList);
 
-    const passSku = extractValidatedSkus(backendValidatedProducts, variantInfoList);
+    const passSku = productItems.map((item) => item.variantSku);
 
-    return { productItems, passSku, notFoundSkus };
+    return { productItems, passSku, notFoundSkus, validationErrors: errors };
   };
 
   const handleAddToList = () => {
@@ -383,12 +387,20 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
           const result = await handleBackendValidation(variantInfoList, skuValue, skus);
-          const { productItems, passSku, notFoundSkus } = result;
+          const { productItems, passSku, notFoundSkus, validationErrors } = result;
 
           if (productItems.length > 0) {
             await quickAddToList(productItems);
             clearInputValue(value, passSku);
           }
+
+          validationErrors.forEach((error) => {
+            if (error.translationKey && error.translationParams) {
+              snackbar.error(b3Lang(error.translationKey, error.translationParams));
+            } else if (error.message) {
+              snackbar.error(error.message);
+            }
+          });
 
           if (notFoundSkus.length > 0) {
             snackbar.error(
