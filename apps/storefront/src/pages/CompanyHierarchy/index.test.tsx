@@ -349,3 +349,62 @@ describe('when the user has a current cart and switches company', () => {
     );
   });
 });
+
+describe('CompanyHierarchy - Representation Indicators', () => {
+  it('should show representing company chip for selected company', async () => {
+    const parentCompany = buildSubsidiaryWith({
+      companyId: 1,
+      companyName: 'Parent Company',
+      parentCompanyId: null,
+      channelFlag: false,
+    });
+
+    const subsidiaryCompany = buildSubsidiaryWith({
+      companyId: 5,
+      companyName: 'Subsidiary Company',
+      parentCompanyId: 1,
+      parentCompanyName: 'Parent Company',
+      channelFlag: true,
+    });
+
+    server.use(
+      graphql.query('CompanySubsidiaries', () =>
+        HttpResponse.json({ data: { companySubsidiaries: [parentCompany, subsidiaryCompany] } }),
+      ),
+    );
+
+    const companyState = buildCompanyStateWith({
+      companyInfo: { id: '1', companyName: 'Parent Company', status: 1 },
+      companyHierarchyInfo: {
+        selectCompanyHierarchyId: '5',
+        isEnabledCompanyHierarchy: true,
+        isHasCurrentPagePermission: true,
+        companyHierarchyList: [
+          {
+            companyId: 1,
+            companyName: 'Parent Company',
+            parentCompanyId: null,
+            channelFlag: false,
+          },
+          {
+            companyId: 5,
+            companyName: 'Subsidiary Company',
+            parentCompanyId: 1,
+            parentCompanyName: 'Parent Company',
+            channelFlag: true,
+          },
+        ],
+        companyHierarchyAllList: [],
+        companyHierarchySelectSubsidiariesList: [],
+      },
+    });
+
+    renderWithProviders(<CompanyHierarchy />, {
+      preloadedState: { company: companyState },
+    });
+
+    const rowOfSubsidiary = await screen.findByRole('row', { name: /Subsidiary Company/ });
+
+    expect(within(rowOfSubsidiary).getByText('Representing')).toBeInTheDocument();
+  });
+});

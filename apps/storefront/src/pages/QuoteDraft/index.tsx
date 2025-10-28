@@ -164,7 +164,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   } = useContext(CustomStyleContext);
 
   const isMoveStockAndBackorderValidationToBackend =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
 
   const quotesActionsPermission = useMemo(() => {
     if (isB2BUser) {
