@@ -1,16 +1,15 @@
-import { KeyboardEventHandler, useEffect, useMemo, useState } from 'react';
+import { Fragment, KeyboardEventHandler, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Grid, Typography } from '@mui/material';
 
-import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import B3ControlTextField from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice, useFeatureFlags } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
-import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 import { validateProducts, ValidationError } from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
@@ -49,18 +48,12 @@ export default function QuickAdd(props: AddToListContentProps) {
   const {
     control,
     handleSubmit,
-    getValues,
     formState: { errors },
     setError,
     setValue,
   } = useForm({
     mode: 'all',
   });
-
-  const skuQuantityInputFields = useMemo(
-    () => [...Array(numRows).keys()].map((row) => getQuickAddRowFields(row, b3Lang)).flat(),
-    [numRows, b3Lang],
-  );
 
   const convertFormInputToValidProducts = (formData: Record<string, string>) => {
     const skuQuantityMap: Record<string, number> = {};
@@ -465,13 +458,45 @@ export default function QuickAdd(props: AddToListContentProps) {
             },
           }}
         >
-          <B3CustomForm
-            formFields={skuQuantityInputFields}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
+          <Grid container spacing={2}>
+            {[...Array(numRows).keys()].map((row) => {
+              return (
+                <Fragment key={row}>
+                  <Grid item xs={8} id="b3-customForm-id-name">
+                    <B3ControlTextField
+                      name={`sku-${row}`}
+                      label={b3Lang('global.searchProductAddProduct.sku') || 'SKU#'}
+                      required={false}
+                      xs={8}
+                      variant="filled"
+                      size="small"
+                      fieldType="text"
+                      default=""
+                      errors={errors}
+                      control={control}
+                    />
+                  </Grid>
+                  <Grid item xs={4} id="b3-customForm-id-name">
+                    <B3ControlTextField
+                      name={`qty-${row}`}
+                      label={b3Lang('global.searchProductAddProduct.qty') || 'Qty'}
+                      required={false}
+                      xs={4}
+                      variant="filled"
+                      size="small"
+                      fieldType="number"
+                      default=""
+                      allowArrow
+                      min={1}
+                      max={1000000}
+                      errors={errors}
+                      control={control}
+                    />
+                  </Grid>
+                </Fragment>
+              );
+            })}
+          </Grid>
         </Box>
 
         <CustomButton
