@@ -2,7 +2,6 @@ import { Fragment, KeyboardEventHandler, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Grid, Typography } from '@mui/material';
 
-import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import B3ControlTextField from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
@@ -358,7 +357,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         setIsLoading(true);
         const { skuQuantityMap, allRowsValid, skus } = convertFormInputToValidProducts(formData);
 
-        if (allRowsValid || skus.length <= 0) {
+        if (!allRowsValid || skus.length <= 0) {
           return;
         }
 
