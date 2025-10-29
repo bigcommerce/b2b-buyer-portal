@@ -95,7 +95,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
   const backendValidationEnabled =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const isShowCartAction = isB2BUser ? purchasabilityPermission : true;
 

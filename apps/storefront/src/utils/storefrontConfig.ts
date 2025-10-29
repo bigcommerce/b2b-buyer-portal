@@ -4,17 +4,15 @@ import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { CustomStyleButtonState } from '@/shared/customStyleButton/context/config';
 import { DispatchProps } from '@/shared/global/context/config';
 import {
-  endUserMasqueradingCompany,
   getCurrencies,
   getStoreConfigsSwitchStatus,
+  getStorefrontConfig,
   getStorefrontConfigs,
-  getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
 import { store } from '@/store';
-import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
@@ -25,7 +23,6 @@ import {
   setTaxZoneRates,
 } from '@/store/slices/global';
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
-import { CustomerRole } from '@/types';
 import { B3SStorage, channelId } from '@/utils';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
 
@@ -329,7 +326,7 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
   });
 };
 
-const getAccountHierarchyIsEnabled = async () => {
+export const getAccountHierarchyIsEnabled = async () => {
   const { storeConfigSwitchStatus } = await getStoreConfigsSwitchStatus('account_hierarchy');
   if (!storeConfigSwitchStatus) return false;
   const { isEnabled } = storeConfigSwitchStatus;
@@ -340,60 +337,9 @@ const getAccountHierarchyIsEnabled = async () => {
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const {
     storefrontConfig: { config: storefrontConfig },
-    companySubsidiaries,
-    userMasqueradingCompany,
-  } = await getStorefrontConfigWithCompanyHierarchy();
+  } = await getStorefrontConfig();
   const { currencies } = await getCurrencies(channelId);
   store.dispatch(setCurrencies(currencies));
-
-  const { customer } = store.getState().company;
-  const { featureFlags } = store.getState().global;
-
-  const resetCompanyHierarchyState = () => ({
-    isEnabledCompanyHierarchy: false,
-    companyHierarchyAllList: [],
-    selectCompanyHierarchyId: '',
-    companyHierarchyList: [],
-    companyHierarchySelectSubsidiariesList: [],
-  });
-
-  try {
-    const { role } = customer;
-
-    if (
-      role === CustomerRole.ADMIN ||
-      role === CustomerRole.SENIOR_BUYER ||
-      role === CustomerRole.JUNIOR_BUYER ||
-      role === CustomerRole.CUSTOM_ROLE
-    ) {
-      const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
-
-      if (isEnabledAccountHierarchy) {
-        const shouldEndCompanyMasqueradingOnLogin =
-          featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
-
-        if (userMasqueradingCompany?.companyId && !shouldEndCompanyMasqueradingOnLogin) {
-          await endUserMasqueradingCompany();
-        }
-
-        store.dispatch(
-          setCompanyHierarchyInfoModules({
-            companyHierarchyAllList: companySubsidiaries || [],
-            isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
-            selectCompanyHierarchyId: userMasqueradingCompany?.companyId ?? '',
-          }),
-        );
-      } else {
-        store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
-      }
-    } else {
-      store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to initialize company hierarchy:', error);
-    store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
-  }
 
   const {
     storefrontDefaultLanguage: { language },
