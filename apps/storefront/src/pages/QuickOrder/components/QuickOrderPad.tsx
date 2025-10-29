@@ -30,7 +30,7 @@ export default function QuickOrderPad() {
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
   const featureFlags = useFeatureFlags();
   const backendValidationEnabled =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
 

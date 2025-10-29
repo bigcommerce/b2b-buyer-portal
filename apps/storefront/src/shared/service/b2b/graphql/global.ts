@@ -143,7 +143,7 @@ const userCompanyQl = (userId: number) => `{
 	}
 }`;
 
-const storefrontConfigWithCompanyHierarchy = () => `{
+const storefrontConfig = () => `{
 	storefrontConfig(
 		storeHash: "${storeHash}"
 	) {
@@ -168,18 +168,6 @@ const storefrontConfigWithCompanyHierarchy = () => `{
 			wishLists,
 		}
 		configId,
-	}
-	companySubsidiaries {
-		companyId
-		companyName
-		parentCompanyId
-		parentCompanyName
-		channelFlag
-	}
-	userMasqueradingCompany {
-		companyId
-		companyName
-		bcId
 	}
 }`;
 
@@ -439,6 +427,14 @@ const userMasqueradingCompanyEnd = `mutation userMasqueradingCompanyEnd {
 	}
 }`;
 
+const userMasqueradingCompany = `query {
+	userMasqueradingCompany {
+		companyId
+		companyName
+		bcId
+	}
+}`;
+
 const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
 	storeConfigSwitchStatus(
 		key: $key,
@@ -479,9 +475,9 @@ export const getUserCompany = (userId: number) =>
     query: userCompanyQl(userId),
   });
 
-export const getStorefrontConfigWithCompanyHierarchy = () =>
+export const getStorefrontConfig = () =>
   B3Request.graphqlB2B({
-    query: storefrontConfigWithCompanyHierarchy(),
+    query: storefrontConfig(),
   });
 
 export const getCurrencies = (channelId: string | number) =>
@@ -534,6 +530,11 @@ export const startUserMasqueradingCompany = (companyId: number) =>
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
     query: userMasqueradingCompanyEnd,
+  });
+
+export const getUserMasqueradingCompany = () =>
+  B3Request.graphqlB2B({
+    query: userMasqueradingCompany,
   });
 
 export const getStoreConfigsSwitchStatus = (key: string): Promise<ConfigsSwitchStatus> =>
