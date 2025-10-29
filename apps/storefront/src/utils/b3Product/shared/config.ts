@@ -500,9 +500,9 @@ export const getOptionRequestData = (
   return requestData;
 };
 
-export const getQuickAddRowFields = (name: string | number, b3Lang: LangFormatFunction) => [
+export const getQuickAddRowFields = (rowNumber: number, b3Lang: LangFormatFunction) => [
   {
-    name: `sku-${name}`,
+    name: `sku-${rowNumber}`,
     label: b3Lang('global.searchProductAddProduct.sku') || 'SKU#',
     required: false,
     xs: 8,
@@ -512,7 +512,7 @@ export const getQuickAddRowFields = (name: string | number, b3Lang: LangFormatFu
     default: '',
   },
   {
-    name: `qty-${name}`,
+    name: `qty-${rowNumber}`,
     label: b3Lang('global.searchProductAddProduct.qty') || 'Qty',
     required: false,
     xs: 4,
