@@ -171,6 +171,47 @@ const storefrontConfig = () => `{
 	}
 }`;
 
+const storefrontConfigWithCompanyHierarchy = () => `
+query storefrontConfigWithCompanyHierarchy($includeCompanyHierarchy: Boolean!) {
+	storefrontConfig(
+		storeHash: "${storeHash}"
+	) {
+		config{
+			accountSettings,
+			addressBook,
+			buyAgain,
+			dashboard,
+			invoice{
+				enabledStatus,
+				value,
+			},
+			messages,
+			orders,
+			quickOrderPad,
+			quotes,
+			recentlyViewed,
+			returns,
+			shoppingLists,
+			tradeProfessionalApplication,
+			userManagement,
+			wishLists,
+		}
+		configId,
+	}
+	companySubsidiaries @include(if: $includeCompanyHierarchy) {
+		companyId
+		companyName
+		parentCompanyId
+		parentCompanyName
+		channelFlag
+	}
+	userMasqueradingCompany @include(if: $includeCompanyHierarchy) {
+		companyId
+		companyName
+		bcId
+	}
+}`;
+
 const currencies = (channelId: string | number) => `{
 	currencies(
 		storeHash: "${storeHash}",
@@ -478,6 +519,12 @@ export const getUserCompany = (userId: number) =>
 export const getStorefrontConfig = () =>
   B3Request.graphqlB2B({
     query: storefrontConfig(),
+  });
+
+export const getStorefrontConfigWithCompanyHierarchy = (includeCompanyHierarchy = false) =>
+  B3Request.graphqlB2B({
+    query: storefrontConfigWithCompanyHierarchy(),
+    variables: { includeCompanyHierarchy },
   });
 
 export const getCurrencies = (channelId: string | number) =>
