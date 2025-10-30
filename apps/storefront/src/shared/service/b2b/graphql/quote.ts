@@ -40,6 +40,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `
           subtotal,
           totalAmount,
           taxTotal,
+          accessUuid,
         }
       }
     }
@@ -139,6 +140,7 @@ const quoteCreate = (data: CustomFieldItems) => `mutation CreateQuote{
     quote{
       id,
       createdAt,
+      accessUuid,
     }
   }
 }`;
@@ -154,12 +156,13 @@ const quoteUpdate = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getQuoteInfo = (data: { id: number; date: string }) => `
+const getQuoteInfo = (data: { id: number; date: string; uuid?: string }) => `
   query GetQuoteInfoB2B {
     quote(
       id: ${data.id},
       storeHash: "${storeHash}",
       date:  "${data?.date || ''}",
+      ${data.uuid ? `uuid: "${data.uuid}",` : ''}
     ) {
       id,
       createdAt,
@@ -284,6 +287,7 @@ const getQuoteInfo = (data: { id: number; date: string }) => `
       channelName,
       allowCheckout,
       displayDiscount,
+      accessUuid,
     }
   }
 `;
@@ -415,6 +419,7 @@ export interface QuoteEdge {
     subtotal: string;
     totalAmount: string;
     taxTotal: string;
+    accessUuid?: string;
   };
 }
 
@@ -612,16 +617,17 @@ export interface B2BQuoteDetail {
       channelName: string;
       allowCheckout: boolean;
       displayDiscount: boolean;
+      accessUuid?: string;
     };
   };
 }
 
-export const getB2BQuoteDetail = (data: { id: number; date: string }) =>
+export const getB2BQuoteDetail = (data: { id: number; date: string; uuid?: string }) =>
   B3Request.graphqlB2B({
     query: getQuoteInfo(data),
   });
 
-export const getBcQuoteDetail = (data: { id: number; date: string }) =>
+export const getBcQuoteDetail = (data: { id: number; date: string; uuid?: string }) =>
   B3Request.graphqlB2B({
     query: getQuoteInfo(data),
   });
