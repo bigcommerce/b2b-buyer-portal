@@ -24,7 +24,7 @@ import {
 } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { CompanyStatus, CustomerRole, ShoppingListStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
 
@@ -2288,5 +2288,172 @@ describe('when backend validation is enabled', () => {
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
 
     await screen.findByText('Out of stock');
+  });
+
+  it('shows only the most recent error for the product added to the cart', async () => {
+    vi.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      minQuantity: 0,
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const outOfStockProduct = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Out of stock socks',
+        productId: 73737,
+        variantId: 737,
+        quantity: 2,
+      },
+    });
+
+    const lovelySocksProduct = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 44443,
+        variantSku: 'LS-123',
+        variantId: 443,
+        quantity: 2,
+      },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 2, edges: [lovelySocksProduct, outOfStockProduct] },
+          status: ShoppingListStatus.Approved,
+        },
+      },
+    });
+
+    const lovelySocksSearchProduct = buildSearchB2BProductWith({
+      id: lovelySocksProduct.node.productId,
+      name: lovelySocksProduct.node.productName,
+      optionsV3: [],
+    });
+
+    const outOfStockSearchProduct = buildSearchB2BProductWith({
+      id: outOfStockProduct.node.productId,
+      name: outOfStockProduct.node.productName,
+      optionsV3: [],
+    });
+
+    const searchProductsQuerySpy = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [44443,73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: { productsSearch: [lovelySocksSearchProduct, outOfStockSearchProduct] },
+        }),
+      );
+
+    const cart = {
+      entityId: '1e194b813e28',
+      lineItems: {
+        physicalItems: [],
+        digitalItems: [],
+        giftCertificates: [],
+        customItems: [],
+      },
+    };
+
+    const updateCartMutation = when(vi.fn())
+      .calledWith({
+        addCartLineItemsInput: {
+          cartEntityId: '1e194b813e28',
+          data: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: 44443,
+                variantEntityId: 443,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        },
+      })
+      .thenReturn({ data: { cart: { addCartLineItems: { cart } } } });
+
+    when(updateCartMutation)
+      .calledWith({
+        addCartLineItemsInput: {
+          cartEntityId: '1e194b813e28',
+          data: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: 77737,
+                variantEntityId: 737,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        },
+      })
+      .thenReturn({
+        data: { cart: { addCartLineItems: null } },
+        errors: [{ message: 'Lovely socks, out of stock' }],
+      });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) =>
+        HttpResponse.json(searchProductsQuerySpy(query)),
+      ),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart } } })),
+      graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
+        HttpResponse.json(updateCartMutation(variables)),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        company: b2bCompanyWithShoppingListPermissions,
+        global: buildGlobalStateWith({
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        }),
+      },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const lovelySocksRow = screen.getByRole('row', { name: /Lovely socks/ });
+
+    await userEvent.click(within(lovelySocksRow).getByRole('checkbox'));
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+    });
+
+    await userEvent.click(within(lovelySocksRow).getByRole('checkbox'));
+
+    const outOfStockSocksRow = screen.getByRole('row', { name: /Out of stock socks/ });
+
+    await userEvent.click(within(outOfStockSocksRow).getByRole('checkbox'));
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
+
+    expect(
+      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
+    ).toBeInTheDocument();
+
+    expect(within(dialog).queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
   });
 });

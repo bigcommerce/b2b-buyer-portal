@@ -240,76 +240,70 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   };
 
   const handleAddToCartOnFrontend = async () => {
-    try {
-      const skus: string[] = [];
+    const skus: string[] = [];
 
-      let cantPurchase = '';
+    let cantPurchase = '';
 
-      checkedArr.forEach((item: ProductsProps) => {
-        const { node } = item;
+    checkedArr.forEach((item: ProductsProps) => {
+      const { node } = item;
 
-        if (node.productsSearch.availability === 'disabled') {
-          cantPurchase += `${node.variantSku},`;
-        }
-
-        skus.push(node.variantSku);
-      });
-
-      if (cantPurchase) {
-        snackbar.error(
-          b3Lang('shoppingList.footer.unavailableProducts', {
-            skus: cantPurchase.slice(0, -1),
-          }),
-        );
-        return;
+      if (node.productsSearch.availability === 'disabled') {
+        cantPurchase += `${node.variantSku},`;
       }
 
-      if (skus.length === 0) {
-        snackbar.error(
-          allowJuniorPlaceOrder
-            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-        );
-        return;
-      }
+      skus.push(node.variantSku);
+    });
 
-      const getInventoryInfos = await getVariantInfoBySkus(skus);
-
-      const { validateFailureArr, validateSuccessArr } = verifyInventory(
-        getInventoryInfos?.variantSku || [],
+    if (cantPurchase) {
+      snackbar.error(
+        b3Lang('shoppingList.footer.unavailableProducts', {
+          skus: cantPurchase.slice(0, -1),
+        }),
       );
-
-      if (validateSuccessArr.length !== 0) {
-        const lineItems = addLineItems(validateSuccessArr);
-        const deleteCartObject = deleteCartData(cartEntityId);
-        const cartInfo = await getCart();
-        let res = null;
-        // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-        if (allowJuniorPlaceOrder && cartInfo.length) {
-          await deleteCart(deleteCartObject);
-          res = await updateCart(cartInfo, lineItems);
-        } else {
-          res = await createOrUpdateExistingCart(lineItems);
-          b3TriggerCartNumber();
-        }
-        if (res && res.errors) {
-          snackbar.error(res.errors[0].message);
-        } else if (validateFailureArr.length === 0) {
-          shouldRedirectCheckout();
-        }
-      }
-
-      setValidateFailureProducts(validateFailureArr);
-      setValidateSuccessProducts(validateSuccessArr);
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    if (skus.length === 0) {
+      snackbar.error(
+        allowJuniorPlaceOrder
+          ? b3Lang('shoppingList.footer.selectItemsToCheckout')
+          : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
+      );
+      return;
+    }
+
+    const getInventoryInfos = await getVariantInfoBySkus(skus);
+
+    const { validateFailureArr, validateSuccessArr } = verifyInventory(
+      getInventoryInfos?.variantSku || [],
+    );
+
+    if (validateSuccessArr.length !== 0) {
+      const lineItems = addLineItems(validateSuccessArr);
+      const deleteCartObject = deleteCartData(cartEntityId);
+      const cartInfo = await getCart();
+      let res = null;
+      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
+      if (allowJuniorPlaceOrder && cartInfo.length) {
+        await deleteCart(deleteCartObject);
+        res = await updateCart(cartInfo, lineItems);
+      } else {
+        res = await createOrUpdateExistingCart(lineItems);
+        b3TriggerCartNumber();
+      }
+      if (res && res.errors) {
+        snackbar.error(res.errors[0].message);
+      } else if (validateFailureArr.length === 0) {
+        shouldRedirectCheckout();
+      }
+    }
+
+    setValidateFailureProducts(validateFailureArr);
+    setValidateSuccessProducts(validateSuccessArr);
   };
 
   const handleAddToCartBackend = async () => {
-    const items = checkedArr.map(({ node }: ProductsProps) => {
-      return { node };
-    });
+    const items = checkedArr.map(({ node }: ProductsProps) => ({ node }));
 
     try {
       const skus = items.map(({ node }: ProductsProps) => node.variantSku);
@@ -340,8 +334,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         setValidateFailureProducts(mapToProductsFailedArray(items));
         snackbar.error(e.message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -352,14 +344,18 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       return;
     }
 
+    const addToCart = backendValidationEnabled ? handleAddToCartBackend : handleAddToCartOnFrontend;
+
     handleClose();
 
-    setLoading(true);
+    setValidateFailureProducts([]);
+    setValidateSuccessProducts([]);
 
-    if (backendValidationEnabled) {
-      await handleAddToCartBackend();
-    } else {
-      await handleAddToCartOnFrontend();
+    try {
+      setLoading(true);
+      await addToCart();
+    } finally {
+      setLoading(false);
     }
   };
 
