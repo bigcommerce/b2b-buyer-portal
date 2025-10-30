@@ -50,7 +50,10 @@ export function parseOptionList(options: string[] | undefined): ShoppingListAddP
  * Finds SKUs that were requested but not found in the catalog response.
  * Case-insensitive comparison.
  */
-export function findNotFoundSkus(inputSkus: string[], catalogProducts: CatalogProduct[]): string[] {
+export function filterInputSkusForNotFoundProducts(
+  inputSkus: string[],
+  catalogProducts: CatalogProduct[],
+): string[] {
   const foundSkus = catalogProducts.map((product) => product.variantSku.toUpperCase());
   return inputSkus.filter((sku) => !foundSkus.includes(sku.toUpperCase()));
 }
