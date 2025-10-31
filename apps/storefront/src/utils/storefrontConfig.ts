@@ -266,9 +266,9 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
       if (storefrontKey.key === 'quote_on_non_purchasable_product_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
-          locationSelector: item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          locationSelector: item.extraFields?.locationSelector || '',
           classSelector: item.extraFields?.classSelector || 'button',
-          customCss: item.extraFields?.customCss || '',
+          customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
         };
       }
 
