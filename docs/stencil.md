@@ -128,13 +128,25 @@ Replace the following values:
 - Header Script Contents:
 ```html
 <script>
-  {{#if customer.id}}
-  {{#contains page_type "account"}}
-  var b2bHideBodyStyle = document.createElement('style');
-  b2bHideBodyStyle.id = 'b2b-account-page-hide-body';
-  b2bHideBodyStyle.innerHTML = 'body { display: none !important }';
-  document.head.appendChild(b2bHideBodyStyle);
+var b2bHideBodyStyle = document.createElement('style');
+b2bHideBodyStyle.id = 'b2b-account-page-hide-body';
+{{#if customer.id}} 
+  {{#contains page_type "account"}} 
+    b2bHideBodyStyle.innerHTML = 'body { display: none !important }'; 
+    document.head.appendChild(b2bHideBodyStyle); 
   {{/contains}}
-  {{/if}}
+{{/if}} 
+{{#if page_type "login"}}
+  b2bHideBodyStyle.innerHTML = 'body { display: none !important }'; 
+  document.head.appendChild(b2bHideBodyStyle); 
+{{/if}} 
+const removeCart = () => { 
+  const style = document.createElement('style'); 
+  style.type = 'text/css'; 
+  style.id = 'b2bPermissions-cartElement-id' 
+  style.innerHTML='[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], .button--cardAdd, .card-figcaption-button, [data-emthemesmodez-cart-item-add], .add-to-cart-button { display: none !important }' 
+  document.getElementsByTagName('head').item(0).appendChild(style);  
+} 
+removeCart()
 </script>
 ```
