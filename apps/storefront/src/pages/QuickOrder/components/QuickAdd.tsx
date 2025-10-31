@@ -367,11 +367,6 @@ export default function QuickAdd(props: AddToListContentProps) {
           const result = await handleBackendValidation(variantInfoList, skuQuantityMap, skus);
           const { productItems, passSku, notFoundSkus, validationErrors } = result;
 
-          if (productItems.length > 0) {
-            await quickAddToList(productItems);
-            clearInputValue(formData, passSku);
-          }
-
           validationErrors.forEach((error) => {
             if (error.type === 'network') {
               snackbar.error(
@@ -390,6 +385,11 @@ export default function QuickAdd(props: AddToListContentProps) {
                 notFoundSku: notFoundSkus.join(','),
               }),
             );
+          }
+
+          if (productItems.length > 0) {
+            await quickAddToList(productItems);
+            clearInputValue(formData, passSku);
           }
         } else {
           const { productItems, passSku } = await handleFrontendValidation(
