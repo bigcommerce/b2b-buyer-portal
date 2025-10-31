@@ -31,11 +31,11 @@ import {
 } from '@/store/slices/company';
 import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } from '@/types';
-import { getAccountHierarchyIsEnabled } from '@/utils/storefrontConfig';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
+import { getAccountHierarchyIsEnabled } from './storefrontConfig';
 
 const getLoginTokenInfo = () => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -146,7 +146,7 @@ const agentInfo = async (customerId: number | string, role: number) => {
 
         const masqueradeCompany: MasqueradeCompany = {
           masqueradeCompany: {
-            id,
+            id: Number(id),
             isAgenting: true,
             companyName,
             customerGroupId,
@@ -206,6 +206,8 @@ const loginWithCurrentCustomerJWT = async () => {
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
   store.dispatch(setLoginType(newLoginType));
   store.dispatch(setB2BToken(B2BToken));
+
+  store.dispatch(clearMasqueradeCompany());
 
   return { B2BToken, newLoginType };
 };
@@ -287,43 +289,48 @@ export const getCurrentCustomerInfo = async (
         companyName: companyInfo.companyName,
       };
 
-      if (
-        role === CustomerRole.ADMIN ||
-        role === CustomerRole.SENIOR_BUYER ||
-        role === CustomerRole.JUNIOR_BUYER ||
-        role === CustomerRole.CUSTOM_ROLE
-      ) {
-        const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
+      const { featureFlags } = store.getState().global;
+      const useCombinedQuery =
+        featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
 
-        if (isEnabledAccountHierarchy) {
-          const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
-            getCompanySubsidiaries(),
-            getUserMasqueradingCompany(),
-          ]);
+      if (!useCombinedQuery) {
+        if (
+          role === CustomerRole.ADMIN ||
+          role === CustomerRole.SENIOR_BUYER ||
+          role === CustomerRole.JUNIOR_BUYER ||
+          role === CustomerRole.CUSTOM_ROLE
+        ) {
+          const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
 
-          if (userMasqueradingCompany?.companyId) {
-            await endUserMasqueradingCompany();
+          if (isEnabledAccountHierarchy) {
+            const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
+              getCompanySubsidiaries(),
+              getUserMasqueradingCompany(),
+            ]);
+
+            if (userMasqueradingCompany?.companyId) {
+              await endUserMasqueradingCompany();
+            }
+
+            store.dispatch(
+              setCompanyHierarchyInfoModules({
+                companyHierarchyAllList: companySubsidiaries,
+                isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
+              }),
+            );
+          } else {
+            store.dispatch(
+              setCompanyHierarchyInfoModules({
+                isEnabledCompanyHierarchy: false,
+                companyHierarchyAllList: [],
+              }),
+            );
           }
-
-          store.dispatch(
-            setCompanyHierarchyInfoModules({
-              companyHierarchyAllList: companySubsidiaries,
-              isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
-            }),
-          );
-        } else {
-          store.dispatch(
-            setCompanyHierarchyInfoModules({
-              isEnabledCompanyHierarchy: false,
-              companyHierarchyAllList: [],
-            }),
-          );
         }
       }
 
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
-      store.dispatch(clearMasqueradeCompany());
       store.dispatch(setPermissionModules(permissions));
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));

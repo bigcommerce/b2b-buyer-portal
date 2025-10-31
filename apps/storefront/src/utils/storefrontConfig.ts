@@ -3,16 +3,20 @@ import isEmpty from 'lodash-es/isEmpty';
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { CustomStyleButtonState } from '@/shared/customStyleButton/context/config';
 import { DispatchProps } from '@/shared/global/context/config';
+import { newPermissions } from '@/shared/routes/config';
 import {
+  endUserMasqueradingCompany,
   getCurrencies,
   getStoreConfigsSwitchStatus,
   getStorefrontConfig,
   getStorefrontConfigs,
+  getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
 import { store } from '@/store';
+import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
@@ -23,7 +27,7 @@ import {
   setTaxZoneRates,
 } from '@/store/slices/global';
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
-import { B3SStorage, channelId } from '@/utils';
+import { B3SStorage, channelId, checkEveryPermissionsCode } from '@/utils';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
 
 interface StorefrontKeysProps {
@@ -335,41 +339,133 @@ export const getAccountHierarchyIsEnabled = async () => {
 };
 
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
-  const {
-    storefrontConfig: { config: storefrontConfig },
-  } = await getStorefrontConfig();
-  const { currencies } = await getCurrencies(channelId);
-  store.dispatch(setCurrencies(currencies));
+  const { featureFlags } = store.getState().global;
+  const useCombinedQuery = featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
 
-  const {
-    storefrontDefaultLanguage: { language },
-  } = await getStorefrontDefaultLanguages(channelId);
+  if (useCombinedQuery) {
+    const hasCompanyHierarchyPermission = checkEveryPermissionsCode(
+      newPermissions.companyHierarchyPermissionCodes,
+    );
 
-  let langCode: string = language || 'en';
+    const response = await getStorefrontConfigWithCompanyHierarchy(hasCompanyHierarchyPermission);
 
-  if (language && language.includes('-')) {
-    const [lang] = language.split('-');
-    langCode = lang;
-  }
+    const {
+      storefrontConfig: { config: storefrontConfig },
+      companySubsidiaries,
+      userMasqueradingCompany,
+    } = response;
 
-  const {
-    data: {
-      site: {
-        currencies: { edges },
+    const { currencies } = await getCurrencies(channelId);
+    store.dispatch(setCurrencies(currencies));
+
+    const resetCompanyHierarchyState = () => ({
+      isEnabledCompanyHierarchy: false,
+      companyHierarchyAllList: [],
+      selectCompanyHierarchyId: '',
+      companyHierarchyList: [],
+      companyHierarchySelectSubsidiariesList: [],
+    });
+
+    try {
+      if (hasCompanyHierarchyPermission) {
+        const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
+
+        if (isEnabledAccountHierarchy) {
+          const shouldEndCompanyMasqueradingOnLogin =
+            featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
+
+          if (userMasqueradingCompany?.companyId && !shouldEndCompanyMasqueradingOnLogin) {
+            await endUserMasqueradingCompany();
+          }
+
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              companyHierarchyAllList: companySubsidiaries || [],
+              isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
+              selectCompanyHierarchyId: userMasqueradingCompany?.companyId ?? '',
+            }),
+          );
+        } else {
+          store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
+        }
+      } else {
+        store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to initialize company hierarchy:', error);
+      store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
+    }
+
+    const {
+      storefrontDefaultLanguage: { language },
+    } = await getStorefrontDefaultLanguages(channelId);
+
+    let langCode: string = language || 'en';
+
+    if (language && language.includes('-')) {
+      const [lang] = language.split('-');
+      langCode = lang;
+    }
+
+    const {
+      data: {
+        site: {
+          currencies: { edges },
+        },
       },
-    },
-  } = await getActiveBcCurrency();
+    } = await getActiveBcCurrency();
 
-  store.dispatch(setActiveCurrency(edges.find((item: CurrencyNodeProps) => item.node.isActive)));
-  B3SStorage.set('bcLanguage', langCode);
+    store.dispatch(setActiveCurrency(edges.find((item: CurrencyNodeProps) => item.node.isActive)));
+    B3SStorage.set('bcLanguage', langCode);
 
-  dispatch({
-    type: 'common',
-    payload: {
-      storefrontConfig,
-      bcLanguage: langCode,
-    },
-  });
+    dispatch({
+      type: 'common',
+      payload: {
+        storefrontConfig,
+        bcLanguage: langCode,
+      },
+    });
+  } else {
+    const response = await getStorefrontConfig();
+
+    const {
+      storefrontConfig: { config: storefrontConfig },
+    } = response;
+
+    const { currencies } = await getCurrencies(channelId);
+    store.dispatch(setCurrencies(currencies));
+
+    const {
+      storefrontDefaultLanguage: { language },
+    } = await getStorefrontDefaultLanguages(channelId);
+
+    let langCode: string = language || 'en';
+
+    if (language && language.includes('-')) {
+      const [lang] = language.split('-');
+      langCode = lang;
+    }
+
+    const {
+      data: {
+        site: {
+          currencies: { edges },
+        },
+      },
+    } = await getActiveBcCurrency();
+
+    store.dispatch(setActiveCurrency(edges.find((item: CurrencyNodeProps) => item.node.isActive)));
+    B3SStorage.set('bcLanguage', langCode);
+
+    dispatch({
+      type: 'common',
+      payload: {
+        storefrontConfig,
+        bcLanguage: langCode,
+      },
+    });
+  }
 };
 
 const getStoreTaxZoneRates = async () => {
