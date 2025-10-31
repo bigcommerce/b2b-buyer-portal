@@ -1,41 +1,33 @@
-import { KeyboardEventHandler, useEffect, useState } from 'react';
+import { Fragment, KeyboardEventHandler, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Grid, Typography } from '@mui/material';
 
-import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import B3ControlTextField from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice, useFeatureFlags } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
-import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
-import { validateProducts } from '@/utils/validateProducts';
+import { validateProducts, ValidationError } from '@/utils/validateProducts';
 
-import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
+import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
 
+import {
+  CatalogProduct,
+  filterInputSkusForNotFoundProducts,
+  mapCatalogToValidationPayload,
+  mergeValidatedWithCatalog,
+  parseOptionList,
+} from './QuickAdd.validation';
+
 interface AddToListContentProps {
-  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems;
+  quickAddToList: (products: CustomFieldItems[]) => Promise<CustomFieldItems>;
 }
 
-const LEVEL = 3;
-
-const parseOptionList = (options: string[] | undefined): ShoppingListAddProductOption[] => {
-  return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
-    try {
-      const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
-      arr.push({
-        optionId: `attribute[${option.option_id}]`,
-        optionValue: `${option.id}`,
-      });
-      return arr;
-    } catch (error) {
-      return arr;
-    }
-  }, []);
-};
+const INITIAL_NUM_ROWS = 3;
 
 export default function QuickAdd(props: AddToListContentProps) {
   const b3Lang = useB3Lang();
@@ -44,32 +36,18 @@ export default function QuickAdd(props: AddToListContentProps) {
   const featureFlags = useFeatureFlags();
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
-  const [rows, setRows] = useState(LEVEL);
-  const [formFields, setFormFields] = useState<CustomFieldItems[]>([]);
+  const [numRows, setNumRows] = useState(INITIAL_NUM_ROWS);
   const [isLoading, setIsLoading] = useState(false);
-
-  const loopRows = (rows: number, fn: (index: number) => void) => {
-    new Array(rows).fill(1).forEach((_, index) => fn(index));
-  };
-
-  useEffect(() => {
-    let formFields: CustomFieldItems[] = [];
-    loopRows(rows, (index) => {
-      formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)];
-    });
-    setFormFields(formFields);
-  }, [b3Lang, rows]);
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const handleAddRowsClick = () => {
-    setRows(rows + LEVEL);
+    setNumRows((current) => current + INITIAL_NUM_ROWS);
   };
 
   const {
     control,
     handleSubmit,
-    getValues,
     formState: { errors },
     setError,
     setValue,
@@ -77,62 +55,55 @@ export default function QuickAdd(props: AddToListContentProps) {
     mode: 'all',
   });
 
-  const validateSkuInput = (index: number, sku: string, qty: string) => {
-    if (!sku && !qty) {
-      return true;
-    }
+  const convertFormInputToValidProducts = (formData: Record<string, string>) => {
+    const skuQuantityMap: Record<string, number> = {};
+    let allRowsValid = true;
+    for (let index = 0; index < numRows; index += 1) {
+      const sku = formData[`sku-${index}`];
+      const qty = formData[`qty-${index}`];
 
-    let isValid = true;
-    const quantity = parseInt(qty, 10) || 0;
+      if (sku || qty) {
+        let isValidRow = true;
 
-    if (!sku) {
-      setError(`sku-${index}`, {
-        type: 'manual',
-        message: b3Lang('global.validate.required', {
-          label: b3Lang('purchasedProducts.quickAdd.sku'),
-        }),
-      });
-      isValid = false;
-    }
+        const quantity = parseInt(qty, 10);
+        if (Number.isNaN(quantity)) {
+          setError(`qty-${index}`, {
+            type: 'manual',
+            message: b3Lang('global.validate.required', {
+              label: b3Lang('purchasedProducts.quickAdd.qty'),
+            }),
+          });
+          isValidRow = false;
+        } else if (quantity <= 0) {
+          setError(`qty-${index}`, {
+            type: 'manual',
+            message: 'incorrect number',
+          });
+          isValidRow = false;
+        }
 
-    if (!qty) {
-      setError(`qty-${index}`, {
-        type: 'manual',
-        message: b3Lang('global.validate.required', {
-          label: b3Lang('purchasedProducts.quickAdd.qty'),
-        }),
-      });
-      isValid = false;
-    } else if (quantity <= 0) {
-      setError(`qty-${index}`, {
-        type: 'manual',
-        message: 'incorrect number',
-      });
-      isValid = false;
-    }
+        if (!sku) {
+          setError(`sku-${index}`, {
+            type: 'manual',
+            message: b3Lang('global.validate.required', {
+              label: b3Lang('purchasedProducts.quickAdd.sku'),
+            }),
+          });
+          isValidRow = false;
+        }
 
-    return isValid;
-  };
-
-  const getProductData = (value: CustomFieldItems) => {
-    const skuValue: SimpleObject = {};
-    let isValid = true;
-    loopRows(rows, (index) => {
-      const sku = value[`sku-${index}`];
-      const qty = value[`qty-${index}`];
-
-      isValid = validateSkuInput(index, sku, qty) === false ? false : isValid;
-
-      if (isValid && sku) {
-        const quantity = parseInt(qty, 10) || 0;
-        skuValue[sku] = skuValue[sku] ? (skuValue[sku] as number) + quantity : quantity;
+        if (isValidRow) {
+          skuQuantityMap[sku] = (skuQuantityMap[sku] ?? 0) + quantity;
+        } else {
+          allRowsValid = false;
+        }
       }
-    });
+    }
 
     return {
-      skuValue,
-      isValid,
-      skus: Object.keys(skuValue),
+      skuQuantityMap,
+      allRowsValid,
+      skus: Object.keys(skuQuantityMap),
     };
   };
 
@@ -346,6 +317,33 @@ export default function QuickAdd(props: AddToListContentProps) {
     return { productItems, passSku };
   };
 
+  const handleBackendValidation = async (
+    variantInfoList: CatalogProduct[],
+    skuValue: SimpleObject,
+    skus: string[],
+  ): Promise<{
+    productItems: CustomFieldItems[];
+    passSku: string[];
+    notFoundSkus: string[];
+    validationErrors: ValidationError[];
+  }> => {
+    const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
+
+    if (variantInfoList.length === 0) {
+      return { productItems: [], passSku: [], notFoundSkus, validationErrors: [] };
+    }
+
+    const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
+
+    const { validProducts, errors } = await validateProducts(productsToValidate);
+
+    const productItems = mergeValidatedWithCatalog(validProducts, variantInfoList);
+
+    const passSku = productItems.map((item) => item.variantSku);
+
+    return { productItems, passSku, notFoundSkus, validationErrors: errors };
+  };
+
   const handleAddToList = () => {
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
@@ -354,86 +352,57 @@ export default function QuickAdd(props: AddToListContentProps) {
       return;
     }
 
-    handleSubmit(async (value) => {
+    handleSubmit(async (formData) => {
       try {
         setIsLoading(true);
-        const { skuValue, isValid, skus } = getProductData(value);
+        const { skuQuantityMap, allRowsValid, skus } = convertFormInputToValidProducts(formData);
 
-        if (!isValid || skus.length <= 0) {
+        if (!allRowsValid || skus.length <= 0) {
           return;
         }
 
         const variantInfoList = await getVariantList(skus);
-        let productItems: CustomFieldItems[] = [];
-        let passSku: string[] = [];
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          if (variantInfoList.length <= 0) {
-            snackbar.error(
-              b3Lang('purchasedProducts.quickAdd.notFoundSku', {
-                notFoundSku: skus.join(','),
-              }),
-            );
-            return;
-          }
-          // Map catalog products to format expected by backend validation
-          const productsToValidate = variantInfoList.map((catalogProduct: CustomFieldItems) => {
-            const matchingSkuFromInput = Object.keys(skuValue).find(
-              (inputSku) => inputSku.toUpperCase() === catalogProduct.variantSku.toUpperCase(),
-            );
-            const requestedQuantity = matchingSkuFromInput
-              ? (skuValue[matchingSkuFromInput] as number)
-              : 0;
-            return {
-              node: {
-                productId: parseInt(catalogProduct.productId, 10) || 0,
-                quantity: requestedQuantity,
-                productsSearch: {
-                  variantId: parseInt(catalogProduct.variantId, 10) || 0,
-                  newSelectOptionList: parseOptionList(catalogProduct.option),
-                },
-              },
-            };
+          const result = await handleBackendValidation(variantInfoList, skuQuantityMap, skus);
+          const { productItems, passSku, notFoundSkus, validationErrors } = result;
+
+          validationErrors.forEach((error) => {
+            if (error.type === 'network') {
+              snackbar.error(
+                b3Lang('quotes.productValidationFailed', {
+                  productName: error.productName,
+                }),
+              );
+            } else {
+              snackbar.error(error.message);
+            }
           });
 
-          const backendValidatedProducts = await validateProducts(productsToValidate, b3Lang);
+          if (notFoundSkus.length > 0) {
+            snackbar.error(
+              b3Lang('purchasedProducts.quickAdd.notFoundSku', {
+                notFoundSku: notFoundSkus.join(','),
+              }),
+            );
+          }
 
-          productItems = backendValidatedProducts.map(
-            ({ node: validatedProduct }: CustomFieldItems) => {
-              const originalProductInfo = variantInfoList.find(
-                (catalogProduct: CustomFieldItems) =>
-                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
-              );
-              return {
-                ...originalProductInfo,
-                newSelectOptionList: validatedProduct.productsSearch.newSelectOptionList,
-                productId: validatedProduct.productId,
-                quantity: validatedProduct.quantity,
-                variantId: validatedProduct.productsSearch.variantId,
-              };
-            },
+          if (productItems.length > 0) {
+            await quickAddToList(productItems);
+            clearInputValue(formData, passSku);
+          }
+        } else {
+          const { productItems, passSku } = await handleFrontendValidation(
+            formData,
+            variantInfoList,
+            skuQuantityMap,
+            skus,
           );
 
-          passSku = backendValidatedProducts
-            .map(({ node: validatedProduct }: CustomFieldItems) => {
-              const originalProductInfo = variantInfoList.find(
-                (catalogProduct: CustomFieldItems) =>
-                  parseInt(catalogProduct.productId, 10) === validatedProduct.productId,
-              );
-              return originalProductInfo?.variantSku || '';
-            })
-            .filter(Boolean);
-        } else {
-          ({ productItems, passSku } = await handleFrontendValidation(
-            value,
-            variantInfoList,
-            skuValue,
-            skus,
-          ));
-        }
-        if (productItems.length > 0) {
-          await quickAddToList(productItems);
-          clearInputValue(value, passSku);
+          if (productItems.length > 0) {
+            await quickAddToList(productItems);
+            clearInputValue(formData, passSku);
+          }
         }
       } catch (e) {
         if (e instanceof Error) {
@@ -499,13 +468,45 @@ export default function QuickAdd(props: AddToListContentProps) {
             },
           }}
         >
-          <B3CustomForm
-            formFields={formFields}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
+          <Grid container spacing={2}>
+            {[...Array(numRows).keys()].map((row) => {
+              return (
+                <Fragment key={row}>
+                  <Grid item xs={8} id="b3-customForm-id-name">
+                    <B3ControlTextField
+                      name={`sku-${row}`}
+                      label={b3Lang('global.searchProductAddProduct.sku') || 'SKU#'}
+                      required={false}
+                      xs={8}
+                      variant="filled"
+                      size="small"
+                      fieldType="text"
+                      default=""
+                      errors={errors}
+                      control={control}
+                    />
+                  </Grid>
+                  <Grid item xs={4} id="b3-customForm-id-name">
+                    <B3ControlTextField
+                      name={`qty-${row}`}
+                      label={b3Lang('global.searchProductAddProduct.qty') || 'Qty'}
+                      required={false}
+                      xs={4}
+                      variant="filled"
+                      size="small"
+                      fieldType="number"
+                      default=""
+                      allowArrow
+                      min={1}
+                      max={1000000}
+                      errors={errors}
+                      control={control}
+                    />
+                  </Grid>
+                </Fragment>
+              );
+            })}
+          </Grid>
         </Box>
 
         <CustomButton

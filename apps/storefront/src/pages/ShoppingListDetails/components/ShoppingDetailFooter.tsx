@@ -205,11 +205,23 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-      const validatedProducts = await validateProducts(products, b3Lang);
+      const { validProducts, errors } = await validateProducts(products);
 
-      addQuoteDraftProducts(validatedProducts);
+      errors.forEach((error) => {
+        if (error.type === 'network') {
+          snackbar.error(
+            b3Lang('quotes.productValidationFailed', {
+              productName: error.productName,
+            }),
+          );
+        } else {
+          snackbar.error(error.message);
+        }
+      });
 
-      return validatedProducts.length > 0;
+      addQuoteDraftProducts(validProducts);
+
+      return validProducts.length > 0;
     }
 
     addQuoteDraftProducts(products);

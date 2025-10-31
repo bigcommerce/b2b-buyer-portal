@@ -1,17 +1,28 @@
-import { LangFormatFunction } from '@/lib/lang';
 import { validateProduct } from '@/shared/service/b2b/graphql/product';
-
-import { snackbar } from './b3Tip';
 
 interface Option {
   optionId: number | `attribute[${number}]`;
   optionValue: string;
 }
 
-export const validateProducts = async (
-  products: CustomFieldItems[],
-  b3Lang: LangFormatFunction,
-) => {
+interface NetworkValidationError {
+  type: 'network';
+  productName: string;
+}
+
+interface ServerValidationError {
+  type: 'validation';
+  message: string;
+}
+
+export type ValidationError = NetworkValidationError | ServerValidationError;
+
+interface ValidationResult {
+  validProducts: CustomFieldItems[];
+  errors: ValidationError[];
+}
+
+export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
   const validationPromises = products.map(({ node: product }) => {
     const { productId, quantity, productsSearch } = product;
     const { variantId, newSelectOptionList } = productsSearch;
@@ -42,28 +53,33 @@ export const validateProducts = async (
 
   const settledResults = await Promise.allSettled(validationPromises);
 
+  const errors: ValidationError[] = [];
+
   settledResults.forEach((result, index) => {
     // Network or unexpected error
     if (result.status === 'rejected') {
       const { productName } = products[index].node;
-
-      snackbar.error(b3Lang('quotes.productValidationFailed', { productName }));
-
+      errors.push({
+        type: 'network',
+        productName: productName || '',
+      });
       return;
     }
 
     const { responseType, message } = result.value;
 
     if (responseType === 'ERROR') {
-      snackbar.error(message);
+      errors.push({
+        type: 'validation',
+        message,
+      });
     }
   });
 
   const validProducts = products.filter((_, index) => {
     const res = settledResults[index];
-
     return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
   });
 
-  return validProducts;
+  return { validProducts, errors };
 };

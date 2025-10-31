@@ -1,4 +1,4 @@
-import { Control } from 'react-hook-form';
+import { Control, FieldValues } from 'react-hook-form';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Form {
@@ -15,7 +15,7 @@ namespace Form {
   }
 
   export interface B3UIProps {
-    control?: Control<B3CustomFormValue>;
+    control?: Control<FieldValues>;
     [key: string]: any;
   }
 
