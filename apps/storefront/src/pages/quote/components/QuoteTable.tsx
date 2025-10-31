@@ -136,21 +136,21 @@ function getAvailabilityWarningsBackend(
 
   if (product.inventoryTracking !== 'none') {
     let hasUnlimitedBackorder = product.unlimitedBackorder;
+    let availableStock = product.availableToSell;
 
     if (product.inventoryTracking === 'variant' && product.variants) {
       const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
-      hasUnlimitedBackorder = currentVariant?.unlimited_backorder || false;
+      if (currentVariant) {
+        hasUnlimitedBackorder = currentVariant.unlimited_backorder;
+        availableStock = currentVariant.available_to_sell;
+      }
     }
 
-    if (!hasUnlimitedBackorder) {
-      const availableStock = product.availableToSell;
-
-      if (availableStock < row.quantity) {
-        warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
-        warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-          qty: availableStock,
-        });
-      }
+    if (!hasUnlimitedBackorder && availableStock < row.quantity) {
+      warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
+      warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+        qty: availableStock,
+      });
     }
   }
 

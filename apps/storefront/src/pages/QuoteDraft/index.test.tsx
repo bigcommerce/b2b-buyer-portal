@@ -1331,431 +1331,607 @@ describe('when the user is a B2B customer', () => {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
 
-    it('does not show stock warning in the product table', async () => {
-      server.use(
-        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
-        graphql.query('Addresses', () =>
-          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
-        ),
-        graphql.query('getQuoteExtraFields', () =>
-          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
-        ),
-      );
+    describe('when product-level inventory tracking is enabled', () => {
+      it('shows TBD as price when quantity exceeds available to sell', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryLevel: 0,
+              availableToSell: 5,
+              unlimitedBackorder: false,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
 
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 100,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            inventoryLevel: 10,
-            inventoryTracking: 'product',
-            variants: [
-              buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
-            ],
-          }),
-        },
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).getAllByText('TBD')).toHaveLength(2);
       });
 
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          // email is checked on save and must match the company.customer in state for the save to succeed
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
+      it('does not show TBD as price when unlimited backorder is true', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryLevel: 0,
+              availableToSell: 5,
+              unlimitedBackorder: true,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
       });
 
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
-            featureFlags,
-          }),
-        },
+      it('does not show TBD as price when quantity is less than available to sell', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 5,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryLevel: 0,
+              availableToSell: 10,
+              unlimitedBackorder: false,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
       });
 
-      const productTable = await screen.findByRole('table');
+      it('shows stock warning when quantity exceeds available to sell', async () => {
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+        );
 
-      expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              inventoryLevel: 0,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({ inventory_level: 0, purchasing_disabled: false, sku: 'LC-123' }),
+              ],
+              availableToSell: 5,
+              unlimitedBackorder: false,
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
+        expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
+      });
+
+      it('does not show stock warning when quantity is less than available to sell', async () => {
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+        );
+
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 5,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              inventoryLevel: 0,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({ inventory_level: 0, purchasing_disabled: false, sku: 'LC-123' }),
+              ],
+              availableToSell: 5,
+              unlimitedBackorder: false,
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+      });
+
+      it('does not show stock warning when unlimited backorder is true', async () => {
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+        );
+
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 20,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              inventoryLevel: 0,
+              inventoryTracking: 'product',
+              variants: [
+                buildVariantWith({ inventory_level: 0, purchasing_disabled: false, sku: 'LC-123' }),
+              ],
+              availableToSell: 5,
+              unlimitedBackorder: true,
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
+      });
     });
 
-    it('shows TBD as price when available to sell is insufficient', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 10,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryLevel: 0,
-            availableToSell: 5,
-            unlimitedBackorder: false,
-            inventoryTracking: 'product',
-            variants: [
-              buildVariantWith({
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
+    describe('when variant-level inventory tracking is enabled', () => {
+      it('shows TBD as price when quantity exceeds available to sell', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 5,
+                  unlimited_backorder: false,
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).getAllByText('TBD')).toHaveLength(2);
       });
 
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
+      it('does not show TBD as price when unlimited backorder is true', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 5,
+                  unlimited_backorder: true,
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
       });
 
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
+      it('does not show TBD as price when quantity is less than available to sell', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 5,
+            variantSku: 'LC-123',
+            productsSearch: buildProductWith({
+              availability: 'available',
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 10,
+                  unlimited_backorder: false,
+                  purchasing_disabled: false,
+                  sku: 'LC-123',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
       });
 
-      const productTable = await screen.findByRole('table');
+      it('shows stock warning when quantity exceeds available to sell', async () => {
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+        );
 
-      expect(within(productTable).getAllByText('TBD')).toHaveLength(2);
-    });
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'VAR-001',
+            productsSearch: buildProductWith({
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 5,
+                  unlimited_backorder: false,
+                  purchasing_disabled: false,
+                  sku: 'VAR-001',
+                }),
+              ],
+            }),
+          },
+        });
 
-    it('does not show TBD as price when unlimited backorder is true', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 10,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryLevel: 0,
-            availableToSell: 5,
-            unlimitedBackorder: true,
-            inventoryTracking: 'product',
-            variants: [
-              buildVariantWith({
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
+        expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
       });
 
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
+      it('does not show stock warning when quantity is less than available to sell', async () => {
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+        );
+
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 10,
+            variantSku: 'VAR-002',
+            productsSearch: buildProductWith({
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 20,
+                  unlimited_backorder: false,
+                  purchasing_disabled: false,
+                  sku: 'VAR-002',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
       });
 
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
+      it('does not show stock warning when unlimited backorder is true', async () => {
+        const product = buildDraftQuoteItemWith({
+          node: {
+            quantity: 1000,
+            variantSku: 'ABCBLK',
+            productsSearch: buildProductWith({
+              inventoryTracking: 'variant',
+              variants: [
+                buildVariantWith({
+                  inventory_level: 0,
+                  available_to_sell: 0,
+                  unlimited_backorder: true,
+                  purchasing_disabled: false,
+                  sku: 'ABCBLK',
+                }),
+              ],
+            }),
+          },
+        });
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+          draftQuoteList: [product],
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        const productTable = await screen.findByRole('table');
+
+        expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
       });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
-    });
-
-    it('shows TBD as price for variant tracking when variant available to sell is insufficient', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 10,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryTracking: 'variant',
-            variants: [
-              buildVariantWith({
-                inventory_level: 0,
-                available_to_sell: 5,
-                unlimited_backorder: false,
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).getAllByText('TBD')).toHaveLength(2);
-    });
-
-    it('does not show TBD as price for variant tracking when variant has unlimited backorder', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 10,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryTracking: 'variant',
-            variants: [
-              buildVariantWith({
-                inventory_level: 0,
-                available_to_sell: 5,
-                unlimited_backorder: true,
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
-    });
-
-    it('does not show TBD as price when available to sell is sufficient', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 5,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryLevel: 0,
-            availableToSell: 10,
-            unlimitedBackorder: false,
-            inventoryTracking: 'product',
-            variants: [
-              buildVariantWith({
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
-    });
-
-    it('does not show TBD as price for variant tracking when variant available to sell is sufficient', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 5,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            availability: 'available',
-            inventoryTracking: 'variant',
-            variants: [
-              buildVariantWith({
-                inventory_level: 0,
-                available_to_sell: 10,
-                unlimited_backorder: false,
-                purchasing_disabled: false,
-                sku: 'LC-123',
-              }),
-            ],
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).queryAllByText('TBD')).toHaveLength(0);
-    });
-
-    it('does show stock warning in the product table if inventory tracking is enabled and quantity exceeds stock', async () => {
-      server.use(
-        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
-        graphql.query('Addresses', () =>
-          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
-        ),
-        graphql.query('getQuoteExtraFields', () =>
-          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
-        ),
-      );
-
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 10,
-          variantSku: 'LC-123',
-          productsSearch: buildProductWith({
-            inventoryLevel: 10,
-            inventoryTracking: 'product',
-            variants: [
-              buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
-            ],
-            availableToSell: 5,
-            unlimitedBackorder: false,
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          // email is checked on save and must match the company.customer in state for the save to succeed
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
-      expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
-    });
-
-    it('should not show stock warning for variant with unlimited backorder when NP&OOS is disabled', async () => {
-      const product = buildDraftQuoteItemWith({
-        node: {
-          quantity: 1000,
-          variantSku: 'ABCBLK',
-          productsSearch: buildProductWith({
-            inventoryTracking: 'variant',
-            unlimitedBackorder: false,
-            availableToSell: 10,
-            variants: [
-              buildVariantWith({
-                inventory_level: 10,
-                purchasing_disabled: false,
-                sku: 'ABCBLK',
-                unlimited_backorder: true,
-              }),
-            ],
-          }),
-        },
-      });
-
-      const quoteInfo = buildQuoteInfoStateWith({
-        draftQuoteInfo: {
-          contactInfo: { email: customerEmail },
-          billingAddress: noAddress,
-          shippingAddress: noAddress,
-        },
-        draftQuoteList: [product],
-      });
-
-      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
-        preloadedState: {
-          ...preloadedState,
-          quoteInfo,
-          global: buildGlobalStateWith({
-            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
-            featureFlags,
-          }),
-        },
-      });
-
-      const productTable = await screen.findByRole('table');
-
-      expect(within(productTable).queryByText('Insufficient stock')).not.toBeInTheDocument();
     });
 
     it('creates successfully a new quote when submitting the draft quote and gets redirected to quote detail', async () => {
