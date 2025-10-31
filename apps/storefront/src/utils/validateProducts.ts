@@ -5,12 +5,17 @@ interface Option {
   optionValue: string;
 }
 
-export interface ValidationError {
-  type: 'network' | 'validation';
-  message?: string;
-  translationKey?: string;
-  translationParams?: Record<string, string | number>;
+interface NetworkValidationError {
+  type: 'network';
+  productName: string;
 }
+
+interface ServerValidationError {
+  type: 'validation';
+  message: string;
+}
+
+export type ValidationError = NetworkValidationError | ServerValidationError;
 
 interface ValidationResult {
   validProducts: CustomFieldItems[];
@@ -56,8 +61,7 @@ export const validateProducts = async (products: CustomFieldItems[]): Promise<Va
       const { productName } = products[index].node;
       errors.push({
         type: 'network',
-        translationKey: 'quotes.productValidationFailed',
-        translationParams: { productName: productName || '' },
+        productName: productName || '',
       });
       return;
     }

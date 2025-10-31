@@ -17,7 +17,7 @@ import { getCartProductInfo } from '../utils';
 
 import {
   CatalogProduct,
-  findNotFoundSkus,
+  filterInputSkusForNotFoundProducts,
   mapCatalogToValidationPayload,
   mergeValidatedWithCatalog,
   parseOptionList,
@@ -327,7 +327,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     notFoundSkus: string[];
     validationErrors: ValidationError[];
   }> => {
-    const notFoundSkus = findNotFoundSkus(skus, variantInfoList);
+    const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
 
     if (variantInfoList.length === 0) {
       return { productItems: [], passSku: [], notFoundSkus, validationErrors: [] };
@@ -373,9 +373,13 @@ export default function QuickAdd(props: AddToListContentProps) {
           }
 
           validationErrors.forEach((error) => {
-            if (error.translationKey && error.translationParams) {
-              snackbar.error(b3Lang(error.translationKey, error.translationParams));
-            } else if (error.message) {
+            if (error.type === 'network') {
+              snackbar.error(
+                b3Lang('quotes.productValidationFailed', {
+                  productName: error.productName,
+                }),
+              );
+            } else {
               snackbar.error(error.message);
             }
           });

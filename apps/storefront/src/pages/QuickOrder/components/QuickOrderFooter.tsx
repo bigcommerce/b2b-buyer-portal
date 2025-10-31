@@ -229,9 +229,13 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const { validProducts, errors } = await validateProducts(products);
 
       errors.forEach((error) => {
-        if (error.translationKey && error.translationParams) {
-          snackbar.error(b3Lang(error.translationKey, error.translationParams));
-        } else if (error.message) {
+        if (error.type === 'network') {
+          snackbar.error(
+            b3Lang('quotes.productValidationFailed', {
+              productName: error.productName,
+            }),
+          );
+        } else {
           snackbar.error(error.message);
         }
       });
