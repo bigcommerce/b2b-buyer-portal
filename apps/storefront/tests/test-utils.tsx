@@ -136,14 +136,18 @@ interface ProductData {
 export function FakeProductDataProvider({ productId, quantity, sku, options }: ProductData) {
   return (
     <div className="productView">
-      <input name="product_id" defaultValue={productId} />
-      <input name="qty[]" defaultValue={quantity} />
       <span data-product-sku>{sku}</span>
       <form data-cart-item-add>
+        <input type="hidden" name="product_id" defaultValue={productId} />
         {Object.entries(options).map(([key, value]) => (
           <input key={key} name={key} defaultValue={value} />
         ))}
-        <input id="form-action-addToCart" type="submit" value="Add to Cart" />
+        <div id="add-to-cart-wrapper">
+          <input type="hidden" name="qty[]" defaultValue={quantity} />
+          <div className="add-to-cart-buttons">
+            <input id="form-action-addToCart" type="submit" defaultValue="Add to Cart" />
+          </div>
+        </div>
       </form>
       <a href="#bar">Shopping List Click Node</a>
     </div>

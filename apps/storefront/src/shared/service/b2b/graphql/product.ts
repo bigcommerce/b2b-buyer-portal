@@ -151,8 +151,21 @@ const productAnonUploadBulkUploadCSV = (data: CustomFieldItems) => `mutation {
 export const getVariantInfoBySkus = (skuList: string[] = []) =>
   B3Request.graphqlB2B({ query: getVariantInfoBySkusQuery(skuList) });
 
+export interface B2BProductPurchasableResponse {
+  data: {
+    productPurchasable: {
+      availability: 'available' | 'disabled';
+      availableToSell?: number;
+      inventoryLevel: number;
+      inventoryTracking: 'none' | 'product' | 'variant';
+      purchasingDisabled: boolean;
+      unlimitedBackorder?: boolean;
+    };
+  };
+}
+
 export const getB2BProductPurchasable = (data: ProductPurchasable) =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2B<B2BProductPurchasableResponse>({
     query: getProductPurchasable(data),
   });
 

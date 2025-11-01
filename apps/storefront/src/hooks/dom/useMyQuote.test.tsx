@@ -1,18 +1,33 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import {
+  builder,
   FakeProductDataProvider,
+  faker,
   graphql,
   HttpResponse,
   startMockServer,
   stringContainingAll,
 } from 'tests/test-utils';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
+import { when } from 'vitest-when';
 
+import { B2BProductPurchasableResponse } from '@/shared/service/b2b/graphql/product';
 import { GlobalState, initialState } from '@/store';
 
-import useMyQuote from './useMyQuote';
+import { useMyQuote } from './useMyQuote';
 
 const { server } = startMockServer();
+
+type ProductPurchasable = B2BProductPurchasableResponse['data']['productPurchasable'];
+
+const buildProductPurchasableWith = builder<ProductPurchasable>(() => ({
+  availability: faker.helpers.arrayElement(['available', 'disabled']),
+  availableToSell: faker.number.int(),
+  inventoryLevel: faker.number.int(),
+  inventoryTracking: faker.helpers.arrayElement(['none', 'product', 'variant']),
+  purchasingDisabled: faker.datatype.boolean(),
+  unlimitedBackorder: faker.datatype.boolean(),
+}));
 
 const mockGlobalState: GlobalState = {
   ...initialState,
@@ -24,20 +39,26 @@ const mockGlobalState: GlobalState = {
   },
 };
 
-describe('useMyQuote', () => {
+describe('when NP&OOS setting is enabled', () => {
   it('should render add to quote button if product is purchasable', async () => {
-    const b2bProductPurchasable = vi.fn().mockReturnValue({
-      availability: 'available',
-      inventoryLevel: 5,
-      inventoryTracking: 'product',
-      purchasingDisabled: '0',
-      availableToSell: 5,
-      unlimitedBackorder: true,
-    });
+    const productPurchasableResponse = vi.fn();
+
+    when(productPurchasableResponse)
+      .calledWith(stringContainingAll('productId: 123', 'sku: "TEST-SKU"'))
+      .thenReturn(
+        buildProductPurchasableWith({
+          availability: 'available',
+          availableToSell: 5,
+          inventoryLevel: 5,
+          inventoryTracking: 'product',
+          purchasingDisabled: false,
+          unlimitedBackorder: true,
+        }),
+      );
 
     server.use(
       graphql.query('GetProductPurchasable', ({ query }) =>
-        HttpResponse.json({ data: { productPurchasable: b2bProductPurchasable(query) } }),
+        HttpResponse.json({ data: { productPurchasable: productPurchasableResponse(query) } }),
       ),
     );
 
@@ -59,26 +80,31 @@ describe('useMyQuote', () => {
     );
 
     await waitFor(() => {
-      expect(b2bProductPurchasable).toHaveBeenCalledWith(
-        stringContainingAll('productId: 123,', 'sku: "TEST-SKU",'),
-      );
+      expect(productPurchasableResponse).toHaveBeenCalled();
     });
+
     expect(screen.getByText(/Add to quote/i)).toBeInTheDocument();
   });
 
-  it('should not render add to quote button if product is not purchasable', async () => {
-    const b2bProductPurchasable = vi.fn().mockReturnValue({
-      availability: 'unavailable',
-      inventoryLevel: 0,
-      inventoryTracking: 'product',
-      purchasingDisabled: '1',
-      availableToSell: 0,
-      unlimitedBackorder: false,
-    });
+  it('should render add to quote button if product is not purchasable', async () => {
+    const productPurchasableResponse = vi.fn();
+
+    when(productPurchasableResponse)
+      .calledWith(stringContainingAll('productId: 123', 'sku: "TEST-SKU"'))
+      .thenReturn(
+        buildProductPurchasableWith({
+          availability: 'disabled',
+          availableToSell: 0,
+          inventoryLevel: 0,
+          inventoryTracking: 'product',
+          purchasingDisabled: true,
+          unlimitedBackorder: false,
+        }),
+      );
 
     server.use(
       graphql.query('GetProductPurchasable', ({ query }) =>
-        HttpResponse.json({ data: { productPurchasable: b2bProductPurchasable(query) } }),
+        HttpResponse.json({ data: { productPurchasable: productPurchasableResponse(query) } }),
       ),
     );
 
@@ -100,10 +126,61 @@ describe('useMyQuote', () => {
     );
 
     await waitFor(() => {
-      expect(b2bProductPurchasable).toHaveBeenCalledWith(
-        stringContainingAll('productId: 123,', 'sku: "TEST-SKU",'),
-      );
+      expect(productPurchasableResponse).toHaveBeenCalled();
     });
-    expect(screen.queryByText(/Add to Quote/i)).not.toBeInTheDocument();
+
+    expect(screen.getByText(/Add to 1 quote/i)).toBeInTheDocument();
+  });
+});
+
+describe('when NP&OOS setting is disabled', () => {
+  beforeEach(() => {
+    mockGlobalState.blockPendingQuoteNonPurchasableOOS.isEnableProduct = false;
+  });
+
+  it('should render add to quote button if product is purchasable', async () => {
+    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+
+    renderHookWithProviders(
+      () =>
+        useMyQuote({
+          setOpenPage: () => {},
+          productQuoteEnabled: true,
+          role: 1,
+          customerId: 1,
+        }),
+      {
+        preloadedState: {
+          global: mockGlobalState,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Add to quote/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should not render add to quote button if product is not purchasable', async () => {
+    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+
+    renderHookWithProviders(
+      () =>
+        useMyQuote({
+          setOpenPage: () => {},
+          productQuoteEnabled: true,
+          role: 1,
+          customerId: 1,
+        }),
+      {
+        preloadedState: {
+          global: mockGlobalState,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Add to 1 quote/i)).not.toBeInTheDocument();
+    });
   });
 });

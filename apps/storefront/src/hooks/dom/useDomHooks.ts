@@ -9,7 +9,7 @@ import { setCartPermissions } from '@/utils';
 import useCartToQuote from './useCartToQuote';
 import useHideGoogleCustomerReviews from './useHideGoogleCustomerReviews';
 import useMonitorBrowserBack from './useMonitorBrowserBack';
-import useMyQuote from './useMyQuote';
+import { useMyQuote } from './useMyQuote';
 import { useOpenPDP } from './useOpenPDP';
 import useRegisteredbctob2b from './useRegisteredbctob2b';
 
