@@ -10,7 +10,7 @@ import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
 import { GlobalState, initialState } from '@/store';
 
-import useMyQuote from './useMyQuote';
+import { useMyQuote } from './useMyQuote';
 
 const { server } = startMockServer();
 
