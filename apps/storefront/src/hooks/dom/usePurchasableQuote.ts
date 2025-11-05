@@ -97,7 +97,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       }
 
       const isOOStock = isOutOfStockPurchaseQuantity(Number(productViewQty), productPurchasable);
-      if (purchasingDisabled === '1' || isOOStock || availability !== 'available') {
+      if (purchasingDisabled || isOOStock || availability !== 'available') {
         setBuyPurchasable(false);
       } else {
         setBuyPurchasable(true);

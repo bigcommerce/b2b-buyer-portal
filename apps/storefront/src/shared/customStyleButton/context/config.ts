@@ -43,7 +43,7 @@ interface BtnStyle {
   css?: string;
 }
 
-interface BtnProperties {
+export interface BtnProperties {
   classSelector: string;
   color: string;
   customCss: string;
