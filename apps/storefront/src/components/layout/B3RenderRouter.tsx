@@ -11,6 +11,8 @@ import { channelId } from '@/utils';
 
 import Loading from '../loading/Loading';
 
+import { RedirectFallback } from './B3FallbackRoute';
+
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'));
 
 const B3LayoutTip = lazy(() => import('@/components/layout/B3LayoutTip'));
@@ -24,7 +26,7 @@ interface B3RenderRouterProps {
 export default function B3RenderRouter(props: B3RenderRouterProps) {
   const { setOpenPage, openUrl, isOpen } = props;
   const { state: globalState } = useContext(GlobalContext);
-  const newRoutes = () => getAllowedRoutes(globalState);
+  const routes = getAllowedRoutes(globalState);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -69,12 +71,16 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
             </B3Layout>
           }
         >
-          {newRoutes().map((route: RouteItem) => {
+          {routes.map((route: RouteItem) => {
             const { path, component: Component } = route;
             return (
               <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />
             );
           })}
+          <Route
+            path="*"
+            element={<RedirectFallback path={routes[0]?.path} setOpenPage={setOpenPage} />}
+          />
         </Route>
         {firstLevelRouting.map((route: RouteFirstLevelItem) => {
           const { isProvider, path, component: Component } = route;
