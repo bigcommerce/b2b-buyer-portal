@@ -27,7 +27,9 @@ import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { featureFlags } from '@/utils/featureFlags';
 import { getSearchVal } from '@/utils/loginInfo';
+import { validateProducts } from '@/utils/validateProducts';
 
 import Message from '../quote/components/Message';
 import QuoteAttachment from '../quote/components/QuoteAttachment';
@@ -192,7 +194,12 @@ function QuoteDetail() {
 
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
+  const [shouldHideCheckoutButton, setShouldHideCheckoutButton] = useState<boolean>(false);
+
   const location = useLocation();
+
+  const isMoveStockAndBackorderValidationToBackend =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
 
   useEffect(() => {
     if (!quoteDetail?.id) return;
@@ -228,7 +235,21 @@ function QuoteDetail() {
     });
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
-  useEffect(() => {
+  const validateBackendProducts = async () => {
+    const { errors } = await validateProducts(productList);
+
+    if (errors.length) {
+      errors.forEach((error) => {
+        if (error.type === 'validation') {
+          snackbar.error(error.message);
+        }
+      });
+
+      setShouldHideCheckoutButton(true);
+    }
+  };
+
+  const quoteDetailFrontEndValidations = () => {
     let oosErrorList = '';
     let nonPurchasableErrorList = '';
 
@@ -269,6 +290,14 @@ function QuoteDetail() {
       oos: oosErrorList,
       nonPurchasable: nonPurchasableErrorList,
     });
+  };
+
+  const validateQuoteProducts = isMoveStockAndBackorderValidationToBackend
+    ? validateBackendProducts
+    : quoteDetailFrontEndValidations;
+
+  useEffect(() => {
+    validateQuoteProducts();
     // disabling since b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList]);
@@ -778,6 +807,7 @@ function QuoteDetail() {
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
+          !shouldHideCheckoutButton &&
           isEnableProductShowCheckout() && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}

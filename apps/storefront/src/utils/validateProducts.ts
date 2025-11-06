@@ -22,12 +22,36 @@ interface ValidationResult {
   errors: ValidationError[];
 }
 
-export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
-  const validationPromises = products.map(({ node: product }) => {
-    const { productId, quantity, productsSearch } = product;
-    const { variantId, newSelectOptionList } = productsSearch;
+const transformProductListToBeCompatibleWithValideProducts = (products: CustomFieldItems[]) => {
+  return products.map((product) => {
+    if ('node' in product) {
+      return {
+        ...product.node,
+        productsSearch: {
+          ...product.node.productsSearch,
+          selectedOptions: product.node.productsSearch.newSelectOptionList,
+        },
+      };
+    }
+    return {
+      ...product,
+      productsSearch: {
+        ...product.productsSearch,
+        selectedOptions: product.options,
+        variantId: product.variantId,
+      },
+    };
+  });
+};
 
-    const productOptions = newSelectOptionList.map((option: Option) => {
+export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
+  const productsList = transformProductListToBeCompatibleWithValideProducts(products);
+  const validationPromises = productsList.map((product) => {
+    const { productId, quantity, productsSearch } = product;
+
+    const { variantId, selectedOptions } = productsSearch;
+
+    const productOptions = selectedOptions.map((option: Option) => {
       if (typeof option.optionId === 'string' && option.optionId.includes('attribute')) {
         // The passed in optionIds are formatted like "attribute[123]"
         // This extracts the number from the optionId
