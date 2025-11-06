@@ -13,10 +13,12 @@ interface QuoteDetailFooterProps {
   isAgenting: boolean;
   status: number;
   proceedingCheckoutFn: () => boolean;
+  shouldDisableCheckoutButton: boolean;
 }
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
-  const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props;
+  const { quoteId, role, isAgenting, status, proceedingCheckoutFn, shouldDisableCheckoutButton } =
+    props;
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const location = useLocation();
@@ -49,6 +51,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       }}
     >
       <CustomButton
+        disabled={shouldDisableCheckoutButton}
         variant="contained"
         onClick={() => {
           handleQuoteCheckout({

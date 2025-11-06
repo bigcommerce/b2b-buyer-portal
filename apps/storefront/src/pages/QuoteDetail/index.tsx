@@ -5,6 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
@@ -27,7 +28,6 @@ import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
-import { featureFlags } from '@/utils/featureFlags';
 import { getSearchVal } from '@/utils/loginInfo';
 import { validateProducts } from '@/utils/validateProducts';
 
@@ -196,7 +196,11 @@ function QuoteDetail() {
 
   const [shouldHideCheckoutButton, setShouldHideCheckoutButton] = useState<boolean>(false);
 
+  const [isValidationLoading, setIsValidationLoading] = useState<boolean>(false);
+
   const location = useLocation();
+
+  const featureFlags = useFeatureFlags();
 
   const isMoveStockAndBackorderValidationToBackend =
     featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
@@ -236,6 +240,7 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const validateBackendProducts = async () => {
+    setIsValidationLoading(true);
     const { errors } = await validateProducts(productList);
 
     if (errors.length) {
@@ -247,6 +252,9 @@ function QuoteDetail() {
 
       setShouldHideCheckoutButton(true);
     }
+
+    setIsHideQuoteCheckout(false);
+    setIsValidationLoading(false);
   };
 
   const quoteDetailFrontEndValidations = () => {
@@ -303,23 +311,27 @@ function QuoteDetail() {
   }, [isEnableProduct, isHandleApprove, productList]);
 
   const proceedingCheckoutFn = useCallback(() => {
-    if (isHideQuoteCheckout) {
-      const { oos, nonPurchasable } = noBuyerProductName;
-      if (oos)
-        snackbar.error(
-          b3Lang('quoteDetail.message.insufficientStock', {
-            ProductName: oos,
-          }),
-        );
+    if (!isMoveStockAndBackorderValidationToBackend) {
+      if (isHideQuoteCheckout) {
+        const { oos, nonPurchasable } = noBuyerProductName;
+        if (oos)
+          snackbar.error(
+            b3Lang('quoteDetail.message.insufficientStock', {
+              ProductName: oos,
+            }),
+          );
 
-      if (nonPurchasable)
-        snackbar.error(
-          b3Lang('quoteDetail.message.nonPurchasable', {
-            ProductName: nonPurchasable,
-          }),
-        );
+        if (nonPurchasable)
+          snackbar.error(
+            b3Lang('quoteDetail.message.nonPurchasable', {
+              ProductName: nonPurchasable,
+            }),
+          );
+      }
+      return isHideQuoteCheckout;
     }
-    return isHideQuoteCheckout;
+
+    return false;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName]);
@@ -639,7 +651,7 @@ function QuoteDetail() {
     quotePurchasabilityPermissionInfo;
 
   return (
-    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading}>
+    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading || isValidationLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -807,9 +819,9 @@ function QuoteDetail() {
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
-          !shouldHideCheckoutButton &&
           isEnableProductShowCheckout() && (
             <QuoteDetailFooter
+              shouldDisableCheckoutButton={!isValidationLoading && shouldHideCheckoutButton}
               quoteId={quoteDetail.id}
               role={role}
               isAgenting={isAgenting}
