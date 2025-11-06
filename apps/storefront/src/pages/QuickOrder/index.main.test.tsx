@@ -3345,7 +3345,9 @@ describe('When backend validation feature flag is on', () => {
         expect(screen.getByText('TEST-SKU-123')).toBeInTheDocument();
       });
 
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
       await userEvent.click(addToCartButton);
 
       await waitFor(
@@ -3444,7 +3446,9 @@ describe('When backend validation feature flag is on', () => {
           expect(screen.getByText('NEW-CART-SKU-123')).toBeInTheDocument();
         });
 
-        const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+        const addToCartButton = await screen.findByRole('button', {
+          name: /Add 1 products to cart/i,
+        });
         await userEvent.click(addToCartButton);
 
         await waitFor(
@@ -3538,7 +3542,9 @@ describe('When backend validation feature flag is on', () => {
         expect(screen.getByText('FAIL-CART-SKU-123')).toBeInTheDocument();
       });
 
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -3735,7 +3741,9 @@ describe('When backend validation feature flag is on', () => {
         expect(screen.getByText('OOS-SKU-123')).toBeInTheDocument();
       });
 
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -3834,7 +3842,9 @@ describe('When backend validation feature flag is on', () => {
         expect(screen.getByText('MIN-QTY-SKU-123')).toBeInTheDocument();
       });
 
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -3933,7 +3943,9 @@ describe('When backend validation feature flag is on', () => {
         expect(screen.getByText('ERROR-SKU-123')).toBeInTheDocument();
       });
 
-      const addToCartButton = screen.getByRole('button', { name: /Add 1 products to cart/i });
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
