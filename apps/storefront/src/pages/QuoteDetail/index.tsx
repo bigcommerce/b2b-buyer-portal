@@ -634,8 +634,16 @@ function QuoteDetail() {
 
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {
-      if (isHandleApprove && isHideQuoteCheckoutWhenFrontEndValidations) return true;
-      if (!isHideQuoteCheckoutWhenFrontEndValidations) return true;
+      if (isMoveStockAndBackorderValidationToBackend) {
+        if (
+          (isHandleApprove && shouldHideCheckoutButtonWhenBackendValidations) ||
+          !shouldHideCheckoutButtonWhenBackendValidations
+        )
+          return true;
+      } else {
+        if (isHandleApprove && isHideQuoteCheckoutWhenFrontEndValidations) return true;
+        if (!isHideQuoteCheckoutWhenFrontEndValidations) return true;
+      }
 
       return false;
     }
