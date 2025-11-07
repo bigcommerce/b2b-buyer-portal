@@ -8,6 +8,7 @@ import { ViteUserConfig } from 'vitest/config';
 
 export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'> => {
   const env = loadEnv(mode, process.cwd());
+  const isCI = process.env.CIRCLECI === 'true';
 
   return {
     plugins: [legacy({ targets: ['defaults'] }), react()],
@@ -37,7 +38,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       // We override the default timeout in CI to account for slower test execution.
       // This is necessary because the default timeout of 5 seconds is not enough for some tests
       // that involve network requests or complex component interactions.
-      testTimeout: process.env.CI === 'true' ? 40_000 : 5_000,
+      testTimeout: isCI ? 40_000 : 5_000,
       slowTestThreshold: 3_000,
       env: {
         VITE_B2B_URL: 'https://api-b2b.bigcommerce.com',
@@ -50,13 +51,13 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       environment: 'jsdom',
       globalSetup: './tests/global-setup.ts',
       setupFiles: ['./tests/jsdom-polyfills.ts', './tests/setup-test-environment.ts'],
-      reporters: ['default', 'junit'],
+      reporters: isCI ? ['default', 'junit'] : ['default'],
       outputFile: {
         junit: 'coverage/junit.xml',
       },
       coverage: {
         provider: 'istanbul',
-        cleanOnRerun: process.env.CI === 'true',
+        cleanOnRerun: isCI,
         reporter: ['text', 'html', 'clover', 'json', 'lcov'],
       },
       deps: {
@@ -66,6 +67,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
           },
         },
       },
+      maxWorkers: isCI ? process.env.MAX_WORKERS : undefined,
     },
     resolve: {
       alias: {
