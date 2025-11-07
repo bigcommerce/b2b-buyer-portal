@@ -169,6 +169,7 @@ export const buildQuoteWith = builder<B2BQuoteDetail>(() => ({
       channelName: faker.company.name(),
       allowCheckout: faker.datatype.boolean(),
       displayDiscount: faker.datatype.boolean(),
+      uuid: undefined,
     },
   },
 }));

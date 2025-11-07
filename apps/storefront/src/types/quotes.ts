@@ -151,7 +151,7 @@ export interface QuoteExtraFieldsData {
 export interface CreateQuoteResponse {
   data: {
     quoteCreate: {
-      quote: { id: number; createdAt: string };
+      quote: { id: number; createdAt: string; uuid?: string };
     };
   };
 }

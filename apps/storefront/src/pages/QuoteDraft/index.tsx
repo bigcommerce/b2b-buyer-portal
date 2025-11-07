@@ -741,7 +741,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
       const {
         quoteCreate: {
-          quote: { id, createdAt, uuid },
+          quote: { id, createdAt, uuid: quoteUuid },
         },
       } = response;
 
@@ -756,7 +756,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       if (quoteSubmissionResponseInfo.value === '0') {
-        handleAfterSubmit(id, createdAt, uuid);
+        handleAfterSubmit(id, createdAt, quoteUuid);
       } else {
         setQuoteSubmissionResponseOpen(true);
       }
