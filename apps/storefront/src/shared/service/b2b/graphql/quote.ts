@@ -40,7 +40,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `
           subtotal,
           totalAmount,
           taxTotal,
-          accessUuid,
+          uuid,
         }
       }
     }
@@ -140,7 +140,7 @@ const quoteCreate = (data: CustomFieldItems) => `mutation CreateQuote{
     quote{
       id,
       createdAt,
-      accessUuid,
+      uuid,
     }
   }
 }`;
@@ -287,7 +287,7 @@ const getQuoteInfo = (data: { id: number; date: string; uuid?: string }) => `
       channelName,
       allowCheckout,
       displayDiscount,
-      accessUuid,
+      uuid,
     }
   }
 `;
@@ -419,7 +419,7 @@ export interface QuoteEdge {
     subtotal: string;
     totalAmount: string;
     taxTotal: string;
-    accessUuid?: string;
+    uuid?: string;
   };
 }
 
@@ -617,7 +617,7 @@ export interface B2BQuoteDetail {
       channelName: string;
       allowCheckout: boolean;
       displayDiscount: boolean;
-      accessUuid?: string;
+      uuid?: string;
     };
   };
 }
