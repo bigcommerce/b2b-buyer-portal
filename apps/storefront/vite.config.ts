@@ -106,6 +106,15 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             dropzone: ['react-dropzone'],
             eCache: ['@emotion/cache'],
           },
+          chunkFileNames(chunk) {
+            if (chunk.name === 'index' && chunk.facadeModuleId) {
+              const folderName = path.basename(path.dirname(chunk.facadeModuleId));
+
+              return `chunks/${folderName}.[hash].js`;
+            }
+
+            return `chunks/[name].[hash].js`;
+          },
         },
         onwarn(warning, warn) {
           if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {

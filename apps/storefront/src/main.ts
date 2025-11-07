@@ -1,11 +1,26 @@
-import { Environment, EnvSpecificConfig } from '@/types';
+import { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } from './load-functions';
 
-// TODO: update the following to BC cdn when migration is completed
-const ENVIRONMENT_CDN_BASE_PATH: EnvSpecificConfig<string> = {
-  local: '/',
-  integration: 'https://microapps.integration.zone/b2b-buyer-portal/',
-  staging: 'https://microapps.staging.zone/b2b-buyer-portal/',
-  production: 'https://microapps.bigcommerce.com/b2b-buyer-portal/',
+export enum Environment {
+  Production = 'production',
+  Staging = 'staging',
+  Integration = 'integration',
+  Local = 'local',
+}
+
+const getBasePath = (env: string = Environment.Production): string => {
+  if (env === Environment.Production) {
+    return 'https://microapps.bigcommerce.com/b2b-buyer-portal/';
+  }
+
+  if (env === Environment.Staging) {
+    return 'https://microapps.staging.zone/b2b-buyer-portal/';
+  }
+
+  if (env === Environment.Integration) {
+    return 'https://microapps.integration.zone/b2b-buyer-portal/';
+  }
+
+  return '/';
 };
 
 window.b2b = {
@@ -14,16 +29,13 @@ window.b2b = {
     // this function is called at runtime and intentionally references `window.B3`
     // so that the same runtime files can dynamically choose the cdn base url location
     // based on environment it is deployed to
-    const environment: Environment = window.B3?.setting?.environment ?? Environment.Production;
-    return `${ENVIRONMENT_CDN_BASE_PATH[environment]}${filename}`;
+    const basePath = getBasePath(window.B3?.setting?.environment);
+
+    return `${basePath}${filename}`;
   },
 };
 
 (async function bootstrap() {
-  const { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } = await import(
-    './load-functions'
-  );
-
   // check if the accessed url contains a hashtag
   if (window.location.hash.startsWith('#/')) {
     initApp();

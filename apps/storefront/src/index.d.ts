@@ -46,7 +46,7 @@ declare interface Window {
       channel_id: number;
       store_hash: string;
       platform: ChannelPlatform;
-      environment: import('@/types/global').Environment;
+      environment: string;
       disable_logout_button?: boolean;
       cart_url?: string;
     };
