@@ -22,7 +22,7 @@ interface ValidationResult {
   errors: ValidationError[];
 }
 
-const transformProductListToBeCompatibleWithValideProducts = (products: CustomFieldItems[]) => {
+const transformProductListToBeCompatibleWithValidateProducts = (products: CustomFieldItems[]) => {
   return products.map((product) => {
     if ('node' in product) {
       return {
@@ -45,7 +45,7 @@ const transformProductListToBeCompatibleWithValideProducts = (products: CustomFi
 };
 
 export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
-  const productsList = transformProductListToBeCompatibleWithValideProducts(products);
+  const productsList = transformProductListToBeCompatibleWithValidateProducts(products);
   const validationPromises = productsList.map((product) => {
     const { productId, quantity, productsSearch } = product;
 
