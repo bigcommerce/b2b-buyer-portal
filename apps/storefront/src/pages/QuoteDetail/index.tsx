@@ -839,7 +839,8 @@ function QuoteDetail() {
 
         {quoteConvertToOrderPermission &&
           quotePurchasabilityPermission &&
-          (Number(quoteDetail.status) !== 4 && Number(quoteDetail.status) !== 5) &&
+          Number(quoteDetail.status) !== 4 &&
+          Number(quoteDetail.status) !== 5 &&
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
