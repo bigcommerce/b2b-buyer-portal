@@ -151,6 +151,58 @@ const containerStyle = (isMobile: boolean) => {
       };
 };
 
+function Footer({
+  children,
+  isMobile,
+  isAgenting,
+}: {
+  children: React.ReactNode;
+  isMobile: boolean;
+  isAgenting: boolean;
+}) {
+  return (
+    <Box
+      sx={{
+        position: 'fixed',
+        bottom: isMobile && isAgenting ? '52px' : 0,
+        left: 0,
+        backgroundColor: '#fff',
+        width: '100%',
+        padding: '0.8rem 1rem',
+        height: 'auto',
+        display: 'flex',
+        zIndex: '999',
+        justifyContent: isMobile ? 'center' : 'flex-end',
+        displayPrint: 'none',
+        ...containerStyle(isMobile),
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function ProceedToCheckoutButton({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  const [isMobile] = useMobile();
+  return (
+    <Button
+      variant="contained"
+      onClick={onClick}
+      sx={{
+        width: isMobile ? '100%' : 'auto',
+      }}
+    >
+      {children}
+    </Button>
+  );
+}
+
 function QuoteDetail() {
   const navigate = useNavigate();
 
@@ -180,10 +232,7 @@ function QuoteDetail() {
   const [fileList, setFileList] = useState<any>([]);
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
-  const [
-    isHideQuoteCheckoutWhenFrontEndValidations,
-    setIsHideQuoteCheckoutWhenFrontEndValidations,
-  ] = useState<boolean>(true);
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -206,13 +255,6 @@ function QuoteDetail() {
   });
 
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
-
-  const [
-    shouldHideCheckoutButtonWhenBackendValidations,
-    setShouldHideCheckoutButtonWhenBackendValidations,
-  ] = useState<boolean>(false);
-
-  const [isValidationLoading, setIsValidationLoading] = useState<boolean>(false);
 
   const location = useLocation();
 
@@ -256,7 +298,6 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const quoteDetailBackendEndValidations = async () => {
-    setIsValidationLoading(true);
     const { errors } = await validateProducts(productList);
 
     if (errors.length) {
@@ -266,11 +307,8 @@ function QuoteDetail() {
         }
       });
 
-      setShouldHideCheckoutButtonWhenBackendValidations(true);
+      setIsHideQuoteCheckout(true);
     }
-
-    setIsHideQuoteCheckoutWhenFrontEndValidations(false);
-    setIsValidationLoading(false);
   };
 
   const quoteDetailFrontEndValidations = () => {
@@ -308,7 +346,7 @@ function QuoteDetail() {
         );
     }
 
-    setIsHideQuoteCheckoutWhenFrontEndValidations(isHideCheckout);
+    setIsHideQuoteCheckout(isHideCheckout);
 
     setNoBuyerProductName({
       oos: oosErrorList,
@@ -328,7 +366,7 @@ function QuoteDetail() {
 
   const proceedingCheckoutFn = useCallback(() => {
     if (!isMoveStockAndBackorderValidationToBackend) {
-      if (isHideQuoteCheckoutWhenFrontEndValidations) {
+      if (isHideQuoteCheckout) {
         const { oos, nonPurchasable } = noBuyerProductName;
         if (oos)
           snackbar.error(
@@ -344,13 +382,13 @@ function QuoteDetail() {
             }),
           );
       }
-      return isHideQuoteCheckoutWhenFrontEndValidations;
+      return isHideQuoteCheckout;
     }
 
     return false;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHideQuoteCheckoutWhenFrontEndValidations, noBuyerProductName]);
+  }, [isHideQuoteCheckout, noBuyerProductName]);
 
   const classRates: TaxZoneRates[] = [];
   if (taxZoneRates?.length) {
@@ -621,7 +659,7 @@ function QuoteDetail() {
       quoteGotoCheckout();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isHideQuoteCheckoutWhenFrontEndValidations]);
+  }, [id, isHideQuoteCheckout]);
 
   const isAutoEnableQuoteCheckout = useMemo(() => {
     const isAutoEnable =
@@ -634,16 +672,8 @@ function QuoteDetail() {
 
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {
-      if (isMoveStockAndBackorderValidationToBackend) {
-        if (
-          (isHandleApprove && shouldHideCheckoutButtonWhenBackendValidations) ||
-          !shouldHideCheckoutButtonWhenBackendValidations
-        )
-          return true;
-      } else {
-        if (isHandleApprove && isHideQuoteCheckoutWhenFrontEndValidations) return true;
-        if (!isHideQuoteCheckoutWhenFrontEndValidations) return true;
-      }
+      if (isHandleApprove && isHideQuoteCheckout) return true;
+      if (!isHideQuoteCheckout) return true;
 
       return false;
     }
@@ -675,7 +705,7 @@ function QuoteDetail() {
     quotePurchasabilityPermissionInfo;
 
   return (
-    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading || isValidationLoading}>
+    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -777,7 +807,7 @@ function QuoteDetail() {
               }}
             >
               <QuoteDetailSummary
-                isHideQuoteCheckout={isHideQuoteCheckoutWhenFrontEndValidations}
+                isHideQuoteCheckout={isHideQuoteCheckout}
                 quoteSummary={quoteSummary}
                 quoteDetailTax={quoteDetailTax}
                 status={quoteDetail.status}
@@ -844,27 +874,9 @@ function QuoteDetail() {
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
-          !isValidationLoading &&
           isEnableProductShowCheckout() && (
-            <Box
-              sx={{
-                position: 'fixed',
-                bottom: isMobile && isAgenting ? '52px' : 0,
-                left: 0,
-                backgroundColor: '#fff',
-                width: '100%',
-                padding: '0.8rem 1rem',
-                height: 'auto',
-                display: 'flex',
-                zIndex: '999',
-                justifyContent: isMobile ? 'center' : 'flex-end',
-                displayPrint: 'none',
-                ...containerStyle(isMobile),
-              }}
-            >
-              <Button
-                disabled={!isValidationLoading && shouldHideCheckoutButtonWhenBackendValidations}
-                variant="contained"
+            <Footer isMobile={isMobile} isAgenting={isAgenting}>
+              <ProceedToCheckoutButton
                 onClick={() => {
                   handleQuoteCheckout({
                     proceedingCheckoutFn,
@@ -874,13 +886,10 @@ function QuoteDetail() {
                     navigate,
                   });
                 }}
-                sx={{
-                  width: isMobile ? '100%' : 'auto',
-                }}
               >
                 {b3Lang('quoteDetail.footer.proceedToCheckout')}
-              </Button>
-            </Box>
+              </ProceedToCheckoutButton>
+            </Footer>
           )}
       </Box>
     </B3Spin>

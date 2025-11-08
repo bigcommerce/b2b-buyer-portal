@@ -311,27 +311,7 @@ describe('when the user is a B2B customer', () => {
         quote: {
           id: '272989',
           quoteNumber: '911911',
-          productsList: [
-            {
-              productId: '123',
-              sku: '',
-              basePrice: '',
-              discount: '',
-              offeredPrice: '',
-              quantity: 0,
-              variantId: 0,
-              imageUrl: '',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
-              productName: '',
-              purchaseHandled: false,
-              options: [],
-              notes: '',
-              costPrice: '',
-              inventoryTracking: '',
-              inventoryLevel: 0,
-            },
-          ],
+          productsList: [buildQuoteProductWith({ productId: '123' })],
         },
       },
     });
