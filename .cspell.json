@@ -8,6 +8,7 @@
   "words": [
     "accountincorrect",
     "Agenting",
+    "backorder",
     "bigcommerce",
     "clickaway",
     "Enduser",
@@ -18,12 +19,13 @@
     "purchasability",
     "registeredbctob2b",
     "skus",
-    "clickaway",
     "Turborepo"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.
   // For example "hte" should be "the"
-  "flagWords": ["bundleb2b"]
+  "flagWords": [
+    "bundleb2b"
+  ]
   // cspell:enable
 }

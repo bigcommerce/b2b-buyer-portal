@@ -23,11 +23,7 @@ import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
-import {
-  getStoreTaxZoneRates,
-  getTemPlateConfig,
-  setStorefrontConfig,
-} from './utils/storefrontConfig';
+import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
 import {
   isB2BUserSelector,
@@ -178,11 +174,14 @@ export default function App() {
       }
       setChannelStoreType();
 
+      // load the store config before fetching other data
+      // as some fetches depend on the store config or feature flags being present
+      await getStoreConfigs(styleDispatch, dispatch);
+
       try {
         await Promise.allSettled([
-          getStoreTaxZoneRates(),
+          getGlobalStoreTax(),
           setStorefrontConfig(dispatch),
-          getTemPlateConfig(styleDispatch, dispatch),
           getCompanyInfo(role, b2bId),
         ]);
       } catch (e) {

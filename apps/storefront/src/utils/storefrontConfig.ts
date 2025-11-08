@@ -15,6 +15,7 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
+import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
@@ -171,7 +172,7 @@ const storefrontKeys: StorefrontKeysProps[] = [
   ...featureFlags,
 ];
 
-const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
+const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   const keys = storefrontKeys.map((item: StorefrontKeysProps) => item.key);
   const { storefrontConfigs } = await getStorefrontConfigs(channelId, keys);
 
@@ -468,6 +469,13 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
   }
 };
 
+const getTaxDisplayTypeFromStorefrontGraph = async () => {
+  const response = await getStorefrontTaxDisplayType();
+  const showInclusive = response.pdp === 'INC';
+  B3SStorage.set('showInclusiveTaxPrice', showInclusive);
+  store.dispatch(setShowInclusiveTaxPrice(showInclusive));
+};
+
 const getStoreTaxZoneRates = async () => {
   const { taxZoneRates = [] } = await getTaxZoneRates();
 
@@ -487,4 +495,15 @@ const getStoreTaxZoneRates = async () => {
   store.dispatch(setTaxZoneRates(taxZoneRates));
 };
 
-export { getStoreTaxZoneRates, getTemPlateConfig, setStorefrontConfig };
+const getGlobalStoreTax = async () => {
+  const { featureFlags } = store.getState().global;
+  const taxZoneRatesPromise = featureFlags[
+    'B2B-3857.move_tax_display_settings_to_bc_storefront_graph'
+  ]
+    ? getTaxDisplayTypeFromStorefrontGraph()
+    : getStoreTaxZoneRates();
+
+  return taxZoneRatesPromise;
+};
+
+export { getStoreConfigs, setStorefrontConfig, getGlobalStoreTax };
