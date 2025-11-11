@@ -291,21 +291,22 @@ function QuoteDetail() {
     });
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
-  const quoteDetailBackendEndValidations = async () => {
+  const quoteDetailBackendValidations = async () => {
     const { errors } = await validateProducts(productList);
 
-    if (errors.length) {
-      errors.forEach((error) => {
-        if (error.type === 'validation') {
-          snackbar.error(error.message);
-        }
-      });
-
-      setQuoteValidationErrors(errors);
+    if (!errors.length) {
+      return;
     }
+    errors.forEach((error) => {
+      if (error.type === 'validation') {
+        snackbar.error(error.message);
+      }
+    });
+
+    setQuoteValidationErrors(errors);
   };
 
-  const quoteDetailFrontEndValidations = () => {
+  const quoteDetailFrontendValidations = () => {
     let oosErrorList = '';
     let nonPurchasableErrorList = '';
 
@@ -349,10 +350,10 @@ function QuoteDetail() {
   };
 
   const validateQuoteProducts = isMoveStockAndBackorderValidationToBackend
-    ? quoteDetailBackendEndValidations
-    : quoteDetailFrontEndValidations;
+    ? quoteDetailBackendValidations
+    : quoteDetailFrontendValidations;
 
-  const proceedingCheckoutFnBackendEndFlow = () => {
+  const proceedingCheckoutFnBackendFlow = () => {
     if (quoteValidationErrors.length) {
       quoteValidationErrors.forEach((error: any) => {
         snackbar.error(error.message);
@@ -370,7 +371,7 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList]);
 
-  const proceedingCheckoutFnFrontEndFlow = useCallback(() => {
+  const proceedingCheckoutFnFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
       const { oos, nonPurchasable } = noBuyerProductName;
       if (oos)
@@ -393,8 +394,8 @@ function QuoteDetail() {
   }, [isHideQuoteCheckout, noBuyerProductName]);
 
   const shouldProceedToCheckout = isMoveStockAndBackorderValidationToBackend
-    ? proceedingCheckoutFnBackendEndFlow
-    : proceedingCheckoutFnFrontEndFlow;
+    ? proceedingCheckoutFnBackendFlow
+    : proceedingCheckoutFnFrontendFlow;
 
   const classRates: TaxZoneRates[] = [];
   if (taxZoneRates?.length) {
