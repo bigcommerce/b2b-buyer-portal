@@ -561,8 +561,9 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i }));
     expect(
-      await screen.findByText('A product with the id of 123 does not have sufficient stock'),
-    ).toBeInTheDocument();
+      await screen.findAllByText('A product with the id of 123 does not have sufficient stock'),
+    ).toHaveLength(2);
   });
 });
