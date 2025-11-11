@@ -22,7 +22,10 @@ interface ValidationResult {
   errors: ValidationError[];
 }
 
-export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
+export const validateProducts = async (
+  products: CustomFieldItems[],
+  destination: 'quote' | 'cart' = 'quote',
+): Promise<ValidationResult> => {
   const validationPromises = products.map(({ node: product }) => {
     const { productId, quantity, productsSearch } = product;
     const { variantId, newSelectOptionList } = productsSearch;
@@ -68,17 +71,37 @@ export const validateProducts = async (products: CustomFieldItems[]): Promise<Va
 
     const { responseType, message } = result.value;
 
-    if (responseType === 'ERROR') {
-      errors.push({
-        type: 'validation',
-        message,
-      });
+    switch (destination) {
+      case 'cart':
+        if (responseType === 'ERROR' || responseType === 'WARNING') {
+          errors.push({
+            type: 'validation',
+            message,
+          });
+        }
+        break;
+      case 'quote':
+      default:
+        if (responseType === 'ERROR') {
+          errors.push({
+            type: 'validation',
+            message,
+          });
+        }
+        break;
     }
   });
 
   const validProducts = products.filter((_, index) => {
     const res = settledResults[index];
-    return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
+
+    switch (destination) {
+      case 'cart':
+        return res.status === 'fulfilled' && res.value.responseType === 'SUCCESS';
+      case 'quote':
+      default:
+        return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
+    }
   });
 
   return { validProducts, errors };

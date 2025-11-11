@@ -335,7 +335,9 @@ export default function QuickAdd(props: AddToListContentProps) {
 
     const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
 
-    const { validProducts, errors } = await validateProducts(productsToValidate);
+    // When adding products to a cart, warnings need to be treated as errors.
+    // We are doing this in the frontend for now, but it will be moved to the backend in the future.
+    const { validProducts, errors } = await validateProducts(productsToValidate, 'cart');
 
     const productItems = mergeValidatedWithCatalog(validProducts, variantInfoList);
 

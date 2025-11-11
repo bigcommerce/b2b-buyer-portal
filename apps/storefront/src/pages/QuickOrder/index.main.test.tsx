@@ -2843,6 +2843,178 @@ describe('When backend validation feature flag is on', () => {
     });
   });
 
+  it('quick add displays an error message when trying to add product with validation warnings to new cart', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const variantInfo = buildVariantInfoWith({
+      productId: '123',
+      variantId: '456',
+      variantSku: 'OOS-123',
+      option: [],
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["OOS-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: 123,
+          variantId: 456,
+          quantity: 2,
+          productOptions: [],
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'WARNING',
+            message: 'SKU OOS-123 is out of stock',
+          }),
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+    const skuInput = skuInputs[0];
+    const qtyInput = qtyInputs[0];
+
+    await userEvent.type(skuInput, 'OOS-123');
+    await userEvent.type(qtyInput, '2');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    const error = await screen.findByText('SKU OOS-123 is out of stock');
+    expect(error).toBeInTheDocument();
+  });
+
+  it('quick add displays an error message when trying to add product with validation warnings to existing cart', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const existingCart = buildGetCartWith({
+      data: {
+        site: {
+          cart: {
+            entityId: '12345',
+            lineItems: {
+              physicalItems: [buildCartItemWith({ sku: 'EXISTING-SKU', quantity: 1 })],
+              digitalItems: [],
+              customItems: [],
+              giftCertificates: [],
+            },
+          },
+        },
+      },
+    });
+
+    const variantInfo = buildVariantInfoWith({
+      productId: '123',
+      variantId: '456',
+      variantSku: 'OOS-123',
+      option: [],
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["OOS-123"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: 123,
+          variantId: 456,
+          quantity: 3,
+          productOptions: [],
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'WARNING',
+            message: 'Product OOS-123 has insufficient stock',
+          }),
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(existingCart)),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+    const skuInput = skuInputs[0];
+    const qtyInput = qtyInputs[0];
+
+    await userEvent.type(skuInput, 'OOS-123');
+    await userEvent.type(qtyInput, '3');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Product OOS-123 has insufficient stock')).toBeInTheDocument();
+    });
+  });
+
   it('quick add displays an error message when trying to add non-existent SKU', async () => {
     const getVariantInfoBySkus = vi.fn();
     const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
@@ -2935,19 +3107,17 @@ describe('When backend validation feature flag is on', () => {
     const createCartSimple = vi.fn();
 
     when(createCartSimple)
-      .calledWith(
-        expect.objectContaining({
-          createCartInput: expect.objectContaining({
-            lineItems: expect.arrayContaining([
-              expect.objectContaining({
-                quantity: 2,
-                productEntityId: Number(validVariant.productId),
-                variantEntityId: Number(validVariant.variantId),
-              }),
-            ]),
-          }),
-        }),
-      )
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            expect.objectContaining({
+              quantity: 2,
+              productEntityId: Number(validVariant.productId),
+              variantEntityId: Number(validVariant.variantId),
+            }),
+          ],
+        },
+      })
       .thenReturn({
         data: {
           cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
@@ -3072,19 +3242,17 @@ describe('When backend validation feature flag is on', () => {
     const createCartSimple = vi.fn();
 
     when(createCartSimple)
-      .calledWith(
-        expect.objectContaining({
-          createCartInput: expect.objectContaining({
-            lineItems: expect.arrayContaining([
-              expect.objectContaining({
-                quantity: 2,
-                productEntityId: Number(validVariant.productId),
-                variantEntityId: Number(validVariant.variantId),
-              }),
-            ]),
-          }),
-        }),
-      )
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            expect.objectContaining({
+              quantity: 2,
+              productEntityId: Number(validVariant.productId),
+              variantEntityId: Number(validVariant.variantId),
+            }),
+          ],
+        },
+      })
       .thenReturn({
         data: {
           cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
@@ -3138,6 +3306,141 @@ describe('When backend validation feature flag is on', () => {
     expect(
       await screen.findByText('SKU NOT-FOUND-SKU were not found, please check entered values'),
     ).toBeInTheDocument();
+  });
+
+  it('quick add does not add products with validation warnings to cart', async () => {
+    const getVariantInfoBySkus = vi.fn();
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const validVariant = buildVariantInfoWith({
+      variantSku: 'VALID-SKU',
+      productId: '123',
+      variantId: '456',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 100,
+    });
+
+    const outOfStockVariant = buildVariantInfoWith({
+      variantSku: 'OUT-OF-STOCK-SKU',
+      productId: '789',
+      variantId: '012',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 5,
+    });
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["VALID-SKU","OUT-OF-STOCK-SKU"]'))
+      .thenDo(() =>
+        buildVariantInfoResponseWith({ data: { variantSku: [validVariant, outOfStockVariant] } }),
+      );
+
+    const validateProduct = vi.fn();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(validVariant.productId),
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'SUCCESS',
+            message: '',
+          }),
+        },
+      });
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(outOfStockVariant.productId),
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'WARNING',
+            message: 'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
+          }),
+        },
+      });
+
+    const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            expect.objectContaining({
+              quantity: 2,
+              productEntityId: Number(validVariant.productId),
+              variantEntityId: Number(validVariant.variantId),
+            }),
+          ],
+        },
+      })
+      .thenReturn({
+        data: {
+          cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+
+    await userEvent.type(skuInputs[0], 'VALID-SKU');
+    await userEvent.type(qtyInputs[0], '2');
+
+    await userEvent.type(skuInputs[1], 'OUT-OF-STOCK-SKU');
+    await userEvent.type(qtyInputs[1], '10');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    expect(
+      await screen.findByText(
+        'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
+      ),
+    ).toBeInTheDocument();
+
+    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
   });
 
   it('adds a product to the cart succesfully', async () => {
