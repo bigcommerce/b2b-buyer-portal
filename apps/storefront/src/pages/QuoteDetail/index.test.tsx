@@ -12,6 +12,7 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  userEvent,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -311,6 +312,8 @@ describe('when the user is a B2B customer', () => {
         quote: {
           id: '272989',
           quoteNumber: '911911',
+          status: 2,
+          allowCheckout: true,
           productsList: [buildQuoteProductWith({ productId: '123' })],
         },
       },
@@ -369,6 +372,13 @@ describe('when the user is a B2B customer', () => {
     renderWithProviders(<QuoteDetail />, {
       preloadedState: {
         ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [
+            { code: 'purchase_enable', permissionLevel: 1 },
+            { code: 'checkout_with_quote', permissionLevel: 1 },
+          ],
+        },
         global: {
           ...preloadedState.global,
           featureFlags: {
@@ -383,6 +393,7 @@ describe('when the user is a B2B customer', () => {
     expect(
       await screen.findByText('A product with the id of 123 does not have sufficient stock'),
     ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
   });
 
   it('does not render any message for product that has a validation warning', async () => {
@@ -463,5 +474,95 @@ describe('when the user is a B2B customer', () => {
     expect(
       screen.queryByText('A product with the id of 123 does not have sufficient stock'),
     ).not.toBeInTheDocument();
+  });
+
+  it('checkout throws an error if validateProduct endpoint returns a product with error', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '272989',
+          quoteNumber: '911911',
+          status: 2,
+          allowCheckout: true,
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchWith({
+            data: {
+              productsSearch: [
+                {
+                  id: 123,
+                  name: faker.commerce.productName(),
+                  sku: faker.string.uuid(),
+                  costPrice: faker.commerce.price(),
+                  inventoryLevel: faker.number.int(),
+                  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
+                  availability: faker.helpers.arrayElement(['available', 'unavailable']),
+                  orderQuantityMinimum: faker.number.int(),
+                  orderQuantityMaximum: faker.number.int(),
+                  variants: [],
+                  currencyCode: faker.finance.currencyCode(),
+                  imageUrl: faker.image.url(),
+                  modifiers: [],
+                  options: [],
+                  optionsV3: [],
+                  channelId: [],
+                  productUrl: faker.internet.url(),
+                  taxClassId: faker.number.int(),
+                  isPriceHidden: faker.datatype.boolean(),
+                },
+              ],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'ERROR',
+              message: 'A product with the id of 123 does not have sufficient stock',
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [
+            { code: 'purchase_enable', permissionLevel: 1 },
+            { code: 'checkout_with_quote', permissionLevel: 1 },
+          ],
+        },
+        global: {
+          ...preloadedState.global,
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
+    expect(
+      await screen.findByText('A product with the id of 123 does not have sufficient stock'),
+    ).toBeInTheDocument();
   });
 });

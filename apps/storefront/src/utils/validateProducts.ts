@@ -82,7 +82,7 @@ export const validateProducts = async (products: CustomFieldItems[]): Promise<Va
   settledResults.forEach((result, index) => {
     // Network or unexpected error
     if (result.status === 'rejected') {
-      const { productName } = products[index].node;
+      const { productName } = products[index];
       errors.push({
         type: 'network',
         productName: productName || '',

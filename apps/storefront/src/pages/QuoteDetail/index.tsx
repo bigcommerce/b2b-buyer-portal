@@ -29,7 +29,7 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { getSearchVal } from '@/utils/loginInfo';
-import { validateProducts } from '@/utils/validateProducts';
+import { validateProducts, ValidationError } from '@/utils/validateProducts';
 
 import Message from '../quote/components/Message';
 import QuoteAttachment from '../quote/components/QuoteAttachment';
@@ -151,15 +151,8 @@ const containerStyle = (isMobile: boolean) => {
       };
 };
 
-function Footer({
-  children,
-  isMobile,
-  isAgenting,
-}: {
-  children: React.ReactNode;
-  isMobile: boolean;
-  isAgenting: boolean;
-}) {
+function Footer({ children, isAgenting }: { children: React.ReactNode; isAgenting: boolean }) {
+  const [isMobile] = useMobile();
   return (
     <Box
       sx={{
@@ -232,7 +225,8 @@ function QuoteDetail() {
   const [fileList, setFileList] = useState<any>([]);
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
-  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false);
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
+  const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidationError[]>([]);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -307,7 +301,7 @@ function QuoteDetail() {
         }
       });
 
-      setIsHideQuoteCheckout(true);
+      setQuoteValidationErrors(errors);
     }
   };
 
@@ -358,37 +352,49 @@ function QuoteDetail() {
     ? quoteDetailBackendEndValidations
     : quoteDetailFrontEndValidations;
 
+  const proceedingCheckoutFnBackendEndFlow = () => {
+    if (quoteValidationErrors.length) {
+      quoteValidationErrors.forEach((error: any) => {
+        snackbar.error(error.message);
+      });
+
+      return false;
+    }
+
+    return true;
+  };
+
   useEffect(() => {
     validateQuoteProducts();
     // disabling since b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList]);
 
-  const proceedingCheckoutFn = useCallback(() => {
-    if (!isMoveStockAndBackorderValidationToBackend) {
-      if (isHideQuoteCheckout) {
-        const { oos, nonPurchasable } = noBuyerProductName;
-        if (oos)
-          snackbar.error(
-            b3Lang('quoteDetail.message.insufficientStock', {
-              ProductName: oos,
-            }),
-          );
+  const proceedingCheckoutFnFrontEndFlow = useCallback(() => {
+    if (isHideQuoteCheckout) {
+      const { oos, nonPurchasable } = noBuyerProductName;
+      if (oos)
+        snackbar.error(
+          b3Lang('quoteDetail.message.insufficientStock', {
+            ProductName: oos,
+          }),
+        );
 
-        if (nonPurchasable)
-          snackbar.error(
-            b3Lang('quoteDetail.message.nonPurchasable', {
-              ProductName: nonPurchasable,
-            }),
-          );
-      }
-      return isHideQuoteCheckout;
+      if (nonPurchasable)
+        snackbar.error(
+          b3Lang('quoteDetail.message.nonPurchasable', {
+            ProductName: nonPurchasable,
+          }),
+        );
     }
-
-    return false;
+    return isHideQuoteCheckout;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName]);
+
+  const shouldProceedToCheckout = isMoveStockAndBackorderValidationToBackend
+    ? proceedingCheckoutFnBackendEndFlow
+    : proceedingCheckoutFnFrontEndFlow;
 
   const classRates: TaxZoneRates[] = [];
   if (taxZoneRates?.length) {
@@ -645,7 +651,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
-        proceedingCheckoutFn,
+        shouldProceedToCheckout,
         role,
         location,
         navigate,
@@ -875,11 +881,11 @@ function QuoteDetail() {
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
           isEnableProductShowCheckout() && (
-            <Footer isMobile={isMobile} isAgenting={isAgenting}>
+            <Footer isAgenting={isAgenting}>
               <ProceedToCheckoutButton
                 onClick={() => {
                   handleQuoteCheckout({
-                    proceedingCheckoutFn,
+                    shouldProceedToCheckout,
                     role,
                     location,
                     quoteId: quoteDetail.id,
