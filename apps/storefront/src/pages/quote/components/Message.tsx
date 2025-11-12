@@ -222,7 +222,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           alignItems: 'center',
         }}
       >
-        {`${b3Lang('global.quoteDetail.message.message')} `}
+        {`${b3Lang('quoteDetail.message.message')} `}
         {read !== 0 && (
           <Box
             sx={{
