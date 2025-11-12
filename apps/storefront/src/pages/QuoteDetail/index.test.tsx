@@ -568,4 +568,97 @@ describe('when the user is a B2B customer', () => {
       await screen.findAllByText('A product with the id of 123 does not have sufficient stock'),
     ).toHaveLength(2);
   });
+
+  it('allows proceeding to checkout if all products are valid', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '123',
+          quoteNumber: '123',
+          status: 2,
+          allowCheckout: true,
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchDataWith({
+            data: {
+              productsSearch: [buildProductSearchWith({ id: 123 })],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: 'Product is valid',
+            },
+          },
+        }),
+      ),
+      graphql.query('getStorefrontProductSettings', () =>
+        HttpResponse.json({
+          data: {
+            storefrontProductSettings: {
+              hidePriceFromGuests: false,
+            },
+          },
+        }),
+      ),
+      graphql.mutation('CheckoutQuote', () =>
+        HttpResponse.json({
+          data: {
+            quoteCheckout: {
+              quoteCheckout: {
+                checkoutUrl:
+                  'https://my-store/cart.php?action=loadInCheckout&id=123&token=1234567889&isFromQuote=Y',
+                cartId: '123',
+                cartUrl: 'https://my-store/cart.php?action=load&id=123&token=1234567889',
+              },
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '123' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [
+            { code: 'purchase_enable', permissionLevel: 1 },
+            { code: 'checkout_with_quote', permissionLevel: 1 },
+          ],
+        },
+        global: {
+          ...preloadedState.global,
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const checkoutButton = await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i });
+    await userEvent.click(checkoutButton);
+
+    expect(window.location.href).toBe(
+      'https://my-store/cart.php?action=loadInCheckout&id=123&token=1234567889&isFromQuote=Y',
+    );
+  });
 });

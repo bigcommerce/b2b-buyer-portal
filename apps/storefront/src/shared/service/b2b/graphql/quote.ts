@@ -306,7 +306,7 @@ const getExportQuotePdfQuery = (data: {
   }
 }`;
 
-const getQuoteCheckoutQuery = (data: { id: number }) => `mutation{
+const getQuoteCheckoutQuery = (data: { id: number }) => `mutation CheckoutQuote {
   quoteCheckout(
     id: ${data.id},
     storeHash: "${storeHash}",
