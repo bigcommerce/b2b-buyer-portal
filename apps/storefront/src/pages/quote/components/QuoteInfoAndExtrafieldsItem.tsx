@@ -38,7 +38,7 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
           height: '32px',
         }}
       >
-        {b3Lang('global.quoteDraft.quoteInfo.title')}
+        {b3Lang('quoteDraft.quoteInfo.title')}
       </Typography>
       <Box
         sx={{

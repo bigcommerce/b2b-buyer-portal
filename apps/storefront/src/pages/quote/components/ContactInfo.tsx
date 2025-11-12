@@ -272,11 +272,11 @@ function ContactInfo(
 
   const formData = [
     {
-      title: b3Lang('global.quoteDraft.contactInfo.contact'),
+      title: b3Lang('quoteDraft.contactInfo.contact'),
       infos: contactInfo,
     },
     {
-      title: b3Lang('global.quoteDraft.quoteInfo.title'),
+      title: b3Lang('quoteDraft.quoteInfo.title'),
       infos: quoteInfo,
       style: {
         mt: '20px',
