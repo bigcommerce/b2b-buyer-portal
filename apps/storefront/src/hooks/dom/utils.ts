@@ -175,7 +175,7 @@ const addProductsToDraftQuote = async (
     globalSnackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
       action: {
         onClick: () => gotoQuoteDraft(setOpenPage),
-        label: b3Lang('quoteDraft.notification.openQuote'),
+        label: b3Lang('global.notification.openQuote'),
       },
     });
   }
@@ -334,19 +334,20 @@ const addProductFromProductPageToQuote = (
 
       const newProducts: CustomFieldItems = [quoteListitem];
       const isSuccess = validProductQty(newProducts);
+      const quoteLabel = b3Lang('global.notification.openQuote');
       if (quoteListitem && isSuccess) {
         await addQuoteDraftProduce(quoteListitem, qty, optionList || []);
         globalSnackbar.success(b3Lang('global.notification.addProductSingular'), {
           action: {
             onClick: () => gotoQuoteDraft(setOpenPage),
-            label: b3Lang('quoteDraft.notification.openQuote'),
+            label: quoteLabel,
           },
         });
       } else if (!isSuccess) {
         globalSnackbar.error(b3Lang('global.notification.maximumPurchaseExceed'), {
           action: {
             onClick: () => gotoQuoteDraft(setOpenPage),
-            label: b3Lang('quoteDraft.notification.openQuote'),
+            label: quoteLabel,
           },
         });
       } else {
