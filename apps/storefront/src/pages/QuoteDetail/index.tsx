@@ -29,7 +29,7 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { getSearchVal } from '@/utils/loginInfo';
-import { validateProducts, ValidationError } from '@/utils/validateProducts';
+import { ValidatedProductError, validateProducts } from '@/utils/validateProducts';
 
 import Message from '../quote/components/Message';
 import QuoteAttachment from '../quote/components/QuoteAttachment';
@@ -226,7 +226,7 @@ function QuoteDetail() {
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
-  const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidationError[]>([]);
+  const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidatedProductError[]>([]);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -292,18 +292,19 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const quoteDetailBackendValidations = async () => {
-    const { errors } = await validateProducts(productList);
+    const { error } = await validateProducts(productList);
 
-    if (!errors.length) {
+    if (!error.length) {
       return;
     }
-    errors.forEach((error) => {
-      if (error.type === 'validation') {
-        snackbar.error(error.message);
+
+    error.forEach((err) => {
+      if (err.error.type === 'validation') {
+        snackbar.error(err.error.message);
       }
     });
 
-    setQuoteValidationErrors(errors);
+    setQuoteValidationErrors(error);
   };
 
   const quoteDetailFrontendValidations = () => {
@@ -355,11 +356,15 @@ function QuoteDetail() {
 
   const hasQuoteValidationErrorsBackendFlow = () => {
     if (quoteValidationErrors.length) {
-      quoteValidationErrors.forEach((error: ValidationError) => {
-        if (error.type === 'validation') {
-          snackbar.error(error.message);
-        } else if (error.type === 'network') {
-          snackbar.error(`Network error for product: ${error.productName}`);
+      quoteValidationErrors.forEach((err) => {
+        if (err.error.type === 'network') {
+          snackbar.error(
+            b3Lang('quotes.productValidationFailed', {
+              productName: err.product.node?.productName || '',
+            }),
+          );
+        } else {
+          snackbar.error(err.error.message);
         }
       });
 

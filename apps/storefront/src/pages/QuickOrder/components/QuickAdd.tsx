@@ -14,7 +14,11 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { validateProducts, ValidationError } from '@/utils/validateProducts';
+import {
+  ValidatedProductError,
+  ValidatedProductWarning,
+  validateProducts,
+} from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
@@ -324,7 +328,7 @@ export default function QuickAdd() {
     productItems: CustomFieldItems[];
     passSku: string[];
     notFoundSkus: string[];
-    validationErrors: ValidationError[];
+    validationErrors: (ValidatedProductWarning | ValidatedProductError)[];
   }> => {
     const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
 
@@ -334,7 +338,11 @@ export default function QuickAdd() {
 
     const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
 
-    const { validProducts, errors } = await validateProducts(productsToValidate);
+    const { success, warning, error } = await validateProducts(productsToValidate);
+
+    const validProducts = success.map((product) => product.product);
+
+    const errors = [...warning, ...error];
 
     const productItems = mergeValidatedWithCatalog(validProducts, variantInfoList);
 
@@ -387,15 +395,19 @@ export default function QuickAdd() {
           const result = await handleBackendValidation(variantInfoList, skuQuantityMap, skus);
           const { productItems, passSku, notFoundSkus, validationErrors } = result;
 
-          validationErrors.forEach((error) => {
-            if (error.type === 'network') {
-              snackbar.error(
-                b3Lang('quotes.productValidationFailed', {
-                  productName: error.productName,
-                }),
-              );
+          validationErrors.forEach((err) => {
+            if (err.status === 'error') {
+              if (err.error.type === 'network') {
+                snackbar.error(
+                  b3Lang('quotes.productValidationFailed', {
+                    productName: err.product.node?.productName || '',
+                  }),
+                );
+              } else {
+                snackbar.error(err.error.message);
+              }
             } else {
-              snackbar.error(error.message);
+              snackbar.error(err.message);
             }
           });
 

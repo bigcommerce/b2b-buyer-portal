@@ -452,19 +452,21 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (!isEnableProduct && isMoveStockAndBackorderValidationToBackend) {
-      const { validProducts, errors } = await validateProducts(products);
+      const { success, warning, error } = await validateProducts(products);
 
-      errors.forEach((error) => {
-        if (error.type === 'network') {
+      error.forEach((err) => {
+        if (err.error.type === 'network') {
           snackbar.error(
             b3Lang('quotes.productValidationFailed', {
-              productName: error.productName,
+              productName: err.product.node?.productName || '',
             }),
           );
         } else {
-          snackbar.error(error.message);
+          snackbar.error(err.error.message);
         }
       });
+
+      const validProducts = [...success, ...warning].map((product) => product.product);
 
       addQuoteDraftProducts(validProducts);
 
