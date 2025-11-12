@@ -123,71 +123,10 @@ const buildProductSearchWith = builder<ProductSearch>(() => ({
   isPriceHidden: faker.datatype.boolean(),
 }));
 
-const buildProductSearchDataWith = builder<B2BProducts>(() => ({
+const buildProductSearchResponseWith = builder<B2BProducts>(() => ({
   data: {
     productsSearch: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-      id: faker.number.int(),
-      name: faker.commerce.productName(),
-      sku: faker.string.uuid(),
-      costPrice: faker.commerce.price(),
-      inventoryLevel: faker.number.int(),
-      inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
-      availability: faker.helpers.arrayElement(['available', 'unavailable']),
-      orderQuantityMinimum: faker.number.int(),
-      orderQuantityMaximum: faker.number.int(),
-      variants: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-        variant_id: faker.number.int(),
-        product_id: faker.number.int(),
-        sku: faker.string.uuid(),
-        option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-          id: faker.number.int(),
-          label: faker.commerce.productAdjective(),
-          option_id: faker.number.int(),
-          option_display_name: faker.commerce.productAdjective(),
-        })),
-        calculated_price: parseFloat(faker.commerce.price()),
-        image_url: faker.image.url(),
-        has_price_list: faker.datatype.boolean(),
-        bulk_prices: [],
-        purchasing_disabled: faker.datatype.boolean(),
-        cost_price: parseFloat(faker.commerce.price()),
-        inventory_level: faker.number.int(),
-        bc_calculated_price: {
-          as_entered: parseFloat(faker.commerce.price()),
-          tax_inclusive: parseFloat(faker.commerce.price()),
-          tax_exclusive: parseFloat(faker.commerce.price()),
-          entered_inclusive: faker.datatype.boolean(),
-        },
-      })),
-      currencyCode: faker.finance.currencyCode(),
-      imageUrl: faker.image.url(),
-      modifiers: [],
-      options: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-        option_id: faker.number.int(),
-        display_name: faker.commerce.productAdjective(),
-        sort_order: faker.number.int(),
-        is_required: faker.datatype.boolean(),
-      })),
-      optionsV3: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-        id: faker.number.int(),
-        product_id: faker.number.int(),
-        name: faker.commerce.productAdjective(),
-        display_name: faker.commerce.productAdjective(),
-        type: faker.helpers.arrayElement(['rectangles', 'swatch', 'dropdown']),
-        sort_order: faker.number.int(),
-        option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
-          id: faker.number.int(),
-          label: faker.commerce.productAdjective(),
-          sort_order: faker.number.int(),
-          value_data: null,
-          is_default: faker.datatype.boolean(),
-        })),
-        config: [],
-      })),
-      channelId: [],
-      productUrl: faker.internet.url(),
-      taxClassId: faker.number.int(),
-      isPriceHidden: faker.datatype.boolean(),
+      ...buildProductSearchWith('WHATEVER_VALUES'),
     })),
   },
 }));
@@ -216,7 +155,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -245,7 +184,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -293,7 +232,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -339,7 +278,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -388,7 +327,7 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchDataWith({
+          buildProductSearchResponseWith({
             data: {
               productsSearch: [buildProductSearchWith({ id: 123 })],
             },
@@ -454,7 +393,7 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchDataWith({
+          buildProductSearchResponseWith({
             data: {
               productsSearch: [buildProductSearchWith({ id: 123 })],
             },
@@ -514,7 +453,7 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchDataWith({
+          buildProductSearchResponseWith({
             data: {
               productsSearch: [buildProductSearchWith({ id: 123 })],
             },
@@ -586,7 +525,7 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchDataWith({
+          buildProductSearchResponseWith({
             data: {
               productsSearch: [buildProductSearchWith({ id: 123 })],
             },

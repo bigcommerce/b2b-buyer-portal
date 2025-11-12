@@ -353,10 +353,14 @@ function QuoteDetail() {
     ? quoteDetailBackendValidations
     : quoteDetailFrontendValidations;
 
-  const proceedingCheckoutFnBackendFlow = () => {
+  const hasQuoteValidationErrorsBackendFlow = () => {
     if (quoteValidationErrors.length) {
-      quoteValidationErrors.forEach((error: any) => {
-        snackbar.error(error.message);
+      quoteValidationErrors.forEach((error: ValidationError) => {
+        if (error.type === 'validation') {
+          snackbar.error(error.message);
+        } else if (error.type === 'network') {
+          snackbar.error(`Network error for product: ${error.productName}`);
+        }
       });
 
       return true;
@@ -371,7 +375,7 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList]);
 
-  const proceedingCheckoutFnFrontendFlow = useCallback(() => {
+  const hasQuoteValidationErrorsFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
       const { oos, nonPurchasable } = noBuyerProductName;
       if (oos)
@@ -393,9 +397,9 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName]);
 
-  const shouldProceedToCheckout = isMoveStockAndBackorderValidationToBackend
-    ? proceedingCheckoutFnBackendFlow
-    : proceedingCheckoutFnFrontendFlow;
+  const hasQuoteValidationErrors = isMoveStockAndBackorderValidationToBackend
+    ? hasQuoteValidationErrorsBackendFlow
+    : hasQuoteValidationErrorsFrontendFlow;
 
   const classRates: TaxZoneRates[] = [];
   if (taxZoneRates?.length) {
@@ -652,7 +656,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
-        shouldProceedToCheckout,
+        hasQuoteValidationErrors,
         role,
         location,
         navigate,
@@ -886,7 +890,7 @@ function QuoteDetail() {
               <ProceedToCheckoutButton
                 onClick={() => {
                   handleQuoteCheckout({
-                    shouldProceedToCheckout,
+                    hasQuoteValidationErrors,
                     role,
                     location,
                     quoteId: quoteDetail.id,
