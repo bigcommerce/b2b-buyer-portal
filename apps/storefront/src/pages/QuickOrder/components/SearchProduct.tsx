@@ -18,7 +18,7 @@ import ChooseOptionsDialog from './ChooseOptionsDialog';
 import ProductListDialog from './ProductListDialog';
 
 interface SearchProductProps {
-  addToList: (products: CustomFieldItems[]) => void;
+  addToList: (product: CustomFieldItems) => Promise<void>;
 }
 
 export default function SearchProduct({ addToList }: SearchProductProps) {
@@ -105,18 +105,14 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
     setProductList([...productList]);
   };
 
-  const handleAddToListClick = async (products: CustomFieldItems[]) => {
+  const handleAddToListClick = async (product: CustomFieldItems) => {
     try {
       setIsLoading(true);
-      await calculateProductListPrice(products);
-      await addToList(products);
+      await calculateProductListPrice([product]);
+      await addToList(product);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleProductListAddToList = async (products: CustomFieldItems[]) => {
-    await handleAddToListClick(products);
   };
 
   const handleChangeOptionsClick = (productId: number) => {
@@ -135,11 +131,11 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
     setProductListOpen(true);
   };
 
-  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+  const handleChooseOptionsDialogConfirm = async (product: CustomFieldItems) => {
     try {
       setIsLoading(true);
-      await calculateProductListPrice(products);
-      await handleAddToListClick(products);
+      await calculateProductListPrice([product]);
+      await handleAddToListClick(product);
       setChooseOptionsOpen(false);
       setProductListOpen(true);
     } catch (error) {
@@ -207,7 +203,7 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
         onCancel={handleProductListDialogCancel}
         onProductQuantityChange={handleProductQuantityChange}
         onChooseOptionsClick={handleChangeOptionsClick}
-        onAddToListClick={handleProductListAddToList}
+        onAddToListClick={handleAddToListClick}
       />
 
       <ChooseOptionsDialog

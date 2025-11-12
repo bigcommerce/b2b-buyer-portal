@@ -5,11 +5,14 @@ import { Box, Grid, Typography } from '@mui/material';
 import CustomButton from '@/components/button/CustomButton';
 import B3ControlTextField from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
+import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice, useFeatureFlags } from '@/hooks';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 import { validateProducts, ValidationError } from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
@@ -23,15 +26,10 @@ import {
   parseOptionList,
 } from './QuickAdd.validation';
 
-interface AddToListContentProps {
-  quickAddToList: (products: CustomFieldItems[]) => Promise<CustomFieldItems>;
-}
-
 const INITIAL_NUM_ROWS = 3;
 
-export default function QuickAdd(props: AddToListContentProps) {
+export default function QuickAdd() {
   const b3Lang = useB3Lang();
-  const { quickAddToList } = props;
   const buttonText = b3Lang('purchasedProducts.quickOrderPad.addProductsToCart');
   const featureFlags = useFeatureFlags();
 
@@ -344,6 +342,27 @@ export default function QuickAdd(props: AddToListContentProps) {
     return { productItems, passSku, notFoundSkus, validationErrors: errors };
   };
 
+  const addProductsToCart = async (products: CustomFieldItems[]) => {
+    const res = await createOrUpdateExistingCart(products);
+
+    if (res && res.errors) {
+      snackbar.error(res.errors[0].message);
+    } else {
+      snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
+        action: {
+          label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
+          },
+        },
+      });
+    }
+
+    b3TriggerCartNumber();
+  };
+
   const handleAddToList = () => {
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
@@ -388,7 +407,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           }
 
           if (productItems.length > 0) {
-            await quickAddToList(productItems);
+            await addProductsToCart(productItems);
             clearInputValue(formData, passSku);
           }
         } else {
@@ -400,7 +419,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           );
 
           if (productItems.length > 0) {
-            await quickAddToList(productItems);
+            await addProductsToCart(productItems);
             clearInputValue(formData, passSku);
           }
         }

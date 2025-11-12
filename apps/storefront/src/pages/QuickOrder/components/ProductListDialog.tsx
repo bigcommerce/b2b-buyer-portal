@@ -70,7 +70,7 @@ interface ProductListDialogProps {
   onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSearch: () => void;
   onProductQuantityChange: (id: number, newQuantity: number) => void;
-  onAddToListClick: (products: CustomFieldItems[]) => void;
+  onAddToListClick: (product: CustomFieldItems) => Promise<void>;
   onChooseOptionsClick: (id: number) => void;
 }
 
@@ -133,14 +133,12 @@ export default function ProductListDialog(props: ProductListDialogProps) {
         variantId = product.variants[0].variant_id;
       }
 
-      onAddToListClick([
-        {
-          ...product,
-          newSelectOptionList: [],
-          quantity: parseInt(product.quantity.toString(), 10) || 1,
-          variantId,
-        },
-      ]);
+      onAddToListClick({
+        ...product,
+        newSelectOptionList: [],
+        quantity: parseInt(product.quantity.toString(), 10) || 1,
+        variantId,
+      });
     }
   };
 

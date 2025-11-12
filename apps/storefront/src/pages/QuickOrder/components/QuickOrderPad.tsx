@@ -51,8 +51,8 @@ export default function QuickOrderPad() {
     }
   };
 
-  const quickAddToList = async (products: CustomFieldItems[]) => {
-    const res = await createOrUpdateExistingCart(products);
+  const addSingleProductToCart = async (product: CustomFieldItems) => {
+    const res = await createOrUpdateExistingCart([product]);
 
     if (res && res.errors) {
       snackbar.error(res.errors[0].message);
@@ -70,8 +70,6 @@ export default function QuickOrderPad() {
     }
 
     b3TriggerCartNumber();
-
-    return res;
   };
 
   const getValidProducts = (products: CustomFieldItems) => {
@@ -301,28 +299,23 @@ export default function QuickOrderPad() {
     }
   };
 
-  const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
-    const currentProducts = productData.map((item) => {
-      return {
-        node: {
-          ...item,
-          productsSearch: item,
-        },
-      };
-    });
-    const isPassVerify = await addCartProductToVerify(
-      currentProducts as CustomFieldItems[],
-      b3Lang,
-    );
+  const handleQuickSearchAddCart = async (product: CustomFieldItems) => {
+    const currentProduct: CustomFieldItems = {
+      node: {
+        ...product,
+        productsSearch: product,
+      },
+    };
+
+    const isPassVerify = await addCartProductToVerify([currentProduct], b3Lang);
+
     try {
       if (isPassVerify) {
-        await quickAddToList(productData);
+        await addSingleProductToCart(product);
       }
     } catch (error) {
       b2bLogger.error(error);
     }
-
-    return productData;
   };
 
   const handleOpenUploadDiag = () => {
@@ -333,9 +326,9 @@ export default function QuickOrderPad() {
     }
   };
 
-  const handleBackendQuickSearchAddToCart = async (productData: CustomFieldItems[]) => {
+  const handleBackendQuickSearchAddToCart = async (product: CustomFieldItems) => {
     try {
-      await quickAddToList(productData);
+      await addSingleProductToCart(product);
     } catch (e: unknown) {
       if (e instanceof Error) {
         snackbar.error(e.message);
@@ -371,7 +364,7 @@ export default function QuickOrderPad() {
 
           <Divider />
 
-          <QuickAdd quickAddToList={quickAddToList} />
+          <QuickAdd />
 
           <Divider />
 
