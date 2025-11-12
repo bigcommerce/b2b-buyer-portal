@@ -17,7 +17,7 @@ import {
   within,
 } from 'tests/test-utils';
 
-import { B2BProducts } from '@/shared/service/b2b/graphql/product';
+import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
 import { CompanyStatus, UserTypes } from '@/types';
 
@@ -58,7 +58,72 @@ const buildQuoteProductWith = builder<QuoteProduct>(() => ({
   inventoryLevel: faker.number.int(),
 }));
 
-const buildProductSearchWith = builder<B2BProducts>(() => ({
+const buildProductSearchWith = builder<ProductSearch>(() => ({
+  id: faker.number.int(),
+  name: faker.commerce.productName(),
+  sku: faker.string.uuid(),
+  costPrice: faker.commerce.price(),
+  inventoryLevel: faker.number.int(),
+  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
+  availability: faker.helpers.arrayElement(['available', 'unavailable']),
+  orderQuantityMinimum: faker.number.int(),
+  orderQuantityMaximum: faker.number.int(),
+  variants: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    variant_id: faker.number.int(),
+    product_id: faker.number.int(),
+    sku: faker.string.uuid(),
+    option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+      id: faker.number.int(),
+      label: faker.commerce.productAdjective(),
+      option_id: faker.number.int(),
+      option_display_name: faker.commerce.productAdjective(),
+    })),
+    calculated_price: parseFloat(faker.commerce.price()),
+    image_url: faker.image.url(),
+    has_price_list: faker.datatype.boolean(),
+    bulk_prices: [],
+    purchasing_disabled: faker.datatype.boolean(),
+    cost_price: parseFloat(faker.commerce.price()),
+    inventory_level: faker.number.int(),
+    bc_calculated_price: {
+      as_entered: parseFloat(faker.commerce.price()),
+      tax_inclusive: parseFloat(faker.commerce.price()),
+      tax_exclusive: parseFloat(faker.commerce.price()),
+      entered_inclusive: faker.datatype.boolean(),
+    },
+  })),
+  currencyCode: faker.finance.currencyCode(),
+  imageUrl: faker.image.url(),
+  modifiers: [],
+  options: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    option_id: faker.number.int(),
+    display_name: faker.commerce.productAdjective(),
+    sort_order: faker.number.int(),
+    is_required: faker.datatype.boolean(),
+  })),
+  optionsV3: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+    id: faker.number.int(),
+    product_id: faker.number.int(),
+    name: faker.commerce.productAdjective(),
+    display_name: faker.commerce.productAdjective(),
+    type: faker.helpers.arrayElement(['rectangles', 'swatch', 'dropdown']),
+    sort_order: faker.number.int(),
+    option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+      id: faker.number.int(),
+      label: faker.commerce.productAdjective(),
+      sort_order: faker.number.int(),
+      value_data: null,
+      is_default: faker.datatype.boolean(),
+    })),
+    config: [],
+  })),
+  channelId: [],
+  productUrl: faker.internet.url(),
+  taxClassId: faker.number.int(),
+  isPriceHidden: faker.datatype.boolean(),
+}));
+
+const buildProductSearchDataWith = builder<B2BProducts>(() => ({
   data: {
     productsSearch: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
       id: faker.number.int(),
@@ -151,7 +216,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -180,7 +245,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -228,7 +293,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -274,7 +339,7 @@ describe('when the user is a B2B customer', () => {
     server.use(
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchWith('WHATEVER_VALUES')),
+        HttpResponse.json(buildProductSearchDataWith('WHATEVER_VALUES')),
       ),
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
@@ -306,7 +371,7 @@ describe('when the user is a B2B customer', () => {
     expect(screen.getByText('$1,025.00')).toBeInTheDocument();
   });
 
-  it('displays snackbar error if a product in the quote number has validation errors', async () => {
+  it('displays snackbar error on load if a product in the quote has validation errors', async () => {
     const quote = buildQuoteWith({
       data: {
         quote: {
@@ -323,31 +388,9 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchWith({
+          buildProductSearchDataWith({
             data: {
-              productsSearch: [
-                {
-                  id: 123,
-                  name: faker.commerce.productName(),
-                  sku: faker.string.uuid(),
-                  costPrice: faker.commerce.price(),
-                  inventoryLevel: faker.number.int(),
-                  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
-                  availability: faker.helpers.arrayElement(['available', 'unavailable']),
-                  orderQuantityMinimum: faker.number.int(),
-                  orderQuantityMaximum: faker.number.int(),
-                  variants: [],
-                  currencyCode: faker.finance.currencyCode(),
-                  imageUrl: faker.image.url(),
-                  modifiers: [],
-                  options: [],
-                  optionsV3: [],
-                  channelId: [],
-                  productUrl: faker.internet.url(),
-                  taxClassId: faker.number.int(),
-                  isPriceHidden: faker.datatype.boolean(),
-                },
-              ],
+              productsSearch: [buildProductSearchWith({ id: 123 })],
             },
           }),
         ),
@@ -411,31 +454,9 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchWith({
+          buildProductSearchDataWith({
             data: {
-              productsSearch: [
-                {
-                  id: 123,
-                  name: faker.commerce.productName(),
-                  sku: faker.string.uuid(),
-                  costPrice: faker.commerce.price(),
-                  inventoryLevel: faker.number.int(),
-                  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
-                  availability: faker.helpers.arrayElement(['available', 'unavailable']),
-                  orderQuantityMinimum: faker.number.int(),
-                  orderQuantityMaximum: faker.number.int(),
-                  variants: [],
-                  currencyCode: faker.finance.currencyCode(),
-                  imageUrl: faker.image.url(),
-                  modifiers: [],
-                  options: [],
-                  optionsV3: [],
-                  channelId: [],
-                  productUrl: faker.internet.url(),
-                  taxClassId: faker.number.int(),
-                  isPriceHidden: faker.datatype.boolean(),
-                },
-              ],
+              productsSearch: [buildProductSearchWith({ id: 123 })],
             },
           }),
         ),
@@ -493,31 +514,9 @@ describe('when the user is a B2B customer', () => {
       graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(
-          buildProductSearchWith({
+          buildProductSearchDataWith({
             data: {
-              productsSearch: [
-                {
-                  id: 123,
-                  name: faker.commerce.productName(),
-                  sku: faker.string.uuid(),
-                  costPrice: faker.commerce.price(),
-                  inventoryLevel: faker.number.int(),
-                  inventoryTracking: faker.helpers.arrayElement(['none', 'simple', 'complex']),
-                  availability: faker.helpers.arrayElement(['available', 'unavailable']),
-                  orderQuantityMinimum: faker.number.int(),
-                  orderQuantityMaximum: faker.number.int(),
-                  variants: [],
-                  currencyCode: faker.finance.currencyCode(),
-                  imageUrl: faker.image.url(),
-                  modifiers: [],
-                  options: [],
-                  optionsV3: [],
-                  channelId: [],
-                  productUrl: faker.internet.url(),
-                  taxClassId: faker.number.int(),
-                  isPriceHidden: faker.datatype.boolean(),
-                },
-              ],
+              productsSearch: [buildProductSearchWith({ id: 123 })],
             },
           }),
         ),
@@ -560,8 +559,11 @@ describe('when the user is a B2B customer', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
-    await userEvent.click(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i }));
+    const checkoutButton = await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i });
+    await userEvent.click(checkoutButton);
+
+    // the error message is shown in a snackbar when loading the page and when user tries clicking the checkout button
+    // and a product has an error
     expect(
       await screen.findAllByText('A product with the id of 123 does not have sufficient stock'),
     ).toHaveLength(2);

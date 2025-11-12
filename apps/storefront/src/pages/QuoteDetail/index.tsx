@@ -359,10 +359,10 @@ function QuoteDetail() {
         snackbar.error(error.message);
       });
 
-      return false;
+      return true;
     }
 
-    return true;
+    return false;
   };
 
   useEffect(() => {

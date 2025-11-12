@@ -169,72 +169,74 @@ export const getB2BProductPurchasable = (data: ProductPurchasable) =>
     query: getProductPurchasable(data),
   });
 
+export interface ProductSearch {
+  id: number;
+  name: string;
+  sku: string;
+  costPrice: string;
+  inventoryLevel: number;
+  inventoryTracking: string;
+  availability: string;
+  orderQuantityMinimum: number;
+  orderQuantityMaximum: number;
+  variants: {
+    variant_id: number;
+    product_id: number;
+    sku: string;
+    option_values: {
+      id: number;
+      label: string;
+      option_id: number;
+      option_display_name: string;
+    }[];
+    calculated_price: number;
+    image_url: string;
+    has_price_list: boolean;
+    bulk_prices: unknown[];
+    purchasing_disabled: boolean;
+    cost_price: number;
+    inventory_level: number;
+    bc_calculated_price: {
+      as_entered: number;
+      tax_inclusive: number;
+      tax_exclusive: number;
+      entered_inclusive: boolean;
+    };
+  }[];
+  currencyCode: string;
+  imageUrl: string;
+  modifiers: unknown[];
+  options: {
+    option_id: number;
+    display_name: string;
+    sort_order: number;
+    is_required: boolean;
+  }[];
+  optionsV3: {
+    id: number;
+    product_id: number;
+    name: string;
+    display_name: string;
+    type: string;
+    sort_order: number;
+    option_values: {
+      id: number;
+      label: string;
+      sort_order: number;
+      value_data: unknown | null;
+      is_default: boolean;
+    }[];
+    config: unknown[];
+  }[];
+  channelId: unknown[];
+  productUrl: string;
+  taxClassId: number;
+  isPriceHidden: boolean;
+}
+
 export interface B2BProducts {
   data: {
-    productsSearch: {
-      id: number;
-      name: string;
-      sku: string;
-      costPrice: string;
-      inventoryLevel: number;
-      inventoryTracking: string;
-      availability: string;
-      orderQuantityMinimum: number;
-      orderQuantityMaximum: number;
-      variants: {
-        variant_id: number;
-        product_id: number;
-        sku: string;
-        option_values: {
-          id: number;
-          label: string;
-          option_id: number;
-          option_display_name: string;
-        }[];
-        calculated_price: number;
-        image_url: string;
-        has_price_list: boolean;
-        bulk_prices: unknown[];
-        purchasing_disabled: boolean;
-        cost_price: number;
-        inventory_level: number;
-        bc_calculated_price: {
-          as_entered: number;
-          tax_inclusive: number;
-          tax_exclusive: number;
-          entered_inclusive: boolean;
-        };
-      }[];
-      currencyCode: string;
-      imageUrl: string;
-      modifiers: unknown[];
-      options: {
-        option_id: number;
-        display_name: string;
-        sort_order: number;
-        is_required: boolean;
-      }[];
-      optionsV3: {
-        id: number;
-        product_id: number;
-        name: string;
-        display_name: string;
-        type: string;
-        sort_order: number;
-        option_values: {
-          id: number;
-          label: string;
-          sort_order: number;
-          value_data: unknown | null;
-          is_default: boolean;
-        }[];
-        config: unknown[];
-      }[];
-      channelId: unknown[];
-      productUrl: string;
-      taxClassId: number;
-      isPriceHidden: boolean;
-    }[];
+    productsSearch: ProductSearch[];
   };
 }
 
