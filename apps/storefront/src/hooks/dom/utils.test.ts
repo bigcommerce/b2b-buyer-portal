@@ -75,7 +75,7 @@ const b3Lang = (key: string, params?: any) => {
   switch (key) {
     case 'quoteDraft.productPageToQuote.outOfStock':
       return `outOfStock:${params?.name}:${params?.qty}`;
-    case 'quoteDraft.notification.openQuote':
+    case 'global.notification.openQuote':
       return 'openQuote';
     case 'global.notification.addProductSingular':
       return 'addProductSingular';
