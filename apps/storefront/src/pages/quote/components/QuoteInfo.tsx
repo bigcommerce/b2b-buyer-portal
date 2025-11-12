@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -67,10 +67,19 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
-  const noAddressText =
-    status === 'Draft'
-      ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address `
-      : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`;
+  const noAddressText = useMemo(() => {
+    const isBilling = flag === 'Billing';
+
+    if (status === 'Draft') {
+      return isBilling
+        ? b3Lang('global.quoteInfo.addBillingAddress')
+        : b3Lang('global.quoteInfo.addShippingAddress');
+    }
+
+    return isBilling
+      ? b3Lang('global.quoteInfo.noBillingAddress')
+      : b3Lang('global.quoteInfo.noShippingAddress');
+  }, [b3Lang, flag, status]);
 
   const isComplete =
     flag !== 'info' ? addressVerifyKeys.some((item: string) => info && !!info[item]) : false;
@@ -182,7 +191,7 @@ function QuoteInfo({
           }}
         >
           <QuoteInfoItem
-            title={b3Lang('quoteDraft.contactInfo.contact')}
+            title={b3Lang('global.quoteDraft.contactInfo.contact')}
             flag="info"
             status={status}
             info={contactInfo as unknown as QuoteInfoItemType}
