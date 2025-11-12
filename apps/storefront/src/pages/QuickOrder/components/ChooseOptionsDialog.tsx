@@ -79,7 +79,7 @@ interface ChooseOptionsDialogProps {
   isOpen: boolean;
   product?: ShoppingListProductItem;
   onCancel: () => void;
-  onConfirm: (products: CustomFieldItems[]) => void;
+  onConfirm: (product: CustomFieldItems) => Promise<void>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
@@ -450,16 +450,14 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         return;
       }
 
-      onConfirm([
-        {
-          ...product,
-          newSelectOptionList: optionList,
-          productId: product?.id,
-          quantity: parseInt(quantity.toString(), 10) || 1,
-          variantId: parseInt(variantId.toString(), 10) || 1,
-          additionalProducts,
-        },
-      ]);
+      onConfirm({
+        ...product,
+        newSelectOptionList: optionList,
+        productId: product?.id,
+        quantity: parseInt(quantity.toString(), 10) || 1,
+        variantId: parseInt(variantId.toString(), 10) || 1,
+        additionalProducts,
+      });
     })();
   };
 
