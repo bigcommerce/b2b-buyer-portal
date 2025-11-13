@@ -15,7 +15,7 @@ type OrderBillingProps = {
   isCurrentCompany: boolean;
 };
 
-export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
+export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
     state: { billingAddress, digitalProducts = [], addressLabelPermission, orderId, money },
   } = useContext(OrderDetailsContext);

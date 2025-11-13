@@ -43,7 +43,7 @@ const defaultSearchParams = {
   offset: 0,
 };
 
-function DetailPagination({ onChange, color }: DetailPageProps) {
+export function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [listIndex, setListIndex] = useState<number>(initListIndex);
@@ -212,5 +212,3 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     </Box>
   );
 }
-
-export default DetailPagination;
