@@ -19,7 +19,7 @@ interface B3PickerProps {
   size?: 'small' | 'medium' | undefined;
 }
 
-export default function B3Picker({
+export function B3Picker({
   onChange,
   variant,
   value,
