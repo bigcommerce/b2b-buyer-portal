@@ -18,6 +18,7 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import b2bLogger from '@/utils/b3Logger';
 
 import { AddressItemType, BCAddressItemType } from '../../types/address';
@@ -28,7 +29,6 @@ import DeleteAddressDialog from './components/DeleteAddressDialog';
 import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
-import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 const permissionKeys = [
   b2bPermissionsMap.addressesCreateActionsPermission,

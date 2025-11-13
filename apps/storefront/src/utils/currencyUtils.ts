@@ -14,13 +14,6 @@ const getActiveCurrencyInfo = () => {
   return activeCurrency || defaultCurrency;
 };
 
-const getDefaultCurrencyInfo = () => {
-  const { currencies } = store.getState().storeConfigs.currencies;
-
-  const defaultFoundCurrency = currencies.find((currency) => currency.is_default);
-  return defaultFoundCurrency || defaultCurrency;
-};
-
 const handleGetCorrespondingCurrencyToken = (code: string) => {
   const correspondingCurrency = store
     .getState()
@@ -34,4 +27,4 @@ const handleGetCorrespondingCurrencyToken = (code: string) => {
   return token;
 };
 
-export { getActiveCurrencyInfo, getDefaultCurrencyInfo, handleGetCorrespondingCurrencyToken };
+export { getActiveCurrencyInfo, handleGetCorrespondingCurrencyToken };

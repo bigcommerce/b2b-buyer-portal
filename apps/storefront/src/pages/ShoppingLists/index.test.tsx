@@ -18,9 +18,9 @@ import {
 import { when } from 'vitest-when';
 
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 import ShoppingLists from '.';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 const { server } = startMockServer();
 
@@ -415,7 +415,6 @@ describe('when user has "create_shopping_list" permission', () => {
       when(verifyLevelPermission)
         .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 123 })
         .thenReturn(true);
-
 
       renderWithProviders(<ShoppingLists />, {
         preloadedState: {
