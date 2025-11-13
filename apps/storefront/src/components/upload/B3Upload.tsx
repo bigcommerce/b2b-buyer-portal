@@ -5,7 +5,7 @@ import { InsertDriveFile } from '@mui/icons-material';
 import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,

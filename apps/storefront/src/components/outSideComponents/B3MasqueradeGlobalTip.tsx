@@ -14,7 +14,7 @@ import {
   TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
 } from '@/constants';
 import { useGetButtonText } from '@/hooks';
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';

@@ -13,4 +13,4 @@ const useScrollBar = (open: boolean) => {
   }, [open]);
 };
 
-export default useScrollBar;
+export { useScrollBar };

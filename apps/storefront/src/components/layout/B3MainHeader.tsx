@@ -4,7 +4,7 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks';
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';

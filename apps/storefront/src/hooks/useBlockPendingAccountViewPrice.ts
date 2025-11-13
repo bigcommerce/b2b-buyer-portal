@@ -8,4 +8,4 @@ const useBlockPendingAccountViewPrice = () => {
   return [blockPendingAccountViewPrice];
 };
 
-export default useBlockPendingAccountViewPrice;
+export { useBlockPendingAccountViewPrice };

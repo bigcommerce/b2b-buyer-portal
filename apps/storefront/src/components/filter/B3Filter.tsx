@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 
 import CustomButton from '../button/CustomButton';
 import { B3Select } from '../ui';

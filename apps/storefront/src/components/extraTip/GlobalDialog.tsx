@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { setGlobalCommonState, useAppDispatch, useAppSelector } from '@/store';
 
 import B3Dialog from '../B3Dialog';

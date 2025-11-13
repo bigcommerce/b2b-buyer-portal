@@ -168,4 +168,4 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
   return [openPage, setOpenPage] as const;
 };
 
-export default useB3AppOpen;
+export { useB3AppOpen };

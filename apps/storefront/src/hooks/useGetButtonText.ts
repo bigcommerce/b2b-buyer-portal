@@ -14,4 +14,4 @@ const useGetButtonText = (
   return translatedText;
 };
 
-export default useGetButtonText;
+export { useGetButtonText };

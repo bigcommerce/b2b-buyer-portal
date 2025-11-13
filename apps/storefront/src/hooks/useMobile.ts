@@ -20,4 +20,4 @@ const useMobile = (): [boolean] => {
   return [isMobile];
 };
 
-export default useMobile;
+export { useMobile };

@@ -6,7 +6,7 @@ import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice, useFeatureFlags } from '@/hooks';
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';

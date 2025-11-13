@@ -1,6 +1,6 @@
 import { Alert, Box, Snackbar } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { MsgsProps, TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
 
 import TipBody from './TipBody';

@@ -6,7 +6,7 @@ import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
-import useScrollBar from '@/hooks/useScrollBar';
+import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {

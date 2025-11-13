@@ -18,4 +18,4 @@ const useCardListColumn = () => {
   return isExtraLarge;
 };
 
-export default useCardListColumn;
+export { useCardListColumn };
