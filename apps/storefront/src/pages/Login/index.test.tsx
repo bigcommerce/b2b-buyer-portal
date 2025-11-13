@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 
-import * as hooks from '@/hooks';
+import { dispatchEvent } from '@/hooks/useB2BCallback';
 import * as bcService from '@/shared/service/bc';
 import { snackbar } from '@/utils';
 import * as loginInfo from '@/utils/loginInfo';
@@ -12,6 +12,8 @@ import { useLogout } from './useLogout';
 vi.mock('./useLogout', () => ({
   useLogout: vi.fn(() => vi.fn()),
 }));
+
+vi.mock('@/hooks/useB2BCallback');
 
 describe('LoginPage', () => {
   it('renders login form and submits successfully', async () => {
@@ -33,7 +35,7 @@ describe('LoginPage', () => {
       role: 2,
       companyRoleName: 'Junior Buyer',
     });
-    vi.spyOn(hooks, 'dispatchEvent').mockResolvedValue(false);
+    vi.mocked(dispatchEvent).mockResolvedValue(false);
 
     const { navigation } = renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
 
@@ -55,7 +57,7 @@ describe('LoginPage', () => {
       throw new Error('Invalid login');
     });
 
-    vi.spyOn(hooks, 'dispatchEvent').mockResolvedValue(false);
+    vi.mocked(dispatchEvent).mockResolvedValue(false);
     const snackbarErrorSpy = vi.spyOn(snackbar, 'error').mockImplementation(() => {});
 
     renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);

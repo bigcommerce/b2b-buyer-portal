@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import { B3CustomForm } from '@/components';
-import { useGetCountry } from '@/hooks';
+import { useGetCountry } from '@/hooks/useGetCountry';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { AddressItemType } from '@/types/address';
