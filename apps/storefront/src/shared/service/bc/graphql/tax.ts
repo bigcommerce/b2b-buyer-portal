@@ -4,7 +4,7 @@ import { platform } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
-const taxDisplayTypeEnumSchema = z.enum(['INC', 'EXC', 'BOTH']);
+const taxDisplayTypeEnumSchema = z.enum(['INC', 'EX', 'BOTH']);
 
 const storefrontTaxDisplayTypeSchema = z.object({
   pdp: taxDisplayTypeEnumSchema,
@@ -13,7 +13,7 @@ const storefrontTaxDisplayTypeSchema = z.object({
 
 type StorefrontTaxDisplayType = z.infer<typeof storefrontTaxDisplayTypeSchema>;
 
-const queryGetTaxDisplayType = `query getTaxDisplayType {
+const queryGetTaxDisplayType = `query GetTaxDisplayType {
   site{
     settings{
       tax{

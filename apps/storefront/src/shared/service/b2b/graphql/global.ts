@@ -252,7 +252,8 @@ const storefrontConfigs = (channelId: number, keys: string[]) => `{
 	}
 }`;
 
-const taxZoneRates = () => `{
+const taxZoneRates = () => `
+query TaxZoneRates {
 	taxZoneRates(storeHash: "${storeHash}") {
 		rates {
 			id,

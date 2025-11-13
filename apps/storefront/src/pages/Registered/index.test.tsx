@@ -963,7 +963,7 @@ describe('Registered Page', () => {
     }));
 
     vi.mock('@/utils/storefrontConfig', () => ({
-      getTemPlateConfig: vi.fn(),
+      getStoreConfigs: vi.fn(),
     }));
   });
 
