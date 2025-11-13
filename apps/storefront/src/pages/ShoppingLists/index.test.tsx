@@ -18,11 +18,13 @@ import {
 import { when } from 'vitest-when';
 
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
-import * as utilsModule from '@/utils';
 
 import ShoppingLists from '.';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 const { server } = startMockServer();
+
+vi.mock('@/utils/b3CheckPermissions/check');
 
 // TODO: we should use faker to generate random data once faker is in place
 const buildCustomerWith = builder<Customer>(() => ({
@@ -408,15 +410,12 @@ describe('when user has "create_shopping_list" permission', () => {
       // It's not ideal that we are mocking the implementation of verifyLevelPermission
       // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
       // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-        ({ code, companyId, userId }) => {
-          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-            return true;
-          }
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
 
-          return false;
-        },
-      );
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 123 })
+        .thenReturn(true);
+
 
       renderWithProviders(<ShoppingLists />, {
         preloadedState: {
@@ -498,15 +497,11 @@ describe('when user has "create_shopping_list" permission', () => {
       // It's not ideal that we are mocking the implementation of verifyLevelPermission
       // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
       // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-        ({ code, companyId, userId }) => {
-          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-            return true;
-          }
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
 
-          return false;
-        },
-      );
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 123 })
+        .thenReturn(true);
 
       renderWithProviders(<ShoppingLists />, {
         preloadedState: {
@@ -589,15 +584,11 @@ describe('when user has "create_shopping_list" permission', () => {
       // It's not ideal that we are mocking the implementation of verifyLevelPermission
       // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
       // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-        ({ code, companyId, userId }) => {
-          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-            return true;
-          }
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
 
-          return false;
-        },
-      );
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 123 })
+        .thenReturn(true);
 
       renderWithProviders(<ShoppingLists />, {
         preloadedState: {
@@ -686,15 +677,11 @@ describe('when user has "create_shopping_list" permission', () => {
       // It's not ideal that we are mocking the implementation of verifyLevelPermission
       // However since verifyLevelPermission has `store.getState()`, it is not able to load the test store states correctly
       // Until we refactor the verifyLevelPermission to use selector and avoid `store.getState()`, we will have to test it this way
-      vi.spyOn(utilsModule, 'verifyLevelPermission').mockImplementation(
-        ({ code, companyId, userId }) => {
-          if (code === 'create_shopping_list' && companyId === 79 && userId === 123) {
-            return true;
-          }
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
 
-          return false;
-        },
-      );
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 123 })
+        .thenReturn(true);
 
       renderWithProviders(<ShoppingLists />, {
         preloadedState: {
@@ -852,6 +839,12 @@ describe('when the user is a B2B customer', () => {
 
   describe('when deleting a shopping list succeeds', () => {
     it('displays a success message and displays the shopping lists', async () => {
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
+
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 87 })
+        .thenReturn(true);
+
       const deleteShoppingList = vi.fn();
       const getB2BCustomerShoppingLists = vi.fn();
 
@@ -1060,6 +1053,12 @@ describe('when the user is a B2B customer', () => {
 
   describe('when updating a shopping list succeeds', () => {
     it('displays a success message and displays the updated shopping list in the results', async () => {
+      vi.mocked(verifyLevelPermission).mockReturnValue(false);
+
+      when(verifyLevelPermission)
+        .calledWith({ code: 'create_shopping_list', companyId: 79, userId: 87 })
+        .thenReturn(true);
+
       const updateB2BShoppingListDetails = vi.fn();
       const getB2BCustomerShoppingLists = vi.fn();
 

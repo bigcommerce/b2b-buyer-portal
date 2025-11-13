@@ -17,14 +17,12 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
-  b2bPermissionsMap,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
-  validatePermissionWithComparisonType,
 } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -46,6 +44,8 @@ import InvoiceListType, {
 import { formattingNumericValues } from './utils/payment';
 import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
+import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions/check';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 interface FilterSearchProps {
   [key: string]: string | number | number[] | null;

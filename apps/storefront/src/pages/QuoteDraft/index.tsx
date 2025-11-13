@@ -40,7 +40,7 @@ import {
   ShippingAddress,
 } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';

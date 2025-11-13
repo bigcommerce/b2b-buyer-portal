@@ -25,7 +25,7 @@ import {
 } from '@/store';
 import { CustomerRole } from '@/types/company';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { channelId, snackbar, verifyLevelPermission } from '@/utils';
+import { channelId, snackbar } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
@@ -49,6 +49,7 @@ import {
   ShoppingListDetailsContext,
   ShoppingListDetailsProvider,
 } from './context/ShoppingListDetailsContext';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 interface TableRefProps extends HTMLInputElement {
   initSearch: () => void;

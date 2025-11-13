@@ -24,7 +24,7 @@ import {
   useAppSelector,
 } from '@/store';
 import { QuoteExtraFieldsData } from '@/types/quotes';
-import { snackbar, verifyLevelPermission } from '@/utils';
+import { snackbar } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
@@ -42,6 +42,7 @@ import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions
 import { ProductInfoProps } from '../quote/shared/config';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 function useData() {
   const { id = '' } = useParams();

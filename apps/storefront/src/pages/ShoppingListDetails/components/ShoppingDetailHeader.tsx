@@ -11,10 +11,10 @@ import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListStatusTag } from '../../ShoppingLists/ShoppingListStatusTag';
+import { verifySubmitShoppingListSubsidiariesPermission, verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',

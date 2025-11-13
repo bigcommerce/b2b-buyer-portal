@@ -28,8 +28,10 @@ import {
   setTaxZoneRates,
 } from '@/store/slices/global';
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
-import { B3SStorage, channelId, checkEveryPermissionsCode } from '@/utils';
+import { B3SStorage, channelId } from '@/utils';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
+
+import { checkEveryPermissionsCode } from './b3CheckPermissions/check';
 
 interface StorefrontKeysProps {
   key: string;

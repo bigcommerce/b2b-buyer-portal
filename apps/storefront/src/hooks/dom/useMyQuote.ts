@@ -21,7 +21,6 @@ import {
 } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-import { setCartPermissions } from '@/utils';
 
 import { useFeatureFlags } from '../useFeatureFlags';
 import { useGetButtonText } from '../useGetButtonText';
@@ -29,6 +28,7 @@ import { useGetButtonText } from '../useGetButtonText';
 import useDomVariation from './useDomVariation';
 import usePurchasableQuote from './usePurchasableQuote';
 import { addProductFromProductPageToQuote, removeElement } from './utils';
+import { setCartPermissions } from '@/utils/b3CheckPermissions/juniorRolePermissions';
 
 const clearQuoteDom = () => {
   const quoteButtons = document.querySelectorAll('.b2b-add-to-quote');

@@ -16,11 +16,12 @@ import CustomButton from '@/components/button/CustomButton';
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { displayFormat, verifyLevelPermission } from '@/utils';
+import { displayFormat } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingListStatusTag } from './ShoppingListStatusTag';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 
 interface OrderItemCardProps {
   item: ShoppingListsItemsProps;
