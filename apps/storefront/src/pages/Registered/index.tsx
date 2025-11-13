@@ -18,7 +18,7 @@ import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
-import { getTemPlateConfig } from '@/utils/storefrontConfig';
+import { getStoreConfigs } from '@/utils/storefrontConfig';
 
 import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
@@ -94,7 +94,7 @@ function Registered(props: PageProps) {
         }
 
         // update the storefront config in the context
-        getTemPlateConfig(styleDispatch, globalDispatch);
+        getStoreConfigs(styleDispatch, globalDispatch);
 
         const accountFormAllFields = formType.map((item: number) => getB2BAccountFormFields(item));
 
