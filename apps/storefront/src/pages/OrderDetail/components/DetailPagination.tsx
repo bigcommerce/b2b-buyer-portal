@@ -7,7 +7,7 @@ import {
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';

@@ -19,7 +19,8 @@ import {
 } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useMobile, useSort } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
+import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';

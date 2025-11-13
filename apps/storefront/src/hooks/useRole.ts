@@ -34,4 +34,4 @@ const useRole = () => {
   return [roleText];
 };
 
-export default useRole;
+export { useRole };

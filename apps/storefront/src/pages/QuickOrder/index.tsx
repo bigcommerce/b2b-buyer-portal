@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Grid } from '@mui/material';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 
 import QuickOrderTable from './components/QuickOrderB2BTable';

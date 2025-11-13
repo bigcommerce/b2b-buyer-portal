@@ -15,7 +15,7 @@ import { CompanyStatus } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { B3SStorage, globalSnackbar } from '@/utils';
 
-import useGetButtonText from '../useGetButtonText';
+import { useGetButtonText } from '../useGetButtonText';
 import useStorageState from '../useStorageState';
 
 import { addProductsFromCartToQuote } from './utils';

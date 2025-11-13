@@ -1,7 +1,7 @@
 import { Box, TextField } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 interface ShoppingDetailAddNotesProps {

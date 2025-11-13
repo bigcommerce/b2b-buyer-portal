@@ -13,4 +13,4 @@ function useTableRef<T>(): any {
   return [paginationTableRef];
 }
 
-export default useTableRef;
+export { useTableRef };

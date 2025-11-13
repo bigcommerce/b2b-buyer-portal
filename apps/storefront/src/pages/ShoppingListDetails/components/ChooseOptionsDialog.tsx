@@ -17,7 +17,7 @@ import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags } from '@/hooks';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';

@@ -18,8 +18,8 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, setGlobalCommonState, useAppDispatch, useAppSelector } from '@/store';
 
-import useGetButtonText from '../useGetButtonText';
-import useRole from '../useRole';
+import { useGetButtonText } from '../useGetButtonText';
+import { useRole } from '../useRole';
 
 import useDomVariation from './useDomVariation';
 import { removeElement } from './utils';

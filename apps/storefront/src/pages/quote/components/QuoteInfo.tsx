@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { Box, Typography } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
   BillingAddress,

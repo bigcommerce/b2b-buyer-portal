@@ -6,8 +6,8 @@ import {
   FINISH_QUOTE_DEFAULT_VALUE,
   TRANSLATION_FINISH_QUOTE_VARIABLE,
 } from '@/constants';
-import { useGetButtonText } from '@/hooks';
-import useMobile from '@/hooks/useMobile';
+import { useGetButtonText } from '@/hooks/useGetButtonText';
+import { useMobile } from '@/hooks/useMobile';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';

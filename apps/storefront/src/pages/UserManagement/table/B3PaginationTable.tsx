@@ -10,7 +10,7 @@ import {
 import isEmpty from 'lodash-es/isEmpty';
 import isEqual from 'lodash-es/isEqual';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
 import { forwardRefWithGenerics, memoWithGenerics } from '@/utils';
 

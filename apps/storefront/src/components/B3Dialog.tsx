@@ -11,8 +11,8 @@ import {
   Theme,
 } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile';
-import useScrollBar from '@/hooks/useScrollBar';
+import { useMobile } from '@/hooks/useMobile';
+import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 

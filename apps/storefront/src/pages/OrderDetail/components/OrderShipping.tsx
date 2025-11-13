@@ -5,7 +5,7 @@ import { format } from 'date-fns/format';
 import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 import { OrderShippedItem, OrderShippingsItem } from '../../../types';

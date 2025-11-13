@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 

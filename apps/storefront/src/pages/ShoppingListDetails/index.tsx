@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useFeatureFlags, useMobile } from '@/hooks';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {

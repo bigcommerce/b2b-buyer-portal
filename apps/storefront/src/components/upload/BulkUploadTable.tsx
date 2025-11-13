@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 import BulkUploadTableCard from './BulkUploadTableCard';

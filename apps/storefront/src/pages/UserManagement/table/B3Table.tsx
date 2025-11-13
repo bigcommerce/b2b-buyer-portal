@@ -2,7 +2,7 @@ import { ChangeEvent, MouseEvent, ReactElement, useContext } from 'react';
 import { Grid, TablePagination } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 

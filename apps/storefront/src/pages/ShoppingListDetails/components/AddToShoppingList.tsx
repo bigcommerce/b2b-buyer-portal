@@ -4,7 +4,8 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
 import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
-import { dispatchEvent, useBlockPendingAccountViewPrice } from '@/hooks';
+import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
 import { addProductToBcShoppingList, addProductToShoppingList } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';

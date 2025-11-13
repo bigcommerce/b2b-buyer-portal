@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 import { Address, OrderProductItem } from '../../../types';

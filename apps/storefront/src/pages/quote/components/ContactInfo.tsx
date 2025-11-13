@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { validateQuoteExtraFields } from '@/shared/service/b2b';
 import { isValidUserTypeSelector, useAppSelector } from '@/store';

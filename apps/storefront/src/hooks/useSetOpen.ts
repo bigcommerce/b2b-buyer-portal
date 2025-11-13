@@ -56,4 +56,4 @@ const useSetOpen = (isOpen: boolean, _?: string, params?: CustomFieldItems) => {
   }, [isOpen, params?.quoteBtn, params?.shoppingListBtn]);
 };
 
-export default useSetOpen;
+export { useSetOpen };

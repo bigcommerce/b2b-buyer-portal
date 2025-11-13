@@ -9,7 +9,7 @@ import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
-import { useSort } from '@/hooks';
+import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';

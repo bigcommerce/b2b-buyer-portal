@@ -23,4 +23,4 @@ const useSort = <T>(
   return [handleSetOrderBy, order, orderBy];
 };
 
-export default useSort;
+export { useSort };

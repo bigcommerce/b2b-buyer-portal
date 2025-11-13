@@ -2,7 +2,7 @@ import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { currencyFormat, snackbar } from '@/utils';
 

@@ -2,7 +2,7 @@ import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, useMediaQuery } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { getIsTokenGotoPage, routes } from '@/shared/routes';
