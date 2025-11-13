@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice';

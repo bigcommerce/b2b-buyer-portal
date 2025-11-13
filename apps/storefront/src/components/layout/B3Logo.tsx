@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Box, ImageListItem } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { GlobalContext } from '@/shared/global';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 

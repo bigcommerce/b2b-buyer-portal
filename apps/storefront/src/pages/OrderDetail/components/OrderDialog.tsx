@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
   addProductToBcShoppingList,

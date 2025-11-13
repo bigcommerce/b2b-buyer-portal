@@ -5,7 +5,7 @@ import { Box, Grid, Typography } from '@mui/material';
 import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
-import { useBlockPendingAccountViewPrice } from '@/hooks';
+import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';

@@ -6,7 +6,7 @@ import { v1 as uuid } from 'uuid';
 import { B3CollapseContainer, B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useBlockPendingAccountViewPrice } from '@/hooks';
+import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';

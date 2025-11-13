@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { Clear as ClearIcon, Search as SearchIcon } from '@mui/icons-material';
 import { InputBase, Paper } from '@mui/material';
 
-import { useDebounce } from '@/hooks';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useB3Lang } from '@/lib/lang';
 
 interface B3FilterSearchProps {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 
 import { StyledNumberNoTopTextField } from './styled';
 

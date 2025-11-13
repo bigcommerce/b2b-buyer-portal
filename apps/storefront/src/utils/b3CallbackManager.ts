@@ -1,4 +1,4 @@
-import { EventType } from '@/hooks';
+import { EventType } from '@/hooks/useB2BCallback';
 
 import b2bLogger from './b3Logger';
 

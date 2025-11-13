@@ -5,7 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';

@@ -2,7 +2,7 @@ import { ReactNode, useContext, useMemo } from 'react';
 import { Box, Step, StepLabel, Stepper, useTheme } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 import { RegisteredContext } from './context/RegisteredContext';

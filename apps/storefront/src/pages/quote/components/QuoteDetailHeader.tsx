@@ -5,7 +5,7 @@ import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { displayFormat } from '@/utils';

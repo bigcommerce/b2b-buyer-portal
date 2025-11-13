@@ -4,7 +4,7 @@ import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '
 import noop from 'lodash-es/noop';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils';

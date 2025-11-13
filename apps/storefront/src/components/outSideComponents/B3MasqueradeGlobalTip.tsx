@@ -13,7 +13,7 @@ import {
   END_MASQUERADE_DEFAULT_VALUE,
   TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
 } from '@/constants';
-import { useGetButtonText } from '@/hooks';
+import { useGetButtonText } from '@/hooks/useGetButtonText';
 import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';

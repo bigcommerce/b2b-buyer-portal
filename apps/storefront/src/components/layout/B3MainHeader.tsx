@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
-import { dispatchEvent } from '@/hooks';
+import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';

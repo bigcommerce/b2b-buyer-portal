@@ -9,7 +9,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { disableLogoutButton } from '@/utils';
 
 export interface ListItemProps {

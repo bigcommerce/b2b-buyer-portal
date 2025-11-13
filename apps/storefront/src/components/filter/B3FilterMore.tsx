@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { FilterList as FilterListIcon } from '@mui/icons-material';
 import { Badge, Box, Button, IconButton, useTheme } from '@mui/material';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 

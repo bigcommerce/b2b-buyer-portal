@@ -7,7 +7,8 @@ import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags, useMobile } from '@/hooks';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';

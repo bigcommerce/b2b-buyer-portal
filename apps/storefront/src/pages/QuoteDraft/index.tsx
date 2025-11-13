@@ -9,13 +9,11 @@ import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
-import {
-  dispatchEvent,
-  useFeatureFlags,
-  useMobile,
-  useSetCountry,
-  useValidatePermissionWithComparisonType,
-} from '@/hooks';
+import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useMobile } from '@/hooks/useMobile';
+import { useSetCountry } from '@/hooks/useGetCountry';
+import { useValidatePermissionWithComparisonType } from '@/hooks/useVerifyPermission';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';

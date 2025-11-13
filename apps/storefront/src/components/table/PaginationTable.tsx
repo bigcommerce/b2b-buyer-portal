@@ -1,6 +1,6 @@
 import { FC, ReactElement, useCallback, useEffect, useState } from 'react';
 
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 
 import { B3Table, isNodeWrapper, PossibleNodeWrapper, TableColumnItem } from './B3Table';
 

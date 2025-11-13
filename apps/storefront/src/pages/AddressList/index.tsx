@@ -4,7 +4,9 @@ import { Box } from '@mui/material';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
-import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
+import { useCardListColumn } from '@/hooks/useCardListColumn';
+import { useTableRef } from '@/hooks/useTableRef';
+import { useVerifyCreatePermission } from '@/hooks/useVerifyPermission';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {

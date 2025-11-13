@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Card, CardContent, Typography } from '@mui/material';
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table';
-import { useMobile } from '@/hooks';
+import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { displayExtendedFormat } from '@/utils';
 

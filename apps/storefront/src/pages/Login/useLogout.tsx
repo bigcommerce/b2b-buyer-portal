@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { dispatchEvent } from '@/hooks';
+import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';

@@ -6,7 +6,7 @@ import ceil from 'lodash-es/ceil';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags } from '@/hooks';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import {
   deleteProductFromDraftQuoteList,
