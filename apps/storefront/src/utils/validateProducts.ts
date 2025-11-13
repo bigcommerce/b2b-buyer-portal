@@ -7,7 +7,6 @@ interface Option {
 
 interface NetworkValidationError {
   type: 'network';
-  productName: string;
 }
 
 interface ServerValidationError {
@@ -15,11 +14,29 @@ interface ServerValidationError {
   message: string;
 }
 
-export type ValidationError = NetworkValidationError | ServerValidationError;
+type ValidationError = NetworkValidationError | ServerValidationError;
 
-interface ValidationResult {
-  validProducts: CustomFieldItems[];
-  errors: ValidationError[];
+interface ValidatedProductSuccess {
+  status: 'success';
+  product: CustomFieldItems;
+}
+export interface ValidatedProductWarning {
+  status: 'warning';
+  message: string;
+  product: CustomFieldItems;
+}
+export interface ValidatedProductError {
+  status: 'error';
+  error: ValidationError;
+  product: CustomFieldItems;
+}
+
+type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
+
+interface ValidateProductsResult {
+  success: ValidatedProductSuccess[];
+  warning: ValidatedProductWarning[];
+  error: ValidatedProductError[];
 }
 
 const transformProductListToBeCompatibleWithValidateProducts = (products: CustomFieldItems[]) => {
@@ -44,8 +61,11 @@ const transformProductListToBeCompatibleWithValidateProducts = (products: Custom
   });
 };
 
-export const validateProducts = async (products: CustomFieldItems[]): Promise<ValidationResult> => {
+export const validateProducts = async (
+  products: CustomFieldItems[],
+): Promise<ValidateProductsResult> => {
   const productsList = transformProductListToBeCompatibleWithValidateProducts(products);
+
   const validationPromises = productsList.map((product) => {
     const { productId, quantity, productsSearch } = product;
 
@@ -77,33 +97,47 @@ export const validateProducts = async (products: CustomFieldItems[]): Promise<Va
 
   const settledResults = await Promise.allSettled(validationPromises);
 
-  const errors: ValidationError[] = [];
-
-  settledResults.forEach((result, index) => {
-    // Network or unexpected error
-    if (result.status === 'rejected') {
-      const { productName } = productsList[index];
-      errors.push({
-        type: 'network',
-        productName: productName || '',
-      });
-      return;
-    }
-
-    const { responseType, message } = result.value;
-
-    if (responseType === 'ERROR') {
-      errors.push({
-        type: 'validation',
-        message,
-      });
-    }
-  });
-
-  const validProducts = products.filter((_, index) => {
+  const validatedProducts = products.map<ValidatedProduct>((product, index) => {
     const res = settledResults[index];
-    return res.status === 'fulfilled' && res.value.responseType !== 'ERROR';
+
+    if (res.status === 'rejected') {
+      return {
+        status: 'error',
+        error: {
+          type: 'network',
+        },
+        product,
+      };
+    }
+
+    switch (res.value.responseType) {
+      case 'ERROR':
+        return {
+          status: 'error',
+          error: {
+            type: 'validation',
+            message: res.value.message,
+          },
+          product,
+        };
+      case 'WARNING':
+        return {
+          status: 'warning',
+          message: res.value.message,
+          product,
+        };
+      case 'SUCCESS':
+      default:
+        return {
+          status: 'success',
+          product,
+        };
+    }
   });
 
-  return { validProducts, errors };
+  return {
+    success: validatedProducts.filter((product) => product.status === 'success'),
+    warning: validatedProducts.filter((product) => product.status === 'warning'),
+    error: validatedProducts.filter((product) => product.status === 'error'),
+  };
 };
