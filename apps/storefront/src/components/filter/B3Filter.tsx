@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { useMobile } from '@/hooks/useMobile';
 
 import CustomButton from '../button/CustomButton';
-import { B3Select } from '../ui';
+import { B3Select } from '../ui/B3Select';
 
 import B3FilterMore from './B3FilterMore';
 import B3FilterSearch from './B3FilterSearch';

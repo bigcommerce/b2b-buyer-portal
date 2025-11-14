@@ -19,7 +19,7 @@ interface B3SelectProps<T> {
   size?: 'small' | 'medium' | undefined;
 }
 
-export default function B3Select<T extends string | undefined>({
+export function B3Select<T extends string | undefined>({
   value,
   handleChange,
   label,

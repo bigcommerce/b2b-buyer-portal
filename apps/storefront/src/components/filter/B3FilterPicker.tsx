@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 import { distanceDay } from '@/utils';
 
-import { B3Picker } from '../ui';
+import { B3Picker } from '../ui/B3Picker';
 
 interface PickerProps {
   isEnabled: boolean;
