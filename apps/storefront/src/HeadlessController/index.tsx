@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 
-import { HeadlessRoutes } from '@/constants';
+import { HeadlessRoute, HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
 import { setElementsListenersConfig } from '@/lib/config';
@@ -26,6 +26,7 @@ import {
   useAppStore,
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
+import { QuoteItem } from '@/types/quotes';
 import { channelId } from '@/utils';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
@@ -41,6 +42,16 @@ import { getSku } from './getSku';
 interface HeadlessControllerProps {
   setOpenPage: SetOpenPage;
 }
+
+export interface FormattedQuoteItem
+  extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
+  optionSelections: {
+    optionId: string | number;
+    optionValue: number;
+  }[];
+}
+
+export type ProductMappedAttributes = ReturnType<typeof transformOptionSelectionsToAttributes>;
 
 const transformOptionSelectionsToAttributes = (items: LineItem[]) =>
   items.map((product) => {
@@ -135,7 +146,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       callbacks: Manager,
       utils: {
         getRoutes: () => getAllowedRoutesWithoutComponent(globalState),
-        openPage: (page: keyof typeof HeadlessRoutes) =>
+        openPage: (page: HeadlessRoute) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
               setOpenPage({ isOpen: false });
