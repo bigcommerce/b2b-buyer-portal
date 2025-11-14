@@ -5,8 +5,10 @@ import { PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { checkEveryPermissionsCode } from '@/utils';
-import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions';
+import {
+  checkEveryPermissionsCode,
+  validatePermissionWithComparisonType,
+} from '@/utils/b3CheckPermissions/check';
 
 import { legacyPermissions, newPermissions } from './routes/config';
 

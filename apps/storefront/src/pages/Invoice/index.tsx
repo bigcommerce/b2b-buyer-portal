@@ -17,15 +17,15 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
-  b2bPermissionsMap,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
-  validatePermissionWithComparisonType,
 } from '@/utils';
+import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions/check';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import b2bLogger from '@/utils/b3Logger';
 
 import B3Filter from '../../components/filter/B3Filter';

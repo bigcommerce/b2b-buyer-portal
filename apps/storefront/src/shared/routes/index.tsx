@@ -4,7 +4,7 @@ import { matchPath } from 'react-router-dom';
 import { PageProps } from '@/pages/PageProps';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { b2bJumpPath } from '@/utils';
+import { b2bJumpPath } from '@/utils/b3CheckPermissions/b2bPermissionPath';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 

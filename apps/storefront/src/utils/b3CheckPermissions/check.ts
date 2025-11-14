@@ -7,12 +7,12 @@ import {
   validateBasePermissionWithComparisonType,
 } from './base';
 
-export interface PermissionCodesProps {
+interface PermissionCodesProps {
   code: string;
   permissionLevel?: number | string;
 }
 
-export interface VerifyLevelPermissionProps {
+interface VerifyLevelPermissionProps {
   code: string;
   companyId?: number;
   userEmail?: string;
@@ -38,7 +38,7 @@ export const checkEveryPermissionsCode = (code: string) => {
   return checkPermissionCode({ code }, 'every', newPermissions);
 };
 
-export const getPermissionsInfo = (code: string): PermissionCodesProps | undefined => {
+const getPermissionsInfo = (code: string): PermissionCodesProps | undefined => {
   const permissions = store.getState().company.permissions || [];
 
   return permissions.find((permission) => permission.code.includes(code));

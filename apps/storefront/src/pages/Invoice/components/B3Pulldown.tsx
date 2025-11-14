@@ -7,7 +7,9 @@ import { styled } from '@mui/material/styles';
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
-import { b2bPermissionsMap, snackbar, verifyLevelPermission } from '@/utils';
+import { snackbar } from '@/utils';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';

@@ -12,7 +12,6 @@ import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
 import {
-  b2bJumpPath,
   getQuoteEnabled,
   handleHideRegisterPage,
   hideStorefrontElement,
@@ -20,6 +19,7 @@ import {
   removeBCMenus,
 } from '@/utils';
 
+import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
