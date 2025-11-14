@@ -12,7 +12,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 
-export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B3UIProps) {
+export function B3ControlRadioGroup({ control, errors, ...rest }: Form.B3UIProps) {
   const { fieldType, name, default: defaultValue, required, label, validate, options } = rest;
 
   const b3Lang = useB3Lang();

@@ -15,7 +15,7 @@ interface Option {
 
 const first = 10;
 
-export default function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIProps) {
+export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     name,
     default: defaultValue,

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Alert, Box, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
-import { Captcha } from '@/components/form';
+import { Captcha } from '@/components/captcha/Captcha';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';

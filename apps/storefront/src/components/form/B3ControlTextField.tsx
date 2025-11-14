@@ -8,7 +8,7 @@ import { useB3Lang } from '@/lib/lang';
 import { StyleNumberTextField } from './styled';
 import Form from './ui';
 
-export default function B3ControlTextField({ control, errors, ...rest }: Form.B3UIProps) {
+export function B3ControlTextField({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     isAutoComplete = false,
