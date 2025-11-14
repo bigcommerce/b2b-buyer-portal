@@ -1,13 +1,31 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
-import type { MockInstance } from 'vitest';
+import { when } from 'vitest-when';
 
-import * as b2bService from '@/shared/service/b2b';
+import {
+  checkUserBCEmail,
+  checkUserEmail,
+  createB2BCompanyUser,
+  createBCCompanyUser,
+  getB2BAccountFormFields,
+  getB2BCountries,
+  validateAddressExtraFields,
+  validateBCCompanyExtraFields,
+} from '@/shared/service/b2b';
+import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
+import { bcLogin } from '@/shared/service/bc';
 import { B3SStorage } from '@/utils';
+import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { RegisteredProvider } from './context/RegisteredContext';
 import Registered from '.';
+
+vi.mock('@/shared/service/b2b');
+vi.mock('@/shared/service/bc');
+vi.mock('@/utils/loginInfo');
+vi.mock('@/shared/service/b2b/graphql/recaptcha');
+vi.mock('@/utils/storefrontConfig');
 
 const mockCountries = {
   countries: [
@@ -918,57 +936,28 @@ async function completeRegistration({
 }
 
 describe('Registered Page', () => {
-  beforeAll(() => {
-    vi.mock('@/shared/service/b2b', () => {
-      const createBCCompanyUserMock = vi.fn(() =>
-        Promise.resolve({ customerCreate: { customer: { id: 1 } } }),
-      );
-      return {
-        getB2BAccountFormFields: vi.fn((formType) => {
-          if (formType === 1) return Promise.resolve({ accountFormFields: formType1Fields });
-          return Promise.resolve({ accountFormFields: formType2Fields });
-        }),
-        getB2BCountries: vi.fn(() => Promise.resolve(mockCountries)),
-        checkUserEmail: vi.fn(() => Promise.resolve({ isValid: true })),
-        checkUserBCEmail: vi.fn(() => Promise.resolve({ isValid: true })),
-        createBCCompanyUser: createBCCompanyUserMock,
-        validateAddressExtraFields: vi.fn(() => Promise.resolve({ code: 200 })),
-        validateBCCompanyExtraFields: vi.fn(() => Promise.resolve({ code: 200 })),
-        createB2BCompanyUser: vi.fn(() =>
-          Promise.resolve({ companyCreate: { company: { companyStatus: 1 } } }),
-        ),
-      };
+  beforeEach(() => {
+    vi.mocked(getB2BAccountFormFields).mockResolvedValue({ accountFormFields: formType2Fields });
+    when(getB2BAccountFormFields).calledWith(1).thenResolve({ accountFormFields: formType1Fields });
+
+    vi.mocked(getB2BCountries).mockResolvedValue(mockCountries);
+    vi.mocked(checkUserEmail).mockResolvedValue({ isValid: true });
+    vi.mocked(checkUserBCEmail).mockResolvedValue({ isValid: true });
+    vi.mocked(createBCCompanyUser).mockResolvedValue({
+      customerCreate: { customer: { id: 1 } },
     });
-
-    vi.mock('@/shared/service/bc', () => {
-      return {
-        bcLogin: vi.fn(() => Promise.resolve({ error: undefined })),
-      };
+    vi.mocked(validateAddressExtraFields).mockResolvedValue({ code: 200 });
+    vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
+    vi.mocked(createB2BCompanyUser).mockResolvedValue({
+      companyCreate: { company: { companyStatus: 1 } },
     });
-
-    vi.mock('@/utils/loginInfo', () => {
-      return {
-        getCurrentCustomerInfo: vi.fn(() =>
-          Promise.resolve({
-            userType: 5,
-            role: 2,
-            companyRoleName: 'Junior Buyer',
-          }),
-        ),
-      };
+    vi.mocked(bcLogin).mockResolvedValue({ error: undefined });
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      userType: 5,
+      role: 2,
+      companyRoleName: 'Junior Buyer',
     });
-
-    vi.mock('@/shared/service/b2b/graphql/recaptcha', () => ({
-      getStorefrontToken: vi.fn().mockResolvedValue({ isEnabledOnStorefront: false, siteKey: '' }),
-    }));
-
-    vi.mock('@/utils/storefrontConfig', () => ({
-      getStoreConfigs: vi.fn(),
-    }));
-  });
-
-  afterAll(() => {
-    vi.clearAllMocks();
+    vi.mocked(getStorefrontToken).mockResolvedValue({ isEnabledOnStorefront: false, siteKey: '' });
   });
 
   it('renders and completes personal (B2C) registration flow', async () => {
@@ -980,7 +969,7 @@ describe('Registered Page', () => {
 
     await completeRegistration({ ...mockRegistrationData.b2c, businessDetails: undefined });
 
-    expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType1, '');
+    expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType1, '');
     expect(screen.getByRole('heading', { name: 'Registration complete!' })).toBeVisible();
     expect(screen.getByText('Thank you for creating your account at')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
@@ -1002,7 +991,7 @@ describe('Registered Page', () => {
 
     await completeRegistration(mockRegistrationData.b2b);
 
-    expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
+    expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
     expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
     expect(
       screen.getByText(
@@ -1016,29 +1005,14 @@ describe('Registered Page', () => {
   });
 
   describe('B2B registration pending approval scenarios', () => {
-    let b3sStorageGetSpy: MockInstance | undefined;
-    let createB2BCompanyUserSpy: MockInstance | undefined;
-
-    afterEach(() => {
-      b3sStorageGetSpy?.mockRestore();
-      createB2BCompanyUserSpy?.mockRestore();
-    });
-
     it('can order, cannot view prices', async () => {
-      b3sStorageGetSpy = vi.spyOn(B3SStorage, 'get').mockImplementation((key: string) => {
-        if (key === 'blockPendingAccountOrderCreation') {
-          return false;
-        }
-        if (key === 'blockPendingAccountViewPrice') {
-          return true;
-        }
-        return undefined;
+      const storageSpy = vi.spyOn(B3SStorage, 'get');
+      when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(false);
+      when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
+
+      vi.mocked(createB2BCompanyUser).mockResolvedValue({
+        companyCreate: { company: { companyStatus: 0 } },
       });
-      createB2BCompanyUserSpy = vi
-        .spyOn(b2bService, 'createB2BCompanyUser')
-        .mockImplementation(() =>
-          Promise.resolve({ companyCreate: { company: { companyStatus: 0 } } }),
-        );
 
       const { navigation } = renderWithProviders(
         <RegisteredProvider>
@@ -1061,20 +1035,13 @@ describe('Registered Page', () => {
     });
 
     it('cannot order or view prices', async () => {
-      b3sStorageGetSpy = vi.spyOn(B3SStorage, 'get').mockImplementation((key: string) => {
-        if (key === 'blockPendingAccountOrderCreation') {
-          return true;
-        }
-        if (key === 'blockPendingAccountViewPrice') {
-          return true;
-        }
-        return undefined;
+      const storageSpy = vi.spyOn(B3SStorage, 'get');
+      when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
+      when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
+
+      vi.mocked(createB2BCompanyUser).mockResolvedValue({
+        companyCreate: { company: { companyStatus: 0 } },
       });
-      createB2BCompanyUserSpy = vi
-        .spyOn(b2bService, 'createB2BCompanyUser')
-        .mockImplementation(() =>
-          Promise.resolve({ companyCreate: { company: { companyStatus: 0 } } }),
-        );
 
       const { navigation } = renderWithProviders(
         <RegisteredProvider>
@@ -1097,20 +1064,13 @@ describe('Registered Page', () => {
     });
 
     it('other restrictions', async () => {
-      b3sStorageGetSpy = vi.spyOn(B3SStorage, 'get').mockImplementation((key: string) => {
-        if (key === 'blockPendingAccountOrderCreation') {
-          return true;
-        }
-        if (key === 'blockPendingAccountViewPrice') {
-          return false;
-        }
-        return undefined;
+      const storageSpy = vi.spyOn(B3SStorage, 'get');
+      when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
+      when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(false);
+
+      vi.mocked(createB2BCompanyUser).mockResolvedValue({
+        companyCreate: { company: { companyStatus: 0 } },
       });
-      createB2BCompanyUserSpy = vi
-        .spyOn(b2bService, 'createB2BCompanyUser')
-        .mockImplementation(() =>
-          Promise.resolve({ companyCreate: { company: { companyStatus: 0 } } }),
-        );
       const { navigation } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
