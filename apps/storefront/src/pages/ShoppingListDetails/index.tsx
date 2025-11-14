@@ -489,18 +489,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
             </B3Spin>
           </Box>
 
-          <Grid
-            item
-            sx={
-              isMobile
-                ? {
-                    flexBasis: '100%',
-                  }
-                : {
-                    flexBasis: '340px',
-                  }
-            }
-          >
+          <Grid item sx={{ flexBasis: isMobile ? '100%' : '340px' }}>
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
                 updateList={updateList}
