@@ -15,7 +15,7 @@ export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
         }, 1);
       };
 
-class InitializationEnvironment {
+export class InitializationEnvironment {
   clickedLinkElement?: HTMLElement;
 
   #isInitVariable = false;

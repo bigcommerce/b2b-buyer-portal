@@ -111,3 +111,5 @@ export const LOGIN_LANDING_LOCATIONS = {
   HOME: '1',
   CHECKOUT: '2',
 };
+
+export type HeadlessRoute = keyof typeof HeadlessRoutes;
