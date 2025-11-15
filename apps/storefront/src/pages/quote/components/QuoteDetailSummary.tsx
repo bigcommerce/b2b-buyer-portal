@@ -17,7 +17,7 @@ interface QuoteDetailSummaryProps {
   quoteDetailTax: number;
   status: string;
   quoteDetail: CustomFieldItems;
-  isHideQuoteCheckout: boolean;
+  shouldHidePrice: boolean;
 }
 
 export default function QuoteDetailSummary({
@@ -25,7 +25,7 @@ export default function QuoteDetailSummary({
   quoteDetailTax = 0,
   status,
   quoteDetail,
-  isHideQuoteCheckout,
+  shouldHidePrice,
 }: QuoteDetailSummaryProps) {
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
@@ -89,7 +89,7 @@ export default function QuoteDetailSummary({
   const shippingAndTax = getShippingAndTax();
 
   const showPrice = (price: string | number): string | number => {
-    if (isHideQuoteCheckout) return b3Lang('quoteDraft.quoteSummary.tbd');
+    if (shouldHidePrice) return b3Lang('quoteDraft.quoteSummary.tbd');
 
     return price;
   };
@@ -132,7 +132,7 @@ export default function QuoteDetailSummary({
                 }}
               >
                 <Typography>{b3Lang('quoteDetail.summary.discountAmount')}</Typography>
-                <Typography>
+                <Typography title="quote summary discount price">
                   {Number(discount) > 0
                     ? `-${priceFormat(Number(discount))}`
                     : priceFormat(Number(discount))}
@@ -160,6 +160,7 @@ export default function QuoteDetailSummary({
                   fontWeight: 'bold',
                   color: '#212121',
                 }}
+                title="quote summary quoted subtotal price"
               >
                 {showPrice(priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax)))}
               </Typography>
@@ -182,7 +183,9 @@ export default function QuoteDetailSummary({
                   >
                     {shippingAndTax.shippingText}
                   </Typography>
-                  <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
+                  <Typography title="quote summary shipping price">
+                    {showPrice(shippingAndTax.shippingVal)}
+                  </Typography>
                 </Grid>
                 <Grid
                   container
@@ -213,6 +216,7 @@ export default function QuoteDetailSummary({
                 {b3Lang('quoteDetail.summary.grandTotal')}
               </Typography>
               <Typography
+                title="quote summary grand total price"
                 sx={{
                   fontWeight: 'bold',
                   color: '#212121',

@@ -600,4 +600,179 @@ describe('when the user is a B2B customer', () => {
       'https://my-store/cart.php?action=loadInCheckout&id=123&token=1234567889&isFromQuote=Y',
     );
   });
+
+  it('renders TBD instead of price in quote summary if product has an error', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '272989',
+          quoteNumber: '911911',
+          status: 2,
+          grandTotal: '1000.00',
+          allowCheckout: true,
+          discount: '0.00',
+          productsList: [
+            buildQuoteProductWith({
+              productId: '123',
+              offeredPrice: '1000.00',
+              basePrice: '1000.00',
+            }),
+          ],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [buildProductSearchWith({ id: 123 })],
+          },
+        }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'ERROR',
+              message: 'A product with the id of 123 does not have sufficient stock',
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        global: {
+          ...preloadedState.global,
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(screen.getByTitle('quote summary shipping price')).toHaveTextContent('TBD');
+    expect(screen.getByTitle('quote summary quoted subtotal price')).toHaveTextContent('TBD');
+    expect(screen.getByTitle('quote summary grand total price')).toHaveTextContent('TBD');
+  });
+
+  it('renders prices in quote summary if product has no errors', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '272989',
+          quoteNumber: '911911',
+          status: 2,
+          grandTotal: '1000.00',
+          subtotal: '1000.00',
+          discount: '0.00',
+          allowCheckout: true,
+          taxTotal: '0.0000',
+          totalAmount: '1000.00',
+          shippingTotal: '0.00',
+          currency: {
+            token: '$',
+            location: 'left',
+            currencyCode: 'USD',
+            decimalToken: '.',
+            decimalPlaces: 2,
+            thousandsToken: ',',
+            currencyExchangeRate: '1.0000000000',
+          },
+          shippingMethod: {
+            id: '4dcbf24f457dd67d5f89bcf374e0bc9b',
+            cost: 0.0,
+          },
+          productsList: [
+            buildQuoteProductWith({
+              productId: '123',
+              offeredPrice: '1000.00',
+              basePrice: '1000.00',
+            }),
+          ],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildProductSearchWith({
+                id: 123,
+                costPrice: '1000',
+                variants: [
+                  {
+                    variant_id: 132,
+                    product_id: 123,
+                    sku: 'test',
+                    option_values: [],
+                    calculated_price: 1000,
+                    image_url: '',
+                    has_price_list: false,
+                    bulk_prices: [],
+                    purchasing_disabled: false,
+                    cost_price: 0,
+                    inventory_level: 2,
+                    bc_calculated_price: {
+                      as_entered: 1000,
+                      tax_inclusive: 1000,
+                      tax_exclusive: 1000,
+                      entered_inclusive: false,
+                    },
+                  },
+                ],
+              }),
+            ],
+          },
+        }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: 'Product is valid',
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        global: {
+          ...preloadedState.global,
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+    expect(screen.getByTitle('quote summary shipping price')).toHaveTextContent('$0.00');
+    expect(screen.getByTitle('quote summary discount price')).toHaveTextContent('$0.00');
+    expect(screen.getByTitle('quote summary quoted subtotal price')).toHaveTextContent('$1,000.00');
+    expect(screen.getByTitle('quote summary grand total price')).toHaveTextContent('$1,000.00');
+  });
 });
