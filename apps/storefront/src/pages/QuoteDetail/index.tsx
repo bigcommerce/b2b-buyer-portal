@@ -226,10 +226,11 @@ function QuoteDetail() {
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<any>([]);
   const [fileList, setFileList] = useState<any>([]);
-  const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
+  const [quoteReviewedBySalesRep, setQuoteWasReviewedBySalesRep] = useState<boolean>(false);
 
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidatedProductError[]>([]);
+  const [quoteHasWarnings, setQuoteHasWarnings] = useState<boolean>(true);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -253,12 +254,17 @@ function QuoteDetail() {
 
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
+  const [shouldHidePrices, setShouldHidePrices] = useState<boolean>(true);
+
   const location = useLocation();
 
   const featureFlags = useFeatureFlags();
 
   const isMoveStockAndBackorderValidationToBackend =
     featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
+
+  const isAutoQuotingEnabled =
+    quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';
 
   useEffect(() => {
     if (!quoteDetail?.id) return;
@@ -295,10 +301,12 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const quoteDetailBackendValidations = async () => {
-    const { error } = await validateProducts(productList);
+    if (!productList.length) return;
+    const { error, warning } = await validateProducts(productList);
 
-    if (!error.length) {
-      return;
+    if (!error.length && !warning.length) {
+      setShouldHidePrices(false);
+      setQuoteHasWarnings(false);
     }
 
     error.forEach((err) => {
@@ -306,6 +314,10 @@ function QuoteDetail() {
         snackbar.error(err.error.message);
       }
     });
+
+    if (quoteReviewedBySalesRep) {
+      setShouldHidePrices(false);
+    }
 
     setQuoteValidationErrors(error);
   };
@@ -329,7 +341,7 @@ function QuoteDetail() {
     });
 
     const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
-    if (isEnableProduct && isHandleApprove && isHideCheckout) {
+    if (isEnableProduct && quoteReviewedBySalesRep && isHideCheckout) {
       if (oosErrorList)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
@@ -381,7 +393,7 @@ function QuoteDetail() {
     validateQuoteProducts();
     // disabling since b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEnableProduct, isHandleApprove, productList]);
+  }, [isEnableProduct, quoteReviewedBySalesRep, productList]);
 
   const hasQuoteValidationErrorsFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
@@ -504,7 +516,7 @@ function QuoteDetail() {
         salesRepEmail,
       } = quote;
 
-      setHandleApprove(!!salesRep || !!salesRepEmail);
+      setQuoteWasReviewedBySalesRep(!!salesRep || !!salesRepEmail);
 
       const newFileList: CustomFieldItems[] = [];
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
@@ -669,10 +681,10 @@ function QuoteDetail() {
 
   const quoteGotoCheckout = async () => {
     try {
+      if (hasQuoteValidationErrors()) return;
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
-        hasQuoteValidationErrors,
         role,
         location,
         navigate,
@@ -689,17 +701,14 @@ function QuoteDetail() {
   }, [id, isHideQuoteCheckout]);
 
   const isAutoEnableQuoteCheckout = useMemo(() => {
-    const isAutoEnable =
-      quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';
-
-    if (!isAutoEnable && !isHandleApprove) return false;
+    if (!isAutoQuotingEnabled && !quoteReviewedBySalesRep) return false;
 
     return true;
-  }, [quoteConfig, isHandleApprove]);
+  }, [quoteReviewedBySalesRep, isAutoQuotingEnabled]);
 
-  const isEnableProductShowCheckout = () => {
+  const isEnableProductShowCheckoutFrontendFlow = () => {
     if (isEnableProduct) {
-      if (isHandleApprove && isHideQuoteCheckout) return true;
+      if (quoteReviewedBySalesRep && isHideQuoteCheckout) return true;
       if (!isHideQuoteCheckout) return true;
 
       return false;
@@ -707,6 +716,14 @@ function QuoteDetail() {
 
     return true;
   };
+
+  const isEnableProductShowCheckoutBackendFlow = () => {
+    return !quoteHasWarnings || quoteReviewedBySalesRep;
+  };
+
+  const enableProceedToCheckoutButton = isMoveStockAndBackorderValidationToBackend
+    ? isEnableProductShowCheckoutBackendFlow
+    : isEnableProductShowCheckoutFrontendFlow;
 
   const quoteAndExtraFieldsInfo = useMemo(() => {
     const currentExtraFields = quoteDetail?.extraFields?.map(
@@ -730,6 +747,10 @@ function QuoteDetail() {
 
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
     quotePurchasabilityPermissionInfo;
+
+  const shouldHidePrice = isMoveStockAndBackorderValidationToBackend
+    ? shouldHidePrices
+    : isHideQuoteCheckout;
 
   return (
     <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading}>
@@ -806,7 +827,7 @@ function QuoteDetail() {
               <QuoteDetailTable
                 total={productList.length}
                 currency={quoteDetail.currency}
-                isHandleApprove={isHandleApprove}
+                quoteReviewedBySalesRep={quoteReviewedBySalesRep}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
@@ -834,7 +855,7 @@ function QuoteDetail() {
               }}
             >
               <QuoteDetailSummary
-                isHideQuoteCheckout={isHideQuoteCheckout}
+                shouldHidePrice={shouldHidePrice}
                 quoteSummary={quoteSummary}
                 quoteDetailTax={quoteDetailTax}
                 status={quoteDetail.status}
@@ -901,12 +922,12 @@ function QuoteDetail() {
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&
-          isEnableProductShowCheckout() && (
+          enableProceedToCheckoutButton() && (
             <Footer isAgenting={isAgenting}>
               <ProceedToCheckoutButton
                 onClick={() => {
+                  if (hasQuoteValidationErrors()) return;
                   handleQuoteCheckout({
-                    hasQuoteValidationErrors,
                     role,
                     location,
                     quoteId: quoteDetail.id,

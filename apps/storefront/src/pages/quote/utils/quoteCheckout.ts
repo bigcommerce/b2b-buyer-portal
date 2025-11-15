@@ -9,25 +9,14 @@ import { getSearchVal } from '@/utils/loginInfo';
 
 interface QuoteCheckout {
   role: string | number;
-  hasQuoteValidationErrors: () => boolean;
   location: Location;
   quoteId: string;
   navigate?: NavigateFunction;
 }
 
-export const handleQuoteCheckout = async ({
-  role,
-  hasQuoteValidationErrors,
-  location,
-  quoteId,
-  navigate,
-}: QuoteCheckout) => {
+export const handleQuoteCheckout = async ({ role, location, quoteId, navigate }: QuoteCheckout) => {
   try {
     store.dispatch(setQuoteDetailToCheckoutUrl(''));
-
-    const isHideQuoteCheckout = hasQuoteValidationErrors();
-
-    if (isHideQuoteCheckout) return;
 
     const {
       storefrontProductSettings: { hidePriceFromGuests },
