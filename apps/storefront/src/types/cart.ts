@@ -1,11 +1,20 @@
 export interface CreateCartInput {
   createCartInput: {
-    lineItems: [
-      {
-        quatinty: number;
-        productEntityId: number;
-      },
-    ];
+    lineItems: Array<{
+      quantity: number;
+      productEntityId: number;
+      variantEntityId: number;
+      selectedOptions?: {
+        multipleChoices: Array<{
+          optionEntityId: number;
+          optionValueEntityId: number;
+        }>;
+        textFields: Array<{
+          optionEntityId: number;
+          text: string;
+        }>;
+      };
+    }>;
   };
 }
 

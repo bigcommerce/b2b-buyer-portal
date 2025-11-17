@@ -8,6 +8,7 @@ import { snackbar } from '@/utils/b3Tip';
 interface ProductInfo extends OrderedProductType {
   productsSearch: ProductInfoType;
   quantity: number;
+  showQuantityError?: boolean;
 }
 
 interface CommonProducts extends ProductInfoType {
