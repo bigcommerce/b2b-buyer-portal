@@ -8,6 +8,7 @@ import { LineItem } from '@/utils/b3Product/b3Product';
 interface ProductInfo extends OrderedProductType {
   productsSearch: ProductInfoType;
   quantity: number;
+  showQuantityError?: boolean;
 }
 
 interface CommonProducts extends ProductInfoType {
