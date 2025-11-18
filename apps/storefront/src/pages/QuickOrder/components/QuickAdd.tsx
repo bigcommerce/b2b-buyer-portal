@@ -29,6 +29,7 @@ import {
   mapCatalogToValidationPayload,
   mergeValidatedWithCatalog,
   parseOptionList,
+  ValidationPayloadItemWithName,
 } from './QuickAdd.validation';
 
 const INITIAL_NUM_ROWS = 3;
@@ -328,7 +329,10 @@ export default function QuickAdd() {
     productItems: CustomFieldItems[];
     passSku: string[];
     notFoundSkus: string[];
-    validationErrors: (ValidatedProductWarning | ValidatedProductError)[];
+    validationErrors: (
+      | ValidatedProductWarning<ValidationPayloadItemWithName>
+      | ValidatedProductError<ValidationPayloadItemWithName>
+    )[];
   }> => {
     const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
 

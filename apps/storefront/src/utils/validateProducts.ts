@@ -16,88 +16,137 @@ interface ServerValidationError {
 
 type ValidationError = NetworkValidationError | ServerValidationError;
 
-interface ValidatedProductSuccess {
-  status: 'success';
-  product: CustomFieldItems;
+export interface Product {
+  productId: number;
+  variantId: number;
+  quantity: number;
+  productOptions: Option[];
 }
-export interface ValidatedProductWarning {
+
+interface ValidatedProductSuccess<T = any> {
+  status: 'success';
+  product: T;
+}
+
+export interface ValidatedProductWarning<T = any> {
   status: 'warning';
   message: string;
-  product: CustomFieldItems;
+  product: T;
 }
-export interface ValidatedProductError {
+
+export interface ValidatedProductError<T = any> {
   status: 'error';
   error: ValidationError;
-  product: CustomFieldItems;
+  product: T;
 }
 
-type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
+type ValidatedProduct<T> =
+  | ValidatedProductSuccess<T>
+  | ValidatedProductWarning<T>
+  | ValidatedProductError<T>;
 
-interface ValidateProductsResult {
-  success: ValidatedProductSuccess[];
-  warning: ValidatedProductWarning[];
-  error: ValidatedProductError[];
+export interface ValidateProductsResult<T> {
+  success: ValidatedProductSuccess<T>[];
+  warning: ValidatedProductWarning<T>[];
+  error: ValidatedProductError<T>[];
 }
 
-const transformProductListToBeCompatibleWithValidateProducts = (products: CustomFieldItems[]) => {
-  return products.map((product) => {
-    if ('node' in product) {
+const transformProductOptions = (options: Option[]) => {
+  return options.map((option) => {
+    if (typeof option.optionId === 'string' && option.optionId.includes('attribute')) {
+      // The passed in optionIds are formatted like "attribute[123]"
+      // This extracts the number from the optionId
       return {
-        ...product.node,
-        productsSearch: {
-          ...product.node.productsSearch,
-          selectedOptions: product.node.productsSearch.newSelectOptionList,
-        },
+        optionId: Number(option.optionId.split('[')[1].split(']')[0]),
+        optionValue: option.optionValue,
       };
     }
+
     return {
-      ...product,
-      productsSearch: {
-        ...product.productsSearch,
-        selectedOptions: product.options,
-        variantId: product.variantId,
-      },
+      optionId: Number(option.optionId),
+      optionValue: option.optionValue,
     };
   });
 };
 
-export const validateProducts = async (
-  products: CustomFieldItems[],
-): Promise<ValidateProductsResult> => {
-  const productsList = transformProductListToBeCompatibleWithValidateProducts(products);
+const transformProductForValidation = (product: any): Product => {
+  if (product.node && product.node.productsSearch) {
+    const { node } = product;
+    const { productsSearch } = node;
+    const options = productsSearch.newSelectOptionList || productsSearch.selectedOptions || [];
 
-  const validationPromises = productsList.map((product) => {
-    const { productId, quantity, productsSearch } = product;
+    return {
+      productId: Number(node.productId),
+      variantId: Number(productsSearch.variantId),
+      quantity: Number(node.quantity),
+      productOptions: options.map((opt: any) => ({
+        optionId: opt.optionId,
+        optionValue: String(opt.optionValue),
+      })),
+    };
+  }
 
-    const { variantId, selectedOptions } = productsSearch;
-
-    const productOptions = selectedOptions.map((option: Option) => {
-      if (typeof option.optionId === 'string' && option.optionId.includes('attribute')) {
-        // The passed in optionIds are formatted like "attribute[123]"
-        // This extracts the number from the optionId
-        return {
-          optionId: Number(option.optionId.split('[')[1].split(']')[0]),
-          optionValue: option.optionValue,
-        };
-      }
-
+  if (product.productId && product.variantId && !product.productOptions) {
+    if (product.productsSearch) {
+      const options =
+        product.productsSearch.newSelectOptionList || product.productsSearch.selectedOptions || [];
       return {
-        optionId: Number(option.optionId),
-        optionValue: option.optionValue,
+        productId: Number(product.productId),
+        variantId: Number(product.productsSearch.variantId || product.variantId),
+        quantity: Number(product.quantity),
+        productOptions: options.map((opt: any) => ({
+          optionId: opt.optionId,
+          optionValue: String(opt.optionValue),
+        })),
       };
-    });
+    }
+  }
+
+  return {
+    productId: Number(product.productId),
+    variantId: Number(product.variantId),
+    quantity: Number(product.quantity),
+    productOptions: product.productOptions || [],
+  };
+};
+
+// represent all accepted input formats
+type ValidateProductsInput =
+  | Product
+  | {
+      node: {
+        productId: number;
+        quantity: number;
+        productsSearch: { variantId: number; newSelectOptionList?: any[]; selectedOptions?: any[] };
+      };
+    }
+  | {
+      productId: number;
+      variantId: number;
+      quantity: number;
+      productsSearch?: { variantId: number; newSelectOptionList?: any[]; selectedOptions?: any[] };
+    }
+  | CustomFieldItems;
+
+export const validateProducts = async <T extends ValidateProductsInput = any>(
+  products: T[],
+): Promise<ValidateProductsResult<T>> => {
+  const productsForValidation = products.map(transformProductForValidation);
+
+  const validationPromises = productsForValidation.map((product) => {
+    const productOptions = transformProductOptions(product.productOptions);
 
     return validateProduct({
-      productId: Number(productId),
-      variantId: Number(variantId),
-      quantity: Number(quantity),
+      productId: Number(product.productId),
+      variantId: Number(product.variantId),
+      quantity: Number(product.quantity),
       productOptions,
     });
   });
 
   const settledResults = await Promise.allSettled(validationPromises);
 
-  const validatedProducts = products.map<ValidatedProduct>((product, index) => {
+  const validatedProducts = products.map<ValidatedProduct<T>>((product, index) => {
     const res = settledResults[index];
 
     if (res.status === 'rejected') {
@@ -136,8 +185,14 @@ export const validateProducts = async (
   });
 
   return {
-    success: validatedProducts.filter((product) => product.status === 'success'),
-    warning: validatedProducts.filter((product) => product.status === 'warning'),
-    error: validatedProducts.filter((product) => product.status === 'error'),
+    success: validatedProducts.filter(
+      (product): product is ValidatedProductSuccess<T> => product.status === 'success',
+    ),
+    warning: validatedProducts.filter(
+      (product): product is ValidatedProductWarning<T> => product.status === 'warning',
+    ),
+    error: validatedProducts.filter(
+      (product): product is ValidatedProductError<T> => product.status === 'error',
+    ),
   };
 };

@@ -109,3 +109,9 @@ export function mergeValidatedWithCatalog(
     };
   });
 }
+
+export interface ValidationPayloadItemWithName extends ValidationPayloadItem {
+  node: ValidationPayloadItem['node'] & {
+    productName?: string;
+  };
+}
