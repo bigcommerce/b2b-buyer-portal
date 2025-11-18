@@ -113,7 +113,7 @@ function useData() {
     const data = {
       id: Number(id),
       date: date.toString(),
-      ...(uuid && { uuid: uuid.toString() }),
+      uuid: uuid ? uuid.toString() : undefined,
     };
 
     const { quote } = await (Number(role) === 99

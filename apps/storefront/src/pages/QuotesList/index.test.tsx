@@ -305,9 +305,7 @@ describe('when the user is a B2B customer', () => {
 
       await userEvent.click(within(table).getByRole('row', { name: /Many Socks/ }));
 
-      expect(navigation).toHaveBeenCalledWith(
-        `/quoteDetail/939232?date=${getUnixTime(new Date('1 January 2025'))}`,
-      );
+      expect(navigation).toHaveBeenCalledWith(`/quoteDetail/939232?date=1735689600`);
     });
 
     it('navigates with UUID parameter when quote has a UUID', async () => {
@@ -339,7 +337,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(within(table).getByRole('row', { name: /Quote with UUID/ }));
 
       expect(navigation).toHaveBeenCalledWith(
-        `/quoteDetail/123456?date=${getUnixTime(new Date('1 January 2025'))}&uuid=abc-123-def-456`,
+        `/quoteDetail/123456?date=1735689600&uuid=abc-123-def-456`,
       );
     });
 
@@ -956,9 +954,7 @@ describe('when the user is a B2C customer', () => {
 
       await userEvent.click(within(table).getByRole('row', { name: /Many Socks/ }));
 
-      expect(navigation).toHaveBeenCalledWith(
-        `/quoteDetail/939232?date=${getUnixTime(new Date('1 January 2025'))}`,
-      );
+      expect(navigation).toHaveBeenCalledWith(`/quoteDetail/939232?date=1735689600`);
     });
 
     it('navigates with UUID parameter when quote has a UUID', async () => {
@@ -985,7 +981,7 @@ describe('when the user is a B2C customer', () => {
       await userEvent.click(within(table).getByRole('row', { name: /Quote with UUID/ }));
 
       expect(navigation).toHaveBeenCalledWith(
-        `/quoteDetail/123456?date=${getUnixTime(new Date('1 January 2025'))}&uuid=abc-123-def-456`,
+        `/quoteDetail/123456?date=1735689600&uuid=abc-123-def-456`,
       );
     });
 
