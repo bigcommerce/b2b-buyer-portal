@@ -236,7 +236,9 @@ const addProductFromProductPageToQuote = (
       const productId = (productView.querySelector('input[name=product_id]') as CustomFieldItems)
         ?.value;
       const qty = (productView.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1;
-      const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
+      const sku = featureFlags['B2B-3474.get_sku_from_pdp_with_text_content']
+        ? (productView.querySelector('[data-product-sku]')?.textContent ?? '').trim()
+        : (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
       const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
 
       if (!sku) {

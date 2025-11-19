@@ -756,5 +756,52 @@ describe('addProductFromProductPageToQuote', () => {
       expect(globalSnackbar.success).toHaveBeenCalled();
       expect(addQuoteDraftProduce).toHaveBeenCalled();
     });
+
+    it('correctly retrieves the SKU of a product with special characters and adds it to cart', async () => {
+      createDOM({ productId: 123, qty: 1, sku: 'A&B' });
+
+      when(searchProduct)
+        .calledWith(expect.stringContaining('productIds: [123]'))
+        .thenReturn(
+          buildSearchB2BProductWith({
+            id: 123,
+            sku: 'A&B',
+            name: 'Product Name',
+            variants: [buildProductVariantWith({ variant_id: 1, sku: 'A&B', product_id: 123 })],
+          }),
+        );
+
+      when(priceProduct)
+        .calledWith(
+          expect.objectContaining({
+            items: [expect.objectContaining({ productId: 123 })],
+          }),
+        )
+        .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 123,
+            variantId: 1,
+            quantity: 1,
+            productOptions: [],
+          }),
+        )
+        .thenReturn(buildValidateProductWith({ responseType: 'SUCCESS', message: '' }));
+
+      const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, {
+        ...featureFlags,
+        'B2B-3474.get_sku_from_pdp_with_text_content': true,
+      });
+      await addToQuote();
+
+      expect(globalSnackbar.success).toHaveBeenCalledWith('addProductSingular', {
+        action: {
+          onClick: expect.any(Function),
+          label: 'openQuote',
+        },
+      });
+    });
   });
 });
