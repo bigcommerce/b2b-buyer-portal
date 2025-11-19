@@ -476,16 +476,16 @@ it('displays a quote summary', async () => {
   const quoteSummary = await screen.findByRole('article', { name: 'Quote summary' });
 
   expect(within(quoteSummary).getByText('Sub total')).toBeInTheDocument();
-  expect(within(quoteSummary).getByText('$100.00')).toBeInTheDocument();
+  expect(within(quoteSummary).getByLabelText('Sub total')).toHaveTextContent('$100.00');
 
   expect(within(quoteSummary).getByText('Shipping')).toBeInTheDocument();
-  expect(within(quoteSummary).getByText('TBD')).toBeInTheDocument();
+  expect(within(quoteSummary).getByLabelText('Shipping')).toHaveTextContent('TBD');
 
   expect(within(quoteSummary).getByText('Estimated Tax')).toBeInTheDocument();
-  expect(within(quoteSummary).getByText('$25.00')).toBeInTheDocument();
+  expect(within(quoteSummary).getByLabelText('Estimated Tax')).toHaveTextContent('$25.00');
 
   expect(within(quoteSummary).getByText('Grand total')).toBeInTheDocument();
-  expect(within(quoteSummary).getByText('$125.00')).toBeInTheDocument();
+  expect(within(quoteSummary).getByLabelText('Grand total')).toHaveTextContent('$125.00');
 });
 
 it('displays the buyer info', async () => {

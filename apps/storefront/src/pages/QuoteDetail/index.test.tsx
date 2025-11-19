@@ -13,6 +13,7 @@ import {
   screen,
   startMockServer,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -607,10 +608,22 @@ describe('when the user is a B2B customer', () => {
         quote: {
           id: '272989',
           quoteNumber: '911911',
-          status: 2,
+          status: 1,
           grandTotal: '1000.00',
           allowCheckout: true,
           discount: '0.00',
+          displayDiscount: true,
+          shippingMethod: {
+            description: 'Flat rate',
+          },
+          taxTotal: '0.0000',
+          subtotal: '1000.00',
+          shippingTotal: '0.0000',
+          salesRepInfo: {
+            salesRepName: null,
+            salesRepEmail: null,
+            salesRepPhoneNumber: null,
+          },
           productsList: [
             buildQuoteProductWith({
               productId: '123',
@@ -653,6 +666,9 @@ describe('when the user is a B2B customer', () => {
         ...preloadedState,
         global: {
           ...preloadedState.global,
+          blockPendingQuoteNonPurchasableOOS: {
+            isEnableProduct: false,
+          },
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -661,10 +677,16 @@ describe('when the user is a B2B customer', () => {
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText('Original subtotal')).toHaveTextContent('TBD');
+      },
+      { timeout: 10000 },
+    );
 
-    expect(screen.getByTitle('quote summary shipping price')).toHaveTextContent('TBD');
-    expect(screen.getByTitle('quote summary quoted subtotal price')).toHaveTextContent('TBD');
-    expect(screen.getByTitle('quote summary grand total price')).toHaveTextContent('TBD');
+    expect(screen.getByLabelText('Quoted subtotal')).toHaveTextContent('TBD');
+    expect(screen.getByLabelText('Shipping(Flat rate)')).toHaveTextContent('TBD');
+    expect(screen.getByLabelText('Grand total')).toHaveTextContent('TBD');
   });
 
   it('renders prices in quote summary if product has no errors', async () => {
@@ -693,6 +715,7 @@ describe('when the user is a B2B customer', () => {
           shippingMethod: {
             id: '4dcbf24f457dd67d5f89bcf374e0bc9b',
             cost: 0.0,
+            description: 'Flat rate',
           },
           productsList: [
             buildQuoteProductWith({
@@ -701,6 +724,9 @@ describe('when the user is a B2B customer', () => {
               basePrice: '1000.00',
             }),
           ],
+          salesRep: '',
+          salesRepEmail: '',
+          displayDiscount: true,
         },
       },
     });
@@ -770,9 +796,156 @@ describe('when the user is a B2B customer', () => {
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-    expect(screen.getByTitle('quote summary shipping price')).toHaveTextContent('$0.00');
-    expect(screen.getByTitle('quote summary discount price')).toHaveTextContent('$0.00');
-    expect(screen.getByTitle('quote summary quoted subtotal price')).toHaveTextContent('$1,000.00');
-    expect(screen.getByTitle('quote summary grand total price')).toHaveTextContent('$1,000.00');
+    expect(screen.getByLabelText('Original subtotal')).toHaveTextContent('$1,000.00');
+    expect(screen.getByLabelText('Discount amount')).toHaveTextContent('$0.00');
+    expect(screen.getByLabelText('Quoted subtotal')).toHaveTextContent('$1,000.00');
+    expect(screen.getByLabelText('Shipping(Flat rate)')).toHaveTextContent('$0.00');
+    expect(screen.getByLabelText('Tax')).toHaveTextContent('$0.00');
+    expect(screen.getByLabelText('Grand total')).toHaveTextContent('$1,000.00');
+  });
+
+  it('renders proceed to checkout button when isAutoQuoteEnable is enabled and quote has sales rep revision', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '123',
+          quoteNumber: '123',
+          status: 2,
+          allowCheckout: true,
+          salesRep: 'John Sales', // sales rep already revised the quote
+          salesRepEmail: 'john.sales@company.com',
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchResponseWith({
+            data: {
+              productsSearch: [buildProductSearchWith({ id: 123 })],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: 'Product is valid',
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '123' });
+
+    const stateWithAutoQuoteDisabled = {
+      ...preloadedState,
+      company: {
+        ...preloadedState.company,
+        permissions: [
+          { code: 'purchase_enable', permissionLevel: 1 },
+          { code: 'checkout_with_quote', permissionLevel: 1 },
+        ],
+      },
+      global: {
+        ...preloadedState.global,
+        featureFlags: {
+          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+        },
+        quoteConfig: [
+          {
+            key: 'quote_auto_quoting',
+            value: '1',
+            extraFields: {},
+          },
+        ],
+      },
+    };
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: stateWithAutoQuoteDisabled,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
+  });
+
+  it('does not render Proceed to Checkout button when auto quoting is disabled and no sales rep info', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '14234',
+          quoteNumber: '2342',
+          status: 2,
+          allowCheckout: true,
+          salesRep: '', // No sales rep
+          salesRepEmail: '', // No sales rep email
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchResponseWith({
+            data: {
+              productsSearch: [buildProductSearchWith({ id: 123 })],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'WARNING',
+              message: 'A product with the id of 123 does not have sufficient stock',
+            },
+          },
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '123' });
+
+    const stateWithAutoQuoteDisabled = {
+      ...preloadedState,
+      global: {
+        ...preloadedState.global,
+        featureFlags: {
+          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+        },
+        quoteConfig: [
+          {
+            key: 'quote_auto_quoting',
+            value: '0', // Disable auto quoting
+            extraFields: {},
+          },
+        ],
+      },
+    };
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: stateWithAutoQuoteDisabled,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(screen.queryByRole('button', { name: /PROCEED TO CHECKOUT/i })).not.toBeInTheDocument();
   });
 });

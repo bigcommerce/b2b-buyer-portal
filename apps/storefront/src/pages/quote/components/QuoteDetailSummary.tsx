@@ -115,8 +115,10 @@ export default function QuoteDetailSummary({
                   margin: '4px 0',
                 }}
               >
-                <Typography>{b3Lang('quoteDetail.summary.originalSubtotal')}</Typography>
-                <Typography>
+                <Typography id="quote-summary-subtotal">
+                  {b3Lang('quoteDetail.summary.originalSubtotal')}
+                </Typography>
+                <Typography aria-labelledby="quote-summary-subtotal">
                   {showPrice(priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax)))}
                 </Typography>
               </Grid>
@@ -131,8 +133,10 @@ export default function QuoteDetailSummary({
                   display: quoteDetail?.displayDiscount ? '' : 'none',
                 }}
               >
-                <Typography>{b3Lang('quoteDetail.summary.discountAmount')}</Typography>
-                <Typography title="quote summary discount price">
+                <Typography id="quote-summary-discount">
+                  {b3Lang('quoteDetail.summary.discountAmount')}
+                </Typography>
+                <Typography aria-labelledby="quote-summary-discount">
                   {Number(discount) > 0
                     ? `-${priceFormat(Number(discount))}`
                     : priceFormat(Number(discount))}
@@ -148,6 +152,7 @@ export default function QuoteDetailSummary({
               }}
             >
               <Typography
+                id="quote-summary-quoted-subtotal"
                 sx={{
                   fontWeight: 'bold',
                   color: '#212121',
@@ -156,11 +161,11 @@ export default function QuoteDetailSummary({
                 {b3Lang('quoteDetail.summary.quotedSubtotal')}
               </Typography>
               <Typography
+                aria-labelledby="quote-summary-quoted-subtotal"
                 sx={{
                   fontWeight: 'bold',
                   color: '#212121',
                 }}
-                title="quote summary quoted subtotal price"
               >
                 {showPrice(priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax)))}
               </Typography>
@@ -176,6 +181,7 @@ export default function QuoteDetailSummary({
                   }}
                 >
                   <Typography
+                    id="quote-summary-shipping"
                     sx={{
                       maxWidth: '70%',
                       wordBreak: 'break-word',
@@ -183,7 +189,7 @@ export default function QuoteDetailSummary({
                   >
                     {shippingAndTax.shippingText}
                   </Typography>
-                  <Typography title="quote summary shipping price">
+                  <Typography aria-labelledby="quote-summary-shipping">
                     {showPrice(shippingAndTax.shippingVal)}
                   </Typography>
                 </Grid>
@@ -194,8 +200,10 @@ export default function QuoteDetailSummary({
                     margin: '4px 0',
                   }}
                 >
-                  <Typography>{shippingAndTax.taxText}</Typography>
-                  <Typography>{showPrice(shippingAndTax.taxVal)}</Typography>
+                  <Typography id="quote-summary-tax">{shippingAndTax.taxText}</Typography>
+                  <Typography aria-labelledby="quote-summary-tax">
+                    {showPrice(shippingAndTax.taxVal)}
+                  </Typography>
                 </Grid>
               </>
             )}
@@ -208,6 +216,7 @@ export default function QuoteDetailSummary({
               }}
             >
               <Typography
+                id="quote-summary-grand-total"
                 sx={{
                   fontWeight: 'bold',
                   color: '#212121',
@@ -216,7 +225,7 @@ export default function QuoteDetailSummary({
                 {b3Lang('quoteDetail.summary.grandTotal')}
               </Typography>
               <Typography
-                title="quote summary grand total price"
+                aria-labelledby="quote-summary-grand-total"
                 sx={{
                   fontWeight: 'bold',
                   color: '#212121',

@@ -298,6 +298,7 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const quoteDetailBackendValidations = async () => {
+    if (!productList.length) return;
     const { error, warning } = await validateProducts(productList);
 
     if (warning.length > 0 && !isHandleApprove) {
