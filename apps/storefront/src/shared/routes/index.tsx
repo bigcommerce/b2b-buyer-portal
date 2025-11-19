@@ -13,8 +13,8 @@ import { GlobalState } from '../global/context/config';
 import {
   BuyerPortalRoute,
   getAllowedRoutesWithoutComponent,
-  RouteFirstLevelItem,
   RouteItem,
+  RouteItemBasic,
   routeList,
 } from '../routeList';
 
@@ -72,55 +72,48 @@ function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
 
 const routes: RouteItem[] = addComponentToRoutes(routeList);
 
-const firstLevelRouting: RouteFirstLevelItem[] = [
+const firstLevelRouting: RouteItemBasic[] = [
   {
     path: '/',
     name: '',
     component: HomePage,
     permissions: allLegacyPermission,
-    isProvider: false,
   },
   {
     path: '/register',
     name: 'register',
     component: Registered,
     permissions: allLegacyPermission,
-    isProvider: true,
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
     permissions: allLegacyPermission,
-    isProvider: false,
   },
   {
     path: '/pdp',
     name: 'pdp',
     component: PDP,
     permissions: allLegacyPermission,
-    isProvider: false,
   },
   {
     path: '/forgotPassword',
     name: 'forgotPassword',
     component: ForgotPassword,
     permissions: allLegacyPermission,
-    isProvider: false,
   },
   {
     path: '/registeredbctob2b',
     name: 'registeredbctob2b',
     component: RegisteredBCToB2B,
     permissions: allLegacyPermission,
-    isProvider: true,
   },
   {
     path: '/payment/:id',
     name: 'payment',
     component: InvoicePayment,
     permissions: allLegacyPermission,
-    isProvider: false,
   },
 ];
 
@@ -195,7 +188,7 @@ const gotoAllowedAppPage = async (
     return false;
   });
 
-  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => {
+  const isFirstLevelFlag = firstLevelRouting.some((item: RouteItemBasic) => {
     if (url.includes('/login?') || url.includes('payment')) {
       return true;
     }
