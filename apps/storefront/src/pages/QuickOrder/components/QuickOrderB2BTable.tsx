@@ -175,8 +175,10 @@ function QuickOrderTable({
         });
 
         return listProducts;
-      } catch (err: any) {
-        snackbar.error(err);
+      } catch (error: any) {
+        if (error instanceof Error) {
+          snackbar.error(error.message);
+        }
       }
     }
     return [];

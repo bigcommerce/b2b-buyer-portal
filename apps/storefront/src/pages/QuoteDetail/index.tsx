@@ -532,9 +532,11 @@ function QuoteDetail() {
       setFileList(newFileList);
 
       return quote;
-    } catch (err: any) {
-      snackbar.error(err);
-      throw err;
+    } catch (error: any) {
+      if (error instanceof Error) {
+        snackbar.error(error.message);
+      }
+      throw error;
     } finally {
       setIsRequestLoading(false);
       setIsShowFooter(true);
@@ -560,8 +562,10 @@ function QuoteDetail() {
           content: quotePdf.quoteFrontendPdf.content,
         };
       }
-    } catch (err: any) {
-      snackbar.error(err);
+    } catch (error: any) {
+      if (error instanceof Error) {
+        snackbar.error(error.message);
+      }
     }
     return {
       url: '',
@@ -575,8 +579,10 @@ function QuoteDetail() {
       if (quotePdfUrl) {
         window.open(`${quotePdfUrl}`, '_blank');
       }
-    } catch (err: any) {
-      snackbar.error(err);
+    } catch (error: any) {
+      if (error instanceof Error) {
+        snackbar.error(error.message);
+      }
     } finally {
       setIsRequestLoading(false);
     }
@@ -594,8 +600,10 @@ function QuoteDetail() {
       iframe.contentDocument?.close();
       setIsRequestLoading(false);
       iframe.contentWindow?.print();
-    } catch (err: any) {
-      snackbar.error(err);
+    } catch (error: any) {
+      if (error instanceof Error) {
+        snackbar.error(error.message);
+      }
     }
   };
 

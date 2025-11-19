@@ -1,9 +1,6 @@
 import { v1 as uuid } from 'uuid';
 
 import { AlertTip, MsgsProps } from '@/shared/dynamicallyVariable/context/config';
-import { store } from '@/store';
-
-import { extractErrorMessage } from './errorMessageExtractor';
 
 interface ToastOptions {
   action?: {
@@ -37,21 +34,9 @@ const getLocalHandler = (variant: AlertTip) => {
     });
   };
 };
-type Handler = (message: string, options?: ToastOptions) => void;
-
-const withErrorExtraction = (baseHandler: Handler) => {
-  return (message: string | unknown, options?: ToastOptions) => {
-    const { featureFlags } = store.getState().global;
-    const safeExtractionEnabled = featureFlags['B2B-3962.safe_error_message_extraction'];
-
-    const finalMessage = safeExtractionEnabled ? extractErrorMessage(message) : (message as string);
-
-    return baseHandler(finalMessage, options);
-  };
-};
 
 export const snackbar = window.catalyst?.toast || {
-  error: withErrorExtraction(getLocalHandler('error')),
+  error: getLocalHandler('error'),
   success: getLocalHandler('success'),
   info: getLocalHandler('info'),
   warning: getLocalHandler('warning'),
@@ -83,7 +68,7 @@ const getGlobalHandler = (variant: AlertTip) => {
 };
 
 export const globalSnackbar = window.catalyst?.toast || {
-  error: withErrorExtraction(getGlobalHandler('error')),
+  error: getGlobalHandler('error'),
   success: getGlobalHandler('success'),
   info: getGlobalHandler('info'),
   warning: getGlobalHandler('warning'),
