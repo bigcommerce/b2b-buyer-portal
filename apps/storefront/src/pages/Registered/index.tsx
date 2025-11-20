@@ -11,7 +11,7 @@ import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
+import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b/graphql/register';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import { B3SStorage, loginJump, platform } from '@/utils';

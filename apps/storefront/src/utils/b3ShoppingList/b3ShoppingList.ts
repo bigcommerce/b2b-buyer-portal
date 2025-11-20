@@ -1,4 +1,7 @@
-import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
+import {
+  createB2BShoppingList,
+  createBcShoppingList,
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { store } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 

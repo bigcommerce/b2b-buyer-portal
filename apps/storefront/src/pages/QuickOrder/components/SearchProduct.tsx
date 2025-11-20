@@ -6,7 +6,7 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
-import { searchProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { calculateProductListPrice } from '@/utils/b3Product/b3Product';

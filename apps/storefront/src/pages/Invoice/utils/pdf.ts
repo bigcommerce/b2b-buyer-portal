@@ -1,4 +1,4 @@
-import { invoiceDownloadPDF } from '@/shared/service/b2b';
+import { invoiceDownloadPDF } from '@/shared/service/b2b/graphql/invoice';
 
 const analyzePDFUrl = (url: string): Promise<string> =>
   new Promise((resolve, reject) => {

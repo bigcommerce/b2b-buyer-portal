@@ -1,8 +1,7 @@
 import config from '@/lib/config';
 import { LangFormatFunction } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
-import { searchProducts } from '@/shared/service/b2b';
-import { validateProduct } from '@/shared/service/b2b/graphql/product';
+import { searchProducts, validateProduct } from '@/shared/service/b2b/graphql/product';
 import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';

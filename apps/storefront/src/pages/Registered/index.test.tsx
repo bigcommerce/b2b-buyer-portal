@@ -3,17 +3,16 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
+import { validateAddressExtraFields } from '@/shared/service/b2b/api/address';
+import { validateBCCompanyExtraFields } from '@/shared/service/b2b/api/register';
+import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import {
-  checkUserBCEmail,
-  checkUserEmail,
   createB2BCompanyUser,
   createBCCompanyUser,
   getB2BAccountFormFields,
   getB2BCountries,
-  validateAddressExtraFields,
-  validateBCCompanyExtraFields,
-} from '@/shared/service/b2b';
-import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
+} from '@/shared/service/b2b/graphql/register';
+import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b/graphql/users';
 import { bcLogin } from '@/shared/service/bc';
 import { B3SStorage } from '@/utils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -21,10 +20,13 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { RegisteredProvider } from './context/RegisteredContext';
 import Registered from '.';
 
-vi.mock('@/shared/service/b2b');
+vi.mock('@/shared/service/b2b/api/address');
+vi.mock('@/shared/service/b2b/api/register');
+vi.mock('@/shared/service/b2b/graphql/recaptcha');
+vi.mock('@/shared/service/b2b/graphql/register');
+vi.mock('@/shared/service/b2b/graphql/users');
 vi.mock('@/shared/service/bc');
 vi.mock('@/utils/loginInfo');
-vi.mock('@/shared/service/b2b/graphql/recaptcha');
 vi.mock('@/utils/storefrontConfig');
 
 const mockCountries = {

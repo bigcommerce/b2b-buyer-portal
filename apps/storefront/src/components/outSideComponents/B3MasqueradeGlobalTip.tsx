@@ -19,7 +19,7 @@ import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { superAdminEndMasquerade } from '@/shared/service/b2b';
+import { superAdminEndMasquerade } from '@/shared/service/b2b/graphql/global';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
 

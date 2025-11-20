@@ -7,7 +7,10 @@ import CustomButton from '@/components/button/CustomButton';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
-import { addProductToBcShoppingList, addProductToShoppingList } from '@/shared/service/b2b';
+import {
+  addProductToBcShoppingList,
+  addProductToShoppingList,
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';

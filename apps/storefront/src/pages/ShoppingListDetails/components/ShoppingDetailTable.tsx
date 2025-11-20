@@ -22,7 +22,10 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
-import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
+import {
+  updateB2BShoppingListsItem,
+  updateBcShoppingListsItem,
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';

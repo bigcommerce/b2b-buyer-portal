@@ -8,7 +8,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';
-import { searchProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';

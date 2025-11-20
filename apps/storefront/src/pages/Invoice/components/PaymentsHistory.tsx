@@ -6,7 +6,7 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getInvoicePaymentHistory } from '@/shared/service/b2b';
+import { getInvoicePaymentHistory } from '@/shared/service/b2b/graphql/invoice';
 import { displayFormat, handleGetCorrespondingCurrency } from '@/utils';
 
 interface PaymentsHistoryProps {

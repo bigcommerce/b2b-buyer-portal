@@ -6,13 +6,13 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
+import { validateAddressExtraFields } from '@/shared/service/b2b/api/address';
 import {
   createB2BAddress,
   createBcAddress,
   updateB2BAddress,
   updateBcAddress,
-  validateAddressExtraFields,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/address';
 import { snackbar } from '@/utils';
 
 import { AddressItemType } from '../../../types/address';

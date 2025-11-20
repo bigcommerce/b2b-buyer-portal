@@ -4,7 +4,10 @@ import { Box, Card, CardContent } from '@mui/material';
 import { B3CollapseContainer } from '@/components';
 import { useRole } from '@/hooks/useRole';
 import { useB3Lang } from '@/lib/lang';
-import { quoteDetailAttachFileCreate, quoteDetailAttachFileDelete } from '@/shared/service/b2b';
+import {
+  quoteDetailAttachFileCreate,
+  quoteDetailAttachFileDelete,
+} from '@/shared/service/b2b/graphql/quote';
 import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 
