@@ -2,9 +2,9 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
-import * as bcService from '@/shared/service/bc';
+import { b2bLogin, bcLogin, customerLoginAPI } from '@/shared/service/bc';
 import { snackbar } from '@/utils';
-import * as loginInfo from '@/utils/loginInfo';
+import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import LoginPage from './index';
 import { useLogout } from './useLogout';
@@ -13,12 +13,15 @@ vi.mock('./useLogout', () => ({
   useLogout: vi.fn(() => vi.fn()),
 }));
 
+vi.mock('@/utils/loginInfo');
+
 vi.mock('@/hooks/useB2BCallback');
+vi.mock('@/shared/service/bc');
 
 describe('LoginPage', () => {
   it('renders login form and submits successfully', async () => {
-    vi.spyOn(bcService, 'bcLogin').mockResolvedValue({ errors: undefined });
-    vi.spyOn(bcService, 'b2bLogin').mockResolvedValue({
+    vi.mocked(bcLogin).mockResolvedValue({ errors: undefined });
+    vi.mocked(b2bLogin).mockResolvedValue({
       login: {
         result: {
           token: '123',
@@ -29,8 +32,8 @@ describe('LoginPage', () => {
       },
     });
 
-    vi.spyOn(bcService, 'customerLoginAPI').mockImplementation(() => {});
-    vi.spyOn(loginInfo, 'getCurrentCustomerInfo').mockResolvedValue({
+    vi.mocked(customerLoginAPI).mockImplementation(() => {});
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
       userType: 5,
       role: 2,
       companyRoleName: 'Junior Buyer',
@@ -53,7 +56,7 @@ describe('LoginPage', () => {
   });
 
   it('shows error message on invalid login details', async () => {
-    vi.spyOn(bcService, 'bcLogin').mockImplementation(() => {
+    vi.mocked(bcLogin).mockImplementation(() => {
       throw new Error('Invalid login');
     });
 
@@ -76,8 +79,8 @@ describe('LoginPage', () => {
     let snackbarErrorSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      vi.spyOn(bcService, 'bcLogin').mockResolvedValue({ errors: undefined });
-      vi.spyOn(bcService, 'customerLoginAPI').mockImplementation(() => {});
+      vi.mocked(bcLogin).mockResolvedValue({ errors: undefined });
+      vi.mocked(customerLoginAPI).mockImplementation(() => {});
       snackbarErrorSpy = vi.spyOn(snackbar, 'error').mockImplementation(() => {});
     });
 
@@ -97,7 +100,7 @@ describe('LoginPage', () => {
       const logoutMock = vi.fn();
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
-      vi.spyOn(bcService, 'b2bLogin').mockImplementation(() => {
+      vi.mocked(b2bLogin).mockImplementation(() => {
         throw new Error(
           'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
         );
@@ -120,7 +123,7 @@ describe('LoginPage', () => {
       const logoutMock = vi.fn();
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
-      vi.spyOn(bcService, 'b2bLogin').mockImplementation(() => {
+      vi.mocked(b2bLogin).mockImplementation(() => {
         throw new Error(
           'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.',
         );
@@ -142,7 +145,7 @@ describe('LoginPage', () => {
       const logoutMock = vi.fn();
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
-      vi.spyOn(bcService, 'b2bLogin').mockImplementation(() => {
+      vi.mocked(b2bLogin).mockImplementation(() => {
         throw new Error(
           'Your business account is pending approval. You will gain access to business account features after account approval.',
         );
