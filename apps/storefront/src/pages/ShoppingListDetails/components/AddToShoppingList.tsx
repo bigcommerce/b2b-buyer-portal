@@ -2,8 +2,8 @@ import { useContext, useState } from 'react';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
-import { B3Upload } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import { B3Upload } from '@/components/upload/B3Upload';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';

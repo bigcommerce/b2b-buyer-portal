@@ -1,9 +1,10 @@
 import { lazy, useContext, useEffect, useMemo, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
-import { usePageMask } from '@/components';
 import GlobalDialog from '@/components/extraTip/GlobalDialog';
 import B3RenderRouter from '@/components/layout/B3RenderRouter';
+import { usePageMask } from '@/components/loading';
+import { ThemeFrame } from '@/components/ThemeFrame';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { useB3AppOpen } from '@/hooks/useB3AppOpen';
 import { useSetOpen } from '@/hooks/useSetOpen';
@@ -48,8 +49,6 @@ const B3CompanyHierarchyExternalButton = lazy(
 );
 
 const HeadlessController = lazy(() => import('@/HeadlessController'));
-
-const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap';
 

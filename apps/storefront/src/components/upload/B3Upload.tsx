@@ -56,7 +56,7 @@ const FileUploadContainer = styled(Box)({
   },
 });
 
-export default function B3Upload(props: B3UploadProps) {
+export function B3Upload(props: B3UploadProps) {
   const {
     isOpen,
     setIsOpen,

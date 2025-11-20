@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import { Alert, Box, ImageListItem } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 
-import { B3Card, B3CustomForm } from '@/components';
+import { B3Card } from '@/components/B3Card';
+import { B3CustomForm } from '@/components/B3CustomForm';
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';

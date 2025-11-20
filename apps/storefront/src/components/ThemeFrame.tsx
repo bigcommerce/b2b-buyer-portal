@@ -95,7 +95,7 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
   );
 }
 
-export default function ThemeFrame(props: ThemeFrameProps) {
+export function ThemeFrame(props: ThemeFrameProps) {
   const { title, className, fontUrl, customStyles, children, bodyRef } = props;
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isSetupComplete, setIsSetupComplete] = useState(false);

@@ -1,4 +1,4 @@
-import { B3Tag } from '@/components';
+import { B3Tag } from '@/components/B3Tag';
 import { useB3Lang } from '@/lib/lang';
 
 interface StatusProps {

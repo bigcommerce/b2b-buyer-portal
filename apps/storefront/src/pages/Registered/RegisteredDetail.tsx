@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Alert, Box } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 
-import { B3CustomForm } from '@/components';
+import { B3CustomForm } from '@/components/B3CustomForm';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';

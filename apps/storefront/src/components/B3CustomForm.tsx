@@ -13,7 +13,7 @@ import { B3ControlSwatchRadio } from './form/B3ControlSwatchRadio';
 import { B3ControlTextField } from './form/B3ControlTextField';
 import B3UI from './form/ui';
 
-export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
+export function B3CustomForm(props: B3UI.B3CustomFormProps) {
   const { formFields, errors, control, getValues, setValue, setError } = props;
 
   const renderFormFields = (fields: any) =>

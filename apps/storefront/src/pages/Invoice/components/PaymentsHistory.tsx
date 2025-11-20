@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 
-import { B3NoData } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
+import { B3NoData } from '@/components/table/B3NoData';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getInvoicePaymentHistory } from '@/shared/service/b2b';

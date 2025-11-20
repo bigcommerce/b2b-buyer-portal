@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import { renderWithProviders } from 'tests/test-utils';
 
-import { ThemeFrame } from '@/components';
+import { ThemeFrame } from '@/components/ThemeFrame';
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {
