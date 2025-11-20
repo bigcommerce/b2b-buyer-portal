@@ -23,6 +23,7 @@ import {
 import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
+import { getFlagByMessage } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -195,9 +196,19 @@ export default function App() {
       };
 
       if (!customerId) {
-        const info = await getCurrentCustomerInfo();
-        if (info) {
-          userInfo.role = info?.role;
+        try {
+          const info = await getCurrentCustomerInfo();
+          if (info) {
+            userInfo.role = info?.role;
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            const flag = getFlagByMessage(error.message);
+            if (flag) {
+              gotoPage(`/login?loginFlag=${flag}`);
+              return;
+            }
+          }
         }
       }
 

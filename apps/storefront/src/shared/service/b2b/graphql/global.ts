@@ -569,11 +569,14 @@ export const getCompanySubsidiaries = (): Promise<CompanySubsidiariesProps> =>
     query: companySubsidiaries,
   });
 
-export const startUserMasqueradingCompany = (companyId: number) =>
-  B3Request.graphqlB2B({
-    query: userMasqueradingCompanyBegin,
-    variables: { companyId },
-  });
+export const startUserMasqueradingCompany = (companyId: number, customMessage?: boolean) =>
+  B3Request.graphqlB2B(
+    {
+      query: userMasqueradingCompanyBegin,
+      variables: { companyId },
+    },
+    customMessage,
+  );
 
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({

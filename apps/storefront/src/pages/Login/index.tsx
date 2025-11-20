@@ -20,6 +20,7 @@ import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, platform, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { getTranslationKeyByFlag, getTranslationKeyByMessage } from '@/utils/companyUtils';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -32,15 +33,6 @@ import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 import { useLogout } from './useLogout';
-
-const errorMap: Record<string, string> = {
-  'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
-    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
-  'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.':
-    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
-  'Your business account is pending approval. You will gain access to business account features after account approval.':
-    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
-};
 
 function Login(props: PageProps) {
   const { setOpenPage } = props;
@@ -122,6 +114,21 @@ function Login(props: PageProps) {
           await logout();
         }
 
+        if (
+          loginFlag &&
+          [
+            'companyInactive',
+            'companyNeedApproval',
+            'companyNeedOrderApproval',
+            'companyNeedPricingApproval',
+          ].includes(loginFlag)
+        ) {
+          await logout(false);
+          const translationKey = getTranslationKeyByFlag(loginFlag);
+          if (translationKey) {
+            snackbar.error(b3Lang(translationKey));
+          }
+        }
         setLoading(false);
       } finally {
         setLoading(false);
@@ -251,7 +258,7 @@ function Login(props: PageProps) {
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
-          const i18nKey = errorMap[error.message];
+          const i18nKey = getTranslationKeyByMessage(error.message);
           if (i18nKey) {
             snackbar.error(b3Lang(i18nKey));
             await logout(false);

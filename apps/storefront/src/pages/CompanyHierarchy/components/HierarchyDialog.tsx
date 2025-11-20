@@ -16,9 +16,9 @@ import {
   CompanyHierarchyProps,
   PagesSubsidiariesPermissionProps,
 } from '@/types';
-import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils';
-import b2bLogger from '@/utils/b3Logger';
+import { buildHierarchy, flattenBuildHierarchyCompanies, snackbar } from '@/utils';
 import { deleteCartData } from '@/utils/cartUtils';
+import { getTranslationKeyByMessage } from '@/utils/companyUtils';
 
 interface HierarchyDialogProps {
   open: boolean;
@@ -65,7 +65,7 @@ function HierarchyDialog({
       if (companyId === Number(currentCompanyId)) {
         await endUserMasqueradingCompany();
       } else if (companyId) {
-        await startUserMasqueradingCompany(Number(companyId));
+        await startUserMasqueradingCompany(Number(companyId), true);
       }
 
       if (cartEntityId) {
@@ -93,7 +93,17 @@ function HierarchyDialog({
         }),
       );
     } catch (error) {
-      b2bLogger.error(error);
+      if (error instanceof Error) {
+        const i18nKey = getTranslationKeyByMessage(error.message);
+        if (i18nKey) {
+          // Delay the snackbar error to avoid race conditions during dialog transition and subsequent navigation to the company hierarchy page.
+          setTimeout(() => {
+            snackbar.error(b3Lang(i18nKey));
+          }, 300);
+        } else {
+          snackbar.error(error.message);
+        }
+      }
     } finally {
       setLoading(false);
 
