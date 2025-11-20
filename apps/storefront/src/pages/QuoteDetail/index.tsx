@@ -223,7 +223,7 @@ function QuoteDetail() {
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<any>([]);
   const [fileList, setFileList] = useState<any>([]);
-  const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
+  const [quoteReviewedBySalesRep, setQuoteWasReviewedBySalesRep] = useState<boolean>(false);
 
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidatedProductError[]>([]);
@@ -312,7 +312,7 @@ function QuoteDetail() {
       }
     });
 
-    if (isHandleApprove) {
+    if (quoteReviewedBySalesRep) {
       setShouldHidePrices(false);
     }
 
@@ -338,7 +338,7 @@ function QuoteDetail() {
     });
 
     const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
-    if (isEnableProduct && isHandleApprove && isHideCheckout) {
+    if (isEnableProduct && quoteReviewedBySalesRep && isHideCheckout) {
       if (oosErrorList)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
@@ -390,7 +390,7 @@ function QuoteDetail() {
     validateQuoteProducts();
     // disabling since b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEnableProduct, isHandleApprove, productList]);
+  }, [isEnableProduct, quoteReviewedBySalesRep, productList]);
 
   const hasQuoteValidationErrorsFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
@@ -513,7 +513,7 @@ function QuoteDetail() {
         salesRepEmail,
       } = quote;
 
-      setHandleApprove(!!salesRep || !!salesRepEmail);
+      setQuoteWasReviewedBySalesRep(!!salesRep || !!salesRepEmail);
 
       const newFileList: CustomFieldItems[] = [];
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
@@ -668,7 +668,7 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, navigate, role]);
 
-  const quoteGotoCheckout = async () => {
+  const quoteGoToCheckout = async () => {
     try {
       if (hasQuoteValidationErrors()) return;
 
@@ -686,20 +686,20 @@ function QuoteDetail() {
 
   useEffect(() => {
     if (location.search.includes('isCheckout') && id) {
-      quoteGotoCheckout();
+      quoteGoToCheckout();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isHideQuoteCheckout]);
+  }, [id, quoteHasWarnings, isHideQuoteCheckout]);
 
   const isAutoEnableQuoteCheckout = useMemo(() => {
-    if (!isAutoQuotingEnabled && !isHandleApprove) return false;
+    if (!isAutoQuotingEnabled && !quoteReviewedBySalesRep) return false;
 
     return true;
-  }, [isHandleApprove, isAutoQuotingEnabled]);
+  }, [quoteReviewedBySalesRep, isAutoQuotingEnabled]);
 
   const isEnableProductShowCheckoutFrontendFlow = () => {
     if (isEnableProduct) {
-      if (isHandleApprove && isHideQuoteCheckout) return true;
+      if (quoteReviewedBySalesRep && isHideQuoteCheckout) return true;
       if (!isHideQuoteCheckout) return true;
 
       return false;
@@ -709,7 +709,7 @@ function QuoteDetail() {
   };
 
   const isEnableProductShowCheckoutBackendFlow = () => {
-    return !quoteHasWarnings || isHandleApprove;
+    return !quoteHasWarnings || quoteReviewedBySalesRep;
   };
 
   const enableProceedToCheckoutButton = isMoveStockAndBackorderValidationToBackend
@@ -818,7 +818,7 @@ function QuoteDetail() {
               <QuoteDetailTable
                 total={productList.length}
                 currency={quoteDetail.currency}
-                isHandleApprove={isHandleApprove}
+                reviewedBySalesRep={quoteReviewedBySalesRep}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}

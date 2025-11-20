@@ -40,7 +40,7 @@ interface ListItemProps {
 interface ShoppingDetailTableProps {
   total: number;
   getQuoteTableDetails: GetRequestList<SearchProps, ProductInfoProps>;
-  isHandleApprove: boolean;
+  reviewedBySalesRep: boolean;
   getTaxRate: (taxClassId: number, variants: any) => number;
   displayDiscount: boolean;
   currency: CurrencyProps;
@@ -98,7 +98,7 @@ const StyledImage = styled('img')(() => ({
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const b3Lang = useB3Lang();
-  const { total, getQuoteTableDetails, getTaxRate, isHandleApprove, displayDiscount, currency } =
+  const { total, getQuoteTableDetails, getTaxRate, reviewedBySalesRep, displayDiscount, currency } =
     props;
 
   const isEnableProduct = useAppSelector(
@@ -126,7 +126,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
     if (isEnableProduct) {
-      if (isHandleApprove) return price;
+      if (reviewedBySalesRep) return price;
       return getDisplayPrice({
         price,
         productInfo: row,
