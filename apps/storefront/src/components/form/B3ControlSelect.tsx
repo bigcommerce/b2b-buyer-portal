@@ -6,7 +6,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 
-export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
+export function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     name,

@@ -14,7 +14,7 @@ import setDayjsLocale from '../ui/setDayjsLocale';
 import { PickerFormControl } from './styled';
 import Form from './ui';
 
-export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
+export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     name,

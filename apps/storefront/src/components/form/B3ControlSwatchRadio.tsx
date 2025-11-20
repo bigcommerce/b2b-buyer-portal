@@ -1,10 +1,10 @@
 import { Box } from '@mui/material';
 
-import B3ControlRectangle from './B3ControlRectangle';
+import { B3ControlRectangle } from './B3ControlRectangle';
 import { ColorContainer } from './styled';
 import Form from './ui';
 
-export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
+export function B3ControlSwatchRadio(props: Form.B3UIProps) {
   const { options } = props;
 
   const newOptions = options.map((option: Form.SwatchRadioGroupListProps) => ({

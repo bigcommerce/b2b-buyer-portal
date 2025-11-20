@@ -11,7 +11,7 @@ interface CheckboxListProps {
   [key: string]: string;
 }
 
-export default function B3ControlCheckbox({ control, errors, getValues, ...rest }: Form.B3UIProps) {
+export function B3ControlCheckbox({ control, errors, getValues, ...rest }: Form.B3UIProps) {
   const { default: defaultValue, fieldType, name, required, label, validate, options } = rest;
 
   const b3Lang = useB3Lang();

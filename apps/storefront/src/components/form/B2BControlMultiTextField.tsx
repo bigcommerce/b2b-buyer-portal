@@ -9,7 +9,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import Form from './ui';
 
-export default function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UIProps) {
+export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     isAutoComplete = false,
