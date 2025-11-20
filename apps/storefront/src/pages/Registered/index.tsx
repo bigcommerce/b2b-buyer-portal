@@ -23,7 +23,7 @@ import { getStoreConfigs } from '@/utils/storefrontConfig';
 import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
 
-import { RegisteredContext } from './context/RegisteredContext';
+import { RegisteredContext, RegisteredProvider } from './context/RegisteredContext';
 import {
   AccountFormFieldsItems,
   b2bAddressRequiredFields,
@@ -339,4 +339,10 @@ function Registered(props: PageProps) {
   );
 }
 
-export default Registered;
+export default function RegisterPage(props: PageProps) {
+  return (
+    <RegisteredProvider>
+      <Registered {...props} />
+    </RegisteredProvider>
+  );
+}

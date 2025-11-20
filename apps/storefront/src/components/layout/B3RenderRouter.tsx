@@ -1,10 +1,9 @@
 import { lazy, Suspense, useContext, useEffect } from 'react';
 import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { RegisteredProvider } from '@/pages/Registered/context/RegisteredContext';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobalContext } from '@/shared/global';
-import { RouteFirstLevelItem, RouteItem } from '@/shared/routeList';
+import { RouteItem } from '@/shared/routeList';
 import { firstLevelRouting, getAllowedRoutes } from '@/shared/routes';
 import { getPageTranslations, useAppDispatch } from '@/store';
 import { channelId } from '@/utils';
@@ -82,23 +81,9 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
             element={<RedirectFallback path={routes[0]?.path} setOpenPage={setOpenPage} />}
           />
         </Route>
-        {firstLevelRouting.map((route: RouteFirstLevelItem) => {
-          const { isProvider, path, component: Component } = route;
-          if (isProvider) {
-            return (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <RegisteredProvider>
-                    <Component setOpenPage={setOpenPage} />
-                  </RegisteredProvider>
-                }
-              />
-            );
-          }
-          return <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />;
-        })}
+        {firstLevelRouting.map(({ path, component: Component }) => (
+          <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />
+        ))}
       </Routes>
     </Suspense>
   );

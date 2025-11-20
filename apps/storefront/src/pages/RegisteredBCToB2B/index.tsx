@@ -38,7 +38,7 @@ import {
   State,
   toHump,
 } from '../Registered/config';
-import { RegisteredContext } from '../Registered/context/RegisteredContext';
+import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
 import RegisteredFinish from '../Registered/RegisteredFinish';
 import {
   InformationFourLabels,
@@ -67,7 +67,7 @@ const StyledRegisterContent = styled(Box)({
   },
 });
 
-export default function RegisteredBCToB2B(props: PageProps) {
+function RegisteredBCToB2B(props: PageProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [showFinishPage, setShowFinishPage] = useState<boolean>(false);
 
@@ -745,5 +745,13 @@ export default function RegisteredBCToB2B(props: PageProps) {
         </B3Spin>
       </RegisteredContainer>
     </B3Card>
+  );
+}
+
+export default function RegisteredBCToB2BPage(props: PageProps) {
+  return (
+    <RegisteredProvider>
+      <RegisteredBCToB2B {...props} />
+    </RegisteredProvider>
   );
 }

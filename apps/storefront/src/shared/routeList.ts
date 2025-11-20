@@ -16,7 +16,7 @@ export interface BuyerPortalRoute {
   isMenuItem?: boolean;
 }
 
-interface RouteItemBasic extends BuyerPortalRoute {
+export interface RouteItemBasic extends BuyerPortalRoute {
   component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactElement>;
   permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
@@ -29,10 +29,6 @@ export interface RouteItem extends RouteItemBasic {
   idLang: string;
   permissionCodes?: string;
   subsidiariesCompanyKey?: (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number]['key'];
-}
-
-export interface RouteFirstLevelItem extends RouteItemBasic {
-  isProvider: boolean;
 }
 
 const {
