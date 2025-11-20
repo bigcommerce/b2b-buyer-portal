@@ -119,7 +119,9 @@ function AddressForm(
 
       return true;
     } catch (error: any) {
-      snackbar.error(error);
+      if (error instanceof Error) {
+        snackbar.error(error.message);
+      }
       throw error;
     }
   };
@@ -212,8 +214,10 @@ function AddressForm(
         setOpen(false);
 
         await updateAddressList(true);
-      } catch (err: any) {
-        snackbar.error(err);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          snackbar.error(error.message);
+        }
       } finally {
         setAddUpdateLoading(false);
       }
@@ -283,8 +287,10 @@ function AddressForm(
         setOpen(false);
 
         await updateAddressList(true);
-      } catch (err: any) {
-        snackbar.error(err);
+      } catch (error: any) {
+        if (error instanceof Error) {
+          snackbar.error(error.message);
+        }
       } finally {
         setAddUpdateLoading(false);
       }
