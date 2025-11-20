@@ -570,10 +570,13 @@ export const getCompanySubsidiaries = (): Promise<CompanySubsidiariesProps> =>
   });
 
 export const startUserMasqueradingCompany = (companyId: number) =>
-  B3Request.graphqlB2B({
-    query: userMasqueradingCompanyBegin,
-    variables: { companyId },
-  });
+  B3Request.graphqlB2B(
+    {
+      query: userMasqueradingCompanyBegin,
+      variables: { companyId },
+    },
+    true,
+  );
 
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
