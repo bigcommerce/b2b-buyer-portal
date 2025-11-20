@@ -227,7 +227,7 @@ function QuoteDetail() {
 
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidatedProductError[]>([]);
-  const [quoteHasWarnings, setQuoteHasWarnings] = useState<boolean>(false);
+  const [quoteHasWarnings, setQuoteHasWarnings] = useState<boolean>(true);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -251,7 +251,7 @@ function QuoteDetail() {
 
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
-  const [shouldHidePrices, setShouldHidePrices] = useState<boolean>(false);
+  const [shouldHidePrices, setShouldHidePrices] = useState<boolean>(true);
 
   const location = useLocation();
 
@@ -301,13 +301,9 @@ function QuoteDetail() {
     if (!productList.length) return;
     const { error, warning } = await validateProducts(productList);
 
-    if (warning.length > 0 && !isHandleApprove) {
-      setShouldHidePrices(true);
-      setQuoteHasWarnings(true);
-    }
-
-    if (!error.length) {
-      return;
+    if (!error.length && !warning.length) {
+      setShouldHidePrices(false);
+      setQuoteHasWarnings(false);
     }
 
     error.forEach((err) => {
@@ -315,6 +311,10 @@ function QuoteDetail() {
         snackbar.error(err.error.message);
       }
     });
+
+    if (isHandleApprove) {
+      setShouldHidePrices(false);
+    }
 
     setQuoteValidationErrors(error);
   };
@@ -707,15 +707,7 @@ function QuoteDetail() {
   };
 
   const isEnableProductShowCheckoutBackendFlow = () => {
-    if (isEnableProduct && !quoteHasWarnings && isAutoEnableQuoteCheckout) {
-      return true;
-    }
-
-    if (!isAutoEnableQuoteCheckout || isHandleApprove) {
-      return true;
-    }
-
-    return false;
+    return !quoteHasWarnings || isHandleApprove;
   };
 
   const enableProceedToCheckoutButton = isMoveStockAndBackorderValidationToBackend
@@ -746,7 +738,7 @@ function QuoteDetail() {
     quotePurchasabilityPermissionInfo;
 
   const shouldHidePrice = isMoveStockAndBackorderValidationToBackend
-    ? quoteValidationErrors.length > 0 || shouldHidePrices
+    ? shouldHidePrices
     : isHideQuoteCheckout;
 
   return (

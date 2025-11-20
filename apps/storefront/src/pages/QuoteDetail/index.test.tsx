@@ -13,7 +13,6 @@ import {
   screen,
   startMockServer,
   userEvent,
-  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -619,11 +618,8 @@ describe('when the user is a B2B customer', () => {
           taxTotal: '0.0000',
           subtotal: '1000.00',
           shippingTotal: '0.0000',
-          salesRepInfo: {
-            salesRepName: null,
-            salesRepEmail: null,
-            salesRepPhoneNumber: null,
-          },
+          salesRep: '',
+          salesRepEmail: '',
           productsList: [
             buildQuoteProductWith({
               productId: '123',
@@ -677,13 +673,10 @@ describe('when the user is a B2B customer', () => {
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-    await waitFor(
-      () => {
-        expect(screen.getByLabelText('Original subtotal')).toHaveTextContent('TBD');
-      },
-      { timeout: 10000 },
-    );
-
+    expect(
+      await screen.findByText('A product with the id of 123 does not have sufficient stock'),
+    ).toBeInTheDocument();
+    expect(await screen.findByLabelText('Original subtotal')).toHaveTextContent('TBD');
     expect(screen.getByLabelText('Quoted subtotal')).toHaveTextContent('TBD');
     expect(screen.getByLabelText('Shipping(Flat rate)')).toHaveTextContent('TBD');
     expect(screen.getByLabelText('Grand total')).toHaveTextContent('TBD');
