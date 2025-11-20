@@ -11,6 +11,10 @@ export const featureFlags = [
     key: 'B2B-3857.move_tax_display_settings_to_bc_storefront_graph',
     name: 'moveTaxDisplaySettingsToBCStorefrontGraph',
   },
+  {
+    key: 'B2B-3474.get_sku_from_pdp_with_text_content',
+    name: 'getSkuFromPdpWithTextContent',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
