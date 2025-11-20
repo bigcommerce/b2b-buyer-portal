@@ -23,15 +23,13 @@ import b2bLogger from '@/utils/b3Logger';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
+import { DetailPagination } from './components/DetailPagination';
+import { OrderAction } from './components/OrderAction';
+import { OrderBilling } from './components/OrderBilling';
+import { OrderHistory } from './components/OrderHistory';
+import { OrderShipping } from './components/OrderShipping';
 import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
 import convertB2BOrderDetails from './shared/B2BOrderData';
-import {
-  DetailPagination,
-  OrderAction,
-  OrderBilling,
-  OrderHistory,
-  OrderShipping,
-} from './components';
 
 interface LocationState {
   isCompanyOrder: boolean;

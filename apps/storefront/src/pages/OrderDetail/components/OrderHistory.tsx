@@ -26,7 +26,7 @@ const HistoryListContainer = styled('div')(() => ({
   },
 }));
 
-export default function OrderHistory() {
+export function OrderHistory() {
   const b3Lang = useB3Lang();
   const {
     state: { history = [], orderStatus: orderStatusLabel = [], customStatus },

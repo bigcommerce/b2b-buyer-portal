@@ -20,7 +20,7 @@ type OrderShippingProps = {
   isCurrentCompany: boolean;
 };
 
-export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
+export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
     state: { shippings = [], addressLabelPermission, money },
   } = useContext(OrderDetailsContext);

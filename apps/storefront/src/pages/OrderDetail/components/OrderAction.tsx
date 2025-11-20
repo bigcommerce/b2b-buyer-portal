@@ -321,7 +321,7 @@ interface OrderData {
   infos: Infos | string;
 }
 
-export default function OrderAction(props: OrderActionProps) {
+export function OrderAction(props: OrderActionProps) {
   const { detailsData, isCurrentCompany } = props;
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
