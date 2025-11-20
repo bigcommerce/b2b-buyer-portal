@@ -224,4 +224,7 @@ const B3Request = {
   },
 };
 
+type B3RequestType = typeof B3Request;
 export default B3Request;
+
+export type { B3RequestType };
