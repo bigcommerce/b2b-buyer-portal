@@ -3,9 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
-import { usePageMask } from '@/components';
 import { ConfirmMasqueradeDialog } from '@/components/ConfirmMasqueradeDialog';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
+import { usePageMask } from '@/components/loading';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';

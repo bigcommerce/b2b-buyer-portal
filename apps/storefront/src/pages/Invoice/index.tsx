@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
+import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox';
 import { permissionLevels } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';

@@ -3,8 +3,9 @@ import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider } from '@mui/material';
 import { v1 as uuid } from 'uuid';
 
-import { B3CollapseContainer, B3Upload } from '@/components';
+import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import CustomButton from '@/components/button/CustomButton';
+import { B3Upload } from '@/components/upload/B3Upload';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useB3Lang } from '@/lib/lang';

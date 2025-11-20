@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
-import { B3Card } from '@/components';
+import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';

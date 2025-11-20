@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
 
-import { B3CustomForm } from '@/components';
+import { B3CustomForm } from '@/components/B3CustomForm';
 import { useMobile } from '@/hooks/useMobile';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { validateQuoteExtraFields } from '@/shared/service/b2b';

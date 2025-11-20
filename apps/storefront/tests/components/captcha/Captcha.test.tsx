@@ -1,12 +1,12 @@
 import { JSDOM } from 'jsdom';
 import { renderWithProviders } from 'tests/test-utils';
 
-import { ThemeFrame } from '@/components';
 import {
   Captcha,
   loadCaptchaScript,
   loadCaptchaWidgetHandlers,
 } from '@/components/captcha/Captcha';
+import { ThemeFrame } from '@/components/ThemeFrame';
 
 describe('loadCaptchaScript', () => {
   it('should inject recaptcha script to Document', () => {
