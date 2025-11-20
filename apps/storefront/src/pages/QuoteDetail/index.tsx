@@ -532,7 +532,7 @@ function QuoteDetail() {
       setFileList(newFileList);
 
       return quote;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
       }
@@ -562,7 +562,7 @@ function QuoteDetail() {
           content: quotePdf.quoteFrontendPdf.content,
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
       }
@@ -579,7 +579,7 @@ function QuoteDetail() {
       if (quotePdfUrl) {
         window.open(`${quotePdfUrl}`, '_blank');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
       }
@@ -600,7 +600,7 @@ function QuoteDetail() {
       iframe.contentDocument?.close();
       setIsRequestLoading(false);
       iframe.contentWindow?.print();
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
       }

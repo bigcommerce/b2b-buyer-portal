@@ -214,7 +214,7 @@ function AddressForm(
         setOpen(false);
 
         await updateAddressList(true);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           snackbar.error(error.message);
         }
