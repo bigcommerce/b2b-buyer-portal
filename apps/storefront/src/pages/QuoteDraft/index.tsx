@@ -500,13 +500,15 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const handleAfterSubmit = (
     inpQuoteId?: string | number,
     inpCurrentCreatedAt?: string | number,
+    uuid?: string,
   ) => {
     const currentQuoteId = inpQuoteId || quoteId;
     const createdAt = inpCurrentCreatedAt || currentCreatedAt;
 
     if (currentQuoteId) {
       handleReset();
-      navigate(`/quoteDetail/${currentQuoteId}?date=${createdAt}`, {
+      const uuidParam = uuid ? `&uuid=${uuid}` : '';
+      navigate(`/quoteDetail/${currentQuoteId}?date=${createdAt}${uuidParam}`, {
         state: {
           to: 'draft',
         },
@@ -739,7 +741,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
       const {
         quoteCreate: {
-          quote: { id, createdAt },
+          quote: { id, createdAt, uuid: quoteUuid },
         },
       } = response;
 
@@ -754,7 +756,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       if (quoteSubmissionResponseInfo.value === '0') {
-        handleAfterSubmit(id, createdAt);
+        handleAfterSubmit(id, createdAt, quoteUuid);
       } else {
         setQuoteSubmissionResponseOpen(true);
       }

@@ -310,7 +310,8 @@ function QuotesList() {
     if (Number(status) === 0) {
       navigate('/quoteDraft');
     } else {
-      navigate(`/quoteDetail/${item.id}?date=${item.createdAt}`);
+      const uuidParam = item.uuid ? `&uuid=${item.uuid}` : '';
+      navigate(`/quoteDetail/${item.id}?date=${item.createdAt}${uuidParam}`);
     }
   };
 

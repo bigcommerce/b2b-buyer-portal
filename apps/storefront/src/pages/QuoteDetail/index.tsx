@@ -110,9 +110,11 @@ function useData() {
     const { search } = location;
 
     const date = getSearchVal(search, 'date') || '';
+    const uuid = getSearchVal(search, 'uuid') || '';
     const data = {
       id: Number(id),
       date: date.toString(),
+      uuid: uuid ? uuid.toString() : undefined,
     };
 
     const { quote } = await (Number(role) === 99
