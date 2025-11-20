@@ -11,7 +11,7 @@ import { useB3Lang } from '@/lib/lang';
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListItem, ShoppingListStatus } from '@/types/shoppingList';
-import { channelId } from '@/utils';
+import { channelId } from '@/utils/basicConfig';
 
 interface OrderShoppingListProps {
   isOpen: boolean;

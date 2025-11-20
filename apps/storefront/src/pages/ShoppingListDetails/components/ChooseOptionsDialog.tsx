@@ -21,7 +21,7 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import {
   calculateProductListPrice,
@@ -29,6 +29,7 @@ import {
   getProductInfoDisplayPrice,
   getVariantInfoDisplayPrice,
 } from '@/utils/b3Product/b3Product';
+import { snackbar } from '@/utils/b3Tip';
 
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '../../../types';
 import {

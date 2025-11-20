@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 import B3Request from '@/shared/service/request/b3Fetch';
-import { platform } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
+import { platform } from '@/utils/basicConfig';
 
 const Options = z.array(
   z.object({

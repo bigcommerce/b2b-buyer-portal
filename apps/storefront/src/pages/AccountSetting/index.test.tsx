@@ -14,8 +14,8 @@ import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/
 
 import AccountSetting from '.';
 
-vi.mock('@/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/utils')>()),
+vi.mock('@/utils/basicConfig', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/basicConfig')>()),
   platform: 'catalyst',
 }));
 

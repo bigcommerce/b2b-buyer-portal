@@ -10,9 +10,9 @@ import { useTableRef } from '@/hooks/useTableRef';
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
+import { snackbar } from '@/utils/b3Tip';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';
 import B3AddEditUser, { HandleOpenAddEditUserClick } from './AddEditUser';

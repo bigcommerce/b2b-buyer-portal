@@ -15,8 +15,8 @@ import {
   uploadB2BFile,
 } from '@/shared/service/b2b';
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
-import { channelId, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { channelId, storeHash } from '@/utils/basicConfig';
 
 import { RegisteredContext } from './context/RegisteredContext';
 import { deCodeField, toHump } from './config';

@@ -9,8 +9,8 @@ import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountV
 import { useB3Lang } from '@/lib/lang';
 import { addProductToBcShoppingList, addProductToShoppingList } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
+import { snackbar } from '@/utils/b3Tip';
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config';
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';

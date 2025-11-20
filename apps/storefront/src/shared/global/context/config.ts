@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode } from 'react';
 
 import { TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
-import { B3SStorage } from '@/utils';
+import { B3SStorage } from '@/utils/b3Storage';
 
 export interface State {
   stateCode?: string;

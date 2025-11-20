@@ -24,11 +24,11 @@ import {
   useAppSelector,
 } from '@/store';
 import { QuoteExtraFieldsData } from '@/types/quotes';
-import { snackbar } from '@/utils';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 import { getSearchVal } from '@/utils/loginInfo';
 import { ValidatedProductError, validateProducts } from '@/utils/validateProducts';
 

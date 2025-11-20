@@ -1,4 +1,6 @@
-import { channelId, convertArrayToGraphql, getActiveCurrencyInfo, storeHash } from '@/utils';
+import { channelId, storeHash } from '@/utils/basicConfig';
+import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
+import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
 

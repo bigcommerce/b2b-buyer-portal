@@ -3,7 +3,7 @@ import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { b2bLogin, bcLogin, customerLoginAPI } from '@/shared/service/bc';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import LoginPage from './index';

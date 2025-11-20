@@ -2,7 +2,7 @@ import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { currencyFormatConvert } from '@/utils';
+import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 
 interface Summary {
   originalSubtotal: string | number;

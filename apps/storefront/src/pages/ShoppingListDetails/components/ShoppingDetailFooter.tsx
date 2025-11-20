@@ -15,7 +15,7 @@ import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graph
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import {
   addQuoteDraftProducts,
@@ -27,6 +27,7 @@ import {
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';

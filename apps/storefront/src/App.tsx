@@ -11,13 +11,10 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
-import {
-  getQuoteEnabled,
-  handleHideRegisterPage,
-  hideStorefrontElement,
-  openPageByClick,
-  removeBCMenus,
-} from '@/utils';
+import { openPageByClick, removeBCMenus } from '@/utils/b3AccountItem';
+import { handleHideRegisterPage } from '@/utils/b3HideRegister';
+import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
+import { getQuoteEnabled } from '@/utils/b3Init';
 
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';

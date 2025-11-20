@@ -17,7 +17,8 @@ import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { displayExtendedFormat, storeHash } from '@/utils';
+import { displayExtendedFormat } from '@/utils/b3DateFormat';
+import { storeHash } from '@/utils/basicConfig';
 
 interface MessageProps {
   date?: number;

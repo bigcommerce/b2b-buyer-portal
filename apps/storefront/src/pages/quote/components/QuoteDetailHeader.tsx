@@ -8,7 +8,7 @@ import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/uti
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { displayFormat } from '@/utils';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 import QuoteStatus from './QuoteStatus';
 

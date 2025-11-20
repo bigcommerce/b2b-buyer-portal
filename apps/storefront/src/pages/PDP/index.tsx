@@ -10,9 +10,11 @@ import {
   searchProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
-import { getActiveCurrencyInfo, serialize, ValidationError } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
+import { serialize } from '@/utils/b3Serialize';
+import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
+import { ValidationError } from '@/utils/validationError';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 import CreateShoppingList from '../OrderDetail/components/CreateShoppingList';

@@ -1,10 +1,10 @@
 import { CompanyHierarchyListProps, ConfigsSwitchStatusProps } from '@/types';
+import { storeHash } from '@/utils/basicConfig';
 import {
   convertArrayToGraphql,
   convertObjectOrArrayKeysToCamel,
   convertObjectOrArrayKeysToSnake,
-  storeHash,
-} from '@/utils';
+} from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
 

@@ -14,7 +14,7 @@ import {
   QuoteExtraFields,
   QuoteFormattedItemsProps,
 } from '@/types/quotes';
-import { validatorRules } from '@/utils';
+import { validatorRules } from '@/utils/validatorRules';
 
 interface GetQuoteInfoProps {
   isMobile: boolean;

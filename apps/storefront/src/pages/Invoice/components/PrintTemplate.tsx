@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import PDFObject from 'pdfobject';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import { handlePrintPDF } from '../utils/pdf';
 

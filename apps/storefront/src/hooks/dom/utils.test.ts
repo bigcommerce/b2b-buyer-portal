@@ -7,17 +7,17 @@ import {
   SearchProductsResponse,
   ValidateProductResponse,
 } from '@/shared/service/b2b/graphql/product';
-import { globalSnackbar } from '@/utils';
 import { getProductOptionList } from '@/utils/b3AddToShoppingList';
 import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProduce } from '@/utils/b3Product/b3Product';
+import { globalSnackbar } from '@/utils/b3Tip';
 
 import { addProductFromProductPageToQuote } from './utils';
 
 const { server } = startMockServer();
 
-vi.mock('@/utils', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@/utils')>();
+vi.mock('@/utils/b3Tip', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/utils/b3Tip')>();
 
   return {
     ...original,

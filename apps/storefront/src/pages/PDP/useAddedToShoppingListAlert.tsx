@@ -1,6 +1,6 @@
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { globalSnackbar } from '@/utils';
+import { globalSnackbar } from '@/utils/b3Tip';
 
 export function useAddedToShoppingListAlert() {
   const b3Lang = useB3Lang();

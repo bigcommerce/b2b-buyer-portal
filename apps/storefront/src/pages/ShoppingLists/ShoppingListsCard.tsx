@@ -16,9 +16,9 @@ import CustomButton from '@/components/button/CustomButton';
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { displayFormat } from '@/utils';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingListStatusTag } from './ShoppingListStatusTag';

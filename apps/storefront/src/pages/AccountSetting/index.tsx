@@ -24,7 +24,9 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage, channelId, platform, snackbar } from '@/utils';
+import { B3SStorage } from '@/utils/b3Storage';
+import { snackbar } from '@/utils/b3Tip';
+import { channelId, platform } from '@/utils/basicConfig';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 

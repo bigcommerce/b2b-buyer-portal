@@ -7,7 +7,8 @@ import Typography from '@mui/material/Typography';
 
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
-import { currencyFormat, displayFormat } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 import QuoteStatus from '../quote/components/QuoteStatus';
 

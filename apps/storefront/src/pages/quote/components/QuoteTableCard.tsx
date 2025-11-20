@@ -5,7 +5,7 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
-import { currencyFormat } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 

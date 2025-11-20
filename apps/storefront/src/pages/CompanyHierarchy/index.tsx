@@ -5,7 +5,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { getCompanySubsidiaries } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
-import { buildHierarchy } from '@/utils';
+import { buildHierarchy } from '@/utils/b3Company';
 
 import HierarchyDialog from './components/HierarchyDialog';
 import CompanyHierarchyTableTree from './components/TableTree';

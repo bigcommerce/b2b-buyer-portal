@@ -17,7 +17,8 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { channelId, snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
+import { channelId } from '@/utils/basicConfig';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
 import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';

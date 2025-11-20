@@ -16,7 +16,9 @@ import {
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { channelId, currencyFormatConvert, displayFormat } from '@/utils';
+import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
+import { channelId } from '@/utils/basicConfig';
 
 import QuoteStatus from '../quote/components/QuoteStatus';
 import { addPrice } from '../quote/shared/config';

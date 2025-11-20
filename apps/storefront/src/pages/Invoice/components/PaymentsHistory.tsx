@@ -7,7 +7,8 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getInvoicePaymentHistory } from '@/shared/service/b2b';
-import { displayFormat, handleGetCorrespondingCurrency } from '@/utils';
+import { handleGetCorrespondingCurrency } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 interface PaymentsHistoryProps {
   open: boolean;

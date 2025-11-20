@@ -10,7 +10,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useMobile } from '@/hooks/useMobile';
-import { disableLogoutButton } from '@/utils';
+import { disableLogoutButton } from '@/utils/basicConfig';
 
 export interface ListItemProps {
   name: string;

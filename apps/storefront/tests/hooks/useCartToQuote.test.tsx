@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 
 import { CART_URL, CHECKOUT_URL } from '@/constants';
 import { CompanyStatus } from '@/types';
-import { B3SStorage } from '@/utils';
+import { B3SStorage } from '@/utils/b3Storage';
 
 import useCartToQuote from '../../src/hooks/dom/useCartToQuote';
 

@@ -5,7 +5,6 @@ import { searchProducts } from '@/shared/service/b2b';
 import { validateProduct } from '@/shared/service/b2b/graphql/product';
 import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
-import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import b2bLogger from '@/utils/b3Logger';
 import {
@@ -17,9 +16,12 @@ import {
   LineItem,
   validProductQty,
 } from '@/utils/b3Product/b3Product';
+import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { serialize } from '@/utils/b3Serialize';
+import { B3LStorage, B3SStorage } from '@/utils/b3Storage';
+import { globalSnackbar } from '@/utils/b3Tip';
+import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 import { FeatureFlags } from '@/utils/featureFlags';
-
-import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
 interface DiscountsProps {
   discountedAmount: number;

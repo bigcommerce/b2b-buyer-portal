@@ -7,7 +7,7 @@ import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
 import { getInvoiceDetail } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import { gotoInvoiceCheckoutUrl } from '../Invoice/utils/payment';
 

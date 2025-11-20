@@ -10,15 +10,12 @@ import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Address, MoneyFormat, OrderProductItem } from '@/types';
-import {
-  b2bPrintInvoice,
-  currencyFormat,
-  displayFormat,
-  ordersCurrencyFormat,
-  snackbar,
-} from '@/utils';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
+import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
+import { b2bPrintInvoice } from '@/utils/b3PrintInvoice';
+import { snackbar } from '@/utils/b3Tip';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 

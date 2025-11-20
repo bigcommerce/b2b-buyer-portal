@@ -2,8 +2,8 @@ import { LangFormatFunction } from '@/lib/lang';
 import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { OrderedProductType, ProductInfoType } from '@/types/gql/graphql';
-import { snackbar } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
+import { snackbar } from '@/utils/b3Tip';
 
 interface ProductInfo extends OrderedProductType {
   productsSearch: ProductInfoType;

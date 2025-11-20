@@ -18,8 +18,9 @@ import {
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Product } from '@/types';
-import { currencyFormat, getProductPriceIncTaxOrExTaxBySetting, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
+import { getProductPriceIncTaxOrExTaxBySetting } from '@/utils/b3Price';
 import {
   addQuoteDraftProducts,
   calculateProductListPrice,
@@ -27,6 +28,7 @@ import {
   validProductQty,
 } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
