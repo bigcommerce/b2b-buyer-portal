@@ -32,6 +32,8 @@ export default function QuickOrderPad() {
   const featureFlags = useFeatureFlags();
   const backendValidationEnabled =
     featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+  const passWithModifiersToProductUpload =
+    featureFlags['B2B-3978.pass_with_modifiers_to_product_upload'] ?? false;
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
 
@@ -386,6 +388,7 @@ export default function QuickOrderPad() {
         addBtnText={addBtnText}
         isLoading={isLoading}
         isToCart
+        withModifiers={passWithModifiersToProductUpload}
       />
     </Card>
   );
