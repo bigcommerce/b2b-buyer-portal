@@ -670,10 +670,11 @@ function QuoteDetail() {
 
   const quoteGotoCheckout = async () => {
     try {
+      if (hasQuoteValidationErrors()) return;
+
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
-        hasQuoteValidationErrors,
         role,
         location,
         navigate,
@@ -682,6 +683,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(false);
     }
   };
+
   useEffect(() => {
     if (location.search.includes('isCheckout') && id) {
       quoteGotoCheckout();
@@ -915,8 +917,9 @@ function QuoteDetail() {
             <Footer isAgenting={isAgenting}>
               <ProceedToCheckoutButton
                 onClick={() => {
+                  if (hasQuoteValidationErrors()) return;
+
                   handleQuoteCheckout({
-                    hasQuoteValidationErrors,
                     role,
                     location,
                     quoteId: quoteDetail.id,
