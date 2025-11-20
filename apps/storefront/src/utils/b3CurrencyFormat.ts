@@ -124,7 +124,7 @@ export const currencyFormatConvert = (
   }
 };
 
-const currencyFormat = (
+export const currencyFormat = (
   price: string | number,
   showCurrencyToken = true,
   isConversionRate = false,
@@ -149,5 +149,3 @@ const currencyFormat = (
     return '';
   }
 };
-
-export default currencyFormat;

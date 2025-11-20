@@ -6,7 +6,7 @@ import { GlobalContext } from '@/shared/global';
 import { RouteItem } from '@/shared/routeList';
 import { firstLevelRouting, getAllowedRoutes } from '@/shared/routes';
 import { getPageTranslations, useAppDispatch } from '@/store';
-import { channelId } from '@/utils';
+import { channelId } from '@/utils/basicConfig';
 
 import Loading from '../loading/Loading';
 

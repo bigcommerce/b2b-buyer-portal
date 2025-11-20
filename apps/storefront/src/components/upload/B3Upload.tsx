@@ -13,8 +13,8 @@ import {
 } from '@/shared/service/b2b';
 import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
 import { Currency } from '@/types';
-import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { channelId } from '@/utils/basicConfig';
 
 import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';

@@ -4,7 +4,8 @@ import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/mat
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
+import { snackbar } from '@/utils/b3Tip';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';
 import {

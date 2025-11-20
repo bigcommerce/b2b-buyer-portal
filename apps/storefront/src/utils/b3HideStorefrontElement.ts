@@ -9,7 +9,7 @@ interface GlobalB3 {
   setting?: Setting;
 }
 
-const hideStorefrontElement = (domElement: string): void => {
+export const hideStorefrontElement = (domElement: string): void => {
   const styleElement = document.createElement('style');
 
   styleElement.innerHTML = `
@@ -19,5 +19,3 @@ const hideStorefrontElement = (domElement: string): void => {
     `;
   document.head.appendChild(styleElement);
 };
-
-export default hideStorefrontElement;

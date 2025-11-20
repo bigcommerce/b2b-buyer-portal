@@ -14,8 +14,8 @@ import {
   setPagesSubsidiariesPermission,
 } from '@/store/slices/company';
 import { PagesSubsidiariesPermissionProps } from '@/types';
-import { B3SStorage } from '@/utils';
 import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions/check';
+import { B3SStorage } from '@/utils/b3Storage';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 

@@ -21,7 +21,7 @@ import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '@/types';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
@@ -29,6 +29,7 @@ import {
   getOptionRequestData,
   getProductOptionsFields,
 } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 
 const Flex = styled('div')({
   display: 'flex',

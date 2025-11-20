@@ -14,8 +14,9 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
-import { channelId, loginJump, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { loginJump } from '@/utils/b3Login';
+import { channelId, storeHash } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import {

@@ -12,13 +12,14 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import {
   addLineItems,
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 

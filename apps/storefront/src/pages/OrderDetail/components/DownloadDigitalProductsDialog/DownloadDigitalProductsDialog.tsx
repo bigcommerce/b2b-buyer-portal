@@ -4,7 +4,7 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
 import { ProductItem } from '@/types';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import { handleDownleoadDigitalFile } from './handleDownloadDigitalFile';
 

@@ -11,7 +11,7 @@ import { useB3Lang } from '@/lib/lang';
 import { ShoppingListDetailsContext } from '@/pages/ShoppingListDetails/context/ShoppingListDetailsContext';
 import { useAppSelector } from '@/store';
 import { ShoppingListProductItem } from '@/types';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 interface ProductTableActionProps {
   product: ShoppingListProductItem;

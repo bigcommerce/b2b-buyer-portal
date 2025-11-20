@@ -13,7 +13,7 @@ import {
   updateBcAddress,
   validateAddressExtraFields,
 } from '@/shared/service/b2b';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import { AddressItemType } from '../../../types/address';
 import { deCodeField } from '../../Registered/config';

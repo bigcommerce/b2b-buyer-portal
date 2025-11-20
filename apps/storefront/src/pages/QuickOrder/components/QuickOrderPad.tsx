@@ -10,8 +10,8 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 

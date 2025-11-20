@@ -6,7 +6,7 @@ import { useRole } from '@/hooks/useRole';
 import { useB3Lang } from '@/lib/lang';
 import { quoteDetailAttachFileCreate, quoteDetailAttachFileDelete } from '@/shared/service/b2b';
 import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import FileUpload, { FileObjects } from './FileUpload';
 

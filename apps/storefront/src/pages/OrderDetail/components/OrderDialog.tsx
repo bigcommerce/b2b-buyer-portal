@@ -15,9 +15,10 @@ import {
   getVariantInfoBySkus,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';

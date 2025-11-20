@@ -1,7 +1,7 @@
 import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { Box } from '@mui/material';
 
-import { distanceDay } from '@/utils';
+import { distanceDay } from '@/utils/b3Picker';
 
 import { B3Picker } from '../ui/B3Picker';
 

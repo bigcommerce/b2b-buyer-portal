@@ -12,8 +12,8 @@ import {
   validateBCCompanyUserExtraFields,
 } from '@/shared/service/b2b';
 import { themeFrameSelector, useAppSelector } from '@/store';
-import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
+import { channelId } from '@/utils/basicConfig';
 
 import { RegisteredContext } from './context/RegisteredContext';
 import { Base64, emailError } from './config';
