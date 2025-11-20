@@ -21,7 +21,7 @@ import {
 } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-import { setCartPermissions } from '@/utils';
+import { setCartPermissions } from '@/utils/b3CheckPermissions/juniorRolePermissions';
 
 import { useFeatureFlags } from '../useFeatureFlags';
 import { useGetButtonText } from '../useGetButtonText';

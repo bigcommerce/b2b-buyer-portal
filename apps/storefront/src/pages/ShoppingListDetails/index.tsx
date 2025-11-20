@@ -25,7 +25,8 @@ import {
 } from '@/store';
 import { CustomerRole } from '@/types/company';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { channelId, snackbar, verifyLevelPermission } from '@/utils';
+import { channelId, snackbar } from '@/utils';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {

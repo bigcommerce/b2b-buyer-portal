@@ -29,4 +29,4 @@ const getLineNumber = (text: string, fontSize = 14) => {
   return 1;
 };
 
-export { getLineNumber, getTextLenPX };
+export { getLineNumber };

@@ -11,7 +11,7 @@ import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { B3PaginationTable, GetRequestList } from './table/B3PaginationTable';

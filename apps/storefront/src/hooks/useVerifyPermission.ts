@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { permissionLevels } from '@/constants';
 import { useAppSelector } from '@/store';
-import {
-  validateBasePermissionWithComparisonType,
-  ValidatePermissionWithComparisonTypeProps,
-} from '@/utils';
+import { validateBasePermissionWithComparisonType } from '@/utils/b3CheckPermissions/base';
+import { ValidatePermissionWithComparisonTypeProps } from '@/utils/b3CheckPermissions/check';
 
 export const useValidatePermissionWithComparisonType = ({
   level = 0,
