@@ -118,8 +118,12 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>{b3Lang('quoteDraft.quoteSummary.subTotal')}</Typography>
-              <Typography>{showPrice(priceFormat(quoteSummary.subtotal))}</Typography>
+              <Typography id="quote-draft-subtotal">
+                {b3Lang('quoteDraft.quoteSummary.subTotal')}
+              </Typography>
+              <Typography aria-labelledby="quote-draft-subtotal">
+                {showPrice(priceFormat(quoteSummary.subtotal))}
+              </Typography>
             </Grid>
 
             <Grid
@@ -129,8 +133,12 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>{b3Lang('quoteDraft.quoteSummary.shipping')}</Typography>
-              <Typography>{b3Lang('quoteDraft.quoteSummary.tbd')}</Typography>
+              <Typography id="quote-draft-shipping">
+                {b3Lang('quoteDraft.quoteSummary.shipping')}
+              </Typography>
+              <Typography aria-labelledby="quote-draft-shipping">
+                {b3Lang('quoteDraft.quoteSummary.tbd')}
+              </Typography>
             </Grid>
 
             <Grid
@@ -140,8 +148,10 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
-              <Typography>{showPrice(priceFormat(quoteSummary.tax))}</Typography>
+              <Typography id="quote-draft-tax">{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
+              <Typography aria-labelledby="quote-draft-tax">
+                {showPrice(priceFormat(quoteSummary.tax))}
+              </Typography>
             </Grid>
 
             <Grid
@@ -152,6 +162,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               }}
             >
               <Typography
+                id="quote-draft-grand-total"
                 sx={{
                   fontWeight: 'bold',
                 }}
@@ -159,6 +170,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 {b3Lang('quoteDraft.quoteSummary.grandTotal')}
               </Typography>
               <Typography
+                aria-labelledby="quote-draft-grand-total"
                 sx={{
                   fontWeight: 'bold',
                 }}
