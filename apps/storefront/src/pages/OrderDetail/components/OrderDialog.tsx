@@ -20,16 +20,35 @@ import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { validateProducts } from '@/utils/validateProducts';
+import { validateProduct } from '@/shared/service/b2b/graphql/product';
 
-import { EditableProductItem, OrderProductItem } from '../../../types';
+import { EditableProductItem, OrderProductItem, OrderProductOption } from '../../../types';
 import getReturnFormFields from '../shared/config';
 
 import CreateShoppingList from './CreateShoppingList';
 import OrderCheckboxProduct from './OrderCheckboxProduct';
 import OrderShoppingList from './OrderShoppingList';
-import { ProductToAdd, VariantInfo } from './types';
-import { processValidationResults, transformProductsForValidation } from './utils';
+
+interface ProductOptionSelection {
+  optionId: number | string;
+  optionValue: string | number;
+}
+
+interface ProductToAdd {
+  productId: number;
+  variantId: number;
+  quantity: number;
+  optionSelections: ProductOptionSelection[];
+  allOptions?: OrderProductOption[];
+}
+
+interface VariantInfo {
+  variantSku: string;
+  minQuantity: number;
+  maxQuantity: number;
+  stock: number;
+  isStock: string;
+}
 
 interface ReturnListProps {
   returnId: number;
@@ -217,44 +236,109 @@ export default function OrderDialog({
     });
   };
 
+  const transformOptionSelections = (optionSelections: ProductOptionSelection[]) => {
+    return optionSelections.map((option) => {
+      const optionId = option.optionId;
+      if (typeof optionId === 'string' && optionId.includes('attribute')) {
+        return {
+          optionId: Number(optionId.split('[')[1].split(']')[0]),
+          optionValue: String(option.optionValue),
+        };
+      }
+      return {
+        optionId: Number(optionId),
+        optionValue: String(option.optionValue),
+      };
+    });
+  };
+
+  const processValidationResults = (
+    settledResults: PromiseSettledResult<Awaited<ReturnType<typeof validateProduct>>>[],
+    productsToAdd: ProductToAdd[],
+  ) => {
+    const success: ProductToAdd[] = [];
+    const warning: Array<{ variantId: number; message: string }> = [];
+    const error: Array<{
+      variantId: number;
+      error: { type: 'network' | 'validation'; message?: string };
+    }> = [];
+
+    settledResults.forEach((result, index) => {
+      const product = productsToAdd[index];
+      const editableProduct = editableProducts.find((p) => p.variant_id === product.variantId);
+
+      if (result.status === 'rejected') {
+        error.push({
+          variantId: product.variantId,
+          error: { type: 'network' },
+        });
+        if (editableProduct) {
+          editableProduct.helperText = b3Lang('orderDetail.reorder.failedToAdd.helperText');
+        }
+        return;
+      }
+
+      switch (result.value.responseType) {
+        case 'ERROR':
+          error.push({
+            variantId: product.variantId,
+            error: {
+              type: 'validation',
+              message: result.value.message,
+            },
+          });
+          if (editableProduct) {
+            editableProduct.helperText = result.value.message;
+          }
+          break;
+        case 'WARNING':
+          warning.push({
+            variantId: product.variantId,
+            message: result.value.message,
+          });
+          if (editableProduct) {
+            editableProduct.helperText = result.value.message;
+          }
+          break;
+        case 'SUCCESS':
+        default:
+          success.push(product);
+          if (editableProduct) {
+            editableProduct.helperText = '';
+          }
+          break;
+      }
+    });
+
+    if (error.length > 0 || warning.length > 0) {
+      setEditableProducts([...editableProducts]);
+    }
+
+    return { success, warning, error };
+  };
+
   const validateProductsBackend = async (
     productsToAdd: ProductToAdd[],
   ): Promise<{
     validItems: ProductToAdd[];
     hasFailures: boolean;
   }> => {
-    const productsToValidate = transformProductsForValidation({
-      productsToAdd,
-      editableProducts,
+    const validationPromises = productsToAdd.map((item) => {
+      return validateProduct({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        productOptions: transformOptionSelections(item.optionSelections),
+      });
     });
 
-    const { success, warning, error } = await validateProducts(productsToValidate);
+    const settledResults = await Promise.allSettled(validationPromises);
 
-    processValidationResults({
-      success,
-      warning,
-      error,
-      editableProducts,
-      setEditableProducts,
-      b3Lang,
-    });
-
-    const validItems = success.map((validatedProduct) => {
-      const originalItem = productsToAdd.find(
-        (item) => item.variantId === validatedProduct.product.node.productsSearch.variantId,
-      );
-      return {
-        productId: validatedProduct.product.node.productId,
-        variantId: validatedProduct.product.node.productsSearch.variantId,
-        quantity: validatedProduct.product.node.quantity,
-        optionSelections: originalItem?.optionSelections || [],
-        allOptions: originalItem?.allOptions || [],
-      };
-    });
+    const { success, error, warning } = processValidationResults(settledResults, productsToAdd);
 
     const hasFailures = error.length > 0 || warning.length > 0;
 
-    return { validItems, hasFailures };
+    return { validItems: success, hasFailures };
   };
 
   const handleReorder = async () => {
