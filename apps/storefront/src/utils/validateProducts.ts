@@ -16,7 +16,7 @@ interface ServerValidationError {
 
 type ValidationError = NetworkValidationError | ServerValidationError;
 
-interface ValidatedProductSuccess {
+export interface ValidatedProductSuccess {
   status: 'success';
   product: CustomFieldItems;
 }

@@ -3,6 +3,7 @@ import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -31,6 +32,7 @@ import {
   OrderProduct,
   Shipment,
 } from '@/shared/service/b2b/graphql/orders';
+import { ValidateProductResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerRole, MoneyFormat } from '@/types';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
@@ -309,6 +311,13 @@ const buildCustomerShoppingListResponseWith = builder(() => {
     },
   };
 });
+
+type ValidateProduct = ValidateProductResponse['data']['validateProduct'];
+
+const buildValidateProductWith = builder<ValidateProduct>(() => ({
+  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
+  message: faker.lorem.sentence(),
+}));
 
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
@@ -2235,6 +2244,591 @@ describe('when a personal customer visits an order', () => {
       await waitFor(() => {
         expect(screen.getByText('Please select at least one item')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('re-order with backend validation', () => {
+    const featureFlags = {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    };
+
+    const preloadedStateWithBackendValidation = {
+      ...preloadedState,
+      global: buildGlobalStateWith({ featureFlags }),
+    };
+
+    it('successfully adds all products to cart when validation passes', async () => {
+      const screamCanister = buildProductWith({
+        name: 'Scream Canister',
+        quantity: 2,
+        product_id: 86,
+        variant_id: 66,
+        sku: 'ABS',
+        product_options: [],
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+      const createCartSimple = vi.fn();
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 86,
+            variantId: 66,
+            quantity: 2,
+            productOptions: [],
+          }),
+        )
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          },
+        });
+
+      when(createCartSimple)
+        .calledWith(
+          expect.objectContaining({
+            createCartInput: expect.objectContaining({
+              lineItems: expect.arrayContaining([
+                expect.objectContaining({
+                  quantity: 2,
+                  productEntityId: 86,
+                  variantEntityId: 66,
+                  selectedOptions: expect.any(Object),
+                }),
+              ]),
+            }),
+          }),
+        )
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'cart-123' } } } } });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json({ data: { variantSku: [] } }),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const mockResponse = validateProduct(variables);
+          return HttpResponse.json(mockResponse);
+        }),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: preloadedStateWithBackendValidation,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const productGroup = within(dialog).getByRole('group', { name: 'Scream Canister' });
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      const addToCartButton = await screen.findByRole('button', { name: 'Add to cart' });
+      await userEvent.click(addToCartButton);
+
+      expect(await screen.findByText('Products are added to cart')).toBeInTheDocument();
+
+      expect(validateProduct).toHaveBeenCalled();
+      expect(createCartSimple).toHaveBeenCalled();
+
+      await waitForElementToBeRemoved(() => screen.queryByRole('dialog', { name: 'Re-Order' }));
+    });
+
+    it('shows error and keeps modal open when all products fail validation', async () => {
+      const screamCanister = buildProductWith({
+        name: 'Scream Canister',
+        quantity: 2,
+        product_id: 86,
+        variant_id: 66,
+        sku: 'ABS',
+        product_options: [],
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+      when(validateProduct)
+        .calledWith(expect.objectContaining({ productId: 86 }))
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'ERROR',
+              message: 'Insufficient stock available',
+            }),
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json({ data: { variantSku: [] } }),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const mockResponse = validateProduct(variables);
+          return HttpResponse.json(mockResponse);
+        }),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: preloadedStateWithBackendValidation,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const productGroup = within(dialog).getByRole('group', { name: 'Scream Canister' });
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+
+      expect(
+        await screen.findByText(
+          /there was an issue with adding products to cart. please check the errors below./i,
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole('dialog', { name: 'Re-Order' })).toBeInTheDocument();
+      expect(within(dialog).getByText('Insufficient stock available')).toBeInTheDocument();
+    });
+
+    it('handles partial success - adds valid products and shows errors for failed ones', async () => {
+      const validProduct = buildProductWith({
+        name: 'Valid Product',
+        quantity: 1,
+        product_id: 86,
+        variant_id: 66,
+        sku: 'VALID',
+        product_options: [],
+      });
+
+      const invalidProduct = buildProductWith({
+        name: 'Invalid Product',
+        quantity: 5,
+        product_id: 144,
+        variant_id: 303,
+        sku: 'INVALID',
+        product_options: [],
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+      const createCartSimple = vi.fn();
+
+      when(validateProduct)
+        .calledWith(expect.objectContaining({ productId: 86 }))
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          },
+        });
+
+      when(validateProduct)
+        .calledWith(expect.objectContaining({ productId: 144 }))
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'ERROR',
+              message: 'Insufficient stock',
+            }),
+          },
+        });
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 1,
+                productEntityId: 86,
+                variantEntityId: 66,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'cart-123' } } } } });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [validProduct, invalidProduct] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json({ data: { variantSku: [] } }),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const mockResponse = validateProduct(variables);
+          return HttpResponse.json(mockResponse);
+        }),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: preloadedStateWithBackendValidation,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const validGroup = within(dialog).getByRole('group', { name: 'Valid Product' });
+      const invalidGroup = within(dialog).getByRole('group', { name: 'Invalid Product' });
+
+      await userEvent.click(within(validGroup).getByRole('checkbox'));
+      await userEvent.click(within(invalidGroup).getByRole('checkbox'));
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+
+      expect(await screen.findByText(/1 Product was added to cart/i)).toBeInTheDocument();
+      expect(
+        await screen.findByText(
+          /there was an issue with adding products to cart. please check the errors below./i,
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole('dialog', { name: 'Re-Order' })).toBeInTheDocument();
+      expect(within(dialog).getByText('Insufficient stock')).toBeInTheDocument();
+
+      expect(createCartSimple).toHaveBeenCalledWith(
+        expect.objectContaining({
+          createCartInput: {
+            lineItems: expect.arrayContaining([expect.objectContaining({ productEntityId: 86 })]),
+          },
+        }),
+      );
+    });
+
+    it('treats warnings as errors in cart context - does not add to cart', async () => {
+      const productWithWarning = buildProductWith({
+        name: 'Product with Warning',
+        quantity: 1,
+        product_id: 86,
+        variant_id: 66,
+        sku: 'WARN',
+        product_options: [],
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+      when(validateProduct)
+        .calledWith(expect.objectContaining({ productId: 86 }))
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'WARNING',
+              message: 'Product is out of stock',
+            }),
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [productWithWarning] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json({ data: { variantSku: [] } }),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const mockResponse = validateProduct(variables);
+          return HttpResponse.json(mockResponse);
+        }),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: preloadedStateWithBackendValidation,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const productGroup = within(dialog).getByRole('group', { name: 'Product with Warning' });
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+
+      expect(
+        await screen.findByText(
+          /there was an issue with adding products to cart. please check the errors below./i,
+        ),
+      ).toBeInTheDocument();
+
+      expect(within(dialog).getByText(/Product is out of stock/i)).toBeInTheDocument();
+      expect(screen.getByRole('dialog', { name: 'Re-Order' })).toBeInTheDocument();
+    });
+
+    it('handles multiple products with mixed results - some succeed, some fail, some have warnings', async () => {
+      const product1 = buildProductWith({
+        name: 'Product Success 1',
+        quantity: 2,
+        product_id: 100,
+        variant_id: 101,
+        sku: 'SUCCESS1',
+        product_options: [],
+      });
+
+      const product2 = buildProductWith({
+        name: 'Product Error',
+        quantity: 5,
+        product_id: 200,
+        variant_id: 201,
+        sku: 'ERROR1',
+        product_options: [],
+      });
+
+      const product3 = buildProductWith({
+        name: 'Product Warning',
+        quantity: 3,
+        product_id: 300,
+        variant_id: 301,
+        sku: 'WARN1',
+        product_options: [],
+      });
+
+      const product4 = buildProductWith({
+        name: 'Product Success 2',
+        quantity: 1,
+        product_id: 400,
+        variant_id: 401,
+        sku: 'SUCCESS2',
+        product_options: [],
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+      const createCartSimple = vi.fn();
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 100,
+            variantId: 101,
+            quantity: 2,
+            productOptions: [],
+          }),
+        )
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          },
+        });
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 200,
+            variantId: 201,
+            quantity: 5,
+            productOptions: [],
+          }),
+        )
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'ERROR',
+              message: 'product is not avaliable',
+            }),
+          },
+        });
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 300,
+            variantId: 301,
+            quantity: 3,
+            productOptions: [],
+          }),
+        )
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'WARNING',
+              message: 'Insufficient stock available',
+            }),
+          },
+        });
+
+      when(validateProduct)
+        .calledWith(
+          expect.objectContaining({
+            productId: 400,
+            variantId: 401,
+            quantity: 1,
+            productOptions: [],
+          }),
+        )
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          },
+        });
+
+      when(createCartSimple)
+        .calledWith(
+          expect.objectContaining({
+            createCartInput: expect.objectContaining({
+              lineItems: expect.arrayContaining([
+                expect.objectContaining({
+                  quantity: 2,
+                  productEntityId: 100,
+                  variantEntityId: 101,
+                }),
+                expect.objectContaining({
+                  quantity: 1,
+                  productEntityId: 400,
+                  variantEntityId: 401,
+                }),
+              ]),
+            }),
+          }),
+        )
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'cart-123' } } } } });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: { products: [product1, product2, product3, product4] },
+              },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json({ data: { variantSku: [] } }),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const mockResponse = validateProduct(variables);
+          return HttpResponse.json(mockResponse);
+        }),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: preloadedStateWithBackendValidation,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const product1Group = within(dialog).getByRole('group', { name: 'Product Success 1' });
+      await userEvent.click(within(product1Group).getByRole('checkbox'));
+
+      const product2Group = within(dialog).getByRole('group', { name: 'Product Error' });
+      await userEvent.click(within(product2Group).getByRole('checkbox'));
+
+      const product3Group = within(dialog).getByRole('group', { name: 'Product Warning' });
+      await userEvent.click(within(product3Group).getByRole('checkbox'));
+
+      const product4Group = within(dialog).getByRole('group', { name: 'Product Success 2' });
+      await userEvent.click(within(product4Group).getByRole('checkbox'));
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+
+      expect(await screen.findByText(/2 Products were added to cart/i)).toBeInTheDocument();
+
+      expect(
+        await screen.findByText(
+          /there was an issue with adding products to cart. please check the errors below./i,
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole('dialog', { name: 'Re-Order' })).toBeInTheDocument();
+
+      expect(within(product2Group).getByText(/product is not avaliable/i)).toBeInTheDocument();
+      expect(within(product3Group).getByText(/Insufficient stock available/i)).toBeInTheDocument();
+
+      expect(createCartSimple).toHaveBeenCalled();
+      expect(validateProduct).toHaveBeenCalledTimes(4);
+
+      const cartCall = createCartSimple.mock.calls[0][0];
+      expect(cartCall.createCartInput.lineItems).toHaveLength(2);
+      expect(cartCall.createCartInput.lineItems).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            productEntityId: 100,
+            variantEntityId: 101,
+            quantity: 2,
+          }),
+          expect.objectContaining({
+            productEntityId: 400,
+            variantEntityId: 401,
+            quantity: 1,
+          }),
+        ]),
+      );
     });
   });
 });

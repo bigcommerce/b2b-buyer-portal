@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 import { B3CustomForm } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
@@ -19,13 +20,35 @@ import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { validateProduct } from '@/shared/service/b2b/graphql/product';
 
-import { EditableProductItem, OrderProductItem } from '../../../types';
+import { EditableProductItem, OrderProductItem, OrderProductOption } from '../../../types';
 import getReturnFormFields from '../shared/config';
 
 import CreateShoppingList from './CreateShoppingList';
 import OrderCheckboxProduct from './OrderCheckboxProduct';
 import OrderShoppingList from './OrderShoppingList';
+
+interface ProductOptionSelection {
+  optionId: number | string;
+  optionValue: string | number;
+}
+
+interface ProductToAdd {
+  productId: number;
+  variantId: number;
+  quantity: number;
+  optionSelections: ProductOptionSelection[];
+  allOptions?: OrderProductOption[];
+}
+
+interface VariantInfo {
+  variantSku: string;
+  minQuantity: number;
+  maxQuantity: number;
+  stock: number;
+  isStock: string;
+}
 
 interface ReturnListProps {
   returnId: number;
@@ -78,7 +101,7 @@ export default function OrderDialog({
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([]);
-  const [variantInfoList, setVariantInfoList] = useState<CustomFieldItems[]>([]);
+  const [variantInfoList, setVariantInfoList] = useState<VariantInfo[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [checkedArr, setCheckedArr] = useState<number[]>([]);
   const [returnArr, setReturnArr] = useState<ReturnListProps[]>([]);
@@ -86,6 +109,9 @@ export default function OrderDialog({
   const [returnFormFields] = useState(getReturnFormFields());
 
   const [isMobile] = useMobile();
+  const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] || false;
 
   const {
     control,
@@ -197,15 +223,133 @@ export default function OrderDialog({
     return isValid;
   };
 
+  const showSuccessSnackbarWithCartLink = (message: string): void => {
+    snackbar.success(message, {
+      action: {
+        label: b3Lang('orderDetail.viewCart'),
+        onClick: () => {
+          if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+            window.location.href = CART_URL;
+          }
+        },
+      },
+    });
+  };
+
+  const transformOptionSelections = (optionSelections: ProductOptionSelection[]) => {
+    return optionSelections.map((option) => {
+      const optionId = option.optionId;
+      if (typeof optionId === 'string' && optionId.includes('attribute')) {
+        return {
+          optionId: Number(optionId.split('[')[1].split(']')[0]),
+          optionValue: String(option.optionValue),
+        };
+      }
+      return {
+        optionId: Number(optionId),
+        optionValue: String(option.optionValue),
+      };
+    });
+  };
+
+  const processValidationResults = (
+    settledResults: PromiseSettledResult<Awaited<ReturnType<typeof validateProduct>>>[],
+    productsToAdd: ProductToAdd[],
+  ) => {
+    const success: ProductToAdd[] = [];
+    const warning: Array<{ variantId: number; message: string }> = [];
+    const error: Array<{
+      variantId: number;
+      error: { type: 'network' | 'validation'; message?: string };
+    }> = [];
+
+    settledResults.forEach((result, index) => {
+      const product = productsToAdd[index];
+      const editableProduct = editableProducts.find((p) => p.variant_id === product.variantId);
+
+      if (result.status === 'rejected') {
+        error.push({
+          variantId: product.variantId,
+          error: { type: 'network' },
+        });
+        if (editableProduct) {
+          editableProduct.helperText = b3Lang('orderDetail.reorder.failedToAdd.helperText');
+        }
+        return;
+      }
+
+      switch (result.value.responseType) {
+        case 'ERROR':
+          error.push({
+            variantId: product.variantId,
+            error: {
+              type: 'validation',
+              message: result.value.message,
+            },
+          });
+          if (editableProduct) {
+            editableProduct.helperText = result.value.message;
+          }
+          break;
+        case 'WARNING':
+          warning.push({
+            variantId: product.variantId,
+            message: result.value.message,
+          });
+          if (editableProduct) {
+            editableProduct.helperText = result.value.message;
+          }
+          break;
+        case 'SUCCESS':
+        default:
+          success.push(product);
+          if (editableProduct) {
+            editableProduct.helperText = '';
+          }
+          break;
+      }
+    });
+
+    if (error.length > 0 || warning.length > 0) {
+      setEditableProducts([...editableProducts]);
+    }
+
+    return { success, warning, error };
+  };
+
+  const validateProductsBackend = async (
+    productsToAdd: ProductToAdd[],
+  ): Promise<{
+    validItems: ProductToAdd[];
+    hasFailures: boolean;
+  }> => {
+    const validationPromises = productsToAdd.map((item) => {
+      return validateProduct({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        productOptions: transformOptionSelections(item.optionSelections),
+      });
+    });
+
+    const settledResults = await Promise.allSettled(validationPromises);
+
+    const { success, error, warning } = processValidationResults(settledResults, productsToAdd);
+
+    const hasFailures = error.length > 0 || warning.length > 0;
+
+    return { validItems: success, hasFailures };
+  };
+
   const handleReorder = async () => {
     setIsRequestLoading(true);
 
     try {
-      const items: CustomFieldItems[] = [];
+      const productsToAdd: ProductToAdd[] = [];
       const skus: string[] = [];
       editableProducts.forEach((product) => {
         if (checkedArr.includes(product.variant_id)) {
-          items.push({
+          productsToAdd.push({
             quantity: parseInt(`${product.editQuantity}`, 10) || 1,
             productId: product.product_id,
             variantId: product.variant_id,
@@ -224,29 +368,63 @@ export default function OrderDialog({
         return;
       }
 
-      if (!validateProductNumber(variantInfoList, skus)) {
-        snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'));
-        return;
-      }
-      const res = await createOrUpdateExistingCart(items);
+      if (backendValidationEnabled) {
+        const { validItems, hasFailures } = await validateProductsBackend(productsToAdd);
 
-      const status = res && (res.data.cart.createCart || res.data.cart.addCartLineItems);
+        if (validItems.length === 0) {
+          snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
+          return;
+        }
 
-      if (status) {
-        setOpen(false);
-        snackbar.success(b3Lang('orderDetail.reorder.productsAdded'), {
-          action: {
-            label: b3Lang('orderDetail.reorder.viewCart'),
-            onClick: () => {
-              if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-                window.location.href = CART_URL;
-              }
+        const res = await createOrUpdateExistingCart(validItems);
+
+        const cartOperationSucceeded =
+          res && (res.data.cart.createCart || res.data.cart.addCartLineItems);
+
+        if (cartOperationSucceeded) {
+          if (!hasFailures) {
+            setOpen(false);
+            showSuccessSnackbarWithCartLink(b3Lang('orderDetail.reorder.productsAdded'));
+          } else {
+            const successfulVariantIds = validItems.map((item) => item.variantId);
+            setCheckedArr((prev) =>
+              prev.filter((variantId) => !successfulVariantIds.includes(variantId)),
+            );
+
+            const successCount = validItems.length;
+            const message =
+              successCount === 1
+                ? b3Lang('orderDetail.reorder.partialSuccessSingular')
+                : b3Lang('orderDetail.reorder.partialSuccess', { count: successCount });
+            showSuccessSnackbarWithCartLink(message);
+            snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
+          }
+          b3TriggerCartNumber();
+        }
+      } else {
+        if (!validateProductNumber(variantInfoList, skus)) {
+          snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'));
+          return;
+        }
+
+        const res = await createOrUpdateExistingCart(productsToAdd);
+
+        const status = res && (res.data.cart.createCart || res.data.cart.addCartLineItems);
+
+        if (status) {
+          setOpen(false);
+          snackbar.success(b3Lang('orderDetail.reorder.productsAdded'), {
+            action: {
+              label: b3Lang('orderDetail.viewCart'),
+              onClick: () => {
+                if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+                  window.location.href = CART_URL;
+                }
+              },
             },
-          },
-        });
-        b3TriggerCartNumber();
-      } else if (res.errors) {
-        snackbar.error(res.errors[0].message);
+          });
+          b3TriggerCartNumber();
+        }
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -358,6 +536,7 @@ export default function OrderDialog({
         editQuantity: item.quantity,
       })),
     );
+    setCheckedArr([]);
 
     const getVariantInfoByList = async () => {
       const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
@@ -408,6 +587,7 @@ export default function OrderDialog({
             products={editableProducts}
             onProductChange={handleProductChange}
             setCheckedArr={setCheckedArr}
+            checkedArr={checkedArr}
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
             type={type}
