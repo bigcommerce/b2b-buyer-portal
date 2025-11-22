@@ -17,7 +17,11 @@ import { useValidatePermissionWithComparisonType } from '@/hooks/useVerifyPermis
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';
+import {
+  createQuote,
+  getB2BCustomerAddresses,
+  getBCCustomerAddresses,
+} from '@/shared/service/b2b/graphql/quote';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
   activeCurrencyInfoSelector,

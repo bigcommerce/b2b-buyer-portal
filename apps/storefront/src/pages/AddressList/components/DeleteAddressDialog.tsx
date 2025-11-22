@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import B3Dialog from '@/components/B3Dialog';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { deleteB2BAddress, deleteBCCustomerAddress } from '@/shared/service/b2b';
+import { deleteB2BAddress, deleteBCCustomerAddress } from '@/shared/service/b2b/graphql/address';
 import { snackbar } from '@/utils';
 
 import { AddressItemType } from '../../../types/address';

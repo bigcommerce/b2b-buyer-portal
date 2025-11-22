@@ -12,7 +12,7 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
 import { GlobalContext } from '@/shared/global';
-import { getBCForcePasswordReset } from '@/shared/service/b2b';
+import { getBCForcePasswordReset } from '@/shared/service/b2b/graphql/register';
 import { b2bLogin, bcLogin, customerLoginAPI } from '@/shared/service/bc';
 import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
 import { setB2BToken } from '@/store/slices/company';

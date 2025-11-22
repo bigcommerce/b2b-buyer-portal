@@ -7,7 +7,7 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getInvoicePaymentInfo } from '@/shared/service/b2b';
+import { getInvoicePaymentInfo } from '@/shared/service/b2b/graphql/invoice';
 import { InvoiceSuccessData, ReceiptLineSet } from '@/types/invoice';
 import { displayFormat, handleGetCorrespondingCurrency } from '@/utils';
 

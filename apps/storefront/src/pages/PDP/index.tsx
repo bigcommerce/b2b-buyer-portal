@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import config from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  searchProducts,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
 import { getActiveCurrencyInfo, serialize, ValidationError } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';

@@ -7,16 +7,16 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import {
   deleteB2BShoppingListItem,
   deleteBcShoppingListItem,
   getB2BJuniorPlaceOrder,
   getB2BShoppingListDetails,
   getBcShoppingListDetails,
-  searchProducts,
   updateB2BShoppingList,
   updateBcShoppingList,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/shoppingList';
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,

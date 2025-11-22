@@ -1,13 +1,13 @@
 import {
   endUserMasqueradingCompany,
   getAgentInfo,
-  getB2BCompanyUserInfo,
   getB2BToken,
-  getBCGraphqlToken,
   getCompanySubsidiaries,
   getUserCompany,
   getUserMasqueradingCompany,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/global';
+import { getBCGraphqlToken } from '@/shared/service/b2b/graphql/login';
+import { getB2BCompanyUserInfo } from '@/shared/service/b2b/graphql/register';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import { getAppClientId } from '@/shared/service/request/base';
 import {

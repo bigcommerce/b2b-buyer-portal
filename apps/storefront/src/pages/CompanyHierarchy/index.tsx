@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { getCompanySubsidiaries } from '@/shared/service/b2b';
+import { getCompanySubsidiaries } from '@/shared/service/b2b/graphql/global';
 import { useAppSelector } from '@/store';
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
 import { buildHierarchy } from '@/utils';

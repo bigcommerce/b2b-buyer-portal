@@ -8,7 +8,7 @@ import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
+import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b/graphql/shoppingList';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListItem, ShoppingListStatus } from '@/types/shoppingList';
 import { channelId } from '@/utils';

@@ -9,11 +9,11 @@ import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { getVariantInfoBySkus } from '@/shared/service/b2b/graphql/product';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  getVariantInfoBySkus,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';

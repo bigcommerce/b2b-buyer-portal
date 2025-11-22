@@ -1,4 +1,5 @@
-import { getB2BAccountFormFields, getB2BAddressExtraFields } from '@/shared/service/b2b';
+import { getB2BAddressExtraFields } from '@/shared/service/b2b/graphql/address';
+import { getB2BAccountFormFields } from '@/shared/service/b2b/graphql/register';
 import b2bLogger from '@/utils/b3Logger';
 
 import {

@@ -13,7 +13,7 @@ import {
   getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/global';
 import { getActiveBcCurrency } from '@/shared/service/bc';
 import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';

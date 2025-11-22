@@ -2,7 +2,7 @@ import {
   getAgentInfo,
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/global';
 import { AppStore, clearMasqueradeCompany, MasqueradeCompany, setMasqueradeCompany } from '@/store';
 
 interface StartMasqueradeParams {

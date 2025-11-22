@@ -10,12 +10,12 @@ import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import {
   exportQuotePdf,
   getB2BQuoteDetail,
   getBcQuoteDetail,
-  searchProducts,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/quote';
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,

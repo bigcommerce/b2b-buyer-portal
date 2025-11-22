@@ -15,7 +15,7 @@ import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
-import { updateQuote } from '@/shared/service/b2b';
+import { updateQuote } from '@/shared/service/b2b/graphql/quote';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat, storeHash } from '@/utils';
 

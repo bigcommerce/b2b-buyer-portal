@@ -10,7 +10,7 @@ import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/product';
 import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
 import { Currency } from '@/types';
 import { channelId } from '@/utils';

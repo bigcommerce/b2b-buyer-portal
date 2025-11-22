@@ -1,6 +1,6 @@
 import round from 'lodash-es/round';
 
-import { getInvoiceCheckoutUrl } from '@/shared/service/b2b';
+import { getInvoiceCheckoutUrl } from '@/shared/service/b2b/graphql/invoice';
 import { BcCartData } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';

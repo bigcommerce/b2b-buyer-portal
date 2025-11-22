@@ -10,11 +10,8 @@ import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
-import {
-  getB2BQuotesList,
-  getBCQuotesList,
-  getShoppingListsCreatedByUser,
-} from '@/shared/service/b2b';
+import { getB2BQuotesList, getBCQuotesList } from '@/shared/service/b2b/graphql/quote';
+import { getShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { channelId, currencyFormatConvert, displayFormat } from '@/utils';
 

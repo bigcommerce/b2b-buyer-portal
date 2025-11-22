@@ -9,13 +9,13 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
+import { getB2BAddressConfig } from '@/shared/service/b2b/graphql/address';
 import {
-  getB2BAddressConfig,
   getB2BOrderDetails,
   getBCOrderDetails,
   getBcOrderStatusType,
   getOrderStatusType,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';

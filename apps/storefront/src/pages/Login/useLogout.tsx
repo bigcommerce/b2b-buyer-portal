@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
-import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
+import {
+  endUserMasqueradingCompany,
+  superAdminEndMasquerade,
+} from '@/shared/service/b2b/graphql/global';
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';

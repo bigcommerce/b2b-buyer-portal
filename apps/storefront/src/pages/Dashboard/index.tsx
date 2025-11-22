@@ -12,7 +12,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { PageProps } from '@/pages/PageProps';
-import { superAdminCompanies } from '@/shared/service/b2b';
+import { superAdminCompanies } from '@/shared/service/b2b/graphql/global';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';

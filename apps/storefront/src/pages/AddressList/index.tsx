@@ -12,9 +12,9 @@ import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,
   getB2BAddressConfig,
-  getB2BCountries,
   getBCCustomerAddress,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/address';
+import { getB2BCountries } from '@/shared/service/b2b/graphql/register';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';

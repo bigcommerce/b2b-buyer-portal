@@ -1,4 +1,4 @@
-import { getQuoteExtraFieldsConfig } from '@/shared/service/b2b';
+import { getQuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
 import { QuoteExtraFieldsOrigin, QuoteFormattedItemsProps } from '@/types/quotes';
 import b2bLogger from '@/utils/b3Logger';
 

@@ -8,7 +8,8 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
-import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
+import { getOrderedProducts } from '@/shared/service/b2b/graphql/quickOrder';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
 import {

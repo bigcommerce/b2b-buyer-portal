@@ -1,6 +1,6 @@
 import { Location, NavigateFunction } from 'react-router-dom';
 
-import { getBCStorefrontProductSettings, quoteCheckout } from '@/shared/service/b2b';
+import { getBCStorefrontProductSettings, quoteCheckout } from '@/shared/service/b2b/graphql/quote';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';

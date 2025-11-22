@@ -16,7 +16,8 @@ import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutesWithoutComponent } from '@/shared/routeList';
-import { getB2BShoppingList, getBcShoppingList, superAdminCompanies } from '@/shared/service/b2b';
+import { superAdminCompanies } from '@/shared/service/b2b/graphql/global';
+import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b/graphql/shoppingList';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
   formattedQuoteDraftListSelector,

@@ -2,7 +2,7 @@ import { ReactNode, useContext, useLayoutEffect } from 'react';
 
 import { Z_INDEX } from '@/constants';
 import { GlobalContext } from '@/shared/global';
-import { getBCStoreChannelId } from '@/shared/service/b2b';
+import { getBCStoreChannelId } from '@/shared/service/b2b/graphql/register';
 import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
 
 import { B3PageMask, usePageMask } from './loading';
