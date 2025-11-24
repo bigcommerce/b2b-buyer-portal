@@ -8,13 +8,13 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
+import { uploadB2BFile } from '@/shared/service/b2b/api/global';
+import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import {
   createB2BCompanyUser,
   createBCCompanyUser,
   sendSubscribersState,
-  uploadB2BFile,
-} from '@/shared/service/b2b';
-import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
+} from '@/shared/service/b2b/graphql/register';
 import { channelId, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 

@@ -18,14 +18,16 @@ import { channelId, loginJump, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
+import { uploadB2BFile } from '../../shared/service/b2b/api/global';
+import {
+  validateBCCompanyExtraFields,
+  validateBCCompanyUserExtraFields,
+} from '../../shared/service/b2b/api/register';
 import {
   createB2BCompanyUser,
   getB2BAccountFormFields,
   getB2BCountries,
-  uploadB2BFile,
-  validateBCCompanyExtraFields,
-  validateBCCompanyUserExtraFields,
-} from '../../shared/service/b2b';
+} from '../../shared/service/b2b/graphql/register';
 import { type PageProps } from '../PageProps';
 import {
   AccountFormFieldsItems,

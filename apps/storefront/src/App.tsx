@@ -10,7 +10,7 @@ import { useSetOpen } from '@/hooks/useSetOpen';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
-import { setChannelStoreType } from '@/shared/service/b2b';
+import { setChannelStoreType } from '@/shared/service/b2b/api/global';
 import {
   getQuoteEnabled,
   handleHideRegisterPage,

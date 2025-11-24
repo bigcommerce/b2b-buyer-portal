@@ -9,7 +9,7 @@ import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useB3Lang } from '@/lib/lang';
-import { getVariantInfoBySkus } from '@/shared/service/b2b';
+import { getVariantInfoBySkus } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';

@@ -13,14 +13,13 @@ import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
-  checkUserBCEmail,
-  checkUserEmail,
-  getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
   updateB2BAccountSettings,
   updateBCAccountSettings,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/accountSetting';
+import { getB2BAccountFormFields } from '@/shared/service/b2b/graphql/register';
+import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b/graphql/users';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';

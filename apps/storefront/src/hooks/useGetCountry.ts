@@ -3,7 +3,7 @@ import { Control, FieldValues, UseFormGetValues, UseFormSetValue, useWatch } fro
 
 import { GlobalContext } from '@/shared/global';
 import { Country, State } from '@/shared/global/context/config';
-import { getB2BCountries } from '@/shared/service/b2b';
+import { getB2BCountries } from '@/shared/service/b2b/graphql/register';
 
 const useSetCountry = () => {
   const {

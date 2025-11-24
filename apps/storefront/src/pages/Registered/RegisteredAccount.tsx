@@ -6,11 +6,8 @@ import { B3CustomForm } from '@/components';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import {
-  checkUserBCEmail,
-  checkUserEmail,
-  validateBCCompanyUserExtraFields,
-} from '@/shared/service/b2b';
+import { validateBCCompanyUserExtraFields } from '@/shared/service/b2b/api/register';
+import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b/graphql/users';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';

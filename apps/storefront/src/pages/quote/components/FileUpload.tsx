@@ -12,7 +12,7 @@ import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useB3Lang } from '@/lib/lang';
-import { uploadB2BFile } from '@/shared/service/b2b';
+import { uploadB2BFile } from '@/shared/service/b2b/api/global';
 import { snackbar } from '@/utils';
 
 import { FILE_UPLOAD_ACCEPT_TYPE } from '../../../constants';

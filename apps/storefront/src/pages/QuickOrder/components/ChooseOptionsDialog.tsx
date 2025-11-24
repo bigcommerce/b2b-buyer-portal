@@ -18,7 +18,7 @@ import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
-import { searchProducts } from '@/shared/service/b2b';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '@/types';
 import { currencyFormat, snackbar } from '@/utils';

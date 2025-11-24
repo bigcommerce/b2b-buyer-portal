@@ -3,7 +3,7 @@ import { Alert, Box } from '@mui/material';
 
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
-import { getCompanyCreditConfig } from '@/shared/service/b2b';
+import { getCompanyCreditConfig } from '@/shared/service/b2b/graphql/global';
 import { useAppSelector } from '@/store';
 
 const permissionRoles = [0, 1, 2];

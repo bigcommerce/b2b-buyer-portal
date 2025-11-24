@@ -14,7 +14,7 @@ import {
   getB2BShoppingList,
   getBcShoppingList,
   getShoppingListsCreatedByUser,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { channelId, snackbar } from '@/utils';

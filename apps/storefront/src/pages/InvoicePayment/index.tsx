@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import { Loading } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
-import { getInvoiceDetail } from '@/shared/service/b2b';
+import { getInvoiceDetail } from '@/shared/service/b2b/graphql/invoice';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
 

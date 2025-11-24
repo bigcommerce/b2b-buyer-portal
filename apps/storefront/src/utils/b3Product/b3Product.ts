@@ -2,7 +2,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import isEmpty from 'lodash-es/isEmpty';
 import { v1 as uuid } from 'uuid';
 
-import { getProductPricing } from '@/shared/service/b2b';
+import { getProductPricing } from '@/shared/service/b2b/graphql/global';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
 import { Modifiers, ShoppingListProductItem } from '@/types';

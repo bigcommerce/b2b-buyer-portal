@@ -4,7 +4,7 @@ import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/mater
 import debounce from 'lodash-es/debounce';
 
 import { useB3Lang } from '@/lib/lang';
-import { getB2BRoleList } from '@/shared/service/b2b';
+import { getB2BRoleList } from '@/shared/service/b2b/graphql/roleAndPermissions';
 
 import Form from './ui';
 

@@ -11,11 +11,11 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
+import { searchProducts } from '@/shared/service/b2b/graphql/product';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
-  searchProducts,
-} from '@/shared/service/b2b';
+} from '@/shared/service/b2b/graphql/shoppingList';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Product } from '@/types';
 import { currencyFormat, getProductPriceIncTaxOrExTaxBySetting, snackbar } from '@/utils';
