@@ -4000,12 +4000,20 @@ describe('When backend validation feature flag is on', () => {
         data: { cart: { createCart: { cart: { entityId: '12345' } } } },
       });
 
+      const productUpload = vi.fn();
+
+      when(productUpload)
+        .calledWith(expect.stringContaining('withModifiers: true'))
+        .thenReturn(csvUpload());
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
-        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.mutation('ProductUpload', ({ query }: { query: string }) =>
+          HttpResponse.json(productUpload(query)),
+        ),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
         graphql.mutation('addCartLineItemsTwo', () =>
