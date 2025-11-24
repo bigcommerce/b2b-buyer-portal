@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
@@ -22,6 +22,7 @@ import {
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingProductsProps {
   shoppingListInfo: any;
@@ -29,11 +30,9 @@ interface ShoppingProductsProps {
   products: ProductsProps[];
   successProducts: number;
   allowJuniorPlaceOrder: boolean;
-  getProductQuantity?: (item: ProductsProps) => number;
-  onProductChange?: (products: ProductsProps[]) => void;
-  setValidateFailureProducts: (arr: ProductsProps[]) => void;
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
-  textAlign?: string;
+  setProducts: (products: ProductsProps[]) => void;
+  onClose: () => void;
+  textAlign: string;
   backendValidationEnabled: boolean;
 }
 
@@ -156,34 +155,25 @@ const mobileItemStyle = {
   },
 };
 
-export default function ReAddToCart(props: ShoppingProductsProps) {
-  const {
-    shoppingListInfo,
-    products,
-    successProducts,
-    allowJuniorPlaceOrder,
-    setValidateFailureProducts,
-    setValidateSuccessProducts,
-    textAlign = 'left',
-    backendValidationEnabled,
-  } = props;
-
+export default function ReAddToCart({
+  shoppingListInfo,
+  products,
+  successProducts,
+  allowJuniorPlaceOrder,
+  setProducts,
+  onClose: onCancel,
+  textAlign,
+  backendValidationEnabled,
+}: ShoppingProductsProps) {
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
-  const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
 
   const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-  }, [products]);
+  const isOpen = products.length > 0;
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
@@ -198,20 +188,19 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     const calculateProduct = await setModifierQtyPrice(newProduct[index].node, Number(value));
     if (calculateProduct) {
       (newProduct[index] as CustomFieldItems).node = calculateProduct;
-      setValidateFailureProducts(newProduct);
+      setProducts(newProduct);
     }
   };
 
   const handleCancelClicked = () => {
-    setOpen(false);
-    setValidateFailureProducts([]);
-    setValidateSuccessProducts([]);
+    setProducts([]);
+    onCancel();
   };
 
   const deleteProduct = (index: number) => {
     const newProduct: ProductsProps[] = [...products];
     newProduct.splice(index, 1);
-    setValidateFailureProducts(newProduct);
+    setProducts(newProduct);
   };
 
   const shouldRedirectToCheckout = () => {
@@ -233,7 +222,6 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
           },
         },
       });
-      b3TriggerCartNumber();
     }
   };
 
@@ -258,10 +246,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       if (res.errors) {
         snackbar.error(res.message);
       }
-
-      b3TriggerCartNumber();
     } finally {
       setLoading(false);
+      b3TriggerCartNumber();
     }
   };
 
@@ -270,19 +257,42 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
     try {
       const lineItems = addLineItems(products);
-      const res = await createOrUpdateExistingCart(lineItems);
+      const { warning, error } = await validateProducts(lineItems);
 
-      if (!res.errors) {
-        shouldRedirectToCheckout();
+      const invalidProducts = [...warning, ...error];
+
+      invalidProducts.forEach((product) => {
+        if (product.status === 'error') {
+          if (product.error.type === 'network') {
+            snackbar.error(
+              b3Lang('quotes.productValidationFailed', {
+                productName: product.product.node?.productName || '',
+              }),
+            );
+          } else {
+            snackbar.error(product.error.message);
+          }
+        } else {
+          snackbar.error(product.message);
+        }
+      });
+
+      if (invalidProducts.length === 0) {
+        const res = await createOrUpdateExistingCart(lineItems);
+
+        if (res.errors) {
+          snackbar.error(res.errors[0].message);
+        } else {
+          shouldRedirectToCheckout();
+        }
       }
-
-      b3TriggerCartNumber();
     } catch (e: unknown) {
       if (e instanceof Error) {
         snackbar.error(e.message);
       }
     } finally {
       setLoading(false);
+      b3TriggerCartNumber();
     }
   };
 
@@ -332,7 +342,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     productArr.forEach((item, index) => {
       newProduct[index].node = item;
     });
-    setValidateFailureProducts(newProduct);
+    setProducts(newProduct);
   };
 
   return (

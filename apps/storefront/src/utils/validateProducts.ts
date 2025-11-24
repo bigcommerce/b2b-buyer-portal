@@ -48,6 +48,7 @@ const transformProductListToBeCompatibleWithValidateProducts = (products: Custom
           ...product.node.productsSearch,
           selectedOptions:
             product.node.productsSearch.newSelectOptionList || product.optionSelections,
+          variantId: product.node.variantId || product.node.productsSearch.variantId,
         },
       };
     }
@@ -57,7 +58,7 @@ const transformProductListToBeCompatibleWithValidateProducts = (products: Custom
       productsSearch: {
         ...product.productsSearch,
         selectedOptions: product.optionSelections || product.options,
-        variantId: product.variantId,
+        variantId: product.variantId || product.productsSearch.variantId,
       },
     };
   });
