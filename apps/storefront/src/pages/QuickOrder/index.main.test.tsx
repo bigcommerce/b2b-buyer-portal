@@ -3954,5 +3954,115 @@ describe('When backend validation feature flag is on', () => {
         ).toBeInTheDocument();
       });
     });
+
+    it('handles successful CSV upload when pass_with_modifiers feature flag is enabled', async () => {
+      const preloadedStateWithBothFlags = {
+        ...backendValidationEnabledState,
+        global: buildGlobalStateWith({
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            'B2B-3978.pass_with_modifiers_to_product_upload': true,
+          },
+        }),
+      };
+
+      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+        data: { orderedProducts: { totalCount: 0, edges: [] } },
+      });
+
+      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+      const csvUpload = vi.fn().mockReturnValue({
+        data: {
+          productUpload: buildCSVUploadWith({
+            result: {
+              validProduct: [
+                buildCSVProductWith({
+                  products: {
+                    productName: 'Test Product With Modifiers',
+                    variantSku: 'MODIFIER-SKU-123',
+                  },
+                  qty: '3',
+                  row: 1,
+                  sku: 'MODIFIER-SKU-123',
+                }),
+              ],
+              errorProduct: [],
+              stockErrorFile: '',
+              stockErrorSkus: [],
+            },
+          }),
+        },
+      });
+
+      const getCart = vi.fn().mockReturnValue(buildGetCartWith({}));
+      const createCartSimple = vi.fn().mockReturnValue({
+        data: { cart: { createCart: { cart: { entityId: '12345' } } } },
+      });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', () =>
+          HttpResponse.json(getRecentlyOrderedProducts()),
+        ),
+        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(
+            buildAddCartLineItemsResponseWith({
+              data: {
+                cart: {
+                  addCartLineItems: {
+                    cart: {
+                      entityId: '12345',
+                    },
+                  },
+                },
+              },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<QuickOrder />, { preloadedState: preloadedStateWithBothFlags });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+      await userEvent.click(bulkUploadButton);
+
+      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+
+      const csvContent = 'variant_sku,qty\nMODIFIER-SKU-123,3';
+      const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
+
+      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!dropzoneInput) {
+        throw new Error('File input not found');
+      }
+
+      await userEvent.upload(dropzoneInput, [file]);
+
+      await waitFor(() => {
+        expect(csvUpload).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('MODIFIER-SKU-123')).toBeInTheDocument();
+      });
+
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
+      await userEvent.click(addToCartButton);
+
+      await waitFor(
+        () => {
+          expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
+        },
+        { timeout: 8000 },
+      );
+    });
   });
 });
