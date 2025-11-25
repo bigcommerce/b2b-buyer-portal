@@ -2,7 +2,7 @@ import { ChangeEvent, MouseEvent, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
-import { B3CustomForm } from '@/components';
+import { B3CustomForm } from '@/components/B3CustomForm';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Checkbox, FormControlLabel, styled } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B3CustomForm } from '@/components';
+import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
 import {

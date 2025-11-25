@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { Loading } from '@/components';
+import { Loading } from '@/components/loading';
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { isLoggedInSelector, store, useAppSelector } from '@/store';

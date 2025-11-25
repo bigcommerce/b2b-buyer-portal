@@ -10,7 +10,7 @@ interface CollapseContainerProps {
   handleOnChange?: (open: boolean) => void;
 }
 
-export default function B3CollapseContainer(props: CollapseContainerProps) {
+export function B3CollapseContainer(props: CollapseContainerProps) {
   const { children, title = '', header, defaultOpen = false, handleOnChange } = props;
 
   const [open, setOpen] = useState(defaultOpen);

@@ -4,7 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
-import { B3Tag } from '@/components';
+import { B3Tag } from '@/components/B3Tag';
 import CustomButton from '@/components/button/CustomButton';
 import { useB3Lang } from '@/lib/lang';
 

@@ -27,12 +27,7 @@ const NoDataText = styled('span')(() => ({
   marginLeft: '10px',
 }));
 
-export default function B3NoData({
-  text,
-  backgroundColor,
-  minHeight,
-  isLoading = false,
-}: B3NoDataProps) {
+export function B3NoData({ text, backgroundColor, minHeight, isLoading = false }: B3NoDataProps) {
   const b3Lang = useB3Lang();
   return (
     <NoDataContainer backgroundColor={backgroundColor} minHeight={minHeight}>

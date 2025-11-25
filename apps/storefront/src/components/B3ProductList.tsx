@@ -127,7 +127,7 @@ interface ProductProps<T> {
   getCurrentProductUrls?: (productId: number | undefined) => void;
 }
 
-export default function B3ProductList<T>(props: ProductProps<T>) {
+export function B3ProductList<T>(props: ProductProps<T>) {
   const {
     products,
     renderAction,

@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import { format } from 'date-fns/format';
 import { getTracking } from 'ts-tracking-number';
 
-import { B3ProductList } from '@/components';
+import { B3ProductList } from '@/components/B3ProductList';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 

@@ -7,7 +7,7 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import B3CustomForm from '../B3CustomForm';
+import { B3CustomForm } from '../B3CustomForm';
 import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';
 import { getContrastColor, getHoverColor } from '../outSideComponents/utils/b3CustomStyles';

@@ -7,7 +7,7 @@ interface TagContainerProps {
   fontSize?: string;
 }
 
-const B3Tag = styled('span')(
+export const B3Tag = styled('span')(
   ({
     color = '#2E7D32',
     textColor = '#fff',
@@ -24,4 +24,3 @@ const B3Tag = styled('span')(
     display: 'inline-block',
   }),
 );
-export default B3Tag;

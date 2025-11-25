@@ -3,8 +3,8 @@ import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
 
-import { B3QuantityTextField } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
+import { B3QuantityTextField } from '@/components/B3QuantityTextField';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
