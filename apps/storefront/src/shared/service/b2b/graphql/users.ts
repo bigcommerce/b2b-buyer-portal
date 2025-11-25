@@ -1,6 +1,6 @@
 import { UserTypes } from '@/types';
+import { storeHash } from '@/utils/basicConfig';
 
-import { storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
 const checkUserB2BEmail = (data: CustomFieldItems) => `

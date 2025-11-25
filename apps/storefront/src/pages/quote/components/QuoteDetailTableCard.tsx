@@ -3,7 +3,7 @@ import { Box, CardContent, styled, Typography } from '@mui/material';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { currencyFormatConvert } from '@/utils';
+import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 interface QuoteTableCardProps {

@@ -16,7 +16,7 @@ import {
   CompanyHierarchyProps,
   PagesSubsidiariesPermissionProps,
 } from '@/types';
-import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils';
+import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils/b3Company';
 import b2bLogger from '@/utils/b3Logger';
 import { deleteCartData } from '@/utils/cartUtils';
 

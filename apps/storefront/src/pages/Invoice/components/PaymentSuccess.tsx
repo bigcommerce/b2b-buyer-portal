@@ -9,7 +9,8 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getInvoicePaymentInfo } from '@/shared/service/b2b';
 import { InvoiceSuccessData, ReceiptLineSet } from '@/types/invoice';
-import { displayFormat, handleGetCorrespondingCurrency } from '@/utils';
+import { handleGetCorrespondingCurrency } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 import InvoiceListType from '../utils/config';
 

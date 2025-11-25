@@ -9,9 +9,9 @@ import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountV
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
 import { compareOption } from '@/utils/b3Product/b3Product';
 import { getAllModifierDefaultValue, getQuickAddRowFields } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 
 import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
 

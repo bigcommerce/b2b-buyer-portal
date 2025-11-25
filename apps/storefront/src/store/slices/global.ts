@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { OpenPageState } from '@/types/hooks';

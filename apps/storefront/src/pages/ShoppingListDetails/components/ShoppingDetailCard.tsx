@@ -4,8 +4,8 @@ import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
-import { currencyFormat } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';

@@ -6,7 +6,8 @@ import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
-import { channelId, snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
+import { channelId } from '@/utils/basicConfig';
 
 import {
   getCreatedShoppingListFiles,

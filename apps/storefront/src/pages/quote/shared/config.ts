@@ -1,6 +1,6 @@
 import { store } from '@/store';
-import { getActiveCurrencyInfo } from '@/utils';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
+import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 
 export interface ProductInfoProps {
   basePrice: number | string;

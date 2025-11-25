@@ -6,7 +6,8 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { currencyFormat, displayFormat } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
+import { displayFormat } from '@/utils/b3DateFormat';
 
 import OrderStatus from './components/OrderStatus';
 

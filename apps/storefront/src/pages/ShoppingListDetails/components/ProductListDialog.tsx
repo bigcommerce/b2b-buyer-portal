@@ -9,7 +9,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
 
 import { ShoppingListProductItem } from '../../../types';
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';

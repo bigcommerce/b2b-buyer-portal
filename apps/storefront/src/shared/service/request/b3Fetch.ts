@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie';
 
 import { store } from '@/store';
-import { BigCommerceStorefrontAPIBaseURL, channelId, snackbar, storeHash } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
+import { BigCommerceStorefrontAPIBaseURL, channelId, storeHash } from '@/utils/basicConfig';
 
 import { getAPIBaseURL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';

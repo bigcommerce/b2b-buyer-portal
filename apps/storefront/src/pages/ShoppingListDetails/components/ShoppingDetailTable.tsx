@@ -24,10 +24,11 @@ import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { currencyFormat, snackbar } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice, getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch';
 

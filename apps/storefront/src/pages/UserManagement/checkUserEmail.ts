@@ -1,6 +1,6 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 import { UserTypes } from '@/types';
-import { storeHash } from '@/utils';
+import { storeHash } from '@/utils/basicConfig';
 
 const toNumberSafely = (value?: number | string): number | undefined =>
   value !== undefined && value !== '' ? Number(value) : undefined;

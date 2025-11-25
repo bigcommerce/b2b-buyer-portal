@@ -1,8 +1,8 @@
 import Cookies from 'js-cookie';
 
 import { CreateCartInput, DeleteCartInput } from '@/types/cart';
-import { platform } from '@/utils';
 import { LineItem } from '@/utils/b3Product/b3Product';
+import { platform } from '@/utils/basicConfig';
 
 import B3Request from '../../request/b3Fetch';
 

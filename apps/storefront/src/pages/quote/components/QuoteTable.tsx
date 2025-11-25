@@ -16,7 +16,7 @@ import {
 } from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
-import { currencyFormat, snackbar } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import {
   calculateProductListPrice,
   getBCPrice,
@@ -25,6 +25,7 @@ import {
   setModifierQtyPrice,
 } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
+import { snackbar } from '@/utils/b3Tip';
 
 import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOptionsDialog';
 

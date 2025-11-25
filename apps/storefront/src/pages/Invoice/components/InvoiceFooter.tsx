@@ -5,7 +5,8 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice';
-import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils';
+import { snackbar } from '@/utils/b3Tip';
+import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
 
 import { formattingNumericValues, gotoInvoiceCheckoutUrl } from '../utils/payment';
 

@@ -11,7 +11,7 @@ import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
-import { currencyFormat } from '@/utils';
+import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 import getQuoteDraftShowPriceTBD from '../shared/utils';

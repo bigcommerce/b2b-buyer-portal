@@ -1,4 +1,4 @@
-import { convertObjectToGraphql } from '../../../../utils';
+import { convertObjectToGraphql } from '../../../../utils/graphqlDataConvert';
 import B3Request from '../../request/b3Fetch';
 
 const updateAccountSettings = (data: CustomFieldItems) => `mutation{
