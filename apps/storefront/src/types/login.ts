@@ -1,3 +1,5 @@
+import { CompanyStatusKeyType } from '@/utils/companyUtils';
+
 type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export type LoginFlagType =
@@ -7,6 +9,7 @@ export type LoginFlagType =
   | 'accountIncorrect'
   | 'accountPrelaunch'
   | 'deviceCrowdingLogIn'
-  | 'invoiceErrorTip';
+  | 'invoiceErrorTip'
+  | CompanyStatusKeyType;
 
 export type LoginTypeConfig = Record<LoginFlagType, { alertType: AlertColor; tip: string }>;

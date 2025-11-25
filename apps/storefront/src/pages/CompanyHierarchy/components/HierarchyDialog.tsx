@@ -19,7 +19,17 @@ import {
 import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils/b3Company';
 import { snackbar } from '@/utils/b3Tip';
 import { deleteCartData } from '@/utils/cartUtils';
-import { getTranslationKeyByMessage } from '@/utils/companyUtils';
+import { CompanyStatusKeyType, isCompanyError } from '@/utils/companyUtils';
+
+const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKeyType, string> = {
+  pendingApprovalToViewPrices:
+    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
+  pendingApprovalToOrder:
+    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+  pendingApprovalToAccessFeatures:
+    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
+  accountInactive: 'global.statusNotifications.businessAccountInactive',
+};
 
 interface HierarchyDialogProps {
   open: boolean;
@@ -97,18 +107,14 @@ function HierarchyDialog({
         }),
       );
     } catch (error) {
-      if (error instanceof Error) {
-        const i18nKey = getTranslationKeyByMessage(error.message);
-        if (i18nKey) {
-          snackbar.error(b3Lang(i18nKey));
-        } else {
-          snackbar.error(error.message);
-        }
+      if (isCompanyError(error)) {
+        snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
+      } else if (error instanceof Error) {
+        snackbar.error(error.message);
       }
       isMasquerading.current = false;
     } finally {
       setLoading(false);
-
       handleClose();
     }
   };

@@ -112,6 +112,22 @@ export const loginType: LoginTypeConfig = {
     alertType: 'error',
     tip: 'login.loginText.invoiceErrorTip',
   },
+  pendingApprovalToViewPrices: {
+    alertType: 'error',
+    tip: 'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
+  },
+  pendingApprovalToOrder: {
+    alertType: 'error',
+    tip: 'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+  },
+  pendingApprovalToAccessFeatures: {
+    alertType: 'error',
+    tip: 'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
+  },
+  accountInactive: {
+    alertType: 'error',
+    tip: 'global.statusNotifications.businessAccountInactive',
+  },
 };
 
 export const isLoginFlagType = (value?: unknown): value is LoginFlagType => {

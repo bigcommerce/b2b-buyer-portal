@@ -1,5 +1,6 @@
-import { CompanyHierarchyListProps, ConfigsSwitchStatusProps } from '@/types';
+import { CompanyHierarchyListProps, ConfigsSwitchStatusProps, LoginTypes } from '@/types';
 import { storeHash } from '@/utils/basicConfig';
+import { mapToCompanyError } from '@/utils/companyUtils';
 import {
   convertArrayToGraphql,
   convertObjectOrArrayKeysToCamel,
@@ -7,6 +8,19 @@ import {
 } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
+
+interface B2BTokenResponse {
+  authorization: {
+    result: {
+      token: string;
+      loginType: LoginTypes;
+      permissions: {
+        code: string;
+        permissionLevel: number;
+      }[];
+    };
+  };
+}
 
 interface ProductPriceOption {
   option_id: number;
@@ -487,10 +501,10 @@ const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
 	}
 }`;
 
-export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
-  B3Request.graphqlB2B({
+export const getB2BToken = (currentCustomerJWT: string, channelId = 1): Promise<B2BTokenResponse> =>
+  B3Request.graphqlB2B<B2BTokenResponse>({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
-  });
+  }).catch(mapToCompanyError);
 
 export const getAgentInfo = (customerId: string | number) =>
   B3Request.graphqlB2B({
@@ -576,7 +590,7 @@ export const startUserMasqueradingCompany = (companyId: number) =>
       variables: { companyId },
     },
     true,
-  );
+  ).catch(mapToCompanyError);
 
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({

@@ -23,7 +23,11 @@ import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, platform, storeHash } from '@/utils/basicConfig';
-import { getTranslationKeyByFlag, getTranslationKeyByMessage } from '@/utils/companyUtils';
+import {
+  CompanyStatusKeyType,
+  companyStatusMappingKeys,
+  isCompanyError,
+} from '@/utils/companyUtils';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -36,6 +40,16 @@ import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 import { useLogout } from './useLogout';
+
+const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKeyType, string> = {
+  pendingApprovalToViewPrices:
+    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
+  pendingApprovalToOrder:
+    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+  pendingApprovalToAccessFeatures:
+    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
+  accountInactive: 'global.statusNotifications.businessAccountInactive',
+};
 
 function Login(props: PageProps) {
   const { setOpenPage } = props;
@@ -99,8 +113,8 @@ function Login(props: PageProps) {
   useEffect(() => {
     (async () => {
       try {
-        const loginFlag = searchParams.get('loginFlag');
-        const showTipInfo = searchParams.get('showTip') !== 'false';
+        const loginFlag = searchParams.get('loginFlag') as LoginFlagType | null;
+        const showTipInfo: boolean = searchParams.get('showTip') !== 'false';
 
         setShowTipInfo(showTipInfo);
 
@@ -117,20 +131,10 @@ function Login(props: PageProps) {
           await logout();
         }
 
-        if (
-          loginFlag &&
-          [
-            'companyInactive',
-            'companyNeedApproval',
-            'companyNeedOrderApproval',
-            'companyNeedPricingApproval',
-          ].includes(loginFlag)
-        ) {
+        if (loginFlag && companyStatusMappingKeys.includes(loginFlag)) {
           await logout(false);
-          const translationKey = getTranslationKeyByFlag(loginFlag);
-          if (translationKey) {
-            snackbar.error(b3Lang(translationKey));
-          }
+          const { tip } = loginType[loginFlag];
+          snackbar.error(b3Lang(tip));
         }
         setLoading(false);
       } finally {
@@ -260,14 +264,11 @@ function Login(props: PageProps) {
           navigate(path);
         }
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          const i18nKey = getTranslationKeyByMessage(error.message);
-          if (i18nKey) {
-            snackbar.error(b3Lang(i18nKey));
-            await logout(false);
-          } else {
-            snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
-          }
+        if (isCompanyError(error)) {
+          snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
+          await logout(false);
+        } else if (error instanceof Error) {
+          snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
         }
       } finally {
         setLoading(false);

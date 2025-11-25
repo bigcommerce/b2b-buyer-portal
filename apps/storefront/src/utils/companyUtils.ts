@@ -1,47 +1,57 @@
 interface CompanyStatusMapping {
   message: string;
-  key: string;
-  flag: string;
+  reason: CompanyStatusKeyType;
 }
 
-const COMPANY_STATUS_MAPPINGS: CompanyStatusMapping[] = [
-  {
-    message:
-      'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
-    key: 'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
-    flag: 'companyNeedPricingApproval',
-  },
-  {
-    message:
-      'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.',
-    key: 'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
-    flag: 'companyNeedOrderApproval',
-  },
-  {
-    message:
-      'Your business account is pending approval. You will gain access to business account features after account approval.',
-    key: 'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
-    flag: 'companyNeedApproval',
-  },
-  {
-    message:
-      'This business account is inactive. Reach out to our support team to reactivate your account.',
-    key: 'global.statusNotifications.businessAccountInactive',
-    flag: 'companyInactive',
-  },
+export type CompanyStatusKeyType =
+  | 'pendingApprovalToViewPrices'
+  | 'pendingApprovalToOrder'
+  | 'pendingApprovalToAccessFeatures'
+  | 'accountInactive';
+
+export const companyStatusMappingKeys = [
+  'pendingApprovalToViewPrices',
+  'pendingApprovalToOrder',
+  'pendingApprovalToAccessFeatures',
+  'accountInactive',
 ];
 
-export const getFlagByMessage = (message: string): string | undefined => {
-  const mapping = COMPANY_STATUS_MAPPINGS.find((item) => item.message === message);
-  return mapping?.flag;
+const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKeyType> = {
+  'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
+    'pendingApprovalToViewPrices',
+  'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.':
+    'pendingApprovalToOrder',
+  'Your business account is pending approval. You will gain access to business account features after account approval.':
+    'pendingApprovalToAccessFeatures',
+  'This business account is inactive. Reach out to our support team to reactivate your account.':
+    'accountInactive',
 };
 
-export const getTranslationKeyByMessage = (message: string): string | undefined => {
-  const mapping = COMPANY_STATUS_MAPPINGS.find((item) => item.message === message);
-  return mapping?.key;
+export class CompanyError extends Error {
+  readonly reason: CompanyStatusKeyType;
+
+  constructor({ message, reason }: CompanyStatusMapping) {
+    super(message);
+    this.name = 'CompanyError';
+    this.reason = reason;
+  }
+}
+
+export const mapToCompanyError = (error: unknown) => {
+  if (error instanceof Error) {
+    const reason = COMPANY_STATUS_MESSAGE_MAPPINGS[error.message];
+    if (reason) {
+      throw new CompanyError({ message: error.message, reason });
+    }
+    throw error;
+  }
+  const message =
+    typeof error === 'object' && error !== null && 'message' in error
+      ? String(error.message)
+      : String(error);
+  throw new Error(message);
 };
 
-export const getTranslationKeyByFlag = (flag: string): string | undefined => {
-  const mapping = COMPANY_STATUS_MAPPINGS.find((item) => item.flag === flag);
-  return mapping?.key;
+export const isCompanyError = (error: unknown): error is CompanyError => {
+  return error instanceof CompanyError;
 };

@@ -186,25 +186,19 @@ const getCompanyUserInfo = async () => {
 
 const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
-  let currentCustomerJWT;
-  try {
-    currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId());
-  } catch (error) {
+  const currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId()).catch((error) => {
     // eslint-disable-next-line no-console
     console.error(error);
     return undefined;
-  }
+  });
 
   if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
-  let data;
-  try {
-    data = await getB2BToken(currentCustomerJWT, channelId);
-  } catch (error) {
+  const data = await getB2BToken(currentCustomerJWT, channelId).catch((error) => {
     // eslint-disable-next-line no-console
     console.error('Failed to get B2B token:', error);
     throw error;
-  }
+  });
 
   const B2BToken = data.authorization.result.token as string;
   const newLoginType = data.authorization.result.loginType as LoginTypes;
@@ -235,15 +229,13 @@ export const getCurrentCustomerInfo = async (
   let loginType = LoginTypes.GENERAL_LOGIN;
 
   if (!b2bToken && !B2BToken) {
-    try {
-      const data = await loginWithCurrentCustomerJWT();
-      if (!data) return undefined;
-      loginType = data.newLoginType;
-    } catch (error) {
+    const data = await loginWithCurrentCustomerJWT().catch((error) => {
       // eslint-disable-next-line no-console
       console.error('Failed to login with current customer JWT:', error);
       throw error;
-    }
+    });
+    if (!data) return undefined;
+    loginType = data.newLoginType;
   }
 
   try {
