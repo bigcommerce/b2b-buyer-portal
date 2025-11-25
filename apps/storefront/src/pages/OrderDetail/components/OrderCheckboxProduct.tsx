@@ -26,6 +26,7 @@ interface OrderCheckboxProductProps {
   products: EditableProductItem[];
   getProductQuantity?: (item: EditableProductItem) => number;
   onProductChange?: (products: EditableProductItem[]) => void;
+  checkedArr?: number[];
   setCheckedArr?: (items: number[]) => void;
   setReturnArr?: (items: ReturnListProps[]) => void;
   textAlign?: string;
@@ -37,6 +38,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     products,
     getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
+    checkedArr = [],
     setCheckedArr = () => {},
     setReturnArr = () => {},
     textAlign = 'left',
@@ -46,8 +48,6 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const b3Lang = useB3Lang();
 
   const [isMobile] = useMobile();
-
-  const [list, setList] = useState<number[]>([]);
 
   const [returnList, setReturnList] = useState<ReturnListProps[]>([]);
 
@@ -61,9 +61,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
   const handleSelectAllChange = () => {
-    const newList = [...list];
-    if (newList.length === products.length) {
-      setList([]);
+    if (checkedArr.length === products.length) {
+      setCheckedArr([]);
       setReturnList([]);
     } else {
       const variantIds = products.map((item) => item.variant_id);
@@ -75,13 +74,13 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         };
       });
 
-      setList(variantIds);
+      setCheckedArr(variantIds);
       setReturnList(returnIds);
     }
   };
 
   const handleSelectChange = (variantId: number, returnId: number, returnQty: number) => {
-    const newList = [...list];
+    const newList = [...checkedArr];
     const newReturnList = [...returnList];
     const index = newList.findIndex((item) => item === variantId);
     const returnIndex = newReturnList.findIndex((item) => item.returnId === returnId);
@@ -95,11 +94,11 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         returnQty,
       });
     }
-    setList(newList);
+    setCheckedArr(newList);
     setReturnList(newReturnList);
   };
 
-  const isChecked = (variantId: number) => list.includes(variantId);
+  const isChecked = (variantId: number) => checkedArr.includes(variantId);
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -142,12 +141,6 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   };
 
   useEffect(() => {
-    setCheckedArr(list);
-    // Disabling this line as this dispatcher does not need to be in the dep array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list]);
-
-  useEffect(() => {
     setReturnArr(returnList);
     // Disabling this line as this dispatcher does not need to be in the dep array
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,7 +150,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     <Box>
       {!isMobile && (
         <Flex isHeader isMobile={isMobile}>
-          <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
+          <Checkbox
+            checked={checkedArr.length === products.length}
+            onChange={handleSelectAllChange}
+          />
           <FlexItem>
             <ProductHead>{b3Lang('orderDetail.reorder.product')}</ProductHead>
           </FlexItem>
@@ -177,7 +173,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         <FormControlLabel
           label="Select all products"
           control={
-            <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
+            <Checkbox
+              checked={checkedArr.length === products.length}
+              onChange={handleSelectAllChange}
+            />
           }
           sx={{
             paddingLeft: '0.6rem',

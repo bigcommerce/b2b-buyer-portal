@@ -359,6 +359,7 @@ export default function OrderDialog({
         editQuantity: item.quantity,
       })),
     );
+    setCheckedArr([]);
 
     const getVariantInfoByList = async () => {
       const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
@@ -408,6 +409,7 @@ export default function OrderDialog({
           <OrderCheckboxProduct
             products={editableProducts}
             onProductChange={handleProductChange}
+            checkedArr={checkedArr}
             setCheckedArr={setCheckedArr}
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
