@@ -1,22 +1,14 @@
-interface CompanyStatusMapping {
-  message: string;
-  reason: CompanyStatusKeyType;
-}
-
-export type CompanyStatusKeyType =
+export type CompanyStatusKey =
   | 'pendingApprovalToViewPrices'
   | 'pendingApprovalToOrder'
   | 'pendingApprovalToAccessFeatures'
   | 'accountInactive';
 
-export const companyStatusMappingKeys = [
-  'pendingApprovalToViewPrices',
-  'pendingApprovalToOrder',
-  'pendingApprovalToAccessFeatures',
-  'accountInactive',
-];
-
-const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKeyType> = {
+interface CompanyStatusMapping {
+  message: string;
+  reason: CompanyStatusKey;
+}
+const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKey> = {
   'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
     'pendingApprovalToViewPrices',
   'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.':
@@ -28,7 +20,7 @@ const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKeyType> = {
 };
 
 export class CompanyError extends Error {
-  readonly reason: CompanyStatusKeyType;
+  readonly reason: CompanyStatusKey;
 
   constructor({ message, reason }: CompanyStatusMapping) {
     super(message);
@@ -45,10 +37,12 @@ export const mapToCompanyError = (error: unknown) => {
     }
     throw error;
   }
+
   const message =
     typeof error === 'object' && error !== null && 'message' in error
       ? String(error.message)
       : String(error);
+
   throw new Error(message);
 };
 

@@ -19,9 +19,9 @@ import {
 import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils/b3Company';
 import { snackbar } from '@/utils/b3Tip';
 import { deleteCartData } from '@/utils/cartUtils';
-import { CompanyStatusKeyType, isCompanyError } from '@/utils/companyUtils';
+import { CompanyStatusKey, isCompanyError } from '@/utils/companyUtils';
 
-const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKeyType, string> = {
+const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
   pendingApprovalToViewPrices:
     'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
   pendingApprovalToOrder:

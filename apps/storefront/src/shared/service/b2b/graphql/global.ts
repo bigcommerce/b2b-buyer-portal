@@ -501,7 +501,7 @@ const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
 	}
 }`;
 
-export const getB2BToken = (currentCustomerJWT: string, channelId = 1): Promise<B2BTokenResponse> =>
+export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
   B3Request.graphqlB2B<B2BTokenResponse>({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
   }).catch(mapToCompanyError);

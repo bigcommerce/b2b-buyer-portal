@@ -23,10 +23,8 @@ vi.mock('@/utils/loginInfo');
 const { server } = startMockServer();
 
 describe('LoginPage', () => {
-  let snackbarErrorSpy: ReturnType<typeof vi.spyOn>;
-
   beforeEach(() => {
-    snackbarErrorSpy = vi.spyOn(snackbar, 'error').mockImplementation(() => {});
+    vi.spyOn(snackbar, 'error');
   });
 
   describe('successful login and redirects', () => {
@@ -146,7 +144,7 @@ describe('LoginPage', () => {
       await renderLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbarErrorSpy).toHaveBeenCalledWith(
+        expect(snackbar.error).toHaveBeenCalledWith(
           "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
         );
       });
@@ -175,13 +173,13 @@ describe('LoginPage', () => {
       await renderLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbarErrorSpy).toHaveBeenCalledWith(
+        expect(snackbar.error).toHaveBeenCalledWith(
           'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
         );
       });
 
       await waitFor(() => {
-        expect(logoutMock).toHaveBeenCalledWith(false);
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
     });
 
@@ -208,12 +206,12 @@ describe('LoginPage', () => {
       await renderLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbarErrorSpy).toHaveBeenCalledWith(
+        expect(snackbar.error).toHaveBeenCalledWith(
           'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.',
         );
       });
       await waitFor(() => {
-        expect(logoutMock).toHaveBeenCalledWith(false);
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
     });
 
@@ -240,13 +238,13 @@ describe('LoginPage', () => {
       await renderLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbarErrorSpy).toHaveBeenCalledWith(
+        expect(snackbar.error).toHaveBeenCalledWith(
           'Your business account is pending approval. You will gain access to business account features after account approval.',
         );
       });
 
       await waitFor(() => {
-        expect(logoutMock).toHaveBeenCalledWith(false);
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
     });
 
@@ -273,13 +271,13 @@ describe('LoginPage', () => {
       await renderLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbarErrorSpy).toHaveBeenCalledWith(
+        expect(snackbar.error).toHaveBeenCalledWith(
           'This business account is inactive. Reach out to our support team to reactivate your account.',
         );
       });
 
       await waitFor(() => {
-        expect(logoutMock).toHaveBeenCalledWith(false);
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
     });
   });

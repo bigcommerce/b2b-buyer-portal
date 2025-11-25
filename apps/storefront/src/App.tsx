@@ -194,7 +194,7 @@ export default function App() {
       if (!customerId) {
         const info = await getCurrentCustomerInfo().catch((error) => {
           if (isCompanyError(error)) {
-            gotoPage(`/login?loginFlag=${error.reason}&showTip=false`);
+            gotoPage(`/login?loginFlag=${error.reason}`);
           }
         });
         if (info) {

@@ -34,12 +34,16 @@ const useEndCompanyMasquerading = () => {
   }, [selectCompanyHierarchyId]);
 };
 
+interface LogoutOptions {
+  showLogoutBanner?: boolean;
+}
+
 export const useLogout = () => {
   const endMasquerade = useEndMasquerade();
   const endCompanyMasquerading = useEndCompanyMasquerading();
 
   const logout = useCallback(
-    async (showLogoutBanner: boolean = true) => {
+    async ({ showLogoutBanner = true }: LogoutOptions) => {
       try {
         const { result } = (await bcLogoutLogin()).data.logout;
 

@@ -23,11 +23,7 @@ import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, platform, storeHash } from '@/utils/basicConfig';
-import {
-  CompanyStatusKeyType,
-  companyStatusMappingKeys,
-  isCompanyError,
-} from '@/utils/companyUtils';
+import { CompanyStatusKey, isCompanyError } from '@/utils/companyUtils';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -41,7 +37,7 @@ import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 import { useLogout } from './useLogout';
 
-const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKeyType, string> = {
+const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
   pendingApprovalToViewPrices:
     'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
   pendingApprovalToOrder:
@@ -50,6 +46,14 @@ const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKeyType, string> = {
     'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
   accountInactive: 'global.statusNotifications.businessAccountInactive',
 };
+
+const shouldLogout: LoginFlagType[] = [
+  'loggedOutLogin',
+  'pendingApprovalToViewPrices',
+  'pendingApprovalToOrder',
+  'pendingApprovalToAccessFeatures',
+  'accountInactive',
+];
 
 function Login(props: PageProps) {
   const { setOpenPage } = props;
@@ -113,29 +117,19 @@ function Login(props: PageProps) {
   useEffect(() => {
     (async () => {
       try {
-        const loginFlag = searchParams.get('loginFlag') as LoginFlagType | null;
-        const showTipInfo: boolean = searchParams.get('showTip') !== 'false';
+        const loginFlag = searchParams.get('loginFlag');
+        const showTipInfo = searchParams.get('showTip') !== 'false';
 
         setShowTipInfo(showTipInfo);
 
         if (isLoginFlagType(loginFlag)) {
           setLoginFlag(loginFlag);
+
+          if (isLoggedIn && shouldLogout.includes(loginFlag)) {
+            await logout({ showLogoutBanner: loginFlag === 'loggedOutLogin' });
+          }
         }
 
-        if (loginFlag === 'invoiceErrorTip') {
-          const { tip } = loginType[loginFlag];
-          snackbar.error(b3Lang(tip));
-        }
-
-        if (loginFlag === 'loggedOutLogin' && isLoggedIn) {
-          await logout();
-        }
-
-        if (loginFlag && companyStatusMappingKeys.includes(loginFlag)) {
-          await logout(false);
-          const { tip } = loginType[loginFlag];
-          snackbar.error(b3Lang(tip));
-        }
         setLoading(false);
       } finally {
         setLoading(false);
@@ -266,7 +260,7 @@ function Login(props: PageProps) {
       } catch (error: unknown) {
         if (isCompanyError(error)) {
           snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
-          await logout(false);
+          await logout({ showLogoutBanner: false });
         } else if (error instanceof Error) {
           snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
         }
