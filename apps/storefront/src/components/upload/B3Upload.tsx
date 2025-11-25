@@ -6,6 +6,7 @@ import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { useMobile } from '@/hooks/useMobile';
+import { ValidProductItem } from '@/pages/QuickOrder/components/ValidProduct';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
@@ -29,8 +30,11 @@ interface B3UploadProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   bulkUploadTitle?: string;
   addBtnText?: string;
-  handleAddToList: (validProduct: CustomFieldItems) => Promise<void>;
-  setProductData?: (product: CustomFieldItems) => void;
+  handleAddToList: (data: {
+    validProduct: ValidProductItem[];
+    stockErrorFile: string;
+  }) => Promise<void>;
+  setProductData?: (products: ValidProductItem[]) => void;
   isLoading?: boolean;
   isToCart?: boolean;
   withModifiers?: boolean;
@@ -216,17 +220,13 @@ export function B3Upload(props: B3UploadProps) {
   const handleConfirmToList = async () => {
     const validProduct = fileDatas?.validProduct || [];
     const stockErrorFile = fileDatas?.stockErrorFile || '';
-    const stockErrorSkus = fileDatas?.stockErrorSkus || [];
     if (validProduct?.length === 0) return;
 
     if (validProduct) {
-      const productsData: CustomFieldItems = {
+      const productsData: { validProduct: ValidProductItem[]; stockErrorFile: string } = {
         validProduct,
+        stockErrorFile,
       };
-
-      if (stockErrorSkus.length > 0) {
-        productsData.stockErrorFile = stockErrorFile;
-      }
 
       await handleAddToList(productsData);
 
