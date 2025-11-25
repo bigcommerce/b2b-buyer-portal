@@ -9,6 +9,7 @@ import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountV
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { validateProducts } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
@@ -19,13 +20,14 @@ import { addCartProductToVerify } from '../utils';
 
 import QuickAdd from './QuickAdd';
 import SearchProduct from './SearchProduct';
+import { ValidProductItem } from './ValidProduct';
 
 export default function QuickOrderPad() {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false);
-  const [productData, setProductData] = useState<CustomFieldItems>([]);
+  const [productData, setProductData] = useState<ValidProductItem[]>([]);
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart');
   const [isLoading, setIsLoading] = useState(false);
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
@@ -75,7 +77,7 @@ export default function QuickOrderPad() {
     b3TriggerCartNumber();
   };
 
-  const getValidProducts = (products: CustomFieldItems) => {
+  const getValidProducts = (products: ValidProductItem[]) => {
     const notPurchaseSku: string[] = [];
     const productItems: CustomFieldItems[] = [];
     const limitProduct: CustomFieldItems[] = [];
@@ -157,7 +159,10 @@ export default function QuickOrderPad() {
     };
   };
 
-  const handleAddToCart = async (productsData: CustomFieldItems) => {
+  const handleAddToCart = async (productsData: {
+    validProduct: ValidProductItem[];
+    stockErrorFile: string;
+  }) => {
     setIsLoading(true);
     try {
       const { stockErrorFile, validProduct } = productsData;
@@ -245,29 +250,118 @@ export default function QuickOrderPad() {
     }
   };
 
-  const handleAddCSVToCart = async (productsData: CustomFieldItems) => {
+  const handleAddCSVToCart = async (productsData: {
+    validProduct: ValidProductItem[];
+    stockErrorFile: string;
+  }) => {
     setIsLoading(true);
     try {
-      const { validProduct } = productsData;
+      const { validProduct, stockErrorFile } = productsData;
 
-      // Convert products to cart format
-      const productItems = validProduct.map((item: CustomFieldItems) => ({
+      const productsToValidate = validProduct.map((item: CustomFieldItems) => ({
         productId: Number(item.products?.productId) || 0,
         variantId: Number(item.products?.variantId) || 0,
         quantity: Number(item.qty) || 0,
-        optionSelections:
+        productOptions:
           item.products?.option?.map((opt: CustomFieldItems) => ({
             optionId: opt.option_id,
             optionValue: opt.id,
           })) || [],
-        allOptions: item.products?.modifiers || [],
       }));
 
-      const res = await createOrUpdateExistingCart(productItems);
+      const validationResult = await validateProducts({ products: productsToValidate });
 
-      getSnackbarMessage(res);
-      b3TriggerCartNumber();
+      const outOfStockProducts = validationResult.products.filter(
+        (product) => product.errorCode === 'OOS',
+      );
 
+      outOfStockProducts.forEach(({ product }) => {
+        snackbar.warning(
+          b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
+            variantSku: product.sku,
+          }),
+          {
+            description: b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
+              availableAmount: product.availableToSell,
+            }),
+          },
+        );
+      });
+
+      if (outOfStockProducts.length > 0 && stockErrorFile) {
+        snackbar.error(
+          b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
+            outOfStock: outOfStockProducts.map(({ product }) => product.sku).join(','),
+          }),
+          {
+            action: {
+              label: b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV'),
+              onClick: () => {
+                window.location.href = stockErrorFile;
+              },
+            },
+          },
+        );
+      }
+
+      const nonPurchasableProducts = validationResult.products.filter(
+        (product) => product.errorCode === 'NON_PURCHASABLE',
+      );
+
+      if (nonPurchasableProducts.length > 0) {
+        snackbar.error(
+          b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
+            notPurchaseSku: nonPurchasableProducts.map(({ product }) => product.sku).join(','),
+          }),
+        );
+      }
+
+      const otherErrorProducts = validationResult.products.filter(
+        (product) => product.errorCode === 'OTHER',
+      );
+
+      if (otherErrorProducts.length > 0) {
+        otherErrorProducts.forEach(({ product }) => {
+          snackbar.error(
+            b3Lang('purchasedProducts.quickOrderPad.otherError', {
+              sku: product.sku,
+            }),
+          );
+        });
+      }
+
+      const validProductMap = validProduct.reduce<Record<string, ValidProductItem>>((acc, item) => {
+        acc[item.products?.variantSku.toUpperCase()] = item;
+        return acc;
+      }, {});
+
+      const cartLineItems = validationResult.products
+        .filter((product) => product?.responseType === 'SUCCESS')
+        .map((product) => {
+          const validProduct = validProductMap[product.product.sku.toUpperCase()];
+          if (!validProduct) {
+            return null;
+          }
+
+          return {
+            productId: Number(validProduct.products.productId) || 0,
+            variantId: Number(validProduct.products.variantId) || 0,
+            quantity: Number(validProduct.qty) || 0,
+            optionSelections:
+              validProduct?.products?.option?.map((opt: CustomFieldItems) => ({
+                optionId: opt.option_id,
+                optionValue: opt.id,
+              })) || [],
+            allOptions: validProduct.products?.modifiers || [],
+          };
+        })
+        .filter((item) => item !== null);
+
+      if (cartLineItems.length > 0) {
+        const res = await createOrUpdateExistingCart(cartLineItems);
+        getSnackbarMessage(res);
+        b3TriggerCartNumber();
+      }
       setIsOpenBulkLoadCSV(false);
     } catch (error) {
       if (error instanceof Error) {

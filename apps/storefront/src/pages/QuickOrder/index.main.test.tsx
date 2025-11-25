@@ -3272,8 +3272,11 @@ describe('When backend validation feature flag is on', () => {
               validProduct: [
                 buildCSVProductWith({
                   products: {
+                    productId: '1',
+                    variantId: 2,
                     productName: 'Test Product 1',
                     variantSku: 'TEST-SKU-123',
+                    option: [],
                   },
                   qty: '2',
                   row: 1,
@@ -3288,6 +3291,41 @@ describe('When backend validation feature flag is on', () => {
         },
       });
 
+      const productsValidation = vi.fn();
+
+      when(productsValidation)
+        .calledWith({
+          products: expect.arrayContaining([
+            expect.objectContaining({
+              productId: 1,
+              variantId: 2,
+              quantity: 2,
+            }),
+          ]),
+        })
+        .thenReturn({
+          data: {
+            validateProducts: {
+              isValid: true,
+              products: [
+                {
+                  errorCode: 'SUCCESS',
+                  responseType: 'SUCCESS',
+                  message: '',
+                  product: {
+                    productId: 1,
+                    variantId: 2,
+                    quantity: 2,
+                    sku: 'TEST-SKU-123',
+                    availableToSell: 100,
+                    unlimitedBackorder: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
       const getCart = vi.fn().mockReturnValue(buildGetCartWith({}));
       const createCartSimple = vi.fn().mockReturnValue({
         data: { cart: { createCart: { cart: { entityId: '12345' } } } },
@@ -3300,6 +3338,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
         graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
@@ -3375,6 +3416,8 @@ describe('When backend validation feature flag is on', () => {
                 validProduct: [
                   buildCSVProductWith({
                     products: {
+                      productId: '1',
+                      variantId: 2,
                       productName: 'New Cart Product',
                       variantSku: 'NEW-CART-SKU-123',
                     },
@@ -3412,6 +3455,39 @@ describe('When backend validation feature flag is on', () => {
           }),
         );
 
+        const productsValidation = vi.fn();
+
+        when(productsValidation)
+          .calledWith({
+            products: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 1,
+                variantId: 2,
+                quantity: 3,
+              }),
+            ]),
+          })
+          .thenReturn({
+            data: {
+              validateProducts: {
+                isValid: true,
+                products: [
+                  {
+                    errorCode: 'SUCCESS',
+                    responseType: 'SUCCESS',
+                    message: '',
+                    product: {
+                      productId: 1,
+                      variantId: 2,
+                      sku: 'NEW-CART-SKU-123',
+                      availableToSell: 100,
+                      unlimitedBackorder: false,
+                    },
+                  },
+                ],
+              },
+            },
+          });
         server.use(
           graphql.query('RecentlyOrderedProducts', () =>
             HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3419,6 +3495,9 @@ describe('When backend validation feature flag is on', () => {
           graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
           graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
           graphql.query('getCart', () => HttpResponse.json(getCart())),
+          graphql.query('ValidateProducts', ({ variables }) =>
+            HttpResponse.json(productsValidation(variables)),
+          ),
           graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
           graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
         );
@@ -3485,6 +3564,8 @@ describe('When backend validation feature flag is on', () => {
                   products: {
                     productName: 'Failed Cart Product',
                     variantSku: 'FAIL-CART-SKU-123',
+                    productId: '1',
+                    variantId: 2,
                   },
                   qty: '2',
                   row: 1,
@@ -3509,6 +3590,27 @@ describe('When backend validation feature flag is on', () => {
         errors: [{ message: 'Failed to create cart due to server error' }],
       });
 
+      const productsValidation = vi.fn().mockReturnValue({
+        data: {
+          validateProducts: {
+            isValid: true,
+            products: [
+              {
+                errorCode: 'SUCCESS',
+                responseType: 'SUCCESS',
+                message: '',
+                product: {
+                  productId: 1,
+                  variantId: 2,
+                  sku: 'FAIL-CART-SKU-123',
+                  availableToSell: 100,
+                  unlimitedBackorder: false,
+                },
+              },
+            ],
+          },
+        },
+      });
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3516,6 +3618,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
       );
 
@@ -3595,6 +3700,41 @@ describe('When backend validation feature flag is on', () => {
         },
       });
 
+      const productsValidation = vi.fn();
+
+      when(productsValidation)
+        .calledWith({
+          products: expect.arrayContaining([
+            expect.objectContaining({
+              productId: 1,
+              variantId: 2,
+              quantity: 1,
+            }),
+          ]),
+        })
+        .thenReturn({
+          data: {
+            validateProducts: {
+              isValid: true,
+              products: [
+                {
+                  errorCode: 'OOS',
+                  responseType: 'ERROR',
+                  message: '',
+                  product: {
+                    productId: 1,
+                    variantId: 2,
+                    quantity: 1,
+                    sku: 'INVALID-SKU-456',
+                    availableToSell: 0,
+                    unlimitedBackorder: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3602,6 +3742,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(buildGetCartWith({}))),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
             buildAddCartLineItemsResponseWith({
@@ -3669,6 +3812,8 @@ describe('When backend validation feature flag is on', () => {
                   products: {
                     productName: 'Out of Stock Product',
                     variantSku: 'OOS-SKU-123',
+                    productId: '1',
+                    variantId: 2,
                   },
                   qty: '5',
                   row: 1,
@@ -3701,6 +3846,40 @@ describe('When backend validation feature flag is on', () => {
         ],
       });
 
+      const productsValidation = vi.fn();
+
+      when(productsValidation)
+        .calledWith({
+          products: expect.arrayContaining([
+            expect.objectContaining({
+              productId: 1,
+              variantId: 2,
+              quantity: 5,
+            }),
+          ]),
+        })
+        .thenReturn({
+          data: {
+            validateProducts: {
+              isValid: true,
+              products: [
+                {
+                  errorCode: 'OOS',
+                  responseType: 'ERROR',
+                  message: '',
+                  product: {
+                    productId: 1,
+                    variantId: 2,
+                    sku: 'OOS-SKU-123',
+                    availableToSell: 0,
+                    unlimitedBackorder: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3708,6 +3887,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
@@ -3769,6 +3951,8 @@ describe('When backend validation feature flag is on', () => {
                   products: {
                     productName: 'Min Quantity Product',
                     variantSku: 'MIN-QTY-SKU-123',
+                    productId: '1',
+                    variantId: 2,
                   },
                   qty: '1',
                   row: 1,
@@ -3800,6 +3984,28 @@ describe('When backend validation feature flag is on', () => {
         ],
       });
 
+      const productsValidation = vi.fn().mockReturnValue({
+        data: {
+          validateProducts: {
+            isValid: true,
+            products: [
+              {
+                errorCode: 'SUCCESS',
+                responseType: 'SUCCESS',
+                message: '',
+                product: {
+                  productId: 1,
+                  variantId: 2,
+                  quantity: 1,
+                  sku: 'MIN-QTY-SKU-123',
+                  availableToSell: 100,
+                  unlimitedBackorder: false,
+                },
+              },
+            ],
+          },
+        },
+      });
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3807,6 +4013,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
@@ -3872,6 +4081,8 @@ describe('When backend validation feature flag is on', () => {
                   products: {
                     productName: 'Error Product',
                     variantSku: 'ERROR-SKU-123',
+                    productId: '1',
+                    variantId: 2,
                   },
                   qty: '1',
                   row: 1,
@@ -3903,6 +4114,31 @@ describe('When backend validation feature flag is on', () => {
         ],
       });
 
+      // return a successful validation response
+      // to test the cart api error message
+      const productsValidation = vi.fn().mockReturnValue({
+        data: {
+          validateProducts: {
+            isValid: true,
+            products: [
+              {
+                errorCode: 'SUCCESS',
+                responseType: 'SUCCESS',
+                message: '',
+                product: {
+                  productId: 1,
+                  variantId: 2,
+                  quantity: 1,
+                  sku: 'ERROR-SKU-123',
+                  availableToSell: 100,
+                  unlimitedBackorder: false,
+                },
+              },
+            ],
+          },
+        },
+      });
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -3910,6 +4146,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () =>
           HttpResponse.json({
             data: { cart: { createCart: { cart: { entityId: '12345' } } } },
@@ -3981,6 +4220,8 @@ describe('When backend validation feature flag is on', () => {
                   products: {
                     productName: 'Test Product With Modifiers',
                     variantSku: 'MODIFIER-SKU-123',
+                    productId: '1',
+                    variantId: 2,
                   },
                   qty: '3',
                   row: 1,
@@ -3999,6 +4240,28 @@ describe('When backend validation feature flag is on', () => {
       const createCartSimple = vi.fn().mockReturnValue({
         data: { cart: { createCart: { cart: { entityId: '12345' } } } },
       });
+      const productsValidation = vi.fn().mockReturnValue({
+        data: {
+          validateProducts: {
+            isValid: true,
+            products: [
+              {
+                errorCode: 'SUCCESS',
+                responseType: 'SUCCESS',
+                message: '',
+                product: {
+                  productId: 1,
+                  variantId: 2,
+                  quantity: 3,
+                  sku: 'MODIFIER-SKU-123',
+                  availableToSell: 100,
+                  unlimitedBackorder: false,
+                },
+              },
+            ],
+          },
+        },
+      });
 
       const productUpload = vi.fn();
       when(productUpload)
@@ -4012,6 +4275,9 @@ describe('When backend validation feature flag is on', () => {
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(productUpload(query))),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
         graphql.mutation('addCartLineItemsTwo', () =>
           HttpResponse.json(
