@@ -328,7 +328,9 @@ export default function QuickAdd() {
     productItems: CustomFieldItems[];
     passSku: string[];
     notFoundSkus: string[];
-    validationErrors: (ValidatedProductWarning | ValidatedProductError)[];
+    validationErrors: Array<
+      ValidatedProductWarning<CustomFieldItems> | ValidatedProductError<CustomFieldItems>
+    >;
   }> => {
     const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
 

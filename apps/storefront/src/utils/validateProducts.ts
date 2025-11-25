@@ -16,89 +16,151 @@ interface ServerValidationError {
 
 type ValidationError = NetworkValidationError | ServerValidationError;
 
-interface ValidatedProductSuccess {
-  status: 'success';
-  product: CustomFieldItems;
+interface Product {
+  productId: number;
+  variantId: number;
+  quantity: number;
+  productOptions: Option[];
 }
-export interface ValidatedProductWarning {
+
+interface ValidatedProductSuccess<T> {
+  status: 'success';
+  product: T;
+}
+
+export interface ValidatedProductWarning<T> {
   status: 'warning';
   message: string;
-  product: CustomFieldItems;
+  product: T;
 }
-export interface ValidatedProductError {
+
+export interface ValidatedProductError<T> {
   status: 'error';
   error: ValidationError;
-  product: CustomFieldItems;
+  product: T;
 }
 
-type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
+type ValidatedProduct<T> =
+  | ValidatedProductSuccess<T>
+  | ValidatedProductWarning<T>
+  | ValidatedProductError<T>;
 
-interface ValidateProductsResult {
-  success: ValidatedProductSuccess[];
-  warning: ValidatedProductWarning[];
-  error: ValidatedProductError[];
+interface ValidateProductsResult<T> {
+  success: ValidatedProductSuccess<T>[];
+  warning: ValidatedProductWarning<T>[];
+  error: ValidatedProductError<T>[];
 }
 
-const transformProductListToBeCompatibleWithValidateProducts = (products: CustomFieldItems[]) => {
-  return products.map((product) => {
-    if ('node' in product) {
-      return {
-        ...product.node,
-        productsSearch: {
-          ...product.node.productsSearch,
-          selectedOptions: product.node.productsSearch.newSelectOptionList,
-        },
+type ValidateProductsInput =
+  | Product
+  | {
+      node: {
+        productId: number;
+        quantity: number;
+        productsSearch: { variantId: number; newSelectOptionList?: any[]; selectedOptions?: any[] };
       };
     }
-    return {
-      ...product,
-      productsSearch: {
-        ...product.productsSearch,
-        selectedOptions: product.options,
-        variantId: product.variantId,
-      },
-    };
-  });
+  | {
+      productId: number;
+      variantId: number;
+      quantity: number;
+      productsSearch?: { variantId: number; newSelectOptionList?: any[]; selectedOptions?: any[] };
+    }
+  | CustomFieldItems;
+
+const isProduct = (input: ValidateProductsInput): input is Product => {
+  if (typeof input !== 'object' || input === null) return false;
+
+  return (
+    'productId' in input && 'variantId' in input && 'quantity' in input && 'productOptions' in input
+  );
 };
 
-export const validateProducts = async (
-  products: CustomFieldItems[],
-): Promise<ValidateProductsResult> => {
-  const productsList = transformProductListToBeCompatibleWithValidateProducts(products);
+const transformProductOptions = (option: Option) => {
+  if (typeof option.optionId === 'string' && option.optionId.includes('attribute')) {
+    // The passed in optionIds are formatted like "attribute[123]"
+    // This extracts the number from the optionId
+    return {
+      optionId: Number(option.optionId.split('[')[1].split(']')[0]),
+      optionValue: option.optionValue,
+    };
+  }
 
-  const validationPromises = productsList.map((product) => {
-    const { productId, quantity, productsSearch } = product;
+  return {
+    optionId: Number(option.optionId),
+    optionValue: option.optionValue,
+  };
+};
 
-    const { variantId, selectedOptions } = productsSearch;
+const transformProductForValidation = (product: ValidateProductsInput): Product => {
+  if ('node' in product && product.node?.productsSearch) {
+    const { node } = product;
+    const { productsSearch } = node;
+    const options = productsSearch.newSelectOptionList || productsSearch.selectedOptions || [];
 
-    const productOptions = selectedOptions.map((option: Option) => {
-      if (typeof option.optionId === 'string' && option.optionId.includes('attribute')) {
-        // The passed in optionIds are formatted like "attribute[123]"
-        // This extracts the number from the optionId
-        return {
-          optionId: Number(option.optionId.split('[')[1].split(']')[0]),
-          optionValue: option.optionValue,
-        };
-      }
+    return {
+      productId: Number(node.productId),
+      variantId: Number(productsSearch.variantId),
+      quantity: Number(node.quantity),
+      productOptions: options.map((opt: any) => ({
+        optionId: opt.optionId,
+        optionValue: String(opt.optionValue),
+      })),
+    };
+  }
 
-      return {
-        optionId: Number(option.optionId),
-        optionValue: option.optionValue,
-      };
-    });
+  if (
+    'productId' in product &&
+    'variantId' in product &&
+    !('productOptions' in product) &&
+    'productsSearch' in product
+  ) {
+    const options =
+      product.productsSearch?.newSelectOptionList || product.productsSearch?.selectedOptions || [];
 
-    return validateProduct({
-      productId: Number(productId),
-      variantId: Number(variantId),
-      quantity: Number(quantity),
-      productOptions,
-    });
-  });
+    return {
+      productId: Number(product.productId),
+      variantId: Number(product.productsSearch?.variantId || product.variantId),
+      quantity: Number(product.quantity),
+      productOptions: options.map((opt: any) => ({
+        optionId: opt.optionId,
+        optionValue: String(opt.optionValue),
+      })),
+    };
+  }
 
-  const settledResults = await Promise.allSettled(validationPromises);
+  if (isProduct(product)) {
+    return {
+      productId: Number(product.productId),
+      variantId: Number(product.variantId),
+      quantity: Number(product.quantity),
+      productOptions: product.productOptions || [],
+    };
+  }
 
-  const validatedProducts = products.map<ValidatedProduct>((product, index) => {
-    const res = settledResults[index];
+  throw new Error('Unsupported product shape provided to validateProducts');
+};
+
+function mapToValidateProducts<T extends ValidateProductsInput>(product: T) {
+  const { productId, variantId, quantity, productOptions } = transformProductForValidation(product);
+
+  return {
+    productId,
+    variantId,
+    quantity,
+    productOptions: productOptions.map(transformProductOptions),
+  };
+}
+
+export const validateProducts = async <T extends ValidateProductsInput>(
+  products: T[],
+): Promise<ValidateProductsResult<T>> => {
+  const results = await Promise.allSettled(
+    products.map(mapToValidateProducts).map(validateProduct),
+  );
+
+  const validatedProducts = products.map<ValidatedProduct<T>>((product, index) => {
+    const res = results[index];
 
     if (res.status === 'rejected') {
       return {
