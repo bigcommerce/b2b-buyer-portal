@@ -1,4 +1,5 @@
 import { platform } from '@/utils/basicConfig';
+import { mapToCompanyError } from '@/utils/companyUtils';
 
 import B3Request from '../../request/b3Fetch';
 
@@ -59,15 +60,15 @@ const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
     }
   }
 }`;
-// customMessage: field used to determine whether to use a custom message
-export const b2bLogin = (variables: LoginData, customMessage = true): Promise<UserLoginResult> =>
-  B3Request.graphqlB2B(
+
+export const b2bLogin = (variables: LoginData): Promise<UserLoginResult> =>
+  B3Request.graphqlB2B<UserLoginResult>(
     {
       query: getB2bLogin,
       variables,
     },
-    customMessage,
-  );
+    true,
+  ).catch(mapToCompanyError);
 
 interface LoginVariables {
   email: string;

@@ -21,6 +21,7 @@ import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
+import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -191,7 +192,11 @@ export default function App() {
       };
 
       if (!customerId) {
-        const info = await getCurrentCustomerInfo();
+        const info = await getCurrentCustomerInfo().catch((error) => {
+          if (isCompanyError(error)) {
+            gotoPage(`/login?loginFlag=${error.reason}`);
+          }
+        });
         if (info) {
           userInfo.role = info?.role;
         }
