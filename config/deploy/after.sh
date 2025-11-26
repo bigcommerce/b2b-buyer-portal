@@ -12,16 +12,35 @@ fi
 
 REVISION_TITLE="${SHA}-$(date +%s)"
 
-index_js=$(find . -name 'index.*.js' -not -path './assets/*' -type f -printf '%f')
-poly_js=$(find . -name 'polyfills-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
-index_legacy_js=$(find . -name 'index-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
+index_js=$(jq -r '."src/main.ts".file' .vite/manifest.json)
+poly_js=$(jq -r '."vite/legacy-polyfills-legacy".file' .vite/manifest.json)
+index_legacy_js=$(jq -r '."src/main-legacy.ts".file' .vite/manifest.json)
+
+if [[ ! -f "${index_js}" ]]; then
+  echo "Error: ${index_js} not found!"
+  exit 1
+fi
+
+if [[ ! -f "${poly_js}" ]]; then
+  echo "Error: ${poly_js} not found!"
+  exit 1
+fi
+
+if [[ ! -f "${index_legacy_js}" ]]; then
+  echo "Error: ${index_legacy_js} not found!"
+  exit 1
+fi
+
+index_js_sri=$(openssl dgst -sha384 -binary "${index_js}" | openssl base64 -A)
+poly_js_sri=$(openssl dgst -sha384 -binary "${poly_js}" | openssl base64 -A)
+index_legacy_js_sri=$(openssl dgst -sha384 -binary "${index_legacy_js}" | openssl base64 -A)
 
 tee create_revision_payload.json <<EOF >/dev/null
 {
   "jsFiles": [
-    "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_js}\"></script>",
-    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${poly_js}\"></script>",
-    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_legacy_js}\"></script>"
+    "<script type=\"module\" crossorigin integrity=\"sha384-${index_js_sri}\" src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_js}\"></script>",
+    "<script nomodule crossorigin integrity=\"sha384-${poly_js_sri}\" src=\"$CDN_BASE_URL/b2b-buyer-portal/${poly_js}\"></script>",
+    "<script nomodule crossorigin integrity=\"sha384-${index_legacy_js_sri}\" src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_legacy_js}\"></script>"
   ],
   "revisionTitle": "${REVISION_TITLE}"
 }
