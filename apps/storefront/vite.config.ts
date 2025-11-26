@@ -76,6 +76,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       },
     },
     build: {
+      manifest: true,
       minify: true,
       sourcemap: true,
       rollupOptions: {
