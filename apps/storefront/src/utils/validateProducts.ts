@@ -29,6 +29,7 @@ export interface ValidatedProductError {
   status: 'error';
   error: ValidationError;
   product: CustomFieldItems;
+  errorCode?: string;
 }
 
 type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
@@ -106,6 +107,7 @@ export const validateProducts = async (
         error: {
           type: 'network',
         },
+        errorCode: 'NETWORK_ERROR',
         product,
       };
     }
@@ -118,6 +120,7 @@ export const validateProducts = async (
             type: 'validation',
             message: res.value.message,
           },
+          errorCode: res.value.errorCode,
           product,
         };
       case 'WARNING':

@@ -231,17 +231,61 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
       const { success, warning, error } = await validateProducts(products);
 
+      const oosProducts: string[] = [];
+      const nonPurchasableProducts: string[] = [];
+      const otherErrorProducts: string[] = [];
+      const networkErrorProducts: string[] = [];
+
       error.forEach((err) => {
+        const productName = err.product.node?.productName || '';
+
         if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
-            }),
-          );
+          networkErrorProducts.push(productName);
         } else {
-          snackbar.error(err.error.message);
+          switch (err.errorCode) {
+            case 'OOS':
+              oosProducts.push(productName);
+              break;
+            case 'NON_PURCHASABLE':
+              nonPurchasableProducts.push(productName);
+              break;
+            default:
+              otherErrorProducts.push(productName);
+          }
         }
       });
+
+      if (oosProducts.length > 0) {
+        snackbar.error(
+          b3Lang('purchasedProducts.quickAdd.insufficientStockSku', {
+            stockSku: oosProducts.join(', '),
+          }),
+        );
+      }
+
+      if (nonPurchasableProducts.length > 0) {
+        snackbar.error(
+          b3Lang('purchasedProducts.quickAdd.notPurchaseableSku', {
+            notPurchaseSku: nonPurchasableProducts.join(', '),
+          }),
+        );
+      }
+
+      if (otherErrorProducts.length > 0) {
+        snackbar.error(
+          b3Lang('quotes.productValidationFailed', {
+            productName: otherErrorProducts.join(', '),
+          }),
+        );
+      }
+
+      if (networkErrorProducts.length > 0) {
+        snackbar.error(
+          b3Lang('quotes.productValidationFailed', {
+            productName: networkErrorProducts.join(', '),
+          }),
+        );
+      }
 
       const validProducts = [...success, ...warning].map((product) => product.product);
 
