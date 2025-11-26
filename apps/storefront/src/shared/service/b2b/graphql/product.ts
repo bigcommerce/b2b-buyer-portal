@@ -320,6 +320,7 @@ export interface ValidateProductResponse {
     validateProduct: {
       responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
       message: string;
+      errorCode: string;
     };
   };
 }
