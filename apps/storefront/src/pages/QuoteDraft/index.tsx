@@ -18,6 +18,7 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { createQuote, getB2BCustomerAddresses, getBCCustomerAddresses } from '@/shared/service/b2b';
+import { validateProducts } from '@/shared/service/b2b/graphql/product';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
   activeCurrencyInfoSelector,
@@ -48,7 +49,6 @@ import { snackbar } from '@/utils/b3Tip';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
-import { validateProducts } from '@/utils/validateProducts';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
 import { convertBCToB2BAddress } from '../AddressList/shared/config';
@@ -454,25 +454,93 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (!isEnableProduct && isMoveStockAndBackorderValidationToBackend) {
-      const { success, warning, error } = await validateProducts(products);
+      const productsMap = Object.fromEntries(
+        products
+          .filter((product) => product?.productsSearch?.sku)
+          .map((product) => [product.productsSearch.sku.toUpperCase(), product]),
+      ) as Record<string, CustomFieldItems>;
 
-      error.forEach((err) => {
-        if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
-            }),
-          );
-        } else {
-          snackbar.error(err.error.message);
-        }
+      const { products: validatedProducts } = await validateProducts({
+        products: products.map((product) => ({
+          productId: Number(product.productId),
+          variantId: Number(product.variantId),
+          quantity: product.quantity,
+          productOptions: product.productsSearch?.selectedOptions
+            ?.map((option: { optionId: number; optionValue: string } | null) => {
+              if (option) {
+                return {
+                  optionId: option.optionId,
+                  optionValue: option.optionValue,
+                };
+              }
+              return null;
+            })
+            ?.filter((option: { optionId: number; optionValue: string } | null) => option !== null),
+        })),
       });
 
-      const validProducts = [...success, ...warning].map((product) => product.product);
+      const successProducts = validatedProducts.filter(
+        (product) => product.responseType === 'SUCCESS',
+      );
+      const outOfStockProducts = validatedProducts.filter((product) => product.errorCode === 'OOS');
+      const unavailableProducts = validatedProducts.filter(
+        (product) => product.errorCode === 'NON_PURCHASABLE',
+      );
+      const invalidFieldsProducts = validatedProducts.filter(
+        (product) => product.errorCode === 'INVALID_FIELDS',
+      );
+      const otherProducts = validatedProducts.filter((product) => product.errorCode === 'OTHER');
 
-      addQuoteDraftProducts(validProducts);
+      if (outOfStockProducts.length > 0) {
+        outOfStockProducts.forEach((product) => {
+          const productData = productsMap[product.product.sku?.toUpperCase()];
+          if (!productData) return;
+          snackbar.error(
+            b3Lang('quoteDraft.productPageToQuote.outOfStock', {
+              name: productData.productName,
+              qty: product.product.availableToSell,
+            }),
+          );
+        });
+      }
 
-      return validProducts.length > 0;
+      if (unavailableProducts.length > 0) {
+        unavailableProducts.forEach((product) => {
+          const productData = productsMap[product.product.sku?.toUpperCase()];
+          if (!productData) return;
+          snackbar.error(
+            b3Lang('quoteDraft.notification.productCannotBeAddedToQuote', {
+              productId: productData.name,
+            }),
+          );
+        });
+      }
+
+      if (invalidFieldsProducts.length > 0) {
+        invalidFieldsProducts.forEach((product) => {
+          const productData = productsMap[product.product.sku?.toUpperCase()];
+          if (!productData) return;
+          snackbar.error(
+            b3Lang('quoteDraft.notification.invalidFields', {
+              name: productData.productName,
+            }),
+          );
+        });
+      }
+
+      if (otherProducts.length > 0) {
+        snackbar.error(
+          b3Lang('quotes.productValidationFailed', {
+            productName: otherProducts.map((product) => product.product.sku).join(', '),
+          }),
+        );
+      }
+
+      if (successProducts.length > 0) {
+        addQuoteDraftProducts(successProducts);
+      }
+
+      return successProducts.length > 0;
     }
 
     addQuoteDraftProducts(products);

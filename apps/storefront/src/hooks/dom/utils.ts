@@ -284,13 +284,50 @@ const addProductFromProductPageToQuote = (
           optionValue: option.optionValue,
         }));
 
-        const { responseType, message } = await validateProduct({
+        const {
+          responseType,
+          message,
+          errorCode,
+          product: { availableToSell },
+        } = await validateProduct({
           productId: Number(productId),
           variantId: Number(variantId),
           quantity: Number(qty),
           productOptions,
         });
 
+        if (errorCode) {
+          switch (errorCode) {
+            case 'OOS':
+              globalSnackbar.error(
+                b3Lang('quoteDraft.productPageToQuote.outOfStock', {
+                  name: productsSearch[0]?.name,
+                  qty: availableToSell,
+                }),
+              );
+              return;
+            case 'NON_PURCHASABLE':
+              globalSnackbar.error(b3Lang('quoteDraft.productPageToQuote.unavailable'));
+              return;
+
+            case 'INVALID_FIELDS':
+              globalSnackbar.error(
+                b3Lang('quoteDraft.productPageToQuote.invalidFields', {
+                  name: productsSearch[0]?.name,
+                }),
+              );
+              return;
+
+            case 'OTHER':
+            default:
+              globalSnackbar.error(
+                b3Lang('quoteDraft.productPageToQuote.other', {
+                  name: productsSearch[0]?.name,
+                }),
+              );
+              return;
+          }
+        }
         if (responseType === 'ERROR') {
           globalSnackbar.error(message);
 

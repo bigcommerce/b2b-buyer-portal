@@ -105,6 +105,34 @@ const validateProductQuery = `
     ) {
       responseType
       message
+      errorCode
+      product {
+        productId
+        variantId
+        sku
+        availableToSell
+        unlimitedBackorder
+      }
+    }
+  }
+`;
+
+const validateProductsQuery = `
+  query ValidateProducts ($products: [ValidateProductInputType]) {
+    validateProducts(products: $products, storeHash: "${storeHash}", channelId: ${channelId}) {
+      isValid
+      products {
+        errorCode
+        responseType
+        message
+        product {
+          productId
+          variantId
+          sku
+          availableToSell
+          unlimitedBackorder
+        }
+      }
     }
   }
 `;
@@ -315,13 +343,47 @@ export interface SearchProductsResponse {
   };
 }
 
+interface ValidatedProduct {
+  productId: number;
+  variantId: number;
+  sku: string;
+  availableToSell: number;
+  unlimitedBackorder: boolean;
+}
+
 export interface ValidateProductResponse {
   data: {
     validateProduct: {
       responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
       message: string;
+      errorCode: string;
+      product: ValidatedProduct;
     };
   };
+}
+
+interface ValidateProductsResponse {
+  data: {
+    validateProducts: {
+      isValid: boolean;
+      products: {
+        errorCode: string;
+        responseType: string;
+        message: string;
+        product: {
+          productId: number;
+          variantId: number;
+          sku: string;
+          availableToSell: number;
+          unlimitedBackorder: boolean;
+        };
+      }[];
+    };
+  };
+}
+
+interface ValidateProductsVariables {
+  products: ValidateProductVariables[];
 }
 
 export const searchProducts = (data: CustomFieldItems = {}) => {
@@ -350,6 +412,13 @@ export const validateProduct = (data: ValidateProductVariables) => {
     query: validateProductQuery,
     variables: data,
   }).then((res) => res.validateProduct);
+};
+
+export const validateProducts = (data: ValidateProductsVariables) => {
+  return B3Request.graphqlB2B<ValidateProductsResponse>({
+    query: validateProductsQuery,
+    variables: data,
+  }).then((res) => res.validateProducts);
 };
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
