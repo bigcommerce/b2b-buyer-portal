@@ -181,7 +181,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<number | string>('');
 
-  const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([]);
+  const [successProducts, setSuccessProducts] = useState(0);
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([]);
 
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
@@ -525,7 +525,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               setLoading={setIsRequestLoading}
               setDeleteOpen={setDeleteOpen}
               setValidateFailureProducts={setValidateFailureProducts}
-              setValidateSuccessProducts={setValidateSuccessProducts}
+              setSuccessProducts={setSuccessProducts}
               isB2BUser={isB2BUser}
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
@@ -539,10 +539,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         shoppingListInfo={shoppingListInfo}
         role={role}
         products={validateFailureProducts}
-        successProducts={validateSuccessProducts.length}
+        successProducts={successProducts}
         allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-        setValidateFailureProducts={setValidateFailureProducts}
-        setValidateSuccessProducts={setValidateSuccessProducts}
+        setProducts={setValidateFailureProducts}
+        onClose={() => setSuccessProducts(0)}
         textAlign={isMobile ? 'left' : 'right'}
         backendValidationEnabled={backendValidationEnabled}
       />

@@ -12,6 +12,7 @@ import {
 } from '@/types';
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products';
 import b2bLogger from '@/utils/b3Logger';
+import { AddToCartItem } from '@/utils/cartUtils';
 
 export interface ShoppingListInfoProps {
   name: string;
@@ -537,7 +538,7 @@ interface AllOptionsProps {
 }
 
 export const addLineItems = (products: ProductsProps[]) => {
-  const lineItems = products.map((item: ProductsProps) => {
+  const lineItems = products.map<AddToCartItem>((item) => {
     const { node } = item;
 
     const optionList: OptionListProps[] = JSON.parse(node.optionList || '[]');
@@ -595,7 +596,8 @@ export const addLineItems = (products: ProductsProps[]) => {
     });
 
     return {
-      quantity: node.quantity,
+      ...item,
+      quantity: node.quantity || 0,
       productId: node.productId,
       variantId: node.variantId,
       optionSelections: optionValue,

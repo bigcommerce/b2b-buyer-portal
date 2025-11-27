@@ -46,6 +46,7 @@ interface ProductInfoProps {
   variantId: number;
   variantSku: string;
   productsSearch: ProductInfoType;
+  showQuantityError?: boolean;
 }
 
 interface ListItemProps {
@@ -399,9 +400,15 @@ function QuickOrderTable({
       title: b3Lang('purchasedProducts.qty'),
       render: (row) => {
         const qty = handleSetCheckedQty(row);
+        const unlimitedBackorder = row.productsSearch?.unlimitedBackorder || false;
+        const availableToSell = row.productsSearch?.availableToSell || 0;
+
+        const invalidQuantity = !unlimitedBackorder && qty > availableToSell;
+        const showError = row.showQuantityError && invalidQuantity;
 
         return (
           <StyledTextField
+            error={showError}
             size="small"
             type="number"
             variant="filled"
@@ -413,6 +420,7 @@ function QuickOrderTable({
             onChange={(e) => {
               handleUpdateProductQty(row.id, e.target.value);
             }}
+            helperText={showError ? `${availableToSell} in stock` : ''}
           />
         );
       },

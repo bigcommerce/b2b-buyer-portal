@@ -29,7 +29,12 @@ import {
 } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import {
+  createOrUpdateExistingCart,
+  deleteCartData,
+  partialAddToCart,
+  updateCart,
+} from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
@@ -40,7 +45,7 @@ interface ShoppingDetailFooterProps {
   setLoading: (val: boolean) => void;
   setDeleteOpen: (val: boolean) => void;
   setValidateFailureProducts: (arr: ProductsProps[]) => void;
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
+  setSuccessProducts: (number: number) => void;
   isB2BUser: boolean;
   customColor: string;
   isCanEditShoppingList: boolean;
@@ -85,7 +90,21 @@ const mapToProductsFailedArray = (items: ProductsProps[]) => {
   });
 };
 
-function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
+function ShoppingDetailFooter({
+  shoppingListInfo,
+  allowJuniorPlaceOrder,
+  checkedArr,
+  selectedSubTotal,
+  setLoading,
+  setDeleteOpen,
+  setValidateFailureProducts,
+  setSuccessProducts,
+  isB2BUser,
+  customColor,
+  isCanEditShoppingList,
+  role,
+  backendValidationEnabled,
+}: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
@@ -115,22 +134,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     : {
         alignItems: 'center',
       };
-
-  const {
-    shoppingListInfo,
-    allowJuniorPlaceOrder,
-    checkedArr,
-    selectedSubTotal,
-    setLoading,
-    setDeleteOpen,
-    setValidateFailureProducts,
-    setValidateSuccessProducts,
-    isB2BUser,
-    customColor,
-    isCanEditShoppingList,
-    role,
-    backendValidationEnabled,
-  } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
@@ -315,7 +318,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
 
     setValidateFailureProducts(validateFailureArr);
-    setValidateSuccessProducts(validateSuccessArr);
+    setSuccessProducts(validateSuccessArr.length);
   };
 
   const handleAddToCartBackend = async () => {
@@ -334,17 +337,38 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       }
 
       const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
       const cartInfo = await getCart();
+
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
+        const deleteCartObject = deleteCartData(cartInfo.data.site.cart.entityId);
+
         await deleteCart(deleteCartObject);
-        await updateCart(cartInfo, lineItems);
-      } else {
-        await createOrUpdateExistingCart(lineItems);
+      }
+
+      const { success, warning, error } = await partialAddToCart(lineItems);
+
+      setSuccessProducts(success.length);
+
+      error.forEach((err) => {
+        if (err.error.type === 'network') {
+          snackbar.error(
+            b3Lang('quotes.productValidationFailed', {
+              productName: err.product.node?.productName || '',
+            }),
+          );
+        }
+      });
+
+      if (success.length > 0) {
         b3TriggerCartNumber();
       }
-      shouldRedirectCheckout();
-      setValidateSuccessProducts(items);
+
+      const failedProducts = [...warning, ...error].map((item) => item.product as ProductsProps);
+      if (failedProducts.length > 0) {
+        setValidateFailureProducts(mapToProductsFailedArray(failedProducts));
+      } else {
+        shouldRedirectCheckout();
+      }
     } catch (e: unknown) {
       if (e instanceof Error) {
         setValidateFailureProducts(mapToProductsFailedArray(items));
@@ -365,7 +389,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     handleClose();
 
     setValidateFailureProducts([]);
-    setValidateSuccessProducts([]);
+    setSuccessProducts(0);
 
     try {
       setLoading(true);
