@@ -4,38 +4,42 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
+  [_ in K]?: never;
+};
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  CurrencyDecimalPlaces: { input: any; output: any; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  CurrencyDecimalPlaces: { input: any; output: any };
   /**
    * The `Date` scalar type represents a Date
    * value as specified by
    * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
    */
-  Date: { input: any; output: any; }
+  Date: { input: any; output: any };
   /** The `Decimal` scalar type represents a python Decimal. */
-  Decimal: { input: any; output: any; }
+  Decimal: { input: any; output: any };
   /**
    * The `GenericScalar` scalar type represents a generic
    * GraphQL scalar value that could be:
    * String, Boolean, Int, Float, List or Object.
    */
-  GenericScalar: { input: any; output: any; }
+  GenericScalar: { input: any; output: any };
   /**
    * Allows use of a JSON String for input / output from the GraphQL schema.
    *
    * Use of this type is *not recommended* as you lose the benefits of having a defined, static
    * schema (one of the key benefits of GraphQL).
    */
-  JSONString: { input: any; output: any; }
-  ProductQuantity: { input: any; output: any; }
+  JSONString: { input: any; output: any };
+  ProductQuantity: { input: any; output: any };
 };
 
 export type AccountFormFieldsType = Node & {
@@ -1388,7 +1392,6 @@ export type CustomerShoppingListPageType = Node & {
   updatedAt?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type CustomerShoppingListPageTypeProductsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -1444,7 +1447,6 @@ export type CustomerShoppingListType = Node & {
   /** The updated timestamp of the shopping list */
   updatedAt?: Maybe<Scalars['Int']['output']>;
 };
-
 
 export type CustomerShoppingListTypeProductsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -1877,7 +1879,6 @@ export type InvoicePaymentType = Node & {
   updatedAt: Scalars['Int']['output'];
 };
 
-
 export type InvoicePaymentTypePaymentReceiptSetArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -2248,90 +2249,73 @@ export type Mutation = {
   userUpdate?: Maybe<UserUpdate>;
 };
 
-
 export type MutationAddressCreateArgs = {
   addressData: AddressInputType;
 };
-
 
 export type MutationAddressDeleteArgs = {
   addressId: Scalars['Int']['input'];
   companyId: Scalars['Int']['input'];
 };
 
-
 export type MutationAddressUpdateArgs = {
   addressData: AddressUpdateType;
 };
-
 
 export type MutationAuthorizationArgs = {
   authData: UserAuthType;
 };
 
-
 export type MutationCheckoutLoginArgs = {
   cartData: CheckoutLoginType;
 };
-
 
 export type MutationCompanyCreateArgs = {
   companyData?: InputMaybe<CompanyInputType>;
 };
 
-
 export type MutationCreateOrderArgs = {
   createData: OrderCreateInputType;
 };
-
 
 export type MutationCustomerAddressCreateArgs = {
   addressData: CustomerAddressInputType;
 };
 
-
 export type MutationCustomerAddressDeleteArgs = {
   bcAddressId: Scalars['Int']['input'];
 };
-
 
 export type MutationCustomerAddressUpdateArgs = {
   addressData: CustomerAddressUpdateType;
 };
 
-
 export type MutationCustomerCreateArgs = {
   customerData: CustomerInputType;
 };
-
 
 export type MutationCustomerShoppingListsCreateArgs = {
   shoppingListData: CustomerShoppingListsInputType;
 };
 
-
 export type MutationCustomerShoppingListsDeleteArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type MutationCustomerShoppingListsDuplicateArgs = {
   sampleShoppingListId: Scalars['Int']['input'];
   shoppingListData: ShoppingListsDuplicateInputType;
 };
 
-
 export type MutationCustomerShoppingListsItemsCreateArgs = {
   items?: InputMaybe<Array<InputMaybe<ShoppingListsItemsInputType>>>;
   shoppingListId?: InputMaybe<Scalars['Int']['input']>;
 };
 
-
 export type MutationCustomerShoppingListsItemsDeleteArgs = {
   itemId: Scalars['Int']['input'];
   shoppingListId: Scalars['Int']['input'];
 };
-
 
 export type MutationCustomerShoppingListsItemsUpdateArgs = {
   itemData: ShoppingListsItemsUpdateInputType;
@@ -2339,83 +2323,68 @@ export type MutationCustomerShoppingListsItemsUpdateArgs = {
   shoppingListId: Scalars['Int']['input'];
 };
 
-
 export type MutationCustomerShoppingListsUpdateArgs = {
   id: Scalars['Int']['input'];
   shoppingListData: CustomerShoppingListsInputType;
 };
 
-
 export type MutationCustomerSubscribersCreateArgs = {
   subscribersData: CustomerSubscribersInputType;
 };
 
-
 export type MutationInvoiceCreateBcCartArgs = {
   bcCartData: BcCartInputType;
 };
-
 
 export type MutationInvoiceFinishBcPaymentArgs = {
   comment?: InputMaybe<Scalars['String']['input']>;
   orderId: Scalars['Int']['input'];
 };
 
-
 export type MutationInvoicePdfArgs = {
   invoiceId: Scalars['Int']['input'];
   isPayNow?: InputMaybe<Scalars['Boolean']['input']>;
 };
-
 
 export type MutationInvoicesExportArgs = {
   invoiceFilterData?: InputMaybe<InvoiceFilterDataType>;
   lang?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type MutationLoginArgs = {
   loginData: UserLoginType;
 };
-
 
 export type MutationProductAnonUploadArgs = {
   productListData?: InputMaybe<ProductAnonUploadInputType>;
 };
 
-
 export type MutationProductUploadArgs = {
   productListData: ProductUploadInputType;
 };
-
 
 export type MutationQuoteAttachFileCreateArgs = {
   fileList?: InputMaybe<Array<InputMaybe<QuoteFileListInputType>>>;
   quoteId: Scalars['Int']['input'];
 };
 
-
 export type MutationQuoteAttachFileDeleteArgs = {
   fileId: Scalars['Int']['input'];
   quoteId: Scalars['Int']['input'];
 };
-
 
 export type MutationQuoteCheckoutArgs = {
   id: Scalars['Int']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type MutationQuoteCreateArgs = {
   quoteData: QuoteInputType;
 };
 
-
 export type MutationQuoteEmailArgs = {
   emailData: QuoteEmailInputType;
 };
-
 
 export type MutationQuoteFrontendPdfArgs = {
   createdAt: Scalars['Int']['input'];
@@ -2425,12 +2394,10 @@ export type MutationQuoteFrontendPdfArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type MutationQuoteOrderedArgs = {
   id: Scalars['Int']['input'];
   orderedData: QuoteOrderedInputType;
 };
-
 
 export type MutationQuotePdfExportArgs = {
   currency: QuoteCurrencyInputType;
@@ -2438,40 +2405,33 @@ export type MutationQuotePdfExportArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type MutationQuoteUpdateArgs = {
   id: Scalars['Int']['input'];
   quoteData: QuoteUpdateInputType;
 };
 
-
 export type MutationShoppingListsCreateArgs = {
   shoppingListData: ShoppingListsInputType;
 };
 
-
 export type MutationShoppingListsDeleteArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type MutationShoppingListsDuplicateArgs = {
   sampleShoppingListId: Scalars['Int']['input'];
   shoppingListData: ShoppingListsDuplicateInputType;
 };
 
-
 export type MutationShoppingListsItemsCreateArgs = {
   items: Array<InputMaybe<ShoppingListsItemsInputType>>;
   shoppingListId: Scalars['Int']['input'];
 };
 
-
 export type MutationShoppingListsItemsDeleteArgs = {
   itemId: Scalars['Int']['input'];
   shoppingListId: Scalars['Int']['input'];
 };
-
 
 export type MutationShoppingListsItemsUpdateArgs = {
   itemData: ShoppingListsItemsUpdateInputType;
@@ -2479,48 +2439,39 @@ export type MutationShoppingListsItemsUpdateArgs = {
   shoppingListId: Scalars['Int']['input'];
 };
 
-
 export type MutationShoppingListsUpdateArgs = {
   id?: InputMaybe<Scalars['Int']['input']>;
   shoppingListData?: InputMaybe<ShoppingListsInputType>;
 };
 
-
 export type MutationStoreFrontTokenArgs = {
   storeFrontTokenData: CustomerStoreFrontTokenInputType;
 };
-
 
 export type MutationSuperAdminBeginMasqueradeArgs = {
   companyId: Scalars['Int']['input'];
 };
 
-
 export type MutationSuperAdminEndMasqueradeArgs = {
   companyId: Scalars['Int']['input'];
 };
-
 
 export type MutationUpdateAccountSettingsArgs = {
   updateData: InputAccountType;
 };
 
-
 export type MutationUpdateCustomerAccountSettingsArgs = {
   updateData?: InputMaybe<InputCustomerAccountType>;
 };
-
 
 export type MutationUserCreateArgs = {
   userData: UserInputType;
 };
 
-
 export type MutationUserDeleteArgs = {
   companyId: Scalars['Int']['input'];
   userId: Scalars['Int']['input'];
 };
-
 
 export type MutationUserUpdateArgs = {
   userData: UserUpdateInputType;
@@ -2787,7 +2738,7 @@ export enum OrdersOrdersCreatedFromChoices {
   /** Buyer portal sync */
   A_3 = 'A_3',
   /** Webhook to B2B */
-  A_4 = 'A_4'
+  A_4 = 'A_4',
 }
 
 /** An enumeration. */
@@ -2799,7 +2750,7 @@ export enum OrdersOrdersFlagChoices {
   /** Canceled */
   A_2 = 'A_2',
   /** Edit checked */
-  A_3 = 'A_3'
+  A_3 = 'A_3',
 }
 
 /** An enumeration. */
@@ -2809,7 +2760,7 @@ export enum OrdersOrdersIpStatusChoices {
   /** Invoiced */
   A_1 = 'A_1',
   /** Completed */
-  A_2 = 'A_2'
+  A_2 = 'A_2',
 }
 
 /** An enumeration. */
@@ -2817,7 +2768,7 @@ export enum OrdersOrdersIsInvoiceOrderChoices {
   /** N */
   A_0 = 'A_0',
   /** Y */
-  A_1 = 'A_1'
+  A_1 = 'A_1',
 }
 
 /** The Relay compliant `PageInfo` type, containing data necessary to paginate this connection. */
@@ -3002,6 +2953,10 @@ export type ProductInfoType = {
   taxClassId?: Maybe<Scalars['Int']['output']>;
   /** The all variants of product */
   variants?: Maybe<Array<Maybe<Scalars['GenericScalar']['output']>>>;
+  /** Whether the product has unlimited backorder */
+  unlimitedBackorder?: Maybe<Scalars['Boolean']['output']>;
+  /** The available to sell quantity of the product */
+  availableToSell?: Maybe<Scalars['Int']['output']>;
 };
 
 export type ProductInputType = {
@@ -3657,33 +3612,27 @@ export type Query = {
   variantSku?: Maybe<Array<Maybe<CatalogQuickProductType>>>;
 };
 
-
 export type QueryAccountFormFieldsArgs = {
   formType: Scalars['Int']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryAccountSettingsArgs = {
   companyId: Scalars['Int']['input'];
 };
-
 
 export type QueryAddressArgs = {
   addressId: Scalars['Int']['input'];
   companyId: Scalars['Int']['input'];
 };
 
-
 export type QueryAddressConfigArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryAddressExtraFieldsArgs = {
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryAddressesArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
@@ -3705,7 +3654,6 @@ export type QueryAddressesArgs = {
   state?: InputMaybe<Scalars['String']['input']>;
   uuid?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QueryAllOrdersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3739,7 +3687,6 @@ export type QueryAllOrdersArgs = {
   status?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryAllReceiptLinesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -3752,27 +3699,22 @@ export type QueryAllReceiptLinesArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryAutoLoaderArgs = {
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryCompanyExtraFieldsArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryCompanyPaymentTermsArgs = {
   companyId: Scalars['Int']['input'];
 };
-
 
 export type QueryCompanyRoleArgs = {
   companyId?: InputMaybe<Scalars['Int']['input']>;
   roleId: Scalars['Int']['input'];
 };
-
 
 export type QueryCompanyRolesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3784,13 +3726,11 @@ export type QueryCompanyRolesArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryCompanyUserInfoArgs = {
   customerId?: InputMaybe<Scalars['Int']['input']>;
   email: Scalars['String']['input'];
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryCompanyValidateEmailArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -3799,28 +3739,23 @@ export type QueryCompanyValidateEmailArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryCountriesArgs = {
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QueryCreatedByUserArgs = {
   companyId: Scalars['Int']['input'];
   module: Scalars['Int']['input'];
 };
 
-
 export type QueryCurrenciesArgs = {
   channelId: Scalars['String']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryCustomerAddressArgs = {
   addressId: Scalars['Int']['input'];
 };
-
 
 export type QueryCustomerAddressesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3837,18 +3772,15 @@ export type QueryCustomerAddressesArgs = {
   stateOrProvince?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryCustomerEmailCheckArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
   email: Scalars['String']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryCustomerOrderArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type QueryCustomerOrdersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3883,7 +3815,6 @@ export type QueryCustomerOrdersArgs = {
   status?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryCustomerQuotesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -3908,11 +3839,9 @@ export type QueryCustomerQuotesArgs = {
   status?: InputMaybe<Scalars['Decimal']['input']>;
 };
 
-
 export type QueryCustomerShoppingListArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type QueryCustomerShoppingListsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3925,36 +3854,29 @@ export type QueryCustomerShoppingListsArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryCustomerShoppingListsIdNameArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
 };
-
 
 export type QueryDefaultBillingAddressArgs = {
   companyId: Scalars['Int']['input'];
 };
 
-
 export type QueryDefaultShippingAddressArgs = {
   companyId: Scalars['Int']['input'];
 };
-
 
 export type QueryInvoiceArgs = {
   invoiceId: Scalars['Int']['input'];
 };
 
-
 export type QueryInvoicePaymentArgs = {
   paymentId: Scalars['Int']['input'];
 };
 
-
 export type QueryInvoicePaymentBcCartArgs = {
   paymentId: Scalars['Int']['input'];
 };
-
 
 export type QueryInvoicePaymentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3967,12 +3889,10 @@ export type QueryInvoicePaymentsArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
-
 export type QueryInvoiceStatsArgs = {
   decimalPlaces?: InputMaybe<Scalars['Int']['input']>;
   status: Scalars['Int']['input'];
 };
-
 
 export type QueryInvoicesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -3997,21 +3917,17 @@ export type QueryInvoicesArgs = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryOrderArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type QueryOrderImagesArgs = {
   orderIds: Array<InputMaybe<Scalars['Int']['input']>>;
 };
 
-
 export type QueryOrderProductsArgs = {
   bcOrderId: Scalars['Int']['input'];
 };
-
 
 export type QueryOrderedProductsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4029,7 +3945,6 @@ export type QueryOrderedProductsArgs = {
   q?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryPriceProductsArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
   currencyCode: Scalars['String']['input'];
@@ -4038,7 +3953,6 @@ export type QueryPriceProductsArgs = {
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryProductPurchasableArgs = {
   isProduct?: InputMaybe<Scalars['Boolean']['input']>;
   productId?: InputMaybe<Scalars['Int']['input']>;
@@ -4046,23 +3960,19 @@ export type QueryProductPurchasableArgs = {
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryProductVariantsInfoArgs = {
   productId: Scalars['String']['input'];
 };
 
-
 export type QueryProductsInventoryArgs = {
   products: Array<InputMaybe<ProductInventoryInputType>>;
 };
-
 
 export type QueryProductsLoadArgs = {
   companyId?: InputMaybe<Scalars['String']['input']>;
   currencyCode: Scalars['String']['input'];
   productList: Array<InputMaybe<ProductVariantInputType>>;
 };
-
 
 export type QueryProductsSearchArgs = {
   categoryFilter?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4078,25 +3988,21 @@ export type QueryProductsSearchArgs = {
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryQuoteArgs = {
   date: Scalars['String']['input'];
   id: Scalars['Int']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryQuoteConfigArgs = {
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryQuoteUserStoreInfoArgs = {
   companyId?: InputMaybe<Scalars['Int']['input']>;
   salesRepId?: InputMaybe<Scalars['Int']['input']>;
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QueryQuotesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4121,16 +4027,13 @@ export type QueryQuotesArgs = {
   status?: InputMaybe<Scalars['Decimal']['input']>;
 };
 
-
 export type QueryReceiptArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 export type QueryReceiptLineArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type QueryReceiptLinesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4144,7 +4047,6 @@ export type QueryReceiptLinesArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryReceiptsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -4156,11 +4058,9 @@ export type QueryReceiptsArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryShoppingListArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type QueryShoppingListsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4177,28 +4077,23 @@ export type QueryShoppingListsArgs = {
   status?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
 };
 
-
 export type QueryStoreBasicInfoArgs = {
   bcChannelId?: InputMaybe<Scalars['Int']['input']>;
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryStoreConfigSwitchStatusArgs = {
   key: Scalars['String']['input'];
 };
-
 
 export type QueryStoreLimitationsArgs = {
   limitationType: Scalars['Int']['input'];
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryStorefrontConfigArgs = {
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryStorefrontConfigsArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -4206,25 +4101,21 @@ export type QueryStorefrontConfigsArgs = {
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryStorefrontDefaultLanguageArgs = {
   channelId: Scalars['Int']['input'];
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryStorefrontProductSettingsArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
   storeHash: Scalars['String']['input'];
 };
 
-
 export type QueryStorefrontScriptArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
   siteUrl?: InputMaybe<Scalars['String']['input']>;
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QuerySuperAdminCompaniesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4237,27 +4128,22 @@ export type QuerySuperAdminCompaniesArgs = {
   superAdminId: Scalars['Int']['input'];
 };
 
-
 export type QuerySuperAdminMasqueradingArgs = {
   customerId: Scalars['Int']['input'];
 };
 
-
 export type QueryTaxZoneRatesArgs = {
   storeHash: Scalars['String']['input'];
 };
-
 
 export type QueryUserArgs = {
   companyId: Scalars['Int']['input'];
   userId: Scalars['Int']['input'];
 };
 
-
 export type QueryUserCompanyArgs = {
   userId: Scalars['Int']['input'];
 };
-
 
 export type QueryUserEmailCheckArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -4265,7 +4151,6 @@ export type QueryUserEmailCheckArgs = {
   email: Scalars['String']['input'];
   storeHash?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QueryUsersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -4281,7 +4166,6 @@ export type QueryUsersArgs = {
   role?: InputMaybe<Scalars['Decimal']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 export type QueryVariantSkuArgs = {
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -4767,7 +4651,6 @@ export type ReceiptType = Node & {
   updatedAt?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type ReceiptTypeReceiptLineSetArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -4929,7 +4812,6 @@ export type ShoppingListPageType = Node & {
   updatedAt?: Maybe<Scalars['Int']['output']>;
 };
 
-
 export type ShoppingListPageTypeProductsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -4993,7 +4875,6 @@ export type ShoppingListType = Node & {
   /** The updated timestamp of the shopping list */
   updatedAt?: Maybe<Scalars['Int']['output']>;
 };
-
 
 export type ShoppingListTypeProductsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
