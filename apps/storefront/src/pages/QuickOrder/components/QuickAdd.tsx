@@ -13,12 +13,7 @@ import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import {
-  ValidatedProductError,
-  ValidatedProductWarning,
-  validateProducts,
-} from '@/utils/validateProducts';
+import { AddToCartItem, createOrUpdateExistingCart, partialAddToCart } from '@/utils/cartUtils';
 
 import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
@@ -26,8 +21,7 @@ import { getCartProductInfo } from '../utils';
 import {
   CatalogProduct,
   filterInputSkusForNotFoundProducts,
-  mapCatalogToValidationPayload,
-  mergeValidatedWithCatalog,
+  mapCatalogToAddToCartPayload,
   parseOptionList,
 } from './QuickAdd.validation';
 
@@ -325,51 +319,67 @@ export default function QuickAdd() {
     skuValue: SimpleObject,
     skus: string[],
   ): Promise<{
-    productItems: CustomFieldItems[];
-    passSku: string[];
+    productItems: AddToCartItem[];
     notFoundSkus: string[];
-    validationErrors: (ValidatedProductWarning | ValidatedProductError)[];
   }> => {
     const notFoundSkus = filterInputSkusForNotFoundProducts(skus, variantInfoList);
 
     if (variantInfoList.length === 0) {
-      return { productItems: [], passSku: [], notFoundSkus, validationErrors: [] };
+      return { productItems: [], notFoundSkus };
     }
 
-    const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
+    const productItems = mapCatalogToAddToCartPayload(variantInfoList, skuValue);
 
-    const { success, warning, error } = await validateProducts(productsToValidate);
-
-    const validProducts = success.map((product) => product.product);
-
-    const errors = [...warning, ...error];
-
-    const productItems = mergeValidatedWithCatalog(validProducts, variantInfoList);
-
-    const passSku = productItems.map((item) => item.variantSku);
-
-    return { productItems, passSku, notFoundSkus, validationErrors: errors };
+    return { productItems, notFoundSkus };
   };
 
-  const addProductsToCart = async (products: CustomFieldItems[]) => {
+  const showAddToCartSuccessMessage = () => {
+    snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
+      action: {
+        label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
+        onClick: () => {
+          if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+            window.location.href = CART_URL;
+          }
+        },
+      },
+    });
+  };
+
+  const addProductsToCartFrontend = async (products: CustomFieldItems[]) => {
     const res = await createOrUpdateExistingCart(products);
 
-    if (res && res.errors) {
+    if (res?.errors) {
       snackbar.error(res.errors[0].message);
     } else {
-      snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
-        action: {
-          label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
-          onClick: () => {
-            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
-            }
-          },
-        },
-      });
+      showAddToCartSuccessMessage();
+    }
+  };
+
+  const addProductsToCartBackend = async (products: AddToCartItem[]) => {
+    const { success, warning, error } = await partialAddToCart(products);
+
+    warning.forEach((err) => {
+      snackbar.error(err.message);
+    });
+
+    error.forEach((err) => {
+      if (err.error.type === 'network') {
+        snackbar.error(
+          b3Lang('quotes.productValidationFailed', {
+            productName: err.product.productName || '',
+          }),
+        );
+      } else {
+        snackbar.error(err.error.message);
+      }
+    });
+
+    if (success.length > 0) {
+      showAddToCartSuccessMessage();
     }
 
-    b3TriggerCartNumber();
+    return success;
   };
 
   const handleAddToList = () => {
@@ -383,6 +393,7 @@ export default function QuickAdd() {
     handleSubmit(async (formData) => {
       try {
         setIsLoading(true);
+
         const { skuQuantityMap, allRowsValid, skus } = convertFormInputToValidProducts(formData);
 
         if (!allRowsValid || skus.length <= 0) {
@@ -392,26 +403,15 @@ export default function QuickAdd() {
         const variantInfoList = await getVariantList(skus);
 
         if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
-          const result = await handleBackendValidation(variantInfoList, skuQuantityMap, skus);
-          const { productItems, passSku, notFoundSkus, validationErrors } = result;
-
-          validationErrors.forEach((err) => {
-            if (err.status === 'error') {
-              if (err.error.type === 'network') {
-                snackbar.error(
-                  b3Lang('quotes.productValidationFailed', {
-                    productName: err.product.node?.productName || '',
-                  }),
-                );
-              } else {
-                snackbar.error(err.error.message);
-              }
-            } else {
-              snackbar.error(err.message);
-            }
-          });
+          const { productItems, notFoundSkus } = await handleBackendValidation(
+            variantInfoList,
+            skuQuantityMap,
+            skus,
+          );
 
           if (notFoundSkus.length > 0) {
+            showErrors(formData, notFoundSkus, 'sku', '');
+
             snackbar.error(
               b3Lang('purchasedProducts.quickAdd.notFoundSku', {
                 notFoundSku: notFoundSkus.join(','),
@@ -420,8 +420,10 @@ export default function QuickAdd() {
           }
 
           if (productItems.length > 0) {
-            await addProductsToCart(productItems);
-            clearInputValue(formData, passSku);
+            const success = await addProductsToCartBackend(productItems);
+            const addedSkus = success.map((item) => item.product.variantSku);
+
+            clearInputValue(formData, addedSkus);
           }
         } else {
           const { productItems, passSku } = await handleFrontendValidation(
@@ -432,7 +434,7 @@ export default function QuickAdd() {
           );
 
           if (productItems.length > 0) {
-            await addProductsToCart(productItems);
+            await addProductsToCartFrontend(productItems);
             clearInputValue(formData, passSku);
           }
         }
@@ -442,6 +444,7 @@ export default function QuickAdd() {
         }
       } finally {
         setIsLoading(false);
+        b3TriggerCartNumber();
       }
     })();
   };

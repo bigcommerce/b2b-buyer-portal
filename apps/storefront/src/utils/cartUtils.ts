@@ -2,8 +2,10 @@ import Cookies from 'js-cookie';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
+import { OptionValueProps } from '@/types';
 
 import { LineItem } from './b3Product/b3Product';
+import { validateProducts } from './validateProducts';
 
 const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
@@ -20,11 +22,10 @@ const handleSplitOptionId = (id: string | number) => {
   return undefined;
 };
 
-const cartLineItems = (products: any) => {
-  const items = products.map((product: any) => {
+const cartLineItems = (products: any[]) => {
+  const items = products.map((product) => {
     const { newSelectOptionList, quantity, optionSelections, allOptions = [] } = product;
-    let options = [];
-    options = newSelectOptionList || optionSelections;
+    const options = newSelectOptionList || optionSelections;
     const selectedOptions = options.reduce(
       (a: any, c: any) => {
         const optionValue = parseInt(c.optionValue, 10);
@@ -126,4 +127,31 @@ export const createOrUpdateExistingCart = async (lineItems: LineItem[] | CustomF
     : await createNewShoppingCart(lineItems);
 
   return res;
+};
+
+export interface AddToCartItem {
+  productId: number;
+  variantId: number;
+  quantity: number;
+  optionSelections: OptionValueProps[];
+  allOptions?: OptionValueProps[];
+  tableId?: string;
+}
+
+export const partialAddToCart = async (products: AddToCartItem[]) => {
+  const { success, warning, error } = await validateProducts(products);
+
+  const validProducts = success.map((product) => product.product);
+
+  if (!validProducts.length) {
+    return { success: [], warning, error };
+  }
+
+  const res = await createOrUpdateExistingCart(validProducts);
+
+  if (res.errors) {
+    throw new Error(res.errors[0].message);
+  }
+
+  return { success, warning, error };
 };
