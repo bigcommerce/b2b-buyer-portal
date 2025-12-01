@@ -1,10 +1,15 @@
-import { lazy, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
+import B3GlobalTip from '@/components/B3GlobalTip';
 import GlobalDialog from '@/components/extraTip/GlobalDialog';
 import B3RenderRouter from '@/components/layout/B3RenderRouter';
 import { usePageMask } from '@/components/loading';
+import B3CompanyHierarchyExternalButton from '@/components/outSideComponents/B3CompanyHierarchyExternalButton';
+import B3HoverButton from '@/components/outSideComponents/B3HoverButton';
+import B3MasqueradeGlobalTip from '@/components/outSideComponents/B3MasqueradeGlobalTip';
 import { ThemeFrame } from '@/components/ThemeFrame';
+import HeadlessController from '@/HeadlessController';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { useB3AppOpen } from '@/hooks/useB3AppOpen';
 import { useSetOpen } from '@/hooks/useSetOpen';
@@ -33,20 +38,6 @@ import {
   useAppDispatch,
   useAppSelector,
 } from './store';
-
-const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'));
-
-const B3HoverButton = lazy(() => import('@/components/outSideComponents/B3HoverButton'));
-
-const B3MasqueradeGlobalTip = lazy(
-  () => import('@/components/outSideComponents/B3MasqueradeGlobalTip'),
-);
-
-const B3CompanyHierarchyExternalButton = lazy(
-  () => import('@/components/outSideComponents/B3CompanyHierarchyExternalButton'),
-);
-
-const HeadlessController = lazy(() => import('@/HeadlessController'));
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap';
 

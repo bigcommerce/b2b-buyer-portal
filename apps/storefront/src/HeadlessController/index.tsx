@@ -6,11 +6,9 @@ import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
 import { setElementsListenersConfig } from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
-import {
-  addProductsToShoppingList,
-  addProductsToShoppingListErrorHandler,
-  useAddedToShoppingListAlert,
-} from '@/pages/PDP';
+import { addProductsToShoppingList } from '@/pages/PDP/addProductsToShoppingList';
+import { addProductsToShoppingListErrorHandler } from '@/pages/PDP/addProductsToShoppingListErrorHandler';
+import { useAddedToShoppingListAlert } from '@/pages/PDP/useAddedToShoppingListAlert';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 import { CustomStyleContext } from '@/shared/customStyleButton';
