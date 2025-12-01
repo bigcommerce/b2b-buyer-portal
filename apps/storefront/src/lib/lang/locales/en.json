@@ -290,6 +290,7 @@
   "purchasedProducts.quickOrderPad.bulkUploadCSV": "Bulk upload CSV",
   "purchasedProducts.quickOrderPad.downloadErrorsCSV": "Download error results",
   "purchasedProducts.quickOrderPad.addToCart": "Add to cart",
+  "purchasedProducts.quickOrderPad.otherError": "This product can't be added due to order quantity limits or wrong configuration: {sku}",
   "purchasedProducts.quickAdd.addProductToList": "Add product to list",
   "purchasedProducts.quickAdd.title": "Quick add",
   "purchasedProducts.quickAdd.showMoreRowsButton": "Show more rows",
