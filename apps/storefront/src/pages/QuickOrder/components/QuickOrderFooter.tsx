@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDropDown } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, SxProps, Typography, useMediaQuery } from '@mui/material';
@@ -16,8 +16,8 @@ import {
   addProductToShoppingList,
   searchProducts,
 } from '@/shared/service/b2b';
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { Product } from '@/types';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { getProductPriceIncTaxOrExTaxBySetting } from '@/utils/b3Price';
@@ -30,7 +30,7 @@ import {
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { AddToCartItem, createOrUpdateExistingCart } from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
@@ -40,12 +40,15 @@ import { addCartProductToVerify, CheckedProduct } from '../utils';
 interface QuickOrderFooterProps {
   checkedArr: CheckedProduct[];
   isAgenting: boolean;
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
+  setIsRequestLoading: (value: boolean) => void;
   isB2BUser: boolean;
 }
 
-const transformToCartLineItems = (productsSearch: Product[], checkedArr: CheckedProduct[]) => {
-  const lineItems: CustomFieldItems[] = [];
+const transformToCartLineItems = (
+  productsSearch: SearchProductsResponse['data']['productsSearch'],
+  checkedArr: CheckedProduct[],
+) => {
+  const lineItems: AddToCartItem[] = [];
 
   checkedArr.forEach((item: CheckedProduct) => {
     const { node } = item;
@@ -72,11 +75,13 @@ const transformToCartLineItems = (productsSearch: Product[], checkedArr: Checked
           }));
 
           lineItems.push({
+            ...currentProduct,
             optionSelections: options,
             allOptions: optionList,
             productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
             quantity,
             variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
+            tableId: node.id,
           });
         }
       }
@@ -86,8 +91,12 @@ const transformToCartLineItems = (productsSearch: Product[], checkedArr: Checked
   return lineItems;
 };
 
-function QuickOrderFooter(props: QuickOrderFooterProps) {
-  const { checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props;
+function QuickOrderFooter({
+  checkedArr,
+  isAgenting,
+  setIsRequestLoading,
+  isB2BUser,
+}: QuickOrderFooterProps) {
   const {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobalContext);
@@ -185,8 +194,45 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const handleBackendAddSelectedToCart = async () => {
     try {
       const lineItems = await getProductsSearchInfo();
-      await createOrUpdateExistingCart(lineItems);
-      showAddToCartSuccessMessage();
+
+      const { warning, error } = await validateProducts(lineItems);
+
+      const invalidProducts = [...warning, ...error];
+
+      invalidProducts.forEach((product) => {
+        if (product.status === 'error') {
+          if (product.error.type === 'network') {
+            snackbar.error(
+              b3Lang('quotes.productValidationFailed', {
+                productName: product.product.name || '',
+              }),
+            );
+          } else {
+            snackbar.error(product.error.message);
+          }
+        } else {
+          snackbar.error(product.message);
+        }
+      });
+
+      if (invalidProducts.length === 0) {
+        // No validation errors, add everything to cart
+        const res = await createOrUpdateExistingCart(lineItems);
+
+        if (res.errors) {
+          snackbar.error(res.errors[0].message);
+        } else {
+          showAddToCartSuccessMessage();
+        }
+      }
+
+      checkedArr.forEach((item) => {
+        const isInvalid = invalidProducts.some(
+          (product) => product.product.tableId === item.node.id,
+        );
+
+        item.node.showQuantityError = isInvalid;
+      });
     } catch (e) {
       if (e instanceof Error) {
         snackbar.error(e.message);

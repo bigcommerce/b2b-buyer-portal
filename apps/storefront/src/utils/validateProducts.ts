@@ -20,7 +20,7 @@ interface ValidatedProductSuccess {
   status: 'success';
   product: CustomFieldItems;
 }
-export interface ValidatedProductWarning {
+interface ValidatedProductWarning {
   status: 'warning';
   message: string;
   product: CustomFieldItems;
@@ -46,15 +46,17 @@ const transformProductListToBeCompatibleWithValidateProducts = (products: Custom
         ...product.node,
         productsSearch: {
           ...product.node.productsSearch,
-          selectedOptions: product.node.productsSearch.newSelectOptionList,
+          selectedOptions:
+            product.node.productsSearch.newSelectOptionList || product.optionSelections,
         },
       };
     }
+
     return {
       ...product,
       productsSearch: {
         ...product.productsSearch,
-        selectedOptions: product.options,
+        selectedOptions: product.optionSelections || product.options,
         variantId: product.variantId,
       },
     };

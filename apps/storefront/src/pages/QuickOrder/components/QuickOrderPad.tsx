@@ -13,7 +13,7 @@ import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { AddToCartItem, createOrUpdateExistingCart, partialAddToCart } from '@/utils/cartUtils';
 
 import { addCartProductToVerify } from '../utils';
 
@@ -37,39 +37,26 @@ export default function QuickOrderPad() {
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
 
-  const getSnackbarMessage = (res: any) => {
-    if (res && !res.errors) {
-      snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
-        action: {
-          label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
-          onClick: () => {
-            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
-            }
-          },
+  const showAddToCartSuccessMessage = () => {
+    snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
+      action: {
+        label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
+        onClick: () => {
+          if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+            window.location.href = CART_URL;
+          }
         },
-      });
-    } else {
-      snackbar.error('Error has occurred');
-    }
+      },
+    });
   };
 
   const addSingleProductToCart = async (product: CustomFieldItems) => {
     const res = await createOrUpdateExistingCart([product]);
 
-    if (res && res.errors) {
+    if (res?.errors) {
       snackbar.error(res.errors[0].message);
     } else {
-      snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
-        action: {
-          label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
-          onClick: () => {
-            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
-            }
-          },
-        },
-      });
+      showAddToCartSuccessMessage();
     }
 
     b3TriggerCartNumber();
@@ -174,8 +161,11 @@ export default function QuickOrderPad() {
       if (productItems.length > 0) {
         const res = await createOrUpdateExistingCart(productItems);
 
-        getSnackbarMessage(res);
-        b3TriggerCartNumber();
+        if (res?.errors) {
+          snackbar.error(res.errors[0].message);
+        } else {
+          showAddToCartSuccessMessage();
+        }
       }
 
       if (limitProduct.length > 0) {
@@ -242,16 +232,18 @@ export default function QuickOrderPad() {
       setIsOpenBulkLoadCSV(false);
     } finally {
       setIsLoading(false);
+      b3TriggerCartNumber();
     }
   };
 
   const handleAddCSVToCart = async (productsData: CustomFieldItems) => {
     setIsLoading(true);
+
     try {
-      const { validProduct } = productsData;
+      const { validProduct } = productsData as { validProduct: CustomFieldItems[] };
 
       // Convert products to cart format
-      const productItems = validProduct.map((item: CustomFieldItems) => ({
+      const productItems = validProduct.map<AddToCartItem>((item) => ({
         productId: Number(item.products?.productId) || 0,
         variantId: Number(item.products?.variantId) || 0,
         quantity: Number(item.qty) || 0,
@@ -261,12 +253,30 @@ export default function QuickOrderPad() {
             optionValue: opt.id,
           })) || [],
         allOptions: item.products?.modifiers || [],
+        productName: item.products?.productName || '',
       }));
 
-      const res = await createOrUpdateExistingCart(productItems);
+      const { success, warning, error } = await partialAddToCart(productItems);
 
-      getSnackbarMessage(res);
-      b3TriggerCartNumber();
+      warning.forEach((err) => {
+        snackbar.error(err.message);
+      });
+
+      error.forEach((err) => {
+        if (err.error.type === 'network') {
+          snackbar.error(
+            b3Lang('quotes.productValidationFailed', {
+              productName: err.product.productName || '',
+            }),
+          );
+        } else {
+          snackbar.error(err.error.message);
+        }
+      });
+
+      if (success.length > 0) {
+        showAddToCartSuccessMessage();
+      }
 
       setIsOpenBulkLoadCSV(false);
     } catch (error) {
@@ -299,6 +309,7 @@ export default function QuickOrderPad() {
       }
     } finally {
       setIsLoading(false);
+      b3TriggerCartNumber();
     }
   };
 

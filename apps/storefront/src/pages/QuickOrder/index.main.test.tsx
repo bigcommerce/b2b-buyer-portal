@@ -1998,11 +1998,12 @@ describe('When backend validation feature flag is on', () => {
         },
       }),
     };
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
     });
+
+    const getRecentlyOrderedProducts = vi.fn();
 
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
@@ -2020,6 +2021,8 @@ describe('When backend validation feature flag is on', () => {
       inventory_level: 100,
     });
 
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
     when(searchProducts)
       .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
       .thenReturn({
@@ -2036,6 +2039,24 @@ describe('When backend validation feature flag is on', () => {
               variants: [variant],
             }),
           ],
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(laughCanister.node.productId),
+          variantId: Number(laughCanister.node.variantId),
+          quantity: 10,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'SUCCESS',
+          }),
         },
       });
 
@@ -2072,6 +2093,9 @@ describe('When backend validation feature flag is on', () => {
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
@@ -2102,6 +2126,258 @@ describe('When backend validation feature flag is on', () => {
         screen.getByText('VARIANT-123 does not have enough stock, please change the quantity'),
       ).toBeInTheDocument();
     });
+  });
+
+  it('displays error message with product name when product validation fails', async () => {
+    const preloadedStateWithFeatureFlag = {
+      ...preloadedState,
+      global: buildGlobalStateWith({
+        featureFlags: {
+          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+        },
+      }),
+    };
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
+    });
+
+    const getRecentlyOrderedProducts = vi.fn();
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    const variant = buildVariantWith({
+      product_id: Number(laughCanister.node.productId),
+      variant_id: Number(laughCanister.node.variantId),
+      sku: laughCanister.node.variantSku,
+      purchasing_disabled: false,
+      inventory_level: 100,
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              variants: [variant],
+            }),
+          ],
+        },
+      });
+
+    const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            {
+              productEntityId: variant.product_id,
+              variantEntityId: variant.variant_id,
+              quantity: 10,
+              selectedOptions: { multipleChoices: [], textFields: [] },
+            },
+          ],
+        },
+      })
+      .thenReturn({
+        data: {
+          cart: {
+            createCart: {
+              cart: {
+                entityId: '12345',
+              },
+            },
+          },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', () => HttpResponse.json(null, { status: 400 })),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: preloadedStateWithFeatureFlag });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Product validation failed for Laugh Canister')).toBeInTheDocument();
+    });
+  });
+
+  it('displays an error message when product validation returns error when adding to cart', async () => {
+    const preloadedStateWithFeatureFlag = {
+      ...preloadedState,
+      global: buildGlobalStateWith({
+        featureFlags: {
+          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+        },
+      }),
+    };
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
+    });
+
+    const getRecentlyOrderedProducts = vi.fn();
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    const variant = buildVariantWith({
+      product_id: Number(laughCanister.node.productId),
+      variant_id: Number(laughCanister.node.variantId),
+      sku: laughCanister.node.variantSku,
+      purchasing_disabled: false,
+      inventory_level: 100,
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 2, // This product is out of stock
+              availableToSell: 2,
+              unlimitedBackorder: false,
+              inventoryTracking: 'product',
+              variants: [variant],
+            }),
+          ],
+        },
+      });
+
+    const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            {
+              productEntityId: variant.product_id,
+              variantEntityId: variant.variant_id,
+              quantity: 10,
+              selectedOptions: { multipleChoices: [], textFields: [] },
+            },
+          ],
+        },
+      })
+      .thenReturn({
+        data: {
+          cart: {
+            createCart: {
+              cart: {
+                entityId: '12345',
+              },
+            },
+          },
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(laughCanister.node.productId),
+          variantId: Number(laughCanister.node.variantId),
+          quantity: 10,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is out of stock',
+          }),
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: preloadedStateWithFeatureFlag });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const input = within(row).getByRole('spinbutton');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Product is out of stock')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('2 in stock')).toBeInTheDocument();
   });
 
   it('displays out-of-stock error when adding to cart searched product', async () => {
@@ -2218,6 +2494,13 @@ describe('When backend validation feature flag is on', () => {
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+          },
+        }),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -2260,11 +2543,12 @@ describe('When backend validation feature flag is on', () => {
         },
       }),
     };
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister', variantSku: 'VARIANT-123' },
     });
+
+    const getRecentlyOrderedProducts = vi.fn();
 
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
@@ -2282,6 +2566,8 @@ describe('When backend validation feature flag is on', () => {
       inventory_level: 100,
     });
 
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
     when(searchProducts)
       .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
       .thenReturn({
@@ -2298,6 +2584,22 @@ describe('When backend validation feature flag is on', () => {
               variants: [variant],
             }),
           ],
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(laughCanister.node.productId),
+          variantId: Number(laughCanister.node.variantId),
+          quantity: 10,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
         },
       });
 
@@ -2337,6 +2639,9 @@ describe('When backend validation feature flag is on', () => {
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(
           buildGetCartWith({
@@ -3140,12 +3445,94 @@ describe('When backend validation feature flag is on', () => {
     ).toBeInTheDocument();
   });
 
-  it('adds a product to the cart succesfully', async () => {
-    const getRecentlyOrderedProducts = vi.fn();
-    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+  it('quick add shows error with product name when product validation fails', async () => {
     const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
 
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+      data: {
+        orderedProducts: {
+          totalCount: 0,
+          edges: [],
+        },
+      },
+    });
+
+    const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+    const validVariant = buildVariantInfoWith({
+      productName: 'Laugh Canister',
+      variantSku: 'VALID-SKU',
+      productId: '123',
+      variantId: '456',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 100,
+    });
+
+    const getVariantInfoBySkus = vi.fn();
+
+    when(getVariantInfoBySkus)
+      .calledWith(expect.stringContaining('variantSkus: ["VALID-SKU"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [validVariant] } }));
+
     const createCartSimple = vi.fn();
+
+    when(createCartSimple)
+      .calledWith(
+        expect.objectContaining({
+          createCartInput: expect.objectContaining({
+            lineItems: expect.arrayContaining([
+              expect.objectContaining({
+                quantity: 2,
+                productEntityId: Number(validVariant.productId),
+                variantEntityId: Number(validVariant.variantId),
+              }),
+            ]),
+          }),
+        }),
+      )
+      .thenReturn({
+        data: {
+          cart: { createCart: { cart: { entityId: 'test-cart-id' } } },
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('ValidateProduct', () => HttpResponse.json(null, { status: 400 })),
+      graphql.query('getCart', () => HttpResponse.json(getCart())),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+
+    await userEvent.type(skuInputs[0], 'VALID-SKU');
+    await userEvent.type(qtyInputs[0], '2');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    expect(
+      await screen.findByText('Product validation failed for Laugh Canister'),
+    ).toBeInTheDocument();
+  });
+
+  it('adds a product to the cart succesfully', async () => {
+    const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
 
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: {
@@ -3163,6 +3550,8 @@ describe('When backend validation feature flag is on', () => {
       },
     });
 
+    const getRecentlyOrderedProducts = vi.fn();
+
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
       .thenReturn(
@@ -3170,6 +3559,8 @@ describe('When backend validation feature flag is on', () => {
           data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
         }),
       );
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     when(searchProducts)
       .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
@@ -3195,6 +3586,24 @@ describe('When backend validation feature flag is on', () => {
           ],
         },
       });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(laughCanister.node.productId),
+          variantId: Number(laughCanister.node.variantId),
+          quantity: 1,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+        },
+      });
+
+    const createCartSimple = vi.fn();
 
     when(createCartSimple)
       .calledWith({
@@ -3229,6 +3638,9 @@ describe('When backend validation feature flag is on', () => {
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.mutation('createCartSimple', ({ variables }) =>
         HttpResponse.json(createCartSimple(variables)),
@@ -3298,6 +3710,13 @@ describe('When backend validation feature flag is on', () => {
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
@@ -3417,6 +3836,13 @@ describe('When backend validation feature flag is on', () => {
             HttpResponse.json(getRecentlyOrderedProducts()),
           ),
           graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+          graphql.query('ValidateProduct', () =>
+            HttpResponse.json({
+              data: {
+                validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+              },
+            }),
+          ),
           graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
           graphql.query('getCart', () => HttpResponse.json(getCart())),
           graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
@@ -3514,6 +3940,13 @@ describe('When backend validation feature flag is on', () => {
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
@@ -3549,6 +3982,192 @@ describe('When backend validation feature flag is on', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to create cart due to server error/i)).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('displays error with product name when product validation fails', async () => {
+      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+        data: { orderedProducts: { totalCount: 0, edges: [] } },
+      });
+
+      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+      const csvUpload = vi.fn().mockReturnValue({
+        data: {
+          productUpload: buildCSVUploadWith({
+            result: {
+              validProduct: [
+                buildCSVProductWith({
+                  products: {
+                    productName: 'Failed Cart Product',
+                    variantSku: 'FAIL-CART-SKU-123',
+                  },
+                  qty: '2',
+                  row: 1,
+                  sku: 'FAIL-CART-SKU-123',
+                }),
+              ],
+              errorProduct: [],
+              stockErrorFile: '',
+              stockErrorSkus: [],
+            },
+          }),
+        },
+      });
+
+      const getCart = vi.fn().mockReturnValue({
+        data: { site: { cart: null } },
+      });
+
+      const createCartSimple = vi.fn().mockReturnValue({
+        data: { cart: { createCart: { cart: { entityId: '67890' } } } },
+      });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', () =>
+          HttpResponse.json(getRecentlyOrderedProducts()),
+        ),
+        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () => HttpResponse.json(null, { status: 400 })),
+        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+      );
+
+      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+      await userEvent.click(bulkUploadButton);
+
+      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+
+      const csvContent = 'variant_sku,qty\nFAIL-CART-SKU-123,2';
+      const file = new File([csvContent], 'fail-cart.csv', { type: 'text/csv' });
+
+      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!dropzoneInput) {
+        throw new Error('File input not found');
+      }
+
+      await userEvent.upload(dropzoneInput, [file]);
+
+      await waitFor(() => {
+        expect(screen.getByText('FAIL-CART-SKU-123')).toBeInTheDocument();
+      });
+
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
+      await userEvent.click(addToCartButton);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Product validation failed for Failed Cart Product'),
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('displays error when product validation returns error', async () => {
+      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+        data: { orderedProducts: { totalCount: 0, edges: [] } },
+      });
+
+      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+      const csvUpload = vi.fn().mockReturnValue({
+        data: {
+          productUpload: buildCSVUploadWith({
+            result: {
+              validProduct: [
+                buildCSVProductWith({
+                  products: {
+                    productName: 'Failed Cart Product',
+                    variantSku: 'FAIL-CART-SKU-123',
+                  },
+                  qty: '2',
+                  row: 1,
+                  sku: 'FAIL-CART-SKU-123',
+                }),
+              ],
+              errorProduct: [],
+              stockErrorFile: '',
+              stockErrorSkus: [],
+            },
+          }),
+        },
+      });
+
+      // Mock getCart to return null (no existing cart)
+      const getCart = vi.fn().mockReturnValue({
+        data: { site: { cart: null } },
+      });
+
+      const createCartSimple = vi.fn().mockReturnValue({
+        data: { cart: { createCart: { cart: { entityId: '67890' } } } },
+      });
+
+      const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+      when(validateProduct)
+        .calledWith(expect.any(Object))
+        .thenReturn({
+          data: {
+            validateProduct: buildValidateProductWith({
+              responseType: 'ERROR',
+              message: 'Product validation failed',
+            }),
+          },
+        });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', () =>
+          HttpResponse.json(getRecentlyOrderedProducts()),
+        ),
+        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProduct(variables)),
+        ),
+        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+      );
+
+      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+      await userEvent.click(bulkUploadButton);
+
+      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+
+      const csvContent = 'variant_sku,qty\nFAIL-CART-SKU-123,2';
+      const file = new File([csvContent], 'fail-cart.csv', { type: 'text/csv' });
+
+      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!dropzoneInput) {
+        throw new Error('File input not found');
+      }
+
+      await userEvent.upload(dropzoneInput, [file]);
+
+      await waitFor(() => {
+        expect(screen.getByText('FAIL-CART-SKU-123')).toBeInTheDocument();
+      });
+
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add 1 products to cart/i,
+      });
+      await userEvent.click(addToCartButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Product validation failed')).toBeInTheDocument();
       });
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -3706,6 +4325,13 @@ describe('When backend validation feature flag is on', () => {
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () =>
@@ -3805,6 +4431,13 @@ describe('When backend validation feature flag is on', () => {
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () =>
@@ -3908,6 +4541,13 @@ describe('When backend validation feature flag is on', () => {
           HttpResponse.json(getRecentlyOrderedProducts()),
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () =>
@@ -4011,6 +4651,13 @@ describe('When backend validation feature flag is on', () => {
         ),
         graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
         graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(productUpload(query))),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({ responseType: 'SUCCESS' }),
+            },
+          }),
+        ),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
         graphql.mutation('addCartLineItemsTwo', () =>
