@@ -296,11 +296,23 @@ const buildGetCartWith = builder<GetCart>(() => {
   };
 });
 
-const buildValidateProductWith = builder<ValidateProduct>(() => ({
-  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
-  message: faker.lorem.sentence(),
-  errorCode: '',
-}));
+const buildValidateProductWith = builder<ValidateProduct>(() =>
+  faker.helpers.arrayElement([
+    {
+      responseType: 'SUCCESS',
+      message: faker.lorem.sentence(),
+    },
+    {
+      responseType: 'WARNING',
+      message: faker.lorem.sentence(),
+    },
+    {
+      responseType: 'ERROR',
+      message: faker.lorem.sentence(),
+      errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+    },
+  ]),
+);
 
 const approvedB2BCompany = buildCompanyStateWith({
   permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
@@ -1933,7 +1945,6 @@ describe('when adding to quote', () => {
           validateProduct: buildValidateProductWith({
             responseType: 'SUCCESS',
             message: '',
-            errorCode: '',
           }),
         },
       });
@@ -1985,23 +1996,10 @@ describe('when adding to quote', () => {
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     const oosProduct = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Out of Stock Product',
-        variantSku: 'OOS-SKU',
-        productId: '123',
-        variantId: '456',
-        optionList: [],
-      },
+      node: { productName: 'Out of Stock Product' },
     });
-
     const nonPurchasableProduct = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'Non Purchasable Product',
-        variantSku: 'NP-SKU',
-        productId: '789',
-        variantId: '012',
-        optionList: [],
-      },
+      node: { productName: 'Non Purchasable Product' },
     });
 
     when(getRecentlyOrderedProducts)
@@ -2023,35 +2021,27 @@ describe('when adding to quote', () => {
           productsSearch: [
             buildSearchProductWith({
               id: Number(oosProduct.node.productId),
-              sku: 'OOS-SKU',
+              sku: oosProduct.node.variantSku,
               name: 'Out of Stock Product',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
               inventoryTracking: 'none',
-              optionsV3: [],
               variants: [
                 buildVariantWith({
                   product_id: Number(oosProduct.node.productId),
                   variant_id: Number(oosProduct.node.variantId),
-                  sku: 'OOS-SKU',
-                  image_url: '',
+                  sku: oosProduct.node.variantSku,
                 }),
               ],
             }),
             buildSearchProductWith({
               id: Number(nonPurchasableProduct.node.productId),
-              sku: 'NP-SKU',
+              sku: nonPurchasableProduct.node.variantSku,
               name: 'Non Purchasable Product',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
               inventoryTracking: 'none',
-              optionsV3: [],
               variants: [
                 buildVariantWith({
                   product_id: Number(nonPurchasableProduct.node.productId),
                   variant_id: Number(nonPurchasableProduct.node.variantId),
-                  sku: 'NP-SKU',
-                  image_url: '',
+                  sku: nonPurchasableProduct.node.variantSku,
                 }),
               ],
             }),
@@ -2062,11 +2052,12 @@ describe('when adding to quote', () => {
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
     when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: Number(oosProduct.node.productId),
-        }),
-      )
+      .calledWith({
+        productId: Number(oosProduct.node.productId),
+        variantId: Number(oosProduct.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
       .thenReturn({
         data: {
           validateProduct: buildValidateProductWith({
@@ -2078,11 +2069,12 @@ describe('when adding to quote', () => {
       });
 
     when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: Number(nonPurchasableProduct.node.productId),
-        }),
-      )
+      .calledWith({
+        productId: Number(nonPurchasableProduct.node.productId),
+        variantId: Number(nonPurchasableProduct.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
       .thenReturn({
         data: {
           validateProduct: buildValidateProductWith({
@@ -2098,34 +2090,10 @@ describe('when adding to quote', () => {
         buildProductPriceWith({
           productId: Number(oosProduct.node.productId),
           variantId: Number(oosProduct.node.variantId),
-          price: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
-          calculatedPrice: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
         }),
         buildProductPriceWith({
           productId: Number(nonPurchasableProduct.node.productId),
           variantId: Number(nonPurchasableProduct.node.variantId),
-          price: buildPrice({
-            asEntered: 150,
-            taxExclusive: 150,
-            taxInclusive: 150,
-            enteredInclusive: true,
-          }),
-          calculatedPrice: buildPrice({
-            asEntered: 150,
-            taxExclusive: 150,
-            taxInclusive: 150,
-            enteredInclusive: true,
-          }),
         }),
       ],
     };
@@ -2160,7 +2128,7 @@ describe('when adding to quote', () => {
 
     await userEvent.click(addButton);
 
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Add selected to quote' }));
 
     await waitFor(() => {
       expect(
@@ -2182,33 +2150,15 @@ describe('when adding to quote', () => {
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     const oosProduct1 = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'OOS Product 1',
-        variantSku: 'OOS-SKU-1',
-        productId: '301',
-        variantId: '401',
-        optionList: [],
-      },
+      node: { productName: 'OOS Product 1' },
     });
 
     const oosProduct2 = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'OOS Product 2',
-        variantSku: 'OOS-SKU-2',
-        productId: '302',
-        variantId: '402',
-        optionList: [],
-      },
+      node: { productName: 'OOS Product 2' },
     });
 
     const oosProduct3 = buildRecentlyOrderedProductNodeWith({
-      node: {
-        productName: 'OOS Product 3',
-        variantSku: 'OOS-SKU-3',
-        productId: '303',
-        variantId: '403',
-        optionList: [],
-      },
+      node: { productName: 'OOS Product 3' },
     });
 
     when(getRecentlyOrderedProducts)
@@ -2236,9 +2186,7 @@ describe('when adding to quote', () => {
             buildSearchProductWith({
               id: Number(oosProduct1.node.productId),
               sku: oosProduct1.node.variantSku,
-              name: 'OOS Product 1',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
+              name: oosProduct1.node.productName,
               inventoryTracking: 'none',
               optionsV3: [],
               variants: [
@@ -2246,16 +2194,13 @@ describe('when adding to quote', () => {
                   product_id: Number(oosProduct1.node.productId),
                   variant_id: Number(oosProduct1.node.variantId),
                   sku: oosProduct1.node.variantSku,
-                  image_url: '',
                 }),
               ],
             }),
             buildSearchProductWith({
               id: Number(oosProduct2.node.productId),
               sku: oosProduct2.node.variantSku,
-              name: 'OOS Product 2',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
+              name: oosProduct2.node.productName,
               inventoryTracking: 'none',
               optionsV3: [],
               variants: [
@@ -2263,16 +2208,13 @@ describe('when adding to quote', () => {
                   product_id: Number(oosProduct2.node.productId),
                   variant_id: Number(oosProduct2.node.variantId),
                   sku: oosProduct2.node.variantSku,
-                  image_url: '',
                 }),
               ],
             }),
             buildSearchProductWith({
               id: Number(oosProduct3.node.productId),
               sku: oosProduct3.node.variantSku,
-              name: 'OOS Product 3',
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
+              name: oosProduct3.node.productName,
               inventoryTracking: 'none',
               optionsV3: [],
               variants: [
@@ -2280,7 +2222,6 @@ describe('when adding to quote', () => {
                   product_id: Number(oosProduct3.node.productId),
                   variant_id: Number(oosProduct3.node.variantId),
                   sku: oosProduct3.node.variantSku,
-                  image_url: '',
                 }),
               ],
             }),
@@ -2309,13 +2250,12 @@ describe('when adding to quote', () => {
       });
 
     when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: Number(oosProduct2.node.productId),
-          variantId: Number(oosProduct2.node.variantId),
-          quantity: 1,
-        }),
-      )
+      .calledWith({
+        productId: Number(oosProduct2.node.productId),
+        variantId: Number(oosProduct2.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
       .thenReturn({
         data: {
           validateProduct: buildValidateProductWith({
@@ -2327,13 +2267,12 @@ describe('when adding to quote', () => {
       });
 
     when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: Number(oosProduct3.node.productId),
-          variantId: Number(oosProduct3.node.variantId),
-          quantity: 1,
-        }),
-      )
+      .calledWith({
+        productId: Number(oosProduct3.node.productId),
+        variantId: Number(oosProduct3.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
       .thenReturn({
         data: {
           validateProduct: buildValidateProductWith({
@@ -2349,50 +2288,14 @@ describe('when adding to quote', () => {
         buildProductPriceWith({
           productId: Number(oosProduct1.node.productId),
           variantId: Number(oosProduct1.node.variantId),
-          price: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
-          calculatedPrice: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
         }),
         buildProductPriceWith({
           productId: Number(oosProduct2.node.productId),
           variantId: Number(oosProduct2.node.variantId),
-          price: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
-          calculatedPrice: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
         }),
         buildProductPriceWith({
           productId: Number(oosProduct3.node.productId),
           variantId: Number(oosProduct3.node.variantId),
-          price: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
-          calculatedPrice: buildPrice({
-            asEntered: 100,
-            taxExclusive: 100,
-            taxInclusive: 100,
-            enteredInclusive: true,
-          }),
         }),
       ],
     };
@@ -2427,7 +2330,7 @@ describe('when adding to quote', () => {
 
     const addButton = screen.getByRole('button', { name: 'Add selected to' });
     await userEvent.click(addButton);
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Add selected to quote' }));
 
     await waitFor(() => {
       expect(
@@ -3521,7 +3424,6 @@ describe('When backend validation feature flag is on', () => {
           validateProduct: buildValidateProductWith({
             responseType: 'SUCCESS',
             message: '',
-            errorCode: '',
           }),
         },
       });

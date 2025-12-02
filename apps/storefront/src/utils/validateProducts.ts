@@ -7,10 +7,12 @@ interface Option {
 
 interface NetworkValidationError {
   type: 'network';
+  errorCode: 'NETWORK_ERROR';
 }
 
 interface ServerValidationError {
   type: 'validation';
+  errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
   message: string;
 }
 
@@ -29,7 +31,6 @@ export interface ValidatedProductError {
   status: 'error';
   error: ValidationError;
   product: CustomFieldItems;
-  errorCode?: string;
 }
 
 type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
@@ -106,8 +107,8 @@ export const validateProducts = async (
         status: 'error',
         error: {
           type: 'network',
+          errorCode: 'NETWORK_ERROR',
         },
-        errorCode: 'NETWORK_ERROR',
         product,
       };
     }
@@ -119,8 +120,8 @@ export const validateProducts = async (
           error: {
             type: 'validation',
             message: res.value.message,
+            errorCode: res.value.errorCode,
           },
-          errorCode: res.value.errorCode,
           product,
         };
       case 'WARNING':
