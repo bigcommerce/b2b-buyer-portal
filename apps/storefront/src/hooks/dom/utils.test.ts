@@ -205,6 +205,9 @@ const buildValidateProductWith = builder<ValidateProduct>(() =>
       responseType: 'ERROR',
       message: faker.lorem.sentence(),
       errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+      product: {
+        availableToSell: faker.number.int(),
+      },
     },
   ]),
 );

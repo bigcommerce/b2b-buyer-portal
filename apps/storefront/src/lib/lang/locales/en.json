@@ -301,6 +301,8 @@
   "purchasedProducts.quickAdd.notPurchaseableSku": "SKU {notPurchaseSku} no longer for sale",
   "purchasedProducts.quickAdd.insufficientStockSku": "{stockSku} does not have enough stock, please change the quantity ",
   "purchasedProducts.quickAdd.purchaseQuantityLimitMessage": "You need to purchase a {typeText} of {limit} of the {sku} per order",
+  "purchasedProducts.quickAdd.inlineErrors.notFoundSku": "SKU not found",
+  "purchasedProducts.quickAdd.inlineErrors.insufficientStockSku": "{count} available",
   "purchasedProducts.footer.selectOneItemToAdd": "Please select at least one item to add to cart",
   "purchasedProducts.footer.productsAdded": "Products were added to cart",
   "purchasedProducts.footer.productsLimit": "The quantity of each product in Quote is 1-1000000.",
