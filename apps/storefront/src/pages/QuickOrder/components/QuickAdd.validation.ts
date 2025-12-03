@@ -14,6 +14,7 @@ export interface CatalogProduct {
 
 interface ValidationPayloadItem {
   node: {
+    sku?: string;
     productId: number;
     quantity: number;
     productsSearch: {
@@ -76,6 +77,7 @@ export function mapCatalogToValidationPayload(
 
     return {
       node: {
+        sku: matchingSkuFromInput,
         productId: parseInt(catalogProduct.productId, 10) || 0,
         quantity: requestedQuantity,
         productsSearch: {

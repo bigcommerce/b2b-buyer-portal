@@ -344,6 +344,9 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              product: {
+                availableToSell: faker.number.int(),
+              },
             },
           },
         }),
@@ -470,6 +473,9 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              product: {
+                availableToSell: faker.number.int(),
+              },
             },
           },
         }),
@@ -650,6 +656,9 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              product: {
+                availableToSell: faker.number.int(),
+              },
             },
           },
         }),
