@@ -5,31 +5,38 @@ interface Option {
   optionValue: string;
 }
 
-interface NetworkValidationError {
-  type: 'network';
-}
-
-interface ServerValidationError {
-  type: 'validation';
-  message: string;
-}
-
-type ValidationError = NetworkValidationError | ServerValidationError;
-
 interface ValidatedProductSuccess {
   status: 'success';
   product: CustomFieldItems;
 }
-export interface ValidatedProductWarning {
+
+interface ValidatedProductWarning {
   status: 'warning';
   message: string;
   product: CustomFieldItems;
 }
-export interface ValidatedProductError {
+
+interface ValidatedProductServerError {
   status: 'error';
-  error: ValidationError;
+  error: {
+    type: 'validation';
+    errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+    message: string;
+    availableToSell: number;
+  };
   product: CustomFieldItems;
 }
+
+interface ValidatedProductNetworkError {
+  status: 'error';
+  error: {
+    type: 'network';
+    errorCode: 'NETWORK_ERROR';
+  };
+  product: CustomFieldItems;
+}
+
+export type ValidatedProductError = ValidatedProductServerError | ValidatedProductNetworkError;
 
 type ValidatedProduct = ValidatedProductSuccess | ValidatedProductWarning | ValidatedProductError;
 
@@ -105,6 +112,7 @@ export const validateProducts = async (
         status: 'error',
         error: {
           type: 'network',
+          errorCode: 'NETWORK_ERROR',
         },
         product,
       };
@@ -117,6 +125,8 @@ export const validateProducts = async (
           error: {
             type: 'validation',
             message: res.value.message,
+            errorCode: res.value.errorCode,
+            availableToSell: res.value.product.availableToSell,
           },
           product,
         };

@@ -191,10 +191,26 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   unlimitedBackorder: faker.datatype.boolean(),
 }));
 
-const buildValidateProductWith = builder<ValidateProduct>(() => ({
-  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
-  message: faker.lorem.sentence(),
-}));
+const buildValidateProductWith = builder<ValidateProduct>(() =>
+  faker.helpers.arrayElement([
+    {
+      responseType: 'ERROR',
+      message: faker.lorem.sentence(),
+      errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+      product: {
+        availableToSell: faker.number.int(),
+      },
+    },
+    {
+      responseType: 'WARNING',
+      message: faker.lorem.sentence(),
+    },
+    {
+      responseType: 'SUCCESS',
+      message: faker.lorem.sentence(),
+    },
+  ]),
+);
 
 const priceProduct = vi.fn<(variables: unknown) => PriceProduct>();
 const searchProduct = vi.fn<(query: string) => SearchB2BProduct>();
