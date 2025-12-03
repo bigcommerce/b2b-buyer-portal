@@ -362,9 +362,7 @@ describe('when there is a problem with some of the skus', () => {
 
     renderWithProviders(
       <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
-      {
-        preloadedState,
-      },
+      { preloadedState },
     );
 
     const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
@@ -406,9 +404,7 @@ describe('when there is a problem with some of the skus', () => {
 
     renderWithProviders(
       <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
-      {
-        preloadedState,
-      },
+      { preloadedState },
     );
 
     const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
@@ -451,9 +447,7 @@ describe('when the sku has a required modifier', () => {
 
     renderWithProviders(
       <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
-      {
-        preloadedState,
-      },
+      { preloadedState },
     );
 
     const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
@@ -472,7 +466,7 @@ describe('when the sku has a required modifier', () => {
   });
 });
 
-describe('when an existing sky on the draft quote is over the quantity limit', () => {
+describe('when an existing sku on the draft quote is over the quantity limit', () => {
   it('displays a quantity error when additional quantities of the sku are added', async () => {
     const getVariantInfoBySkus = vi.fn();
 
@@ -531,9 +525,7 @@ describe('when some data is missing in the form', async () => {
   it('shows an error message when sku or quantity are not provided', async () => {
     renderWithProviders(
       <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
-      {
-        preloadedState,
-      },
+      { preloadedState },
     );
 
     const [firstSkuInput, secondSkuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
@@ -562,9 +554,7 @@ describe('when some data is missing in the form', async () => {
   it('shows an error message when quantity is negative', async () => {
     renderWithProviders(
       <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
-      {
-        preloadedState,
-      },
+      { preloadedState },
     );
 
     const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
@@ -577,5 +567,54 @@ describe('when some data is missing in the form', async () => {
 
     expect(qtyInput).not.toBeValid();
     expect(qtyInput).toHaveAccessibleDescription('incorrect number');
+  });
+
+  it('clears the input regardless of the case', async () => {
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'S-123', // Backend will return the sku in uppercase
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining('variantSkus: ["s-123","s-456"]'))
+      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    server.use(
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+    );
+
+    const quickAddToList = vi.fn();
+
+    renderWithProviders(
+      <QuickAdd updateList={vi.fn()} quickAddToList={quickAddToList} type="shoppingList" />,
+      { preloadedState },
+    );
+
+    const [firstInput, secondSkuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
+    const [firstQtyInput, secondQtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
+
+    await userEvent.type(firstInput, 's-123');
+    await userEvent.type(firstQtyInput, '2');
+
+    await userEvent.type(secondSkuInput, 's-456');
+    await userEvent.type(secondQtyInput, '3');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add product to list' }));
+
+    await waitFor(() =>
+      expect(quickAddToList).toHaveBeenCalledWith([
+        expect.objectContaining({ variantSku: 'S-123', quantity: 2 }),
+      ]),
+    );
+
+    expect(firstInput).toHaveValue('');
+    expect(firstQtyInput).toHaveValue(null);
+
+    expect(secondSkuInput).toHaveValue('s-456');
+    expect(secondQtyInput).toHaveValue(3);
   });
 });
