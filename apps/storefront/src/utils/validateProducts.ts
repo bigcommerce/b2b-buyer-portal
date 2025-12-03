@@ -5,19 +5,6 @@ interface Option {
   optionValue: string;
 }
 
-interface NetworkValidationError {
-  type: 'network';
-  errorCode: 'NETWORK_ERROR';
-}
-
-interface ServerValidationError {
-  type: 'validation';
-  errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
-  message: string;
-}
-
-type ValidationError = NetworkValidationError | ServerValidationError;
-
 interface Product {
   productId: number;
   variantId: number;
@@ -30,17 +17,35 @@ interface ValidatedProductSuccess<T> {
   product: T;
 }
 
-export interface ValidatedProductWarning<T> {
+interface ValidatedProductWarning<T> {
   status: 'warning';
   message: string;
   product: T;
 }
 
-export interface ValidatedProductError<T> {
+interface ValidatedProductServerError<T> {
   status: 'error';
-  error: ValidationError;
+  error: {
+    type: 'validation';
+    errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+    message: string;
+    availableToSell: number;
+  };
   product: T;
 }
+
+interface ValidatedProductNetworkError<T> {
+  status: 'error';
+  error: {
+    type: 'network';
+    errorCode: 'NETWORK_ERROR';
+  };
+  product: T;
+}
+
+export type ValidatedProductError<T> =
+  | ValidatedProductServerError<T>
+  | ValidatedProductNetworkError<T>;
 
 type ValidatedProduct<T> =
   | ValidatedProductSuccess<T>
@@ -184,6 +189,7 @@ export const validateProducts = async <T extends ValidateProductsInput>(
             type: 'validation',
             message: res.value.message,
             errorCode: res.value.errorCode,
+            availableToSell: res.value.product.availableToSell,
           },
           product,
         };

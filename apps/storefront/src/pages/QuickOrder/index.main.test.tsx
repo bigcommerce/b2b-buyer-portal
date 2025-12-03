@@ -206,7 +206,7 @@ const buildSearchProductWith = builder<SearchProduct>(() => ({
   productUrl: faker.internet.url(),
   taxClassId: faker.number.int(),
   isPriceHidden: faker.datatype.boolean(),
-  availableToSell: faker.number.int(),
+  availableToSell: 0,
   unlimitedBackorder: faker.datatype.boolean(),
 }));
 
@@ -310,6 +310,9 @@ const buildValidateProductWith = builder<ValidateProduct>(() =>
       responseType: 'ERROR',
       message: faker.lorem.sentence(),
       errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+      product: {
+        availableToSell: 0,
+      },
     },
   ]),
 );
@@ -2064,6 +2067,7 @@ describe('when adding to quote', () => {
             responseType: 'ERROR',
             message: 'Product is out of stock',
             errorCode: 'OOS',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -2081,6 +2085,7 @@ describe('when adding to quote', () => {
             responseType: 'ERROR',
             message: 'Product is not purchasable',
             errorCode: 'NON_PURCHASABLE',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -2245,6 +2250,7 @@ describe('when adding to quote', () => {
             responseType: 'ERROR',
             message: 'Product is out of stock',
             errorCode: 'OOS',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -2262,6 +2268,7 @@ describe('when adding to quote', () => {
             responseType: 'ERROR',
             message: 'Product is out of stock',
             errorCode: 'OOS',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -2279,6 +2286,7 @@ describe('when adding to quote', () => {
             responseType: 'ERROR',
             message: 'Product is out of stock',
             errorCode: 'OOS',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -3085,6 +3093,7 @@ describe('When backend validation feature flag is on', () => {
             responseType: 'ERROR',
             message: 'SKU OOS-123 is out of stock',
             errorCode: 'OOS',
+            product: { availableToSell: 1 },
           }),
         },
       });
@@ -3118,8 +3127,13 @@ describe('When backend validation feature flag is on', () => {
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
     await userEvent.click(addButton);
 
-    const error = await screen.findByText('SKU OOS-123 is out of stock');
-    expect(error).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText('OOS-123 does not have enough stock, please change the quantity'),
+      ).toBeVisible();
+    });
+
+    expect(screen.getByText('1 available')).toBeVisible();
   });
 
   it('quick add displays an error message when trying to add out of stock product to existing cart', async () => {
@@ -3179,6 +3193,7 @@ describe('When backend validation feature flag is on', () => {
             responseType: 'ERROR',
             message: 'Product OOS-123 has insufficient stock',
             errorCode: 'OOS',
+            product: { availableToSell: 1 },
           }),
         },
       });
@@ -3213,8 +3228,12 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.click(addButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Product OOS-123 has insufficient stock')).toBeInTheDocument();
+      expect(
+        screen.getByText('OOS-123 does not have enough stock, please change the quantity'),
+      ).toBeInTheDocument();
     });
+
+    expect(screen.getByText('1 available')).toBeVisible();
   });
 
   it('quick add displays an error message when trying to add non-existent SKU', async () => {
@@ -3265,7 +3284,10 @@ describe('When backend validation feature flag is on', () => {
     const error = await screen.findByText(
       'SKU NON-EXISTENT-SKU was not found, please check entered values',
     );
+
     expect(error).toBeInTheDocument();
+
+    expect(screen.getByText('SKU not found')).toBeVisible();
   });
 
   it('quick add shows not-found SKU error after adding valid products to cart', async () => {
@@ -3361,11 +3383,13 @@ describe('When backend validation feature flag is on', () => {
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
     await userEvent.click(addButton);
 
-    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
+    expect(await screen.findByText('Products were added to cart')).toBeVisible();
 
     expect(
       await screen.findByText('SKU NOT-FOUND-SKU was not found, please check entered values'),
-    ).toBeInTheDocument();
+    ).toBeVisible();
+
+    expect(screen.getByText('SKU not found')).toBeVisible();
   });
 
   it('quick add shows not-found SKU error with validation errors for mixed scenario', async () => {
@@ -3440,6 +3464,7 @@ describe('When backend validation feature flag is on', () => {
             responseType: 'ERROR',
             message: 'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
             errorCode: 'OOS',
+            product: { availableToSell: 0 },
           }),
         },
       });
@@ -3513,6 +3538,8 @@ describe('When backend validation feature flag is on', () => {
     expect(
       await screen.findByText('SKU NOT-FOUND-SKU was not found, please check entered values'),
     ).toBeInTheDocument();
+
+    expect(screen.getByText('SKU not found')).toBeVisible();
   });
 
   it('quick add clears the input values when adding valid products to cart', async () => {

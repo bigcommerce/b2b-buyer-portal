@@ -109,7 +109,14 @@ it('groups products by their validation status', async () => {
   when(validateProduct)
     .calledWith({ productId: 101, variantId: 199, quantity: 1, productOptions: [] })
     .thenReturn({
-      data: { validateProduct: { responseType: 'ERROR', message: 'foo bar', errorCode: 'OTHER' } },
+      data: {
+        validateProduct: {
+          responseType: 'ERROR',
+          message: 'foo bar',
+          errorCode: 'OTHER',
+          product: { availableToSell: 12 },
+        },
+      },
     });
   when(validateProduct)
     .calledWith({ productId: 102, variantId: 199, quantity: 1, productOptions: [] })
@@ -129,7 +136,7 @@ it('groups products by their validation status', async () => {
     error: [
       {
         status: 'error',
-        error: { type: 'validation', message: 'foo bar', errorCode: 'OTHER' },
+        error: { type: 'validation', message: 'foo bar', errorCode: 'OTHER', availableToSell: 12 },
         product: products[2],
       },
       {
