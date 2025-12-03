@@ -297,7 +297,7 @@
   "purchasedProducts.quickAdd.sku": "SKU#",
   "purchasedProducts.quickAdd.qty": "Qty",
   "purchasedProducts.quickAdd.incorrectNumber": "Incorrect number",
-  "purchasedProducts.quickAdd.notFoundSku": "SKU {notFoundSku} were not found, please check entered values",
+  "purchasedProducts.quickAdd.notFoundSku": "{count, plural, one {SKU {notFoundSku} was not found} other {SKUs {notFoundSku} were not found}}, please check entered values",
   "purchasedProducts.quickAdd.notPurchaseableSku": "SKU {notPurchaseSku} no longer for sale",
   "purchasedProducts.quickAdd.insufficientStockSku": "{stockSku} does not have enough stock, please change the quantity ",
   "purchasedProducts.quickAdd.purchaseQuantityLimitMessage": "You need to purchase a {typeText} of {limit} of the {sku} per order",

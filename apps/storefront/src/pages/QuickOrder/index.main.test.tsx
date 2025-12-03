@@ -3263,7 +3263,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.click(addButton);
 
     const error = await screen.findByText(
-      'SKU NON-EXISTENT-SKU were not found, please check entered values',
+      'SKU NON-EXISTENT-SKU was not found, please check entered values',
     );
     expect(error).toBeInTheDocument();
   });
@@ -3364,7 +3364,7 @@ describe('When backend validation feature flag is on', () => {
     expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
 
     expect(
-      await screen.findByText('SKU NOT-FOUND-SKU were not found, please check entered values'),
+      await screen.findByText('SKU NOT-FOUND-SKU was not found, please check entered values'),
     ).toBeInTheDocument();
   });
 
@@ -3511,7 +3511,7 @@ describe('When backend validation feature flag is on', () => {
     expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
 
     expect(
-      await screen.findByText('SKU NOT-FOUND-SKU were not found, please check entered values'),
+      await screen.findByText('SKU NOT-FOUND-SKU was not found, please check entered values'),
     ).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 import { Fragment, KeyboardEventHandler, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { Box, Grid, Typography } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -217,16 +217,16 @@ export default function QuickAdd() {
   };
 
   const showErrors = (
-    value: CustomFieldItems,
+    formData: FieldValues,
     skus: string[],
     inputType: 'sku' | 'qty',
     message: string,
   ) => {
-    skus.forEach((sku) => {
-      const skuFieldName = Object.keys(value).find((name) => value[name] === sku) || '';
+    const lowerCaseSkus = skus.map((sku) => sku.toLowerCase());
 
-      if (skuFieldName) {
-        setError(skuFieldName.replace('sku', inputType), {
+    Object.entries(formData).forEach(([key, value]) => {
+      if (typeof value === 'string' && lowerCaseSkus.includes(value.toLowerCase())) {
+        setError(key.replace('sku', inputType), {
           type: 'manual',
           message,
         });
@@ -256,7 +256,7 @@ export default function QuickAdd() {
   };
 
   const handleFrontendValidation = async (
-    value: CustomFieldItems,
+    value: FieldValues,
     variantInfoList: CustomFieldItems[],
     skuValue: SimpleObject,
     skus: string[],
@@ -268,7 +268,8 @@ export default function QuickAdd() {
       showErrors(value, notFoundSku, 'sku', '');
       snackbar.error(
         b3Lang('purchasedProducts.quickAdd.notFoundSku', {
-          notFoundSku: notFoundSku.join(','),
+          count: notFoundSku.length,
+          notFoundSku: notFoundSku.join(', '),
         }),
       );
     }
@@ -277,7 +278,7 @@ export default function QuickAdd() {
       showErrors(value, notPurchaseSku, 'sku', '');
       snackbar.error(
         b3Lang('purchasedProducts.quickAdd.notPurchaseableSku', {
-          notPurchaseSku: notPurchaseSku.join(','),
+          notPurchaseSku: notPurchaseSku.join(', '),
         }),
       );
     }
@@ -293,7 +294,7 @@ export default function QuickAdd() {
 
       snackbar.error(
         b3Lang('purchasedProducts.quickAdd.insufficientStockSku', {
-          stockSku: stockSku.join(','),
+          stockSku: stockSku.join(', '),
         }),
       );
     }
@@ -416,7 +417,8 @@ export default function QuickAdd() {
           if (notFoundSkus.length > 0) {
             snackbar.error(
               b3Lang('purchasedProducts.quickAdd.notFoundSku', {
-                notFoundSku: notFoundSkus.join(','),
+                count: notFoundSkus.length,
+                notFoundSku: notFoundSkus.join(', '),
               }),
             );
           }

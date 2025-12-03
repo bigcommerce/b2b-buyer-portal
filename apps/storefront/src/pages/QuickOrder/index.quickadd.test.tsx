@@ -297,7 +297,7 @@ it('only clears inputs that are added to the cart, keeps the rest', async () => 
   await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
 
   expect(
-    await screen.findByText('SKU S-456 were not found, please check entered values'),
+    await screen.findByText('SKU S-456 was not found, please check entered values'),
   ).toBeInTheDocument();
 
   expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
@@ -331,7 +331,7 @@ it('submits the form when pressing enter on either of the inputs', async () => {
 
   await waitFor(() => {
     expect(
-      screen.getByText('SKU S-123 were not found, please check entered values'),
+      screen.getByText('SKU S-123 was not found, please check entered values'),
     ).toBeInTheDocument();
   });
 
@@ -340,7 +340,7 @@ it('submits the form when pressing enter on either of the inputs', async () => {
 
   await waitFor(() => {
     expect(
-      screen.getByText('SKU S-456 were not found, please check entered values'),
+      screen.getByText('SKU S-456 was not found, please check entered values'),
     ).toBeInTheDocument();
   });
 });
@@ -551,7 +551,7 @@ describe('when there is a problem with some of the skus', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('SKU S-123,S-456 were not found, please check entered values'),
+        screen.getByText('SKUs S-123, S-456 were not found, please check entered values'),
       ).toBeInTheDocument();
     });
 
@@ -781,7 +781,7 @@ describe('when there is a problem with some of the skus', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText('SKU S-123,S-456 were not found, please check entered values'),
+          screen.getByText('SKUs S-123, S-456 were not found, please check entered values'),
         ).toBeInTheDocument();
       });
 
