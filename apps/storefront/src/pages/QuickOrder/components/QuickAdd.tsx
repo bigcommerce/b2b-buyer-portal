@@ -234,13 +234,13 @@ export default function QuickAdd() {
     });
   };
 
-  const clearInputValue = (value: CustomFieldItems, skus: string[]) => {
-    skus.forEach((sku) => {
-      const skuFieldName = Object.keys(value).find((name) => value[name] === sku) || '';
+  const clearInputValue = (formData: FieldValues, skus: string[]) => {
+    const lowerCaseSkus = skus.map((sku) => sku.toLowerCase());
 
-      if (skuFieldName) {
-        setValue(skuFieldName, '');
-        setValue(skuFieldName.replace('sku', 'qty'), '');
+    Object.entries(formData).forEach(([key, value]) => {
+      if (typeof value === 'string' && lowerCaseSkus.includes(value.toLowerCase())) {
+        setValue(key, '');
+        setValue(key.replace('sku', 'qty'), '');
       }
     });
   };

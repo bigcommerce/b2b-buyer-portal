@@ -3515,7 +3515,90 @@ describe('When backend validation feature flag is on', () => {
     ).toBeInTheDocument();
   });
 
-  it('adds a product to the cart succesfully', async () => {
+  it('quick add clears the input values when adding valid products to cart', async () => {
+    const validVariant = buildVariantInfoWith({
+      variantSku: 'VALID-SKU', // Backend will return the sku in uppercase
+      productId: '123',
+      variantId: '456',
+      minQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 100,
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining('variantSkus: ["valid-sku"]'))
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [validVariant] } }));
+
+    const validateProduct = when(vi.fn())
+      .calledWith(
+        expect.objectContaining({
+          productId: 123,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'SUCCESS',
+            message: '',
+          }),
+        },
+      });
+
+    const createCartSimple = when(vi.fn())
+      .calledWith({
+        createCartInput: {
+          lineItems: [
+            {
+              quantity: 2,
+              productEntityId: 123,
+              variantEntityId: 456,
+              selectedOptions: { multipleChoices: [], textFields: [] },
+            },
+          ],
+        },
+      })
+      .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'test-cart-id' } } } } });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', () =>
+        HttpResponse.json({ data: { orderedProducts: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const skuInputs = screen.getAllByLabelText(/SKU#/);
+    const qtyInputs = screen.getAllByLabelText(/Qty/);
+
+    await userEvent.type(skuInputs[0], 'valid-sku'); // ensure sku cleaning is case-insensitive
+    await userEvent.type(qtyInputs[0], '2');
+
+    const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+    await userEvent.click(addButton);
+
+    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
+
+    expect(skuInputs[0]).toHaveValue('');
+    expect(qtyInputs[0]).toHaveValue(null);
+  });
+
+  it('adds a product to the cart successfully', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
     const getCart = vi.fn().mockReturnValue(buildGetCartWith({ data: { site: { cart: null } } }));
