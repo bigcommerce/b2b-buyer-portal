@@ -105,6 +105,7 @@ const validateProductQuery = `
     ) {
       responseType
       message
+      errorCode
     }
   }
 `;
@@ -335,12 +336,25 @@ export interface SearchProductsResponse {
   };
 }
 
+interface ValidateProductSuccess {
+  responseType: 'SUCCESS';
+  message: string;
+}
+
+interface ValidateProductError {
+  responseType: 'ERROR';
+  errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+  message: string;
+}
+
+interface ValidateProductWarning {
+  responseType: 'WARNING';
+  message: string;
+}
+
 export interface ValidateProductResponse {
   data: {
-    validateProduct: {
-      responseType: 'ERROR' | 'WARNING' | 'SUCCESS';
-      message: string;
-    };
+    validateProduct: ValidateProductSuccess | ValidateProductWarning | ValidateProductError;
   };
 }
 interface ValidateProductsResponse {

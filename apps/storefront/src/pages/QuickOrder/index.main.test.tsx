@@ -296,10 +296,23 @@ const buildGetCartWith = builder<GetCart>(() => {
   };
 });
 
-const buildValidateProductWith = builder<ValidateProduct>(() => ({
-  responseType: faker.helpers.arrayElement(['ERROR', 'WARNING', 'SUCCESS']),
-  message: faker.lorem.sentence(),
-}));
+const buildValidateProductWith = builder<ValidateProduct>(() =>
+  faker.helpers.arrayElement([
+    {
+      responseType: 'SUCCESS',
+      message: faker.lorem.sentence(),
+    },
+    {
+      responseType: 'WARNING',
+      message: faker.lorem.sentence(),
+    },
+    {
+      responseType: 'ERROR',
+      message: faker.lorem.sentence(),
+      errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+    },
+  ]),
+);
 
 const approvedB2BCompany = buildCompanyStateWith({
   permissions: [{ code: 'purchase_enable', permissionLevel: 1 }],
@@ -1929,7 +1942,10 @@ describe('when adding to quote', () => {
       )
       .thenReturn({
         data: {
-          validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          validateProduct: buildValidateProductWith({
+            responseType: 'SUCCESS',
+            message: '',
+          }),
         },
       });
 
@@ -1969,6 +1985,362 @@ describe('when adding to quote', () => {
 
     expect(validateProduct).toHaveBeenCalled();
     expect(await screen.findByText('Products were added to your quote')).toBeInTheDocument();
+  });
+
+  it('displays correct error messages when adding to quote with OOS and NON_PURCHASABLE errors', async () => {
+    const featureFlags = {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    };
+
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const oosProduct = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Out of Stock Product' },
+    });
+    const nonPurchasableProduct = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Non Purchasable Product' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 2, edges: [oosProduct, nonPurchasableProduct] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(
+        stringContainingAll(
+          `productIds: [${oosProduct.node.productId},${nonPurchasableProduct.node.productId}]`,
+        ),
+      )
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(oosProduct.node.productId),
+              sku: oosProduct.node.variantSku,
+              name: 'Out of Stock Product',
+              inventoryTracking: 'none',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(oosProduct.node.productId),
+                  variant_id: Number(oosProduct.node.variantId),
+                  sku: oosProduct.node.variantSku,
+                }),
+              ],
+            }),
+            buildSearchProductWith({
+              id: Number(nonPurchasableProduct.node.productId),
+              sku: nonPurchasableProduct.node.variantSku,
+              name: 'Non Purchasable Product',
+              inventoryTracking: 'none',
+              variants: [
+                buildVariantWith({
+                  product_id: Number(nonPurchasableProduct.node.productId),
+                  variant_id: Number(nonPurchasableProduct.node.variantId),
+                  sku: nonPurchasableProduct.node.variantSku,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    when(validateProduct)
+      .calledWith({
+        productId: Number(oosProduct.node.productId),
+        variantId: Number(oosProduct.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is out of stock',
+            errorCode: 'OOS',
+          }),
+        },
+      });
+
+    when(validateProduct)
+      .calledWith({
+        productId: Number(nonPurchasableProduct.node.productId),
+        variantId: Number(nonPurchasableProduct.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is not purchasable',
+            errorCode: 'NON_PURCHASABLE',
+          }),
+        },
+      });
+
+    const priceProductsResponse = {
+      priceProducts: [
+        buildProductPriceWith({
+          productId: Number(oosProduct.node.productId),
+          variantId: Number(oosProduct.node.variantId),
+        }),
+        buildProductPriceWith({
+          productId: Number(nonPurchasableProduct.node.productId),
+          variantId: Number(nonPurchasableProduct.node.variantId),
+        }),
+      ],
+    };
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
+      graphql.query('priceProducts', () => HttpResponse.json({ data: priceProductsResponse })),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, {
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({ featureFlags }),
+      },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    const oosRow = await screen.findByRole('row', { name: /Out of Stock Product/ });
+    const npRow = await screen.findByRole('row', { name: /Non Purchasable Product/ });
+
+    await userEvent.click(within(oosRow).getByRole('checkbox'));
+    await userEvent.click(within(npRow).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Add selected to quote' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Out of Stock Product does not have enough stock, please change the quantity',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('SKU Non Purchasable Product no longer for sale')).toBeInTheDocument();
+  });
+
+  it('groups multiple products with the same error type into a single snackbar', async () => {
+    const featureFlags = {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    };
+
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const oosProduct1 = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'OOS Product 1' },
+    });
+
+    const oosProduct2 = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'OOS Product 2' },
+    });
+
+    const oosProduct3 = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'OOS Product 3' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: {
+            orderedProducts: {
+              totalCount: 3,
+              edges: [oosProduct1, oosProduct2, oosProduct3],
+            },
+          },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(
+        stringContainingAll(
+          `productIds: [${oosProduct1.node.productId},${oosProduct2.node.productId},${oosProduct3.node.productId}]`,
+        ),
+      )
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(oosProduct1.node.productId),
+              sku: oosProduct1.node.variantSku,
+              name: oosProduct1.node.productName,
+              inventoryTracking: 'none',
+              optionsV3: [],
+              variants: [
+                buildVariantWith({
+                  product_id: Number(oosProduct1.node.productId),
+                  variant_id: Number(oosProduct1.node.variantId),
+                  sku: oosProduct1.node.variantSku,
+                }),
+              ],
+            }),
+            buildSearchProductWith({
+              id: Number(oosProduct2.node.productId),
+              sku: oosProduct2.node.variantSku,
+              name: oosProduct2.node.productName,
+              inventoryTracking: 'none',
+              optionsV3: [],
+              variants: [
+                buildVariantWith({
+                  product_id: Number(oosProduct2.node.productId),
+                  variant_id: Number(oosProduct2.node.variantId),
+                  sku: oosProduct2.node.variantSku,
+                }),
+              ],
+            }),
+            buildSearchProductWith({
+              id: Number(oosProduct3.node.productId),
+              sku: oosProduct3.node.variantSku,
+              name: oosProduct3.node.productName,
+              inventoryTracking: 'none',
+              optionsV3: [],
+              variants: [
+                buildVariantWith({
+                  product_id: Number(oosProduct3.node.productId),
+                  variant_id: Number(oosProduct3.node.variantId),
+                  sku: oosProduct3.node.variantSku,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: Number(oosProduct1.node.productId),
+          variantId: Number(oosProduct1.node.variantId),
+          quantity: 1,
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is out of stock',
+            errorCode: 'OOS',
+          }),
+        },
+      });
+
+    when(validateProduct)
+      .calledWith({
+        productId: Number(oosProduct2.node.productId),
+        variantId: Number(oosProduct2.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is out of stock',
+            errorCode: 'OOS',
+          }),
+        },
+      });
+
+    when(validateProduct)
+      .calledWith({
+        productId: Number(oosProduct3.node.productId),
+        variantId: Number(oosProduct3.node.variantId),
+        quantity: 1,
+        productOptions: [],
+      })
+      .thenReturn({
+        data: {
+          validateProduct: buildValidateProductWith({
+            responseType: 'ERROR',
+            message: 'Product is out of stock',
+            errorCode: 'OOS',
+          }),
+        },
+      });
+
+    const priceProductsResponse = {
+      priceProducts: [
+        buildProductPriceWith({
+          productId: Number(oosProduct1.node.productId),
+          variantId: Number(oosProduct1.node.variantId),
+        }),
+        buildProductPriceWith({
+          productId: Number(oosProduct2.node.productId),
+          variantId: Number(oosProduct2.node.variantId),
+        }),
+        buildProductPriceWith({
+          productId: Number(oosProduct3.node.productId),
+          variantId: Number(oosProduct3.node.variantId),
+        }),
+      ],
+    };
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
+      graphql.query('priceProducts', () => HttpResponse.json({ data: priceProductsResponse })),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, {
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({ featureFlags }),
+      },
+      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+    });
+
+    const oosRow1 = await screen.findByRole('row', { name: /OOS Product 1/ });
+    const oosRow2 = await screen.findByRole('row', { name: /OOS Product 2/ });
+    const oosRow3 = await screen.findByRole('row', { name: /OOS Product 3/ });
+
+    await userEvent.click(within(oosRow1).getByRole('checkbox'));
+    await userEvent.click(within(oosRow2).getByRole('checkbox'));
+    await userEvent.click(within(oosRow3).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+    await userEvent.click(addButton);
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Add selected to quote' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'OOS Product 1, OOS Product 2, OOS Product 3 does not have enough stock, please change the quantity',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    expect(validateProduct).toHaveBeenCalledTimes(3);
   });
 });
 
@@ -2712,6 +3084,7 @@ describe('When backend validation feature flag is on', () => {
           validateProduct: buildValidateProductWith({
             responseType: 'ERROR',
             message: 'SKU OOS-123 is out of stock',
+            errorCode: 'OOS',
           }),
         },
       });
@@ -2805,6 +3178,7 @@ describe('When backend validation feature flag is on', () => {
           validateProduct: buildValidateProductWith({
             responseType: 'ERROR',
             message: 'Product OOS-123 has insufficient stock',
+            errorCode: 'OOS',
           }),
         },
       });
@@ -3065,6 +3439,7 @@ describe('When backend validation feature flag is on', () => {
           validateProduct: buildValidateProductWith({
             responseType: 'ERROR',
             message: 'OUT-OF-STOCK-SKU does not have enough stock, please change the quantity',
+            errorCode: 'OOS',
           }),
         },
       });

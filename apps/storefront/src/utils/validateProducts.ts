@@ -7,10 +7,12 @@ interface Option {
 
 interface NetworkValidationError {
   type: 'network';
+  errorCode: 'NETWORK_ERROR';
 }
 
 interface ServerValidationError {
   type: 'validation';
+  errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
   message: string;
 }
 
@@ -105,6 +107,7 @@ export const validateProducts = async (
         status: 'error',
         error: {
           type: 'network',
+          errorCode: 'NETWORK_ERROR',
         },
         product,
       };
@@ -117,6 +120,7 @@ export const validateProducts = async (
           error: {
             type: 'validation',
             message: res.value.message,
+            errorCode: res.value.errorCode,
           },
           product,
         };
