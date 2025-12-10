@@ -32,6 +32,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { getSearchVal } from '@/utils/loginInfo';
 import { ValidatedProductError, validateProducts } from '@/utils/validateProducts';
 
+import { FileObjects } from '../quote/components/FileUpload';
 import Message from '../quote/components/Message';
 import QuoteAttachment from '../quote/components/QuoteAttachment';
 import QuoteDetailHeader from '../quote/components/QuoteDetailHeader';
@@ -224,15 +225,16 @@ function QuoteDetail() {
   const b3Lang = useB3Lang();
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
-  const [productList, setProductList] = useState<any>([]);
-  const [fileList, setFileList] = useState<any>([]);
-  const [quoteReviewedBySalesRep, setQuoteWasReviewedBySalesRep] = useState<boolean>(false);
+  const [productList, setProductList] = useState<ProductInfoProps[]>([]);
+  const [fileList, setFileList] = useState<FileObjects[]>([]);
+  const [quoteReviewedBySalesRep, setQuoteWasReviewedBySalesRep] = useState(false);
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
+  const [quoteValidationErrors, setQuoteValidationErrors] = useState<
+    ValidatedProductError<ProductInfoProps>[]
+  >([]);
+  const [quoteHasWarnings, setQuoteHasWarnings] = useState(true);
 
-  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
-  const [quoteValidationErrors, setQuoteValidationErrors] = useState<ValidatedProductError[]>([]);
-  const [quoteHasWarnings, setQuoteHasWarnings] = useState<boolean>(true);
-
-  const [quoteSummary, setQuoteSummary] = useState<any>({
+  const [quoteSummary, setQuoteSummary] = useState({
     originalSubtotal: 0,
     discount: 0,
     tax: 0,
@@ -301,7 +303,10 @@ function QuoteDetail() {
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   const quoteDetailBackendValidations = async () => {
-    if (!productList.length) return;
+    if (!productList.length) {
+      return;
+    }
+
     const { error, warning } = await validateProducts(productList);
 
     if (!error.length && !warning.length) {
@@ -375,7 +380,7 @@ function QuoteDetail() {
         if (err.error.type === 'network') {
           snackbar.error(
             b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
+              productName: err.product.productName || '',
             }),
           );
         } else {
@@ -487,7 +492,7 @@ function QuoteDetail() {
         shipping: quote.shippingTotal,
         totalAmount: quote.totalAmount,
       });
-      setProductList(productsWithMoreInfo);
+      setProductList(productsWithMoreInfo ?? []);
 
       if (Number(quote.shippingTotal) === 0) {
         setQuoteDetailTax(Number(quote.taxTotal));
@@ -518,7 +523,7 @@ function QuoteDetail() {
 
       setQuoteWasReviewedBySalesRep(!!salesRep || !!salesRepEmail);
 
-      const newFileList: CustomFieldItems[] = [];
+      const newFileList: FileObjects[] = [];
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
           fileName: file.fileName,
@@ -623,7 +628,7 @@ function QuoteDetail() {
   };
 
   const getQuoteTableDetails = async (params: any) => {
-    let allProductsList: any[] = productList;
+    let allProductsList = productList;
 
     if (allProductsList.length === 0) {
       const quote = await getQuoteDetail();
@@ -834,7 +839,6 @@ function QuoteDetail() {
               />
             </Box>
           </Grid>
-
           <Grid
             item
             xs={isMobile ? 12 : 4}
