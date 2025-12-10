@@ -3,6 +3,7 @@ import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -18,7 +19,6 @@ import { when } from 'vitest-when';
 
 import { GetCart } from '@/shared/service/bc/graphql/cart';
 import { CompanyStatus, UserTypes } from '@/types';
-import { LineItem } from '@/utils/b3Product/b3Product';
 
 import QuickOrderPad from './components/QuickOrderPad';
 
@@ -55,11 +55,6 @@ export interface VariantInfo {
   imageUrl: string;
 }
 
-interface MoneyValue {
-  currencyCode: string;
-  value: number;
-}
-
 const buildVariantInfoWith = builder<VariantInfo>(() => ({
   isStock: faker.helpers.arrayElement(['0', '1']),
   stock: faker.number.int(),
@@ -89,57 +84,17 @@ const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
   },
 }));
 
-const buildMoneyValueWith = builder<MoneyValue>(() => ({
-  currencyCode: faker.finance.currencyCode(),
-  value: faker.number.float(),
-}));
-
-const buildLineItemWith = builder<LineItem>(() => ({
-  variantEntityId: faker.number.int(),
-  productEntityId: faker.number.int(),
-  sku: faker.string.uuid(),
-  quantity: faker.number.int(),
-  selectedOptions: [],
-}));
-
-const buildCartWith = builder<GetCart>(() => {
-  const currencyCode = faker.finance.currencyCode();
-
-  return {
-    data: {
-      site: {
-        cart: {
-          amount: buildMoneyValueWith({ currencyCode }),
-          baseAmount: buildMoneyValueWith({ currencyCode }),
-          currencyCode,
-          discountedAmount: buildMoneyValueWith({ currencyCode }),
-          discounts: [],
-          isTaxIncluded: faker.datatype.boolean(),
-          locale: faker.helpers.arrayElement(['en', 'es', 'fr']),
-          entityId: faker.string.uuid(),
-          lineItems: {
-            physicalItems: bulk(buildLineItemWith, 'WHATEVER_VALUES').times(
-              faker.number.int({ min: 1, max: 5 }),
-            ),
-            digitalItems: bulk(buildLineItemWith, 'WHATEVER_VALUES').times(
-              faker.number.int({ min: 1, max: 5 }),
-            ),
-            giftCertificates: bulk(buildLineItemWith, 'WHATEVER_VALUES').times(
-              faker.number.int({ min: 1, max: 5 }),
-            ),
-            customItems: bulk(buildLineItemWith, 'WHATEVER_VALUES').times(
-              faker.number.int({ min: 1, max: 5 }),
-            ),
-          },
-        },
-      },
-    },
-  };
-});
-
 const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } });
 
-const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
+const preloadedState = {
+  company: approvedB2BCompany,
+  storeInfo: storeInfoWithDateFormat,
+  global: buildGlobalStateWith({
+    featureFlags: {
+      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    },
+  }),
+};
 
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
@@ -203,11 +158,21 @@ it('adds the skus and the quantities to the cart when clicking on the -add to ca
       },
     });
 
+  const validateProduct = when(vi.fn())
+    .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+    .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+  when(validateProduct)
+    .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+    .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
   server.use(
     graphql.query('GetVariantInfoBySkus', ({ query }) =>
       HttpResponse.json(getVariantInfoBySkus(query)),
     ),
     graphql.query('getCart', () => HttpResponse.json<GetCart>({ data: { site: { cart: null } } })),
+    graphql.query('ValidateProduct', ({ variables }) =>
+      HttpResponse.json(validateProduct(variables)),
+    ),
     graphql.mutation('createCartSimple', ({ variables }) =>
       HttpResponse.json(createCartSimple(variables)),
     ),
@@ -236,8 +201,6 @@ it('adds the skus and the quantities to the cart when clicking on the -add to ca
 });
 
 it('only clears inputs that are added to the cart, keeps the rest', async () => {
-  const getVariantInfoBySkus = vi.fn();
-
   const variantInfo = buildVariantInfoWith({
     variantSku: 'S-123',
     minQuantity: 0,
@@ -245,13 +208,11 @@ it('only clears inputs that are added to the cart, keeps the rest', async () => 
     isStock: '1',
   });
 
-  when(getVariantInfoBySkus)
+  const getVariantInfoBySkus = when(vi.fn())
     .calledWith(expect.stringContaining('variantSkus: ["S-123","S-456"]'))
     .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
-  const createCartSimple = vi.fn();
-
-  when(createCartSimple)
+  const createCartSimple = when(vi.fn())
     .calledWith({
       createCartInput: {
         lineItems: [
@@ -273,6 +234,10 @@ it('only clears inputs that are added to the cart, keeps the rest', async () => 
       },
     });
 
+  const validateProduct = when(vi.fn())
+    .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+    .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
   server.use(
     graphql.query('GetVariantInfoBySkus', ({ query }) =>
       HttpResponse.json(getVariantInfoBySkus(query)),
@@ -280,6 +245,9 @@ it('only clears inputs that are added to the cart, keeps the rest', async () => 
     graphql.query('getCart', () => HttpResponse.json<GetCart>({ data: { site: { cart: null } } })),
     graphql.mutation('createCartSimple', ({ variables }) =>
       HttpResponse.json(createCartSimple(variables)),
+    ),
+    graphql.query('ValidateProduct', ({ variables }) =>
+      HttpResponse.json(validateProduct(variables)),
     ),
   );
 
@@ -346,7 +314,7 @@ it('submits the form when pressing enter on either of the inputs', async () => {
 });
 
 describe('when there is a problem with some of the skus', () => {
-  it('notifies the sku did not have enough stock', async () => {
+  it('notifies about OOS errors with the sku', async () => {
     const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -361,12 +329,30 @@ describe('when there is a problem with some of the skus', () => {
       .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
+    const validateProduct = when(vi.fn())
+      .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+      .thenReturn({
+        data: {
+          validateProduct: {
+            responseType: 'ERROR',
+            message: 'S-123 does not have enough stock, please change the quantity',
+            errorCode: 'OOS',
+            product: {
+              availableToSell: 50,
+            },
+          },
+        },
+      });
+
     server.use(
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -376,7 +362,7 @@ describe('when there is a problem with some of the skus', () => {
     const [qtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
 
     await userEvent.type(skuInput, 'S-123');
-    await userEvent.type(qtyInput, '100');
+    await userEvent.type(qtyInput, '10');
 
     await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
 
@@ -387,10 +373,10 @@ describe('when there is a problem with some of the skus', () => {
     });
 
     expect(qtyInput).not.toBeValid();
-    expect(qtyInput).toHaveAccessibleDescription('50 in stock');
+    expect(qtyInput).toHaveAccessibleDescription('50 available');
   });
 
-  it('notifies the sku is not purchasable', async () => {
+  it('notifies about warnings with the sku', async () => {
     const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -405,12 +391,26 @@ describe('when there is a problem with some of the skus', () => {
       .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
+    const validateProduct = when(vi.fn())
+      .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+      .thenReturn({
+        data: {
+          validateProduct: {
+            responseType: 'WARNING',
+            message: 'SKU S-123 no longer for sale',
+          },
+        },
+      });
+
     server.use(
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -431,7 +431,7 @@ describe('when there is a problem with some of the skus', () => {
     expect(skuInput).not.toBeValid();
   });
 
-  it('notifies the min number of items was not purchased', async () => {
+  it('user is notified of INVALID_FIELDS errors with the sku', async () => {
     const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -446,12 +446,30 @@ describe('when there is a problem with some of the skus', () => {
       .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
+    const validateProduct = when(vi.fn())
+      .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+      .thenReturn({
+        data: {
+          validateProduct: {
+            responseType: 'ERROR',
+            errorCode: 'INVALID_FIELDS',
+            message: 'SKU S-123 is invalid',
+            product: {
+              availableToSell: 0,
+            },
+          },
+        },
+      });
+
     server.use(
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -466,16 +484,13 @@ describe('when there is a problem with some of the skus', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('You need to purchase a minimum of 3 of the S-123 per order'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('SKU S-123 is invalid')).toBeInTheDocument();
     });
 
-    expect(qtyInput).not.toBeValid();
-    expect(qtyInput).toHaveAccessibleDescription('Min is 3');
+    expect(skuInput).not.toBeValid();
   });
 
-  it('notifies the max number of items was exceeded', async () => {
+  it('notifies about NON_PURCHASABLE errors with the sku', async () => {
     const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -491,12 +506,30 @@ describe('when there is a problem with some of the skus', () => {
       .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
       .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
+    const validateProduct = when(vi.fn())
+      .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+      .thenReturn({
+        data: {
+          validateProduct: {
+            responseType: 'ERROR',
+            errorCode: 'NON_PURCHASABLE',
+            message: 'SKU S-123 is non purchasable',
+            product: {
+              availableToSell: 0,
+            },
+          },
+        },
+      });
+
     server.use(
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
       ),
     );
 
@@ -511,13 +544,10 @@ describe('when there is a problem with some of the skus', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('You need to purchase a maximum of 2 of the S-123 per order'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('SKU S-123 is non purchasable')).toBeInTheDocument();
     });
 
-    expect(qtyInput).not.toBeValid();
-    expect(qtyInput).toHaveAccessibleDescription('Max is 2');
+    expect(skuInput).not.toBeValid();
   });
 
   it('notifies the sku was not found', async () => {
@@ -557,237 +587,6 @@ describe('when there is a problem with some of the skus', () => {
 
     expect(firstSkuInput).not.toBeValid();
     expect(secondSkuInput).not.toBeValid();
-  });
-
-  describe('takes existing cart into account', () => {
-    it('notifies the sku did not have enough stock', async () => {
-      const getVariantInfoBySkus = vi.fn();
-
-      const variantInfo = buildVariantInfoWith({
-        variantSku: 'S-123',
-        minQuantity: 0,
-        purchasingDisabled: '0',
-        isStock: '1',
-        stock: 50,
-      });
-
-      when(getVariantInfoBySkus)
-        .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
-        .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-      server.use(
-        graphql.query('GetVariantInfoBySkus', ({ query }) =>
-          HttpResponse.json(getVariantInfoBySkus(query)),
-        ),
-        graphql.query('getCart', () =>
-          HttpResponse.json<GetCart>(
-            buildCartWith({
-              data: {
-                site: {
-                  cart: {
-                    lineItems: {
-                      physicalItems: [
-                        buildLineItemWith({
-                          sku: 'S-123',
-                          quantity: 30,
-                          variantEntityId: Number(variantInfo.variantId),
-                          productEntityId: Number(variantInfo.productId),
-                        }),
-                      ],
-                    },
-                  },
-                },
-              },
-            }),
-          ),
-        ),
-      );
-
-      renderWithProviders(<QuickOrderPad />, { preloadedState });
-
-      const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
-      const [qtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
-
-      await userEvent.type(skuInput, 'S-123');
-      await userEvent.type(qtyInput, '30');
-
-      await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
-
-      await waitFor(() => {
-        expect(
-          screen.getByText('S-123 does not have enough stock, please change the quantity'),
-        ).toBeInTheDocument();
-      });
-
-      expect(qtyInput).not.toBeValid();
-      expect(qtyInput).toHaveAccessibleDescription('50 in stock');
-    });
-
-    it('can add if cart + new quantity exceed the minimum', async () => {
-      const getVariantInfoBySkus = vi.fn();
-
-      const variantInfo = buildVariantInfoWith({
-        variantSku: 'S-123',
-        minQuantity: 5,
-        purchasingDisabled: '0',
-        isStock: '1',
-        stock: 50,
-      });
-
-      when(getVariantInfoBySkus)
-        .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
-        .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-      server.use(
-        graphql.query('GetVariantInfoBySkus', ({ query }) =>
-          HttpResponse.json(getVariantInfoBySkus(query)),
-        ),
-        graphql.query('getCart', () =>
-          HttpResponse.json<GetCart>(
-            buildCartWith({
-              data: {
-                site: {
-                  cart: {
-                    lineItems: {
-                      physicalItems: [
-                        buildLineItemWith({
-                          sku: 'S-123',
-                          quantity: 3,
-                          variantEntityId: Number(variantInfo.variantId),
-                          productEntityId: Number(variantInfo.productId),
-                        }),
-                      ],
-                    },
-                  },
-                },
-              },
-            }),
-          ),
-        ),
-        graphql.mutation('addCartLineItemsTwo', () =>
-          HttpResponse.json({
-            data: { cart: { addCartLineItems: buildCartWith('WHATEVER_VALUES').data.site } },
-          }),
-        ),
-      );
-
-      renderWithProviders(<QuickOrderPad />, { preloadedState });
-
-      const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
-      const [qtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
-
-      await userEvent.type(skuInput, 'S-123');
-      await userEvent.type(qtyInput, '3');
-
-      await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
-
-      await waitFor(() => {
-        expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
-      });
-    });
-
-    it('notifies the max number of items was exceeded', async () => {
-      const getVariantInfoBySkus = vi.fn();
-
-      const variantInfo = buildVariantInfoWith({
-        variantSku: 'S-123',
-        minQuantity: 1,
-        maxQuantity: 10,
-        purchasingDisabled: '0',
-        isStock: '1',
-        stock: 50,
-      });
-
-      when(getVariantInfoBySkus)
-        .calledWith(expect.stringContaining('variantSkus: ["S-123"]'))
-        .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-      server.use(
-        graphql.query('GetVariantInfoBySkus', ({ query }) =>
-          HttpResponse.json(getVariantInfoBySkus(query)),
-        ),
-        graphql.query('getCart', () =>
-          HttpResponse.json<GetCart>(
-            buildCartWith({
-              data: {
-                site: {
-                  cart: {
-                    lineItems: {
-                      physicalItems: [
-                        buildLineItemWith({
-                          sku: 'S-123',
-                          quantity: 5,
-                          variantEntityId: Number(variantInfo.variantId),
-                          productEntityId: Number(variantInfo.productId),
-                        }),
-                      ],
-                    },
-                  },
-                },
-              },
-            }),
-          ),
-        ),
-      );
-
-      renderWithProviders(<QuickOrderPad />, { preloadedState });
-
-      const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
-      const [qtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
-
-      await userEvent.type(skuInput, 'S-123');
-      await userEvent.type(qtyInput, '6');
-
-      await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
-
-      await waitFor(() => {
-        expect(
-          screen.getByText('You need to purchase a maximum of 10 of the S-123 per order'),
-        ).toBeInTheDocument();
-      });
-
-      expect(qtyInput).not.toBeValid();
-      expect(qtyInput).toHaveAccessibleDescription('Max is 10');
-    });
-
-    it('notifies the sku was not found', async () => {
-      const getVariantInfoBySkus = vi.fn();
-
-      when(getVariantInfoBySkus)
-        .calledWith(expect.stringContaining('variantSkus: ["S-123","S-456"]'))
-        .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [] } }));
-
-      server.use(
-        graphql.query('GetVariantInfoBySkus', ({ query }) =>
-          HttpResponse.json(getVariantInfoBySkus(query)),
-        ),
-        graphql.query('getCart', () =>
-          HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-        ),
-      );
-
-      renderWithProviders(<QuickOrderPad />, { preloadedState });
-
-      const [firstSkuInput, secondSkuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
-      const [firstQtyInput, secondQtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
-
-      await userEvent.type(firstSkuInput, 'S-123');
-      await userEvent.type(firstQtyInput, '4');
-
-      await userEvent.type(secondSkuInput, 'S-456');
-      await userEvent.type(secondQtyInput, '2');
-
-      await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
-
-      await waitFor(() => {
-        expect(
-          screen.getByText('SKUs S-123, S-456 were not found, please check entered values'),
-        ).toBeInTheDocument();
-      });
-
-      expect(firstSkuInput).not.toBeValid();
-      expect(secondSkuInput).not.toBeValid();
-    });
   });
 });
 
@@ -832,4 +631,101 @@ describe('when some data is missing in the form', async () => {
     expect(qtyInput).not.toBeValid();
     expect(qtyInput).toHaveAccessibleDescription('incorrect number');
   });
+});
+
+it('clears skus/quantities regardless of their casing', async () => {
+  const variantInfo = buildVariantInfoWith({
+    variantSku: 'LOWER-CASE-SKU',
+    minQuantity: 0,
+    purchasingDisabled: '0',
+    isStock: '1',
+  });
+
+  const variantInfo2 = buildVariantInfoWith({
+    variantSku: 'UPPER-CASE-SKU',
+    minQuantity: 0,
+    purchasingDisabled: '0',
+    isStock: '1',
+  });
+
+  const getVariantInfoBySkus = when(vi.fn())
+    .calledWith(expect.stringContaining('variantSkus: ["lower-case-sku","UPPER-CASE-SKU"]'))
+    .thenReturn(
+      buildVariantInfoResponseWith({ data: { variantSku: [variantInfo, variantInfo2] } }),
+    );
+
+  const createCartSimple = when(vi.fn())
+    .calledWith({
+      createCartInput: {
+        lineItems: [
+          {
+            quantity: 2,
+            productEntityId: Number(variantInfo.productId),
+            variantEntityId: Number(variantInfo.variantId),
+            selectedOptions: { multipleChoices: [], textFields: [] },
+          },
+          {
+            quantity: 2,
+            productEntityId: Number(variantInfo2.productId),
+            variantEntityId: Number(variantInfo2.variantId),
+            selectedOptions: { multipleChoices: [], textFields: [] },
+          },
+        ],
+      },
+    })
+    .thenReturn({
+      data: {
+        cart: { createCart: { cart: { entityId: 'de435179-9b4b-4fa4-b609-34d948d04783' } } },
+      },
+    });
+
+  const validateProduct = when(vi.fn())
+    .calledWith(expect.objectContaining({ productId: Number(variantInfo.productId) }))
+    .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
+  when(validateProduct)
+    .calledWith(expect.objectContaining({ productId: Number(variantInfo2.productId) }))
+    .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
+  server.use(
+    graphql.query('GetVariantInfoBySkus', ({ query }) =>
+      HttpResponse.json(getVariantInfoBySkus(query)),
+    ),
+    graphql.query('getCart', () => HttpResponse.json<GetCart>({ data: { site: { cart: null } } })),
+    graphql.mutation('createCartSimple', ({ variables }) =>
+      HttpResponse.json(createCartSimple(variables)),
+    ),
+    graphql.query('ValidateProduct', ({ variables }) =>
+      HttpResponse.json(validateProduct(variables)),
+    ),
+  );
+
+  renderWithProviders(<QuickOrderPad />, { preloadedState });
+
+  const [skuInput, skuInput2] = screen.getAllByRole('textbox', { name: 'SKU#' });
+  const [qtyInput, qtyInput2] = screen.getAllByRole('spinbutton', { name: 'Qty' });
+
+  await userEvent.type(skuInput, 'lower-case-sku');
+  await userEvent.type(qtyInput, '2');
+
+  await userEvent.type(skuInput2, 'UPPER-CASE-SKU');
+  await userEvent.type(qtyInput2, '2');
+
+  await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
+
+  await waitFor(() => {
+    expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+  });
+
+  expect(skuInput).toHaveValue('');
+  expect(qtyInput).toHaveValue(null);
+
+  expect(skuInput2).toHaveValue('');
+  expect(qtyInput2).toHaveValue(null);
+
+  expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+    cartId: 'de435179-9b4b-4fa4-b609-34d948d04783',
+  });
+
+  expect(Cookies.get('cartId')).toBe('de435179-9b4b-4fa4-b609-34d948d04783');
 });
