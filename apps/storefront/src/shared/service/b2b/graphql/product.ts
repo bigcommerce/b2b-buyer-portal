@@ -109,6 +109,26 @@ const validateProductQuery = `
   }
 `;
 
+const validateProductsQuery = `
+  query ValidateProducts ($products: [ValidateProductInputType]) {
+    validateProducts(products: $products, storeHash: "${storeHash}", channelId: ${channelId}) {
+      isValid
+      products {
+        errorCode
+        responseType
+        message
+        product {
+          productId
+          variantId
+          sku
+          availableToSell
+          unlimitedBackorder
+        }
+      }
+    }
+  }
+`;
+
 const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation ProductUpload {
   productUpload (
     productListData: {
@@ -323,6 +343,25 @@ export interface ValidateProductResponse {
     };
   };
 }
+interface ValidateProductsResponse {
+  data: {
+    validateProducts: {
+      isValid: boolean;
+      products: {
+        errorCode: string;
+        responseType: string;
+        message: string;
+        product: {
+          productId: number;
+          variantId: number;
+          sku: string;
+          availableToSell: number;
+          unlimitedBackorder: boolean;
+        };
+      }[];
+    };
+  };
+}
 
 export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
@@ -344,12 +383,22 @@ interface ValidateProductVariables {
     optionValue: string;
   }[];
 }
+interface ValidateProductsVariables {
+  products: ValidateProductVariables[];
+}
 
 export const validateProduct = (data: ValidateProductVariables) => {
   return B3Request.graphqlB2B<ValidateProductResponse>({
     query: validateProductQuery,
     variables: data,
   }).then((res) => res.validateProduct);
+};
+
+export const validateProducts = (data: ValidateProductsVariables) => {
+  return B3Request.graphqlB2B<ValidateProductsResponse>({
+    query: validateProductsQuery,
+    variables: data,
+  }).then((res) => res.validateProducts);
 };
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
