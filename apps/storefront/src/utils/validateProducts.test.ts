@@ -108,7 +108,9 @@ it('groups products by their validation status', async () => {
     .thenReturn({ data: { validateProduct: { responseType: 'WARNING', message: 'baz qux' } } });
   when(validateProduct)
     .calledWith({ productId: 101, variantId: 199, quantity: 1, productOptions: [] })
-    .thenReturn({ data: { validateProduct: { responseType: 'ERROR', message: 'foo bar' } } });
+    .thenReturn({
+      data: { validateProduct: { responseType: 'ERROR', message: 'foo bar', errorCode: 'OTHER' } },
+    });
   when(validateProduct)
     .calledWith({ productId: 102, variantId: 199, quantity: 1, productOptions: [] })
     .thenReject(new Error('network failure'));
@@ -125,8 +127,16 @@ it('groups products by their validation status', async () => {
     success: [{ status: 'success', product: products[0] }],
     warning: [{ status: 'warning', message: 'baz qux', product: products[1] }],
     error: [
-      { status: 'error', error: { type: 'validation', message: 'foo bar' }, product: products[2] },
-      { status: 'error', error: { type: 'network' }, product: products[3] },
+      {
+        status: 'error',
+        error: { type: 'validation', message: 'foo bar', errorCode: 'OTHER' },
+        product: products[2],
+      },
+      {
+        status: 'error',
+        error: { type: 'network', errorCode: 'NETWORK_ERROR' },
+        product: products[3],
+      },
     ],
   });
 });
