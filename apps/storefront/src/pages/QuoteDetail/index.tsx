@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Button, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
@@ -95,7 +95,8 @@ const validateProducts = (products: ProductInfoProps[]) => {
 
 function useData() {
   const { id = '' } = useParams();
-
+  const [searchParams] = useSearchParams();
+  const uuid = searchParams.get('uuid') || undefined;
   const {
     state: { bcLanguage, quoteConfig },
   } = useContext(GlobalContext);
@@ -176,6 +177,7 @@ function useData() {
 
   return {
     id,
+    uuid,
     bcLanguage,
     quoteConfig,
     role,
@@ -253,6 +255,7 @@ function QuoteDetail() {
 
   const {
     id,
+    uuid,
     bcLanguage,
     quoteConfig,
     role,
@@ -528,7 +531,6 @@ function QuoteDetail() {
         return undefined;
       });
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
-
       setQuoteDetail({
         ...quote,
         extraFields: quoteExtraFieldInfos,
@@ -738,6 +740,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
+        quoteUuid: uuid,
         role,
         location,
         navigate,
@@ -983,6 +986,7 @@ function QuoteDetail() {
                     role,
                     location,
                     quoteId: quoteDetail.id,
+                    quoteUuid: quoteDetail.uuid,
                     navigate,
                   });
                 }}

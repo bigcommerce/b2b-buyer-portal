@@ -1082,4 +1082,150 @@ describe('when the user is a B2B customer', () => {
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
+
+  describe('when "Proceed to checkout" button is clicked', () => {
+    beforeEach(() => {
+      server.use(
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(
+            buildProductSearchResponseWith({
+              data: {
+                productsSearch: [buildProductSearchWith({ id: 123 })],
+              },
+            }),
+          ),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: {
+                responseType: 'SUCCESS',
+                message: 'Product is valid',
+              },
+            },
+          }),
+        ),
+        graphql.query('getStorefrontProductSettings', () =>
+          HttpResponse.json({
+            data: {
+              storefrontProductSettings: {
+                hidePriceFromGuests: false,
+              },
+            },
+          }),
+        ),
+        graphql.mutation('CheckoutQuote', () =>
+          HttpResponse.json({
+            data: {
+              quoteCheckout: {
+                quoteCheckout: {
+                  checkoutUrl:
+                    'https://my-store/cart.php?action=loadInCheckout&id=123&token=1234567889&isFromQuote=Y',
+                  cartId: '123',
+                  cartUrl: 'https://my-store/cart.php?action=load&id=123&token=1234567889',
+                },
+              },
+            },
+          }),
+        ),
+      );
+
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    });
+    describe('given the quote has uuid', () => {
+      it('sets all the session storage for checkout', async () => {
+        const id = '272989';
+        const uuid = 'lsd-g';
+        const dateString = Date.now().toString();
+        const quote = buildQuoteWith({
+          data: {
+            quote: {
+              id,
+              uuid,
+              quoteNumber: '911911',
+              status: 2,
+              allowCheckout: true,
+              productsList: [buildQuoteProductWith({ productId: '123' })],
+            },
+          },
+        });
+        server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+        renderWithProviders(<QuoteDetail />, {
+          preloadedState: {
+            ...preloadedState,
+            company: {
+              ...preloadedState.company,
+              permissions: [
+                { code: 'purchase_enable', permissionLevel: 1 },
+                { code: 'checkout_with_quote', permissionLevel: 1 },
+              ],
+            },
+            global: {
+              ...preloadedState.global,
+              featureFlags: {
+                'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+              },
+            },
+          },
+          initialEntries: [`/272989?uuid=${uuid}&date=${dateString}`],
+        });
+        await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+        const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
+        await userEvent.click(checkoutButton);
+        expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual(uuid);
+        expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));
+        expect(sessionStorage.getItem('quoteCheckoutId')).toEqual(id);
+        expect(sessionStorage.getItem('quoteDate')).toEqual(dateString);
+      });
+    });
+
+    describe("given the legacy quote which doesn't have uuid", () => {
+      it('sets all the session storage for checkout', async () => {
+        const id = '272989';
+        const dateString = Date.now().toString();
+        const quote = buildQuoteWith({
+          data: {
+            quote: {
+              id,
+              quoteNumber: '911911',
+              status: 2,
+              allowCheckout: true,
+              productsList: [buildQuoteProductWith({ productId: '123' })],
+            },
+          },
+        });
+        server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+        renderWithProviders(<QuoteDetail />, {
+          preloadedState: {
+            ...preloadedState,
+            company: {
+              ...preloadedState.company,
+              permissions: [
+                { code: 'purchase_enable', permissionLevel: 1 },
+                { code: 'checkout_with_quote', permissionLevel: 1 },
+              ],
+            },
+            global: {
+              ...preloadedState.global,
+              featureFlags: {
+                'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+              },
+            },
+          },
+          initialEntries: [`/272989?date=${dateString}`],
+        });
+        await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+        const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
+        await userEvent.click(checkoutButton);
+        expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual('');
+        expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));
+        expect(sessionStorage.getItem('quoteCheckoutId')).toEqual(id);
+        expect(sessionStorage.getItem('quoteDate')).toEqual(dateString);
+      });
+    });
+  });
 });
