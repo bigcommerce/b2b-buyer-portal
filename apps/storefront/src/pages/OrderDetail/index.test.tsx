@@ -3,6 +3,7 @@ import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -365,8 +366,8 @@ describe('when a personal customer visits an order', () => {
 
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-    expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeInTheDocument();
-    expect(screen.getByText('Pending')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+    expect(screen.getByText('Pending')).toBeVisible();
   });
 
   it('can navigate back to the orders listing page', async () => {
@@ -466,23 +467,23 @@ describe('when a personal customer visits an order', () => {
       name: '1200 Scare Floor, Monstropolis, Monstana 48123, USA',
     });
 
-    expect(heading).toBeInTheDocument();
-    expect(addressInformation).toBeInTheDocument();
+    expect(heading).toBeVisible();
+    expect(addressInformation).toBeVisible();
 
-    expect(screen.getByText('Not shipped yet')).toBeInTheDocument();
+    expect(screen.getByText('Not shipped yet')).toBeVisible();
 
-    expect(screen.getByText('Product')).toBeInTheDocument();
-    expect(screen.getByText('Price')).toBeInTheDocument();
-    expect(screen.getByText('Qty')).toBeInTheDocument();
-    expect(screen.getByText('Total')).toBeInTheDocument();
+    expect(screen.getByText('Product')).toBeVisible();
+    expect(screen.getByText('Price')).toBeVisible();
+    expect(screen.getByText('Qty')).toBeVisible();
+    expect(screen.getByText('Total')).toBeVisible();
 
-    expect(screen.getByText('Scream Canister')).toBeInTheDocument();
-    expect(screen.getByText('MI-SCREAM-001')).toBeInTheDocument();
-    expect(screen.getByText('Size: Large')).toBeInTheDocument();
-    expect(screen.getByText('Color: Red')).toBeInTheDocument();
-    expect(screen.getByText('€333,00')).toBeInTheDocument();
-    expect(screen.getByText('443')).toBeInTheDocument();
-    expect(screen.getByText('€147.519,00')).toBeInTheDocument();
+    expect(screen.getByText('Scream Canister')).toBeVisible();
+    expect(screen.getByText('MI-SCREAM-001')).toBeVisible();
+    expect(screen.getByText('Size: Large')).toBeVisible();
+    expect(screen.getByText('Color: Red')).toBeVisible();
+    expect(screen.getByText('€333,00')).toBeVisible();
+    expect(screen.getByText('443')).toBeVisible();
+    expect(screen.getByText('€147.519,00')).toBeVisible();
   });
 
   it('renders multiple addresses', async () => {
@@ -548,21 +549,19 @@ describe('when a personal customer visits an order', () => {
 
     expect(
       await screen.findByRole('heading', { name: 'Mike Wazowski – Monsters Inc.' }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByRole('heading', {
         name: '1200 Scare Floor, Monstropolis, Monstana 48123, USA',
       }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
 
-    expect(
-      screen.getByRole('heading', { name: 'James Sullivan – Monsters Inc.' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'James Sullivan – Monsters Inc.' })).toBeVisible();
     expect(
       screen.getByRole('heading', {
         name: '44 Boo Lane, Salem, Monstana 48123, USA',
       }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   describe('when the order is not fully shipped', () => {
@@ -619,11 +618,11 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(await screen.findByText('Not shipped yet')).toBeInTheDocument();
+      expect(await screen.findByText('Not shipped yet')).toBeVisible();
 
-      expect(screen.getByText('Scream Canister')).toBeInTheDocument();
-      expect(screen.getByText('Laugh Canister')).toBeInTheDocument();
-      expect(screen.getByText('Door Station Panel')).toBeInTheDocument();
+      expect(screen.getByText('Scream Canister')).toBeVisible();
+      expect(screen.getByText('Laugh Canister')).toBeVisible();
+      expect(screen.getByText('Door Station Panel')).toBeVisible();
     });
   });
 
@@ -713,23 +712,21 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(await screen.findByText('Shipment 1 –')).toBeInTheDocument();
-      expect(screen.getByText('shipped on May, 21, by DHL, Free Shipping')).toBeInTheDocument();
+      expect(await screen.findByText('Shipment 1 –')).toBeVisible();
+      expect(screen.getByText('shipped on May, 21, by DHL, Free Shipping')).toBeVisible();
 
-      expect(screen.getByText('Scream Canister')).toBeInTheDocument();
-      expect(screen.getByText('MI-SCREAM-001')).toBeInTheDocument();
-      expect(screen.getByText('55')).toBeInTheDocument();
-      expect(screen.getByText('€333,00')).toBeInTheDocument();
+      expect(screen.getByText('Scream Canister')).toBeVisible();
+      expect(screen.getByText('MI-SCREAM-001')).toBeVisible();
+      expect(screen.getByText('55')).toBeVisible();
+      expect(screen.getByText('€333,00')).toBeVisible();
 
-      expect(await screen.findByText('Shipment 2 –')).toBeInTheDocument();
-      expect(
-        screen.getByText('shipped on June, 12, by USPS, Express Shipping'),
-      ).toBeInTheDocument();
+      expect(await screen.findByText('Shipment 2 –')).toBeVisible();
+      expect(screen.getByText('shipped on June, 12, by USPS, Express Shipping')).toBeVisible();
 
-      expect(screen.getByText('Laugh Canister')).toBeInTheDocument();
-      expect(screen.getByText('MI-LAUGH-002')).toBeInTheDocument();
-      expect(screen.getByText('21')).toBeInTheDocument();
-      expect(screen.getByText('€123,00')).toBeInTheDocument();
+      expect(screen.getByText('Laugh Canister')).toBeVisible();
+      expect(screen.getByText('MI-LAUGH-002')).toBeVisible();
+      expect(screen.getByText('21')).toBeVisible();
+      expect(screen.getByText('€123,00')).toBeVisible();
     });
   });
 
@@ -774,15 +771,15 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByText('Digital products')).toBeInTheDocument();
+      expect(screen.getByText('Digital products')).toBeVisible();
 
-      expect(screen.getByText('Scare Floor Operations Manual (eBook)')).toBeInTheDocument();
-      expect(screen.getByText('MI-EBOOK-101')).toBeInTheDocument();
+      expect(screen.getByText('Scare Floor Operations Manual (eBook)')).toBeVisible();
+      expect(screen.getByText('MI-EBOOK-101')).toBeVisible();
 
-      expect(screen.getByText('€22,34')).toBeInTheDocument();
-      expect(screen.getByText('112')).toBeInTheDocument();
-      expect(screen.getByText('€2.502,08')).toBeInTheDocument();
-      expect(screen.getByText('Format: ePub')).toBeInTheDocument();
+      expect(screen.getByText('€22,34')).toBeVisible();
+      expect(screen.getByText('112')).toBeVisible();
+      expect(screen.getByText('€2.502,08')).toBeVisible();
+      expect(screen.getByText('Format: ePub')).toBeVisible();
     });
 
     it('displays the view files link for digital products in an order', async () => {
@@ -841,12 +838,12 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByText('Digital products')).toBeInTheDocument();
-      expect(await screen.findByText('View files')).toBeInTheDocument();
+      expect(screen.getByText('Digital products')).toBeVisible();
+      expect(await screen.findByText('View files')).toBeVisible();
       await userEvent.click(await screen.findByText('View files'));
 
       // validate if digital files dialog is opened and renders a download button for each url
-      expect(screen.getByText('Files to download')).toBeInTheDocument();
+      expect(screen.getByText('Files to download')).toBeVisible();
 
       await waitFor(() => {
         expect(screen.getAllByRole('button', { name: 'Download' })).toHaveLength(2);
@@ -904,8 +901,8 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(await screen.findByText('Phone')).toBeInTheDocument();
-      expect(await screen.findByText('How to meow')).toBeInTheDocument();
+      expect(await screen.findByText('Phone')).toBeVisible();
+      expect(await screen.findByText('How to meow')).toBeVisible();
       expect(screen.queryByText('View files')).not.toBeInTheDocument();
     });
   });
@@ -947,9 +944,9 @@ describe('when a personal customer visits an order', () => {
 
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-    expect(screen.getByRole('heading', { name: 'Summary' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Summary' })).toBeVisible();
 
-    expect(screen.getByText('Purchased by Mike Wazowski on 4 May 2025.')).toBeInTheDocument();
+    expect(screen.getByText('Purchased by Mike Wazowski on 4 May 2025.')).toBeVisible();
 
     const tax = screen.getByRole('group', { name: 'Tax' });
     expect(tax).toHaveTextContent('Tax €13,50');
@@ -969,8 +966,8 @@ describe('when a personal customer visits an order', () => {
     const grandTotal = screen.getByRole('group', { name: 'Grand total' });
     expect(grandTotal).toHaveTextContent('Grand total €100,00');
 
-    expect(screen.getByRole('button', { name: 'Re-Order' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Re-Order' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' })).toBeVisible();
   });
 
   describe('when there is no order history', () => {
@@ -1042,7 +1039,7 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'History' })).toBeVisible();
 
       const table = screen.getByRole('table');
 
@@ -1053,13 +1050,13 @@ describe('when a personal customer visits an order', () => {
 
       const pendingRow = within(within(table).getByRole('row', { name: /Pending/ }));
 
-      expect(pendingRow.getByRole('cell', { name: 'Pending' })).toBeInTheDocument();
-      expect(pendingRow.getByRole('cell', { name: 'May 1 2025 @ 3:44 AM' })).toBeInTheDocument();
+      expect(pendingRow.getByRole('cell', { name: 'Pending' })).toBeVisible();
+      expect(pendingRow.getByRole('cell', { name: 'May 1 2025 @ 3:44 AM' })).toBeVisible();
 
       const shippedRow = within(within(table).getByRole('row', { name: /Shipped/ }));
 
-      expect(shippedRow.getByRole('cell', { name: 'Shipped' })).toBeInTheDocument();
-      expect(shippedRow.getByRole('cell', { name: 'May 4 2025 @ 7:22 AM' })).toBeInTheDocument();
+      expect(shippedRow.getByRole('cell', { name: 'Shipped' })).toBeVisible();
+      expect(shippedRow.getByRole('cell', { name: 'May 4 2025 @ 7:22 AM' })).toBeVisible();
     });
   });
 
@@ -1101,13 +1098,13 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByRole('heading', { name: 'Payment' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
 
-      expect(screen.getByText('Paid in full on 4 May 2025')).toBeInTheDocument();
-      expect(screen.getByText('Payment by Monopoly Money')).toBeInTheDocument();
-      expect(screen.getByText('James Sullivan')).toBeInTheDocument();
-      expect(screen.getByText('1200 Scare Floor')).toBeInTheDocument();
-      expect(screen.getByText('Monstropolis, Monstana 48123, USA')).toBeInTheDocument();
+      expect(screen.getByText('Paid in full on 4 May 2025')).toBeVisible();
+      expect(screen.getByText('Payment by Monopoly Money')).toBeVisible();
+      expect(screen.getByText('James Sullivan')).toBeVisible();
+      expect(screen.getByText('1200 Scare Floor')).toBeVisible();
+      expect(screen.getByText('Monstropolis, Monstana 48123, USA')).toBeVisible();
     });
   });
 
@@ -1139,7 +1136,7 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByRole('heading', { name: 'Order #6696, 3405' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Order #6696, 3405' })).toBeVisible();
     });
 
     it('renders the payment details section', async () => {
@@ -1168,9 +1165,9 @@ describe('when a personal customer visits an order', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      expect(screen.getByRole('heading', { name: 'Payment' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
 
-      expect(screen.getByText('PO Submitted on 4 May 2025')).toBeInTheDocument();
+      expect(screen.getByText('PO Submitted on 4 May 2025')).toBeVisible();
     });
   });
 
@@ -1303,24 +1300,24 @@ describe('when a personal customer visits an order', () => {
 
       const navigation = await screen.findByRole('navigation', { name: 'Order 1 of 10' });
 
-      expect(screen.getByRole('heading', { name: 'Order #1,' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Order #1,' })).toBeVisible();
 
       const [prev, next] = within(navigation).getAllByRole('button');
 
       await userEvent.click(next);
 
-      expect(await screen.findByRole('heading', { name: 'Order #2,' })).toBeInTheDocument();
-      expect(screen.getByRole('navigation', { name: 'Order 2 of 10' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Order #2,' })).toBeVisible();
+      expect(screen.getByRole('navigation', { name: 'Order 2 of 10' })).toBeVisible();
 
       await userEvent.click(next);
 
-      expect(await screen.findByRole('heading', { name: 'Order #3,' })).toBeInTheDocument();
-      expect(screen.getByRole('navigation', { name: 'Order 3 of 10' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Order #3,' })).toBeVisible();
+      expect(screen.getByRole('navigation', { name: 'Order 3 of 10' })).toBeVisible();
 
       await userEvent.click(prev);
 
-      expect(await screen.findByRole('heading', { name: 'Order #2,' })).toBeInTheDocument();
-      expect(screen.getByRole('navigation', { name: 'Order 2 of 10' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Order #2,' })).toBeVisible();
+      expect(screen.getByRole('navigation', { name: 'Order 2 of 10' })).toBeVisible();
     });
 
     it('honours the orderBy parameter', async () => {
@@ -1394,7 +1391,7 @@ describe('when a personal customer visits an order', () => {
 
       const navigation = await screen.findByRole('navigation', { name: 'Order 1 of 10' });
 
-      expect(screen.getByRole('heading', { name: 'Order #1,' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Order #1,' })).toBeVisible();
 
       const [prev, next] = within(navigation).getAllByRole('button');
 
@@ -1463,18 +1460,16 @@ describe('when a personal customer visits an order', () => {
 
       const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
 
-      expect(
-        within(dialog).getByText('Select products and quantity for reorder'),
-      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Select products and quantity for reorder')).toBeVisible();
 
       const productGroup = within(dialog).getByRole('group', { name: 'Laugh Canister' });
 
       await userEvent.click(within(productGroup).getByRole('checkbox'));
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products are added to cart')).toBeInTheDocument();
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
       });
 
       expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
@@ -1534,9 +1529,7 @@ describe('when a personal customer visits an order', () => {
 
       const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
 
-      expect(
-        within(dialog).getByText('Select products and quantity for reorder'),
-      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Select products and quantity for reorder')).toBeVisible();
 
       const productGroup = within(dialog).getByRole('group', { name: 'Scream Canister' });
 
@@ -1547,10 +1540,10 @@ describe('when a personal customer visits an order', () => {
         initialSelectionEnd: 1,
       });
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products are added to cart')).toBeInTheDocument();
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
       });
 
       expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
@@ -1623,10 +1616,10 @@ describe('when a personal customer visits an order', () => {
 
       await userEvent.click(checkboxes[0]); // Select all checkbox
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products are added to cart')).toBeInTheDocument();
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
       });
 
       expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
@@ -1660,10 +1653,607 @@ describe('when a personal customer visits an order', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Please select at least one item')).toBeInTheDocument();
+        expect(screen.getByText('Please select at least one item')).toBeVisible();
+      });
+    });
+  });
+
+  describe('when the customer wants to re-order - backend validation enabled', () => {
+    const preloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.B2C,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+      global: buildGlobalStateWith({
+        featureFlags: { 'B2B-3318.move_stock_and_backorder_validation_to_backend': true },
+      }),
+    };
+
+    it('can re-order a single product', async () => {
+      const screamCanister = buildProductWith({ name: 'Scream Canister', quantity: 2 });
+      const laughCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [buildProductOptionWith({ product_option_id: 22, value: 'bar' })],
+      });
+
+      const createCartSimple = vi.fn();
+
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: 123,
+          variantId: 456,
+          quantity: 1,
+          productOptions: [{ optionId: 22, optionValue: 'bar' }],
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: '',
+            },
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister, laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 1,
+                productEntityId: laughCanister.product_id,
+                variantEntityId: laughCanister.variant_id,
+                selectedOptions: {
+                  multipleChoices: [],
+                  textFields: [{ optionEntityId: 22, text: 'bar' }],
+                },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'foo-bar' } } } } });
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      expect(within(dialog).getByText('Select products and quantity for reorder')).toBeVisible();
+
+      const productGroup = within(dialog).getByRole('group', { name: 'Laugh Canister' });
+
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
+      });
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: 'foo-bar',
+      });
+    });
+
+    it('displays an error message when all products fail validation', async () => {
+      const laughCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: 123,
+          variantId: 456,
+          quantity: 1,
+          productOptions: [],
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              errorCode: 'OOS',
+              responseType: 'ERROR',
+              message: 'A message from the backend',
+            },
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      await userEvent.click(within(dialog).getAllByRole('checkbox')[0]); // Select all checkbox
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            'There was an issue with adding products to the cart. Please check the errors below.',
+          ),
+        ).toBeVisible();
+      });
+
+      expect(within(dialog).getByText('A message from the backend')).toBeVisible();
+
+      expect(window.b2b.callbacks.dispatchEvent).not.toHaveBeenCalled();
+    });
+
+    it('displays an error when a network error occurs', async () => {
+      const laughCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('ValidateProduct', () => HttpResponse.error()),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      await userEvent.click(within(dialog).getAllByRole('checkbox')[0]); // Select all checkbox
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            'There was an issue with adding products to the cart. Please check the errors below.',
+          ),
+        ).toBeVisible();
+      });
+
+      expect(within(dialog).getByText('Add failed, try again.')).toBeVisible();
+    });
+
+    it('can adjust the quantity of a product', async () => {
+      const screamCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Scream Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const createCartSimple = vi.fn();
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: 123,
+          variantId: 456,
+          quantity: 2,
+          productOptions: [],
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: '',
+            },
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: screamCanister.product_id,
+                variantEntityId: screamCanister.variant_id,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'foo-bar' } } } } });
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      expect(within(dialog).getByText('Select products and quantity for reorder')).toBeVisible();
+
+      const productGroup = within(dialog).getByRole('group', { name: 'Scream Canister' });
+
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      await userEvent.type(within(productGroup).getByRole('spinbutton'), '2', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: 1,
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
+      });
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: 'foo-bar',
+      });
+    });
+
+    it('can re-order all products in one go', async () => {
+      const screamCanister = buildProductWith({
+        name: 'Scream Canister',
+        quantity: 2,
+        product_options: [],
+      });
+      const laughCanister = buildProductWith({
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const createCartSimple = vi.fn();
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: laughCanister.product_id,
+          variantId: laughCanister.variant_id,
+          quantity: 1,
+          productOptions: [],
+        })
+        .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
+      when(validateProducts)
+        .calledWith({
+          productId: screamCanister.product_id,
+          variantId: screamCanister.variant_id,
+          quantity: 2,
+          productOptions: [],
+        })
+        .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister, laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: screamCanister.product_id,
+                variantEntityId: screamCanister.variant_id,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+              {
+                quantity: 1,
+                productEntityId: laughCanister.product_id,
+                variantEntityId: laughCanister.variant_id,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'foo-bar' } } } } });
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      await userEvent.click(screen.getAllByRole('checkbox')[0]); // Select all checkbox
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
+      });
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: 'foo-bar',
+      });
+    });
+
+    it('handles partial cart updates', async () => {
+      const productWithError = buildProductWith({
+        name: 'Product with Error',
+        quantity: 2,
+        product_options: [],
+      });
+
+      const productWithWarning = buildProductWith({
+        name: 'Product with Warning',
+        quantity: 2,
+        product_options: [],
+      });
+
+      const laughCanister = buildProductWith({
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const createCartSimple = vi.fn();
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: laughCanister.product_id,
+          variantId: laughCanister.variant_id,
+          quantity: 1,
+          productOptions: [],
+        })
+        .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
+
+      when(validateProducts)
+        .calledWith({
+          productId: productWithWarning.product_id,
+          variantId: productWithWarning.variant_id,
+          quantity: 2,
+          productOptions: [],
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              responseType: 'WARNING',
+              message: 'A warning message from the backend',
+            },
+          },
+        });
+
+      when(validateProducts)
+        .calledWith({
+          productId: productWithError.product_id,
+          variantId: productWithError.variant_id,
+          quantity: 2,
+          productOptions: [],
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              responseType: 'ERROR',
+              message: 'An error message from the backend',
+              errorCode: 'OOS',
+            },
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: { products: [productWithError, productWithWarning, laughCanister] },
+              },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 1,
+                productEntityId: laughCanister.product_id,
+                variantEntityId: laughCanister.variant_id,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'foo-bar' } } } } });
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const checkboxes = await within(dialog).findAllByRole('checkbox');
+
+      await userEvent.click(checkboxes[0]); // Select all checkbox
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('1 Product was added to the cart.')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            'There was an issue with adding products to the cart. Please check the errors below.',
+          ),
+        ).toBeVisible();
+      });
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: 'foo-bar',
+      });
+
+      expect(dialog).toBeVisible();
+
+      const groupWithError = within(dialog).getByRole('group', { name: 'Product with Error' });
+
+      expect(within(groupWithError).getByRole('checkbox')).toBeChecked();
+      expect(within(groupWithError).getByText('An error message from the backend')).toBeVisible();
+
+      const groupWithWarning = within(dialog).getByRole('group', { name: 'Product with Warning' });
+      expect(within(groupWithWarning).getByRole('checkbox')).toBeChecked();
+      expect(
+        within(groupWithWarning).getByText('A warning message from the backend'),
+      ).toBeVisible();
+
+      const groupWithLaughCanister = within(dialog).getByRole('group', { name: 'Laugh Canister' });
+      expect(within(groupWithLaughCanister).getByRole('checkbox')).not.toBeChecked();
+    });
+
+    it('shows a warning if no product is selected', async () => {
+      const screamCanister = buildProductWith({ name: 'Scream Canister', quantity: 2 });
+      const laughCanister = buildProductWith({ name: 'Laugh Canister', quantity: 1 });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister, laughCanister] } },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Please select at least one item')).toBeVisible();
       });
     });
   });
@@ -1757,7 +2347,7 @@ describe('when a personal customer visits an order', () => {
 
       expect(
         within(dialog).getByText('Select products and quantity to add to shopping list'),
-      ).toBeInTheDocument();
+      ).toBeVisible();
 
       const productGroup = within(dialog).getByRole('group', { name: 'Laugh Canister' });
 
@@ -1770,7 +2360,7 @@ describe('when a personal customer visits an order', () => {
       await userEvent.click(screen.getByText('OK'));
 
       await waitFor(() => {
-        expect(screen.getByText('Products were added to your shopping list')).toBeInTheDocument();
+        expect(screen.getByText('Products were added to your shopping list')).toBeVisible();
       });
     });
 
@@ -1869,7 +2459,7 @@ describe('when a personal customer visits an order', () => {
 
       await userEvent.click(createNewButton);
 
-      expect(await screen.findByRole('heading', { name: 'Create new' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Create new' })).toBeVisible();
 
       const nameInput = screen.getByRole('textbox', { name: 'Name' });
       const descriptionInput = screen.getByRole('textbox', { name: 'Description' });
@@ -1906,7 +2496,7 @@ describe('when a personal customer visits an order', () => {
       await userEvent.click(screen.getByRole('button', { name: 'OK' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products were added to your shopping list')).toBeInTheDocument();
+        expect(screen.getByText('Products were added to your shopping list')).toBeVisible();
       });
     });
 
@@ -1998,7 +2588,7 @@ describe('when a personal customer visits an order', () => {
 
       expect(
         within(dialog).getByText('Select products and quantity to add to shopping list'),
-      ).toBeInTheDocument();
+      ).toBeVisible();
 
       const productGroup = within(dialog).getByRole('group', { name: 'Laugh Canister' });
 
@@ -2016,7 +2606,7 @@ describe('when a personal customer visits an order', () => {
       await userEvent.click(screen.getByText('OK'));
 
       await waitFor(() => {
-        expect(screen.getByText('Products were added to your shopping list')).toBeInTheDocument();
+        expect(screen.getByText('Products were added to your shopping list')).toBeVisible();
       });
     });
 
@@ -2124,7 +2714,7 @@ describe('when a personal customer visits an order', () => {
       await userEvent.click(screen.getByText('OK'));
 
       await waitFor(() => {
-        expect(screen.getByText('Products were added to your shopping list')).toBeInTheDocument();
+        expect(screen.getByText('Products were added to your shopping list')).toBeVisible();
       });
     });
 
@@ -2193,10 +2783,10 @@ describe('when a personal customer visits an order', () => {
 
       await userEvent.click(checkboxes[0]); // Select all checkbox
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products are added to cart')).toBeInTheDocument();
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
       });
 
       expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
@@ -2230,10 +2820,10 @@ describe('when a personal customer visits an order', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
 
-      await userEvent.click(await screen.findByRole('button', { name: 'Add to cart' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Please select at least one item')).toBeInTheDocument();
+        expect(screen.getByText('Please select at least one item')).toBeVisible();
       });
     });
   });
