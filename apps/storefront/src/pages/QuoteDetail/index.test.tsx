@@ -16,6 +16,7 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { when } from 'vitest-when';
 
 import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
@@ -954,5 +955,144 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(screen.queryByRole('button', { name: /PROCEED TO CHECKOUT/i })).not.toBeInTheDocument();
+  });
+
+  it('validates products with required modifiers correctly', async () => {
+    const productWithModifiers = buildQuoteProductWith({
+      productId: '112',
+      variantId: 77,
+      productName: 'Product with Required Modifiers',
+      options: [
+        {
+          type: 'text',
+          optionId: 113,
+          optionName: 'Custom Message',
+          optionLabel: 'Test Message',
+          optionValue: 'Test Message',
+        },
+        {
+          type: 'dropdown',
+          optionId: 114,
+          optionName: 'Size',
+          optionLabel: 'Large',
+          optionValue: '42',
+        },
+      ],
+    });
+
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '99999',
+          productsList: [productWithModifiers],
+        },
+      },
+    });
+
+    const productSearchResult = buildProductSearchWith({
+      id: 112,
+      name: 'Product with Required Modifiers',
+      variants: [
+        {
+          variant_id: 77,
+          product_id: 112,
+          sku: 'BACK10',
+          option_values: [],
+          calculated_price: 10,
+          image_url: '',
+          has_price_list: false,
+          bulk_prices: [],
+          purchasing_disabled: false,
+          cost_price: 0,
+          inventory_level: 0,
+          bc_calculated_price: {
+            as_entered: 10,
+            tax_inclusive: 10,
+            tax_exclusive: 10,
+            entered_inclusive: false,
+          },
+        },
+      ],
+    });
+
+    const validateProduct = vi.fn();
+    when(validateProduct)
+      .calledWith(
+        expect.objectContaining({
+          productId: 112,
+          variantId: 77,
+          quantity: expect.any(Number),
+          productOptions: [
+            {
+              optionId: 113,
+              optionValue: 'Test Message',
+            },
+            {
+              optionId: 114,
+              optionValue: '42',
+            },
+          ],
+        }),
+      )
+      .thenReturn({
+        data: {
+          validateProduct: {
+            responseType: 'SUCCESS',
+            message: '',
+            errorCode: '',
+          },
+        },
+      });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [productSearchResult],
+          },
+        }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', ({ variables }) =>
+        HttpResponse.json(validateProduct(variables)),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '99999' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        global: buildGlobalStateWith({
+          featureFlags: {
+            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+          },
+        }),
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(validateProduct).toHaveBeenCalledWith(
+      expect.objectContaining({
+        productId: 112,
+        variantId: 77,
+        productOptions: [
+          {
+            optionId: 113,
+            optionValue: 'Test Message',
+          },
+          {
+            optionId: 114,
+            optionValue: '42',
+          },
+        ],
+      }),
+    );
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

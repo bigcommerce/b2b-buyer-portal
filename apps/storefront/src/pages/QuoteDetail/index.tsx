@@ -41,9 +41,39 @@ import QuoteDetailTable from '../quote/components/QuoteDetailTable';
 import QuoteInfo from '../quote/components/QuoteInfo';
 import QuoteNote from '../quote/components/QuoteNote';
 import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions';
-import { ProductInfoProps } from '../quote/shared/config';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
+
+interface ProductOption {
+  optionId: number;
+  optionValue: string;
+  optionName?: string;
+  optionLabel?: string;
+  type?: string;
+}
+
+interface ProductInfoProps {
+  basePrice: number | string;
+  baseSku: string;
+  createdAt: number;
+  discount: number | string;
+  offeredPrice: number | string;
+  enteredInclusive: boolean;
+  id: number | string;
+  itemId: number;
+  optionList: string;
+  options?: ProductOption[];
+  primaryImage: string;
+  productId: number;
+  productName: string;
+  productUrl: string;
+  quantity: number | string;
+  tax: number | string;
+  updatedAt: number;
+  variantId: number;
+  variantSku: string;
+  productsSearch: CustomFieldItems;
+}
 
 function useData() {
   const { id = '' } = useParams();
@@ -98,7 +128,15 @@ function useData() {
           return Number(item.productId) === Number(productId);
         });
 
-        listProduct.productsSearch = productInfo || {};
+        const optionsList = (item.options || []).map((opt) => ({
+          optionId: `attribute[${opt.optionId}]`,
+          optionValue: opt.optionValue,
+        }));
+
+        listProduct.productsSearch = {
+          ...productInfo,
+          newSelectOptionList: optionsList,
+        };
       });
 
       return listProducts;
