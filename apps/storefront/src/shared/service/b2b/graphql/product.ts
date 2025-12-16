@@ -111,7 +111,7 @@ const validateProductQuery = `
 `;
 
 const validateProductsQuery = `
-  query ValidateProducts ($products: [ValidateProductInputType]) {
+  query ValidateProducts ($products: [ValidateProductInputType]!) {
     validateProducts(products: $products, storeHash: "${storeHash}", channelId: ${channelId}) {
       isValid
       products {
