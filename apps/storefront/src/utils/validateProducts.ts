@@ -68,6 +68,7 @@ type ValidateProductsInput =
       quantity: number;
       productsSearch?: { variantId: number; newSelectOptionList?: any[]; selectedOptions?: any[] };
     }
+  // TODO: Remove this once all consumers are fully typed
   | CustomFieldItems;
 
 const isProduct = (input: ValidateProductsInput): input is Product => {
