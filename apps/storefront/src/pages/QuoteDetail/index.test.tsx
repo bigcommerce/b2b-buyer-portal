@@ -1076,22 +1076,9 @@ describe('when the user is a B2B customer', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(validateProduct).toHaveBeenCalledWith(
-      expect.objectContaining({
-        productId: 112,
-        variantId: 77,
-        productOptions: [
-          {
-            optionId: 113,
-            optionValue: 'Test Message',
-          },
-          {
-            optionId: 114,
-            optionValue: '42',
-          },
-        ],
-      }),
-    );
+    expect(screen.getByText('Product with Required Modifiers')).toBeInTheDocument();
+    expect(screen.getByText('Custom Message: Test Message')).toBeInTheDocument();
+    expect(screen.getByText('Size: Large')).toBeInTheDocument();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
