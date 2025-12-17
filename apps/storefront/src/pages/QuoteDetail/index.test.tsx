@@ -1076,9 +1076,9 @@ describe('when the user is a B2B customer', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(screen.getByText('Product with Required Modifiers')).toBeInTheDocument();
-    expect(screen.getByText('Custom Message: Test Message')).toBeInTheDocument();
-    expect(screen.getByText('Size: Large')).toBeInTheDocument();
+    expect(screen.getByText('Product with Required Modifiers')).toBeVisible();
+    expect(screen.getByText('Custom Message: Test Message')).toBeVisible();
+    expect(screen.getByText('Size: Large')).toBeVisible();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
