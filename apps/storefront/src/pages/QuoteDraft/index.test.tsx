@@ -1140,6 +1140,59 @@ describe('when the user is a B2B customer', () => {
     expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
   });
 
+  describe('when opening the "Add to quote" panel', () => {
+    it('shows 3 rows in the quick add', async () => {
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+      });
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: { ...preloadedState, quoteInfo },
+      });
+
+      await userEvent.click(screen.getByText('Add to quote'));
+
+      const quickAddProducts = screen.getAllByLabelText('SKU#');
+
+      expect(quickAddProducts).toHaveLength(3);
+
+      const quantityProducts = screen.getAllByLabelText('Qty');
+
+      expect(quantityProducts).toHaveLength(3);
+    });
+
+    describe('when "show more rows" is clicked', () => {
+      it('shows 3 more rows in the quick add', async () => {
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: { ...preloadedState, quoteInfo },
+        });
+
+        await userEvent.click(screen.getByText('Add to quote'));
+        await userEvent.click(screen.getByRole('button', { name: 'Show more rows' }));
+
+        const quickAddProducts = screen.getAllByLabelText('SKU#');
+
+        expect(quickAddProducts).toHaveLength(6);
+
+        const quantityProducts = screen.getAllByLabelText('Qty');
+
+        expect(quantityProducts).toHaveLength(6);
+      });
+    });
+  });
+
   it('add product by sku to draft quote', async () => {
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
@@ -1232,9 +1285,9 @@ describe('when the user is a B2B customer', () => {
     });
 
     await userEvent.click(screen.getByText('Add to quote'));
-    const quickAddProduct = screen.getByLabelText('SKU#');
+    const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
     await userEvent.type(quickAddProduct, 'LC-123');
-    const quantityProduct = screen.getByLabelText('Qty');
+    const quantityProduct = screen.getAllByLabelText('Qty')[0];
     await userEvent.type(quantityProduct, '1');
     await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -2861,9 +2914,9 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
-        const quickAddProduct = screen.getByLabelText('SKU#');
+        const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
         await userEvent.type(quickAddProduct, 'LC-123');
-        const quantityProduct = screen.getByLabelText('Qty');
+        const quantityProduct = screen.getAllByLabelText('Qty')[0];
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -2995,9 +3048,9 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
-        const quickAddProduct = screen.getByLabelText('SKU#');
+        const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
         await userEvent.type(quickAddProduct, 'LC-123');
-        const quantityProduct = screen.getByLabelText('Qty');
+        const quantityProduct = screen.getAllByLabelText('Qty')[0];
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3129,9 +3182,9 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
-        const quickAddProduct = screen.getByLabelText('SKU#');
+        const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
         await userEvent.type(quickAddProduct, 'LC-123');
-        const quantityProduct = screen.getByLabelText('Qty');
+        const quantityProduct = screen.getAllByLabelText('Qty')[0];
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3255,9 +3308,9 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
-        const quickAddProduct = screen.getByLabelText('SKU#');
+        const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
         await userEvent.type(quickAddProduct, 'LC-123');
-        const quantityProduct = screen.getByLabelText('Qty');
+        const quantityProduct = screen.getAllByLabelText('Qty')[0];
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -4480,9 +4533,9 @@ describe('when the user is a B2B customer', () => {
       });
 
       await userEvent.click(screen.getByText('Add to quote'));
-      const quickAddProduct = screen.getByLabelText('SKU#');
+      const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
       await userEvent.type(quickAddProduct, 'LC-123');
-      const quantityProduct = screen.getByLabelText('Qty');
+      const quantityProduct = screen.getAllByLabelText('Qty')[0];
       await userEvent.type(quantityProduct, '1');
       await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -4595,8 +4648,8 @@ describe('when the user is a B2B customer', () => {
 
       await userEvent.click(screen.getByText('Add to quote'));
 
-      await userEvent.type(screen.getByLabelText('SKU#'), 'LC-123');
-      await userEvent.type(screen.getByLabelText('Qty'), '1');
+      await userEvent.type(screen.getAllByLabelText('SKU#')[0], 'LC-123');
+      await userEvent.type(screen.getAllByLabelText('Qty')[0], '1');
 
       await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 

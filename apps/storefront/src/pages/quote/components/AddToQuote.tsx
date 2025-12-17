@@ -280,7 +280,6 @@ export default function AddToQuote(props: AddToListProps) {
             updateList={updateList}
             quickAddToList={quickAddToList}
             type="quoteDraft"
-            level={1}
             buttonText={b3Lang('quoteDraft.button.addProductsToAddToQuote')}
           />
 
