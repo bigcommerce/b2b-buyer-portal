@@ -30,7 +30,10 @@ import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import { getSearchVal } from '@/utils/loginInfo';
-import { ValidatedProductError, validateProducts } from '@/utils/validateProducts';
+import {
+  ValidatedProductError,
+  validateProducts as rawValidateProducts,
+} from '@/utils/validateProducts';
 
 import { FileObjects } from '../quote/components/FileUpload';
 import Message from '../quote/components/Message';
@@ -74,6 +77,21 @@ interface ProductInfoProps {
   variantSku: string;
   productsSearch: CustomFieldItems;
 }
+
+const validateProducts = (products: ProductInfoProps[]) => {
+  const transformedProducts = products.map((product) => ({
+    ...product,
+    productsSearch: {
+      ...product.productsSearch,
+      newSelectOptionList: (product.options || []).map((opt) => ({
+        optionId: `attribute[${opt.optionId}]`,
+        optionValue: opt.optionValue,
+      })),
+    },
+  }));
+
+  return rawValidateProducts(transformedProducts);
+};
 
 function useData() {
   const { id = '' } = useParams();
@@ -128,15 +146,7 @@ function useData() {
           return Number(item.productId) === Number(productId);
         });
 
-        const optionsList = (item.options || []).map((opt) => ({
-          optionId: `attribute[${opt.optionId}]`,
-          optionValue: opt.optionValue,
-        }));
-
-        listProduct.productsSearch = {
-          ...productInfo,
-          newSelectOptionList: optionsList,
-        };
+        listProduct.productsSearch = productInfo || {};
       });
 
       return listProducts;
