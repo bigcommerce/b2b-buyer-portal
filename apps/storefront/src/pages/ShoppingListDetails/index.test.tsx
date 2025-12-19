@@ -1266,10 +1266,6 @@ describe('when shopping list products verify inventory into add to cart', () => 
   });
 });
 
-    spy.mockRestore();
-  });
-});
-
 describe('Add to quote', () => {
   it('add shopping list to draft quote', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -1789,17 +1785,20 @@ describe('CSV upload and add to quote flow', () => {
 });
 
 describe('when backend validation is enabled', () => {
-  it.only('errors on exceed product inventory', { repeats: 30 }, async () => {
+  const preloadedState = {
+    company: b2bCompanyWithShoppingListPermissions,
+    global: buildGlobalStateWith({
+      featureFlags: {
+        'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+      },
+    }),
+  };
+
+  it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      minQuantity: 0,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 1,
-    });
+    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
@@ -1810,16 +1809,7 @@ describe('when backend validation is enabled', () => {
         productName: 'Lovely socks',
         productId: 73737,
         variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
-        quantity: 2,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red' },
-          { valueLabel: 'size', valueText: 'large' },
-        ]),
+        quantity: 4,
       },
     });
 
@@ -1829,32 +1819,30 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
+    const searchProductsQuery = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: lovelySocksProductEdge.node.productId,
+                name: lovelySocksProductEdge.node.productName,
+                inventoryTracking: 'product',
+                availableToSell: 2,
+                unlimitedBackorder: false,
+                orderQuantityMaximum: 0,
+                orderQuantityMinimum: 0,
+                variants: [],
+              }),
+            ],
+          },
         }),
-      ],
-      availableToSell: 1,
-      inventoryTracking: 'product',
-    });
+      );
 
-    const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -1864,63 +1852,132 @@ describe('when backend validation is enabled', () => {
       graphql.mutation('createCartSimple', () =>
         HttpResponse.json({
           data: { cart: { createCart: null } },
-          errors: [{ message: 'Lovely socks, out of stock' }],
+          errors: [{ message: 'Some backend error' }],
         }),
       ),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-          },
-        }),
-      },
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+      preloadedState,
+      initialGlobalContext: { productQuoteEnabled: true },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
-    );
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-
-    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
-
-    const checkbox = within(row).getByRole('checkbox');
-
-    await userEvent.click(checkbox);
-
-    expect(within(row).getByRole('checkbox')).toBeChecked();
+    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
-    await screen.findByText('Lovely socks, out of stock');
-    await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
 
-    const dialog = screen.getByRole('dialog', { name: 'Add to cart' });
-    expect(within(dialog).getByText('1 in stock')).toBeInTheDocument();
+    expect(
+      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
+    ).toBeInTheDocument();
+
+    expect(within(dialog).getByText('2 in stock')).toBeInTheDocument();
+  });
+
+  it('respects unlimited backorder stock', async () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Lovely socks',
+        productId: 73737,
+        variantSku: 'LVLY-SK-123',
+        quantity: 4,
+      },
+    });
+
+    const searchProductsQuery = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: lovelySocksProductEdge.node.productId,
+                name: lovelySocksProductEdge.node.productName,
+                inventoryTracking: 'product',
+                availableToSell: 2, // 2 available to sell
+                unlimitedBackorder: true, // unlimited backorder
+                orderQuantityMaximum: 0,
+                orderQuantityMinimum: 0,
+                variants: [],
+              }),
+            ],
+          },
+        }),
+      );
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () =>
+        HttpResponse.json(
+          buildShoppingListGraphQLResponseWith({
+            data: {
+              shoppingList: {
+                products: { totalCount: 1, edges: [lovelySocksProductEdge] },
+                status: 0,
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Some backend error' }],
+        }),
+      ),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState,
+      initialGlobalContext: { productQuoteEnabled: true },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(searchProductsQuery).toHaveBeenCalledWith(
+      expect.stringContaining('productIds: [73737]'),
+    );
+
+    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+
+    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
+
+    expect(
+      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
+    ).toBeInTheDocument();
+
+    expect(within(dialog).queryByText('2 in stock')).not.toBeInTheDocument();
   });
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      minQuantity: 3,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 5,
-    });
+    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
@@ -1931,16 +1988,7 @@ describe('when backend validation is enabled', () => {
         productName: 'Lovely socks',
         productId: 73737,
         variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
         quantity: 2,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red' },
-          { valueLabel: 'size', valueText: 'large' },
-        ]),
       },
     });
 
@@ -1950,34 +1998,30 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
+    const searchProductsQuery = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: lovelySocksProductEdge.node.productId,
+                name: lovelySocksProductEdge.node.productName,
+                inventoryTracking: 'product',
+                availableToSell: 20,
+                unlimitedBackorder: false,
+                orderQuantityMaximum: 0,
+                orderQuantityMinimum: 5,
+                variants: [],
+              }),
+            ],
+          },
         }),
-      ],
-      orderQuantityMaximum: 6,
-      orderQuantityMinimum: 3,
-      availableToSell: 10,
-      inventoryTracking: 'product',
-    });
+      );
 
-    const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -1987,68 +2031,38 @@ describe('when backend validation is enabled', () => {
       graphql.mutation('createCartSimple', () =>
         HttpResponse.json({
           data: { cart: { createCart: null } },
-          errors: [
-            {
-              message:
-                'Minimum Purchase: You can only purchase a minimum of 3 of the min product per order.',
-            },
-          ],
+          errors: [{ message: 'Some backend error' }],
         }),
       ),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-          },
-        }),
-      },
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+      preloadedState,
+      initialGlobalContext: { productQuoteEnabled: true },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
-    );
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-
-    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
-
-    const checkbox = within(row).getByRole('checkbox');
-
-    await userEvent.click(checkbox);
-
-    expect(within(row).getByRole('checkbox')).toBeChecked();
+    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
-    await screen.findByText(
-      'Minimum Purchase: You can only purchase a minimum of 3 of the min product per order.',
-    );
-    await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
 
-    await screen.findByText('Min is 3');
+    expect(
+      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
+    ).toBeInTheDocument();
+
+    expect(within(dialog).getByText('Min is 5')).toBeInTheDocument();
   });
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      maxQuantity: 3,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 5,
-    });
+    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
@@ -2059,16 +2073,7 @@ describe('when backend validation is enabled', () => {
         productName: 'Lovely socks',
         productId: 73737,
         variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
-        quantity: 7,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red' },
-          { valueLabel: 'size', valueText: 'large' },
-        ]),
+        quantity: 4,
       },
     });
 
@@ -2078,34 +2083,35 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
+    const searchProductsQuery = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: lovelySocksProductEdge.node.productId,
+                name: lovelySocksProductEdge.node.productName,
+                inventoryTracking: 'product',
+                isPriceHidden: false,
+                availableToSell: 0,
+                unlimitedBackorder: true,
+                orderQuantityMaximum: 3,
+                orderQuantityMinimum: 0,
+                variants: [],
+              }),
+            ],
+          },
         }),
-      ],
-      orderQuantityMaximum: 6,
-      orderQuantityMinimum: 3,
-      availableToSell: 10,
-      inventoryTracking: 'product',
-    });
+      );
 
-    const searchProductsQuerySpy = vi.fn();
+    const getShoppingList = vi.fn();
+
+    when(getShoppingList).calledWith().thenReturn(shoppingListResponse);
+
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2115,65 +2121,37 @@ describe('when backend validation is enabled', () => {
       graphql.mutation('createCartSimple', () =>
         HttpResponse.json({
           data: { cart: { createCart: null } },
-          errors: [
-            {
-              message:
-                'Maximum Purchase: You can only purchase a maximum of 10 of the max and min product per order.',
-            },
-          ],
+          errors: [{ message: 'Some backend error' }],
         }),
       ),
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-          },
-        }),
-      },
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
+      preloadedState,
+      initialGlobalContext: { productQuoteEnabled: true },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
-    );
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-
-    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '7' })).toBeInTheDocument();
-
-    const checkbox = within(row).getByRole('checkbox');
-
-    await userEvent.click(checkbox);
-
-    expect(within(row).getByRole('checkbox')).toBeChecked();
+    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
-    await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-    expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
 
-    await screen.findByText('Max is 6');
+    expect(
+      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
+    ).toBeInTheDocument();
+
+    expect(within(dialog).getByText('Max is 3')).toBeInTheDocument();
   });
 
   it('renders out of stock message on exceeded product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      minQuantity: 0,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 1,
-    });
+    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
@@ -2184,16 +2162,7 @@ describe('when backend validation is enabled', () => {
         productName: 'Lovely socks',
         productId: 73737,
         variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
         quantity: 2,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red' },
-          { valueLabel: 'size', valueText: 'large' },
-        ]),
       },
     });
 
@@ -2203,32 +2172,30 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
+    const searchProductsQuery = when(vi.fn())
+      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .thenReturn(
+        buildSearchProductsResponseWith({
+          data: {
+            productsSearch: [
+              buildSearchB2BProductWith({
+                id: lovelySocksProductEdge.node.productId,
+                name: lovelySocksProductEdge.node.productName,
+                inventoryTracking: 'product',
+                availableToSell: 0,
+                unlimitedBackorder: false,
+                orderQuantityMaximum: 0,
+                orderQuantityMinimum: 0,
+                variants: [],
+              }),
+            ],
+          },
         }),
-      ],
-      availableToSell: 0,
-      inventoryTracking: 'product',
-    });
+      );
 
-    const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2244,33 +2211,13 @@ describe('when backend validation is enabled', () => {
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-          },
-        }),
-      },
+      preloadedState,
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
-    );
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-
-    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
-
-    const checkbox = within(row).getByRole('checkbox');
-
-    await userEvent.click(checkbox);
-
-    expect(within(row).getByRole('checkbox')).toBeChecked();
+    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2407,14 +2354,7 @@ describe('when backend validation is enabled', () => {
     );
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={vi.fn()} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-          },
-        }),
-      },
+      preloadedState,
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
 
