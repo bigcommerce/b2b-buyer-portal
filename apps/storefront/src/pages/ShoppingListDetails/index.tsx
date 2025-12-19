@@ -530,7 +530,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               role={role}
-              backendValidationEnabled={backendValidationEnabled}
             />
           )}
       </Box>
