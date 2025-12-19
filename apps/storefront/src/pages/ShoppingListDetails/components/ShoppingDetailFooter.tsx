@@ -45,7 +45,6 @@ interface ShoppingDetailFooterProps {
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
-  backendValidationEnabled: boolean;
 }
 
 interface ProductInfoProps {
@@ -89,7 +88,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
-  const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    useFeatureFlags()['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
 
   const {
     state: { productQuoteEnabled = false },
@@ -121,15 +121,14 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     allowJuniorPlaceOrder,
     checkedArr,
     selectedSubTotal,
-    setLoading,
-    setDeleteOpen,
-    setValidateFailureProducts,
-    setValidateSuccessProducts,
     isB2BUser,
     customColor,
     isCanEditShoppingList,
     role,
-    backendValidationEnabled,
+    setLoading,
+    setDeleteOpen,
+    setValidateFailureProducts,
+    setValidateSuccessProducts,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -206,7 +205,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+    if (backendValidationEnabled) {
       const { success, warning, error } = await validateProducts(products);
 
       error.forEach((err) => {

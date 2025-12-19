@@ -290,15 +290,13 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     if (backendValidationEnabled) {
       await handleReAddToCartBackend();
     } else {
-      handlePrimaryAction();
+      await handlePrimaryAction();
     }
   };
 
-  // this need the information of the SearchGraphlQuery endpoint change
+  // this need the information of the SearchGraphQLQuery endpoint change
   const handleClearNoStock = async () => {
-    const newProduct = products.filter(
-      (item: ProductsProps) => item.isStock === '0' || item.stock !== 0,
-    );
+    const newProduct = products.filter((item) => item.isStock === '0' || item.stock !== 0);
     const requestArr: Promise<any>[] = [];
     newProduct.forEach((product) => {
       const item = product;
