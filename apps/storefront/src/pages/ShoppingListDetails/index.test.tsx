@@ -404,7 +404,7 @@ it('displays a summary of products within the shopping list', async () => {
   });
 
   server.use(
-    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', () =>
       HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
     ),
@@ -469,7 +469,7 @@ it('displays the details of each product', async () => {
 
   const searchProductsQuerySpy = vi.fn();
   server.use(
-    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', ({ query }) => {
       searchProductsQuerySpy(query);
 
@@ -524,7 +524,7 @@ describe('when the user clicks on a product name', () => {
     });
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith('WHATEVER_VALUES')),
       ),
@@ -558,7 +558,7 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
   });
 
   server.use(
-    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', () =>
       HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
     ),
@@ -588,7 +588,7 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
   });
 
   server.use(
-    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', () =>
       HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
     ),
@@ -620,7 +620,7 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
   });
 
   server.use(
-    graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+    graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', () =>
       HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
     ),
@@ -649,7 +649,7 @@ describe('when user approves a shopping list', () => {
     const updateB2BShoppingListVariablesSpy = vi.fn();
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -701,7 +701,7 @@ describe('when user rejects a shopping list', () => {
     const updateB2BShoppingListVariablesSpy = vi.fn();
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -761,7 +761,7 @@ describe("when a product's quantity is increased", () => {
     const getShoppingList = vi.fn().mockReturnValueOnce(shoppingListResponse);
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(getShoppingList())),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -801,7 +801,7 @@ describe("when a product's quantity is increased", () => {
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
       node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
@@ -818,7 +818,7 @@ describe("when a product's quantity is increased", () => {
     const getShoppingList = vi.fn().mockReturnValueOnce(shoppingListResponse);
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(getShoppingList())),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -858,7 +858,6 @@ describe("when a product's quantity is increased", () => {
       expect(getShoppingList).toHaveBeenCalledTimes(3);
     });
     expect(within(rowOfLovelyBoots).getByRole('checkbox')).toBeChecked();
-    spy.mockRestore();
   });
 });
 
@@ -878,7 +877,7 @@ describe('when the user updates the product notes', () => {
     const updateShoppingLists = vi.fn();
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(getShoppingList())),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(getShoppingList())),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -942,7 +941,7 @@ describe('when the shopping list is ready for approval', () => {
     });
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', () =>
         HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
       ),
@@ -959,11 +958,9 @@ describe('when the shopping list is ready for approval', () => {
 });
 
 describe('when shopping list products verify inventory into add to cart', () => {
-  it('it error on exceed product inventory', async () => {
+  it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const getVariantInfoBySkus = vi.fn();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -973,9 +970,9 @@ describe('when shopping list products verify inventory into add to cart', () => 
       stock: 1,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1017,7 +1014,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1060,15 +1057,11 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-
-    spy.mockRestore();
   });
 
-  it('it error on min quantity not reached', async () => {
+  it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const getVariantInfoBySkus = vi.fn();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1078,9 +1071,9 @@ describe('when shopping list products verify inventory into add to cart', () => 
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1122,7 +1115,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1165,15 +1158,11 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
-
-    spy.mockRestore();
   });
 
-  it('it error on max quantity exceed', async () => {
+  it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const getVariantInfoBySkus = vi.fn();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1183,9 +1172,9 @@ describe('when shopping list products verify inventory into add to cart', () => 
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1231,7 +1220,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     when(getShoppingList).calledWith().thenReturn(shoppingListResponse);
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1274,6 +1263,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
+  });
+});
 
     spy.mockRestore();
   });
@@ -1284,7 +1275,6 @@ describe('Add to quote', () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const getVariantInfoBySkus = vi.fn();
     const searchProductsQuerySpy = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -1295,9 +1285,9 @@ describe('Add to quote', () => {
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1344,7 +1334,7 @@ describe('Add to quote', () => {
     });
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1392,7 +1382,6 @@ describe('Add to quote', () => {
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
-    const getVariantInfoBySkus = vi.fn();
     const searchProductsQuerySpy = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
@@ -1403,9 +1392,9 @@ describe('Add to quote', () => {
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1468,7 +1457,7 @@ describe('Add to quote', () => {
       });
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1593,7 +1582,7 @@ describe('CSV upload and add to quote flow', () => {
     let currentShoppingList = initialShoppingList;
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => {
+      graphql.query('B2BShoppingListDetails', () => {
         return HttpResponse.json(currentShoppingList);
       }),
       graphql.mutation('B2BShoppingListsItemsCreate', () => {
@@ -1800,11 +1789,9 @@ describe('CSV upload and add to quote flow', () => {
 });
 
 describe('when backend validation is enabled', () => {
-  it('it error on exceed product inventory', async () => {
+  it.only('errors on exceed product inventory', { repeats: 30 }, async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const getVariantInfoBySkus = vi.fn();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1814,9 +1801,9 @@ describe('when backend validation is enabled', () => {
       stock: 1,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1860,7 +1847,7 @@ describe('when backend validation is enabled', () => {
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -1919,16 +1906,13 @@ describe('when backend validation is enabled', () => {
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
     expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
-    await screen.findByText('1 in stock');
-
-    spy.mockRestore();
+    const dialog = screen.getByRole('dialog', { name: 'Add to cart' });
+    expect(within(dialog).getByText('1 in stock')).toBeInTheDocument();
   });
 
-  it('it error on min quantity not reached', async () => {
+  it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const getVariantInfoBySkus = vi.fn();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1938,9 +1922,9 @@ describe('when backend validation is enabled', () => {
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -1986,7 +1970,7 @@ describe('when backend validation is enabled', () => {
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -2053,13 +2037,10 @@ describe('when backend validation is enabled', () => {
     expect(screen.queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
 
     await screen.findByText('Min is 3');
-
-    spy.mockRestore();
   });
 
-  it('it error on max quantity exceed', async () => {
+  it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -2069,9 +2050,9 @@ describe('when backend validation is enabled', () => {
       stock: 5,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -2117,7 +2098,7 @@ describe('when backend validation is enabled', () => {
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -2183,10 +2164,8 @@ describe('when backend validation is enabled', () => {
     await screen.findByText('Max is 6');
   });
 
-  it('it renders out of stock message on exceeded product inventory', async () => {
+  it('renders out of stock message on exceeded product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    const getVariantInfoBySkus = vi.fn();
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -2196,9 +2175,9 @@ describe('when backend validation is enabled', () => {
       stock: 1,
     });
 
-    when(getVariantInfoBySkus)
+    const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
       node: {
@@ -2242,7 +2221,7 @@ describe('when backend validation is enabled', () => {
 
     const searchProductsQuerySpy = vi.fn();
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
         searchProductsQuerySpy(query);
 
@@ -2314,7 +2293,7 @@ describe('when backend validation is enabled', () => {
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
 
     const outOfStockProduct = buildShoppingListProductEdgeWith({
       node: {
@@ -2414,7 +2393,7 @@ describe('when backend validation is enabled', () => {
       });
 
     server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) =>
         HttpResponse.json(searchProductsQuerySpy(query)),
       ),
