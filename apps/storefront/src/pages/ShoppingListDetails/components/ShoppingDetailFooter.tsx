@@ -79,7 +79,9 @@ const mapToProductsFailedArray = (items: ProductsProps[]) => {
       isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
       minQuantity: item.node.productsSearch.orderQuantityMinimum,
       maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.availableToSell,
+      stock: item.node.productsSearch.unlimitedBackorder
+        ? Infinity
+        : item.node.productsSearch.availableToSell,
     };
   });
 };
