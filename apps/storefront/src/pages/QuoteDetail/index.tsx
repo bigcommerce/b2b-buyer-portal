@@ -278,7 +278,6 @@ function QuoteDetail() {
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
   const [fileList, setFileList] = useState<FileObjects[]>([]);
-  const [quoteReviewedBySalesRep, setQuoteWasReviewedBySalesRep] = useState(false);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<
     ValidatedProductError<ProductInfoProps>[]
@@ -319,6 +318,11 @@ function QuoteDetail() {
   const isAutoQuotingEnabled =
     quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';
 
+  const quoteReviewedBySalesRep =
+    Object.keys(quoteDetail).length === 0
+      ? false
+      : !!quoteDetail.salesRep || !!quoteDetail.salesRepEmail;
+
   useEffect(() => {
     if (!quoteDetail?.id) return;
 
@@ -353,12 +357,15 @@ function QuoteDetail() {
     });
   }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
-  const quoteDetailBackendValidations = async () => {
-    if (!productList.length) {
+  const quoteDetailBackendValidations = async (
+    productListResponse: ProductInfoProps[],
+    quoteReviewedBySalesRepResponse: boolean,
+  ) => {
+    if (!productListResponse.length) {
       return;
     }
 
-    const { error, warning } = await validateProducts(productList);
+    const { error, warning } = await validateProducts(productListResponse);
 
     if (!error.length && !warning.length) {
       setShouldHidePrices(false);
@@ -371,18 +378,21 @@ function QuoteDetail() {
       }
     });
 
-    if (quoteReviewedBySalesRep) {
+    if (quoteReviewedBySalesRepResponse) {
       setShouldHidePrices(false);
     }
 
     setQuoteValidationErrors(error);
   };
 
-  const quoteDetailFrontendValidations = () => {
+  const quoteDetailFrontendValidations = (
+    productListResponse: ProductInfoProps[],
+    quoteReviewedBySalesRepResponse: boolean,
+  ) => {
     let oosErrorList = '';
     let nonPurchasableErrorList = '';
 
-    productList.forEach((item: CustomFieldItems) => {
+    productListResponse.forEach((item: CustomFieldItems) => {
       const buyerInfo = getVariantInfoOOSAndPurchase(item);
 
       if (buyerInfo?.type && isEnableProduct && !item?.purchaseHandled) {
@@ -397,7 +407,7 @@ function QuoteDetail() {
     });
 
     const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
-    if (isEnableProduct && quoteReviewedBySalesRep && isHideCheckout) {
+    if (isEnableProduct && quoteReviewedBySalesRepResponse && isHideCheckout) {
       if (oosErrorList)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
@@ -444,12 +454,6 @@ function QuoteDetail() {
 
     return false;
   };
-
-  useEffect(() => {
-    validateQuoteProducts();
-    // disabling since b3Lang is a dependency that will trigger rendering issues
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEnableProduct, quoteReviewedBySalesRep, productList]);
 
   const hasQuoteValidationErrorsFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
@@ -542,7 +546,16 @@ function QuoteDetail() {
         shipping: quote.shippingTotal,
         totalAmount: quote.totalAmount,
       });
-      setProductList(productsWithMoreInfo ?? []);
+
+      const productListResponse = productsWithMoreInfo ?? [];
+      setProductList(productListResponse);
+
+      const { salesRep, salesRepEmail } = quote;
+      const quoteReviewedBySalesRepResponse = Boolean(salesRep || salesRepEmail);
+
+      await Promise.resolve(
+        validateQuoteProducts(productListResponse, quoteReviewedBySalesRepResponse),
+      );
 
       if (Number(quote.shippingTotal) === 0) {
         setQuoteDetailTax(Number(quote.taxTotal));
@@ -564,15 +577,7 @@ function QuoteDetail() {
         setQuoteDetailTax(taxPrice);
       }
 
-      const {
-        backendAttachFiles = [],
-        storefrontAttachFiles = [],
-        salesRep,
-        salesRepEmail,
-      } = quote;
-
-      setQuoteWasReviewedBySalesRep(!!salesRep || !!salesRepEmail);
-
+      const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote;
       const newFileList: FileObjects[] = [];
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
