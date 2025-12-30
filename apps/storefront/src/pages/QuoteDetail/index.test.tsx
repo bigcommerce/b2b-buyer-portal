@@ -5,6 +5,7 @@ import {
   buildGlobalStateWith,
   buildQuoteWith,
   buildStoreInfoStateWith,
+  delay,
   faker,
   getUnixTime,
   graphql,
@@ -644,16 +645,22 @@ describe('when the user is a B2B customer', () => {
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
       ),
-      graphql.query('ValidateProduct', () =>
-        HttpResponse.json({
+      graphql.query('ValidateProduct', async () => {
+        /* 
+          adding a delay to make sure we are mimicking the scenario where validateProduct api takes time
+          and product error is visible immediately after loading
+        */
+        await delay(200);
+
+        return HttpResponse.json({
           data: {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
             },
           },
-        }),
-      ),
+        });
+      }),
     );
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -675,21 +682,17 @@ describe('when the user is a B2B customer', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
     expect(
-      await screen.findByText('A product with the id of 123 does not have sufficient stock'),
+      screen.getByText('A product with the id of 123 does not have sufficient stock'),
     ).toBeInTheDocument();
     const summaryElement = screen.getByTestId('quote-summary');
     const withinSummary = within(summaryElement);
-    expect(await withinSummary.findByRole('row', { name: /Original subtotal/ })).toHaveTextContent(
-      /TBD/,
-    );
-    expect(await withinSummary.findByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
-      /TBD/,
-    );
-    expect(await withinSummary.findByRole('row', { name: /Shipping/ })).toHaveTextContent(/TBD/);
-    expect(await withinSummary.findByRole('row', { name: /Grand total/ })).toHaveTextContent(/TBD/);
+    expect(withinSummary.getByRole('row', { name: /Original subtotal/ })).toHaveTextContent(/TBD/);
+    expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(/TBD/);
+    expect(withinSummary.getByRole('row', { name: /Shipping/ })).toHaveTextContent(/TBD/);
+    expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(/TBD/);
   });
 
-  it('renders prices in quote summary if product has no errors', async () => {
+  it('renders prices immediately after loading in quote summary if product has no errors', async () => {
     const quote = buildQuoteWith({
       data: {
         quote: {
@@ -769,16 +772,21 @@ describe('when the user is a B2B customer', () => {
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
       ),
-      graphql.query('ValidateProduct', () =>
-        HttpResponse.json({
+      graphql.query('ValidateProduct', async () => {
+        /* 
+          adding a delay to make sure we are mimicking the scenario where validateProduct api takes time
+          and still no TBD shows 
+        */
+        await delay(200);
+        return HttpResponse.json({
           data: {
             validateProduct: {
               responseType: 'SUCCESS',
               message: 'Product is valid',
             },
           },
-        }),
-      ),
+        });
+      }),
     );
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -798,18 +806,16 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
     const summaryElement = screen.getByTestId('quote-summary');
     const withinSummary = within(summaryElement);
-    expect(await withinSummary.findByRole('row', { name: /Original subtotal/ })).toHaveTextContent(
+    expect(withinSummary.getByRole('row', { name: /Original subtotal/ })).toHaveTextContent(
       /\$1,000.00/,
     );
-    expect(await withinSummary.findByRole('row', { name: /Discount/ })).toHaveTextContent(/\$0.00/);
-    expect(await withinSummary.findByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+    expect(withinSummary.getByRole('row', { name: /Discount/ })).toHaveTextContent(/\$0.00/);
+    expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
       /\$1,000.00/,
     );
-    expect(await withinSummary.findByRole('row', { name: /Shipping/ })).toHaveTextContent(/\$0.00/);
-    expect(await withinSummary.findByRole('row', { name: /Tax/ })).toHaveTextContent(/\$0.00/);
-    expect(await withinSummary.findByRole('row', { name: /Grand total/ })).toHaveTextContent(
-      /\$1,000.00/,
-    );
+    expect(withinSummary.getByRole('row', { name: /Shipping/ })).toHaveTextContent(/\$0.00/);
+    expect(withinSummary.getByRole('row', { name: /Tax/ })).toHaveTextContent(/\$0.00/);
+    expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(/\$1,000.00/);
   });
 
   it('renders proceed to checkout button when isAutoQuoteEnable is enabled and quote has sales rep revision', async () => {

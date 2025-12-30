@@ -155,7 +155,7 @@ export function FakeProductDataProvider({ productId, quantity, sku, options }: P
 }
 
 export { startMockServer } from './mockServer';
-export { graphql, http, HttpResponse } from 'msw';
+export { graphql, http, HttpResponse, delay } from 'msw';
 export { assertQueryParams } from './assertQueryParams';
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
