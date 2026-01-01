@@ -88,7 +88,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-testing-library": "^7.6.8",
+    "eslint-plugin-testing-library": "^7.15.3",
     "jsdom": "^26.1.0",
     "knip": "^5.65.0",
     "msw": "^2.11.2",
