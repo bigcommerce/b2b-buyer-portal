@@ -115,7 +115,7 @@
   "global.companyCredit.alert": "Your account does not currently allow purchasing due to a credit hold. Please contact us to reconcile.",
   "global.B3Upload.downloadErrorResults": "Download error results",
   "global.statusNotifications.orderingWillBeEnabledAfterAccountApproval": "Your business account is pending approval. Ordering will be enabled after account approval.",
-  "global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval": "Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.",
+  "global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval": "Your account is pending approval. Until your account is approved, you’ll have limited access to certain features.",
   "global.statusNotifications.willGainAccessToBusinessFeatAfterApproval": "Your business account is pending approval. You will gain access to business account features after account approval.",
   "global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval": "Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.",
   "global.statusNotifications.checkEmailLetterWithDetails": "Your business account has been approved. Check your email inbox, we sent you a letter with all details.",
