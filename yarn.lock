@@ -9384,10 +9384,10 @@ vitest-location-mock@^1.0.4:
   dependencies:
     "@jedmao/location" "^3.0.0"
 
-vitest-when@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/vitest-when/-/vitest-when-0.9.0.tgz#5ddde941d608e056ec3bab9c470f59c951625fb3"
-  integrity sha512-VeM2152wwfiSDAHxBM5CmSxzmNMG2pC0I+v13YboM/hes1DvoE+/RCBBDk5uNGut/OpG82aXQCriN1owgzls6w==
+vitest-when@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/vitest-when/-/vitest-when-0.10.0.tgz#779799538f0d3397fba5192a0d6eb9246459b6c6"
+  integrity sha512-tZiZ3+HR3X+pN1h4484an6/kuPezs/0b7frOikEnHfsPbOLGoiC+8NHRP/CRTAnG9Ccevq5/oGfCNRm/sp2EAw==
   dependencies:
     pretty-format "^30.2.0"
 
