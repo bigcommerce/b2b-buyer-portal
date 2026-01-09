@@ -1790,6 +1790,7 @@ describe('when a personal customer visits an order', () => {
               errorCode: 'OOS',
               responseType: 'ERROR',
               message: 'A message from the backend',
+              product: { availableToSell: faker.number.int() },
             },
           },
         });
@@ -2133,6 +2134,7 @@ describe('when a personal customer visits an order', () => {
               responseType: 'ERROR',
               message: 'An error message from the backend',
               errorCode: 'OOS',
+              product: { availableToSell: faker.number.int() },
             },
           },
         });

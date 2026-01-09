@@ -106,6 +106,9 @@ const validateProductQuery = `
       responseType
       message
       errorCode
+      product {
+        availableToSell
+      }
     }
   }
 `;
@@ -345,6 +348,9 @@ interface ValidateProductError {
   responseType: 'ERROR';
   errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
   message: string;
+  product: {
+    availableToSell: number;
+  };
 }
 
 interface ValidateProductWarning {

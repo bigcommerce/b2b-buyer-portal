@@ -334,6 +334,9 @@ const buildValidateProductWith = builder<ValidateProduct>(() =>
       responseType: 'ERROR',
       message: faker.lorem.sentence(),
       errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
+      product: {
+        availableToSell: faker.number.int(),
+      },
     },
   ]),
 );
@@ -2624,6 +2627,9 @@ describe('when the user is a B2B customer', () => {
               validateProduct: buildValidateProductWith({
                 responseType: 'ERROR',
                 message: 'validation error',
+                product: {
+                  availableToSell: faker.number.int(),
+                },
               }),
             },
           });
@@ -3136,6 +3142,9 @@ describe('when the user is a B2B customer', () => {
               validateProduct: buildValidateProductWith({
                 responseType: 'ERROR',
                 message: 'validation error',
+                product: {
+                  availableToSell: faker.number.int(),
+                },
               }),
             },
           });
@@ -3839,6 +3848,9 @@ describe('when the user is a B2B customer', () => {
               validateProduct: buildValidateProductWith({
                 responseType: 'ERROR',
                 message: 'validation error',
+                product: {
+                  availableToSell: faker.number.int(),
+                },
               }),
             },
           });
