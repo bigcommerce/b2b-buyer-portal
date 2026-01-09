@@ -73,7 +73,7 @@ interface ShoppingDetailTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
   shoppingListId: number | string;
   getShoppingListDetails: GetRequestList<SearchProps, CustomFieldItems>;
-  setCheckedArr: (values: CustomFieldItems) => void;
+  setCheckedArr: (values: ListItemProps[]) => void;
   isReadForApprove: boolean;
   isJuniorApprove: boolean;
   allowJuniorPlaceOrder: boolean;
@@ -342,10 +342,10 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current?.getList() || [];
-      const checkedItems: CustomFieldItems[] = [];
-      selectCheckbox.forEach((item: number | string) => {
-        const newItems = productList.find((product: ListItemProps) => {
+      const productList: ListItemProps[] = paginationTableRef.current?.getList() || [];
+      const checkedItems: ListItemProps[] = [];
+      selectCheckbox.forEach((item) => {
+        const newItems = productList.find((product) => {
           const { node } = product;
 
           return node.id === item;
