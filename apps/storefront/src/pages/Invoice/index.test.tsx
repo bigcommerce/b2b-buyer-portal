@@ -1301,14 +1301,20 @@ it('exports selected invoices as CSV', async () => {
                   node: {
                     id: '1441',
                     invoiceNumber: '3322',
-                    companyInfo: { companyId: preloadedState.company.companyInfo.id },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                      companyName: 'Acme Inc.',
+                    },
                   },
                 }),
                 buildInvoiceWith({
                   node: {
                     id: '1313',
                     invoiceNumber: '4343',
-                    companyInfo: { companyId: preloadedState.company.companyInfo.id },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                      companyName: 'Acme Inc.',
+                    },
                   },
                 }),
               ],
@@ -1353,11 +1359,13 @@ it('exports selected invoices as CSV', async () => {
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  const row1 = screen.getByRole('row', { name: /3322/ });
-  const row2 = screen.getByRole('row', { name: /4343/ });
+  const rows = screen.getAllByRole('row', { name: /Acme Inc./ });
 
-  await userEvent.click(within(row1).getByRole('checkbox'));
-  await userEvent.click(within(row2).getByRole('checkbox'));
+  await Promise.all(
+    rows
+      .map((row) => within(row).getByRole('checkbox'))
+      .map((checkbox) => userEvent.click(checkbox)),
+  );
 
   const exportButton = screen.getByRole('button', { name: 'Export selected as CSV' });
   await userEvent.click(exportButton);

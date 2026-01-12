@@ -1,4 +1,5 @@
 import {
+  act,
   buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
@@ -74,6 +75,10 @@ const buildGetCustomerOrdersWith = builder<GetCustomerOrders>(() => {
       },
     },
   };
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('when a personal customer', () => {
@@ -1261,6 +1266,8 @@ describe('when a company customer', () => {
     });
 
     it('can search for orders', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
       const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
 
       server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
@@ -1285,6 +1292,8 @@ describe('when a company customer', () => {
       const searchBox = screen.getByPlaceholderText(/Search/);
 
       await userEvent.type(searchBox, '66996');
+
+      await act(() => vi.advanceTimersByTimeAsync(500));
 
       await waitFor(() => {
         expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();

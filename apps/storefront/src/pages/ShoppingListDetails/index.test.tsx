@@ -166,12 +166,12 @@ const buildSearchB2BProductV3OptionValueWith = builder<SearchB2BProductV3OptionV
 const buildSearchB2BProductV3OptionWith = builder<SearchB2BProductV3Option>(() => ({
   id: faker.number.int(),
   product_id: faker.number.int(),
-  name: faker.commerce.productMaterial(),
-  display_name: faker.commerce.productMaterial(),
+  name: faker.commerce.productName(),
+  display_name: faker.commerce.productName(),
   type: faker.helpers.arrayElement(['rectangles', 'swatch']),
   sort_order: faker.number.int(),
   option_values: bulk(buildSearchB2BProductV3OptionValueWith, 'WHATEVER_VALUES').times(
-    faker.number.int({ min: 0, max: 10 }),
+    faker.number.int({ min: 0, max: 3 }),
   ),
   config: [],
 }));
@@ -180,11 +180,11 @@ const buildSearchB2BProductVariantWith = builder<SearchB2BProductVariants>(() =>
   variant_id: faker.number.int({ min: 1, max: 10000 }),
   product_id: faker.number.int(),
   sku: faker.number.int().toString(),
-  option_values: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+  option_values: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () => ({
     id: faker.number.int(),
     label: faker.commerce.productAdjective(),
     option_id: faker.number.int(),
-    option_display_name: faker.commerce.productMaterial(),
+    option_display_name: faker.commerce.productName(),
   })),
   calculated_price: Number(faker.commerce.price()),
   image_url: faker.image.url(),
@@ -214,19 +214,19 @@ const buildSearchB2BProductWith = builder<SearchB2BProduct>(() => ({
   orderQuantityMinimum: faker.number.int(),
   orderQuantityMaximum: faker.number.int(),
   variants: bulk(buildSearchB2BProductVariantWith, 'WHATEVER_VALUES').times(
-    faker.number.int({ min: 0, max: 10 }),
+    faker.number.int({ min: 0, max: 3 }),
   ),
   currencyCode: faker.finance.currencyCode(),
   imageUrl: faker.image.url(),
   modifiers: [],
-  options: Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => ({
+  options: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () => ({
     option_id: faker.number.int(),
-    display_name: faker.commerce.productMaterial(),
+    display_name: faker.commerce.productName(),
     sort_order: faker.number.int(),
     is_required: faker.datatype.boolean(),
   })),
   optionsV3: bulk(buildSearchB2BProductV3OptionWith, 'WHATEVER_VALUES').times(
-    faker.number.int({ min: 0, max: 10 }),
+    faker.number.int({ min: 0, max: 3 }),
   ),
   channelId: [],
   productUrl: faker.internet.url(),
