@@ -554,7 +554,7 @@ export const addLineItems = (products: ProductsProps[]) => {
 
     const optionValue: OptionValueProps[] = [];
 
-    allOptions.forEach((item: AllOptionsProps) => {
+    allOptions?.forEach((item: AllOptionsProps) => {
       const splicedId = `attribute[${item.id}]`;
 
       if (item.type === 'date') {

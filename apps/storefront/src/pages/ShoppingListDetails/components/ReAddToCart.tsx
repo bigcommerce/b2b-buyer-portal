@@ -439,6 +439,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 const { isStock, maxQuantity, minQuantity, stock, node } = product;
 
                 const {
+                  id,
                   quantity = 1,
                   primaryImage,
                   productName,
@@ -464,7 +465,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 );
 
                 return (
-                  <Flex isMobile={isMobile} key={variantSku}>
+                  <Flex isMobile={isMobile} key={id}>
                     <FlexItem>
                       <ProductImage src={primaryImage || PRODUCT_DEFAULT_IMAGE} />
                       <Box
