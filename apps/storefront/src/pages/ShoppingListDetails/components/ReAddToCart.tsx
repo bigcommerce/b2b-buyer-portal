@@ -188,7 +188,7 @@ export default function ReAddToCart({
     if (internalProducts.length === 1) {
       onCancel();
     } else {
-      setInternalProducts((p) => p.splice(index, 1));
+      setInternalProducts((prev) => prev.filter((_, i) => i !== index));
     }
   };
 

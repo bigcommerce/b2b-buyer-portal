@@ -86,6 +86,7 @@ export function B3QuantityTextField({
       helperText={validMessage}
       inputProps={{
         inputMode: 'numeric',
+        min: 1,
         pattern: '[0-9]*',
       }}
       onChange={(e) => {
