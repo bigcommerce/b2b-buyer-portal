@@ -10,10 +10,13 @@ interface ShoppingDetailDeleteItemsProps {
   handleDeleteProductClick: () => void;
 }
 
-function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
+function ShoppingDetailDeleteItems({
+  open,
+  handleCancelClick,
+  handleDeleteProductClick,
+}: ShoppingDetailDeleteItemsProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-  const { open, handleCancelClick, handleDeleteProductClick } = props;
 
   return (
     <B3Dialog
@@ -23,9 +26,7 @@ function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
       rightSizeBtn={b3Lang('shoppingList.deleteItems.delete')}
       handleLeftClick={handleCancelClick}
       handRightClick={handleDeleteProductClick}
-      rightStyleBtn={{
-        color: '#D32F2F',
-      }}
+      rightStyleBtn={{ color: '#D32F2F' }}
     >
       <Box
         sx={{

@@ -40,7 +40,7 @@ interface ShoppingDetailFooterProps {
   setLoading: (val: boolean) => void;
   setDeleteOpen: (val: boolean) => void;
   setValidateFailureProducts: (arr: ProductsProps[]) => void;
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
+  setSuccessProductsCount: (count: number) => void;
   isB2BUser: boolean;
   customColor: string;
   isCanEditShoppingList: boolean;
@@ -130,7 +130,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     setLoading,
     setDeleteOpen,
     setValidateFailureProducts,
-    setValidateSuccessProducts,
+    setSuccessProductsCount,
   } = props;
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
@@ -316,7 +316,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
 
     setValidateFailureProducts(validateFailureArr);
-    setValidateSuccessProducts(validateSuccessArr);
+    setSuccessProductsCount(validateSuccessArr.length);
   };
 
   const handleAddToCartBackend = async () => {
@@ -345,7 +345,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         b3TriggerCartNumber();
       }
       shouldRedirectCheckout();
-      setValidateSuccessProducts(items);
+      setSuccessProductsCount(items.length);
     } catch (e: unknown) {
       if (e instanceof Error) {
         setValidateFailureProducts(mapToProductsFailedArray(items));
@@ -366,7 +366,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     handleClose();
 
     setValidateFailureProducts([]);
-    setValidateSuccessProducts([]);
+    setSuccessProductsCount(0);
 
     try {
       setLoading(true);

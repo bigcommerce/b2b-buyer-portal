@@ -2,39 +2,29 @@ import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
+import { cloneDeep } from 'lodash-es';
 
 import B3Dialog from '@/components/B3Dialog';
-import { B3QuantityTextField } from '@/components/B3QuantityTextField';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
-import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { ShoppingListStatus } from '@/types/shoppingList';
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
-import {
-  addLineItems,
-  getProductOptionsFields,
-  ProductsProps,
-} from '@/utils/b3Product/shared/config';
-import { snackbar } from '@/utils/b3Tip';
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart } from '@/utils/cartUtils';
+import { getProductOptionsFields, ProductsProps } from '@/utils/b3Product/shared/config';
+
+import { B3QuantityTextField } from './B3QuantityTextField';
 
 interface ShoppingProductsProps {
+  isOpen: boolean;
+  onCancel: () => void;
+  onAddToCart: (products: ProductsProps[]) => Promise<void>;
   shoppingListInfo: any;
-  role: string | number;
   products: ProductsProps[];
   successProducts: number;
   allowJuniorPlaceOrder: boolean;
-  getProductQuantity?: (item: ProductsProps) => number;
-  onProductChange?: (products: ProductsProps[]) => void;
-  setValidateFailureProducts: (arr: ProductsProps[]) => void;
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
-  textAlign?: string;
-  backendValidationEnabled: boolean;
 }
 
 interface FlexProps {
@@ -156,147 +146,64 @@ const mobileItemStyle = {
   },
 };
 
-export default function ReAddToCart(props: ShoppingProductsProps) {
-  const {
-    shoppingListInfo,
-    products,
-    successProducts,
-    allowJuniorPlaceOrder,
-    setValidateFailureProducts,
-    setValidateSuccessProducts,
-    textAlign = 'left',
-    backendValidationEnabled,
-  } = props;
-
-  const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
-
+export default function ReAddToCart({
+  isOpen,
+  onCancel,
+  onAddToCart,
+  products,
+  successProducts,
+  allowJuniorPlaceOrder,
+}: ShoppingProductsProps) {
   const b3Lang = useB3Lang();
-  const [isOpen, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
-
   const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-  }, [products]);
-
+  const textAlign = isMobile ? 'left' : 'right';
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
+
+  const [internalProducts, setInternalProducts] = useState<ProductsProps[]>([]);
+
+  useEffect(() => {
+    setInternalProducts(cloneDeep(products));
+  }, [products]);
 
   const handleUpdateProductQty = async (
     index: number,
     value: number | string,
     isValid: boolean,
   ) => {
-    const newProduct: ProductsProps[] = [...products];
+    const newProduct: ProductsProps[] = [...internalProducts];
     newProduct[index].node.quantity = Number(value);
     newProduct[index].isValid = isValid;
     const calculateProduct = await setModifierQtyPrice(newProduct[index].node, Number(value));
+
     if (calculateProduct) {
       (newProduct[index] as CustomFieldItems).node = calculateProduct;
-      setValidateFailureProducts(newProduct);
+      setInternalProducts(newProduct);
     }
   };
 
-  const handleCancelClicked = () => {
-    setOpen(false);
-    setValidateFailureProducts([]);
-    setValidateSuccessProducts([]);
-  };
-
   const deleteProduct = (index: number) => {
-    const newProduct: ProductsProps[] = [...products];
-    newProduct.splice(index, 1);
-    setValidateFailureProducts(newProduct);
-  };
-
-  const shouldRedirectToCheckout = () => {
-    handleCancelClicked();
-    if (
-      allowJuniorPlaceOrder &&
-      submitShoppingListPermission &&
-      shoppingListInfo?.status === ShoppingListStatus.Approved
-    ) {
-      window.location.href = CHECKOUT_URL;
+    if (internalProducts.length === 1) {
+      onCancel();
     } else {
-      snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
-        action: {
-          label: b3Lang('shoppingList.reAddToCart.viewCart'),
-          onClick: () => {
-            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
-            }
-          },
-        },
-      });
-      b3TriggerCartNumber();
+      setInternalProducts((p) => p.splice(index, 1));
     }
   };
 
   const handlePrimaryAction = async () => {
-    const isValidate = products.every((item: ProductsProps) => item.isValid);
-
-    if (!isValidate) {
-      snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
-      return;
-    }
     try {
       setLoading(true);
-
-      const lineItems = addLineItems(products);
-
-      const res = await createOrUpdateExistingCart(lineItems);
-
-      if (!res.errors) {
-        shouldRedirectToCheckout();
-      }
-
-      if (res.errors) {
-        snackbar.error(res.message);
-      }
-
-      b3TriggerCartNumber();
+      await onAddToCart(internalProducts);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleReAddToCartBackend = async () => {
-    setLoading(true);
-
-    try {
-      const lineItems = addLineItems(products);
-      const res = await createOrUpdateExistingCart(lineItems);
-
-      if (!res.errors) {
-        shouldRedirectToCheckout();
-      }
-
-      b3TriggerCartNumber();
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        snackbar.error(e.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addOrProceedToCheckout = async () => {
-    if (backendValidationEnabled) {
-      await handleReAddToCartBackend();
-    } else {
-      await handlePrimaryAction();
     }
   };
 
   // this need the information of the SearchGraphQLQuery endpoint change
   const handleClearNoStock = async () => {
-    const newProduct = products.filter((item) => item.isStock === '0' || item.stock !== 0);
+    const newProduct = internalProducts.filter((item) => item.isStock === '0' || item.stock !== 0);
     const requestArr: Promise<any>[] = [];
     newProduct.forEach((product) => {
       const item = product;
@@ -330,14 +237,14 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     productArr.forEach((item, index) => {
       newProduct[index].node = item;
     });
-    setValidateFailureProducts(newProduct);
+    setInternalProducts(newProduct);
   };
 
   return (
     <B3Dialog
       isOpen={isOpen}
-      handleLeftClick={handleCancelClicked}
-      handRightClick={addOrProceedToCheckout}
+      handleLeftClick={onCancel}
+      handRightClick={handlePrimaryAction}
       title={
         allowJuniorPlaceOrder
           ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
@@ -374,14 +281,14 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             m: '1rem 0',
           }}
         >
-          {products.length > 0 && (
+          {internalProducts.length > 0 && (
             <Alert variant="filled" severity="error">
               {allowJuniorPlaceOrder
                 ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
-                    quantity: products.length,
+                    quantity: internalProducts.length,
                   })
                 : b3Lang('shoppingList.reAddToCart.productsNotAddedToCart', {
-                    quantity: products.length,
+                    quantity: internalProducts.length,
                   })}
             </Alert>
           )}
@@ -400,7 +307,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
               }}
             >
               {b3Lang('shoppingList.reAddToCart.productCount', {
-                quantity: products.length,
+                quantity: internalProducts.length,
               })}
             </Box>
             <CustomButton onClick={() => handleClearNoStock()}>
@@ -408,7 +315,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             </CustomButton>
           </Box>
 
-          {products.length > 0 ? (
+          {internalProducts.length > 0 ? (
             <Box>
               {!isMobile && (
                 <Flex isHeader isMobile={isMobile}>
@@ -435,7 +342,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                   </FlexItem>
                 </Flex>
               )}
-              {products.map((product: ProductsProps, index: number) => {
+              {internalProducts.map((product: ProductsProps, index: number) => {
                 const { isStock, maxQuantity, minQuantity, stock, node } = product;
 
                 const {

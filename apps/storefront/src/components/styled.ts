@@ -1,5 +1,5 @@
 import { Close } from '@mui/icons-material';
-import { Box, TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import { createTheme, styled } from '@mui/material/styles';
 
 const theme = createTheme({
@@ -35,11 +35,5 @@ export const CardContainer = styled('div')(() => ({
 
   [theme.breakpoints.down('sm')]: {
     padding: '16px 16px',
-  },
-}));
-
-export const StyledNumberNoTopTextField = styled(TextField)(() => ({
-  '& input': {
-    paddingRight: '6px',
   },
 }));

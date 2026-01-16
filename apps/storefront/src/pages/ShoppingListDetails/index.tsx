@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { CART_URL, CHECKOUT_URL } from '@/constants';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -29,6 +30,7 @@ import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
+  addLineItems,
   conversionProductsList,
   CustomerInfoProps,
   ListItemProps,
@@ -37,7 +39,9 @@ import {
   ShoppingListInfoProps,
 } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
+import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 
 import { type PageProps } from '../PageProps';
 
@@ -181,7 +185,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<number | string>('');
 
-  const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([]);
+  const [successProductsCount, setSuccessProductsCount] = useState<number>(0);
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([]);
 
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
@@ -409,6 +413,73 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   }, [shoppingListInfo, isB2BUser]);
 
+  const shouldRedirectToCheckout = (): void => {
+    if (
+      allowJuniorPlaceOrder &&
+      submitShoppingListPermission &&
+      shoppingListInfo?.status === ShoppingListStatus.Approved
+    ) {
+      window.location.href = CHECKOUT_URL;
+    } else {
+      snackbar.success(b3Lang('shoppingList.reAddToCart.productsAdded'), {
+        action: {
+          label: b3Lang('shoppingList.reAddToCart.viewCart'),
+          onClick: () => {
+            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
+              window.location.href = CART_URL;
+            }
+          },
+        },
+      });
+      b3TriggerCartNumber();
+    }
+
+    setSuccessProductsCount(0);
+    setValidateFailureProducts([]);
+  };
+
+  const retryAddToCartFrontend = async (products: ProductsProps[]) => {
+    const isValidate = products.every((item: ProductsProps) => item.isValid);
+
+    if (!isValidate) {
+      snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
+      return;
+    }
+
+    const lineItems = addLineItems(products);
+
+    const res = await createOrUpdateExistingCart(lineItems);
+
+    if (!res.errors) {
+      shouldRedirectToCheckout();
+    }
+
+    if (res.errors) {
+      snackbar.error(res.message);
+    }
+
+    b3TriggerCartNumber();
+  };
+
+  const retryAddToCartBackend = async (products: ProductsProps[]) => {
+    try {
+      const lineItems = addLineItems(products);
+      const res = await createOrUpdateExistingCart(lineItems);
+
+      if (!res.errors) {
+        shouldRedirectToCheckout();
+      }
+
+      b3TriggerCartNumber();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        snackbar.error(e.message);
+      }
+    }
+  };
+
+  const retryAddToCart = backendValidationEnabled ? retryAddToCartBackend : retryAddToCartFrontend;
+
   return (
     <>
       <Box
@@ -493,18 +564,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
             </B3Spin>
           </Box>
 
-          <Grid
-            item
-            sx={
-              isMobile
-                ? {
-                    flexBasis: '100%',
-                  }
-                : {
-                    flexBasis: '340px',
-                  }
-            }
-          >
+          <Grid item sx={isMobile ? { flexBasis: '100%' } : { flexBasis: '340px' }}>
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
                 updateList={updateList}
@@ -525,7 +585,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               setLoading={setIsRequestLoading}
               setDeleteOpen={setDeleteOpen}
               setValidateFailureProducts={setValidateFailureProducts}
-              setValidateSuccessProducts={setValidateSuccessProducts}
+              setSuccessProductsCount={setSuccessProductsCount}
               isB2BUser={isB2BUser}
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
@@ -535,15 +595,16 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       </Box>
 
       <ReAddToCart
+        isOpen={validateFailureProducts.length > 0}
+        onCancel={() => {
+          setSuccessProductsCount(0);
+          setValidateFailureProducts([]);
+        }}
+        onAddToCart={retryAddToCart}
         shoppingListInfo={shoppingListInfo}
-        role={role}
         products={validateFailureProducts}
-        successProducts={validateSuccessProducts.length}
+        successProducts={successProductsCount}
         allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-        setValidateFailureProducts={setValidateFailureProducts}
-        setValidateSuccessProducts={setValidateSuccessProducts}
-        textAlign={isMobile ? 'left' : 'right'}
-        backendValidationEnabled={backendValidationEnabled}
       />
 
       <ShoppingDetailDeleteItems

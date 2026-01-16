@@ -1,50 +1,46 @@
 import { useCallback, useEffect, useState } from 'react';
+import { TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 import { useMobile } from '@/hooks/useMobile';
 
-import { StyledNumberNoTopTextField } from './styled';
+const StyledNumberNoTopTextField = styled(TextField)(() => ({
+  '& input': {
+    paddingRight: '6px',
+  },
+}));
 
 interface B3NumberTextFieldProps {
-  disabled?: boolean;
-  label?: string;
-  value?: number | string;
+  value: number;
   maxQuantity?: number;
   minQuantity?: number;
   isStock?: string;
   stock?: number;
-  hiddenLabel?: boolean;
-  onChange?: (value: number | string, isValid: boolean) => void;
-  sx?: CustomFieldItems;
+  onChange: (value: number | string, isValid: boolean) => void;
 }
 
-export function B3QuantityTextField(props: B3NumberTextFieldProps) {
+export function B3QuantityTextField({
+  value = 0,
+  maxQuantity = 0,
+  minQuantity = 0,
+  isStock = '0',
+  stock = 0,
+  onChange = () => {},
+}: B3NumberTextFieldProps) {
   const [isMobile] = useMobile();
 
-  const {
-    disabled = false,
-    label = isMobile ? 'Qty' : '',
-    value = '',
-    maxQuantity = 0,
-    minQuantity = 0,
-    isStock = '0',
-    stock = 0,
-    hiddenLabel = !isMobile,
-    onChange = () => {},
-    sx = {
-      width: isMobile ? '110px' : '72px',
-      '& .MuiFormHelperText-root': {
-        marginLeft: '0',
-        marginRight: '0',
-      },
+  const sx = {
+    width: isMobile ? '110px' : '72px',
+    '& .MuiFormHelperText-root': {
+      marginLeft: '0',
+      marginRight: '0',
     },
-  } = props;
+  };
 
   const [validMessage, setValidMessage] = useState('');
 
   const validateQuantity = useCallback(
-    (value: number | string) => {
-      const quantity = parseInt(`${value}`, 10) || 0;
-
+    (quantity: number) => {
       let validMessage = '';
 
       if (isStock === '1' && stock === 0) {
@@ -83,9 +79,8 @@ export function B3QuantityTextField(props: B3NumberTextFieldProps) {
       size="small"
       type="number"
       variant="filled"
-      disabled={disabled}
-      hiddenLabel={hiddenLabel}
-      label={label}
+      hiddenLabel={!isMobile}
+      label={isMobile ? 'Qty' : ''}
       value={value}
       error={!!validMessage}
       helperText={validMessage}
