@@ -2157,6 +2157,123 @@ describe('when the user is a B2B customer', () => {
       expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245');
     });
 
+    it('navigates correctly when quote submission response dialog is shown and then closed', async () => {
+      set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+      const deleteCart = vi
+        .fn()
+        .mockReturnValue({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } });
+      const quote = buildQuoteWith({ data: { quote: { id: '272989', quoteNumber: '911911' } } });
+
+      const state = { stateName: 'Jalisco', stateCode: 'JL' };
+      const country = { id: '123', countryName: 'Mexico', countryCode: 'MX', states: [state] };
+
+      server.use(
+        graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
+        graphql.query('Addresses', () =>
+          HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+        ),
+      );
+
+      const companyInfo = buildCompanyStateWith({
+        companyInfo: { status: CompanyStatus.APPROVED },
+        customer: {
+          userType: UserTypes.MULTIPLE_B2C,
+          role: CustomerRole.SENIOR_BUYER,
+          emailAddress: customerEmail,
+        },
+        permissions: [
+          {
+            code: 'create_quote',
+            permissionLevel: 2,
+          },
+        ],
+      });
+
+      const preloadedState = { company: companyInfo, storeInfo: storeInfoWithDateFormat };
+
+      const product = buildDraftQuoteItemWith({
+        node: {
+          primaryImage: 'url',
+          quantity: 100,
+          variantSku: 'test',
+          basePrice: 10,
+          taxPrice: 5,
+          productName: 'Unbranded Rubber Cheese',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            sku: 'test',
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            productId: 1,
+            imageUrl: 'url',
+            id: 4451490883947128,
+          }),
+        },
+      });
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+          referenceNumber: '123',
+          note: 'meow',
+        },
+        draftQuoteList: [product],
+      });
+
+      const { navigation } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+            featureFlags: {
+              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+            },
+            quoteSubmissionResponse: {
+              value: '1', // Show the submission response dialog
+              key: 'test-key',
+              message: 'Your quote has been submitted successfully!',
+              title: 'Quote Submission Successful',
+            },
+          }),
+        },
+      });
+
+      server.use(
+        graphql.mutation('CreateQuote', () =>
+          HttpResponse.json(
+            buildQuoteCreateResponseWith({
+              data: {
+                quoteCreate: { quote: { id: 123, createdAt: '1245', uuid: 'test-uuid-1234' } },
+              },
+            }),
+          ),
+        ),
+        graphql.mutation('DeleteCart', ({ variables }) => HttpResponse.json(deleteCart(variables))),
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
+      );
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      await userEvent.click(await screen.findByRole('button', { name: /Submit/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Quote Submission Successful')).toBeInTheDocument();
+      });
+
+      const okButton = screen.getByRole('button', { name: 'OK' });
+      await userEvent.click(okButton);
+
+      expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245&uuid=test-uuid-1234');
+    });
+
     it('renders snackbar error if mutation throws product validation erros', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
       const getVariantInfoOOSAndPurchase = vi.fn();
