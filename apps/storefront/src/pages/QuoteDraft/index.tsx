@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, has, isEqual, omit, uniq } from 'lodash-es';
-import { v4 as uuid } from 'uuid';
+import { v4 as generateUuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -192,9 +192,14 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(false);
   const [billingChange, setBillingChange] = useState<boolean>(false);
   const [quoteSubmissionResponseOpen, setQuoteSubmissionResponseOpen] = useState<boolean>(false);
-  const [quoteId, setQuoteId] = useState<string | number>('');
-  const [currentCreatedAt, setCurrentCreatedAt] = useState<string | number>('');
   const [extraFields, setExtraFields] = useState<QuoteFormattedItemsProps[]>([]);
+
+  // Store quote submission data for navigation
+  const quoteSubmissionDataRef = useRef<{
+    id: string | number;
+    createdAt: string | number;
+    uuid?: string;
+  } | null>(null);
 
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
@@ -499,18 +504,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     B3LStorage.delete('cartToQuoteId');
   };
 
-  const handleAfterSubmit = (
-    inpQuoteId?: string | number,
-    inpCurrentCreatedAt?: string | number,
-    uuid?: string,
-  ) => {
-    const currentQuoteId = inpQuoteId || quoteId;
-    const createdAt = inpCurrentCreatedAt || currentCreatedAt;
+  const handleAfterSubmit = () => {
+    if (quoteSubmissionDataRef.current && quoteSubmissionDataRef.current.id) {
+      const { id, createdAt, uuid } = quoteSubmissionDataRef.current;
 
-    if (currentQuoteId) {
       handleReset();
       const uuidParam = uuid ? `&uuid=${uuid}` : '';
-      navigate(`/quoteDetail/${currentQuoteId}?date=${createdAt}${uuidParam}`, {
+      navigate(`/quoteDetail/${id}?date=${createdAt}${uuidParam}`, {
         state: {
           to: 'draft',
         },
@@ -677,7 +677,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           imageUrl: node.primaryImage,
           productName: node.productName,
           options: optionsList,
-          itemId: uuid(),
+          itemId: generateUuid(),
         };
 
         return items;
@@ -743,12 +743,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
       const {
         quoteCreate: {
-          quote: { id, createdAt, uuid: quoteUuid },
+          quote: { id, createdAt, uuid },
         },
       } = response;
 
-      setQuoteId(id);
-      setCurrentCreatedAt(createdAt);
+      quoteSubmissionDataRef.current = { id, createdAt, uuid };
 
       if (id) {
         const cartId = B3LStorage.get('cartToQuoteId');
@@ -758,7 +757,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       if (quoteSubmissionResponseInfo.value === '0') {
-        handleAfterSubmit(id, createdAt, quoteUuid);
+        handleAfterSubmit();
       } else {
         setQuoteSubmissionResponseOpen(true);
       }
