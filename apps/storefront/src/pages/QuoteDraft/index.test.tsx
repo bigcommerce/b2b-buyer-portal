@@ -2159,9 +2159,6 @@ describe('when the user is a B2B customer', () => {
 
     it('navigates correctly when quote submission response dialog is shown and then closed', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
-      const deleteCart = vi
-        .fn()
-        .mockReturnValue({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } });
       const quote = buildQuoteWith({ data: { quote: { id: '272989', quoteNumber: '911911' } } });
 
       const state = { stateName: 'Jalisco', stateCode: 'JL' };
@@ -2191,8 +2188,6 @@ describe('when the user is a B2B customer', () => {
           },
         ],
       });
-
-      const preloadedState = { company: companyInfo, storeInfo: storeInfoWithDateFormat };
 
       const product = buildDraftQuoteItemWith({
         node: {
@@ -2228,7 +2223,8 @@ describe('when the user is a B2B customer', () => {
 
       const { navigation } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
         preloadedState: {
-          ...preloadedState,
+          company: companyInfo,
+          storeInfo: storeInfoWithDateFormat,
           quoteInfo,
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
@@ -2255,7 +2251,9 @@ describe('when the user is a B2B customer', () => {
             }),
           ),
         ),
-        graphql.mutation('DeleteCart', ({ variables }) => HttpResponse.json(deleteCart(variables))),
+        graphql.mutation('DeleteCart', () =>
+          HttpResponse.json({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } }),
+        ),
         graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
         graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
       );

@@ -95,6 +95,12 @@ interface QuoteSummaryRef extends HTMLInputElement {
   refreshSummary: () => void;
 }
 
+type QuoteSubmissionDataRefType = {
+  id: string;
+  createdAt: string;
+  uuid?: string;
+};
+
 const shippingAddress = {
   address: '',
   addressId: 0,
@@ -194,13 +200,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const [quoteSubmissionResponseOpen, setQuoteSubmissionResponseOpen] = useState<boolean>(false);
   const [extraFields, setExtraFields] = useState<QuoteFormattedItemsProps[]>([]);
 
-  // Store quote submission data for navigation
-  const quoteSubmissionDataRef = useRef<{
-    id: string | number;
-    createdAt: string | number;
-    uuid?: string;
-  } | null>(null);
-
+  const quoteSubmissionDataRef = useRef<QuoteSubmissionDataRefType>();
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
   const [isAddressCompanyHierarchy] = useValidatePermissionWithComparisonType({
@@ -504,10 +504,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     B3LStorage.delete('cartToQuoteId');
   };
 
-  const handleAfterSubmit = () => {
-    if (quoteSubmissionDataRef.current && quoteSubmissionDataRef.current.id) {
-      const { id, createdAt, uuid } = quoteSubmissionDataRef.current;
-
+  const handleAfterSubmit = (quoteSubmissionData?: QuoteSubmissionDataRefType) => {
+    if (quoteSubmissionData && quoteSubmissionData.id) {
+      const { id, createdAt, uuid } = quoteSubmissionData;
       handleReset();
       const uuidParam = uuid ? `&uuid=${uuid}` : '';
       navigate(`/quoteDetail/${id}?date=${createdAt}${uuidParam}`, {
@@ -757,7 +756,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       if (quoteSubmissionResponseInfo.value === '0') {
-        handleAfterSubmit();
+        handleAfterSubmit(quoteSubmissionDataRef.current);
       } else {
         setQuoteSubmissionResponseOpen(true);
       }
@@ -771,7 +770,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const handleCloseQuoteSubmissionResponse = () => {
     setQuoteSubmissionResponseOpen(false);
 
-    handleAfterSubmit();
+    handleAfterSubmit(quoteSubmissionDataRef.current);
   };
 
   const backText = () => {
