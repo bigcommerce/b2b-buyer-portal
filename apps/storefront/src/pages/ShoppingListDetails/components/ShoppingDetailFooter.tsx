@@ -1,104 +1,51 @@
 import { useContext, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowDropDown, Delete } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
-import Cookies from 'js-cookie';
-import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
-import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
-import { getVariantInfoBySkus, searchProducts } from '@/shared/service/b2b/graphql/product';
-import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
-import b2bLogger from '@/utils/b3Logger';
-import {
-  addQuoteDraftProducts,
-  calculateProductListPrice,
-  validProductQty,
-} from '@/utils/b3Product/b3Product';
-import {
-  addLineItems,
-  conversionProductsList,
-  ProductsProps,
-} from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
-import { validateProducts } from '@/utils/validateProducts';
 
 interface ShoppingDetailFooterProps {
+  selectedProductCount: number;
   shoppingListInfo: any;
   allowJuniorPlaceOrder: boolean;
-  checkedArr: any;
   selectedSubTotal: number;
-  setLoading: (val: boolean) => void;
-  setDeleteOpen: (val: boolean) => void;
-  setValidateFailureProducts: (arr: ProductsProps[]) => void;
-  setSuccessProductsCount: (count: number) => void;
   isB2BUser: boolean;
   customColor: string;
   isCanEditShoppingList: boolean;
   role: string | number;
+  onDelete: () => void;
+  onAddToCart: () => void;
+  onAddToQuote: () => void;
 }
 
-interface ProductInfoProps {
-  basePrice: number | string;
-  baseSku: string;
-  createdAt: number;
-  discount: number | string;
-  enteredInclusive: boolean;
-  id: number | string;
-  itemId: number;
-  optionList: string;
-  primaryImage: string;
-  productId: number;
-  productName: string;
-  productUrl: string;
-  quantity: number | string;
-  tax: number | string;
-  updatedAt: number;
-  variantId: number;
-  variantSku: string;
-  productsSearch: CustomFieldItems;
-}
-
-interface ListItemProps {
-  node: ProductInfoProps;
-}
-
-const mapToProductsFailedArray = (items: ProductsProps[]) => {
-  return items.map((item: ProductsProps) => {
-    return {
-      ...item,
-      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
-      minQuantity: item.node.productsSearch.orderQuantityMinimum,
-      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.unlimitedBackorder
-        ? Infinity
-        : item.node.productsSearch.availableToSell,
-    };
-  });
-};
-
-function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
+function ShoppingDetailFooter({
+  onDelete,
+  onAddToCart,
+  onAddToQuote,
+  selectedProductCount,
+  shoppingListInfo,
+  allowJuniorPlaceOrder,
+  selectedSubTotal,
+  isB2BUser,
+  customColor,
+  isCanEditShoppingList,
+  role,
+}: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
-  const navigate = useNavigate();
-  const backendValidationEnabled =
-    useFeatureFlags()['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
 
   const {
     state: { productQuoteEnabled = false },
   } = useContext(GlobalContext);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const companyId = useAppSelector(({ company }) => company.companyInfo.id);
-  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+
   const {
     shoppingListCreateActionsPermission,
     purchasabilityPermission,
@@ -106,8 +53,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   } = useAppSelector(rolePermissionSelector);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-
-  const cartEntityId = Cookies.get('cartId');
 
   const containerStyle = isMobile
     ? {
@@ -118,21 +63,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         alignItems: 'center',
       };
 
-  const {
-    shoppingListInfo,
-    allowJuniorPlaceOrder,
-    checkedArr,
-    selectedSubTotal,
-    isB2BUser,
-    customColor,
-    isCanEditShoppingList,
-    role,
-    setLoading,
-    setDeleteOpen,
-    setValidateFailureProducts,
-    setSuccessProductsCount,
-  } = props;
-
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
   const b2bSubmitShoppingListPermission = isB2BUser
@@ -140,7 +70,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     : Number(role) === 2;
 
   const handleOpenBtnList = () => {
-    if (checkedArr.length === 0) {
+    if (selectedProductCount === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
     } else {
       setIsOpen(true);
@@ -151,410 +81,31 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     setIsOpen(false);
   };
 
-  const verifyInventory = (inventoryInfos: ProductsProps[]) => {
-    const validateFailureArr: ProductsProps[] = [];
-    const validateSuccessArr: ProductsProps[] = [];
-
-    checkedArr.forEach((item: ProductsProps) => {
-      const { node } = item;
-
-      const inventoryInfo: CustomFieldItems =
-        inventoryInfos.find((option: CustomFieldItems) => option.variantSku === node.variantSku) ||
-        {};
-
-      if (inventoryInfo) {
-        let isPassVerify = true;
-        if (
-          inventoryInfo.isStock === '1' &&
-          (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
-        )
-          isPassVerify = false;
-
-        if (
-          inventoryInfo.minQuantity !== 0 &&
-          (node?.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
-        )
-          isPassVerify = false;
-
-        if (
-          inventoryInfo.maxQuantity !== 0 &&
-          (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
-        )
-          isPassVerify = false;
-
-        if (isPassVerify) {
-          validateSuccessArr.push({
-            node,
-          });
-        } else {
-          validateFailureArr.push({
-            node: {
-              ...node,
-            },
-            stock: inventoryInfo.stock,
-            isStock: inventoryInfo.isStock,
-            maxQuantity: inventoryInfo.maxQuantity,
-            minQuantity: inventoryInfo.minQuantity,
-          });
-        }
-      }
-    });
-
-    return {
-      validateFailureArr,
-      validateSuccessArr,
-    };
-  };
-
-  const addToQuote = async (products: CustomFieldItems[]) => {
-    if (backendValidationEnabled) {
-      const { success, warning, error } = await validateProducts(products);
-
-      error.forEach((err) => {
-        if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
-            }),
-          );
-        } else {
-          snackbar.error(err.error.message);
-        }
-      });
-
-      const validProducts = [...success, ...warning].map((product) => product.product);
-
-      addQuoteDraftProducts(validProducts);
-
-      return validProducts.length > 0;
-    }
-
-    addQuoteDraftProducts(products);
-
-    return true;
-  };
-
-  const shouldRedirectCheckout = () => {
-    if (
-      allowJuniorPlaceOrder &&
-      b2bSubmitShoppingListPermission &&
-      shoppingListInfo?.status === ShoppingListStatus.Approved
-    ) {
-      window.location.href = CHECKOUT_URL;
-    } else {
-      snackbar.success(b3Lang('shoppingList.footer.productsAddedToCart'), {
-        action: {
-          label: b3Lang('shoppingList.reAddToCart.viewCart'),
-          onClick: () => {
-            if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
-            }
-          },
-        },
-      });
-      b3TriggerCartNumber();
-    }
-  };
-
-  const handleAddToCartOnFrontend = async () => {
-    const skus: string[] = [];
-
-    let cantPurchase = '';
-
-    checkedArr.forEach((item: ProductsProps) => {
-      const { node } = item;
-
-      if (node.productsSearch.availability === 'disabled') {
-        cantPurchase += `${node.variantSku},`;
-      }
-
-      skus.push(node.variantSku);
-    });
-
-    if (cantPurchase) {
-      snackbar.error(
-        b3Lang('shoppingList.footer.unavailableProducts', {
-          skus: cantPurchase.slice(0, -1),
-        }),
-      );
-      return;
-    }
-
-    if (skus.length === 0) {
-      snackbar.error(
-        allowJuniorPlaceOrder
-          ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-          : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-      );
-      return;
-    }
-
-    const getInventoryInfos = await getVariantInfoBySkus(skus);
-
-    const { validateFailureArr, validateSuccessArr } = verifyInventory(
-      getInventoryInfos?.variantSku || [],
-    );
-
-    if (validateSuccessArr.length !== 0) {
-      const lineItems = addLineItems(validateSuccessArr);
-      const deleteCartObject = deleteCartData(cartEntityId);
-      const cartInfo = await getCart();
-      let res = null;
-      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-      if (allowJuniorPlaceOrder && cartInfo.length) {
-        await deleteCart(deleteCartObject);
-        res = await updateCart(cartInfo, lineItems);
-      } else {
-        res = await createOrUpdateExistingCart(lineItems);
-        b3TriggerCartNumber();
-      }
-      if (res && res.errors) {
-        snackbar.error(res.errors[0].message);
-      } else if (validateFailureArr.length === 0) {
-        shouldRedirectCheckout();
-      }
-    }
-
-    setValidateFailureProducts(validateFailureArr);
-    setSuccessProductsCount(validateSuccessArr.length);
-  };
-
-  const handleAddToCartBackend = async () => {
-    const items = checkedArr.map(({ node }: ProductsProps) => ({ node }));
-
-    try {
-      const skus = items.map(({ node }: ProductsProps) => node.variantSku);
-
-      if (skus.length === 0) {
-        snackbar.error(
-          allowJuniorPlaceOrder
-            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
-        );
-        return;
-      }
-
-      const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
-      const cartInfo = await getCart();
-      if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartObject);
-        await updateCart(cartInfo, lineItems);
-      } else {
-        await createOrUpdateExistingCart(lineItems);
-        b3TriggerCartNumber();
-      }
-      shouldRedirectCheckout();
-      setSuccessProductsCount(items.length);
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        setValidateFailureProducts(mapToProductsFailedArray(items));
-        snackbar.error(e.message);
-      }
-    }
-  };
-
-  // Add selected product to cart
-  const handleAddProductsToCart = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
-    }
-
-    const addToCart = backendValidationEnabled ? handleAddToCartBackend : handleAddToCartOnFrontend;
-
+  const handleAddSelectedToCart = () => {
+    onAddToCart();
     handleClose();
-
-    setValidateFailureProducts([]);
-    setSuccessProductsCount(0);
-
-    try {
-      setLoading(true);
-      await addToCart();
-    } finally {
-      setLoading(false);
-    }
   };
 
-  // Add selected to quote
-  const getOptionsList = (options: []) => {
-    if (options?.length === 0) return [];
-
-    const option = options.map(
-      ({
-        option_id: optionId,
-        option_value: optionValue,
-      }: {
-        option_id: string | number;
-        option_value: string | number;
-      }) => ({
-        optionId,
-        optionValue,
-      }),
-    );
-
-    return option;
-  };
-
-  const handleAddSelectedToQuote = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
-      return;
-    }
-    setLoading(true);
+  const handleAddSelectedToQuote = () => {
+    onAddToQuote();
     handleClose();
-    try {
-      const productsWithSku = checkedArr.filter((checkedItem: ListItemProps) => {
-        const {
-          node: { variantSku },
-        } = checkedItem;
-
-        return variantSku !== '' && variantSku !== null && variantSku !== undefined;
-      });
-
-      const noSkuProducts = checkedArr.filter((checkedItem: ListItemProps) => {
-        const {
-          node: { variantSku },
-        } = checkedItem;
-
-        return !variantSku;
-      });
-      if (noSkuProducts.length > 0) {
-        snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'));
-      }
-      if (noSkuProducts.length === checkedArr.length) return;
-
-      const productIds: number[] = [];
-      productsWithSku.forEach((product: ListItemProps) => {
-        const { node } = product;
-
-        if (!productIds.includes(Number(node.productId))) {
-          productIds.push(Number(node.productId));
-        }
-      });
-
-      const { productsSearch } = await searchProducts({
-        productIds,
-        companyId,
-        customerGroupId,
-      });
-
-      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
-      let errorMessage = '';
-      let isFondVariant = true;
-
-      const newProducts: CustomFieldItems[] = [];
-      productsWithSku.forEach((product: ListItemProps) => {
-        const {
-          node: {
-            basePrice,
-            optionList,
-            variantSku,
-            productId,
-            productName,
-            quantity,
-            variantId,
-            tax,
-          },
-        } = product;
-
-        const optionsList = getOptionsList(JSON.parse(optionList));
-
-        const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => Number(product.id) === Number(productId),
-        );
-
-        const variantItem = currentProductSearch?.variants.find(
-          (item: CustomFieldItems) => item.sku === variantSku,
-        );
-
-        if (!variantItem) {
-          errorMessage = b3Lang('shoppingList.footer.notFoundSku', {
-            sku: variantSku,
-          });
-          isFondVariant = false;
-        }
-
-        const quoteListitem = {
-          node: {
-            id: uuid(),
-            variantSku: variantItem?.sku || variantSku,
-            variantId,
-            productsSearch: {
-              ...currentProductSearch,
-              newSelectOptionList: optionsList,
-              variantId,
-            },
-            primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
-            productName,
-            quantity: Number(quantity) || 1,
-            optionList: JSON.stringify(optionsList),
-            productId,
-            basePrice,
-            tax,
-          },
-        };
-
-        newProducts.push(quoteListitem);
-      });
-
-      const isValidQty = validProductQty(newProducts);
-
-      if (!isFondVariant) {
-        snackbar.error(errorMessage);
-
-        return;
-      }
-
-      if (isValidQty) {
-        await calculateProductListPrice(newProducts, '2');
-
-        const success = await addToQuote(newProducts);
-        if (success) {
-          snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
-            action: {
-              label: b3Lang('shoppingList.footer.viewQuote'),
-              onClick: () => {
-                navigate('/quoteDraft');
-              },
-            },
-          });
-        }
-      } else {
-        snackbar.error(b3Lang('shoppingList.footer.productsLimit'), {
-          action: {
-            label: b3Lang('shoppingList.footer.viewQuote'),
-            onClick: () => {
-              navigate('/quoteDraft');
-            },
-          },
-        });
-      }
-    } catch (e) {
-      b2bLogger.error(e);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const buttons = {
     adSelectedToCart: {
       name: b3Lang('shoppingList.footer.addToCart'),
       key: 'add-selected-to-cart',
-      handleClick: handleAddProductsToCart,
-      isDisabled: false,
+      handleClick: handleAddSelectedToCart,
     },
     proceedToCheckout: {
       name: b3Lang('shoppingList.footer.proceedToCheckout'),
       key: 'add-select-to-checkout',
-      handleClick: handleAddProductsToCart,
-      isDisabled: false,
+      handleClick: handleAddSelectedToCart,
     },
     addSelectedToQuote: {
       name: b3Lang('shoppingList.footer.addToQuote'),
       key: 'add-selected-to-quote',
       handleClick: handleAddSelectedToQuote,
-      isDisabled: false,
     },
   };
 
@@ -640,7 +191,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             }}
           >
             {b3Lang('shoppingList.footer.selectedProducts', {
-              quantity: checkedArr.length,
+              quantity: selectedProductCount,
             })}
           </Typography>
           <Box
@@ -687,9 +238,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                       sx={{
                         color: customColor,
                       }}
-                      onClick={() => {
-                        setDeleteOpen(true);
-                      }}
+                      onClick={onDelete}
                     />
                   </CustomButton>
                 )}
