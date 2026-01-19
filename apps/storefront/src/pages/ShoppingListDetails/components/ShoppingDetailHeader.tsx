@@ -26,7 +26,6 @@ const StyledCreateName = styled('div')(() => ({
 
 interface ShoppingDetailHeaderProps {
   shoppingListInfo: any;
-  role: string | number;
   customerInfo: any;
   goToShoppingLists: () => void;
   handleUpdateShoppingList: (status: number) => void;
@@ -39,20 +38,18 @@ interface ShoppingDetailHeaderProps {
   customColor: string;
 }
 
-function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
+function ShoppingDetailHeader({
+  shoppingListInfo,
+  customerInfo,
+  handleUpdateShoppingList,
+  goToShoppingLists,
+  isB2BUser,
+  setOpenPage,
+  openAPPParams,
+  customColor,
+}: ShoppingDetailHeaderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-
-  const {
-    shoppingListInfo,
-    customerInfo,
-    handleUpdateShoppingList,
-    goToShoppingLists,
-    isB2BUser,
-    setOpenPage,
-    openAPPParams,
-    customColor,
-  } = props;
 
   const {
     state: {

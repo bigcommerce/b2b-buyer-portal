@@ -19,7 +19,7 @@ interface ShoppingDetailFooterProps {
   isB2BUser: boolean;
   customColor: string;
   isCanEditShoppingList: boolean;
-  role: string | number;
+  isJuniorBuyer: boolean;
   onDelete: () => void;
   onAddToCart: () => void;
   onAddToQuote: () => void;
@@ -36,7 +36,7 @@ function ShoppingDetailFooter({
   isB2BUser,
   customColor,
   isCanEditShoppingList,
-  role,
+  isJuniorBuyer,
 }: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
@@ -65,9 +65,7 @@ function ShoppingDetailFooter({
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
-  const b2bSubmitShoppingListPermission = isB2BUser
-    ? submitShoppingListPermission
-    : Number(role) === 2;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : isJuniorBuyer;
 
   const handleOpenBtnList = () => {
     if (selectedProductCount === 0) {
