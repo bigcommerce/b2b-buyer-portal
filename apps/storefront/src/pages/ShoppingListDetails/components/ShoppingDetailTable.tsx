@@ -82,7 +82,7 @@ interface ShoppingDetailTableProps {
   isB2BUser: boolean;
   productQuoteEnabled: boolean;
   isCanEditShoppingList: boolean;
-  role: number | string;
+  isJuniorBuyer: boolean;
 }
 
 interface SearchProps {
@@ -163,7 +163,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     allowJuniorPlaceOrder,
     productQuoteEnabled,
     isCanEditShoppingList,
-    role,
+    isJuniorBuyer,
   } = props;
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
@@ -175,9 +175,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
   const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
-  const b2bSubmitShoppingListPermission = isB2BUser
-    ? submitShoppingListPermission
-    : Number(role) === 2;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : isJuniorBuyer;
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 

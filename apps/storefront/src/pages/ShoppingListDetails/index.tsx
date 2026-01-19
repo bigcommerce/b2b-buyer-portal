@@ -221,12 +221,13 @@ function useData() {
     return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
   };
 
+  const isJuniorBuyer = Number(role) === CustomerRole.JUNIOR_BUYER;
+
   return {
     id,
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    role,
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
@@ -235,6 +236,7 @@ function useData() {
     getProducts,
     getShoppingList,
     deleteShoppingListItem,
+    isJuniorBuyer,
   };
 }
 
@@ -246,7 +248,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    role,
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
@@ -255,6 +256,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     getProducts,
     getShoppingList,
     deleteShoppingListItem,
+    isJuniorBuyer,
   } = useData();
 
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
@@ -305,9 +307,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     return submitShoppingListPermission;
   }, [submitShoppingListPermission, isB2BUser, shoppingListInfo]);
-  const b2bSubmitShoppingListPermission = isB2BUser
-    ? submitShoppingList
-    : role === CustomerRole.JUNIOR_BUYER;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingList : isJuniorBuyer;
 
   const isJuniorApprove =
     shoppingListInfo?.status === ShoppingListStatus.Approved && b2bSubmitShoppingListPermission;
@@ -883,7 +883,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           isB2BUser={isB2BUser}
           shoppingListInfo={shoppingListInfo}
           customerInfo={customerInfo}
-          role={role}
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
           setOpenPage={setOpenPage}
@@ -948,7 +947,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                   isB2BUser={isB2BUser}
                   productQuoteEnabled={productQuoteEnabled}
                   isCanEditShoppingList={isCanEditShoppingList}
-                  role={role}
+                  isJuniorBuyer={isJuniorBuyer}
                 />
               </Grid>
             </B3Spin>
@@ -978,7 +977,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               isB2BUser={isB2BUser}
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
-              role={role}
+              isJuniorBuyer={isJuniorBuyer}
             />
           )}
       </Box>
