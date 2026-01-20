@@ -43,7 +43,7 @@
     "pdfobject": "^2.3.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-hook-form": "^7.71.0",
+    "react-hook-form": "^7.71.1",
     "react-intl": "^5.20.3",
     "react-mui-dropzone": "^4.0.6",
     "react-redux": "^9.1.0",
