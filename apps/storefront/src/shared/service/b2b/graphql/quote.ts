@@ -157,13 +157,18 @@ const quoteUpdate = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-const getQuoteInfo = (data: { id: number; date: string; uuid?: string }) => `
-  query GetQuoteInfoB2B {
+const getQuoteInfo = `
+  query GetQuoteInfoB2B(
+    $id: Int!
+    $storeHash: String!
+    $date: String!
+    $uuid: String
+  ) {
     quote(
-      id: ${data.id},
-      storeHash: "${storeHash}",
-      date:  "${data?.date || ''}",
-      ${data.uuid ? `uuid: "${data.uuid}",` : ''}
+      id: $id,
+      storeHash: $storeHash,
+      date: $date,
+      uuid: $uuid
     ) {
       id,
       createdAt,
@@ -311,10 +316,15 @@ const getExportQuotePdfQuery = (data: {
   }
 }`;
 
-const getQuoteCheckoutQuery = (data: { id: number }) => `mutation CheckoutQuote {
+const getQuoteCheckoutQuery = `mutation CheckoutQuote(
+  $id: Int!
+  $storeHash: String!
+  $uuid: String
+) {
   quoteCheckout(
-    id: ${data.id},
-    storeHash: "${storeHash}",
+    id: $id,
+    storeHash: $storeHash,
+    uuid: $uuid
   ) {
     quoteCheckout {
       checkoutUrl,
@@ -625,12 +635,24 @@ export interface B2BQuoteDetail {
 
 export const getB2BQuoteDetail = (data: { id: number; date: string; uuid?: string }) =>
   B3Request.graphqlB2B({
-    query: getQuoteInfo(data),
+    query: getQuoteInfo,
+    variables: {
+      id: data.id,
+      storeHash,
+      date: data.date || '',
+      uuid: data.uuid || null,
+    },
   });
 
 export const getBcQuoteDetail = (data: { id: number; date: string; uuid?: string }) =>
   B3Request.graphqlB2B({
-    query: getQuoteInfo(data),
+    query: getQuoteInfo,
+    variables: {
+      id: data.id,
+      storeHash,
+      date: data.date || '',
+      uuid: data.uuid || null,
+    },
   });
 
 export const exportQuotePdf = (data: {
@@ -643,9 +665,14 @@ export const exportQuotePdf = (data: {
     query: getExportQuotePdfQuery(data),
   });
 
-export const quoteCheckout = (data: { id: number }) =>
+export const quoteCheckout = ({ id, uuid }: { id: number; uuid?: string }) =>
   B3Request.graphqlB2B({
-    query: getQuoteCheckoutQuery(data),
+    query: getQuoteCheckoutQuery,
+    variables: {
+      id,
+      storeHash,
+      uuid: uuid || null,
+    },
   });
 
 export const quoteDetailAttachFileCreate = (data: CustomFieldItems) =>
