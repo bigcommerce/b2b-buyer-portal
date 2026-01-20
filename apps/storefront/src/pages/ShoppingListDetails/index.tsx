@@ -804,12 +804,11 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     if (validateSuccessArr.length !== 0) {
       const lineItems = addLineItems(validateSuccessArr);
-      const deleteCartObject = deleteCartData(cartEntityId);
       const cartInfo = await getCart();
       let res = null;
-      // @ts-expect-error Keeping it like this to avoid breaking changes, will fix in a following commit.
-      if (allowJuniorPlaceOrder && cartInfo.length) {
-        await deleteCart(deleteCartObject);
+
+      if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
+        await deleteCart(deleteCartData(cartEntityId));
         res = await updateCart(cartInfo, lineItems);
       } else {
         res = await createOrUpdateExistingCart(lineItems);
@@ -831,10 +830,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     try {
       const lineItems = addLineItems(items);
-      const deleteCartObject = deleteCartData(items);
       const cartInfo = await getCart();
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartObject);
+        await deleteCart(deleteCartData(cartEntityId));
         await updateCart(cartInfo, lineItems);
       } else {
         await createOrUpdateExistingCart(lineItems);
