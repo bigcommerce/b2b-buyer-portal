@@ -39,6 +39,7 @@ export const handleQuoteCheckout = async ({
 
     const res = await quoteCheckout({
       id: Number(quoteId),
+      uuid: quoteUuid,
     });
 
     setQuoteToStorage(quoteId, date, quoteUuid);
