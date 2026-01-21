@@ -618,7 +618,9 @@ describe('when a personal customer', () => {
         }),
       );
 
-      server.use(graphql.query('GetCustomerOrders', ({ query }) => getOrders(query)));
+      server.use(
+        graphql.query('GetCustomerOrders', ({ query }) => HttpResponse.json(getOrders(query))),
+      );
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
@@ -1195,7 +1197,7 @@ describe('when a company customer', () => {
         }),
       );
 
-      server.use(graphql.query('GetAllOrders', ({ query }) => getOrders(query)));
+      server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
