@@ -618,7 +618,7 @@ describe('has no placed orders', () => {
       }),
     );
 
-    server.use(graphql.query('GetAllOrders', ({ query }) => getOrders(query)));
+    server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
 
     renderWithProviders(<MyOrders />, { preloadedState });
 
