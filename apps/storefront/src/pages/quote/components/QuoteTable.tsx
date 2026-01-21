@@ -8,12 +8,7 @@ import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
-import {
-  deleteProductFromDraftQuoteList,
-  setDraftProduct,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
+import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
@@ -158,6 +153,28 @@ function getAvailabilityWarningsBackend(
   return { warningMessage, warningDetails };
 }
 
+const getThresholdWarning = (row: QuoteItem['node'], b3Lang: LangFormatFunction): string | null => {
+  const minQuantity = Number(row.productsSearch?.orderQuantityMinimum || 0);
+  const maxQuantity = Number(row.productsSearch?.orderQuantityMaximum || 0);
+  const quantity = Number(row.quantity || 0);
+  const sku = row.variantSku || row.productsSearch?.sku || '';
+
+  if (minQuantity > 0 && quantity < minQuantity) {
+    return b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
+      minQuantity,
+      sku,
+    });
+  }
+  if (maxQuantity > 0 && quantity > maxQuantity) {
+    return b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
+      maxQuantity,
+      sku,
+    });
+  }
+
+  return null;
+};
+
 interface QuoteTableProps {
   total: number;
   items: QuoteItem[];
@@ -173,10 +190,6 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
   const [optionsProduct, setOptionsProduct] = useState<Product>();
   const [optionsProductId, setOptionsProductId] = useState<string>('');
-
-  const showAvailabilityWarnings = useAppSelector(
-    ({ global }) => !global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
-  );
 
   const handleUpdateProductQty = async (row: QuoteItem['node'], quantity: number) => {
     const product = await setModifierQtyPrice(row, quantity);
@@ -308,7 +321,11 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       key: 'Product',
       title: b3Lang('quoteDraft.quoteTable.product'),
       render: (row) => {
-        const { warningMessage, warningDetails } = getAvailabilityWarnings(row, b3Lang);
+        const availabilityWarning = getAvailabilityWarnings(row, b3Lang);
+        const thresholdWarning = getThresholdWarning(row, b3Lang);
+        const warningMessage = availabilityWarning.warningMessage
+          ? availabilityWarning.warningMessage
+          : thresholdWarning;
         const productOptionsValues = getProductOptionsValues(row);
         const productUrl = row.productsSearch?.productUrl;
 
@@ -359,7 +376,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                 </Box>
               )}
 
-              {showAvailabilityWarnings && warningMessage && (
+              {warningMessage && (
                 <Box sx={{ color: 'red' }}>
                   <Box
                     sx={{
@@ -372,7 +389,9 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                     <WarningIcon color="error" fontSize="small" />
                     {warningMessage}
                   </Box>
-                  {warningDetails && <Box>{warningDetails}</Box>}
+                  {availabilityWarning.warningDetails && (
+                    <Box>{availabilityWarning.warningDetails}</Box>
+                  )}
                 </Box>
               )}
             </Box>

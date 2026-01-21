@@ -55,7 +55,10 @@ import {
   deleteCartData,
   updateCart as rawUpdateCart,
 } from '@/utils/cartUtils';
-import { validateProducts } from '@/utils/validateProducts';
+import {
+  convertStockAndThresholdValidationErrorToWarning,
+  validateProducts,
+} from '@/utils/validateProducts';
 
 import { type PageProps } from '../PageProps';
 
@@ -612,7 +615,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (backendValidationEnabled) {
-      const { success, warning, error } = await validateProducts(products);
+      const validatedProducts = await validateProducts(products);
+      const { success, warning, error } =
+        convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 
       error.forEach((err) => {
         if (err.error.type === 'network') {
