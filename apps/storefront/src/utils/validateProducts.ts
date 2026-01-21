@@ -214,3 +214,37 @@ export const validateProducts = async <T extends ValidateProductsInput>(
     error: validatedProducts.filter((product) => product.status === 'error'),
   };
 };
+
+/* 
+  Required in case of adding to the quote, because min, max threshold error
+  products should still be added to the quote
+*/
+export const convertStockAndThresholdValidationErrorToWarning = <T extends ValidateProductsInput>(
+  validatedProducts: ValidateProductsResult<T>,
+): ValidateProductsResult<T> => {
+  const isThresholdError = (error: ValidatedProductError<T>['error']) =>
+    error.errorCode === 'OTHER' && /purchase a (minimum|maximum) of/im.test(error.message);
+
+  // out of stock or low on stock error
+  const isStockError = (error: ValidatedProductError<T>['error']) => error.errorCode === 'OOS';
+
+  const stockAndThresholdErrors = validatedProducts.error.filter(
+    ({ error }) => isThresholdError(error) || isStockError(error),
+  ) as Array<ValidatedProductServerError<T>>;
+
+  const nonStockAndThresholdErrors = validatedProducts.error.filter(
+    ({ error }) => !(isThresholdError(error) || isStockError(error)),
+  );
+
+  const stockAndThresholdWarnings = stockAndThresholdErrors.map(({ product, error }) => ({
+    status: 'warning',
+    message: error.message,
+    product,
+  })) as Array<ValidatedProductWarning<T>>;
+
+  return {
+    success: validatedProducts.success,
+    error: nonStockAndThresholdErrors,
+    warning: [...validatedProducts.warning, ...stockAndThresholdWarnings],
+  };
+};

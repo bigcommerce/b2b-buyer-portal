@@ -2466,7 +2466,7 @@ describe('when the user is a B2B customer', () => {
                   sku: 'LC-123',
                   optionsV3: [],
                   isPriceHidden: false,
-                  orderQuantityMinimum: 0,
+                  orderQuantityMinimum: 5,
                   orderQuantityMaximum: 0,
                   inventoryLevel: 100,
                   variants: [variant],
@@ -2582,7 +2582,7 @@ describe('when the user is a B2B customer', () => {
                   sku: 'LC-123',
                   optionsV3: [],
                   isPriceHidden: false,
-                  orderQuantityMinimum: 0,
+                  orderQuantityMinimum: 5,
                   orderQuantityMaximum: 0,
                   inventoryLevel: 100,
                   variants: [variant],
@@ -2622,7 +2622,253 @@ describe('when the user is a B2B customer', () => {
             data: {
               validateProduct: buildValidateProductWith({
                 responseType: 'WARNING',
-                message: 'validation warning',
+                message: 'You need to purchase a minimum of 5 of the LC-123 per order',
+              }),
+            },
+          });
+
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('priceProducts', ({ variables }) =>
+            HttpResponse.json(getPriceProducts(variables)),
+          ),
+          graphql.query('ValidateProduct', ({ variables }) =>
+            HttpResponse.json(validateProduct(variables)),
+          ),
+        );
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            // email is checked on save and must match the company.customer in state for the save to succeed
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              featureFlags,
+            }),
+          },
+        });
+
+        await userEvent.click(screen.getByText('Add to quote'));
+        const searchProduct = screen.getByPlaceholderText('Search products');
+        await userEvent.type(searchProduct, 'Laugh Canister');
+        await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+        const dialog = await screen.findByRole('dialog');
+
+        const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+
+        await userEvent.click(addToQuote);
+
+        expect(validateProduct).toHaveBeenCalled();
+        expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+      });
+
+      it('adds product when threshold error occurs and NP/OOS flag is enabled', async () => {
+        const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+        const variant = buildVariantWith({
+          purchasing_disabled: false,
+          bc_calculated_price: {
+            tax_exclusive: 123,
+          },
+        });
+
+        when(searchProducts)
+          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .thenReturn({
+            data: {
+              productsSearch: [
+                buildSearchProductWith({
+                  id: variant.product_id,
+                  name: 'Laugh Canister',
+                  sku: 'LC-123',
+                  optionsV3: [],
+                  isPriceHidden: false,
+                  orderQuantityMinimum: 0,
+                  orderQuantityMaximum: 0,
+                  inventoryLevel: 100,
+                  variants: [variant],
+                }),
+              ],
+            },
+          });
+
+        const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+        when(getPriceProducts)
+          .calledWith({
+            storeHash: 'store-hash',
+            channelId: 1,
+            currencyCode: 'USD',
+            items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+            customerGroupId: 0,
+          })
+          .thenReturn({
+            data: {
+              priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+            },
+          });
+
+        const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+        when(validateProduct)
+          .calledWith(
+            expect.objectContaining({
+              productId: variant.product_id,
+              variantId: variant.variant_id,
+              quantity: 1,
+              productOptions: [],
+            }),
+          )
+          .thenReturn({
+            data: {
+              validateProduct: buildValidateProductWith({
+                responseType: 'ERROR',
+                message: 'You need to purchase a minimum of 5 of the LC-123 per order.',
+                errorCode: 'OTHER',
+                product: {
+                  availableToSell: 0,
+                },
+              }),
+            },
+          });
+
+        server.use(
+          graphql.query('Countries', () =>
+            HttpResponse.json({ data: { countries: [fakeCountry] } }),
+          ),
+          graphql.query('Addresses', () =>
+            HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+          ),
+          graphql.query('getQuoteExtraFields', () =>
+            HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+          ),
+          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('priceProducts', ({ variables }) =>
+            HttpResponse.json(getPriceProducts(variables)),
+          ),
+          graphql.query('ValidateProduct', ({ variables }) =>
+            HttpResponse.json(validateProduct(variables)),
+          ),
+        );
+
+        const quoteInfo = buildQuoteInfoStateWith({
+          draftQuoteInfo: {
+            // email is checked on save and must match the company.customer in state for the save to succeed
+            contactInfo: { email: customerEmail },
+            billingAddress: noAddress,
+            shippingAddress: noAddress,
+          },
+        });
+
+        renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+          preloadedState: {
+            ...preloadedState,
+            quoteInfo,
+            global: buildGlobalStateWith({
+              blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              featureFlags,
+            }),
+          },
+        });
+
+        await userEvent.click(screen.getByText('Add to quote'));
+        const searchProduct = screen.getByPlaceholderText('Search products');
+        await userEvent.type(searchProduct, 'Laugh Canister');
+        await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+        const dialog = await screen.findByRole('dialog');
+
+        const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+
+        await userEvent.click(addToQuote);
+
+        expect(validateProduct).toHaveBeenCalled();
+        expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+      });
+
+      it('adds product when threshold error occurs and NP/OOS flag is disabled', async () => {
+        const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+        const variant = buildVariantWith({
+          purchasing_disabled: false,
+          bc_calculated_price: {
+            tax_exclusive: 123,
+          },
+        });
+
+        when(searchProducts)
+          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .thenReturn({
+            data: {
+              productsSearch: [
+                buildSearchProductWith({
+                  id: variant.product_id,
+                  name: 'Laugh Canister',
+                  sku: 'LC-123',
+                  optionsV3: [],
+                  isPriceHidden: false,
+                  orderQuantityMinimum: 0,
+                  orderQuantityMaximum: 0,
+                  inventoryLevel: 100,
+                  variants: [variant],
+                }),
+              ],
+            },
+          });
+
+        const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+        when(getPriceProducts)
+          .calledWith({
+            storeHash: 'store-hash',
+            channelId: 1,
+            currencyCode: 'USD',
+            items: [{ productId: variant.product_id, variantId: variant.variant_id, options: [] }],
+            customerGroupId: 0,
+          })
+          .thenReturn({
+            data: {
+              priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+            },
+          });
+
+        const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+        when(validateProduct)
+          .calledWith(
+            expect.objectContaining({
+              productId: variant.product_id,
+              variantId: variant.variant_id,
+              quantity: 1,
+              productOptions: [],
+            }),
+          )
+          .thenReturn({
+            data: {
+              validateProduct: buildValidateProductWith({
+                responseType: 'ERROR',
+                message: 'You need to purchase a minimum of 5 of the LC-123 per order.',
+                errorCode: 'OTHER',
+                product: {
+                  availableToSell: 0,
+                },
               }),
             },
           });
@@ -2745,6 +2991,7 @@ describe('when the user is a B2B customer', () => {
                 product: {
                   availableToSell: faker.number.int(),
                 },
+                errorCode: 'INVALID_FIELDS',
               }),
             },
           });
@@ -2803,7 +3050,7 @@ describe('when the user is a B2B customer', () => {
         expect(screen.queryByText('Product was added to your quote.')).not.toBeInTheDocument();
       });
 
-      it('adds product successfully and does not call validateProduct when NP&OOS setting is enabled', async () => {
+      it('adds product successfully and calls validateProduct when NP&OOS setting is enabled', async () => {
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -2905,7 +3152,7 @@ describe('when the user is a B2B customer', () => {
 
         await userEvent.click(addToQuote);
 
-        expect(validateProduct).not.toHaveBeenCalled();
+        expect(validateProduct).toHaveBeenCalled();
         expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
       });
     });
@@ -3260,6 +3507,7 @@ describe('when the user is a B2B customer', () => {
                 product: {
                   availableToSell: faker.number.int(),
                 },
+                errorCode: 'INVALID_FIELDS',
               }),
             },
           });
@@ -3317,7 +3565,7 @@ describe('when the user is a B2B customer', () => {
         expect(screen.queryByText('Products were added to your quote.')).not.toBeInTheDocument();
       });
 
-      it('adds product successfully and does not call validateProduct when NP&OOS setting is enabled', async () => {
+      it('adds product successfully and calls validateProduct when NP&OOS setting is enabled', async () => {
         const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
         const variant = buildVariantWith({
@@ -3438,7 +3686,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
-        expect(validateProduct).not.toHaveBeenCalled();
+        expect(validateProduct).toHaveBeenCalled();
         expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
       });
     });
@@ -3966,6 +4214,7 @@ describe('when the user is a B2B customer', () => {
                 product: {
                   availableToSell: faker.number.int(),
                 },
+                errorCode: 'INVALID_FIELDS',
               }),
             },
           });
@@ -4057,7 +4306,7 @@ describe('when the user is a B2B customer', () => {
         expect(screen.queryByText('Products were added to your quote.')).not.toBeInTheDocument();
       });
 
-      it('adds product successfully and does not call validateProduct when NP&OOS setting is enabled', async () => {
+      it('adds product successfully and calls validateProduct when NP&OOS setting is enabled', async () => {
         const csvProducts = [
           buildCSVProductWith({
             id: '73737',
@@ -4245,7 +4494,7 @@ describe('when the user is a B2B customer', () => {
         const addToListButton = screen.getByRole('button', { name: /add to list/i });
         await userEvent.click(addToListButton);
 
-        expect(validateProduct).not.toHaveBeenCalled();
+        expect(validateProduct).toHaveBeenCalled();
         expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
       });
     });
@@ -4636,6 +4885,16 @@ describe('when the user is a B2B customer', () => {
         graphql.query('GetVariantInfoBySkus', ({ query }) =>
           HttpResponse.json(getVariantInfoBySkus(query)),
         ),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({
+                responseType: 'WARNING',
+                message: 'Product is not purchasable',
+              }),
+            },
+          }),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({
@@ -4669,7 +4928,7 @@ describe('when the user is a B2B customer', () => {
       expect(await screen.findByText('Products were added to your quote.')).toBeInTheDocument();
     });
 
-    it('adds a product without enough stock and shows no warnings', async () => {
+    it('adds a product without enough stock and shows inline error message', async () => {
       const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
       const variant = buildVariantWith({
@@ -4747,6 +5006,16 @@ describe('when the user is a B2B customer', () => {
         graphql.query('getQuoteExtraFields', () =>
           HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
         ),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: {
+              validateProduct: buildValidateProductWith({
+                responseType: 'WARNING',
+                message: 'Product is out of stock',
+              }),
+            },
+          }),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({
@@ -4786,7 +5055,7 @@ describe('when the user is a B2B customer', () => {
 
       const cell = await screen.findByRole('cell', { name: /LC-123/ });
 
-      expect(within(cell).queryByText('Insufficient stock')).not.toBeInTheDocument();
+      expect(within(cell).getByText('Insufficient stock')).toBeInTheDocument();
     });
   });
 });

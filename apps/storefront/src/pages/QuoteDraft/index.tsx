@@ -48,7 +48,10 @@ import { snackbar } from '@/utils/b3Tip';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
-import { validateProducts } from '@/utils/validateProducts';
+import {
+  convertStockAndThresholdValidationErrorToWarning,
+  validateProducts,
+} from '@/utils/validateProducts';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
 import { convertBCToB2BAddress } from '../AddressList/shared/config';
@@ -159,7 +162,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
-  const isEnableProduct = useAppSelector(
+  const isAddNonPurchasableOutOfStockToQuoteEnabled = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
@@ -458,31 +461,31 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (!isEnableProduct && isMoveStockAndBackorderValidationToBackend) {
-      const { success, warning, error } = await validateProducts(products);
-
-      error.forEach((err) => {
-        if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
-            }),
-          );
-        } else {
-          snackbar.error(err.error.message);
-        }
-      });
-
-      const validProducts = [...success, ...warning].map((product) => product.product);
-
-      addQuoteDraftProducts(validProducts);
-
-      return validProducts.length > 0;
+    if (!isMoveStockAndBackorderValidationToBackend) {
+      addQuoteDraftProducts(products);
+      return true;
     }
+    const validatedProducts = await validateProducts(products);
+    const { success, warning, error } =
+      convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 
-    addQuoteDraftProducts(products);
+    error.forEach((err) => {
+      if (err.error.type === 'network') {
+        snackbar.error(
+          b3Lang('quotes.productValidationFailed', {
+            productName: err.product.node?.productName || '',
+          }),
+        );
+      } else {
+        snackbar.error(err.error.message);
+      }
+    });
 
-    return true;
+    const validProducts = [...success, ...warning].map((product) => product.product);
+
+    addQuoteDraftProducts(validProducts);
+
+    return validProducts.length > 0;
   };
 
   const getFileList = (files: CustomFieldItems[]) => {
@@ -587,7 +590,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         return;
       }
 
-      if (!isEnableProduct && !isMoveStockAndBackorderValidationToBackend) {
+      if (
+        !isAddNonPurchasableOutOfStockToQuoteEnabled &&
+        !isMoveStockAndBackorderValidationToBackend
+      ) {
         const itHasInvalidProduct = draftQuoteList.some((item) => {
           return getVariantInfoOOSAndPurchase(item)?.name;
         });
