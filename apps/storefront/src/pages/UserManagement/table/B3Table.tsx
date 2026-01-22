@@ -36,7 +36,7 @@ interface TableProps<Row> {
   onPaginationChange: (pagination: Pagination) => void;
   pagination: Pagination;
   rowsPerPageOptions: number[];
-  renderItem: (row: Row) => ReactElement;
+  renderItem: (row: Row) => ReactElement<any>;
   isInfiniteScroll: boolean;
   isLoading: boolean;
   showRowsPerPageOptions: boolean;

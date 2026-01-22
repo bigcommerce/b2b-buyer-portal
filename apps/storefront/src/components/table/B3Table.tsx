@@ -74,8 +74,8 @@ interface TableProps<Row> {
   renderItem?: (
     row: Row,
     index?: number,
-    checkBox?: (disable?: boolean) => ReactElement,
-  ) => ReactElement;
+    checkBox?: (disable?: boolean) => ReactElement<any>,
+  ) => ReactElement<any>;
   CollapseComponent?: FC<{ row: Row }>;
   isCustomRender?: boolean;
   isInfiniteScroll?: boolean;

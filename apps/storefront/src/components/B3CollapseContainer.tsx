@@ -3,7 +3,7 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Box, Collapse, Typography } from '@mui/material';
 
 interface CollapseContainerProps {
-  title?: string | ReactElement;
+  title?: string | ReactElement<any>;
   header?: ReactNode;
   defaultOpen?: boolean;
   children: ReactNode;

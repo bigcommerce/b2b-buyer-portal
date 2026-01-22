@@ -43,7 +43,7 @@ const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 const CompanyHierarchy = lazy(() => import('@/pages/CompanyHierarchy'));
 
-const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement>> = {
+const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement<any>>> = {
   '/dashboard': Dashboard,
   '/orders': MyOrders,
   '/company-orders': CompanyOrderList,

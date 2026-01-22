@@ -40,7 +40,7 @@ export type GetRequestList<Params, Item extends object> =
 
 interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
   itemXs: number;
-  renderItem: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
+  renderItem: (row: Row, index?: number, checkBox?: () => ReactElement<any>) => ReactElement<any>;
   getRequestList: GetRequestList<GetRequestListParams, WithRowControls<Row>>;
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading?: (bool: boolean) => void;

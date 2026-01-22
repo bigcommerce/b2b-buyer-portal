@@ -112,7 +112,7 @@ const mobileItemStyle = {
 interface ProductProps<T> {
   products: Array<T & ProductItem>;
   money?: MoneyFormat;
-  renderAction?: (item: T & ProductItem) => ReactElement;
+  renderAction?: (item: T & ProductItem) => ReactElement<any>;
   actionWidth?: string;
   quantityKey?: string;
   quantityEditable?: boolean;
