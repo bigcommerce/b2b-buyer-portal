@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
+import { FieldValues, useForm, useWatch } from 'react-hook-form';
 import styled from '@emotion/styled';
 import { Box, Divider, TextField, Typography } from '@mui/material';
 import isEqual from 'lodash-es/isEqual';
@@ -268,7 +268,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     mode: 'all',
   });
 
-  const formValues = watch();
+  const formValues = useWatch({ control });
   const cache = useRef(formValues);
 
   const getProductVariantId = useCallback(
