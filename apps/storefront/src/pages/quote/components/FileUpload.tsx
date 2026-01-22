@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
+import { Ref, useImperativeHandle, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import styled from '@emotion/styled';
 import {
@@ -94,6 +94,7 @@ interface FileUploadProps {
   limitUploadFn?: () => boolean;
   isEndLoadding?: boolean;
   requestType?: string;
+  ref?: Ref<unknown>;
 }
 
 const AttachFile = styled(AttachFileIcon)(() => ({
@@ -101,7 +102,7 @@ const AttachFile = styled(AttachFileIcon)(() => ({
   marginRight: '5px',
 }));
 
-function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
+function FileUpload(props: FileUploadProps) {
   const b3Lang = useB3Lang();
   const {
     title = b3Lang('global.fileUpload.addAttachment'),
@@ -116,6 +117,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     onDelete = noop,
     isEndLoadding = false,
     requestType = 'quoteAttachedFile',
+    ref,
   } = props;
 
   const theme = useTheme();
@@ -305,4 +307,4 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
   );
 }
 
-export default forwardRef(FileUpload);
+export default FileUpload;

@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
+import { Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { Box } from '@mui/material';
 
 import { distanceDay } from '@/utils/b3Picker';
@@ -19,19 +19,18 @@ interface B3FilterPickerProps {
   isMonthlySpacing?: boolean;
   handleChange?: (key: string, value: Date | string | number) => void;
   customWidth?: string;
+  ref?: Ref<unknown>;
 }
 
-function B3FilterPickers(
-  {
-    startPicker,
-    endPicker,
-    handleChange,
-    isMonthlySpacing = false,
-    xs = {},
-    customWidth,
-  }: B3FilterPickerProps,
-  ref: Ref<unknown> | undefined,
-) {
+function B3FilterPicker({
+  startPicker,
+  endPicker,
+  handleChange,
+  isMonthlySpacing = false,
+  xs = {},
+  customWidth,
+  ref,
+}: B3FilterPickerProps) {
   const [startValue, setStartValue] = useState<Date | number | string>(
     startPicker?.defaultValue || '',
   );
@@ -129,7 +128,5 @@ function B3FilterPickers(
     </Box>
   );
 }
-
-const B3FilterPicker = forwardRef(B3FilterPickers);
 
 export default B3FilterPicker;

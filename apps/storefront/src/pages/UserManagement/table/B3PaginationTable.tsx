@@ -1,4 +1,5 @@
 import {
+  memo,
   ReactElement,
   Ref,
   useCallback,
@@ -12,8 +13,6 @@ import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
-import { forwardRefWithGenerics } from '@/utils/forwardRefWithGenerics';
-import { memoWithGenerics } from '@/utils/memoWithGenerics';
 
 import { B3Table, isNodeWrapper, PossibleNodeWrapper, WithRowControls } from './B3Table';
 
@@ -45,19 +44,18 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
   searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading?: (bool: boolean) => void;
   showRowsPerPageOptions?: boolean;
+  ref?: Ref<unknown>;
 }
 
-function PaginationTable<GetRequestListParams, Row extends object>(
-  {
-    renderItem,
-    itemXs,
-    getRequestList,
-    searchParams,
-    requestLoading,
-    showRowsPerPageOptions = true,
-  }: B3PaginationTableProps<GetRequestListParams, Row>,
-  ref?: Ref<unknown>,
-) {
+function PaginationTable<GetRequestListParams, Row extends object>({
+  renderItem,
+  itemXs,
+  getRequestList,
+  searchParams,
+  requestLoading,
+  showRowsPerPageOptions = true,
+  ref,
+}: B3PaginationTableProps<GetRequestListParams, Row>) {
   const rowsPerPageOptions = [12, 24, 36];
   const initPagination = {
     offset: 0,
@@ -217,6 +215,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   );
 }
 
-const B3PaginationTable = memoWithGenerics(forwardRefWithGenerics(PaginationTable));
+const B3PaginationTable = memo(PaginationTable) as typeof PaginationTable;
 
 export { B3PaginationTable };
