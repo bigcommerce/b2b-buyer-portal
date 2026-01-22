@@ -20,7 +20,7 @@ function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWr
   }
 }
 
-const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement>) => {
+const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement | null>) => {
   // resolve iframe use document mousedown no effect
   if (_iframeRef.current?.contentDocument?.addEventListener) {
     _iframeRef.current.contentDocument.addEventListener('keydown', () => {
