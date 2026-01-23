@@ -16,7 +16,7 @@ interface ShoppingDetailCardProps {
   onDelete: (itemId: number) => void;
   handleUpdateProductQty: (id: number | string, value: number | string) => void;
   handleUpdateShoppingListItem: (itemId: number | string) => void;
-  checkBox?: () => ReactElement;
+  checkBox?: () => ReactElement<any>;
   isReadForApprove: boolean;
   len: number;
   itemIndex?: number;

@@ -20,7 +20,7 @@ import CustomButton from './button/CustomButton';
 import B3Spin from './spin/B3Spin';
 
 interface B3DialogProps<T> {
-  customActions?: () => ReactElement;
+  customActions?: () => ReactElement<any>;
   isOpen: boolean;
   leftStyleBtn?: { [key: string]: string };
   rightStyleBtn?: { [key: string]: string };

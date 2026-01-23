@@ -9,7 +9,7 @@ import { displayFormat } from '@/utils/b3DateFormat';
 
 interface QuickOrderCardProps {
   item: any;
-  checkBox?: () => ReactElement;
+  checkBox?: () => ReactElement<any>;
   handleUpdateProductQty: (id: number, val: string) => void;
 }
 

@@ -14,7 +14,7 @@ import InvoiceStatus from './components/InvoiceStatus';
 
 interface InvoiceItemCardProps {
   item: any;
-  checkBox?: (disable: boolean) => ReactElement;
+  checkBox?: (disable: boolean) => ReactElement<any>;
   handleSetSelectedInvoiceAccount: (value: string, id: string) => void;
   handleViewInvoice: (id: string, status: string | number, invoiceCompanyId: string) => void;
   setIsRequestLoading: (bool: boolean) => void;

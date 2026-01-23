@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, Ref, useImperativeHandle, useRef, useState, type JSX } from 'react';
 import {
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,

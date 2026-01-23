@@ -19,7 +19,7 @@ export interface BuyerPortalRoute {
 }
 
 export interface RouteItemBasic extends BuyerPortalRoute {
-  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactElement>;
+  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactElement<any>>;
   permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
 

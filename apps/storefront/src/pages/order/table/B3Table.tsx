@@ -85,7 +85,7 @@ interface TableProps<Row extends OrderIdRow> {
   listItems: WithRowControls<Row>[];
   onPaginationChange?: (pagination: Pagination) => void;
   pagination?: Pagination;
-  renderItem: (row: Row, index: number) => ReactElement;
+  renderItem: (row: Row, index: number) => ReactElement<any>;
   isInfiniteScroll?: boolean;
   onClickRow: (row: Row, index: number) => void;
   sortDirection?: 'asc' | 'desc';

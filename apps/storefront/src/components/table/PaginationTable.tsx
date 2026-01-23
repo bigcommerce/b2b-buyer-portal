@@ -17,7 +17,7 @@ interface PaginationTableProps<Row extends object> {
   itemXs?: number;
   rowsPerPageOptions?: number[];
   showPagination?: boolean;
-  renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
+  renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement<any>) => ReactElement<any>;
   CollapseComponent?: FC<{ row: Row }>;
   isCustomRender?: boolean;
   noDataText?: string;

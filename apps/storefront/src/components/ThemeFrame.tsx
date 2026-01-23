@@ -20,7 +20,7 @@ function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWr
   }
 }
 
-const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement>) => {
+const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement | null>) => {
   // resolve iframe use document mousedown no effect
   if (_iframeRef.current?.contentDocument?.addEventListener) {
     _iframeRef.current.contentDocument.addEventListener('keydown', () => {
@@ -44,7 +44,7 @@ const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement>) => {
 interface ThemeFrameProps {
   children: ReactNode; // children to be rendered within iframe
   className?: string; // className to assign the iframe
-  bodyRef?: RefObject<HTMLBodyElement>; // if the parent needs access to body of iframe. i.e to attach dom event handlers
+  bodyRef?: RefObject<HTMLBodyElement | null>; // if the parent needs access to body of iframe. i.e to attach dom event handlers
   fontUrl?: string;
   customStyles?: string;
   title?: string;
@@ -54,7 +54,7 @@ interface ThemeFramePortalProps {
   isSetupComplete: boolean;
   emotionCache?: EmotionCache;
   iframeDocument?: HTMLIFrameElement['contentDocument'];
-  bodyRef?: RefObject<HTMLBodyElement>;
+  bodyRef?: RefObject<HTMLBodyElement | null>;
 }
 
 const DefaultIframeContent = '<!DOCTYPE html><html><head></head><body></body></html>';
