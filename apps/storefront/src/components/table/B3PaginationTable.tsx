@@ -1,5 +1,6 @@
 import {
   FC,
+  memo,
   ReactElement,
   Ref,
   useCallback,
@@ -13,8 +14,6 @@ import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
-import { forwardRefWithGenerics } from '@/utils/forwardRefWithGenerics';
-import { memoWithGenerics } from '@/utils/memoWithGenerics';
 
 import {
   B3Table,
@@ -83,46 +82,45 @@ interface B3PaginationTableProps<GetRequestListParams, Row extends object> {
   orderBy?: string;
   pageType?: string;
   isAutoRefresh?: boolean;
+  ref?: Ref<unknown>;
 }
 
-function PaginationTable<GetRequestListParams, Row extends object>(
-  {
-    columnItems,
-    isCustomRender = false,
-    tableKey,
-    renderItem,
-    noDataText = '',
-    tableFixed = false,
-    tableHeaderHide = false,
-    rowsPerPageOptions = [10, 20, 30],
-    itemSpacing = 2,
-    itemXs = 4,
-    getRequestList,
-    searchParams,
-    requestLoading,
-    showCheckbox = false,
-    showSelectAllCheckbox = false,
-    selectedSymbol = 'id',
-    isSelectOtherPageCheckbox = false,
-    showBorder = true,
-    getSelectCheckbox,
-    hover = false,
-    labelRowsPerPage = '',
-    itemIsMobileSpacing = 2,
-    disableCheckbox = false,
-    onClickRow,
-    showPagination = true,
-    showRowsPerPageOptions = true,
-    CollapseComponent,
-    applyAllDisableCheckbox = true,
-    sortDirection = 'asc',
-    sortByFn = () => {},
-    orderBy = '',
-    pageType = '',
-    isAutoRefresh = true,
-  }: B3PaginationTableProps<GetRequestListParams, Row>,
-  ref?: Ref<unknown>,
-) {
+function PaginationTable<GetRequestListParams, Row extends object>({
+  columnItems,
+  isCustomRender = false,
+  tableKey,
+  renderItem,
+  noDataText = '',
+  tableFixed = false,
+  tableHeaderHide = false,
+  rowsPerPageOptions = [10, 20, 30],
+  itemSpacing = 2,
+  itemXs = 4,
+  getRequestList,
+  searchParams,
+  requestLoading,
+  showCheckbox = false,
+  showSelectAllCheckbox = false,
+  selectedSymbol = 'id',
+  isSelectOtherPageCheckbox = false,
+  showBorder = true,
+  getSelectCheckbox,
+  hover = false,
+  labelRowsPerPage = '',
+  itemIsMobileSpacing = 2,
+  disableCheckbox = false,
+  onClickRow,
+  showPagination = true,
+  showRowsPerPageOptions = true,
+  CollapseComponent,
+  applyAllDisableCheckbox = true,
+  sortDirection = 'asc',
+  sortByFn = () => {},
+  orderBy = '',
+  pageType = '',
+  isAutoRefresh = true,
+  ref,
+}: B3PaginationTableProps<GetRequestListParams, Row>) {
   const initPagination = {
     offset: 0,
     first: rowsPerPageOptions[0],
@@ -425,6 +423,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   );
 }
 
-const B3PaginationTable = memoWithGenerics(forwardRefWithGenerics(PaginationTable));
+const B3PaginationTable = memo(PaginationTable) as typeof PaginationTable;
 
 export { B3PaginationTable };

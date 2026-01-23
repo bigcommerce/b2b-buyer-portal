@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
+import { Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
@@ -24,12 +24,10 @@ import { updateB2CShoppingListDetails } from './updateB2CShoppingListDetails';
 interface AddEditUserProps {
   renderList: () => void;
   isB2BUser: boolean;
+  ref?: Ref<unknown>;
 }
 
-function AddEditShoppingLists(
-  { renderList, isB2BUser }: AddEditUserProps,
-  ref: Ref<unknown> | undefined,
-) {
+function AddEditShoppingLists({ renderList, isB2BUser, ref }: AddEditUserProps) {
   const b2bPermissions = useAppSelector(rolePermissionSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
@@ -166,6 +164,4 @@ function AddEditShoppingLists(
   );
 }
 
-const B3AddEditShoppingLists = forwardRef(AddEditShoppingLists);
-
-export default B3AddEditShoppingLists;
+export default AddEditShoppingLists;

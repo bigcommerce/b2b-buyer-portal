@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { Ref, useImperativeHandle, useRef, useState } from 'react';
 import { Box, styled, Typography } from '@mui/material';
 
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
@@ -44,6 +44,7 @@ interface ShoppingDetailTableProps {
   getTaxRate: (taxClassId: number, variants: any) => number;
   displayDiscount: boolean;
   currency: CurrencyProps;
+  ref?: Ref<unknown>;
 }
 
 interface SearchProps {
@@ -96,7 +97,7 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }));
 
-function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
+function QuoteDetailTable(props: ShoppingDetailTableProps) {
   const b3Lang = useB3Lang();
   const {
     total,
@@ -105,6 +106,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     quoteReviewedBySalesRep,
     displayDiscount,
     currency,
+    ref,
   } = props;
 
   const isEnableProduct = useAppSelector(
@@ -420,4 +422,4 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   );
 }
 
-export default forwardRef(QuoteDetailTable);
+export default QuoteDetailTable;

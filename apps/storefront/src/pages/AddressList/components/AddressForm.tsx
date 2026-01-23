@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { Ref, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Checkbox, FormControlLabel, styled } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
@@ -26,6 +26,7 @@ interface AddressFormProps {
   companyId: string | number;
   isBCPermission: boolean;
   countries: CountryProps[];
+  ref?: Ref<unknown>;
 }
 
 interface ShippingBillingProps {
@@ -50,10 +51,14 @@ const StyledCheckbox = styled('div')(() => ({
   },
 }));
 
-function AddressForm(
-  { addressFields, updateAddressList, companyId, isBCPermission, countries }: AddressFormProps,
-  ref: Ref<unknown> | undefined,
-) {
+function AddressForm({
+  addressFields,
+  updateAddressList,
+  companyId,
+  isBCPermission,
+  countries,
+  ref,
+}: AddressFormProps) {
   const b3Lang = useB3Lang();
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
@@ -585,6 +590,4 @@ function AddressForm(
   );
 }
 
-const B3AddressForm = forwardRef(AddressForm);
-
-export default B3AddressForm;
+export default AddressForm;

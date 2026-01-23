@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { Ref, useEffect, useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
@@ -140,20 +140,19 @@ interface ContactInfoProps {
   extraFieldsDefault: QuoteExtraFields[];
   recipients: string[] | undefined;
   handleSaveCCEmail: (ccEmail: string[]) => void;
+  ref?: Ref<unknown>;
 }
 
-function ContactInfo(
-  {
-    info,
-    emailAddress,
-    quoteExtraFields,
-    referenceNumber,
-    extraFieldsDefault,
-    recipients,
-    handleSaveCCEmail,
-  }: ContactInfoProps,
-  ref: any,
-) {
+function ContactInfo({
+  info,
+  emailAddress,
+  quoteExtraFields,
+  referenceNumber,
+  extraFieldsDefault,
+  recipients,
+  handleSaveCCEmail,
+  ref,
+}: ContactInfoProps) {
   const {
     control,
     getValues,
@@ -314,4 +313,4 @@ function ContactInfo(
   );
 }
 
-export default forwardRef(ContactInfo);
+export default ContactInfo;

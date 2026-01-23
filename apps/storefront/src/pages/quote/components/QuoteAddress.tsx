@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useId, useImperativeHandle, useState } from 'react';
+import { Ref, useEffect, useId, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
@@ -39,23 +39,22 @@ interface AddressProps {
   shippingSameAsBilling: boolean;
   type: string;
   setBillingChange: (value: boolean) => void;
+  ref?: Ref<unknown>;
 }
 
-function QuoteAddress(
-  {
-    title,
-    addressList = [],
-    pr = 0,
-    pl = 0,
-    info,
-    role,
-    accountFormFields = [],
-    shippingSameAsBilling = false,
-    type,
-    setBillingChange,
-  }: AddressProps,
-  ref: any,
-) {
+function QuoteAddress({
+  title,
+  addressList = [],
+  pr = 0,
+  pl = 0,
+  info,
+  role,
+  accountFormFields = [],
+  shippingSameAsBilling = false,
+  type,
+  setBillingChange,
+  ref,
+}: AddressProps) {
   const {
     control,
     getValues,
@@ -213,4 +212,4 @@ function QuoteAddress(
   );
 }
 
-export default forwardRef(QuoteAddress);
+export default QuoteAddress;

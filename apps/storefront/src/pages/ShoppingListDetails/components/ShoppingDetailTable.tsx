@@ -1,6 +1,5 @@
 import {
   Dispatch,
-  forwardRef,
   Ref,
   SetStateAction,
   useEffect,
@@ -83,6 +82,7 @@ interface ShoppingDetailTableProps {
   productQuoteEnabled: boolean;
   isCanEditShoppingList: boolean;
   isJuniorBuyer: boolean;
+  ref?: Ref<unknown>;
 }
 
 interface SearchProps {
@@ -144,7 +144,7 @@ const sortKeys = {
   Qty: 'quantity',
 };
 
-function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
+function ShoppingDetailTable(props: ShoppingDetailTableProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
@@ -164,6 +164,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     productQuoteEnabled,
     isCanEditShoppingList,
     isJuniorBuyer,
+    ref,
   } = props;
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
@@ -809,4 +810,4 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   );
 }
 
-export default forwardRef(ShoppingDetailTable);
+export default ShoppingDetailTable;

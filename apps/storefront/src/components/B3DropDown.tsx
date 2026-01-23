@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { Ref, useImperativeHandle, useRef, useState } from 'react';
 import {
   ArrowDropDown as ArrowDropDownIcon,
   ArrowDropUp as ArrowDropUpIcon,
@@ -21,27 +21,26 @@ export interface DropDownHandle {
   setOpenDropDown: () => void;
 }
 
-interface B3DropDownProps extends Partial<MenuProps> {
+interface B3DropDownProps extends Omit<Partial<MenuProps>, 'ref'> {
   width?: string;
   list: Array<ListItemProps>;
   title: string;
   handleItemClick?: (key: string | number) => void;
   value?: string;
   menuRenderItemName?: (item: ListItemProps) => JSX.Element | string;
+  ref?: Ref<DropDownHandle>;
 }
 
-function B3DropDown(
-  {
-    width,
-    list,
-    title,
-    value,
-    handleItemClick,
-    menuRenderItemName = (item) => item.name,
-    ...menu
-  }: B3DropDownProps,
-  ref: Ref<DropDownHandle>,
-) {
+function B3DropDown({
+  width,
+  list,
+  title,
+  value,
+  handleItemClick,
+  menuRenderItemName = (item) => item.name,
+  ref,
+  ...menu
+}: B3DropDownProps) {
   const [isMobile] = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -138,4 +137,4 @@ function B3DropDown(
   );
 }
 
-export default forwardRef<DropDownHandle, B3DropDownProps>(B3DropDown);
+export default B3DropDown;

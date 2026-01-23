@@ -1,12 +1,4 @@
-import {
-  forwardRef,
-  Ref,
-  useCallback,
-  useEffect,
-  useId,
-  useImperativeHandle,
-  useState,
-} from 'react';
+import { Ref, useCallback, useEffect, useId, useImperativeHandle, useState } from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
@@ -30,7 +22,11 @@ const defaultSummary: Summary = {
   grandTotal: 0,
 };
 
-const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
+interface QuoteSummaryProps {
+  ref?: Ref<unknown>;
+}
+
+function QuoteSummary({ ref }: QuoteSummaryProps) {
   const b3Lang = useB3Lang();
 
   const [quoteSummary, setQuoteSummary] = useState<Summary>({
@@ -183,5 +179,5 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
       </CardContent>
     </Card>
   );
-});
+}
 export default QuoteSummary;

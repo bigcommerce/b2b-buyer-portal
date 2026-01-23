@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
+import { Ref, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import concat from 'lodash-es/concat';
 
@@ -31,6 +31,7 @@ export type HandleOpenAddEditUserClick = (
 interface AddEditUserProps {
   companyId: string;
   renderList: () => void;
+  ref?: Ref<unknown>;
 }
 
 interface SelectedDataProps {
@@ -48,7 +49,7 @@ interface User {
   extraFields: { fieldName: string; fieldValue: string }[];
 }
 
-function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unknown> | undefined) {
+function AddEditUser({ companyId, renderList, ref }: AddEditUserProps) {
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
 
   const [open, setOpen] = useState<boolean>(false);
@@ -288,6 +289,4 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   );
 }
 
-const B3AddEditUser = forwardRef(AddEditUser);
-
-export default B3AddEditUser;
+export default AddEditUser;
