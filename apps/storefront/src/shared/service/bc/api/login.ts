@@ -8,16 +8,20 @@ export const getCurrentCustomerJWT = async (app_client_id: string) => {
   if (platform !== 'bigcommerce') {
     return undefined;
   }
+
   const response = await fetch(
     `${BigCommerceStorefrontAPIBaseURL}/customer/current.jwt?app_client_id=${app_client_id}`,
   );
   const bcToken = await response.text();
+
   if (!response.ok) {
     if (bcToken.includes('errors')) {
       return undefined;
     }
+
     throw new Error(response.statusText);
   }
+
   return bcToken;
 };
 
@@ -29,6 +33,7 @@ export const customerLoginAPI = (storefrontLoginToken: string) => {
   if (platform !== 'bigcommerce') {
     return;
   }
+
   fetch(`${BigCommerceStorefrontAPIBaseURL}/login/token/${storefrontLoginToken}`, {
     method: 'GET',
   });

@@ -55,7 +55,10 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
+
     const getList = async () => {
       setLoading(true);
       setList([]);
@@ -98,15 +101,15 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   return (
     <B3Dialog
-      fullWidth
-      isOpen={isOpen}
-      title={dialogTitle}
       disabledSaveBtn={!activeId}
-      handleLeftClick={handleClose}
+      fullWidth
       handRightClick={handleConfirm}
+      handleLeftClick={handleClose}
+      isOpen={isOpen}
       rightSizeBtn={confirmText}
+      title={dialogTitle}
     >
-      <B3Spin isSpinning={isLoading} isFlex={false}>
+      <B3Spin isFlex={false} isSpinning={isLoading}>
         <Box
           sx={
             isMobile
@@ -128,8 +131,8 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
           >
             {list.map((item: ListItem) => (
               <MenuItem
-                key={item.node.id}
                 className={activeId === item.node.id ? 'active' : ''}
+                key={item.node.id}
                 onClick={handleListItemClicked(item)}
                 sx={{
                   '&:hover': {
@@ -147,11 +150,11 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
         </Box>
 
         <CustomButton
-          variant="text"
           onClick={handleCreate}
           sx={{
             textTransform: 'none',
           }}
+          variant="text"
         >
           <AddIcon
             sx={{

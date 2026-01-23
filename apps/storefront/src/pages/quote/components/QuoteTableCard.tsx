@@ -74,11 +74,11 @@ function QuoteTableCard({
   return (
     <Box
       key={id}
-      width="100%"
       sx={{
         borderTop: '1px solid #D9DCE9',
         borderBottom: isLast ? '1px solid #D9DCE9' : '',
       }}
+      width="100%"
     >
       <CardContent
         sx={{
@@ -89,9 +89,9 @@ function QuoteTableCard({
       >
         <Box>
           <StyledImage
-            src={primaryImage || PRODUCT_DEFAULT_IMAGE}
             alt="Product-img"
             loading="lazy"
+            src={primaryImage || PRODUCT_DEFAULT_IMAGE}
           />
         </Box>
         <Box
@@ -100,7 +100,6 @@ function QuoteTableCard({
           }}
         >
           <Typography
-            variant="body1"
             color="#212121"
             onClick={() => {
               if (productUrl) {
@@ -110,10 +109,11 @@ function QuoteTableCard({
             sx={{
               cursor: 'pointer',
             }}
+            variant="body1"
           >
             {productName}
           </Typography>
-          <Typography variant="body1" color="#616161">
+          <Typography color="#616161" variant="body1">
             {variantSku}
           </Typography>
           <Box
@@ -125,12 +125,12 @@ function QuoteTableCard({
               <Box>
                 {optionsValue.map((option) => (
                   <Typography
+                    key={option.valueLabel}
                     sx={{
                       fontSize: '0.75rem',
                       lineHeight: '1.5',
                       color: '#455A64',
                     }}
-                    key={option.valueLabel}
                   >
                     {option.valueLabel}: {option.valueText}
                   </Typography>
@@ -142,15 +142,15 @@ function QuoteTableCard({
           <Typography sx={{ fontSize: '14px' }}>Price: {singlePrice}</Typography>
 
           <TextField
-            size="small"
-            type="number"
-            variant="filled"
-            label="qty"
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
             }}
-            value={quantity}
+            label="qty"
+            onChange={(e) => {
+              handleUpdateProductQty(item, Number(e.target.value));
+            }}
+            size="small"
             sx={{
               margin: '1rem 0',
               width: '60%',
@@ -162,25 +162,20 @@ function QuoteTableCard({
                 fontSize: '14px',
               },
             }}
-            onChange={(e) => {
-              handleUpdateProductQty(item, Number(e.target.value));
-            }}
+            type="number"
+            value={quantity}
+            variant="filled"
           />
           <Typography sx={{ fontSize: '14px' }}>Total: {totalPrice}</Typography>
           <Box
+            id="shoppingList-actionList-mobile"
             sx={{
               marginTop: '1rem',
               textAlign: 'end',
             }}
-            id="shoppingList-actionList-mobile"
           >
             {optionList.length > 0 && (
               <Edit
-                sx={{
-                  marginRight: '0.5rem',
-                  cursor: 'pointer',
-                  color: 'rgba(0, 0, 0, 0.54)',
-                }}
                 onClick={() => {
                   onEdit(
                     {
@@ -191,13 +186,18 @@ function QuoteTableCard({
                     id,
                   );
                 }}
+                sx={{
+                  marginRight: '0.5rem',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
               />
             )}
             <Delete
-              sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
               onClick={() => {
                 onDelete(id);
               }}
+              sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
             />
           </Box>
         </Box>

@@ -4,36 +4,38 @@ import { Country, State } from '../config';
 import { RegisterFields } from '../types';
 
 interface RegisterState {
-  contactInformation?: Array<RegisterFields>;
+  contactInformation?: RegisterFields[];
   accountType?: string;
-  additionalInformation?: Array<RegisterFields>;
-  bcAdditionalInformation?: Array<RegisterFields>;
-  bcContactInformation?: Array<RegisterFields>;
+  additionalInformation?: RegisterFields[];
+  bcAdditionalInformation?: RegisterFields[];
+  bcContactInformation?: RegisterFields[];
   emailMarketingNewsletter?: boolean;
-  companyInformation?: Array<RegisterFields>;
-  bcCompanyInformation?: Array<RegisterFields>;
-  companyExtraFields?: Array<RegisterFields>;
-  companyAttachment?: Array<RegisterFields>;
-  addressBasicFields?: Array<RegisterFields>;
-  bcAddressBasicFields?: Array<RegisterFields>;
-  addressExtraFields?: Array<RegisterFields>;
-  countryList?: Array<Country>;
-  stateList?: Array<State>;
-  passwordInformation?: Array<RegisterFields>;
-  bcPasswordInformation?: Array<RegisterFields>;
+  companyInformation?: RegisterFields[];
+  bcCompanyInformation?: RegisterFields[];
+  companyExtraFields?: RegisterFields[];
+  companyAttachment?: RegisterFields[];
+  addressBasicFields?: RegisterFields[];
+  bcAddressBasicFields?: RegisterFields[];
+  addressExtraFields?: RegisterFields[];
+  countryList?: Country[];
+  stateList?: State[];
+  passwordInformation?: RegisterFields[];
+  bcPasswordInformation?: RegisterFields[];
   isLoading?: boolean;
   submitSuccess?: boolean;
   isAutoApproval?: boolean;
   blockPendingAccountOrderCreation?: boolean;
-  bcTob2bContactInformation?: Array<RegisterFields>;
-  bcTob2bCompanyExtraFields?: Array<RegisterFields>;
-  bcTob2bCompanyInformation?: Array<RegisterFields>;
-  bcTob2bAddressBasicFields?: Array<RegisterFields>;
+  bcTob2bContactInformation?: RegisterFields[];
+  bcTob2bCompanyExtraFields?: RegisterFields[];
+  bcTob2bCompanyInformation?: RegisterFields[];
+  bcTob2bAddressBasicFields?: RegisterFields[];
 }
+
 interface RegisterAction {
   type: string;
   payload: RegisterState;
 }
+
 interface RegisterContext {
   state: RegisterState;
   dispatch: Dispatch<RegisterAction>;
@@ -83,26 +85,31 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         ...state,
         ...action.payload,
       };
+
     case 'loading':
       return {
         ...state,
         ...action.payload,
       };
+
     case 'contactInformation':
       return {
         ...state,
         contactInformation: action.payload.contactInformation,
       };
+
     case 'accountType':
       return {
         ...state,
         accountType: action.payload.accountType,
       };
+
     case 'emailSletter':
       return {
         ...state,
         emailMarketingNewsletter: action.payload.emailMarketingNewsletter,
       };
+
     case 'stateList':
       return {
         ...state,
@@ -111,11 +118,13 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         bcAddressBasicFields: action.payload.bcAddressBasicFields,
         bcTob2bAddressBasicFields: action.payload.bcTob2bAddressBasicFields,
       };
+
     case 'finishInfo':
       return {
         ...state,
         ...action.payload,
       };
+
     default:
       return state;
   }

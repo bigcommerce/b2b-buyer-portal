@@ -1,6 +1,6 @@
+import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
-import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
 
 import { useB3Lang } from '@/lib/lang';
@@ -55,9 +55,10 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
     control,
     name: inputNameKey,
   });
+
   useEffect(() => {
     if (nameKey) {
-      setInputValue(getValues()[inputNameKey as string] || '');
+      setInputValue(getValues()[inputNameKey] || '');
     } else {
       setInputValue('');
     }
@@ -81,13 +82,18 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
   };
 
   const fetchData = async ({ type = '', value = '' }) => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
 
     try {
       const curPage = type === 'search' ? 1 : page;
 
-      if (!hasMore && type === 'scroll') return;
+      if (!hasMore && type === 'scroll') {
+        return;
+      }
 
       const {
         companyRoles: { edges },
@@ -111,7 +117,7 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
   };
 
   useEffect(() => {
-    if (!!defaultValue && !!defaultName) {
+    if (Boolean(defaultValue) && Boolean(defaultName)) {
       setInputValue(defaultName || '');
       cache.current.selectValue = defaultValue;
       cache.current.preSelectValue = defaultValue;
@@ -151,6 +157,7 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
     (_: SyntheticEvent, value: string, reason: string) => {
       if (reason === 'input') {
         const val = value === 'undefined' ? '' : value;
+
         setInputValue(val);
         setIsSearchKeyEmpty(false);
         handleFilterRoleChange(val);
@@ -160,12 +167,15 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
   );
 
   const handleOpenSelect = (event: SyntheticEvent) => {
-    if (event.type === 'click' || event.type === 'mousedown') fetchData({});
+    if (event.type === 'click' || event.type === 'mousedown') {
+      fetchData({});
+    }
   };
 
   const handleScroll = (event: SyntheticEvent) => {
     const listboxNode = event.currentTarget;
     const { scrollTop, clientHeight, scrollHeight } = listboxNode;
+
     if (scrollTop + clientHeight + 1 >= scrollHeight) {
       fetchData({
         type: 'scroll',
@@ -178,7 +188,9 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
     setPage(1);
     setOptions([]);
     setIsSearchKeyEmpty(true);
+
     const { preSelectValue, selectValue, inputValue } = cache.current;
+
     if (preSelectValue === selectValue) {
       setInputValue(inputValue || '');
     } else {
@@ -188,12 +200,12 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
 
   return (
     <FormControl
-      variant="filled"
+      disabled={disabled}
       style={{
         width: '100%',
         color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
       }}
-      disabled={disabled}
+      variant="filled"
     >
       <Controller
         {...fieldsProps}
@@ -202,31 +214,6 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
           <Autocomplete
             {...field}
             {...muiAttributeProps}
-            loading={loading}
-            disableClearable
-            options={options || []}
-            inputValue={inputValue}
-            value={inputValue || ''}
-            loadingText="Loading..."
-            getOptionLabel={(option: Option) => option.name ?? option}
-            openOnFocus
-            onChange={handleSelectChange}
-            onInputChange={handleInputChange}
-            onOpen={handleOpenSelect}
-            onClose={handleClose}
-            size={size}
-            sx={{
-              ...extraPadding,
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="filled"
-                error={!!errors[name]}
-                required={required}
-                label={label}
-              />
-            )}
             ListboxProps={{
               onScroll: handleScroll,
               style: {
@@ -234,11 +221,36 @@ export function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIPro
                 overflow: 'auto',
               },
             }}
+            disableClearable
+            getOptionLabel={(option: Option) => option.name ?? option}
+            inputValue={inputValue}
+            loading={loading}
+            loadingText="Loading..."
+            onChange={handleSelectChange}
+            onClose={handleClose}
+            onInputChange={handleInputChange}
+            onOpen={handleOpenSelect}
+            openOnFocus
+            options={options || []}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                error={Boolean(errors[name])}
+                label={label}
+                required={required}
+                variant="filled"
+              />
+            )}
+            size={size}
+            sx={{
+              ...extraPadding,
+            }}
+            value={inputValue || ''}
           />
         )}
       />
       {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
+        <FormHelperText error={Boolean(errors[name])}>
           {errors[name] ? errors[name].message : null}
         </FormHelperText>
       )}

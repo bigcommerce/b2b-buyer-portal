@@ -12,7 +12,7 @@ interface B3SelectProps<T> {
   handleChange: (value: string) => void;
   label: string;
   config?: ConfigProps | undefined;
-  list: Array<any>;
+  list: any[];
   isFirstSelect?: boolean;
   firstSelectText?: string;
   w?: number;
@@ -37,14 +37,15 @@ export function B3Select<T extends string | undefined>({
     handleChange(event.target.value);
   };
 
-  const labelName: string = config?.labelName || 'name';
-  const valueName: string = config?.valueName || 'id';
+  const labelName: string = config.labelName || 'name';
+  const valueName: string = config.valueName || 'id';
 
-  if (list.length === 0) return null;
+  if (list.length === 0) {
+    return null;
+  }
 
   return (
     <FormControl
-      variant="filled"
       sx={{
         borderRadius: '4px',
         borderBottomLeftRadius: '0',
@@ -55,6 +56,7 @@ export function B3Select<T extends string | undefined>({
           backgroundColor: '#efeae7',
         },
       }}
+      variant="filled"
     >
       <InputLabel
         id="demo-simple-select-filled-label"
@@ -65,17 +67,17 @@ export function B3Select<T extends string | undefined>({
         {label}
       </InputLabel>
       <Select
-        labelId="demo-simple-select-filled-label"
         id="demo-simple-select-filled"
-        value={value}
-        size={size}
+        labelId="demo-simple-select-filled-label"
         onChange={handleSelectChange}
+        size={size}
         sx={{
           color: getContrastColor('#efeae7'),
           '& svg': {
             color: getContrastColor('#efeae7'),
           },
         }}
+        value={value}
       >
         {isFirstSelect && (
           <MenuItem value="">

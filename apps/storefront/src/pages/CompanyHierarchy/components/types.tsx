@@ -5,5 +5,5 @@ export interface TreeNodeProps {
 }
 
 export type RecursiveNode<T> = T & {
-  children?: RecursiveNode<T>[];
+  children?: Array<RecursiveNode<T>>;
 };

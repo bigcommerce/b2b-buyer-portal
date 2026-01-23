@@ -25,15 +25,20 @@ export default function RegisteredStep(props: RegisteredStepProps) {
     state: { accountType, submitSuccess },
   } = useContext(RegisteredContext);
 
-  const pageTitle = useMemo(() => {
-    return submitSuccess
-      ? b3Lang(
-          accountType === '1' ? 'register.title.registerComplete' : 'register.title.accountCreated',
-        )
-      : b3Lang('register.title.accountRegister');
-  }, [submitSuccess, accountType, b3Lang]);
+  const pageTitle = useMemo(
+    () =>
+      submitSuccess
+        ? b3Lang(
+            accountType === '1'
+              ? 'register.title.registerComplete'
+              : 'register.title.accountCreated',
+          )
+        : b3Lang('register.title.accountRegister'),
+    [submitSuccess, accountType, b3Lang],
+  );
 
   const customColor = getContrastColor(backgroundColor);
+
   return (
     <Box
       component="div"

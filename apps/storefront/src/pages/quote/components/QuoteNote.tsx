@@ -29,8 +29,8 @@ export default function QuoteNote(props: QuoteNoteProps) {
   const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesCreateActionsPermission : true;
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNoteText(event?.target.value || '');
-    store.dispatch(setDraftQuoteInfoNote(event?.target.value || ''));
+    setNoteText(event.target.value || '');
+    store.dispatch(setDraftQuoteInfoNote(event.target.value || ''));
   };
 
   useEffect(() => {
@@ -44,7 +44,9 @@ export default function QuoteNote(props: QuoteNoteProps) {
   }, [noteText]);
 
   useEffect(() => {
-    if (quoteNotes) setDefaultOpen(true);
+    if (quoteNotes) {
+      setDefaultOpen(true);
+    }
   }, [quoteNotes]);
 
   return (
@@ -55,12 +57,12 @@ export default function QuoteNote(props: QuoteNoteProps) {
         }}
       >
         <B3CollapseContainer
+          defaultOpen={defaultOpen}
           title={
             quoteStatus && quoteStatus === 'Draft'
               ? b3Lang('global.quoteNote.message')
               : b3Lang('global.quoteNote.notes')
           }
-          defaultOpen={defaultOpen}
         >
           <Box
             sx={{
@@ -80,12 +82,12 @@ export default function QuoteNote(props: QuoteNoteProps) {
             )}
             {quoteNotes ? (
               <Typography
-                variant="body1"
                 style={{
                   whiteSpace: 'pre-line',
                   maxHeight: '400px',
                   overflow: 'auto',
                 }}
+                variant="body1"
               >
                 {quoteNotes}
               </Typography>
@@ -93,19 +95,19 @@ export default function QuoteNote(props: QuoteNoteProps) {
               <Box>
                 {quotesActionsPermission ? (
                   <TextField
-                    multiline
                     fullWidth
-                    rows={5}
-                    value={noteText}
-                    onChange={handleNoteTextChange}
                     label={b3Lang('global.quoteNote.typeMessage')}
+                    multiline
+                    onChange={handleNoteTextChange}
+                    rows={5}
                     size="small"
-                    variant="filled"
                     sx={{
                       '& .MuiFormLabel-root': {
                         color: 'rgba(0, 0, 0, 0.38)',
                       },
                     }}
+                    value={noteText}
+                    variant="filled"
                   />
                 ) : null}
               </Box>

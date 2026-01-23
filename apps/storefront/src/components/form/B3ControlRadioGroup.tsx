@@ -35,7 +35,7 @@ export function B3ControlRadioGroup({ control, errors, ...rest }: Form.B3UIProps
   return ['radio'].includes(fieldType) ? (
     <FormControl>
       {label && (
-        <FormLabel error={!!errors[name]} required={required}>
+        <FormLabel error={Boolean(errors[name])} required={required}>
           {label}
         </FormLabel>
       )}
@@ -47,18 +47,18 @@ export function B3ControlRadioGroup({ control, errors, ...rest }: Form.B3UIProps
             {options?.length &&
               options.map((option: Form.RadopGroupListProps) => (
                 <FormControlLabel
-                  value={option.value}
-                  label={option.label}
-                  key={option.value}
                   control={<Radio />}
+                  key={option.value}
+                  label={option.label}
+                  value={option.value}
                 />
               ))}
           </RadioGroup>
         )}
       />
       {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {(errors as any)[name] ? (errors as any)[name].message : null}
+        <FormHelperText error={Boolean(errors[name])}>
+          {errors[name] ? errors[name].message : null}
         </FormHelperText>
       )}
     </FormControl>

@@ -41,12 +41,14 @@ interface HeadlessControllerProps {
   setOpenPage: SetOpenPage;
 }
 
-export interface FormattedQuoteItem
-  extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
-  optionSelections: {
+export interface FormattedQuoteItem extends Omit<
+  QuoteItem['node'],
+  'optionList' | 'calculatedValue' | 'productsSearch'
+> {
+  optionSelections: Array<{
     optionId: string | number;
     optionValue: number;
-  }[];
+  }>;
 }
 
 export type ProductMappedAttributes = ReturnType<typeof transformOptionSelectionsToAttributes>;
@@ -148,9 +150,12 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           setTimeout(() => {
             if (page === 'CLOSE') {
               setOpenPage({ isOpen: false });
+
               return;
             }
+
             const openUrl = page.startsWith('/') ? page : HeadlessRoutes[page];
+
             setOpenPage({ isOpen: true, openUrl });
           }, 0),
         setConfig: (key: string, value: string) => {
@@ -197,6 +202,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
                 companies: [],
               };
             }
+
             // get companies list
             const {
               superAdminCompanies: { edges: companies = [] },
@@ -213,7 +219,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
           getB2BToken: () => B2BToken,
           setMasqueradeCompany: (companyId) => {
-            if (typeof customerRef.current.b2bId !== 'number') return;
+            if (typeof customerRef.current.b2bId !== 'number') {
+              return;
+            }
+
             startMasquerade(
               {
                 companyId,
@@ -223,7 +232,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             );
           },
           endMasquerade: () => {
-            if (typeof customerRef.current.b2bId !== 'number') return;
+            if (typeof customerRef.current.b2bId !== 'number') {
+              return;
+            }
+
             endMasquerade(store);
           },
           graphqlBCProxy: B3Request.graphqlBCProxy,
@@ -246,7 +258,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
         },
         shoppingList: {
-          itemFromCurrentPage: window.b2b?.utils?.shoppingList?.itemFromCurrentPage ?? [],
+          itemFromCurrentPage: window.b2b.utils.shoppingList.itemFromCurrentPage ?? [],
           addProductFromPage: (item) => {
             window.b2b.utils.shoppingList.itemFromCurrentPage =
               transformOptionSelectionsToAttributes([item]);

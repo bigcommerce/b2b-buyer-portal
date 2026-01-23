@@ -76,8 +76,11 @@ interface LineItemsProps {
 
 const addLoading = (b3CartToQuote: any) => {
   const loadingDiv = document.createElement('div');
+
   loadingDiv.setAttribute('id', 'b2b-div-loading');
+
   const loadingBtn = document.createElement('div');
+
   loadingBtn.setAttribute('class', 'b2b-btn-loading');
   loadingDiv.appendChild(loadingBtn);
   b3CartToQuote.appendChild(loadingDiv);
@@ -85,6 +88,7 @@ const addLoading = (b3CartToQuote: any) => {
 
 const removeElement = (_element: CustomFieldItems) => {
   const parentElement = _element.parentNode;
+
   if (parentElement) {
     parentElement.removeChild(_element);
   }
@@ -92,7 +96,10 @@ const removeElement = (_element: CustomFieldItems) => {
 
 const removeLoading = () => {
   const b2bLoading = document.querySelector('#b2b-div-loading');
-  if (b2bLoading) removeElement(b2bLoading);
+
+  if (b2bLoading) {
+    removeElement(b2bLoading);
+  }
 };
 
 const gotoQuoteDraft = (setOpenPage: SetOpenPage) => {
@@ -112,8 +119,10 @@ const getCartProducts = (lineItems: LineItemsProps) =>
       (accumulator, { options = [], sku, ...product }) => {
         if (!sku) {
           accumulator.noSkuProducts.push(product);
+
           return accumulator;
         }
+
         if (!product.parentId) {
           accumulator.cartProductsList.push({
             ...product,
@@ -124,6 +133,7 @@ const getCartProducts = (lineItems: LineItemsProps) =>
             })),
           });
         }
+
         return accumulator;
       },
       { cartProductsList: [], noSkuProducts: [] },
@@ -166,13 +176,16 @@ const addProductsToDraftQuote = async (
   const productsList = await calculateProductsPrice(productsWithSKUOrVariantId, productsListSearch);
 
   const isSuccess = validProductQty(productsList);
+
   if (isSuccess) {
     addQuoteDraftProducts(productsList);
   }
 
   if (isSuccess) {
     // Save the shopping cart id, used to clear the shopping cart after submitting the quote
-    if (cartId) B3LStorage.set('cartToQuoteId', cartId);
+    if (cartId) {
+      B3LStorage.set('cartToQuoteId', cartId);
+    }
 
     globalSnackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
       action: {
@@ -188,6 +201,7 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormat
     try {
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error(b3Lang('pdp.cartToQuote.error.notFound'));
+
         return;
       }
 
@@ -202,11 +216,15 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage, b3Lang: LangFormat
       if (cartProductsList.length === 0) {
         globalSnackbar.error(b3Lang('pdp.cartToQuote.error.empty'));
       }
-      if (noSkuProducts.length === cartProductsList.length) return;
+
+      if (noSkuProducts.length === cartProductsList.length) {
+        return;
+      }
 
       const newCartProductsList = cartProductsList.filter(
         (product: PhysicalItemProps) => !product.parentEntityId,
       );
+
       await addProductsToDraftQuote(newCartProductsList, setOpenPage, b3Lang, entityId);
     } catch (e) {
       b2bLogger.error(e);
@@ -235,20 +253,25 @@ const addProductFromProductPageToQuote = (
   const addToQuote = async (node?: HTMLElement) => {
     try {
       const productView = node ? node.closest(config['dom.productView']) : document;
-      if (!productView) return;
+
+      if (!productView) {
+        return;
+      }
+
       const productId = (productView.querySelector('input[name=product_id]') as CustomFieldItems)
-        ?.value;
-      const qty = (productView.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1;
+        .value;
+      const qty = (productView.querySelector('[name="qty[]"]') as CustomFieldItems).value ?? 1;
       const sku = featureFlags['B2B-3474.get_sku_from_pdp_with_text_content']
         ? (productView.querySelector('[data-product-sku]')?.textContent ?? '').trim()
         : (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
-      const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
+      const form = productView.querySelector('form[data-cart-item-add]')!;
 
       if (!sku) {
         globalSnackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'));
 
         return;
       }
+
       const companyInfoId = store.getState().company.companyInfo.id;
       const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId');
       const { customerGroupId } = store.getState().company.customer;
@@ -270,8 +293,10 @@ const addProductFromProductPageToQuote = (
       const optionList = getProductOptionList(optionMap);
 
       const { isValid, message } = isAllRequiredOptionFilled(allOptions, optionList);
+
       if (!isValid) {
         globalSnackbar.error(message);
+
         return;
       }
 
@@ -308,6 +333,7 @@ const addProductFromProductPageToQuote = (
 
         const inventoryTracking = productsSearch[0]?.inventoryTracking || 'none';
         let inventoryLevel = productsSearch[0]?.inventoryLevel;
+
         if (inventoryTracking === 'variant') {
           const currentVariant = productsSearch[0]?.variants.find(
             (variant: CustomFieldItems) => variant.sku === sku,
@@ -316,16 +342,17 @@ const addProductFromProductPageToQuote = (
           inventoryLevel = currentVariant?.inventory_level;
         }
 
-        if (currentProduct?.name) {
+        if (currentProduct.name) {
           const message =
             currentProduct.type === 'oos'
               ? b3Lang('quoteDraft.productPageToQuote.outOfStock', {
-                  name: currentProduct?.name,
+                  name: currentProduct.name,
                   qty: inventoryLevel,
                 })
               : b3Lang('quoteDraft.productPageToQuote.unavailable');
 
           globalSnackbar.error(message);
+
           return;
         }
       }
@@ -339,6 +366,7 @@ const addProductFromProductPageToQuote = (
 
       const newProducts: CustomFieldItems = [quoteListitem];
       const isSuccess = validProductQty(newProducts);
+
       if (quoteListitem && isSuccess) {
         await addQuoteDraftProduce(quoteListitem, qty, optionList || []);
         globalSnackbar.success(b3Lang('global.notification.addProductSingular'), {

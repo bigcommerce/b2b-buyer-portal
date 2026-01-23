@@ -25,7 +25,7 @@ interface B3NavProps {
 
 const getSubsidiariesPermission = (routes: RouteItem[]) => {
   const subsidiariesPermission = routes.reduce((all, cur) => {
-    if (cur?.subsidiariesCompanyKey) {
+    if (cur.subsidiariesCompanyKey) {
       const code = cur.permissionCodes?.includes(',')
         ? cur.permissionCodes.split(',')[0].trim()
         : cur.permissionCodes;
@@ -101,6 +101,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     }
 
     navigate(item.path);
+
     if (isMobile && closeSidebar) {
       closeSidebar(false);
     }
@@ -113,11 +114,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     const routes = getAllowedRoutes(globalState).filter((route) => route.isMenuItem);
 
     if (url) {
-      const routeItem = getAllowedRoutes(globalState).find((item) => {
-        return matchPath(item.path, url);
-      });
+      const routeItem = getAllowedRoutes(globalState).find((item) => matchPath(item.path, url));
 
-      if (routeItem && routeItem?.subsidiariesCompanyKey) {
+      if (routeItem?.subsidiariesCompanyKey) {
         const { permissionCodes } = routeItem;
 
         const code = permissionCodes?.includes(',')
@@ -149,15 +148,14 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
 
     if (selectCompanyHierarchyId) {
       routes = routes.filter((route) =>
-        route?.subsidiariesCompanyKey
-          ? subsidiariesPermission[route.subsidiariesCompanyKey]
-          : false,
+        route.subsidiariesCompanyKey ? subsidiariesPermission[route.subsidiariesCompanyKey] : false,
       );
     } else {
       routes = routes.filter((route) => {
-        if (route?.subsidiariesCompanyKey === 'companyHierarchy') {
+        if (route.subsidiariesCompanyKey === 'companyHierarchy') {
           return isEnabledCompanyHierarchy && subsidiariesPermission[route.subsidiariesCompanyKey];
         }
+
         return true;
       });
     }
@@ -171,13 +169,17 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const activePath = (path: string) => {
     if (location.pathname === path) {
       B3SStorage.set('prevPath', path);
+
       return true;
     }
 
     if (location.pathname.includes('orderDetail')) {
       const gotoOrderPath =
         B3SStorage.get('prevPath') === '/company-orders' ? '/company-orders' : '/orders';
-      if (path === gotoOrderPath) return true;
+
+      if (path === gotoOrderPath) {
+        return true;
+      }
     }
 
     if (location.pathname.includes('shoppingList') && path === '/shoppingLists') {
@@ -185,7 +187,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     }
 
     if (location.pathname.includes('/quoteDetail') || location.pathname.includes('/quoteDraft')) {
-      if (path === '/quotes') return true;
+      if (path === '/quotes') {
+        return true;
+      }
     }
 
     return false;
@@ -193,6 +197,8 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
 
   return (
     <List
+      aria-labelledby="nested-list-subheader"
+      component="nav"
       sx={{
         width: '100%',
         maxWidth: 360,
@@ -210,19 +216,17 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
           },
         },
       }}
-      component="nav"
-      aria-labelledby="nested-list-subheader"
     >
       {newRoutes.map((item) => {
         if (item.name === 'Quotes') {
           const { pathname } = location;
+
           return (
-            <ListItem key={item.path} disablePadding>
+            <ListItem disablePadding key={item.path}>
               <Badge
                 badgeContent={
                   quoteDetailHasNewMessages && pathname.includes('quoteDetail') ? '' : 0
                 }
-                variant="dot"
                 sx={{
                   width: '100%',
                   '& .MuiBadge-badge.MuiBadge-dot': {
@@ -233,6 +237,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
                     top: 22,
                   },
                 }}
+                variant="dot"
               >
                 <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
                   <ListItemText primary={b3Lang(item.idLang)} />
@@ -241,8 +246,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
             </ListItem>
           );
         }
+
         return (
-          <ListItem key={item.path} disablePadding>
+          <ListItem disablePadding key={item.path}>
             <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
               <ListItemText primary={b3Lang(item.idLang)} />
             </ListItemButton>

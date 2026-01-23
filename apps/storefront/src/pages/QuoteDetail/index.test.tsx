@@ -1,4 +1,10 @@
 import { useParams } from 'react-router-dom';
+
+import { when } from 'vitest-when';
+
+import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
+import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
+import { CompanyStatus, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -17,11 +23,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
-import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
-import { CompanyStatus, UserTypes } from '@/types';
 
 import QuoteDetail from './index';
 
@@ -510,6 +511,7 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const checkoutButton = await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i });
+
     await userEvent.click(checkoutButton);
 
     // the error message is shown in a snackbar when loading the page and when user tries clicking the checkout button
@@ -606,6 +608,7 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const checkoutButton = await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i });
+
     await userEvent.click(checkoutButton);
 
     expect(window.location.href).toBe(
@@ -698,8 +701,10 @@ describe('when the user is a B2B customer', () => {
     expect(
       screen.getByText('A product with the id of 123 does not have sufficient stock'),
     ).toBeInTheDocument();
+
     const summaryElement = screen.getByTestId('quote-summary');
     const withinSummary = within(summaryElement);
+
     expect(withinSummary.getByRole('row', { name: /Original subtotal/ })).toHaveTextContent(/TBD/);
     expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(/TBD/);
     expect(withinSummary.getByRole('row', { name: /Shipping/ })).toHaveTextContent(/TBD/);
@@ -792,6 +797,7 @@ describe('when the user is a B2B customer', () => {
           and still no TBD shows 
         */
         await delay(200);
+
         return HttpResponse.json({
           data: {
             validateProduct: {
@@ -819,8 +825,10 @@ describe('when the user is a B2B customer', () => {
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
     const summaryElement = screen.getByTestId('quote-summary');
     const withinSummary = within(summaryElement);
+
     expect(withinSummary.getByRole('row', { name: /Original subtotal/ })).toHaveTextContent(
       /\$1,000.00/,
     );
@@ -1039,6 +1047,7 @@ describe('when the user is a B2B customer', () => {
     });
 
     const validateProduct = vi.fn();
+
     when(validateProduct)
       .calledWith(
         expect.objectContaining({
@@ -1176,6 +1185,7 @@ describe('when the user is a B2B customer', () => {
             },
           },
         });
+
         server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
         renderWithProviders(<QuoteDetail />, {
           preloadedState: {
@@ -1199,6 +1209,7 @@ describe('when the user is a B2B customer', () => {
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
         const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
+
         await userEvent.click(checkoutButton);
         expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual(uuid);
         expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));
@@ -1222,6 +1233,7 @@ describe('when the user is a B2B customer', () => {
             },
           },
         });
+
         server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
         renderWithProviders(<QuoteDetail />, {
           preloadedState: {
@@ -1243,7 +1255,9 @@ describe('when the user is a B2B customer', () => {
           initialEntries: [`/272989?date=${dateString}`],
         });
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
         const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
+
         await userEvent.click(checkoutButton);
         expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual('');
         expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));

@@ -26,7 +26,7 @@ export interface UserResponse {
       phone: string;
       companyRoleId: number;
       companyRoleName?: string;
-      extraFields: { fieldName: string; fieldValue: string }[];
+      extraFields: Array<{ fieldName: string; fieldValue: string }>;
     };
   };
 }

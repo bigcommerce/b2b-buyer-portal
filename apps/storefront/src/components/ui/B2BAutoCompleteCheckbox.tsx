@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Check } from '@mui/icons-material';
 import {
   Checkbox,
@@ -9,6 +8,7 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -55,6 +55,7 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
     const { value } = event.target;
     const currentValues = typeof value === 'string' ? [value] : value;
     let selectCompanies: number[] = [];
+
     if (currentValues.includes('All')) {
       if (
         companyNames.includes('All') &&
@@ -84,10 +85,12 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
         selectCompanies = [];
         currentValues.forEach((item: string) => {
           const company = newCompanyHierarchyList.find((company) => company.companyName === item);
+
           if (company) {
             selectCompanies.push(company.companyId);
           }
         });
+
         if (!currentValues.length) {
           selectCompanies = [-1];
           setIsCheckedAll(true);
@@ -96,18 +99,22 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
     }
 
     setCompanyIds(selectCompanies);
+
     let selectedCompanyIds = selectCompanies;
+
     if (selectCompanyHierarchyId && selectCompanies.includes(-1)) {
       selectedCompanyIds = [];
       companyHierarchySelectSubsidiariesList.forEach(({ companyId }: { companyId: number }) => {
         selectedCompanyIds.push(companyId);
       });
     }
+
     handleChangeCompanyIds(selectedCompanyIds);
   };
 
   useEffect(() => {
     const newSelectedCompany: string[] = [];
+
     if (companyIds.length) {
       companyIds.forEach((id) => {
         const currentCompany = newCompanyHierarchyList.find(
@@ -123,6 +130,7 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
       const currentCompany = newCompanyHierarchyList.find(
         (company) => Number(company.companyId) === Number(activeCompany),
       );
+
       if (currentCompany) {
         newSelectedCompany.push(currentCompany.companyName);
       }
@@ -137,6 +145,7 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
     if (companyNames.includes('All')) {
       return ['All'];
     }
+
     return companyNames;
   }, [companyNames]);
 
@@ -149,33 +158,33 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
   };
 
   return (
-    <FormControl variant="filled" sx={{ width: isMobile ? '100%' : 235 }}>
+    <FormControl sx={{ width: isMobile ? '100%' : 235 }} variant="filled">
       <InputLabel id="autoComplete-multiple-checkbox-label">
         {b3Lang('global.B2BAutoCompleteCheckbox.input.label')}
       </InputLabel>
       <Select
-        labelId="autoComplete-multiple-checkbox-label"
+        MenuProps={MenuProps}
         id="autoComplete-multiple-checkbox"
+        labelId="autoComplete-multiple-checkbox-label"
         multiple
-        value={showName}
         onChange={handleChange}
         renderValue={(selected) => selected.join(', ')}
-        MenuProps={MenuProps}
         sx={{
           backgroundColor: '#efeae7',
           '& #autoComplete-multiple-checkbox': {
             paddingTop: '20px',
           },
         }}
+        value={showName}
       >
         {newCompanyHierarchyList.map((company) => (
           <MenuItem
             key={`${company.companyId}-${company.companyName}`}
-            value={company.companyName}
             sx={{
               width: isMobile ? '100%' : '300px',
               alignItems: 'flex-start',
             }}
+            value={company.companyName}
           >
             <Checkbox
               checked={
@@ -184,7 +193,6 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
             />
             <ListItemText
               primary={company.companyName}
-              title={company.companyName}
               sx={{
                 '& span': {
                   width: '100%',
@@ -193,6 +201,7 @@ export function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompl
                   paddingTop: '9px',
                 },
               }}
+              title={company.companyName}
             />
             {companyNames.includes(company.companyName) &&
               companyIds.includes(company.companyId) && <Check sx={{ marginTop: '9px' }} />}

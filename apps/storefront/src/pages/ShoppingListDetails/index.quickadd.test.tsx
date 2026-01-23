@@ -1,4 +1,10 @@
 import { PersistPartial } from 'redux-persist/es/persistReducer';
+
+import { when } from 'vitest-when';
+
+import { QuoteInfoState } from '@/store';
+import { CompanyStatus, Product, UserTypes } from '@/types';
+import { QuoteInfo, QuoteItem } from '@/types/quotes';
 import {
   buildCompanyStateWith,
   builder,
@@ -13,11 +19,6 @@ import {
   userEvent,
   waitFor,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { QuoteInfoState } from '@/store';
-import { CompanyStatus, Product, UserTypes } from '@/types';
-import { QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuickAdd from './components/QuickAdd';
 
@@ -172,7 +173,7 @@ const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDa
 
 it('renders the quick add section', () => {
   renderWithProviders(
-    <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
+    <QuickAdd quickAddToList={vi.fn()} type="quoteDraft" updateList={vi.fn()} />,
     {
       preloadedState,
     },
@@ -183,7 +184,7 @@ it('renders the quick add section', () => {
 
 it('increases the number of input rows when clicking -show more rows- button', async () => {
   renderWithProviders(
-    <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
+    <QuickAdd quickAddToList={vi.fn()} type="shoppingList" updateList={vi.fn()} />,
     {
       preloadedState,
     },
@@ -223,7 +224,7 @@ it('calls "quickAddToList" with the skus and the quantities when clicking on the
   const quickAddToList = vi.fn();
 
   renderWithProviders(
-    <QuickAdd updateList={vi.fn()} quickAddToList={quickAddToList} type="shoppingList" />,
+    <QuickAdd quickAddToList={quickAddToList} type="shoppingList" updateList={vi.fn()} />,
     {
       preloadedState,
     },
@@ -270,7 +271,7 @@ it('only clears inputs that were passed to "quickAddToList", keeps the rest', as
   const quickAddToList = vi.fn();
 
   renderWithProviders(
-    <QuickAdd updateList={vi.fn()} quickAddToList={quickAddToList} type="shoppingList" />,
+    <QuickAdd quickAddToList={quickAddToList} type="shoppingList" updateList={vi.fn()} />,
     {
       preloadedState,
     },
@@ -310,7 +311,7 @@ it('submits the form when pressing enter on either of the inputs', async () => {
   );
 
   renderWithProviders(
-    <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
+    <QuickAdd quickAddToList={vi.fn()} type="shoppingList" updateList={vi.fn()} />,
     {
       preloadedState,
     },
@@ -361,7 +362,7 @@ describe('when there is a problem with some of the skus', () => {
     );
 
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
+      <QuickAdd quickAddToList={vi.fn()} type="quoteDraft" updateList={vi.fn()} />,
       { preloadedState },
     );
 
@@ -403,7 +404,7 @@ describe('when there is a problem with some of the skus', () => {
     );
 
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
+      <QuickAdd quickAddToList={vi.fn()} type="quoteDraft" updateList={vi.fn()} />,
       { preloadedState },
     );
 
@@ -446,7 +447,7 @@ describe('when the sku has a required modifier', () => {
     );
 
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
+      <QuickAdd quickAddToList={vi.fn()} type="quoteDraft" updateList={vi.fn()} />,
       { preloadedState },
     );
 
@@ -494,7 +495,7 @@ describe('when an existing sku on the draft quote is over the quantity limit', (
     );
 
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="quoteDraft" />,
+      <QuickAdd quickAddToList={vi.fn()} type="quoteDraft" updateList={vi.fn()} />,
       {
         preloadedState: {
           ...preloadedState,
@@ -524,7 +525,7 @@ describe('when an existing sku on the draft quote is over the quantity limit', (
 describe('when some data is missing in the form', async () => {
   it('shows an error message when sku or quantity are not provided', async () => {
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
+      <QuickAdd quickAddToList={vi.fn()} type="shoppingList" updateList={vi.fn()} />,
       { preloadedState },
     );
 
@@ -553,7 +554,7 @@ describe('when some data is missing in the form', async () => {
 
   it('shows an error message when quantity is negative', async () => {
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={vi.fn()} type="shoppingList" />,
+      <QuickAdd quickAddToList={vi.fn()} type="shoppingList" updateList={vi.fn()} />,
       { preloadedState },
     );
 
@@ -590,7 +591,7 @@ describe('when some data is missing in the form', async () => {
     const quickAddToList = vi.fn();
 
     renderWithProviders(
-      <QuickAdd updateList={vi.fn()} quickAddToList={quickAddToList} type="shoppingList" />,
+      <QuickAdd quickAddToList={quickAddToList} type="shoppingList" updateList={vi.fn()} />,
       { preloadedState },
     );
 

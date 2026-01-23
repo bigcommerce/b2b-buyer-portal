@@ -19,6 +19,9 @@ function MessageAlert({
 }) {
   return (
     <Alert
+      key={msg.id}
+      onClose={() => onClose(msg.id)}
+      severity={msg.type}
       sx={{
         alignItems: 'center',
         '& button[title="Close"]': {
@@ -31,11 +34,8 @@ function MessageAlert({
         },
       }}
       variant="filled"
-      key={msg.id}
-      severity={msg.type}
-      onClose={() => onClose(msg.id)}
     >
-      <TipBody action={msg.action} message={msg.msg} description={msg.description} />
+      <TipBody action={msg.action} description={msg.description} message={msg.msg} />
     </Alert>
   );
 }
@@ -48,21 +48,25 @@ export default function B3Tip({
   handleAllClose,
 }: B3TipProps) {
   const [isMobile] = useMobile();
-  if (!msgs || !msgs.length) return null;
+
+  if (!msgs.length) {
+    return null;
+  }
+
   return (
     <Box>
       {msgs.length > 0
         ? msgs.map((msg: MsgsProps, index: number) => (
             <Snackbar
-              key={msg.id}
-              open={!!msg?.id}
-              autoHideDuration={msg?.time || 5000}
-              onClose={(_, reason: string) => handleAllClose(msg.id, reason)}
-              disableWindowBlurListener
               anchorOrigin={{
                 vertical,
                 horizontal,
               }}
+              autoHideDuration={msg.time || 5000}
+              disableWindowBlurListener
+              key={msg.id}
+              onClose={(_, reason: string) => handleAllClose(msg.id, reason)}
+              open={Boolean(msg.id)}
               sx={{
                 top: `${24 + index * 10 + index * (isMobile ? 80 : 90)}px !important`,
                 height: 'auto',

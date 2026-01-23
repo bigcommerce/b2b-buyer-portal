@@ -466,6 +466,7 @@ describe('when a personal customer', () => {
         );
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
       await userEvent.click(nextPageButton);
 
       await waitFor(() => {
@@ -493,6 +494,7 @@ describe('when a personal customer', () => {
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
       await userEvent.click(nextPageButton);
 
       when(getOrders)
@@ -509,6 +511,7 @@ describe('when a personal customer', () => {
         );
 
       const previousPageButton = screen.getByRole('button', { name: /previous page/ });
+
       await userEvent.click(previousPageButton);
 
       await waitFor(() => {
@@ -1219,6 +1222,7 @@ describe('when a company customer', () => {
         );
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
       await userEvent.click(nextPageButton);
 
       await waitFor(() => {
@@ -1244,6 +1248,7 @@ describe('when a company customer', () => {
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
       await userEvent.click(nextPageButton);
 
       when(getOrders)
@@ -1260,6 +1265,7 @@ describe('when a company customer', () => {
         );
 
       const previousPageButton = screen.getByRole('button', { name: /previous page/ });
+
       await userEvent.click(previousPageButton);
 
       await waitFor(() => {
@@ -1628,8 +1634,8 @@ describe('when a customer is masquerading as a company customer', () => {
     const getAllOrders = vi.fn();
 
     server.use(
-      graphql.query('GetOrderStatuses', () => {
-        return HttpResponse.json(
+      graphql.query('GetOrderStatuses', () =>
+        HttpResponse.json(
           buildCompanyOrderStatusesWith({
             data: {
               orderStatuses: [
@@ -1638,8 +1644,8 @@ describe('when a customer is masquerading as a company customer', () => {
               ],
             },
           }),
-        );
-      }),
+        ),
+      ),
       graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
     );
 

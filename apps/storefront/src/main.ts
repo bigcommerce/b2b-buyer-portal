@@ -29,7 +29,7 @@ window.b2b = {
     // this function is called at runtime and intentionally references `window.B3`
     // so that the same runtime files can dynamically choose the cdn base url location
     // based on environment it is deployed to
-    const basePath = getBasePath(window.B3?.setting?.environment);
+    const basePath = getBasePath(window.B3.setting.environment);
 
     return `${basePath}${filename}`;
   },
@@ -45,6 +45,7 @@ window.b2b = {
     // and bind links to load the app
     bindLinks();
     window.addEventListener('beforeunload', unbindLinks);
+
     // and observe global flag to simulate click
     window.b2b.initializationEnvironment.isInitListener = () => {
       unbindLinks();

@@ -6,9 +6,7 @@ interface ContainerProps {
   alignItems?: string;
   backgroundColor?: string;
   width?: string;
-  xs?: {
-    [key: string]: string | number;
-  };
+  xs?: Record<string, string | number>;
   flexDirection?:
     | 'column'
     | 'inherit'

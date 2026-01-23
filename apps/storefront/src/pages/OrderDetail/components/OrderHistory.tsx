@@ -1,6 +1,6 @@
-import { useContext } from 'react';
 import styled from '@emotion/styled';
 import { Card, CardContent, Typography } from '@mui/material';
+import { useContext } from 'react';
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table';
 import { useMobile } from '@/hooks/useMobile';
@@ -52,7 +52,7 @@ export function OrderHistory() {
     return activeStatusLabel;
   };
 
-  const columnItems: TableColumnItem<OrderHistoryItem>[] = [
+  const columnItems: Array<TableColumnItem<OrderHistoryItem>> = [
     {
       key: 'time',
       title: b3Lang('orderDetail.history.dateHeader'),

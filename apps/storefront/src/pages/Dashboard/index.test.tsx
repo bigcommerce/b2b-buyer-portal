@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
+
 import {
   buildCompanyStateWith,
   builder,
@@ -20,6 +20,7 @@ import { when } from 'vitest-when';
 
 import { AgentInfo, Company, CompanyEdge } from '@/shared/service/b2b/graphql/global';
 import { CompanyStatus } from '@/types';
+import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 
 import Dashboard from '.';
 
@@ -322,6 +323,7 @@ describe('when the user is associated with a company', () => {
     );
 
     const nextPageButton = screen.getByRole('button', { name: /next page/ });
+
     await userEvent.click(nextPageButton);
 
     await waitFor(() => {
@@ -363,6 +365,7 @@ describe('when the user is associated with a company', () => {
     await userEvent.click(screen.getByRole('button', { name: /next page/ }));
 
     const prevPageButton = screen.getByRole('button', { name: /previous page/ });
+
     await userEvent.click(prevPageButton);
 
     await waitFor(() => {
@@ -411,6 +414,7 @@ describe('when the user is associated with a company', () => {
     );
 
     Cookies.set('cartId', '1');
+
     const setOpenPageSpy = vi.fn();
 
     const { store } = renderWithProviders(<Dashboard setOpenPage={setOpenPageSpy} />, {

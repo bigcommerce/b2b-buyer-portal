@@ -1,5 +1,16 @@
 import { set } from 'lodash-es';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
+
+import { when } from 'vitest-when';
+
+import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
+import {
+  SearchProductsResponse,
+  ValidateProductResponse,
+} from '@/shared/service/b2b/graphql/product';
+import { QuoteInfoState } from '@/store/slices/quoteInfo';
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { CreateQuoteResponse, QuoteInfo, QuoteItem } from '@/types/quotes';
 import {
   buildCompanyStateWith,
   builder,
@@ -20,16 +31,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
-import {
-  SearchProductsResponse,
-  ValidateProductResponse,
-} from '@/shared/service/b2b/graphql/product';
-import { QuoteInfoState } from '@/store/slices/quoteInfo';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { CreateQuoteResponse, QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
 
@@ -824,10 +825,12 @@ describe('when buyer info is changed and then saved', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
     const phoneInput = screen.getByRole('textbox', { name: 'Phone' });
+
     await userEvent.clear(phoneInput);
     await userEvent.type(phoneInput, '1234567890');
 
     const companyInput = screen.getByRole('textbox', { name: 'Company name' });
+
     await userEvent.clear(companyInput);
     await userEvent.type(companyInput, "Jack's Slacks");
 
@@ -872,17 +875,21 @@ describe('when quote info is changed and then saved', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
     const phoneInput = screen.getByRole('textbox', { name: 'Quote Title' });
+
     await userEvent.type(phoneInput, 'Lots of nice things');
 
     const companyInput = screen.getByRole('textbox', { name: 'Reference number' });
+
     await userEvent.type(companyInput, '818767');
 
     const ccInput = screen.getByRole('textbox', { name: 'CC email' });
+
     await userEvent.type(ccInput, 'fred@acme.com');
 
     await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
 
     const quoteInfoSummary = await screen.findByRole('article', { name: 'Quote info' });
+
     expect(within(quoteInfoSummary).getByText('Title: Lots of nice things')).toBeInTheDocument();
     expect(within(quoteInfoSummary).getByText('Reference: 818767')).toBeInTheDocument();
     expect(within(quoteInfoSummary).getByText('CC: fred@acme.com')).toBeInTheDocument();
@@ -1131,9 +1138,12 @@ describe('when the user is a B2B customer', () => {
     });
 
     await userEvent.click(screen.getByText('Add to quote'));
+
     const searchProduct = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchProduct, 'Laugh Canister');
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
     const dialog = await screen.findByRole('dialog');
 
     const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
@@ -1288,9 +1298,13 @@ describe('when the user is a B2B customer', () => {
     });
 
     await userEvent.click(screen.getByText('Add to quote'));
+
     const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
     await userEvent.type(quickAddProduct, 'LC-123');
+
     const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
     await userEvent.type(quantityProduct, '1');
     await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -2018,6 +2032,7 @@ describe('when the user is a B2B customer', () => {
 
     it('creates successfully a new quote when submitting the draft quote and gets redirected to quote detail', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+
       const deleteCart = vi
         .fn()
         .mockReturnValue({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } });
@@ -2173,6 +2188,7 @@ describe('when the user is a B2B customer', () => {
 
     it('navigates correctly when quote submission response dialog is shown and then closed', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+
       const quote = buildQuoteWith({ data: { quote: { id: '272989', quoteNumber: '911911' } } });
 
       const state = { stateName: 'Jalisco', stateCode: 'JL' };
@@ -2282,6 +2298,7 @@ describe('when the user is a B2B customer', () => {
       });
 
       const okButton = screen.getByRole('button', { name: 'OK' });
+
       await userEvent.click(okButton);
 
       expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245&uuid=test-uuid-1234');
@@ -2289,6 +2306,7 @@ describe('when the user is a B2B customer', () => {
 
     it('renders snackbar error if mutation throws product validation erros', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+
       const getVariantInfoOOSAndPurchase = vi.fn();
 
       const state = { stateName: 'Jalisco', stateCode: 'JL' };
@@ -2565,9 +2583,12 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const searchProduct = screen.getByPlaceholderText('Search products');
+
         await userEvent.type(searchProduct, 'Laugh Canister');
         await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
         const dialog = await screen.findByRole('dialog');
 
         const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
@@ -2933,9 +2954,12 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const searchProduct = screen.getByPlaceholderText('Search products');
+
         await userEvent.type(searchProduct, 'Laugh Canister');
         await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
         const dialog = await screen.findByRole('dialog');
 
         const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
@@ -3057,9 +3081,12 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const searchProduct = screen.getByPlaceholderText('Search products');
+
         await userEvent.type(searchProduct, 'Laugh Canister');
         await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
         const dialog = await screen.findByRole('dialog');
 
         const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
@@ -3165,9 +3192,12 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const searchProduct = screen.getByPlaceholderText('Search products');
+
         await userEvent.type(searchProduct, 'Laugh Canister');
         await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
         const dialog = await screen.findByRole('dialog');
 
         const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
@@ -3305,9 +3335,13 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
         await userEvent.type(quickAddProduct, 'LC-123');
+
         const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3440,9 +3474,13 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
         await userEvent.type(quickAddProduct, 'LC-123');
+
         const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3579,9 +3617,13 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
         await userEvent.type(quickAddProduct, 'LC-123');
+
         const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3706,9 +3748,13 @@ describe('when the user is a B2B customer', () => {
         });
 
         await userEvent.click(screen.getByText('Add to quote'));
+
         const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
         await userEvent.type(quickAddProduct, 'LC-123');
+
         const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
         await userEvent.type(quantityProduct, '1');
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
@@ -3869,9 +3915,7 @@ describe('when the user is a B2B customer', () => {
           graphql.query('ValidateProduct', ({ variables }) =>
             HttpResponse.json(validateProduct(variables)),
           ),
-          graphql.mutation('ProductUpload', ({ query }) => {
-            return HttpResponse.json(csvUpload(query));
-          }),
+          graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(csvUpload(query))),
         );
 
         const quoteInfo = buildQuoteInfoStateWith({
@@ -3897,6 +3941,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(screen.getByText('Add to quote'));
 
         const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
         await userEvent.click(uploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -3905,6 +3950,7 @@ describe('when the user is a B2B customer', () => {
         const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
         const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
         if (!dropzoneInput) {
           throw new Error('File input not found');
         }
@@ -3914,6 +3960,7 @@ describe('when the user is a B2B customer', () => {
         await within(dialog).findByText('products.csv');
 
         const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
         await userEvent.click(addToListButton);
 
         expect(validateProduct).toHaveBeenCalledTimes(2);
@@ -4074,9 +4121,7 @@ describe('when the user is a B2B customer', () => {
           graphql.query('ValidateProduct', ({ variables }) =>
             HttpResponse.json(validateProduct(variables)),
           ),
-          graphql.mutation('ProductUpload', ({ query }) => {
-            return HttpResponse.json(csvUpload(query));
-          }),
+          graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(csvUpload(query))),
         );
 
         const quoteInfo = buildQuoteInfoStateWith({
@@ -4102,6 +4147,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(screen.getByText('Add to quote'));
 
         const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
         await userEvent.click(uploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4110,6 +4156,7 @@ describe('when the user is a B2B customer', () => {
         const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
         const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
         if (!dropzoneInput) {
           throw new Error('File input not found');
         }
@@ -4119,6 +4166,7 @@ describe('when the user is a B2B customer', () => {
         await within(dialog).findByText('products.csv');
 
         const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
         await userEvent.click(addToListButton);
 
         expect(validateProduct).toHaveBeenCalledTimes(2);
@@ -4283,9 +4331,7 @@ describe('when the user is a B2B customer', () => {
           graphql.query('ValidateProduct', ({ variables }) =>
             HttpResponse.json(validateProduct(variables)),
           ),
-          graphql.mutation('ProductUpload', ({ query }) => {
-            return HttpResponse.json(csvUpload(query));
-          }),
+          graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(csvUpload(query))),
         );
 
         const quoteInfo = buildQuoteInfoStateWith({
@@ -4311,6 +4357,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(screen.getByText('Add to quote'));
 
         const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
         await userEvent.click(uploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4319,6 +4366,7 @@ describe('when the user is a B2B customer', () => {
         const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
         const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
         if (!dropzoneInput) {
           throw new Error('File input not found');
         }
@@ -4328,6 +4376,7 @@ describe('when the user is a B2B customer', () => {
         await within(dialog).findByText('products.csv');
 
         const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
         await userEvent.click(addToListButton);
 
         expect(validateProduct).toHaveBeenCalledTimes(2);
@@ -4477,9 +4526,7 @@ describe('when the user is a B2B customer', () => {
           graphql.query('ValidateProduct', ({ variables }) =>
             HttpResponse.json(validateProduct(variables)),
           ),
-          graphql.mutation('ProductUpload', ({ query }) => {
-            return HttpResponse.json(csvUpload(query));
-          }),
+          graphql.mutation('ProductUpload', ({ query }) => HttpResponse.json(csvUpload(query))),
         );
 
         const quoteInfo = buildQuoteInfoStateWith({
@@ -4505,6 +4552,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(screen.getByText('Add to quote'));
 
         const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
         await userEvent.click(uploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4513,6 +4561,7 @@ describe('when the user is a B2B customer', () => {
         const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
         const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
         if (!dropzoneInput) {
           throw new Error('File input not found');
         }
@@ -4522,6 +4571,7 @@ describe('when the user is a B2B customer', () => {
         await within(dialog).findByText('products.csv');
 
         const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
         await userEvent.click(addToListButton);
 
         expect(validateProduct).toHaveBeenCalled();
@@ -4688,6 +4738,7 @@ describe('when the user is a B2B customer', () => {
         http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
         graphql.mutation('CreateQuote', ({ query }) => {
           createQuoteMutation(query);
+
           return HttpResponse.json(
             buildQuoteCreateResponseWith({
               data: {
@@ -4704,7 +4755,9 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).toContain(DEFAULT_BILLING_ADDRESS_ID);
       expect(mutationData).toContain(DEFAULT_SHIPPING_ADDRESS_ID);
     });
@@ -4714,6 +4767,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
       const billingFields = screen.getByRole('group', { name: 'Billing' });
+
       await userEvent.type(
         within(billingFields).getByRole('textbox', { name: 'First name' }),
         'Joey',
@@ -4723,7 +4777,9 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).not.toContain(DEFAULT_BILLING_ADDRESS_ID);
       expect(mutationData).toContain(DEFAULT_SHIPPING_ADDRESS_ID);
     });
@@ -4737,6 +4793,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
       const billingFields = screen.getByRole('group', { name: 'Billing' });
+
       await userEvent.click(within(billingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4747,7 +4804,9 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).toContain(BILLING_ADDRESS_ID);
       expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
     });
@@ -4758,6 +4817,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
       const billingFields = screen.getByRole('group', { name: 'Billing' });
+
       await userEvent.click(within(billingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4771,7 +4831,9 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).toContain(BILLING_ADDRESS_ID);
       expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
     });
@@ -4782,6 +4844,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
       const billingFields = screen.getByRole('group', { name: 'Billing' });
+
       await userEvent.click(within(billingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4789,6 +4852,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getAllByRole('button', { name: 'Choose address' })[0]);
 
       const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+
       await userEvent.click(within(shippingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4803,6 +4867,7 @@ describe('when the user is a B2B customer', () => {
       });
 
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).toContain(BILLING_ADDRESS_ID);
       expect(mutationData).toContain(SHIPPING_ADDRESS_ID);
     });
@@ -4813,6 +4878,7 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
 
       const billingFields = screen.getByRole('group', { name: 'Billing' });
+
       await userEvent.click(within(billingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4824,6 +4890,7 @@ describe('when the user is a B2B customer', () => {
       );
 
       const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+
       await userEvent.click(within(shippingFields).getByText('Choose from saved'));
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
@@ -4838,7 +4905,9 @@ describe('when the user is a B2B customer', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+
       const mutationData = createQuoteMutation.mock.calls[0][0];
+
       expect(mutationData).not.toContain(BILLING_ADDRESS_ID);
       expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
     });
@@ -4950,9 +5019,13 @@ describe('when the user is a B2B customer', () => {
       });
 
       await userEvent.click(screen.getByText('Add to quote'));
+
       const quickAddProduct = screen.getAllByLabelText('SKU#')[0];
+
       await userEvent.type(quickAddProduct, 'LC-123');
+
       const quantityProduct = screen.getAllByLabelText('Qty')[0];
+
       await userEvent.type(quantityProduct, '1');
       await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 

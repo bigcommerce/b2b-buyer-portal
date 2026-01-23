@@ -65,14 +65,13 @@ export const verifyCreatePermission = (
   code: string,
   selectCompanyHierarchyId?: number,
   permissions?: PermissionCodesProps[],
-): boolean => {
-  return validatePermissionWithComparisonType({
+): boolean =>
+  validatePermissionWithComparisonType({
     code,
     containOrEqual: 'contain',
     level: selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
     permissions,
   });
-};
 
 /**
  * Verifies the user's permission level based on the provided criteria.
@@ -123,7 +122,9 @@ export const verifySubmitShoppingListSubsidiariesPermission = ({
 }: VerifyPermissionProps): boolean => {
   const info = getPermissionsInfo(code);
 
-  if (!info) return !!info;
+  if (!info) {
+    return Boolean(info);
+  }
 
   const submitShoppingListPermission = verifyLevelPermission({
     code,

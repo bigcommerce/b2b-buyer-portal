@@ -19,7 +19,7 @@ export const reducer = (
   const currentAction = action;
   const setMulTip = () => {
     if (currentAction.type === 'tip' && currentAction.payload?.tipMessage) {
-      const msgs = state?.tipMessage?.msgs || [];
+      const msgs = state.tipMessage.msgs || [];
 
       const {
         tipMessage: { msgs: newMsgs = [] },
@@ -31,7 +31,7 @@ export const reducer = (
     }
 
     if (currentAction.type === 'globalTip' && currentAction.payload?.globalTipMessage) {
-      const msgs = state?.globalTipMessage?.msgs || [];
+      const msgs = state.globalTipMessage.msgs || [];
 
       const {
         globalTipMessage: { msgs: newMsgs = [] },
@@ -53,16 +53,19 @@ export const reducer = (
         ...state,
         ...action.payload,
       };
+
     case 'tip':
       return {
         ...state,
         ...mulTip,
       };
+
     case 'globalTip':
       return {
         ...state,
         ...mulTip,
       };
+
     default:
       return state;
   }

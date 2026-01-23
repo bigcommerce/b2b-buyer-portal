@@ -6,8 +6,13 @@ export const {
 } = window.B3.setting;
 
 const generateBcStorefrontAPIBaseUrl = () => {
-  if (platform === 'bigcommerce') return window.origin;
-  if (channelId === 1) return `https://store-${storeHash}.mybigcommerce.com`;
+  if (platform === 'bigcommerce') {
+    return window.origin;
+  }
+
+  if (channelId === 1) {
+    return `https://store-${storeHash}.mybigcommerce.com`;
+  }
 
   return `https://store-${storeHash}-${channelId}.mybigcommerce.com`;
 };

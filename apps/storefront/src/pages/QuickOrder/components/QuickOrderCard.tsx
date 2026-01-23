@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
+import { ReactElement } from 'react';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
@@ -53,12 +53,12 @@ function QuickOrderCard(props: QuickOrderCardProps) {
           pl: 0,
         }}
       >
-        <Box>{checkBox && checkBox()}</Box>
+        <Box>{checkBox?.()}</Box>
         <Box>
           <StyledImage
-            src={currentImage || PRODUCT_DEFAULT_IMAGE}
             alt="Product-img"
             loading="lazy"
+            src={currentImage || PRODUCT_DEFAULT_IMAGE}
           />
         </Box>
         <Box
@@ -66,10 +66,10 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             flex: 1,
           }}
         >
-          <Typography variant="body1" color="#212121">
+          <Typography color="#212121" variant="body1">
             {productName}
           </Typography>
-          <Typography variant="body1" color="#616161">
+          <Typography color="#616161" variant="body1">
             {variantSku}
           </Typography>
           <Box
@@ -81,12 +81,12 @@ function QuickOrderCard(props: QuickOrderCardProps) {
               <Box>
                 {optionList.map((option: CustomFieldItems) => (
                   <Typography
+                    key={option.display_name}
                     sx={{
                       fontSize: '0.75rem',
                       lineHeight: '1.5',
                       color: '#455A64',
                     }}
-                    key={option.display_name}
                   >
                     {`${option.display_name}: ${option.display_value}`}
                   </Typography>
@@ -108,15 +108,15 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             }}
           >
             <TextField
-              size="small"
-              type="number"
-              variant="filled"
-              label="Qty"
               inputProps={{
                 inputMode: 'numeric',
                 pattern: '[0-9]*',
               }}
-              value={quantity}
+              label="Qty"
+              onChange={(e) => {
+                handleUpdateProductQty(shoppingDetail.id, e.target.value);
+              }}
+              size="small"
               sx={{
                 margin: '1rem 0',
                 width: '60%',
@@ -128,9 +128,9 @@ function QuickOrderCard(props: QuickOrderCardProps) {
                   fontSize: '14px',
                 },
               }}
-              onChange={(e) => {
-                handleUpdateProductQty(shoppingDetail.id, e.target.value);
-              }}
+              type="number"
+              value={quantity}
+              variant="filled"
             />
           </Box>
 

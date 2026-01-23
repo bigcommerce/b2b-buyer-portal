@@ -5,9 +5,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { CustomStyleContext } from './shared/customStyleButton';
 import { BROWSER_LANG } from './constants';
 
-type LangMapType = {
-  [index: string]: string;
-};
+type LangMapType = Record<string, string>;
 
 const MUI_LANG_MAP: LangMapType = {
   en: 'enUS',
@@ -19,13 +17,11 @@ const MUI_LANG_MAP: LangMapType = {
   es: 'esES',
 };
 
-type MaterialMultiLanguagesType = {
-  [K: string]: materialMultiLanguages.Localization;
-};
+type MaterialMultiLanguagesType = Record<string, materialMultiLanguages.Localization>;
 
-type Props = {
+interface Props {
   children?: ReactNode;
-};
+}
 
 function B3ThemeProvider({ children }: Props) {
   const {

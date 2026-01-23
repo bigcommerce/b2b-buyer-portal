@@ -32,7 +32,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
   } = products;
 
   const isEnableProduct =
-    store.getState().global?.blockPendingQuoteNonPurchasableOOS?.isEnableProduct || false;
+    store.getState().global.blockPendingQuoteNonPurchasableOOS.isEnableProduct || false;
 
   const isStock = inventoryTracking !== 'none';
   let purchasingDisabled = false;
@@ -42,6 +42,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
   const currentVariant = variants.find(
     (variant: CustomFieldItems) => Number(variant.variant_id) === Number(variantId),
   );
+
   if (currentVariant) {
     purchasingDisabled = currentVariant.purchasing_disabled;
     stock = inventoryTracking === 'variant' ? currentVariant.inventory_level : stock;
@@ -116,32 +117,33 @@ export const getCartProductInfo = async () => {
 
   if (cart) {
     const { lineItems } = cart;
-    return Object.values(lineItems).reduce((pre, lineItems) => {
+
+    return Object.values(lineItems).reduce<LineItem[]>((pre, lineItems) => {
       lineItems.forEach((item: LineItem) => {
         pre.push(item);
       });
 
       return pre;
-    }, [] as LineItem[]);
+    }, []);
   }
 
   return [];
 };
 
 export const addCartProductToVerify = async (
-  checkedArr: Partial<CheckedProduct>[],
+  checkedArr: Array<Partial<CheckedProduct>>,
   b3lang: LangFormatFunction,
 ) => {
   const cartProducts: LineItem[] = await getCartProductInfo();
 
-  const addCommonProducts = checkedArr.reduce((pre, checkItem) => {
+  const addCommonProducts = checkedArr.reduce<CommonProducts[]>((pre, checkItem) => {
     const { node } = checkItem;
 
     const num =
       cartProducts.find(
         (item: LineItem) =>
           item.sku === node?.sku &&
-          Number(item?.variantEntityId || 0) === Number(node?.variantId || 0),
+          Number(item.variantEntityId || 0) === Number(node?.variantId || 0),
       )?.quantity || 0;
 
     pre.push({
@@ -151,9 +153,7 @@ export const addCartProductToVerify = async (
     });
 
     return pre;
-  }, [] as CommonProducts[]);
+  }, []);
 
-  return addCommonProducts.every((product) => {
-    return handleVerifyProduct(product, b3lang).isVerify;
-  });
+  return addCommonProducts.every((product) => handleVerifyProduct(product, b3lang).isVerify);
 };

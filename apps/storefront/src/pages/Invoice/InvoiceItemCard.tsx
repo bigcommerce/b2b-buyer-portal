@@ -57,24 +57,25 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode);
 
   let statusCode = item.status;
+
   if (status === 0 && currentDate > dueDate * 1000) {
     statusCode = 3;
   }
 
-  const columnAllItems: TableColumnItem<InvoiceList>[] = [
+  const columnAllItems: Array<TableColumnItem<InvoiceList>> = [
     {
       key: 'orderNumber',
       title: b3Lang('invoice.invoiceItemCardHeader.order'),
       render: () => (
         <Box
+          onClick={() => {
+            navigate(`/orderDetail/${item.orderNumber}`);
+          }}
           role="button"
           sx={{
             color: '#000000',
             cursor: 'pointer',
             textDecoration: 'underline',
-          }}
-          onClick={() => {
-            navigate(`/orderDetail/${item.orderNumber}`);
           }}
         >
           {item?.orderNumber || '-'}
@@ -159,9 +160,6 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
 
         return (
           <TextField
-            disabled={disabled}
-            variant="filled"
-            value={valuePrice}
             InputProps={{
               startAdornment: (
                 <InputAdornment
@@ -172,16 +170,20 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                 </InputAdornment>
               ),
             }}
+            disabled={disabled}
+            onChange={(e: CustomFieldItems) => {
+              const val = e.target?.value;
+
+              handleSetSelectedInvoiceAccount(val, id);
+            }}
             sx={{
               '& input': {
                 paddingTop: '8px',
               },
             }}
-            onChange={(e: CustomFieldItems) => {
-              const val = e.target?.value;
-              handleSetSelectedInvoiceAccount(val, id);
-            }}
             type="number"
+            value={valuePrice}
+            variant="filled"
           />
         );
       },
@@ -192,8 +194,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
 
   return (
     <Card
-      role="group"
       aria-labelledby={groupId}
+      role="group"
       sx={{
         marginBottom: selectedPay.length > 0 && addBottom ? '5rem' : 0,
       }}
@@ -218,24 +220,24 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             }}
           >
             <StyleCheckoutContainer>
-              {checkBox && checkBox(!!item?.disableCurrentCheckbox)}
+              {checkBox?.(Boolean(item?.disableCurrentCheckbox))}
             </StyleCheckoutContainer>
             <Typography
-              variant="h6"
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
+              variant="h6"
             >
               <Box
                 id={groupId}
+                onClick={() => {
+                  handleViewInvoice(id, status, companyInfo.companyId);
+                }}
                 role="button"
                 sx={{
                   color: '#000000',
                   cursor: 'pointer',
                   textDecoration: 'underline',
-                }}
-                onClick={() => {
-                  handleViewInvoice(id, status, companyInfo.companyId);
                 }}
               >
                 {id || '-'}
@@ -244,12 +246,12 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
           </Box>
           <Box sx={{ mb: '0.5rem' }}>
             <B3Pulldown
+              handleOpenHistoryModal={handleOpenHistoryModal}
+              invoicePay={invoicePay}
+              isCurrentCompany={isCurrentCompany}
               row={item}
               setInvoiceId={setInvoiceId}
-              handleOpenHistoryModal={handleOpenHistoryModal}
               setIsRequestLoading={setIsRequestLoading}
-              isCurrentCompany={isCurrentCompany}
-              invoicePay={invoicePay}
             />
           </Box>
         </Box>
@@ -282,7 +284,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                 wordBreak: 'break-all',
               }}
             >
-              {list?.render ? list.render() : item[list.key]}
+              {list.render ? list.render() : item[list.key]}
             </Box>
           </Box>
         ))}

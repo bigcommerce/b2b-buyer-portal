@@ -8,6 +8,7 @@ interface CompanyStatusMapping {
   message: string;
   reason: CompanyStatusKey;
 }
+
 const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKey> = {
   'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
     'pendingApprovalToViewPrices',
@@ -32,9 +33,11 @@ export class CompanyError extends Error {
 export const mapToCompanyError = (error: unknown) => {
   if (error instanceof Error) {
     const reason = COMPANY_STATUS_MESSAGE_MAPPINGS[error.message];
+
     if (reason) {
       throw new CompanyError({ message: error.message, reason });
     }
+
     throw error;
   }
 
@@ -46,6 +49,5 @@ export const mapToCompanyError = (error: unknown) => {
   throw new Error(message);
 };
 
-export const isCompanyError = (error: unknown): error is CompanyError => {
-  return error instanceof CompanyError;
-};
+export const isCompanyError = (error: unknown): error is CompanyError =>
+  error instanceof CompanyError;

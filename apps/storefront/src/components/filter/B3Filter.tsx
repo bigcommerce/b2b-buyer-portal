@@ -44,7 +44,7 @@ type DeepPartial<T> = {
 interface CustomButtonProps {
   isEnabled: boolean;
   customLabel: string;
-  customButtonStyle?: { [key: string]: string };
+  customButtonStyle?: Record<string, string>;
 }
 
 interface B3FilterProps<T, Y> {
@@ -96,7 +96,9 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   };
 
   const handleCustomBtnClick = () => {
-    if (handleFilterCustomButtonClick) handleFilterCustomButtonClick();
+    if (handleFilterCustomButtonClick) {
+      handleFilterCustomButtonClick();
+    }
   };
 
   return (
@@ -120,16 +122,16 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
           >
             <B3FilterSearch
               handleChange={handleSearchChange}
-              w={pcSearchContainerWidth}
               searchValue={searchValue}
+              w={pcSearchContainerWidth}
             />
             {showB3FilterMoreIcon && (
               <B3FilterMore
-                startPicker={startPicker}
                 endPicker={endPicker}
                 filterMoreInfo={filterMoreInfo}
                 onChange={handleFilterChange}
                 resetFilterInfo={resetFilterInfo}
+                startPicker={startPicker}
               />
             )}
           </Box>
@@ -148,29 +150,29 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
                 }}
               >
                 <B3Select
-                  list={sortByConfig?.sortByList || []}
-                  value={sortByValue}
+                  config={sortByConfig.sortByItemName}
+                  firstSelectText={sortByConfig.firstSelectText}
                   handleChange={handleSortByChange}
-                  label={sortByConfig?.sortByLabel || ''}
-                  config={sortByConfig?.sortByItemName}
-                  isFirstSelect={sortByConfig?.isFirstSelect}
-                  firstSelectText={sortByConfig?.firstSelectText}
-                  w={sortByConfig?.w || 150}
+                  isFirstSelect={sortByConfig.isFirstSelect}
+                  label={sortByConfig.sortByLabel || ''}
+                  list={sortByConfig.sortByList || []}
+                  value={sortByValue}
+                  w={sortByConfig.w || 150}
                 />
               </Box>
             )}
             {customButtonConfig?.isEnabled && (
               <CustomButton
+                onClick={handleCustomBtnClick}
                 size="small"
-                variant="contained"
                 sx={{
                   height: '42px',
                   p: '0 20px',
-                  ...(customButtonConfig?.customButtonStyle || {}),
+                  ...(customButtonConfig.customButtonStyle || {}),
                 }}
-                onClick={handleCustomBtnClick}
+                variant="contained"
               >
-                {customButtonConfig?.customLabel || ''}
+                {customButtonConfig.customLabel || ''}
               </CustomButton>
             )}
             {/* <B3FilterToggleTable /> */}
@@ -193,28 +195,28 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               justifyContent: 'space-between',
             }}
           >
-            <B3FilterSearch handleChange={handleSearchChange} w="90%" searchValue={searchValue} />
+            <B3FilterSearch handleChange={handleSearchChange} searchValue={searchValue} w="90%" />
             <B3FilterMore
-              startPicker={startPicker}
               endPicker={endPicker}
               filterMoreInfo={filterMoreInfo}
               onChange={handleFilterChange}
               resetFilterInfo={resetFilterInfo}
+              startPicker={startPicker}
             />
           </Box>
           {customButtonConfig?.isEnabled && (
             <CustomButton
-              size="small"
-              variant="contained"
               fullWidth
+              onClick={handleCustomBtnClick}
+              size="small"
               sx={{
                 marginTop: '20px',
                 height: '42px',
-                ...(customButtonConfig?.customButtonStyle || {}),
+                ...(customButtonConfig.customButtonStyle || {}),
               }}
-              onClick={handleCustomBtnClick}
+              variant="contained"
             >
-              {customButtonConfig?.customLabel || ''}
+              {customButtonConfig.customLabel || ''}
             </CustomButton>
           )}
         </Box>

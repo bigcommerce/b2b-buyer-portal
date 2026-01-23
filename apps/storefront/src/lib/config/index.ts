@@ -1,6 +1,4 @@
-interface ThemeElementsProps {
-  [key: string]: string;
-}
+type ThemeElementsProps = Record<string, string>;
 
 const themeOtherElementConfig = () => {
   const originElement =

@@ -19,13 +19,13 @@ export function B3ControlProductRadio(props: Form.B3UIProps) {
     label: (
       <ProductImageContainer>
         <img
-          src={getProductImageUrl(option.image?.data) || PRODUCT_DEFAULT_IMAGE}
           alt={option.image?.alt}
+          src={getProductImageUrl(option.image?.data) || PRODUCT_DEFAULT_IMAGE}
         />
         {option.label}
       </ProductImageContainer>
     ),
   }));
 
-  return <B3ControlRadioGroup {...props} options={[NoneOption, ...newOptions]} fieldType="radio" />;
+  return <B3ControlRadioGroup {...props} fieldType="radio" options={[NoneOption, ...newOptions]} />;
 }

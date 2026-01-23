@@ -54,9 +54,11 @@ const handleVerifyPermissionCode = ({
 }: HandleVerifyPermissionCode) => {
   const permissionInfo = permissions.find((item: { code: string }) => item.code === permission);
 
-  if (!permissionInfo?.code) return false;
+  if (!permissionInfo?.code) {
+    return false;
+  }
 
-  return permissionLevel && permissionInfo?.permissionLevel
+  return permissionLevel && permissionInfo.permissionLevel
     ? Number(permissionInfo.permissionLevel) === Number(permissionLevel)
     : true;
 };
@@ -93,14 +95,21 @@ export const validateBasePermissionWithComparisonType = ({
   containOrEqual = 'equal',
   permissions = [],
 }: ValidateBasePermissionWithComparisonTypeProps) => {
-  if (!code) return false;
+  if (!code) {
+    return false;
+  }
+
   const info = permissions.find((permission) => permission.code.includes(code));
 
-  if (!info) return !!info;
+  if (!info) {
+    return Boolean(info);
+  }
 
   const { permissionLevel = 0 } = info;
 
-  if (containOrEqual === 'equal') return permissionLevel === level;
+  if (containOrEqual === 'equal') {
+    return permissionLevel === level;
+  }
 
   return Number(permissionLevel) >= Number(level);
 };
@@ -133,22 +142,25 @@ export const levelComparison = ({
   companyInfo,
   params: { companyId, userEmail, userId },
 }: LevelComparisonProps) => {
-  const currentCompanyId = companyInfo?.id;
-  const customerId = customer?.id;
-  const customerB2BId = customer?.b2bId || 0;
-  const customerEmail = customer?.emailAddress;
+  const currentCompanyId = companyInfo.id;
+  const customerId = customer.id;
+  const customerB2BId = customer.b2bId || 0;
+  const customerEmail = customer.emailAddress;
 
   switch (permissionLevel) {
     case permissionLevels.COMPANY_SUBSIDIARIES:
       return true;
+
     case permissionLevels.COMPANY:
       return Number(companyId) === Number(currentCompanyId);
+
     case permissionLevels.USER:
       return (
         userId === Number(customerId) ||
         userId === Number(customerB2BId) ||
         userEmail === customerEmail
       );
+
     default:
       return false;
   }

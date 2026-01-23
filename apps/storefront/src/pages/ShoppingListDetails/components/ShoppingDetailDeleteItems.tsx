@@ -20,13 +20,13 @@ function ShoppingDetailDeleteItems({
 
   return (
     <B3Dialog
+      handRightClick={handleDeleteProductClick}
+      handleLeftClick={handleCancelClick}
       isOpen={open}
-      title={b3Lang('shoppingList.deleteItems.subtotal')}
       leftSizeBtn={b3Lang('shoppingList.deleteItems.cancel')}
       rightSizeBtn={b3Lang('shoppingList.deleteItems.delete')}
-      handleLeftClick={handleCancelClick}
-      handRightClick={handleDeleteProductClick}
       rightStyleBtn={{ color: '#D32F2F' }}
+      title={b3Lang('shoppingList.deleteItems.subtotal')}
     >
       <Box
         sx={{

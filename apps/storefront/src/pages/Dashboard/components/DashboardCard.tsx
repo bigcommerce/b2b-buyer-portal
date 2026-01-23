@@ -69,12 +69,12 @@ export function DashboardCard({ companyName, email, isSelected, action }: Dashbo
       </CardContent>
 
       <Button
+        onClick={() => action.onClick()}
         sx={{
           ml: '10px',
           mb: '10px',
         }}
         variant="text"
-        onClick={() => action.onClick()}
       >
         {action.label}
       </Button>

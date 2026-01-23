@@ -14,6 +14,7 @@ export const reducer = (state: GlobalState, action: Partial<GlobalAction>) => {
         ...state,
         ...action.payload,
       };
+
     default:
       return state;
   }

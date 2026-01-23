@@ -32,6 +32,7 @@ export const handleQuoteCheckout = async ({
     if (hidePriceFromGuests && Number(role) === 100 && navigate) {
       store.dispatch(setQuoteDetailToCheckoutUrl(location.pathname + location.search));
       navigate('/login');
+
       return;
     }
 
@@ -43,6 +44,7 @@ export const handleQuoteCheckout = async ({
     });
 
     setQuoteToStorage(quoteId, date, quoteUuid);
+
     const {
       quoteCheckout: {
         quoteCheckout: { checkoutUrl, cartId },
@@ -51,11 +53,13 @@ export const handleQuoteCheckout = async ({
 
     if (platform === 'bigcommerce') {
       window.location.href = checkoutUrl;
+
       return;
     }
 
     if (platform === 'catalyst') {
       window.location.href = `/checkout?cartId=${cartId}`;
+
       return;
     }
 

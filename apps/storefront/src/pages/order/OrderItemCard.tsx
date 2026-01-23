@@ -43,12 +43,13 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
     if (isB2BUser) {
       return `by ${item.firstName} ${item.lastName}`;
     }
+
     return `by ${customer.firstName} ${customer.lastName}`;
   };
 
   return (
     <Card key={item.orderId}>
-      <CardContent sx={{ color: 'rgba(0, 0, 0, 0.6)' }} onClick={goToDetail}>
+      <CardContent onClick={goToDetail} sx={{ color: 'rgba(0, 0, 0, 0.6)' }}>
         <Flex className="between-flex">
           <Box
             sx={{
@@ -57,10 +58,10 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
             }}
           >
             <Typography
-              variant="h5"
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
+              variant="h5"
             >
               {`# ${item.orderId}`}
             </Typography>
@@ -79,12 +80,12 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
         </Flex>
 
         <Typography
-          variant="h6"
           sx={{
             marginBottom: theme.spacing(2.5),
             mt: theme.spacing(1.5),
             minHeight: '1.43em',
           }}
+          variant="h6"
         >
           {currencyFormat(item.totalIncTax)}
         </Typography>
@@ -96,11 +97,11 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
           }}
         >
           <Typography
-            variant="body2"
             sx={{
               fontWeight: 'normal',
               marginRight: theme.spacing(2),
             }}
+            variant="body2"
           >
             {getName(item)}
           </Typography>

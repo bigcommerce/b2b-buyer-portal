@@ -22,8 +22,8 @@ import B3Spin from './spin/B3Spin';
 interface B3DialogProps<T> {
   customActions?: () => ReactElement;
   isOpen: boolean;
-  leftStyleBtn?: { [key: string]: string };
-  rightStyleBtn?: { [key: string]: string };
+  leftStyleBtn?: Record<string, string>;
+  rightStyleBtn?: Record<string, string>;
   leftSizeBtn?: string;
   rightSizeBtn?: string;
   title?: string;
@@ -87,14 +87,24 @@ export default function B3Dialog<T>({
 
   const handleSaveClick = () => {
     if (handRightClick) {
-      if (row) handRightClick(row);
-      if (!row) handRightClick();
+      if (row) {
+        handRightClick(row);
+      }
+
+      if (!row) {
+        handRightClick();
+      }
     }
   };
 
   const handleCloseClick = (reason?: string) => {
-    if (reason === 'backdropClick') return;
-    if (handleLeftClick) handleLeftClick();
+    if (reason === 'backdropClick') {
+      return;
+    }
+
+    if (handleLeftClick) {
+      handleLeftClick();
+    }
   };
 
   useScrollBar(isOpen);
@@ -106,20 +116,21 @@ export default function B3Dialog<T>({
       <Box ref={container} />
 
       <Dialog
-        fullWidth={fullWidth}
-        open={isOpen && Boolean(container.current)}
-        container={container.current}
-        onClose={(_: object, reason: string) => handleCloseClick(reason)}
-        fullScreen={isMobile}
-        maxWidth={maxWidth}
-        aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        aria-labelledby="alert-dialog-title"
+        container={container.current}
+        fullScreen={isMobile}
+        fullWidth={fullWidth}
         id="b2b-dialog-container"
+        maxWidth={maxWidth}
+        onClose={(_: object, reason: string) => handleCloseClick(reason)}
+        open={isOpen && Boolean(container.current)}
         sx={customStyle}
         {...restDialogParams}
       >
         {title && (
           <DialogTitle
+            id="alert-dialog-title"
             sx={
               isShowBordered
                 ? {
@@ -128,7 +139,6 @@ export default function B3Dialog<T>({
                   }
                 : {}
             }
-            id="alert-dialog-title"
           >
             {title}
           </DialogTitle>
@@ -158,10 +168,10 @@ export default function B3Dialog<T>({
             <>
               {showLeftBtn && (
                 <CustomButton
+                  onClick={() => handleCloseClick('')}
                   sx={{
                     ...leftStyleBtn,
                   }}
-                  onClick={() => handleCloseClick('')}
                 >
                   {leftSizeBtn || b3Lang('global.dialog.cancel')}
                 </CustomButton>
@@ -169,14 +179,14 @@ export default function B3Dialog<T>({
 
               {showRightBtn && (
                 <CustomButton
+                  autoFocus
+                  disabled={disabledSaveBtn || loading}
+                  onClick={handleSaveClick}
                   sx={{
                     ...rightStyleBtn,
                   }}
-                  onClick={handleSaveClick}
-                  autoFocus
-                  disabled={disabledSaveBtn || loading}
                 >
-                  <B3Spin isSpinning={loading} tip="" size={16}>
+                  <B3Spin isSpinning={loading} size={16} tip="">
                     {rightSizeBtn || b3Lang('global.dialog.save')}
                   </B3Spin>
                 </CustomButton>
