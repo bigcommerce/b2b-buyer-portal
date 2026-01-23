@@ -63,7 +63,7 @@ describe('when NP&OOS setting is enabled', () => {
       ),
     );
 
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -109,7 +109,7 @@ describe('when NP&OOS setting is enabled', () => {
       ),
     );
 
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -140,7 +140,7 @@ describe('when NP&OOS setting is disabled', () => {
   });
 
   it('should render add to quote button if product is purchasable', async () => {
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -163,7 +163,7 @@ describe('when NP&OOS setting is disabled', () => {
   });
 
   it('should not render add to quote button if product is not purchasable', async () => {
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>

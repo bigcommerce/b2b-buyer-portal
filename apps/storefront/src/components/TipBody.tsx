@@ -39,11 +39,11 @@ export default function TipBody(props: TipBodyProps) {
       {action && (
         <Button
           onClick={action.onClick}
-          variant="text"
           sx={{
             color: '#ffffff',
             padding: 0,
           }}
+          variant="text"
         >
           {action.label}
         </Button>

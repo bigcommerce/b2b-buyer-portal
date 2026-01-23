@@ -18,6 +18,7 @@ interface SearchParamsProps {
   offset: number;
   first: number;
 }
+
 interface DetailPageProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -67,13 +68,14 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
 
   const id = useId();
 
-  if (location?.state) {
+  if (location.state) {
     const state = location.state as LocationState;
-    currentIndex = state?.currentIndex || 0;
-    totalCount = state?.totalCount || 0;
-    beginDateAt = state?.beginDateAt || null;
-    endDateAt = state?.endDateAt || null;
-    searchParams = state?.searchParams || {
+
+    currentIndex = state.currentIndex || 0;
+    totalCount = state.totalCount || 0;
+    beginDateAt = state.beginDateAt || null;
+    endDateAt = state.endDateAt || null;
+    searchParams = state.searchParams || {
       offset: 0,
     };
   }
@@ -82,7 +84,10 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     setLoading(true);
 
     const index = () => {
-      if (listIndex) return listIndex - 1;
+      if (listIndex) {
+        return listIndex - 1;
+      }
+
       return 0;
     };
 
@@ -127,20 +132,32 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   };
 
   useEffect(() => {
-    if (totalCount > 0) setListIndex(currentIndex);
-    if (listIndex === initListIndex) return;
+    if (totalCount > 0) {
+      setListIndex(currentIndex);
+    }
+
+    if (listIndex === initListIndex) {
+      return;
+    }
+
     const searchPageStart = currentIndex + (searchParams.offset || 0);
+
     setListIndex(searchPageStart);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {
-    if (listIndex === initListIndex) return;
+    if (listIndex === initListIndex) {
+      return;
+    }
+
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listIndex]);
 
-  if (JSON.stringify(searchParams) === '{}') return null;
+  if (JSON.stringify(searchParams) === '{}') {
+    return null;
+  }
 
   const handleBeforePage = () => {
     setListIndex(listIndex - 1);
@@ -153,10 +170,11 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   };
 
   const index = listIndex + 1;
+
   return (
     <Box
-      role="navigation"
       aria-labelledby={id}
+      role="navigation"
       sx={{
         display: 'flex',
         color,
@@ -190,8 +208,8 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
       )}
 
       <IconButton
-        onClick={handleBeforePage}
         disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
+        onClick={handleBeforePage}
       >
         <NavigateBeforeIcon
           sx={{
@@ -200,8 +218,8 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
         />
       </IconButton>
       <IconButton
-        onClick={handleNextPage}
         disabled={totalCount <= 1 || arrived === 'toRight' || loading}
+        onClick={handleNextPage}
       >
         <NavigateNextIcon
           sx={{

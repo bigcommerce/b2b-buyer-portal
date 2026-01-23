@@ -50,10 +50,12 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
 
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(b3Lang('global.searchProductAddProduct.businessAccountPendingApproval'));
+
       return;
     }
 
     setIsLoading(true);
+
     try {
       const { productsSearch } = await searchProducts({
         search: searchText,
@@ -98,6 +100,7 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
 
   const handleProductQuantityChange = (id: number, newQuantity: number) => {
     const product = productList.find((product) => product.id === id);
+
     if (product) {
       product.quantity = newQuantity;
     }
@@ -117,11 +120,13 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
 
   const handleChangeOptionsClick = (productId: number) => {
     const product = productList.find((product) => product.id === productId);
+
     if (product) {
       setOptionsProduct({
         ...product,
       });
     }
+
     setProductListOpen(false);
     setChooseOptionsOpen(true);
   };
@@ -153,14 +158,6 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
     >
       <Typography>{b3Lang('global.searchProductAddProduct.searchBySkuOrName')}</Typography>
       <TextField
-        hiddenLabel
-        placeholder={b3Lang('global.searchProduct.placeholder.quickOrder')}
-        variant="filled"
-        fullWidth
-        size="small"
-        value={searchText}
-        onChange={handleSearchTextChange}
-        onKeyDown={handleSearchTextKeyDown}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -168,20 +165,28 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
             </InputAdornment>
           ),
         }}
+        fullWidth
+        hiddenLabel
+        onChange={handleSearchTextChange}
+        onKeyDown={handleSearchTextKeyDown}
+        placeholder={b3Lang('global.searchProduct.placeholder.quickOrder')}
+        size="small"
         sx={{
           margin: '12px 0',
           '& input': {
             padding: '12px 12px 12px 0',
           },
         }}
+        value={searchText}
+        variant="filled"
       />
       <CustomButton
-        variant="outlined"
-        fullWidth
         disabled={isLoading}
+        fullWidth
         onClick={handleSearchButtonClicked}
+        variant="outlined"
       >
-        <B3Spin isSpinning={isLoading} tip="" size={16}>
+        <B3Spin isSpinning={isLoading} size={16} tip="">
           <Box
             sx={{
               flex: 1,
@@ -194,25 +199,25 @@ export default function SearchProduct({ addToList }: SearchProductProps) {
       </CustomButton>
 
       <ProductListDialog
-        isOpen={productListOpen}
         isLoading={isLoading}
+        isOpen={productListOpen}
+        onAddToListClick={handleAddToListClick}
+        onCancel={handleProductListDialogCancel}
+        onChooseOptionsClick={handleChangeOptionsClick}
+        onProductQuantityChange={handleProductQuantityChange}
+        onSearch={handleSearchButtonClicked}
+        onSearchTextChange={handleSearchTextChange}
         productList={productList}
         searchText={searchText}
-        onSearchTextChange={handleSearchTextChange}
-        onSearch={handleSearchButtonClicked}
-        onCancel={handleProductListDialogCancel}
-        onProductQuantityChange={handleProductQuantityChange}
-        onChooseOptionsClick={handleChangeOptionsClick}
-        onAddToListClick={handleAddToListClick}
       />
 
       <ChooseOptionsDialog
-        isOpen={chooseOptionsOpen}
         isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        product={optionsProduct}
+        isOpen={chooseOptionsOpen}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
+        product={optionsProduct}
+        setIsLoading={setIsLoading}
       />
     </Box>
   );

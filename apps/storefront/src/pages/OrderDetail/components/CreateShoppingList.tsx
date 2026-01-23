@@ -88,12 +88,12 @@ function CreateShoppingList({ open, onChange, onClose }: CreateShoppingListProps
       <Box ref={container} />
 
       <B3Dialog
-        isOpen={open}
         fullWidth
-        title={b3Lang('global.createShoppingList.createNew')}
-        loading={loading}
-        handleLeftClick={handleClose}
         handRightClick={handleConfirm}
+        handleLeftClick={handleClose}
+        isOpen={open}
+        loading={loading}
+        title={b3Lang('global.createShoppingList.createNew')}
       >
         <Box
           sx={{
@@ -103,9 +103,9 @@ function CreateShoppingList({ open, onChange, onClose }: CreateShoppingListProps
           }}
         >
           <B3CustomForm
-            formFields={getList(b3Lang)}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={getList(b3Lang)}
             getValues={getValues}
             setValue={setValue}
           />

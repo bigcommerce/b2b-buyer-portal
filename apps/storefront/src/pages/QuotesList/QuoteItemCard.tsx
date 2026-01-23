@@ -13,7 +13,7 @@ import { displayFormat } from '@/utils/b3DateFormat';
 import QuoteStatus from '../quote/components/QuoteStatus';
 
 interface ListItem {
-  [key: string]: string | Object;
+  [key: string]: string | object;
   status: string;
   quoteNumber: string;
 }
@@ -37,7 +37,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
 
   const primaryColor = theme.palette.primary.main;
 
-  const columnAllItems: TableColumnItem<ListItem>[] = [
+  const columnAllItems: Array<TableColumnItem<ListItem>> = [
     {
       key: 'quoteTitle',
       title: b3Lang('quotes.quoteItemCard.title'),
@@ -95,10 +95,10 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
+              variant="h6"
             >
               {item.quoteNumber}
             </Typography>

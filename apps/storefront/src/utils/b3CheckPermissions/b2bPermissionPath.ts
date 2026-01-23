@@ -4,9 +4,8 @@ import { CustomerRole } from '@/types';
 import { checkEveryPermissionsCode } from './check';
 import { b2bPermissionsMap, B2BPermissionsMapParams } from './config';
 
-const hasPermission = (key: keyof B2BPermissionsMapParams): boolean => {
-  return checkEveryPermissionsCode(b2bPermissionsMap[key]);
-};
+const hasPermission = (key: keyof B2BPermissionsMapParams): boolean =>
+  checkEveryPermissionsCode(b2bPermissionsMap[key]);
 
 export const b2bJumpPath = (role: number): string => {
   if (role === CustomerRole.JUNIOR_BUYER) {

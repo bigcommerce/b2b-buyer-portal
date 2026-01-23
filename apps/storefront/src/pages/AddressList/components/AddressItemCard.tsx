@@ -78,12 +78,12 @@ export function AddressItemCard({
       >
         {addressInfo.label && (
           <Typography
-            variant="h5"
             sx={{
               marginBottom:
                 isDefaultShipping || isDefaultBilling ? theme.spacing(1) : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
+            variant="h5"
           >
             {addressInfo.label}
           </Typography>
@@ -109,11 +109,11 @@ export function AddressItemCard({
           <Flex>
             {onSetDefault && (
               <CustomButton
-                variant="text"
+                onClick={onSetDefault}
                 sx={{
                   ml: '-8px',
                 }}
-                onClick={onSetDefault}
+                variant="text"
               >
                 {b3Lang('addresses.addressItemCard.setAsDefault')}
               </CustomButton>
@@ -127,13 +127,13 @@ export function AddressItemCard({
               }}
             >
               {onEdit && (
-                <IconButton aria-label="edit" size="small" onClick={onEdit}>
+                <IconButton aria-label="edit" onClick={onEdit} size="small">
                   <EditIcon fontSize="inherit" />
                 </IconButton>
               )}
 
               {onDelete && (
-                <IconButton aria-label="delete" size="small" onClick={onDelete}>
+                <IconButton aria-label="delete" onClick={onDelete} size="small">
                   <DeleteIcon fontSize="inherit" />
                 </IconButton>
               )}

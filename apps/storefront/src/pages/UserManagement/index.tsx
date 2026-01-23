@@ -55,7 +55,7 @@ function UserManagement() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
 
-  const companyId = Number(role) === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
+  const companyId = Number(role) === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo.id;
 
   const b2bPermissions = useAppSelector(rolePermissionSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
@@ -71,6 +71,7 @@ function UserManagement() {
       userCreateActionsPermission,
       Number(selectCompanyHierarchyId),
     );
+
     return {
       isEnabled: isEnableBtnPermissions && isCreatePermission,
       customLabel: b3Lang('userManagement.addUser'),
@@ -121,7 +122,9 @@ function UserManagement() {
       const translatedItem = element;
       const translatedOptions = element.options?.map((option: CustomFieldItems) => {
         const elementOption = option;
+
         elementOption.label = b3Lang(option.idLang);
+
         return option;
       });
 
@@ -143,6 +146,7 @@ function UserManagement() {
       ...filterSearch,
       q: value,
     };
+
     setFilterSearch(search);
   };
 
@@ -152,6 +156,7 @@ function UserManagement() {
       companyRoleId: value.companyRoleId,
       offset: 0,
     };
+
     setFilterSearch(search);
   };
 
@@ -208,39 +213,39 @@ function UserManagement() {
         }}
       >
         <B3Filter
+          customButtonConfig={customItem}
           filterMoreInfo={translatedFilterInfo}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtonConfig={customItem}
           handleFilterCustomButtonClick={handleAddUserClick}
         />
         <B3PaginationTable
-          ref={paginationTableRef}
           getRequestList={fetchList}
-          searchParams={filterSearch || {}}
           itemXs={isExtraLarge ? 3 : 4}
-          requestLoading={setIsRequestLoading}
+          ref={paginationTableRef}
           renderItem={(row) => (
-            <UserItemCard key={row.id} item={row} onEdit={handleEdit} onDelete={handleDelete} />
+            <UserItemCard item={row} key={row.id} onDelete={handleDelete} onEdit={handleEdit} />
           )}
+          requestLoading={setIsRequestLoading}
+          searchParams={filterSearch || {}}
         />
         <B3AddEditUser
           companyId={`${selectCompanyHierarchyId || companyId}`}
-          renderList={initSearchList}
           ref={addEditUserRef}
+          renderList={initSearchList}
         />
         <B3Dialog
+          handRightClick={handleDeleteUserClick}
+          handleLeftClick={handleCancelClick}
           isOpen={deleteOpen}
-          title={b3Lang('userManagement.deleteUser')}
+          isShowBordered={false}
           leftSizeBtn={b3Lang('userManagement.cancel')}
           rightSizeBtn={b3Lang('userManagement.delete')}
-          handleLeftClick={handleCancelClick}
-          handRightClick={handleDeleteUserClick}
-          row={userId}
           rightStyleBtn={{
             color: '#D32F2F',
           }}
-          isShowBordered={false}
+          row={userId}
+          title={b3Lang('userManagement.deleteUser')}
         >
           <Box
             sx={{

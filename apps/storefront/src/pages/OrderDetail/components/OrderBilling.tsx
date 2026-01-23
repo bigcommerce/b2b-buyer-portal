@@ -11,9 +11,9 @@ import { OrderDetailsContext } from '../context/OrderDetailsContext';
 import DownloadDigitalProductsDialog from './DownloadDigitalProductsDialog/DownloadDigitalProductsDialog';
 import { getDigitalDownloadElements } from './getDigitalDownloadElements';
 
-type OrderBillingProps = {
+interface OrderBillingProps {
   isCurrentCompany: boolean;
-};
+}
 
 export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
@@ -57,9 +57,10 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   }, [digitalProducts, orderId]);
 
   const getCurrentProductUrls = (productId: number | undefined) => {
-    const currentProduct = digitalProductsWithUrl?.find(
+    const currentProduct = digitalProductsWithUrl.find(
       (product) => product.product_id === productId,
     );
+
     setCurrentDigitalProduct(currentProduct);
   };
 
@@ -108,22 +109,22 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 fontSize: '24px',
                 fontWeight: '400',
               }}
+              variant="h6"
             >
               {getFullName(billingAddress)}
               {' – '}
               {getCompanyName(billingAddress.company || '')}
             </Typography>
             <Typography
-              variant="h6"
               sx={{
                 fontSize: '24px',
                 fontWeight: '400',
               }}
+              variant="h6"
             >
               {getFullAddress(billingAddress)}
             </Typography>
@@ -134,24 +135,24 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
               margin: '20px 0 2px',
             }}
           >
-            <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#313440' }}>
+            <Typography sx={{ fontWeight: 'bold', color: '#313440' }} variant="body1">
               {b3Lang('orderDetail.billing.digitalProducts')}
             </Typography>
           </Box>
 
           <B3ProductList
+            canToProduct={isCurrentCompany}
+            getCurrentProductUrls={getCurrentProductUrls}
+            money={money}
             products={
               digitalProductsWithUrl.length ? digitalProductsWithUrl : digitalProducts || []
             }
-            totalText="Total"
-            canToProduct={isCurrentCompany}
             textAlign={isMobile ? 'left' : 'right'}
-            money={money}
-            getCurrentProductUrls={getCurrentProductUrls}
+            totalText="Total"
           />
         </CardContent>
         <DownloadDigitalProductsDialog
-          isOpen={!!currentDigitalProduct}
+          isOpen={Boolean(currentDigitalProduct)}
           onClose={() => setCurrentDigitalProduct(undefined)}
           product={currentDigitalProduct}
         />

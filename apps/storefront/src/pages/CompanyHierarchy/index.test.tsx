@@ -195,6 +195,7 @@ describe('when switching to a different company', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
+
     expect(within(modal).getByRole('heading', { name: 'Switch company' })).toBeInTheDocument();
     expect(
       within(modal).getByText(
@@ -333,6 +334,7 @@ describe('when continuing to switch to a different company', () => {
     await waitFor(() => expect(modal).not.toBeInTheDocument());
     await waitFor(() => {
       const snackbar = screen.getByRole('alert');
+
       expect(within(snackbar).getByText(INACTIVE_COMPANY_ERROR_MESSAGE)).toBeVisible();
     });
     expect(within(rowOfAcme).getByText('Your company')).toBeVisible();

@@ -7,13 +7,12 @@ import { bcLogoutLogin } from '@/shared/service/bc';
 import { isLoggedInSelector, store, useAppSelector } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
 
-const logout = () => {
-  return bcLogoutLogin().then((res) => {
+const logout = () =>
+  bcLogoutLogin().then((res) => {
     if (res.data.logout.result !== 'success') {
       throw new Error('Failed to logout');
     }
   });
-};
 
 const useEndMasquerade = () => {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);

@@ -72,17 +72,17 @@ function CompanyHierarchy() {
         }}
       >
         <CompanyHierarchyTableTree<CompanyHierarchyProps>
+          currentCompanyId={currentCompanyId}
           data={data}
           onSwitchCompany={handleRowClick}
-          currentCompanyId={currentCompanyId}
           selectCompanyId={selectCompanyHierarchyId}
         />
 
         <HierarchyDialog
-          open={open}
-          handleClose={handleClose}
+          companyHierarchyAllList={originDataRef.current || []}
           currentRow={currentRow}
-          companyHierarchyAllList={originDataRef?.current || []}
+          handleClose={handleClose}
+          open={open}
         />
       </Box>
     </B3Spin>

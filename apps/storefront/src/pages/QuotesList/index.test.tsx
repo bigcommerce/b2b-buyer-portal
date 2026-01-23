@@ -494,12 +494,15 @@ describe('when the user is a B2B customer', () => {
     const table = await screen.findByRole('table');
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
+
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
 
     const rowOfOneShirt = within(table).getByRole('row', { name: /One Shirt/ });
+
     expect(within(rowOfOneShirt).getByText('Ordered')).toBeInTheDocument();
 
     const rowOfEveryHat = within(table).getByRole('row', { name: /Every Hat/ });
+
     expect(within(rowOfEveryHat).getByText('Expired')).toBeInTheDocument();
   });
 
@@ -1038,12 +1041,15 @@ describe('when the user is a B2C customer', () => {
     const table = await screen.findByRole('table');
 
     const rowOfSomeTrouser = within(table).getByRole('row', { name: /Some Trouser/ });
+
     expect(within(rowOfSomeTrouser).getByText('Open')).toBeInTheDocument();
 
     const rowOfOneShirt = within(table).getByRole('row', { name: /One Shirt/ });
+
     expect(within(rowOfOneShirt).getByText('Ordered')).toBeInTheDocument();
 
     const rowOfEveryHat = within(table).getByRole('row', { name: /Every Hat/ });
+
     expect(within(rowOfEveryHat).getByText('Expired')).toBeInTheDocument();
   });
 

@@ -52,7 +52,7 @@ export function OrderHistory() {
     return activeStatusLabel;
   };
 
-  const columnItems: TableColumnItem<OrderHistoryItem>[] = [
+  const columnItems: Array<TableColumnItem<OrderHistoryItem>> = [
     {
       key: 'time',
       title: b3Lang('orderDetail.history.dateHeader'),

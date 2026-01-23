@@ -372,6 +372,7 @@ describe('when search returns results', () => {
     );
 
     const searchBox = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchBox, 'Laugh Canister');
 
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));

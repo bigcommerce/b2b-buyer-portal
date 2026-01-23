@@ -43,6 +43,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
     if (accountType === '1') {
       if (isAutoApproval) {
         shouldAutoLogin.current = true;
+
         return (
           <StyleTipContainer>
             {b3Lang('global.registerFinish.autoApproved.tip', { storeName })}
@@ -83,6 +84,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
     // Personal Account
     if (accountType === '2') {
       shouldAutoLogin.current = true;
+
       return (
         <StyleTipContainer>
           {b3Lang('global.registerFinish.bcSuccess.tip', { storeName })}

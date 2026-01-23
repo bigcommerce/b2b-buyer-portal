@@ -43,6 +43,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   };
 
   const action: CustomFieldItems = {};
+
   if (Number(companyStatus) !== 0) {
     action.onClose = handleCloseTip;
   }
@@ -51,7 +52,9 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
     const loginTypeStatus = Number(companyStatus) === 0 ? true : loginType === 1;
 
     const showTip = role === 100 ? false : loginTypeStatus;
+
     setIsShow(showTip);
+
     if (showTip) {
       if (Number(companyStatus) === 0) {
         if (blockPendingAccountOrderCreation && blockPendingAccountViewPrice) {
@@ -69,6 +72,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
         if (!blockPendingAccountOrderCreation && !blockPendingAccountViewPrice) {
           setTip(b3Lang(StatusNotifications.pendingOrderingNotBlocked));
         }
+
         setType('info');
         setBcColor('#0288D1');
       }

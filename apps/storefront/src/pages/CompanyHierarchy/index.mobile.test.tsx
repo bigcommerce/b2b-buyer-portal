@@ -164,6 +164,7 @@ describe('when switching to a different company', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
 
     const modal = await screen.findByRole('dialog');
+
     expect(within(modal).getByRole('heading', { name: 'Switch company' })).toBeInTheDocument();
     expect(
       within(modal).getByText(

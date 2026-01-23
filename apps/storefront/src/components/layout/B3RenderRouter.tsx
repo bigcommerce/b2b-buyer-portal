@@ -42,7 +42,10 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
   useEffect(
     () => {
       const [, page] = location.pathname.split('/');
-      if (!page) return;
+
+      if (!page) {
+        return;
+      }
 
       dispatch(
         getPageTranslations({
@@ -70,17 +73,18 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
         >
           {routes.map((route: RouteItem) => {
             const { path, component: Component } = route;
+
             return (
-              <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />
+              <Route element={<Component setOpenPage={setOpenPage} />} key={path} path={path} />
             );
           })}
           <Route
-            path="*"
             element={<RedirectFallback path={routes[0]?.path} setOpenPage={setOpenPage} />}
+            path="*"
           />
         </Route>
         {firstLevelRouting.map(({ path, component: Component }) => (
-          <Route key={path} path={path} element={<Component setOpenPage={setOpenPage} />} />
+          <Route element={<Component setOpenPage={setOpenPage} />} key={path} path={path} />
         ))}
       </Routes>
     </Suspense>

@@ -40,7 +40,8 @@ export function B3Picker({
   const [open, setOpen] = useState(false);
   const openPickerClick = () => {
     setOpen(!open);
-    if (pickerRef?.current?.blur) {
+
+    if (pickerRef.current?.blur) {
       pickerRef.current.blur();
     }
   };
@@ -48,38 +49,40 @@ export function B3Picker({
   const onHandleChange = (value: Date | number | string) => {
     if (typeof value !== 'string') {
       const pickerValue = dayjs(value).format(formatInput);
+
       onChange(pickerValue);
     } else {
       onChange(value);
     }
   };
+
   return (
     <>
       <Box ref={container} />
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
+      <LocalizationProvider adapterLocale={activeLang} dateAdapter={AdapterDayjs}>
         <DatePicker
-          label={label}
           DialogProps={{
             container: container.current,
           }}
+          disableOpenPicker={disableOpenPicker}
+          inputRef={pickerRef}
+          label={label}
           onChange={(val) => val && onHandleChange(val)}
           onClose={() => {
             setOpen(false);
           }}
-          value={value || null}
           open={open}
-          inputRef={pickerRef}
-          disableOpenPicker={disableOpenPicker}
           renderInput={(params) => (
             <TextField
               {...params}
-              size={size}
               onMouseDown={() => {
                 openPickerClick();
               }}
+              size={size}
               variant={variant}
             />
           )}
+          value={value || null}
         />
       </LocalizationProvider>
     </>

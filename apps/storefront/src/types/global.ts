@@ -5,13 +5,9 @@ export enum Environment {
   Local = 'local',
 }
 
-export type EnvSpecificConfig<ValueType> = {
-  [key in Environment]: ValueType;
-};
+export type EnvSpecificConfig<ValueType> = Record<Environment, ValueType>;
 
-export interface SimpleObject {
-  [k: string]: string | number | undefined | null;
-}
+export type SimpleObject = Record<string, string | number | undefined | null>;
 
 export interface Address {
   city: string;

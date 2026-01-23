@@ -72,43 +72,44 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
     <>
       <Box ref={container} />
       <PickerFormControl>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
+        <LocalizationProvider adapterLocale={activeLang} dateAdapter={AdapterDayjs}>
           <Controller
             key={fieldsProps.name}
             {...fieldsProps}
-            render={({ field: { ref, ...rest } }) => (
+            render={({ field: { ref: _ref, ...rest } }) => (
               <DatePicker
-                label={label}
                 inputFormat={inputFormat}
+                label={label}
                 {...muixPickerProps}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    variant={variant || 'filled'}
-                    required={required}
+                    error={Boolean(errors[name])}
+                    helperText={errors[name] ? errors[name].message : null}
                     inputProps={{
                       readOnly: true,
                     }}
                     onMouseDown={() => {
                       setOpen(true);
-                      if (pickerRef?.current?.blur) {
+
+                      if (pickerRef.current?.blur) {
                         pickerRef.current.blur();
                       }
                     }}
+                    required={required}
                     value={getValues(name) || defaultValue}
-                    error={!!errors[name]}
-                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                    variant={variant || 'filled'}
                   />
                 )}
                 {...rest}
                 DialogProps={{
                   container: container.current,
                 }}
-                open={open}
+                onChange={handleDatePickerChange}
                 onClose={() => {
                   setOpen(false);
                 }}
-                onChange={handleDatePickerChange}
+                open={open}
               />
             )}
           />

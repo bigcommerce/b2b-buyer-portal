@@ -59,11 +59,12 @@ export const getQuoteEnabled = (
         break;
 
       case 'shopping_list_on_product_page':
-        if (config?.extraFields) {
-          slGuestEnabled = config?.extraFields?.guest || false;
-          slBcUserEnabled = config?.extraFields?.b2c || false;
-          slB2bUserEnabled = config?.extraFields?.b2b || false;
+        if (config.extraFields) {
+          slGuestEnabled = config.extraFields?.guest || false;
+          slBcUserEnabled = config.extraFields?.b2c || false;
+          slB2bUserEnabled = config.extraFields?.b2b || false;
         }
+
         break;
 
       default:

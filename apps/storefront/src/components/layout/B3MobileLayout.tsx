@@ -94,10 +94,10 @@ export default function B3MobileLayout({
               }}
             >
               <ShoppingBagOutlined
-                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
                   window.location.href = CART_URL;
                 }}
+                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
               />
             </Badge>
           )}

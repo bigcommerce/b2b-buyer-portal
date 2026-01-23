@@ -43,7 +43,7 @@ export interface ShoppingListsItemsProps {
 }
 
 export interface GetFilterMoreListProps {
-  options?: Array<ShoppingListStatusProps>;
+  options?: ShoppingListStatusProps[];
   rows?: string | number;
   name: string;
   label: string;
@@ -96,7 +96,7 @@ export const useGetFilterMoreList = () => {
 
   return (submitShoppingListPermission: boolean, createdByUsers: CreatedByUsers) => {
     const newCreatedByUsers =
-      createdByUsers?.createdByUser?.results.map((item) => ({
+      createdByUsers.createdByUser?.results.map((item) => ({
         createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
       })) || [];
 

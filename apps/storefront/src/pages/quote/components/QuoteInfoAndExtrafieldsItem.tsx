@@ -24,8 +24,8 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
 
   return (
     <Box
-      role="article"
       aria-labelledby={titleId}
+      role="article"
       sx={{
         width: '100%',
       }}

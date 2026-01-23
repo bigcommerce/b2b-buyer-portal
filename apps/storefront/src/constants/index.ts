@@ -69,6 +69,7 @@ const {
   setting: { platform, cart_url: cartUrl },
 } = window.B3;
 const CART_FALLBACK_VALUE = platform === 'bigcommerce' ? '/cart.php' : '/cart';
+
 export const CART_URL = cartUrl ?? CART_FALLBACK_VALUE;
 export const CHECKOUT_URL = '/checkout';
 

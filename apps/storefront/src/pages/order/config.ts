@@ -96,47 +96,50 @@ export const getFilterMoreData = (
       (!isB2BUser || filterCondition) &&
       !isCompanyOrder &&
       (item.name === 'company' || item.name === 'PlacedBy')
-    )
+    ) {
       return false;
-    if (Number(role) === 3 && !isAgenting && item.name === 'PlacedBy') return false;
+    }
+
+    if (Number(role) === 3 && !isAgenting && item.name === 'PlacedBy') {
+      return false;
+    }
+
     if (
       (isB2BUser || (Number(role) === CustomerRole.SUPER_ADMIN && isAgenting)) &&
       isCompanyOrder &&
       item.name === 'company'
-    )
+    ) {
       return false;
+    }
+
     return true;
   });
 
   return filterCurrentMoreList;
 };
 
-export const getCustomerInitFilter = (): Partial<FilterSearchProps> => {
-  return {
-    beginDateAt: null,
-    endDateAt: null,
-    createdBy: '',
-    q: '',
-  };
-};
+export const getCustomerInitFilter = (): Partial<FilterSearchProps> => ({
+  beginDateAt: null,
+  endDateAt: null,
+  createdBy: '',
+  q: '',
+});
 
 export const getCompanyInitFilter = (
   isCompanyOrder: boolean,
   companyId: number,
-): Partial<FilterSearchProps> => {
-  return {
-    companyId: '',
-    beginDateAt: null,
-    endDateAt: null,
-    companyName: '',
-    createdBy: '',
-    orderNumber: '',
-    poNumber: '',
-    companyIds: [companyId],
-    isShowMy: isCompanyOrder ? 0 : 1,
-    q: '',
-  };
-};
+): Partial<FilterSearchProps> => ({
+  companyId: '',
+  beginDateAt: null,
+  endDateAt: null,
+  companyName: '',
+  createdBy: '',
+  orderNumber: '',
+  poNumber: '',
+  companyIds: [companyId],
+  isShowMy: isCompanyOrder ? 0 : 1,
+  q: '',
+});
 
 export const getOrderStatusText = (status: number | string, getOrderStatuses: any) =>
   getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || '';

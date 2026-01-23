@@ -19,85 +19,86 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
   const renderFormFields = (fields: any) =>
     fields.map((field: B3UI.B3CustomFormValue) => {
       const { fieldType } = field;
+
       return (
-        <Grid item key={field.name} xs={field.xs || 6} id="b3-customForm-id-name">
+        <Grid id="b3-customForm-id-name" item key={field.name} xs={field.xs || 6}>
           <>
             {['text', 'number', 'password', 'multiline'].includes(fieldType) && (
-              <B3ControlTextField {...field} {...props} errors={errors} control={control} />
+              <B3ControlTextField {...field} {...props} control={control} errors={errors} />
             )}
             {['checkbox'].includes(fieldType) && (
               <B3ControlCheckbox
                 {...field}
-                errors={errors}
                 control={control}
+                errors={errors}
                 getValues={getValues}
               />
             )}
             {['radio'].includes(fieldType) && (
-              <B3ControlRadioGroup {...field} errors={errors} control={control} />
+              <B3ControlRadioGroup {...field} control={control} errors={errors} />
             )}
             {['dropdown'].includes(fieldType) && (
-              <B3ControlSelect {...field} errors={errors} control={control} setValue={setValue} />
+              <B3ControlSelect {...field} control={control} errors={errors} setValue={setValue} />
             )}
             {['date'].includes(fieldType) && (
               <B3ControlPicker
                 {...field}
-                errors={errors}
                 control={control}
-                setValue={setValue}
+                errors={errors}
                 getValues={getValues}
+                setValue={setValue}
               />
             )}
             {['files'].includes(fieldType) && (
               <B3ControlFileUpload
                 {...field}
-                errors={errors}
                 control={control}
-                setValue={setValue}
+                errors={errors}
                 setError={setError}
+                setValue={setValue}
               />
             )}
             {['rectangle'].includes(fieldType) && (
               <B3ControlRectangle
                 {...field}
-                errors={errors}
                 control={control}
+                errors={errors}
                 setValue={setValue}
               />
             )}
             {['productRadio'].includes(fieldType) && (
               <B3ControlProductRadio
                 {...field}
-                errors={errors}
                 control={control}
+                errors={errors}
                 setValue={setValue}
               />
             )}
             {['swatch'].includes(fieldType) && (
               <B3ControlSwatchRadio
                 {...field}
-                errors={errors}
                 control={control}
+                errors={errors}
                 setValue={setValue}
               />
             )}
             {['roleAutocomplete'].includes(fieldType) && (
               <B3ControlAutocomplete
                 {...field}
-                errors={errors}
                 control={control}
-                setValue={setValue}
+                errors={errors}
                 getValues={getValues}
+                setValue={setValue}
               />
             )}
             {['multiInputText'].includes(fieldType) && (
               <B2BControlMultiTextField
                 {...props}
                 {...field}
-                errors={errors}
                 control={control}
-                setValue={setValue}
+                errors={errors}
                 getValues={getValues}
+                setValue={setValue}
               />
             )}
           </>

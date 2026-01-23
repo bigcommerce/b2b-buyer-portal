@@ -33,6 +33,7 @@ import { addProductFromProductPageToQuote, removeElement } from './utils';
 
 const clearQuoteDom = () => {
   const quoteButtons = document.querySelectorAll('.b2b-add-to-quote');
+
   quoteButtons.forEach((button) => {
     removeElement(button);
   });
@@ -40,6 +41,7 @@ const clearQuoteDom = () => {
 
 const clearNoPurchasableQuoteDom = () => {
   const nonPurchasableQuoteButtons = document.querySelectorAll('.b2b-add-to-no-purchasable-quote');
+
   nonPurchasableQuoteButtons.forEach((button) => {
     removeElement(button);
   });
@@ -77,6 +79,7 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
     ) {
       dispatch(resetDraftQuoteInfo());
       dispatch(resetDraftQuoteList());
+
       if (typeof b2bId === 'number') {
         dispatch(setQuoteUserId(b2bId));
       }
@@ -97,6 +100,7 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
     (e: MouseEvent) => {
       const b3MyQuote = e.target as HTMLElement;
       const b2bLoading = document.querySelector('#b2b-div-loading');
+
       if (b3MyQuote && !b2bLoading) {
         addLoading(b3MyQuote);
         addToQuote(b3MyQuote);
@@ -151,8 +155,8 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
       isProductPurchasable: boolean,
     ) => {
       const quoteButtons = document.querySelectorAll<HTMLElement>(buttonSelector);
+
       quoteButtons.forEach((button) => {
-        /* eslint-disable no-param-reassign */
         button.innerHTML = quoteButtonLabel;
         button.setAttribute('style', isProductPurchasable ? customCss : nonPurchasableCustomCss);
         button.style.backgroundColor = isProductPurchasable ? color : nonPurchasableColor;
@@ -161,7 +165,6 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
           'class',
           `${buttonClass} ${isProductPurchasable ? classSelector : nonPurchasableClassSelector}`,
         );
-        /* eslint-enable no-param-reassign */
 
         setMediaStyle(
           mediaBlocks,
@@ -199,11 +202,14 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
       }
 
       const shouldRenderButton = isProductPurchasable ? enabled : nonPurchasableEnabled;
+
       if (shouldRenderButton) {
         elements.forEach((el) => {
           const children = el.querySelectorAll(buttonSelector);
+
           if (!children.length) {
             const quoteButton = document.createElement('div');
+
             quoteButton.innerHTML = quoteButtonLabel;
             quoteButton.setAttribute(
               'style',
@@ -241,6 +247,7 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
     if (!productQuoteEnabled) {
       clearQuoteDom();
       clearNoPurchasableQuoteDom();
+
       return;
     }
 
@@ -275,9 +282,12 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
         ? [...document.querySelectorAll<HTMLElement>(locationSelector)]
         : [];
 
-      if (!defaultElements.length && !customElements.length) return;
+      if (!defaultElements.length && !customElements.length) {
+        return;
+      }
 
       const elements = customElements.length ? customElements : defaultElements;
+
       renderQuoteButton(elements, true);
     }
   }, [

@@ -35,16 +35,15 @@ function QuickOrder() {
         }}
       >
         <Grid
+          container
+          spacing={2}
           sx={{
             m: 0,
             width: '100%',
           }}
-          container
-          spacing={2}
         >
           <Grid
             item
-            xs={isMobile ? 12 : 8}
             sx={{
               backgroundColor: '#ffffff',
               boxShadow:
@@ -52,20 +51,21 @@ function QuickOrder() {
               borderRadius: '4px',
               pr: '16px',
             }}
+            xs={isMobile ? 12 : 8}
           >
             <QuickOrderTable
+              isRequestLoading={isRequestLoading}
               setCheckedArr={setCheckedArr}
               setIsRequestLoading={setIsRequestLoading}
-              isRequestLoading={isRequestLoading}
             />
           </Grid>
           <Grid
             item
-            xs={isMobile ? 12 : 4}
             sx={{
               pt: isMobile ? '16px' : '0px !important',
               pl: isMobile ? '0px !important' : '16px',
             }}
+            xs={isMobile ? 12 : 4}
           >
             {isShowQuickOrderPad && <QuickOrderPad />}
           </Grid>
@@ -83,8 +83,8 @@ function QuickOrder() {
         <QuickOrderFooter
           checkedArr={checkedArr}
           isAgenting={isAgenting}
-          setIsRequestLoading={setIsRequestLoading}
           isB2BUser={isB2BUser}
+          setIsRequestLoading={setIsRequestLoading}
         />
       </Box>
     </Box>

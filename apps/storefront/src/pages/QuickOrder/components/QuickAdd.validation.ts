@@ -36,10 +36,12 @@ export function parseOptionList(options: string[] | undefined): ShoppingListAddP
   return (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
     try {
       const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr;
+
       arr.push({
         optionId: `attribute[${option.option_id}]`,
         optionValue: `${option.id}`,
       });
+
       return arr;
     } catch (error) {
       return arr;
@@ -56,6 +58,7 @@ export function filterInputSkusForNotFoundProducts(
   catalogProducts: CatalogProduct[],
 ): string[] {
   const foundSkus = catalogProducts.map((product) => product.variantSku.toUpperCase());
+
   return inputSkus.filter((sku) => !foundSkus.includes(sku.toUpperCase()));
 }
 

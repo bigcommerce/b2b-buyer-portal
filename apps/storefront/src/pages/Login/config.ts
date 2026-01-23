@@ -4,10 +4,10 @@ import b2bLogger from '@/utils/b3Logger';
 import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 import { validatorRules } from '@/utils/validatorRules';
 
-export type LoginConfig = {
+export interface LoginConfig {
   email: string;
   password: string;
-};
+}
 
 export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
   {
@@ -67,6 +67,7 @@ export const loginCheckout = (data: LoginConfig) => {
 
 export const sendForgotPasswordEmailFor = (email: string) => {
   const urlencoded = new URLSearchParams();
+
   urlencoded.append('email', email);
 
   const requestOptions: RequestInit = {

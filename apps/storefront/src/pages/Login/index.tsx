@@ -167,6 +167,7 @@ function Login(props: PageProps) {
 
       if (message === 'Reset password') {
         getForcePasswordReset(email);
+
         return true;
       }
     }
@@ -179,6 +180,7 @@ function Login(props: PageProps) {
     setLoginAccount(data);
     setSearchParams((prevURLSearchParams) => {
       prevURLSearchParams.delete('loginFlag');
+
       return prevURLSearchParams;
     });
 
@@ -209,7 +211,10 @@ function Login(props: PageProps) {
         };
 
         const isForcePasswordReset = await forcePasswordReset(data.email, data.password);
-        if (isForcePasswordReset) return;
+
+        if (isForcePasswordReset) {
+          return;
+        }
 
         const {
           login: {
@@ -226,31 +231,36 @@ function Login(props: PageProps) {
         if (errors?.[0] || !token) {
           if (errors?.[0]) {
             const { message } = errors[0];
+
             if (message === 'Operation cannot be performed as the storefront channel is not live') {
               setLoginFlag('accountPrelaunch');
               setLoading(false);
+
               return;
             }
           }
+
           getForcePasswordReset(data.email);
         } else {
           const info = await getCurrentCustomerInfo(token);
 
           if (quoteDetailToCheckoutUrl) {
             navigate(quoteDetailToCheckoutUrl);
+
             return;
           }
 
-          if (
-            info?.userType === UserTypes.MULTIPLE_B2C &&
-            info?.role === CustomerRole.SUPER_ADMIN
-          ) {
+          if (info?.userType === UserTypes.MULTIPLE_B2C && info.role === CustomerRole.SUPER_ADMIN) {
             navigate('/dashboard');
+
             return;
           }
+
           const isLoginLandLocation = loginJump(navigate);
 
-          if (!isLoginLandLocation) return;
+          if (!isLoginLandLocation) {
+            return;
+          }
 
           if (info?.userType === UserTypes.B2C) {
             navigate(PATH_ROUTES.ORDERS);
@@ -276,12 +286,12 @@ function Login(props: PageProps) {
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
 
-  const tip = flag && tipInfo(flag, loginAccount?.email);
+  const tip = flag && tipInfo(flag, loginAccount.email);
 
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
-        <B3Spin isSpinning={isLoading} tip={b3Lang('global.tips.loading')} background="transparent">
+        <B3Spin background="transparent" isSpinning={isLoading} tip={b3Lang('global.tips.loading')}>
           <Box
             sx={{
               display: 'flex',
@@ -315,28 +325,28 @@ function Login(props: PageProps) {
                 <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
                   <LoginImage>
                     <ImageListItem
-                      sx={{
-                        maxWidth: isMobile ? '70%' : '250px',
-                      }}
                       onClick={() => {
                         window.location.href = '/';
                       }}
+                      sx={{
+                        maxWidth: isMobile ? '70%' : '250px',
+                      }}
                     >
                       <img
-                        src={loginInfo.logo || getAssetUrl(b2bLogo)}
                         alt={b3Lang('login.registerLogo')}
                         loading="lazy"
+                        src={loginInfo.logo || getAssetUrl(b2bLogo)}
                       />
                     </ImageListItem>
                   </LoginImage>
                 </Box>
                 {loginInfo.widgetHeadText && (
                   <LoginWidget
+                    html={loginInfo.widgetHeadText}
                     sx={{
                       minHeight: '48px',
                       width: registerEnabled || isMobile ? '100%' : '50%',
                     }}
-                    html={loginInfo.widgetHeadText}
                   />
                 )}
                 <Box
@@ -377,9 +387,9 @@ function Login(props: PageProps) {
                         }}
                       >
                         <LoginForm
-                          loginBtn={loginInfo.loginBtn}
-                          handleLoginSubmit={handleLoginSubmit}
                           backgroundColor={backgroundColor}
+                          handleLoginSubmit={handleLoginSubmit}
+                          loginBtn={loginInfo.loginBtn}
                         />
                       </Box>
 
@@ -401,11 +411,11 @@ function Login(props: PageProps) {
                 </Box>
                 {loginInfo.widgetFooterText && (
                   <LoginWidget
+                    html={loginInfo.widgetFooterText}
                     sx={{
                       minHeight: '48px',
                       width: registerEnabled || isMobile ? '100%' : '50%',
                     }}
-                    html={loginInfo.widgetFooterText}
                   />
                 )}
               </>

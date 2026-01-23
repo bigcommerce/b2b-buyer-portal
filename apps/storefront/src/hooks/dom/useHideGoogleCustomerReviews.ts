@@ -12,15 +12,21 @@ const useHideGoogleCustomerReviews = (props: B3HideGoogleCustomerReviewsProps) =
   const [isMobile] = useMobile();
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) {
+      return;
+    }
+
     const googleCustomerReviewsDoms = document.querySelectorAll(
       '[title="Google Customer Reviews"]',
     );
     const newVisibilityStyle = isOpen ? 'none' : 'inline-block';
 
     googleCustomerReviewsDoms.forEach((dom) => {
-      const parentElement = dom?.parentElement;
-      if (parentElement) parentElement.style.display = newVisibilityStyle;
+      const parentElement = dom.parentElement;
+
+      if (parentElement) {
+        parentElement.style.display = newVisibilityStyle;
+      }
     });
   }, [isOpen, isMobile]);
 };

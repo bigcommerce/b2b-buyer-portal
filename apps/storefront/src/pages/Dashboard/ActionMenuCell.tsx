@@ -27,24 +27,24 @@ export function ActionMenuCell({ label, onClick }: Props) {
       </IconButton>
       <StyledMenu
         anchorEl={ref.current}
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
         }}
+        onClose={() => setIsOpen(false)}
+        open={isOpen}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
         }}
       >
         <MenuItem
-          sx={{
-            color: 'primary.main',
-          }}
           onClick={() => {
             onClick();
             setIsOpen(false);
+          }}
+          sx={{
+            color: 'primary.main',
           }}
         >
           {label}

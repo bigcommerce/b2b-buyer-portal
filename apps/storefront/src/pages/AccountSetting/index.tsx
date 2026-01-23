@@ -49,7 +49,10 @@ function useData() {
     platform === 'catalyst';
 
   const validateEmailValue = async (emailValue: string) => {
-    if (customer.emailAddress === trim(emailValue)) return true;
+    if (customer.emailAddress === trim(emailValue)) {
+      return true;
+    }
+
     const payload = {
       email: emailValue,
       channelId,
@@ -129,9 +132,9 @@ function AccountSetting() {
 
   const navigate = useNavigate();
 
-  const [accountInfoFormFields, setAccountInfoFormFields] = useState<Partial<Fields>[]>([]);
-  const [decryptionFields, setDecryptionFields] = useState<Partial<Fields>[]>([]);
-  const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([]);
+  const [accountInfoFormFields, setAccountInfoFormFields] = useState<Array<Partial<Fields>>>([]);
+  const [decryptionFields, setDecryptionFields] = useState<Array<Partial<Fields>>>([]);
+  const [extraFields, setExtraFields] = useState<Array<Partial<Fields>>>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [accountSettings, setAccountSettings] = useState<any>({});
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -179,7 +182,9 @@ function AccountSetting() {
 
         const roleItem = all.find((item) => item.name === 'role');
 
-        if (roleItem?.fieldType) roleItem.fieldType = 'text';
+        if (roleItem?.fieldType) {
+          roleItem.fieldType = 'text';
+        }
 
         setAccountInfoFormFields(all);
 
@@ -193,6 +198,7 @@ function AccountSetting() {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
           setIsFinishUpdate(false);
         }
+
         setLoading(false);
         setIsVisible(true);
       }
@@ -205,13 +211,14 @@ function AccountSetting() {
 
   const handleGetUserExtraFields = (
     data: CustomFieldItems,
-    accountInfoFormFields: Partial<Fields>[],
+    accountInfoFormFields: Array<Partial<Fields>>,
   ) => {
     const userExtraFields = accountInfoFormFields.filter(
       (item: CustomFieldItems) => item.custom && item.groupId === 1,
     );
+
     return userExtraFields.map((item: CustomFieldItems) => ({
-      fieldName: deCodeField(item?.name || ''),
+      fieldName: deCodeField(item.name || ''),
       fieldValue: data[item.name],
     }));
   };
@@ -267,10 +274,12 @@ function AccountSetting() {
 
           if (!payload) {
             snackbar.success(b3Lang('accountSettings.notification.noEdits'));
+
             return;
           }
 
           const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
+
           await requestFn(payload);
 
           if (
@@ -309,7 +318,7 @@ function AccountSetting() {
   }, [accountInfoFormFields, b3Lang]);
 
   return (
-    <B3Spin isSpinning={isLoading} background={backgroundColor}>
+    <B3Spin background={backgroundColor} isSpinning={isLoading}>
       <Box>
         {isDisplayUpgradeBanner && <UpgradeBanner />}
         <Box
@@ -337,21 +346,21 @@ function AccountSetting() {
           }}
         >
           <B3CustomForm
-            formFields={translatedFields}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={translatedFields}
             getValues={getValues}
             setValue={setValue}
           />
 
           <CustomButton
+            onClick={handleAddUserClick}
             sx={{
               mt: '28px',
               mb: isMobile ? '20px' : '0',
               width: '100%',
               visibility: isVisible ? 'visible' : 'hidden',
             }}
-            onClick={handleAddUserClick}
             variant="contained"
           >
             {b3Lang('accountSettings.button.saveUpdates')}

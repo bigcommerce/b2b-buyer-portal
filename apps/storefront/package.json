@@ -10,7 +10,7 @@
     "build": "vite build",
     "postbuild": "./generate-translations-csv.ts",
     "lint": "yarn lint:dependencies && yarn lint:eslint && yarn lint:knip",
-    "lint:eslint": "eslint . --ext .ts,.tsx,.js --cache --cache-location ./node_modules/.cache/eslint --max-warnings 0 .",
+    "lint:eslint": "eslint . --cache --cache-location ./node_modules/.cache/eslint --max-warnings 0",
     "lint:dependencies": "depcruise --config .dependency-cruiser.cjs . --output-type err-long",
     "lint:knip": "knip",
     "format": "yarn lint --fix",

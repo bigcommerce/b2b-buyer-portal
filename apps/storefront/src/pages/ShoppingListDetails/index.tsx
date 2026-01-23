@@ -1,11 +1,12 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
+import Cookies from 'js-cookie';
 import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
@@ -49,16 +50,8 @@ import {
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
-import {
-  CartError,
-  createOrUpdateExistingCart as rawCreateOrUpdateExistingCart,
-  deleteCartData,
-  updateCart as rawUpdateCart,
-} from '@/utils/cartUtils';
-import {
-  convertStockAndThresholdValidationErrorToWarning,
-  validateProducts,
-} from '@/utils/validateProducts';
+import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { validateProducts } from '@/utils/validateProducts';
 
 import { type PageProps } from '../PageProps';
 
@@ -85,19 +78,16 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-const mapToProductsFailedArray = (items: ProductsProps[]) => {
-  return items.map((item: ProductsProps) => {
-    return {
-      ...item,
-      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
-      minQuantity: item.node.productsSearch.orderQuantityMinimum,
-      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.unlimitedBackorder
-        ? Infinity
-        : item.node.productsSearch.availableToSell,
-    };
-  });
-};
+const mapToProductsFailedArray = (items: ProductsProps[]) =>
+  items.map((item: ProductsProps) => ({
+    ...item,
+    isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
+    minQuantity: item.node.productsSearch.orderQuantityMinimum,
+    maxQuantity: item.node.productsSearch.orderQuantityMaximum,
+    stock: item.node.productsSearch.unlimitedBackorder
+      ? Infinity
+      : item.node.productsSearch.availableToSell,
+  }));
 
 const calculateSubTotal = (checkedArr: CustomFieldItems) => {
   if (checkedArr.length > 0) {
@@ -132,23 +122,27 @@ const verifyInventory = (checkedArr: ProductsProps[], inventoryInfos: ProductsPr
 
     if (inventoryInfo) {
       let isPassVerify = true;
+
       if (
         inventoryInfo.isStock === '1' &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
-      )
+        (node.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
+      ) {
         isPassVerify = false;
+      }
 
       if (
         inventoryInfo.minQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
-      )
+        (node.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
+      ) {
         isPassVerify = false;
+      }
 
       if (
         inventoryInfo.maxQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
-      )
+        (node.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
+      ) {
         isPassVerify = false;
+      }
 
       if (isPassVerify) {
         validateSuccessArr.push({
@@ -249,39 +243,6 @@ function useData() {
 
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
-const createOrUpdateExistingCart = (products: ProductsProps[]) =>
-  rawCreateOrUpdateExistingCart(addLineItems(products));
-
-const updateCart = (cartInfo: any, products: ProductsProps[]) =>
-  rawUpdateCart(cartInfo, addLineItems(products));
-
-const partialAddToCart = async (checkedArr: ProductsProps[]) => {
-  try {
-    await createOrUpdateExistingCart(checkedArr);
-    return [];
-  } catch (apiError: unknown) {
-    if (!(apiError instanceof CartError)) {
-      throw apiError;
-    }
-
-    const { success, error, warning } = await validateProducts(
-      checkedArr.map((item) => ({
-        productId: item.node.productId,
-        variantId: item.node.variantId,
-        quantity: item.node.quantity ?? 0,
-        productOptions: getOptionsList(JSON.parse(item.node.optionList || '[]')),
-        item,
-      })),
-    );
-
-    if (success.length > 0) {
-      await createOrUpdateExistingCart(success.map((p) => p.product.item));
-    }
-
-    return [...error, ...warning];
-  }
-};
-
 function ShoppingListDetails({ setOpenPage }: PageProps) {
   const {
     id,
@@ -310,7 +271,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const tableRef = useRef<TableRefProps | null>(null);
 
-  const backendValidationEnabled = useIsBackorderValidationEnabled();
+  const featureFlags = useFeatureFlags();
+  const backendValidationEnabled =
+    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
 
   const [checkedArr, setCheckedArr] = useState<ProductsProps[]>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
@@ -336,8 +299,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifyLevelPermission({
         code: submitShoppingListPermissionCode,
-        companyId: Number(companyInfo?.companyId || 0),
-        userId: Number(customerInfo?.userId || 0),
+        companyId: Number(companyInfo.companyId || 0),
+        userId: Number(customerInfo.userId || 0),
       });
 
       return submitShoppingListPermissionLevel;
@@ -376,8 +339,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     if (listProducts.length > 0) {
       try {
         const productIds: number[] = [];
+
         listProducts.forEach((item) => {
           const { node } = item;
+
           if (!productIds.includes(node.productId)) {
             productIds.push(node.productId);
           }
@@ -399,6 +364,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           node.productUrl = productInfo?.productUrl || node.productUrl;
 
           node.disableCurrentCheckbox = false;
+
           if (node.quantity === 0) {
             node.disableCurrentCheckbox = true;
           }
@@ -417,7 +383,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const shoppingListDetailInfo = await getShoppingList(params);
+
     setIsRequestLoading(true);
+
     const {
       products: { edges, totalCount },
     } = shoppingListDetailInfo;
@@ -426,9 +394,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     await calculateProductListPrice(listProducts, '2');
 
-    if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo);
+    if (isB2BUser) {
+      setCustomerInfo(shoppingListDetailInfo.customerInfo);
+    }
+
     setShoppingListInfo(shoppingListDetailInfo);
     setIsRequestLoading(false);
+
     if (!listProducts) {
       return {
         edges: [],
@@ -444,6 +416,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true);
+
     try {
       const params: UpdateShoppingListParamsProps = {
         id: Number(id),
@@ -496,7 +469,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           setCheckedArr([...newCheckedArr]);
         }
       } else {
-        if (checkedArr.length === 0) return;
+        if (checkedArr.length === 0) {
+          return;
+        }
+
         checkedArr.forEach(async (item) => {
           const { node } = item;
 
@@ -527,7 +503,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   useEffect(() => {
-    if (isJuniorApprove) getJuniorPlaceOrder();
+    if (isJuniorApprove) {
+      getJuniorPlaceOrder();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isJuniorApprove]);
 
@@ -538,8 +516,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
         code: shoppingListCreateActionsPermission,
-        companyId: Number(companyInfo?.companyId || 0),
-        userId: Number(customerInfo?.userId || 0),
+        companyId: Number(companyInfo.companyId || 0),
+        userId: Number(customerInfo.userId || 0),
       });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);
@@ -576,10 +554,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     if (!isValidate) {
       snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
+
       return;
     }
 
-    const res = await createOrUpdateExistingCart(products);
+    const lineItems = addLineItems(products);
+
+    const res = await createOrUpdateExistingCart(lineItems);
 
     if (!res.errors) {
       shouldRedirectToCheckoutAfterRetry();
@@ -594,12 +575,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const retryAddToCartBackend = async (products: ProductsProps[]) => {
     try {
-      const errors = await partialAddToCart(products);
+      const lineItems = addLineItems(products);
+      const res = await createOrUpdateExistingCart(lineItems);
 
-      setSuccessProductsCount(products.length - errors.length);
-      setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
-
-      if (!errors.length) {
+      if (!res.errors) {
         shouldRedirectToCheckoutAfterRetry();
       }
 
@@ -613,9 +592,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const addToQuote = async (products: CustomFieldItems[]) => {
     if (backendValidationEnabled) {
-      const validatedProducts = await validateProducts(products);
-      const { success, warning, error } =
-        convertStockAndThresholdValidationErrorToWarning(validatedProducts);
+      const { success, warning, error } = await validateProducts(products);
 
       error.forEach((err) => {
         if (err.error.type === 'network') {
@@ -644,6 +621,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const handleAddSelectedToQuote = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
 
@@ -670,9 +648,12 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'));
       }
 
-      if (noSkuProducts.length === checkedArr.length) return;
+      if (noSkuProducts.length === checkedArr.length) {
+        return;
+      }
 
       const productIds: number[] = [];
+
       productsWithSku.forEach((product) => {
         const { node } = product;
 
@@ -692,6 +673,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       let isFoundVariant = true;
 
       const newProducts: CustomFieldItems[] = [];
+
       productsWithSku.forEach((product) => {
         const {
           node: {
@@ -758,6 +740,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         await calculateProductListPrice(newProducts, '2');
 
         const success = await addToQuote(newProducts);
+
         if (success) {
           snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
             action: {
@@ -784,6 +767,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       setIsRequestLoading(false);
     }
   };
+
+  const cartEntityId = Cookies.get('cartId');
 
   const retryAddToCart = backendValidationEnabled ? retryAddToCartBackend : retryAddToCartFrontend;
 
@@ -830,6 +815,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           skus: cantPurchase.slice(0, -1),
         }),
       );
+
       return;
     }
 
@@ -837,21 +823,23 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     const { validateFailureArr, validateSuccessArr } = verifyInventory(
       checkedArr,
-      getInventoryInfos?.variantSku || [],
+      getInventoryInfos.variantSku || [],
     );
 
     if (validateSuccessArr.length !== 0) {
+      const lineItems = addLineItems(validateSuccessArr);
       const cartInfo = await getCart();
       let res = null;
 
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartData(cartInfo.data.site.cart.entityId));
-        res = await updateCart(cartInfo, validateSuccessArr);
+        await deleteCart(deleteCartData(cartEntityId));
+        res = await updateCart(cartInfo, lineItems);
       } else {
-        res = await createOrUpdateExistingCart(validateSuccessArr);
+        res = await createOrUpdateExistingCart(lineItems);
         b3TriggerCartNumber();
       }
-      if (res && res.errors) {
+
+      if (res?.errors) {
         snackbar.error(res.errors[0].message);
       } else if (validateFailureArr.length === 0) {
         shouldRedirectToCheckoutAfterAddToCart();
@@ -863,29 +851,26 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const handleAddToCartBackend = async () => {
+    const items = checkedArr.map(({ node }) => ({ node }));
+
     try {
+      const lineItems = addLineItems(items);
       const cartInfo = await getCart();
+
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartData(cartInfo.data.site.cart.entityId));
-        await updateCart(cartInfo, checkedArr);
+        await deleteCart(deleteCartData(cartEntityId));
+        await updateCart(cartInfo, lineItems);
       } else {
-        const errors = await partialAddToCart(checkedArr);
-
-        setSuccessProductsCount(checkedArr.length - errors.length);
-        setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
-
-        if (!errors.length) {
-          shouldRedirectToCheckoutAfterAddToCart();
-        }
-
+        await createOrUpdateExistingCart(lineItems);
         b3TriggerCartNumber();
       }
+
+      shouldRedirectToCheckoutAfterAddToCart();
+      setSuccessProductsCount(items.length);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(mapToProductsFailedArray(checkedArr));
+        setValidateFailureProducts(mapToProductsFailedArray(items));
         snackbar.error(e.message);
-        // eslint-disable-next-line no-console
-        console.error(e);
       }
     }
   };
@@ -896,6 +881,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
 
@@ -920,15 +906,15 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         }}
       >
         <ShoppingDetailHeader
-          isB2BUser={isB2BUser}
-          shoppingListInfo={shoppingListInfo}
+          customColor={primaryColor}
           customerInfo={customerInfo}
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
-          setOpenPage={setOpenPage}
           isAgenting={isAgenting}
+          isB2BUser={isB2BUser}
           openAPPParams={openAPPParams}
-          customColor={primaryColor}
+          setOpenPage={setOpenPage}
+          shoppingListInfo={shoppingListInfo}
         />
 
         <Grid
@@ -972,22 +958,22 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                 }
               >
                 <ShoppingDetailTable
-                  ref={tableRef}
-                  isReadForApprove={isReadForApprove}
-                  isJuniorApprove={isJuniorApprove}
                   allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-                  setCheckedArr={setCheckedArr}
-                  shoppingListInfo={shoppingListInfo}
+                  getShoppingListDetails={getShoppingListDetails}
+                  isB2BUser={isB2BUser}
+                  isCanEditShoppingList={isCanEditShoppingList}
+                  isJuniorApprove={isJuniorApprove}
+                  isJuniorBuyer={isJuniorBuyer}
+                  isReadForApprove={isReadForApprove}
                   isRequestLoading={isRequestLoading}
+                  productQuoteEnabled={productQuoteEnabled}
+                  ref={tableRef}
+                  setCheckedArr={setCheckedArr}
+                  setDeleteItemId={setDeleteItemId}
+                  setDeleteOpen={setDeleteOpen}
                   setIsRequestLoading={setIsRequestLoading}
                   shoppingListId={id}
-                  getShoppingListDetails={getShoppingListDetails}
-                  setDeleteOpen={setDeleteOpen}
-                  setDeleteItemId={setDeleteItemId}
-                  isB2BUser={isB2BUser}
-                  productQuoteEnabled={productQuoteEnabled}
-                  isCanEditShoppingList={isCanEditShoppingList}
-                  isJuniorBuyer={isJuniorBuyer}
+                  shoppingListInfo={shoppingListInfo}
                 />
               </Grid>
             </B3Spin>
@@ -996,9 +982,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           <Grid item sx={isMobile ? { flexBasis: '100%' } : { flexBasis: '340px' }}>
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
-                updateList={updateList}
-                type="shoppingList"
                 isB2BUser={isB2BUser}
+                type="shoppingList"
+                updateList={updateList}
               />
             )}
           </Grid>
@@ -1007,38 +993,38 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         {!isReadForApprove &&
           (allowJuniorPlaceOrder || productQuoteEnabled || !isJuniorApprove) && (
             <ShoppingDetailFooter
-              shoppingListInfo={shoppingListInfo}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-              selectedSubTotal={calculateSubTotal(checkedArr)}
-              selectedProductCount={checkedArr.length}
-              onDelete={() => setDeleteOpen(true)}
-              onAddToCart={handleAddProductsToCart}
-              onAddToQuote={handleAddSelectedToQuote}
-              isB2BUser={isB2BUser}
               customColor={primaryColor}
+              isB2BUser={isB2BUser}
               isCanEditShoppingList={isCanEditShoppingList}
               isJuniorBuyer={isJuniorBuyer}
+              onAddToCart={handleAddProductsToCart}
+              onAddToQuote={handleAddSelectedToQuote}
+              onDelete={() => setDeleteOpen(true)}
+              selectedProductCount={checkedArr.length}
+              selectedSubTotal={calculateSubTotal(checkedArr)}
+              shoppingListInfo={shoppingListInfo}
             />
           )}
       </Box>
 
       <ReAddToCart
+        allowJuniorPlaceOrder={allowJuniorPlaceOrder}
         isOpen={validateFailureProducts.length > 0}
+        onAddToCart={retryAddToCart}
         onCancel={() => {
           setSuccessProductsCount(0);
           setValidateFailureProducts([]);
         }}
-        onAddToCart={retryAddToCart}
-        shoppingListInfo={shoppingListInfo}
         products={validateFailureProducts}
+        shoppingListInfo={shoppingListInfo}
         successProducts={successProductsCount}
-        allowJuniorPlaceOrder={allowJuniorPlaceOrder}
       />
 
       <ShoppingDetailDeleteItems
-        open={deleteOpen}
         handleCancelClick={handleCancelClick}
         handleDeleteProductClick={handleDeleteProductClick}
+        open={deleteOpen}
       />
     </>
   );

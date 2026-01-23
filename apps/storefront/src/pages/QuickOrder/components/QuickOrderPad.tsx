@@ -59,7 +59,7 @@ export default function QuickOrderPad() {
   const addSingleProductToCart = async (product: CustomFieldItems) => {
     const res = await createOrUpdateExistingCart([product]);
 
-    if (res && res.errors) {
+    if (res?.errors) {
       snackbar.error(res.errors[0].message);
     } else {
       snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
@@ -99,13 +99,16 @@ export default function QuickOrderPad() {
         productId,
         modifiers,
       } = currentProduct;
+
       if (purchasingDisabled === '1' || purchasingDisabled) {
         notPurchaseSku.push(variantSku);
+
         return;
       }
 
       if (isStock === '1' && stock === 0) {
         outOfStock.push(variantSku);
+
         return;
       }
 
@@ -114,6 +117,7 @@ export default function QuickOrderPad() {
           variantSku,
           AvailableAmount: stock,
         });
+
         return;
       }
 
@@ -164,6 +168,7 @@ export default function QuickOrderPad() {
     stockErrorFile: string;
   }) => {
     setIsLoading(true);
+
     try {
       const { stockErrorFile, validProduct } = productsData;
 
@@ -255,6 +260,7 @@ export default function QuickOrderPad() {
     stockErrorFile: string;
   }) => {
     setIsLoading(true);
+
     try {
       const { validProduct, stockErrorFile } = productsData;
 
@@ -331,14 +337,16 @@ export default function QuickOrderPad() {
       }
 
       const validProductMap = validProduct.reduce<Record<string, ValidProductItem>>((acc, item) => {
-        acc[item.products?.variantSku.toUpperCase()] = item;
+        acc[item.products.variantSku.toUpperCase()] = item;
+
         return acc;
       }, {});
 
       const cartLineItems = validationResult.products
-        .filter((product) => product?.responseType === 'SUCCESS')
+        .filter((product) => product.responseType === 'SUCCESS')
         .map((product) => {
           const validProduct = validProductMap[product.product.sku.toUpperCase()];
+
           if (!validProduct) {
             return null;
           }
@@ -348,20 +356,22 @@ export default function QuickOrderPad() {
             variantId: Number(validProduct.products.variantId) || 0,
             quantity: Number(validProduct.qty) || 0,
             optionSelections:
-              validProduct?.products?.option?.map((opt: CustomFieldItems) => ({
+              validProduct.products.option.map((opt: CustomFieldItems) => ({
                 optionId: opt.option_id,
                 optionValue: opt.id,
               })) || [],
-            allOptions: validProduct.products?.modifiers || [],
+            allOptions: validProduct.products.modifiers || [],
           };
         })
         .filter((item) => item !== null);
 
       if (cartLineItems.length > 0) {
         const res = await createOrUpdateExistingCart(cartLineItems);
+
         getSnackbarMessage(res);
         b3TriggerCartNumber();
       }
+
       setIsOpenBulkLoadCSV(false);
     } catch (error) {
       if (error instanceof Error) {
@@ -434,7 +444,7 @@ export default function QuickOrderPad() {
   };
 
   useEffect(() => {
-    if (productData?.length > 0) {
+    if (productData.length > 0) {
       setAddBtnText(
         b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart', {
           quantity: productData.length,
@@ -447,7 +457,7 @@ export default function QuickOrderPad() {
     <Card sx={{ marginBottom: isMobile ? '8.5rem' : '50px' }}>
       <CardContent>
         <Box>
-          <Typography variant="h5" sx={{ marginBottom: '1rem' }}>
+          <Typography sx={{ marginBottom: '1rem' }} variant="h5">
             {b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
           </Typography>
 
@@ -466,7 +476,7 @@ export default function QuickOrderPad() {
           <Divider />
 
           <Box sx={{ margin: '20px 0 0' }}>
-            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
+            <CustomButton onClick={() => handleOpenUploadDiag()} variant="text">
               <UploadFileIcon sx={{ marginRight: '8px' }} />
               {b3Lang('purchasedProducts.quickOrderPad.bulkUploadCSV')}
             </CustomButton>
@@ -475,13 +485,13 @@ export default function QuickOrderPad() {
       </CardContent>
 
       <B3Upload
-        isOpen={isOpenBulkLoadCSV}
-        setIsOpen={setIsOpenBulkLoadCSV}
-        handleAddToList={backendValidationEnabled ? handleAddCSVToCart : handleAddToCart}
-        setProductData={setProductData}
         addBtnText={addBtnText}
+        handleAddToList={backendValidationEnabled ? handleAddCSVToCart : handleAddToCart}
         isLoading={isLoading}
+        isOpen={isOpenBulkLoadCSV}
         isToCart
+        setIsOpen={setIsOpenBulkLoadCSV}
+        setProductData={setProductData}
         withModifiers={passWithModifiersToProductUpload}
       />
     </Card>

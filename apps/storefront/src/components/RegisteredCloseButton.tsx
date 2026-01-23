@@ -21,6 +21,7 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
 
   const handleCloseForm = () => {
     const isInLoginPage = window.location.hash.startsWith('#/login');
+
     if (isCloseGotoBCHome || isInLoginPage) {
       window.location.href = '/';
     } else {

@@ -65,16 +65,16 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
 
   return (
     <B3Dialog
+      handRightClick={handleDelete}
+      handleLeftClick={closeDialog}
       isOpen={isOpen}
-      title={b3Lang('addresses.deleteAddressDialog.deleteAddress')}
+      isShowBordered={false}
       leftSizeBtn={b3Lang('addresses.deleteAddressDialog.cancel')}
       rightSizeBtn={b3Lang('addresses.deleteAddressDialog.delete')}
-      handleLeftClick={closeDialog}
-      handRightClick={handleDelete}
       rightStyleBtn={{
         color: '#D32F2F',
       }}
-      isShowBordered={false}
+      title={b3Lang('addresses.deleteAddressDialog.deleteAddress')}
     >
       <Box
         sx={{

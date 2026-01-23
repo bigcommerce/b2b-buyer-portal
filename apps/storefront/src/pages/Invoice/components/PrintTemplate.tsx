@@ -30,26 +30,27 @@ function PrintTemplate({ row }: PrintTemplateProps) {
 
   const [height, setHeight] = useState<number>(templateMinHeight);
 
-  const onFirstBoxResize = (
-    _: SyntheticEvent<Element, Event>,
-    { size }: { size: { height: number } },
-  ) => {
+  const onFirstBoxResize = (_: SyntheticEvent, { size }: { size: { height: number } }) => {
     setHeight(size.height);
   };
 
   useEffect(() => {
     const viewPrint = async () => {
       setLoading(true);
+
       const { id: invoiceId } = row;
 
       const invoicePDFUrl = await handlePrintPDF(invoiceId);
 
       if (!invoicePDFUrl) {
         snackbar.error('pdf url resolution error');
+
         return;
       }
 
-      if (!container?.current) return;
+      if (!container.current) {
+        return;
+      }
 
       PDFObject.embed(invoicePDFUrl, container.current);
 
@@ -98,10 +99,10 @@ function PrintTemplate({ row }: PrintTemplateProps) {
         <Resizable
           className="box"
           height={height}
-          minConstraints={[dom?.current?.offsetWidth || 0, 0]}
-          width={dom.current?.offsetWidth || 0}
+          minConstraints={[dom.current?.offsetWidth || 0, 0]}
           onResize={onFirstBoxResize}
           resizeHandles={['s']}
+          width={dom.current?.offsetWidth || 0}
         >
           <div style={{ width: '100%', height: `${height}px` }}>
             <div ref={container} style={{ height: '100%', width: '100%' }} />

@@ -82,7 +82,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
               >
                 <Title title="Amount" />
                 <Typography variant="body1">
-                  {handleGetCorrespondingCurrency(amount.code, Number(amount?.value || 0))}
+                  {handleGetCorrespondingCurrency(amount.code, Number(amount.value || 0))}
                 </Typography>
               </Box>
               <Box
@@ -127,6 +127,7 @@ function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryPro
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+
       const {
         allReceiptLines: { edges = [] },
       } = await getInvoicePaymentHistory(Number(currentInvoiceId));
@@ -142,12 +143,12 @@ function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryPro
 
   return (
     <B3Dialog
+      handRightClick={() => setOpen(false)}
       isOpen={open}
       leftSizeBtn=""
       rightSizeBtn="ok"
-      title={b3Lang('invoice.paymentHistory.title')}
       showLeftBtn={false}
-      handRightClick={() => setOpen(false)}
+      title={b3Lang('invoice.paymentHistory.title')}
     >
       <Box
         sx={{

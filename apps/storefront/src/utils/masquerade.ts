@@ -19,7 +19,10 @@ export const startMasquerade = async (
 
   // get data to be saved on global
   const data = await getAgentInfo(customerId);
-  if (!data?.superAdminMasquerading) return;
+
+  if (!data.superAdminMasquerading) {
+    return;
+  }
 
   const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading;
 

@@ -3,24 +3,20 @@ import type { DispatchProps, QuoteConfigProps } from '@/shared/global/context/co
 import type { B3RequestType } from '@/shared/service/request/b3Fetch';
 import type { LineItem } from '@/utils/b3Product/b3Product';
 
+import type { HeadlessRoute } from './constants';
 import type { EventType } from './hooks/useB2BCallback';
 import type { ShoppingListsItemsProps } from './pages/ShoppingLists/config';
 import type { BuyerPortalRoute } from './shared/routeList';
 import type CallbackManager from './utils/b3CallbackManager';
-import type { HeadlessRoute } from './constants';
 import type { FormattedQuoteItem, ProductMappedAttributes } from './HeadlessController';
 import type { InitializationEnvironment } from './load-functions';
 
 declare global {
   /** @deprecated Please avoid using this interface */
-  declare interface CustomFieldItems {
-    [key: string]: any;
-  }
+  type CustomFieldItems = Record<string, any>;
 
   /** @deprecated Please avoid using this interface */
-  declare interface CustomFieldStringItems {
-    [key: string]: string;
-  }
+  type CustomFieldStringItems = Record<string, string>;
 
   type ChannelPlatform =
     | 'bigcommerce'

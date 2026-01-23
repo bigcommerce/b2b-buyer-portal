@@ -63,9 +63,10 @@ export default function App() {
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
     useAppSelector(rolePermissionSelector);
 
-  const authorizedPages = useMemo(() => {
-    return isB2BUser ? b2bJumpPath(role) : PATH_ROUTES.ORDERS;
-  }, [role, isB2BUser]);
+  const authorizedPages = useMemo(
+    () => (isB2BUser ? b2bJumpPath(role) : PATH_ROUTES.ORDERS),
+    [role, isB2BUser],
+  );
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(true);
@@ -124,10 +125,12 @@ export default function App() {
       });
 
       let openUrl = '/login';
-      if (/action=create_account/.test(search)) {
+
+      if (search.includes('action=create_account')) {
         openUrl = '/register';
       }
-      if (/action=reset_password/.test(search)) {
+
+      if (search.includes('action=reset_password')) {
         openUrl = '/forgotPassword';
       }
 
@@ -156,11 +159,13 @@ export default function App() {
   useEffect(() => {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
+
     const init = async () => {
       // bc graphql token
       if (!bcGraphqlToken) {
         await loginInfo();
       }
+
       setChannelStoreType();
 
       // load the store config before fetching other data
@@ -188,8 +193,9 @@ export default function App() {
             gotoPage(`/login?loginFlag=${error.reason}`);
           }
         });
+
         if (info) {
-          userInfo.role = info?.role;
+          userInfo.role = info.role;
         }
       }
 
@@ -242,7 +248,10 @@ export default function App() {
         window.b2b.initializationEnvironment.isInit = true;
       });
     }
-    if (isB2BUser) hideStorefrontElement('dom.hideThemePayments');
+
+    if (isB2BUser) {
+      hideStorefrontElement('dom.hideThemePayments');
+    }
 
     // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -304,6 +313,7 @@ export default function App() {
 
     if (!hash.includes('login') && !hash.includes('register')) {
       const recordOpenHash = isOpen ? hash : '';
+
       storeDispatch(
         setGlobalCommonState({
           recordOpenHash,
@@ -317,7 +327,9 @@ export default function App() {
         openUrl: '',
       });
     }
+
     const anchorLinks = hash ? hash.split('#')[1] : '';
+
     if (anchorLinks && !anchorLinks.includes('/')) {
       showPageMask(false);
     }
@@ -329,6 +341,7 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const { hash } = window.location;
+
       if (!hash || hash === '#/') {
         setOpenPage({ isOpen: false });
       }
@@ -350,7 +363,7 @@ export default function App() {
     const newStyle = `${CUSTOM_STYLES}\n${cssValue}`;
 
     setCustomStyle(newStyle);
-  }, [cssOverride?.css, CUSTOM_STYLES]);
+  }, [cssOverride.css, CUSTOM_STYLES]);
 
   return (
     <>
@@ -358,8 +371,8 @@ export default function App() {
         <div className="bundle-app">
           <ThemeFrame
             className={isOpen ? 'active-frame' : undefined}
-            fontUrl={FONT_URL}
             customStyles={customStyles}
+            fontUrl={FONT_URL}
           >
             {isOpen ? (
               <B3RenderRouter isOpen={isOpen} openUrl={openUrl} setOpenPage={setOpenPage} />
@@ -367,8 +380,8 @@ export default function App() {
           </ThemeFrame>
         </div>
       </HashRouter>
-      <B3MasqueradeGlobalTip setOpenPage={setOpenPage} isOpen={isOpen} />
-      <B3CompanyHierarchyExternalButton setOpenPage={setOpenPage} isOpen={isOpen} />
+      <B3MasqueradeGlobalTip isOpen={isOpen} setOpenPage={setOpenPage} />
+      <B3CompanyHierarchyExternalButton isOpen={isOpen} setOpenPage={setOpenPage} />
       <B3HoverButton
         isOpen={isOpen}
         productQuoteEnabled={productQuoteEnabled}

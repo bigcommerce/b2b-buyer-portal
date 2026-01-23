@@ -33,18 +33,18 @@ export default function QuoteTermsAndConditions(props: QuoteTermsAndConditionsPr
         }}
       >
         <B3CollapseContainer
-          title={b3Lang('quoteDetail.termsAndConditions')}
           handleOnChange={handleOnChange}
+          title={b3Lang('quoteDetail.termsAndConditions')}
         >
           <Box>
             <Typography
-              variant="body1"
               sx={{
                 padding: '16px 0',
                 maxHeight: '545px',
                 whiteSpace: 'pre-wrap',
                 overflow: 'auto',
               }}
+              variant="body1"
             >
               {quoteLegalTerms}
             </Typography>

@@ -44,6 +44,9 @@ export default function B3Logo() {
       }
     >
       <ImageListItem
+        onClick={() => {
+          window.location.href = '/';
+        }}
         sx={{
           maxWidth: '200px',
           cursor: 'pointer',
@@ -52,11 +55,8 @@ export default function B3Logo() {
             width: 'auto',
           },
         }}
-        onClick={() => {
-          window.location.href = '/';
-        }}
       >
-        <img src={logo || getAssetUrl(b2bLogo)} alt="logo" />
+        <img alt="logo" src={logo || getAssetUrl(b2bLogo)} />
       </ImageListItem>
     </Box>
   );

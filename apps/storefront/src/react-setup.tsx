@@ -18,6 +18,7 @@ import './main.css';
 const CONTAINER_ID = 'bundle-container';
 
 let container = document.getElementById(CONTAINER_ID);
+
 if (!container) {
   container = document.createElement('div');
   container.id = CONTAINER_ID;

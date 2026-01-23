@@ -83,6 +83,7 @@ describe('HeadlessController shopping lists utils', () => {
     );
 
     const mockSetOpenPage = vi.fn();
+
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />, {
       preloadedState: {
         company: buildCompanyStateWith({
@@ -135,7 +136,9 @@ describe('HeadlessController shopping lists utils', () => {
     );
 
     const mockSetOpenPage = vi.fn();
+
     renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
+
     const data = await window.b2b.utils.shoppingList.getLists();
 
     expect(data).toEqual(

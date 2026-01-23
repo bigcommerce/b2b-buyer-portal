@@ -39,14 +39,17 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
         const newAddress = {
           ...address,
         };
+
         if (key === 'isDefaultShipping') {
           newAddress.isDefaultShipping = checked ? 1 : 0;
           newAddress.isShipping = checked ? 1 : newAddress.isShipping;
         }
+
         if (key === 'isDefaultBilling') {
           newAddress.isDefaultBilling = checked ? 1 : 0;
           newAddress.isBilling = checked ? 1 : newAddress.isShipping;
         }
+
         setAddress(newAddress);
       }
     };
@@ -71,12 +74,12 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
 
   return (
     <B3Dialog
+      handRightClick={handleSetDefault}
+      handleLeftClick={closeDialog}
       isOpen={isOpen}
-      title={b3Lang('addresses.setDefaultDialog.setDefaultAddress')}
       leftSizeBtn={b3Lang('addresses.setDefaultDialog.cancel')}
       rightSizeBtn="set"
-      handleLeftClick={closeDialog}
-      handRightClick={handleSetDefault}
+      title={b3Lang('addresses.setDefaultDialog.setDefaultAddress')}
     >
       <Box
         sx={{

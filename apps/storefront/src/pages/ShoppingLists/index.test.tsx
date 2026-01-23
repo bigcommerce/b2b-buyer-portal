@@ -1006,10 +1006,12 @@ describe('when the user is a B2B customer', () => {
       const createNewModal = await screen.findByRole('dialog');
 
       const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+
       await userEvent.clear(nameField);
       await userEvent.type(nameField, 'My copied shopping list');
 
       const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+
       await userEvent.clear(descriptionField);
       await userEvent.type(descriptionField, 'Even more good stuff in here');
 
@@ -1095,10 +1097,12 @@ describe('when the user is a B2B customer', () => {
       const createNewModal = await screen.findByRole('dialog');
 
       const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+
       await userEvent.clear(nameField);
       await userEvent.type(nameField, 'My updated shopping list');
 
       const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+
       await userEvent.clear(descriptionField);
       await userEvent.type(descriptionField, 'Needs more good stuff in here');
 
@@ -1471,10 +1475,12 @@ describe('when the user is a B2C customer', () => {
       const createNewModal = await screen.findByRole('dialog');
 
       const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+
       await userEvent.clear(nameField);
       await userEvent.type(nameField, 'My copied shopping list');
 
       const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+
       await userEvent.clear(descriptionField);
       await userEvent.type(descriptionField, 'Even more good stuff in here');
 
@@ -1554,10 +1560,12 @@ describe('when the user is a B2C customer', () => {
       const createNewModal = await screen.findByRole('dialog');
 
       const nameField = within(createNewModal).getByRole('textbox', { name: 'Name' });
+
       await userEvent.clear(nameField);
       await userEvent.type(nameField, 'My much improved shopping list');
 
       const descriptionField = within(createNewModal).getByRole('textbox', { name: 'Description' });
+
       await userEvent.clear(descriptionField);
       await userEvent.type(descriptionField, 'Even more good stuff in here');
 

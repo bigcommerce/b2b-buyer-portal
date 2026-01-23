@@ -50,17 +50,19 @@ function InvoiceFooter(props: InvoiceFooterProps) {
           openBalance.value
             ? Number(openBalance.originValue)
             : Number(openBalance.value);
+
         lineItems.push({
           invoiceId: Number(id),
           amount: openBalance.value === '.' ? '0' : `${Number(currentValue)}`,
         });
 
-        currency = openBalance?.code || originalBalance.code;
+        currency = openBalance.code || originalBalance.code;
       });
 
       const badItem = lineItems.find(
         (item: CustomFieldItems) => item.amount === '.' || Number(item.amount) === 0,
       );
+
       if (badItem) {
         snackbar.error(b3Lang('invoice.footer.invalidNameError'));
 
@@ -85,6 +87,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
           const {
             node: { openBalance },
           } = item;
+
           amount += openBalance.value === '.' ? 0 : Number(openBalance.value);
         });
 
@@ -95,6 +98,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       } = selectedPay[0];
 
       const token = handleGetCorrespondingCurrencyToken(openBalance.code);
+
       setCurrentToken(token);
       handleStatisticsInvoiceAmount(selectedPay);
     }
@@ -102,6 +106,8 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   return (
     <Grid
+      container
+      spacing={2}
       sx={{
         position: 'fixed',
         bottom: isMobile && isAgenting ? '52px' : 0,
@@ -115,8 +121,6 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         flexWrap: 'nowrap',
         zIndex: '999',
       }}
-      container
-      spacing={2}
     >
       <Grid
         item
@@ -169,12 +173,12 @@ function InvoiceFooter(props: InvoiceFooterProps) {
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 fontSize: '16px',
                 fontWeight: '700',
                 color: '#000000',
               }}
+              variant="h6"
             >
               {b3Lang('invoice.footer.totalPayment', {
                 total: `${currentToken}${selectedAccount}`,
@@ -189,14 +193,14 @@ function InvoiceFooter(props: InvoiceFooterProps) {
               }}
             >
               <Button
-                variant="contained"
+                onClick={() => {
+                  handlePay();
+                }}
                 sx={{
                   marginLeft: isMobile ? 0 : '1rem',
                   width: isMobile ? '100%' : 'auto',
                 }}
-                onClick={() => {
-                  handlePay();
-                }}
+                variant="contained"
               >
                 {b3Lang('invoice.footer.payInvoices')}
               </Button>

@@ -31,7 +31,7 @@ interface Pagination {
 }
 
 interface TableProps<Row> {
-  listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
+  listItems: Array<PossibleNodeWrapper<WithRowControls<Row>>>;
   itemXs: number;
   onPaginationChange: (pagination: Pagination) => void;
   pagination: Pagination;
@@ -98,7 +98,7 @@ export function B3Table<Row>({
 
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={12} key={`${node.id + index}`}>
+                <Grid item key={`${node.id + index}`} xs={12}>
                   {node && renderItem(node)}
                 </Grid>
               );
@@ -106,12 +106,17 @@ export function B3Table<Row>({
           </Grid>
 
           <TablePagination
+            component="div"
+            count={count}
             labelDisplayedRows={({ from, to, count }) =>
               b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
-            rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
             labelRowsPerPage={b3Lang('global.pagination.perPage')}
-            component="div"
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            page={first === 0 ? 0 : offset / first}
+            rowsPerPage={first}
+            rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
             sx={{
               color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
               marginTop: '1.5rem',
@@ -122,11 +127,6 @@ export function B3Table<Row>({
                 color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
               },
             }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </>
       )}
@@ -138,7 +138,7 @@ export function B3Table<Row>({
 
               return (
                 // @ts-expect-error typed previously as an any
-                <Grid item xs={itemXs} key={`${node.id + index}`}>
+                <Grid item key={`${node.id + index}`} xs={itemXs}>
                   {node && renderItem && renderItem(node)}
                 </Grid>
               );
@@ -146,12 +146,17 @@ export function B3Table<Row>({
           </Grid>
 
           <TablePagination
+            component="div"
+            count={count}
             labelDisplayedRows={({ from, to, count }) =>
               b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
-            rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
             labelRowsPerPage={b3Lang('global.pagination.cardsPerPage')}
-            component="div"
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            page={first === 0 ? 0 : offset / first}
+            rowsPerPage={first}
+            rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
             sx={{
               color: customColor,
               marginTop: '1.5rem',
@@ -162,11 +167,6 @@ export function B3Table<Row>({
                 color: customColor,
               },
             }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </>
       )}

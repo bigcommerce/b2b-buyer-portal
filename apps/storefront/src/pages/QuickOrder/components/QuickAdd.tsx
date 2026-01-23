@@ -57,6 +57,7 @@ export default function QuickAdd() {
   const convertFormInputToValidProducts = (formData: Record<string, string>) => {
     const skuQuantityMap: Record<string, number> = {};
     let allRowsValid = true;
+
     for (let index = 0; index < numRows; index += 1) {
       const sku = formData[`sku-${index}`];
       const qty = formData[`qty-${index}`];
@@ -65,6 +66,7 @@ export default function QuickAdd() {
         let isValidRow = true;
 
         const quantity = parseInt(qty, 10);
+
         if (Number.isNaN(quantity)) {
           setError(`qty-${index}`, {
             type: 'manual',
@@ -115,15 +117,15 @@ export default function QuickAdd() {
     const notPurchaseSku: string[] = [];
     const productItems: CustomFieldItems[] = [];
     const passSku: string[] = [];
-    const notStockSku: {
+    const notStockSku: Array<{
       sku: string;
       stock: number;
-    }[] = [];
-    const orderLimitSku: {
+    }> = [];
+    const orderLimitSku: Array<{
       sku: string;
       min: number;
       max: number;
-    }[] = [];
+    }> = [];
 
     const cartProducts = await getCartProductInfo();
 
@@ -134,6 +136,7 @@ export default function QuickAdd() {
 
       if (!variantInfo) {
         notFoundSku.push(sku);
+
         return;
       }
 
@@ -152,8 +155,7 @@ export default function QuickAdd() {
       const num =
         cartProducts.find(
           (item) =>
-            item.sku === variantSku &&
-            Number(item?.variantEntityId || 0) === Number(variantId || 0),
+            item.sku === variantSku && Number(item.variantEntityId || 0) === Number(variantId || 0),
         )?.quantity || 0;
 
       const quantity = (skuValue[sku] as number) || 0;
@@ -162,6 +164,7 @@ export default function QuickAdd() {
 
       if (purchasingDisabled === '1') {
         notPurchaseSku.push(sku);
+
         return;
       }
 
@@ -301,9 +304,11 @@ export default function QuickAdd() {
 
         const type = min === 0 ? 'Max' : 'Min';
         const limit = min === 0 ? max : min;
+
         showErrors(value, [sku], 'qty', `${type} is ${limit}`);
 
         const typeText = min === 0 ? 'maximum' : 'minimum';
+
         snackbar.error(
           b3Lang('purchasedProducts.quickAdd.purchaseQuantityLimitMessage', {
             typeText,
@@ -347,7 +352,7 @@ export default function QuickAdd() {
   const addProductsToCart = async (products: CustomFieldItems[]) => {
     const res = await createOrUpdateExistingCart(products);
 
-    if (res && res.errors) {
+    if (res?.errors) {
       snackbar.error(res.errors[0].message);
     } else {
       snackbar.success(b3Lang('purchasedProducts.quickOrderPad.productsAdded'), {
@@ -373,10 +378,13 @@ export default function QuickAdd() {
 
     if (error.error.type === 'network') {
       const productName = error.product.node?.productName || '';
+
       snackbar.error(b3Lang('quotes.productValidationFailed', { productName }));
+
       if (sku) {
         showErrors(formData, [sku], 'sku', '');
       }
+
       return;
     }
 
@@ -401,6 +409,7 @@ export default function QuickAdd() {
     if (sku) {
       showErrors(formData, [sku], 'sku', '');
     }
+
     snackbar.error(error.error.message);
   };
 
@@ -409,12 +418,14 @@ export default function QuickAdd() {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.',
       );
+
       return;
     }
 
     handleSubmit(async (formData) => {
       try {
         setIsLoading(true);
+
         const { skuQuantityMap, allRowsValid, skus } = convertFormInputToValidProducts(formData);
 
         if (!allRowsValid || skus.length <= 0) {
@@ -436,7 +447,8 @@ export default function QuickAdd() {
 
           warning.forEach((warn) => {
             snackbar.warning(warn.message);
-            const sku = warn.product.node?.sku;
+
+            const sku = warn.product.node.sku;
 
             if (sku) {
               showErrors(formData, [sku], 'sku', '');
@@ -461,7 +473,9 @@ export default function QuickAdd() {
 
           if (productItems.length > 0) {
             await addProductsToCart(productItems);
+
             const skus = productItems.map((item) => item.variantSku);
+
             clearInputValue(formData, skus);
           }
         } else {
@@ -495,7 +509,7 @@ export default function QuickAdd() {
 
   return (
     <B3Spin isSpinning={isLoading} spinningHeight="auto">
-      <Box sx={{ width: '100%' }} data-testid="quick-add">
+      <Box data-testid="quick-add" sx={{ width: '100%' }}>
         <Grid
           container
           sx={{
@@ -521,12 +535,12 @@ export default function QuickAdd() {
           </Grid>
           <Grid item>
             <CustomButton
-              variant="text"
+              onClick={handleAddRowsClick}
               sx={{
                 textTransform: 'initial',
                 ml: '-8px',
               }}
-              onClick={handleAddRowsClick}
+              variant="text"
             >
               {b3Lang('purchasedProducts.quickAdd.showMoreRowsButton')}
             </CustomButton>
@@ -542,56 +556,54 @@ export default function QuickAdd() {
           }}
         >
           <Grid container spacing={2}>
-            {[...Array(numRows).keys()].map((row) => {
-              return (
-                <Fragment key={row}>
-                  <Grid item xs={8} id="b3-customForm-id-name">
-                    <B3ControlTextField
-                      name={`sku-${row}`}
-                      label={b3Lang('global.searchProductAddProduct.sku') || 'SKU#'}
-                      required={false}
-                      xs={8}
-                      variant="filled"
-                      size="small"
-                      fieldType="text"
-                      default=""
-                      errors={errors}
-                      control={control}
-                    />
-                  </Grid>
-                  <Grid item xs={4} id="b3-customForm-id-name">
-                    <B3ControlTextField
-                      name={`qty-${row}`}
-                      label={b3Lang('global.searchProductAddProduct.qty') || 'Qty'}
-                      required={false}
-                      xs={4}
-                      variant="filled"
-                      size="small"
-                      fieldType="number"
-                      default=""
-                      allowArrow
-                      min={1}
-                      max={1000000}
-                      errors={errors}
-                      control={control}
-                    />
-                  </Grid>
-                </Fragment>
-              );
-            })}
+            {[...Array(numRows).keys()].map((row) => (
+              <Fragment key={row}>
+                <Grid id="b3-customForm-id-name" item xs={8}>
+                  <B3ControlTextField
+                    control={control}
+                    default=""
+                    errors={errors}
+                    fieldType="text"
+                    label={b3Lang('global.searchProductAddProduct.sku') || 'SKU#'}
+                    name={`sku-${row}`}
+                    required={false}
+                    size="small"
+                    variant="filled"
+                    xs={8}
+                  />
+                </Grid>
+                <Grid id="b3-customForm-id-name" item xs={4}>
+                  <B3ControlTextField
+                    allowArrow
+                    control={control}
+                    default=""
+                    errors={errors}
+                    fieldType="number"
+                    label={b3Lang('global.searchProductAddProduct.qty') || 'Qty'}
+                    max={1000000}
+                    min={1}
+                    name={`qty-${row}`}
+                    required={false}
+                    size="small"
+                    variant="filled"
+                    xs={4}
+                  />
+                </Grid>
+              </Fragment>
+            ))}
           </Grid>
         </Box>
 
         <CustomButton
-          variant="outlined"
-          fullWidth
           disabled={isLoading}
+          fullWidth
           onClick={handleAddToList}
           sx={{
             margin: '20px 0',
           }}
+          variant="outlined"
         >
-          <B3Spin isSpinning={isLoading} tip="" size={16}>
+          <B3Spin isSpinning={isLoading} size={16} tip="">
             <Box
               sx={{
                 flex: 1,

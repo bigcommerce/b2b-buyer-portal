@@ -63,21 +63,24 @@ interface OptionList {
 
 export const rolePermissionSelector = createSelector(
   companySelector,
-  ({
-    permissions,
-    companyHierarchyInfo: { selectCompanyHierarchyId },
-  }): B2BPermissionsMapParams => {
-    return getCorrespondsConfigurationPermission(permissions, Number(selectCompanyHierarchyId));
-  },
+  ({ permissions, companyHierarchyInfo: { selectCompanyHierarchyId } }): B2BPermissionsMapParams =>
+    getCorrespondsConfigurationPermission(permissions, Number(selectCompanyHierarchyId)),
 );
 
 export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
   quoteInfo.draftQuoteList.map(
-    ({ node: { optionList, calculatedValue, productsSearch, ...restItem } }) => {
+    ({
+      node: {
+        optionList,
+        calculatedValue: _calculatedValue,
+        productsSearch: _productsSearch,
+        ...restItem
+      },
+    }) => {
       const parsedOptionList: OptionList[] = JSON.parse(optionList);
 
       const optionSelections = parsedOptionList.map(({ optionId, optionValue }) => {
-        const optionIdFormatted = optionId.match(/\d+/);
+        const optionIdFormatted = /\d+/.exec(optionId);
 
         return {
           optionId: optionIdFormatted?.[0] ? Number(optionIdFormatted[0]) : optionId,

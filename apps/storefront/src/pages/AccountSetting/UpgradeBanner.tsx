@@ -10,7 +10,6 @@ export function UpgradeBanner() {
     <Box>
       <Alert
         severity="info"
-        variant="filled"
         sx={{
           width: 'inherit',
           '& button[title="Close"]': {
@@ -27,10 +26,11 @@ export function UpgradeBanner() {
             width: '100%',
           },
         }}
+        variant="filled"
       >
         <Box display="flex" flexWrap="wrap" justifyContent="space-between" width="100%">
           <Box>
-            <Typography variant="subtitle1" fontWeight="800">
+            <Typography fontWeight="800" variant="subtitle1">
               {b3Lang('accountSettings.registeredToB2b.title')}
             </Typography>
             <Typography sx={{ textWrap: 'wrap' }}>
@@ -38,11 +38,11 @@ export function UpgradeBanner() {
             </Typography>
           </Box>
           <Typography
-            component={Link}
-            to="/registeredbctob2b"
-            sx={{ textDecoration: 'none', textTransform: 'uppercase' }}
-            fontWeight="bold"
             color="#fff"
+            component={Link}
+            fontWeight="bold"
+            sx={{ textDecoration: 'none', textTransform: 'uppercase' }}
+            to="/registeredbctob2b"
           >
             {b3Lang('accountSettings.registeredToB2b.upgrade')}
           </Typography>

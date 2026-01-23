@@ -109,11 +109,13 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
 
   const endActing = async () => {
     setIsLoading(true);
+
     if (typeof b2bId === 'number') {
       await superAdminEndMasquerade(Number(salesRepCompanyId));
     }
 
     const cartEntityId = Cookies.get('cartId');
+
     if (cartEntityId) {
       await deleteCart({ deleteCartInput: { cartEntityId } });
       Cookies.remove('cartId');
@@ -136,9 +138,13 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     }
   };
 
-  if (href.includes(CHECKOUT_URL) || !customerId) return null;
+  if (href.includes(CHECKOUT_URL) || !customerId) {
+    return null;
+  }
 
-  if (!isAgenting) return null;
+  if (!isAgenting) {
+    return null;
+  }
 
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
@@ -193,23 +199,23 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     <>
       {!isOpen && isMobile && (
         <Snackbar
+          anchorOrigin={getLocation(location) || defaultLocation}
+          open
           sx={{
             zIndex: '99999999993',
             ...getPosition(horizontalPadding, verticalPadding, location),
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
-          open
         >
           <Button
+            onClick={onEndActing}
+            startIcon={<GroupIcon />}
             sx={{
               height: '42px',
               marginTop: '10px',
               ...customStyles,
               ...MUIMediaStyle,
             }}
-            onClick={onEndActing}
             variant="contained"
-            startIcon={<GroupIcon />}
           >
             {salesRepCompanyName}
           </Button>
@@ -218,6 +224,8 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
 
       {!isOpen && !isMobile && (
         <Snackbar
+          anchorOrigin={getLocation(location) || defaultLocation}
+          open
           sx={{
             zIndex: '9999999999',
             borderRadius: '4px',
@@ -228,8 +236,6 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
             ...customStyles,
             ...MUIMediaStyle,
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
-          open
         >
           <Box
             sx={{
@@ -268,12 +274,12 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
                 </Box>
                 {isExpansion && (
                   <Box
+                    onClick={onEndActing}
                     sx={{
                       fontWeight: 500,
                       fontSize: '13px',
                       cursor: 'pointer',
                     }}
-                    onClick={onEndActing}
                   >
                     {buttonLabel}
                   </Box>
@@ -304,6 +310,8 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
 
       {isOpen && !isMobile && (
         <Snackbar
+          anchorOrigin={defaultLocation}
+          open
           sx={{
             zIndex: '9999999999',
             borderRadius: '4px',
@@ -312,8 +320,6 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
             ...customBuyerPortalPagesStyles,
             ...sx,
           }}
-          anchorOrigin={defaultLocation}
-          open
         >
           <Box
             sx={{
@@ -352,12 +358,12 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
               </Box>
               {isExpansion && (
                 <Box
+                  onClick={onEndActing}
                   sx={{
                     fontWeight: 500,
                     fontSize: '13px',
                     cursor: 'pointer',
                   }}
-                  onClick={onEndActing}
                 >
                   {buttonLabel}
                 </Box>
@@ -387,6 +393,8 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
 
       {isOpen && isMobile && (
         <Snackbar
+          anchorOrigin={defaultLocation}
+          open
           sx={{
             zIndex: '9999999999',
             borderRadius: '4px',
@@ -394,8 +402,6 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
             ...sx,
             ...isMobileCustomStyles,
           }}
-          anchorOrigin={defaultLocation}
-          open
         >
           <Box
             sx={{
@@ -435,12 +441,12 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
               </Box>
 
               <Box
+                onClick={onEndActing}
                 sx={{
                   fontWeight: 500,
                   fontSize: '13px',
                   cursor: 'pointer',
                 }}
-                onClick={onEndActing}
               >
                 {buttonLabel}
               </Box>
@@ -449,14 +455,14 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
         </Snackbar>
       )}
       <ConfirmMasqueradeDialog
-        title={b3Lang('dashboard.masqueradeModal.title.end')}
-        isOpen={confirmEndActing}
-        isRequestLoading={isLoading}
         handleClose={() => setConfirmEndActing(false)}
         handleConfirm={async () => {
           await endActing();
           setConfirmEndActing(false);
         }}
+        isOpen={confirmEndActing}
+        isRequestLoading={isLoading}
+        title={b3Lang('dashboard.masqueradeModal.title.end')}
       />
     </>
   );
