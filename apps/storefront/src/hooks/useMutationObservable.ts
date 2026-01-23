@@ -13,14 +13,19 @@ const useMutationObservable = (
   options = DEFAULT_OPTIONS,
 ) => {
   const element = typeof parentEl === 'string' ? document.querySelector(parentEl) : parentEl;
+
   useEffect(() => {
     if (element) {
       const observer = new MutationObserver(cb);
       const { config } = options;
+
       observer.observe(element, config);
+
       return () => observer.disconnect();
     }
+
     return undefined;
   }, [cb, element, options]);
 };
+
 export default useMutationObservable;

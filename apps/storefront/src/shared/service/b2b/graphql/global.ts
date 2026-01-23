@@ -14,10 +14,10 @@ interface B2BTokenResponse {
     result: {
       token: string;
       loginType: LoginTypes;
-      permissions: {
+      permissions: Array<{
         code: string;
         permissionLevel: number;
-      }[];
+      }>;
     };
   };
 }
@@ -30,14 +30,14 @@ interface ProductPriceOption {
 interface ProductPriceItem {
   product_id: number;
   variant_id: number;
-  options: Partial<ProductPriceOption>[];
+  options: Array<Partial<ProductPriceOption>>;
 }
 
 interface ProductPrice {
   storeHash: string;
   channel_id: number;
   currency_code: string;
-  items: Partial<ProductPriceItem>[];
+  items: Array<Partial<ProductPriceItem>>;
   customer_group_id: number;
 }
 
@@ -48,6 +48,7 @@ interface CompanySubsidiariesProps {
 interface ConfigsSwitchStatus {
   storeConfigSwitchStatus: ConfigsSwitchStatusProps;
 }
+
 const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutation {
 	authorization(authData: {
 		bcToken: "${currentCustomerJWT}"
@@ -573,6 +574,7 @@ export const getProductPricing = (data: Partial<ProductPrice>) =>
     variables: convertObjectOrArrayKeysToCamel(data),
   }).then((res) => {
     const { priceProducts: b2bPriceProducts = [] } = res;
+
     return {
       data: convertObjectOrArrayKeysToSnake(b2bPriceProducts) as CustomFieldItems[],
     };

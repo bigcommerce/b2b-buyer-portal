@@ -3,14 +3,17 @@ const getFileNameFromResponseHeader = (headers: Headers): string => {
   const dispositionParams = disposition?.split(';') ?? [];
 
   const filenameParam = dispositionParams.find((param) => param.trim().startsWith('filename='));
+
   if (filenameParam) {
     return JSON.parse(filenameParam.split('=')[1]);
   }
+
   return '';
 };
 
 const handleBlobDownload = (blob: Blob, filename: string) => {
   const tempLink = document.createElement('a');
+
   tempLink.style.display = 'none';
   tempLink.href = URL.createObjectURL(blob);
   tempLink.setAttribute('download', filename);
@@ -27,5 +30,6 @@ export const handleDownleoadDigitalFile = async (fileUrl: string) => {
   }
 
   const filename = getFileNameFromResponseHeader(res.headers);
+
   handleBlobDownload(blob, filename);
 };

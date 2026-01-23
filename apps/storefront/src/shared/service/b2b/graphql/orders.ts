@@ -17,7 +17,7 @@ const companyInfo = `
   }
 `;
 
-export type CustomerOrderNode = {
+export interface CustomerOrderNode {
   node: {
     orderId?: string;
     createdAt: number;
@@ -47,7 +47,7 @@ export type CustomerOrderNode = {
     lastName?: string;
     merchantEmail?: string;
   };
-};
+}
 
 export interface GetCustomerOrders {
   data: {
@@ -57,7 +57,7 @@ export interface GetCustomerOrders {
         hasNextPage: boolean;
         hasPreviousPage: boolean;
       };
-      edges: Array<CustomerOrderNode>;
+      edges: CustomerOrderNode[];
     };
   };
 }
@@ -66,17 +66,17 @@ const allOrders = (data: CustomFieldItems, fn: 'allOrders' | 'customerOrders') =
 query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   ${fn}(
     search: "${data.q || ''}"
-    status: "${data?.statusCode || ''}"
+    status: "${data.statusCode || ''}"
     first: ${data.first}
     offset: ${data.offset}
-    beginDateAt: ${data?.beginDateAt ? JSON.stringify(data.beginDateAt) : null}
-    endDateAt: ${data?.endDateAt ? JSON.stringify(data.endDateAt) : null}
-    companyName: "${data?.companyName || ''}"
-    createdBy: "${data?.createdBy || ''}"
-    isShowMy: "${data?.isShowMy || 0}"
+    beginDateAt: ${data.beginDateAt ? JSON.stringify(data.beginDateAt) : null}
+    endDateAt: ${data.endDateAt ? JSON.stringify(data.endDateAt) : null}
+    companyName: "${data.companyName || ''}"
+    createdBy: "${data.createdBy || ''}"
+    isShowMy: "${data.isShowMy || 0}"
     orderBy: "${data.orderBy}"
-    email: "${data?.email || ''}"
-    ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
+    email: "${data.email || ''}"
+    ${data.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
     pageInfo{
@@ -118,7 +118,7 @@ query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   }
 }`;
 
-export type CustomerOrderShippingAddress = {
+export interface CustomerOrderShippingAddress {
   id: number;
   zip: string;
   city: string;
@@ -148,9 +148,9 @@ export type CustomerOrderShippingAddress = {
   handling_cost_ex_tax: string;
   handling_cost_inc_tax: string;
   handling_cost_tax_class_id: number;
-};
+}
 
-export type OrderProduct = {
+export interface OrderProduct {
   id: number;
   sku: string;
   name: string;
@@ -172,17 +172,17 @@ export type OrderProduct = {
   order_address_id: number;
   quantity_shipped: number;
   type: 'physical' | 'digital';
-};
+}
 
 export interface Shipment {
   id: number;
   shipping_method: string;
   shipping_provider_display_name: string;
   date_created: string;
-  items: {
+  items: Array<{
     quantity: number;
     order_product_id: number;
-  }[];
+  }>;
   order_address_id: number;
   tracking_number: string;
   tracking_link: string;

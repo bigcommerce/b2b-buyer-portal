@@ -1,6 +1,6 @@
 import { buildCompanyStateWith, renderWithProviders } from 'tests/test-utils';
 
-import { setGlobalCommonState, store as globalStore } from '.';
+import { setGlobalCommonState,store as globalStore } from '.';
 
 describe('ensure store is restarted on every test', () => {
   it('should not share state between tests', () => {

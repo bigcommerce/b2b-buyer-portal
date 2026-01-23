@@ -23,7 +23,7 @@ interface TablePagination {
 }
 
 interface GetRequestListResult<T extends object> {
-  edges: PossibleNodeWrapper<T>[];
+  edges: Array<PossibleNodeWrapper<T>>;
   totalCount: number;
 }
 
@@ -77,15 +77,19 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   const [count, setAllCount] = useState<number>(0);
 
-  const [cacheAllList, setCacheAllList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
+  const [cacheAllList, setCacheAllList] = useState<
+    Array<PossibleNodeWrapper<WithRowControls<Row>>>
+  >([]);
 
-  const [list, setList] = useState<PossibleNodeWrapper<WithRowControls<Row>>[]>([]);
+  const [list, setList] = useState<Array<PossibleNodeWrapper<WithRowControls<Row>>>>([]);
 
   const [isMobile] = useMobile();
 
   const cacheList = useCallback(
-    (edges: PossibleNodeWrapper<WithRowControls<Row>>[]) => {
-      if (!cacheAllList.length) setCacheAllList(edges);
+    (edges: Array<PossibleNodeWrapper<WithRowControls<Row>>>) => {
+      if (!cacheAllList.length) {
+        setCacheAllList(edges);
+      }
 
       const copyCacheAllList = [...cacheAllList];
 
@@ -93,6 +97,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
         const option = isNodeWrapper(item) ? item.node : item;
         const isExist = cacheAllList.some((cache) => {
           const cacheOption = isNodeWrapper(cache) ? cache.node : cache;
+
           return cacheOption.id === option.id;
         });
 
@@ -109,13 +114,18 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   const fetchList = useCallback(
     async (b3Pagination?: TablePagination, isRefresh?: boolean) => {
       try {
-        if (cache?.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
+        if (cache.current && isEqual(cache.current, searchParams) && !isRefresh && !b3Pagination) {
           return;
         }
+
         cache.current = searchParams;
 
         setLoading(true);
-        if (requestLoading) requestLoading(true);
+
+        if (requestLoading) {
+          requestLoading(true);
+        }
+
         const { createdBy = '' } = searchParams;
 
         const getEmailReg = /\((.+)\)/g;
@@ -149,10 +159,16 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
         setAllCount(totalCount);
         setLoading(false);
-        if (requestLoading) requestLoading(false);
+
+        if (requestLoading) {
+          requestLoading(false);
+        }
       } catch (e) {
         setLoading(false);
-        if (requestLoading) requestLoading(false);
+
+        if (requestLoading) {
+          requestLoading(false);
+        }
       }
     },
     [cacheList, getRequestList, pagination.first, requestLoading, searchParams],
@@ -165,6 +181,7 @@ function PaginationTable<GetRequestListParams, Row extends object>(
   useEffect(() => {
     const isChangeCompany =
       Number(selectCompanyHierarchyIdCache.current) !== Number(selectCompanyHierarchyId);
+
     if (!isEmpty(searchParams)) {
       if (isChangeCompany) {
         fetchList(pagination, true);
@@ -204,14 +221,14 @@ function PaginationTable<GetRequestListParams, Row extends object>(
 
   return (
     <B3Table
-      listItems={list}
-      pagination={tablePagination}
-      rowsPerPageOptions={rowsPerPageOptions}
-      onPaginationChange={handlePaginationChange}
       isInfiniteScroll={isMobile}
       isLoading={loading}
-      renderItem={renderItem}
       itemXs={itemXs}
+      listItems={list}
+      onPaginationChange={handlePaginationChange}
+      pagination={tablePagination}
+      renderItem={renderItem}
+      rowsPerPageOptions={rowsPerPageOptions}
       showRowsPerPageOptions={showRowsPerPageOptions}
     />
   );

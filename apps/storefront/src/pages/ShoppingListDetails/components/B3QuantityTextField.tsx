@@ -61,7 +61,7 @@ export function B3QuantityTextField({
   );
 
   const handleChange = (value: string) => {
-    onChange(value, !!validMessage);
+    onChange(value, Boolean(validMessage));
   };
 
   const handleBlur = () => {
@@ -76,26 +76,26 @@ export function B3QuantityTextField({
 
   return (
     <StyledNumberNoTopTextField
-      size="small"
-      type="number"
-      variant="filled"
-      hiddenLabel={!isMobile}
-      label={isMobile ? 'Qty' : ''}
-      value={value}
-      error={!!validMessage}
+      error={Boolean(validMessage)}
       helperText={validMessage}
+      hiddenLabel={!isMobile}
       inputProps={{
         inputMode: 'numeric',
         min: 1,
         pattern: '[0-9]*',
       }}
-      onChange={(e) => {
-        handleChange(e.target.value);
-      }}
+      label={isMobile ? 'Qty' : ''}
       onBlur={() => {
         handleBlur();
       }}
+      onChange={(e) => {
+        handleChange(e.target.value);
+      }}
+      size="small"
       sx={sx}
+      type="number"
+      value={value}
+      variant="filled"
     />
   );
 }

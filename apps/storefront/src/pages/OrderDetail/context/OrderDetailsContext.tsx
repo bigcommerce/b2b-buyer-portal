@@ -41,6 +41,7 @@ export interface OrderDetailsState {
   digitalProducts?: OrderProductItem[];
   billingAddress?: Address;
 }
+
 interface OrderDetailsAction {
   type: string;
   payload: OrderDetailsState;
@@ -134,16 +135,19 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
         ...state,
         ...action.payload,
       };
+
     case 'statusType':
       return {
         ...state,
         orderStatus: action.payload.orderStatus,
       };
+
     case 'addressLabel':
       return {
         ...state,
         addressLabelPermission: action.payload.addressLabelPermission,
       };
+
     default:
       return state;
   }

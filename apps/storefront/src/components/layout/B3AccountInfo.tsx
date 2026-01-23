@@ -1,6 +1,6 @@
+import { Box } from '@mui/material';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
 
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -8,11 +8,9 @@ import { useAppSelector } from '@/store';
 
 import B3DropDown, { ListItemProps } from '../B3DropDown';
 
-interface ListProps {
-  [key: string]: string;
-}
+type ListProps = Record<string, string>;
 
-const list: Array<ListProps> = [
+const list: ListProps[] = [
   {
     name: 'Log out',
     key: 'logout',
@@ -37,13 +35,16 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   const handleItemClick = async (key: string | number) => {
     const item = list.find((v) => v.key === key);
 
-    if (!item) return;
+    if (!item) {
+      return;
+    }
 
     if (item.key === 'logout') {
       navigate('/login?loginFlag=loggedOutLogin');
     } else if (item.type === 'path' && item.key) {
       navigate(item.key);
     }
+
     if (closeSidebar) {
       closeSidebar(false);
     }
@@ -51,14 +52,14 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
 
   const name = `${firstName}  ${lastName}`;
 
-  const newList: ListItemProps[] = useMemo(() => {
-    return list.map((item) => {
-      return {
+  const newList: ListItemProps[] = useMemo(
+    () =>
+      list.map((item) => ({
         key: item.key,
         name: b3Lang(item.idLang),
-      };
-    });
-  }, [b3Lang]);
+      })),
+    [b3Lang],
+  );
 
   return (
     <Box
@@ -73,7 +74,7 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
         alignItems: 'center',
       }}
     >
-      <B3DropDown title={name} handleItemClick={handleItemClick} list={newList} />
+      <B3DropDown handleItemClick={handleItemClick} list={newList} title={name} />
     </Box>
   );
 }

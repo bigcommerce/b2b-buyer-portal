@@ -112,6 +112,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
   useEffect(() => {
     const countryValue = getValues('country');
     const stateValue = getValues('state');
+
     handleCountryChange(countryValue, stateValue);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +126,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         handleCountryChange(country, state);
       }
     });
+
     return () => subscription.unsubscribe();
     // disabling as we don't need watch in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,21 +141,22 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
     });
   };
 
-  const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) =>
+  const setRegisterFieldsValue = (formFields: RegisterFields[], formData: CustomFieldItems) =>
     formFields.map((field) => {
       const item = field;
+
       item.default = formData[field.name] || field.default;
+
       return field;
     });
 
-  interface DetailsFormValues {
-    [K: string]: string | number | boolean;
-  }
+  type DetailsFormValues = Record<string, string | number | boolean>;
 
   const saveDetailsData = () => {
     const data = [...companyInformation, ...companyAttachment, ...addressBasicList].reduce(
       (formValues: DetailsFormValues, field: RegisterFields) => {
         const values = formValues;
+
         values[field.name] = getValues(field.name) || field.default;
 
         return formValues;
@@ -181,6 +184,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
       const attachmentsFilesFiled = companyInformation.find(
         (info) => info.fieldId === 'field_attachments',
       );
+
       if (
         !isEmpty(attachmentsFilesFiled) &&
         attachmentsFilesFiled.required &&
@@ -194,6 +198,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         });
 
         showLoading(false);
+
         return true;
       }
     }
@@ -205,8 +210,12 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
     const hasAttachmentsFilesError = handleValidateAttachmentFiles();
 
     handleSubmit(async (data: CustomFieldItems) => {
-      if (hasAttachmentsFilesError) return;
+      if (hasAttachmentsFilesError) {
+        return;
+      }
+
       showLoading(true);
+
       try {
         if (accountType === '1') {
           await Promise.all([
@@ -235,6 +244,7 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         if (typeof error === 'string') {
           setErrorMessage(error);
         }
+
         showLoading(false);
       }
     })(event);
@@ -273,12 +283,12 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm
-            formFields={[...companyInformation]}
-            errors={errors}
             control={control}
+            errors={errors}
+            formFields={[...companyInformation]}
             getValues={getValues}
-            setValue={setValue}
             setError={setError}
+            setValue={setValue}
           />
         </Box>
       ) : null}
@@ -287,9 +297,9 @@ export default function RegisteredDetail({ handleBack, handleNext }: RegisteredD
         <InformationFourLabels>{addressName}</InformationFourLabels>
 
         <B3CustomForm
-          formFields={addressBasicList}
-          errors={errors}
           control={control}
+          errors={errors}
+          formFields={addressBasicList}
           getValues={getValues}
           setValue={setValue}
         />

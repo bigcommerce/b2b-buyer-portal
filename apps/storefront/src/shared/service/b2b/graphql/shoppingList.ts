@@ -23,9 +23,11 @@ const getStatus = (status: any): string => {
 
     return `status: ${status}`;
   }
+
   if (typeof status === 'object') {
     return `status: [${status}]`;
   }
+
   return '';
 };
 
@@ -273,7 +275,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `
         offset: ${data.offset || 0}
         first: ${data.first || 100},
         search: "${data.search || ''}",
-        orderBy: "${data?.orderBy || '-updatedAt'}"
+        orderBy: "${data.orderBy || '-updatedAt'}"
       ) {
         totalCount,
         edges {
@@ -561,7 +563,7 @@ export const updateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: updateShoppingList('shoppingListsUpdate'),
     variables: {
-      id: data?.id ? Number(data.id) : 1,
+      id: data.id ? Number(data.id) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
@@ -606,7 +608,7 @@ export const createBcShoppingList = (data: Partial<ShoppingListParams>) =>
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? Number(data.channelId) : 1,
+        channelId: data.channelId ? Number(data.channelId) : 1,
       },
     },
   });
@@ -615,11 +617,11 @@ export const updateBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: updateCustomerShoppingList('customerShoppingListsUpdate'),
     variables: {
-      id: data?.id ? Number(data.id) : 1,
+      id: data.id ? Number(data.id) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? Number(data.channelId) : 1,
+        channelId: data.channelId ? Number(data.channelId) : 1,
       },
     },
   });
@@ -657,10 +659,10 @@ export interface ShoppingListsCreatedByUser {
   data: {
     createdByUser: {
       results: {
-        createdBy: {
+        createdBy: Array<{
           name: string;
           email: string;
-        }[];
+        }>;
         salesRep: unknown[];
       };
     };

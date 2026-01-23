@@ -11,7 +11,7 @@ describe('TipBody', () => {
   });
 
   it('renders the description if provided', () => {
-    render(<TipBody message="Tip" description="This is a description" />);
+    render(<TipBody description="This is a description" message="Tip" />);
     expect(screen.getByText('This is a description')).toBeInTheDocument();
   });
 
@@ -22,7 +22,8 @@ describe('TipBody', () => {
 
   it('renders the action button if action is provided', () => {
     const action = { label: 'Click me', onClick: vi.fn() };
-    render(<TipBody message="Tip" action={action} />);
+
+    render(<TipBody action={action} message="Tip" />);
     expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument();
   });
 
@@ -34,7 +35,8 @@ describe('TipBody', () => {
   it('calls action.onClick when the button is clicked', async () => {
     const onClick = vi.fn();
     const action = { label: 'Do it', onClick };
-    render(<TipBody message="Tip" action={action} />);
+
+    render(<TipBody action={action} message="Tip" />);
     await userEvent.click(screen.getByRole('button', { name: 'Do it' }));
     expect(onClick).toHaveBeenCalledTimes(1);
   });

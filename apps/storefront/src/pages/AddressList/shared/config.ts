@@ -7,6 +7,7 @@ interface B2bShippingBillingChildProps {
   parent: string;
   idLang: string;
 }
+
 export interface B2bShippingBillingProps {
   name: string;
   label: string;

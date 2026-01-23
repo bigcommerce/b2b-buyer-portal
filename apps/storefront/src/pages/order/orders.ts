@@ -2,7 +2,7 @@ import B3Request from '@/shared/service/request/b3Fetch';
 import { OrderStatusItem } from '@/types';
 import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
 
-export type CustomerOrderNode = {
+export interface CustomerOrderNode {
   node: {
     orderId?: string;
     createdAt: number;
@@ -14,18 +14,18 @@ export type CustomerOrderNode = {
     firstName?: string;
     lastName?: string;
   };
-};
+}
 
 export interface GetCustomerOrders {
   data: {
     customerOrders: {
       totalCount: number;
-      edges: Array<CustomerOrderNode>;
+      edges: CustomerOrderNode[];
     };
   };
 }
 
-export type CompanyOrderNode = {
+export interface CompanyOrderNode {
   node: {
     orderId?: string;
     createdAt: number;
@@ -39,13 +39,13 @@ export type CompanyOrderNode = {
       companyName: string;
     };
   };
-};
+}
 
 export interface GetCompanyOrders {
   data: {
     allOrders: {
       totalCount: number;
-      edges: Array<CustomerOrderNode>;
+      edges: CustomerOrderNode[];
     };
   };
 }
@@ -54,17 +54,17 @@ const allOrders = (data: CustomFieldItems, fn: 'allOrders' | 'customerOrders') =
 query ${fn === 'allOrders' ? 'GetAllOrders' : 'GetCustomerOrders'} {
   ${fn}(
     search: "${data.q || ''}"
-    status: "${data?.statusCode || ''}"
+    status: "${data.statusCode || ''}"
     first: ${data.first}
     offset: ${data.offset}
-    beginDateAt: ${data?.beginDateAt ? JSON.stringify(data.beginDateAt) : null}
-    endDateAt: ${data?.endDateAt ? JSON.stringify(data.endDateAt) : null}
-    companyName: "${data?.companyName || ''}"
-    createdBy: "${data?.createdBy || ''}"
-    isShowMy: "${data?.isShowMy || 0}"
+    beginDateAt: ${data.beginDateAt ? JSON.stringify(data.beginDateAt) : null}
+    endDateAt: ${data.endDateAt ? JSON.stringify(data.endDateAt) : null}
+    companyName: "${data.companyName || ''}"
+    createdBy: "${data.createdBy || ''}"
+    isShowMy: "${data.isShowMy || 0}"
     orderBy: "${data.orderBy}"
-    email: "${data?.email || ''}"
-    ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
+    email: "${data.email || ''}"
+    ${data.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
     edges{

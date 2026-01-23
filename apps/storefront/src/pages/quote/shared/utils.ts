@@ -9,10 +9,14 @@ const getQuoteDraftShowPriceTBD = (products: CustomFieldItems[]) => {
     },
   } = store.getState();
 
-  if (!isEnableProduct) return false;
+  if (!isEnableProduct) {
+    return false;
+  }
 
   const isHidePrice = products.some((product) => {
-    if (!getVariantInfoDisplayPrice(product.node.basePrice, product, featureFlags)) return true;
+    if (!getVariantInfoDisplayPrice(product.node.basePrice, product, featureFlags)) {
+      return true;
+    }
 
     return false;
   });

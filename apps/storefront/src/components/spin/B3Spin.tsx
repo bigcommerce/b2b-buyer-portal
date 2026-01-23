@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
 import { CircularProgress, useTheme } from '@mui/material';
+import { ReactNode } from 'react';
 
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -41,7 +41,7 @@ export default function B3Spin(props: B3SpinProps) {
   const b3Lang = useB3Lang();
 
   return (
-    <SpinContext isFlex={isFlex} height={spinningHeight}>
+    <SpinContext height={spinningHeight} isFlex={isFlex}>
       {isSpinning && (
         <SpinCenter background={background} isMobile={isMobile} transparency={transparency}>
           {!isCloseLoading && (

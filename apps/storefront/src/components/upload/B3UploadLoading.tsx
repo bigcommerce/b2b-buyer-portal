@@ -24,7 +24,7 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
           justifyContent: 'center',
         }}
       >
-        <Typography variant="caption" component="div" color="text.secondary">
+        <Typography color="text.secondary" component="div" variant="caption">
           {`${Math.round(props.value)}%`}
         </Typography>
       </Box>
@@ -43,15 +43,20 @@ export default function B3UploadLoading(props: B3UploadLoadingProps) {
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prevProgress) => (prevProgress === 95 ? 95 : prevProgress + 1));
+
       if (step === 'end') {
         setProgress(100);
         clearInterval(timer);
       }
     }, 100);
+
     return () => {
-      if (timer) clearInterval(timer);
+      if (timer) {
+        clearInterval(timer);
+      }
     };
   }, [step]);
+
   return (
     <Box
       sx={{

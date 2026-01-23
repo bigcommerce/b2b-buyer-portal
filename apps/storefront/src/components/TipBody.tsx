@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
 import { Box, Button } from '@mui/material';
+import { ReactNode } from 'react';
 
 interface TipBodyProps {
   action?: {
@@ -39,11 +39,11 @@ export default function TipBody(props: TipBodyProps) {
       {action && (
         <Button
           onClick={action.onClick}
-          variant="text"
           sx={{
             color: '#ffffff',
             padding: 0,
           }}
+          variant="text"
         >
           {action.label}
         </Button>

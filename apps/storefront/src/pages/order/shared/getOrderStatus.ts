@@ -1,6 +1,4 @@
-interface OrderStatusConfig {
-  [k: string]: string;
-}
+type OrderStatusConfig = Record<string, string>;
 
 const orderStatusColor: OrderStatusConfig = {
   'Partially Refunded': '#F4CC46',

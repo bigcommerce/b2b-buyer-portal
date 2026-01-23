@@ -31,7 +31,7 @@ export const updateB2CShoppingListDetails = (data: ShoppingListVariables) =>
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? Number(data.channelId) : 1,
+        channelId: data.channelId ? Number(data.channelId) : 1,
       },
     },
   });

@@ -38,6 +38,7 @@ describe('when company hierarchy representation is active', () => {
     });
 
     const dropdownButton = screen.getByRole('button');
+
     expect(dropdownButton).toBeInTheDocument();
 
     expect(dropdownButton).toHaveTextContent('Child Company');

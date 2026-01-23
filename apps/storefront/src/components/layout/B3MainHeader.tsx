@@ -1,6 +1,6 @@
+import { Box, Button, Grid, Typography } from '@mui/material';
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
@@ -84,7 +84,7 @@ export default function MainHeader({ title }: { title: string }) {
             }}
           >
             {Number(role) === 3 &&
-              (companyInfo?.companyName ||
+              (companyInfo.companyName ||
                 salesRepCompanyName ||
                 b3Lang('global.B3MainHeader.superAdmin'))}
           </Box>
@@ -100,38 +100,38 @@ export default function MainHeader({ title }: { title: string }) {
           <Box sx={{ marginLeft: '8px' }}>
             {role === 100 && (
               <Button
+                onClick={() => {
+                  navigate('/login');
+                }}
                 sx={{
                   color: '#333333',
                   fontWeight: 700,
                   fontSize: '16px',
-                }}
-                onClick={() => {
-                  navigate('/login');
                 }}
               >
                 {b3Lang('global.B3MainHeader.signIn')}
               </Button>
             )}
             <Button
+              onClick={() => {
+                window.location.href = '/';
+              }}
               sx={{
                 color: '#333333',
                 fontWeight: 700,
                 fontSize: '16px',
-              }}
-              onClick={() => {
-                window.location.href = '/';
               }}
             >
               {b3Lang('global.B3MainHeader.home')}
             </Button>
             {isShowCart && (
               <Button
+                onClick={onCartClick}
                 sx={{
                   color: '#333333',
                   fontWeight: 700,
                   fontSize: '16px',
                 }}
-                onClick={onCartClick}
               >
                 {b3Lang('global.B3MainHeader.cart')}
                 {cartNumber > 0 ? (

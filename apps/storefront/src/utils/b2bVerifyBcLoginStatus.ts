@@ -11,12 +11,15 @@ const b2bVerifyBcLoginStatus = async () => {
   const { role } = store.getState().company.customer;
   const { B2BToken } = store.getState().company.tokens;
 
-  if (B2BToken && platform !== 'bigcommerce') return true;
+  if (B2BToken && platform !== 'bigcommerce') {
+    return true;
+  }
 
   try {
     if (Number(role) !== CustomerRole.GUEST) {
       const bcToken = await getCurrentCustomerJWT(getAppClientId());
-      isBcLogin = !!bcToken;
+
+      isBcLogin = Boolean(bcToken);
 
       return isBcLogin;
     }

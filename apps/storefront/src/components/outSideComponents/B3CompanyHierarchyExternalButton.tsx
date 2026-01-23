@@ -26,6 +26,7 @@ interface B3CompanyHierarchyExternalButtonProps {
   isOpen: boolean;
   setOpenPage: SetOpenPage;
 }
+
 function B3CompanyHierarchyExternalButton({
   setOpenPage,
   isOpen,
@@ -132,9 +133,9 @@ function B3CompanyHierarchyExternalButton({
       return;
     }
 
-    const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
-      return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
-    });
+    const key = Object.keys(pagesSubsidiariesPermission).find((key) =>
+      Boolean(pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps]),
+    );
 
     const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
 
@@ -144,13 +145,16 @@ function B3CompanyHierarchyExternalButton({
         openUrl: route.path,
       });
     }
+
     dispatch(setOpenCompanyHierarchyDropDown(true));
   };
 
   return (
     <>
-      {!!companyName && (
+      {Boolean(companyName) && (
         <Snackbar
+          anchorOrigin={getLocation(location) || defaultLocation}
+          open
           sx={{
             zIndex: Z_INDEX.NOTIFICATION,
             height: '52px',
@@ -161,10 +165,9 @@ function B3CompanyHierarchyExternalButton({
             ...sx,
             ...MUIMediaStyle,
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
-          open
         >
           <Box
+            onClick={() => handleHierarchyExternalBtnClick()}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -173,7 +176,6 @@ function B3CompanyHierarchyExternalButton({
               fontSize: '16px',
               cursor: 'pointer',
             }}
-            onClick={() => handleHierarchyExternalBtnClick()}
           >
             <BusinessIcon sx={{ fontSize: '20px' }} />
             <Box

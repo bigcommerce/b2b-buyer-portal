@@ -1,3 +1,7 @@
+import { FieldValues, useForm } from 'react-hook-form';
+import styled from '@emotion/styled';
+import { Box, Divider, TextField, Typography } from '@mui/material';
+import isEqual from 'lodash-es/isEqual';
 import {
   ChangeEvent,
   Dispatch,
@@ -8,10 +12,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
-import styled from '@emotion/styled';
-import { Box, Divider, TextField, Typography } from '@mui/material';
-import isEqual from 'lodash-es/isEqual';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
@@ -86,10 +86,10 @@ interface ChooseOptionsDialogProps {
 }
 
 interface ChooseOptionsProductProps extends ShoppingListProductItem {
-  newSelectOptionList: {
+  newSelectOptionList: Array<{
     optionId: string;
     optionValue: unknown;
-  }[];
+  }>;
   productId: number;
   quantity: number;
   variantId: number;
@@ -114,7 +114,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [currentImage, setCurrentImage] = useState<string>(product?.imageUrl || '');
   const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({});
   const [productPriceChangeOptions, setProductPriceChangeOptions] = useState<
-    Partial<AllOptionProps>[]
+    Array<Partial<AllOptionProps>>
   >([]);
   const [newPrice, setNewPrice] = useState<number>(0);
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
@@ -127,20 +127,23 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setIsLoading(true);
 
       const modifiers =
-        product?.modifiers?.filter(
+        product.modifiers?.filter(
           (modifier) =>
             modifier.type === 'product_list_with_images' || modifier.type === 'product_list',
         ) || [];
       const productImages: SimpleObject = {};
       const additionalProductsParams: CustomFieldItems = {};
+
       if (modifiers.length > 0) {
         const productIds = modifiers.reduce((arr: number[], modifier) => {
           const { option_values: optionValues } = modifier;
+
           optionValues.forEach((option) => {
-            if (option?.value_data?.product_id) {
+            if (option.value_data?.product_id) {
               arr.push(option.value_data.product_id);
             }
           });
+
           return arr;
         }, []);
 
@@ -162,11 +165,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setAdditionalProducts(additionalProductsParams);
 
       setQuantity(product.quantity);
+
       if (product.variants?.length === 1 && product.variants[0]) {
         setVariantInfo(product.variants[0]);
       }
 
       const productOptionsFields = getProductOptionsFields(product, productImages);
+
       setFormFields([...productOptionsFields]);
     } finally {
       setIsLoading(false);
@@ -174,7 +179,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   };
 
   const getProductPriceOptions = (product: ShoppingListProductItem) => {
-    const newProductPriceChangeOptionLists: Partial<AllOptionProps>[] = [];
+    const newProductPriceChangeOptionLists: Array<Partial<AllOptionProps>> = [];
+
     product.allOptions?.forEach((item) => {
       if (
         item.type === 'product_list_with_images' ||
@@ -197,7 +203,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setChooseOptionsForm(product);
       setChooseOptionsProduct([]);
       setNewPrice(0);
-      if (product?.allOptions?.length) {
+
+      if (product.allOptions?.length) {
         getProductPriceOptions(product);
       }
     } else {
@@ -212,22 +219,25 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     const { variants = [] } = product;
 
     let priceNumber = 0;
+
     if (variantSku) {
       const variantCalculatePrice = variants.find(
         (variant) => variant.sku === variantSku,
       )?.bc_calculated_price;
+
       priceNumber =
         (showInclusiveTaxPrice
           ? variantCalculatePrice?.tax_inclusive
           : variantCalculatePrice?.tax_exclusive) || 0;
     } else {
       const variantCalculatePrice = variants[0]?.bc_calculated_price;
+
       priceNumber =
         parseFloat(
           (showInclusiveTaxPrice
-            ? variantCalculatePrice?.tax_inclusive
-            : variantCalculatePrice?.tax_exclusive
-          )?.toString(),
+            ? variantCalculatePrice.tax_inclusive
+            : variantCalculatePrice.tax_exclusive
+          ).toString(),
         ) || 0;
     }
 
@@ -241,7 +251,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
+    if (['KeyE', 'Equal', 'Minus'].includes(event.code)) {
       event.preventDefault();
     }
   };
@@ -294,6 +304,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
             ) {
               return false;
             }
+
             return isSelect;
           }, true);
 
@@ -323,10 +334,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (formFields[0]) {
       const defaultValues: SimpleObject = formFields.reduce((value: SimpleObject, fields) => {
         const formFieldValue = value;
+
         formFieldValue[fields.name] = fields.default;
         setValue(fields.name, fields.default);
+
         return value;
       }, {});
+
       getProductVariantId(defaultValues, formFields[0].name);
     }
 
@@ -340,6 +354,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
     if (purchasingDisabled && !isEnableProduct) {
       snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
+
       return false;
     }
 
@@ -349,6 +364,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const getOptionList = useCallback(
     (value: FieldValues) => {
       const optionsData = getOptionRequestData(formFields, {}, value);
+
       return Object.keys(optionsData).map((optionId) => ({
         optionId,
         optionValue: optionsData[optionId]?.toString(),
@@ -358,15 +374,17 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   );
 
   useEffect(() => {
-    if (cache?.current && isEqual(cache?.current, formValues)) {
+    if (cache.current && isEqual(cache.current, formValues)) {
       return;
     }
 
     cache.current = formValues;
+
     if (Object.keys(formValues).length && formFields.length && productPriceChangeOptions.length) {
       const optionList = getOptionList(formValues);
       const { variant_id: variantId = '' } = variantInfo || {};
-      if (!product || !product.id || !variantId || !validateQuantityNumber()) {
+
+      if (!product?.id || !variantId || !validateQuantityNumber()) {
         return;
       }
 
@@ -374,7 +392,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         {
           ...product,
           newSelectOptionList: optionList,
-          productId: product?.id,
+          productId: product.id,
           quantity: parseInt(quantity.toString(), 10) || 1,
           variantId: parseInt(variantId.toString(), 10) || 1,
           additionalProducts,
@@ -384,10 +402,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       if (chooseOptionsProduct[0]) {
         let optionChangeFlag = false;
         const { newSelectOptionList } = chooseOptionsProduct[0];
+
         newSelectOptionList.forEach((option) => {
           const findAttributeId = productPriceChangeOptions.findIndex((item) =>
             option.optionId.includes(String(item.id)),
           );
+
           optionList.forEach((newOption) => {
             if (
               option.optionId === newOption.optionId &&
@@ -398,6 +418,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
             }
           });
         });
+
         if (optionChangeFlag) {
           setChooseOptionsProduct(newChooseOptionsProduct);
         }
@@ -423,11 +444,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       try {
         if (chooseOptionsProduct.length) {
           setIsRequestLoading(true);
+
           const products = await calculateProductListPrice(chooseOptionsProduct);
 
           if (products[0]) {
             const { basePrice, taxPrice } = products[0];
             const price = getBCPrice(Number(basePrice), Number(taxPrice));
+
             setNewPrice(price);
           }
         }
@@ -447,14 +470,14 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
       const { variant_id: variantId = '' } = variantInfo || {};
 
-      if (!product || !product.id || !variantId || !validateQuantityNumber()) {
+      if (!product?.id || !variantId || !validateQuantityNumber()) {
         return;
       }
 
       onConfirm({
         ...product,
         newSelectOptionList: optionList,
-        productId: product?.id,
+        productId: product.id,
         quantity: parseInt(quantity.toString(), 10) || 1,
         variantId: parseInt(variantId.toString(), 10) || 1,
         additionalProducts,
@@ -477,12 +500,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      rightSizeBtn={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
-      handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
-      title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
+      handleLeftClick={handleCancelClicked}
+      isOpen={isOpen}
       loading={isLoading || isRequestLoading}
+      rightSizeBtn={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
+      title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
     >
       <B3Spin isSpinning={isLoading}>
         {product && (
@@ -506,10 +529,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                         marginLeft: '16px',
                       }}
                     >
-                      <Typography variant="body1" color="#212121">
+                      <Typography color="#212121" variant="body1">
                         {product.name}
                       </Typography>
-                      <Typography variant="body1" color="#616161">
+                      <Typography color="#616161" variant="body1">
                         {variantSku || product.sku}
                       </Typography>
                       {(product.product_options || []).map((option) => (
@@ -529,18 +552,18 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
                   <FlexItem>
                     <StyleTextField
-                      type="number"
-                      variant="filled"
                       label={b3Lang('shoppingList.chooseOptionsDialog.quantity')}
-                      value={quantity}
+                      onBlur={handleNumberInputBlur}
                       onChange={handleProductQuantityChange}
                       onKeyDown={handleNumberInputKeyDown}
-                      onBlur={handleNumberInputBlur}
                       size="small"
                       sx={{
                         width: '60%',
                         maxWidth: '100px',
                       }}
+                      type="number"
+                      value={quantity}
+                      variant="filled"
                     />
                   </FlexItem>
                 </Flex>
@@ -553,9 +576,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
               />
 
               <B3CustomForm
-                formFields={formFields}
-                errors={errors}
                 control={control}
+                errors={errors}
+                formFields={formFields}
                 getValues={getValues}
                 setValue={setValue}
               />

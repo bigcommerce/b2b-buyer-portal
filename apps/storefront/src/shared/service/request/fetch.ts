@@ -2,6 +2,7 @@ const responseResult = (res: Response, resolve: (val?: unknown) => void, init: R
   if (init.method === 'DELETE') {
     resolve();
   }
+
   return res.json();
 };
 
@@ -13,7 +14,9 @@ function b3Fetch(path: string, init: RequestInit): any {
         if (res?.code === 500) {
           const data = res?.data || {};
           const message = data.errMsg || res.message || '';
+
           reject(message);
+
           return;
         }
 
@@ -24,4 +27,5 @@ function b3Fetch(path: string, init: RequestInit): any {
       });
   });
 }
+
 export default b3Fetch;

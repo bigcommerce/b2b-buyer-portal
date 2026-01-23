@@ -62,12 +62,12 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       isDetailOpen: boolean,
       isInit?: boolean,
     ): Promise<void> => {
-      const modal = document.getElementById('modal') as HTMLElement;
+      const modal = document.getElementById('modal')!;
 
       const dom = isDetailOpen ? document : modal;
-      const productViewQty = (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1;
+      const productViewQty = (dom.querySelector('[name="qty[]"]') as CustomFieldItems).value || 1;
 
-      const productId = (dom.querySelector('input[name=product_id]') as CustomFieldItems)?.value;
+      const productId = (dom.querySelector('input[name=product_id]') as CustomFieldItems).value;
 
       const {
         productPurchasable: {
@@ -81,7 +81,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       } = await getB2BProductPurchasable({
         productId,
         sku: newSkuValue || '',
-        isProduct: !!isInit,
+        isProduct: Boolean(isInit),
       });
 
       const productPurchasable = {
@@ -92,11 +92,13 @@ const usePurchasableQuote = (openQuickView: boolean) => {
         availableToSell,
         unlimitedBackorder,
       };
-      if (productInfoRef?.current) {
+
+      if (productInfoRef.current) {
         productInfoRef.current = productPurchasable;
       }
 
       const isOOStock = isOutOfStockPurchaseQuantity(Number(productViewQty), productPurchasable);
+
       if (purchasingDisabled || isOOStock || availability !== 'available') {
         setBuyPurchasable(false);
       } else {
@@ -104,12 +106,13 @@ const usePurchasableQuote = (openQuickView: boolean) => {
       }
     };
 
-    const modal = document.getElementById('modal') as HTMLElement;
+    const modal = document.getElementById('modal')!;
 
     let productViewSku: Element | null = document.querySelector('[data-product-sku]') || null;
     let qtyDom: HTMLInputElement | null = document.querySelector('[name="qty[]"]') || null;
     let isDetailOpen = true;
     let dataQuantityChangeDom = document.querySelector('[data-quantity-change]') || null;
+
     // information about multiple products exists
     if (modal && modal.classList.contains('open')) {
       productViewSku = modal.querySelector('[data-product-sku]');
@@ -120,19 +123,26 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
     if (productViewSku && isEnableProduct) {
       const sku = productViewSku.innerHTML.trim();
+
       callback(sku, isDetailOpen, true);
     }
 
     const observer = new MutationObserver((mutations: MutationRecord[]) => {
       let sku = '';
+
       mutations.forEach((mutation) => {
         const myMutation: MyMutationRecord = mutation as MyMutationRecord;
+
         if (myMutation.type === 'childList' && myMutation.target.hasAttribute('data-product-sku')) {
           const newSkuValue = myMutation.target.innerHTML.trim();
+
           sku = newSkuValue;
         }
       });
-      if (sku) callback(sku, isDetailOpen, false);
+
+      if (sku) {
+        callback(sku, isDetailOpen, false);
+      }
     });
 
     const config: MutationObserverInit = { childList: true, subtree: true };
@@ -164,7 +174,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     const handleBtnQuantityChange = (button: Element) => {
       if (qtyDom) {
         const action = button.getAttribute('data-action');
-        const val = qtyDom?.value || '1';
+        const val = qtyDom.value || '1';
 
         const isNumber = (str: string) => /^\d+$/.test(str);
 
@@ -176,6 +186,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
         if (action === 'dec' && (val === '0' || val === '1')) {
           judgmentBuyPurchasable(val);
+
           return;
         }
 
@@ -187,10 +198,12 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
     if (dataQuantityChangeDom && isEnableProduct) {
       const buttons = dataQuantityChangeDom.querySelectorAll('button');
+
       buttons.forEach((button) => {
         button.addEventListener('click', () => {
           handleBtnQuantityChange(button);
         });
+
         return () => {
           button.removeEventListener('click', () => {
             handleBtnQuantityChange(button);
@@ -200,8 +213,13 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     }
 
     return () => {
-      if (observer) observer.disconnect();
-      if (qtyDom) qtyDom.removeEventListener('input', handleQuantityChange);
+      if (observer) {
+        observer.disconnect();
+      }
+
+      if (qtyDom) {
+        qtyDom.removeEventListener('input', handleQuantityChange);
+      }
     };
   }, [openQuickView, isEnableProduct, isOutOfStockPurchaseQuantity]);
 

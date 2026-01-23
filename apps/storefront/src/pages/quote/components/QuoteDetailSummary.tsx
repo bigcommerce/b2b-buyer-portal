@@ -37,6 +37,7 @@ export default function QuoteDetailSummary({
     if (enteredInclusiveTax) {
       return showInclusiveTaxPrice ? price : price - quoteDetailTax;
     }
+
     return showInclusiveTaxPrice ? price + quoteDetailTax : price;
   };
 
@@ -44,14 +45,14 @@ export default function QuoteDetailSummary({
     currencyFormatConvert(price, {
       currency: quoteDetail.currency,
       isConversionRate: false,
-      useCurrentCurrency: !!quoteDetail.currency,
+      useCurrentCurrency: Boolean(quoteDetail.currency),
     });
 
   const getShippingAndTax = () => {
-    if (quoteDetail?.shippingMethod?.id) {
+    if (quoteDetail.shippingMethod?.id) {
       return {
         shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${
-          quoteDetail?.shippingMethod?.description || ''
+          quoteDetail.shippingMethod?.description || ''
         })`,
         shippingVal: priceFormat(Number(shipping)),
         taxText: b3Lang('quoteDetail.summary.tax'),
@@ -59,7 +60,7 @@ export default function QuoteDetailSummary({
       };
     }
 
-    if (!quoteDetail?.salesRepEmail && !quoteDetail?.shippingMethod?.id && Number(status) === 1) {
+    if (!quoteDetail.salesRepEmail && !quoteDetail.shippingMethod?.id && Number(status) === 1) {
       return {
         shippingText: b3Lang('quoteDetail.summary.shipping'),
         shippingVal: b3Lang('quoteDetail.summary.tbd'),
@@ -69,8 +70,8 @@ export default function QuoteDetailSummary({
     }
 
     if (
-      quoteDetail?.salesRepEmail &&
-      !quoteDetail?.shippingMethod?.id &&
+      quoteDetail.salesRepEmail &&
+      !quoteDetail.shippingMethod?.id &&
       (Number(status) === 1 || Number(status) === 5)
     ) {
       return {
@@ -89,13 +90,16 @@ export default function QuoteDetailSummary({
   const shippingAndTax = getShippingAndTax();
 
   const showPrice = (price: string | number): string | number => {
-    if (shouldHidePrice) return b3Lang('quoteDraft.quoteSummary.tbd');
+    if (shouldHidePrice) {
+      return b3Lang('quoteDraft.quoteSummary.tbd');
+    }
 
     return price;
   };
 
   const subtotalPrice = Number(originalSubtotal);
   const quotedSubtotal = Number(originalSubtotal) - Number(discount);
+
   return (
     <Card data-testid="quote-summary">
       <CardContent>
@@ -107,11 +111,11 @@ export default function QuoteDetailSummary({
               color: '#212121',
             }}
           >
-            {quoteDetail?.displayDiscount && (
+            {quoteDetail.displayDiscount && (
               <Grid
-                role="row"
                 container
                 justifyContent="space-between"
+                role="row"
                 sx={{
                   margin: '4px 0',
                 }}
@@ -123,14 +127,14 @@ export default function QuoteDetailSummary({
               </Grid>
             )}
 
-            {!quoteDetail?.salesRepEmail && Number(status) === 1 ? null : (
+            {!quoteDetail.salesRepEmail && Number(status) === 1 ? null : (
               <Grid
-                role="row"
                 container
                 justifyContent="space-between"
+                role="row"
                 sx={{
                   margin: '4px 0',
-                  display: quoteDetail?.displayDiscount ? '' : 'none',
+                  display: quoteDetail.displayDiscount ? '' : 'none',
                 }}
               >
                 <Typography>{b3Lang('quoteDetail.summary.discountAmount')}</Typography>
@@ -143,9 +147,9 @@ export default function QuoteDetailSummary({
             )}
 
             <Grid
-              role="row"
               container
               justifyContent="space-between"
+              role="row"
               sx={{
                 margin: '4px 0',
               }}
@@ -171,9 +175,9 @@ export default function QuoteDetailSummary({
             {shippingAndTax && (
               <>
                 <Grid
-                  role="row"
                   container
                   justifyContent="space-between"
+                  role="row"
                   sx={{
                     margin: '4px 0',
                   }}
@@ -189,9 +193,9 @@ export default function QuoteDetailSummary({
                   <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
                 </Grid>
                 <Grid
-                  role="row"
                   container
                   justifyContent="space-between"
+                  role="row"
                   sx={{
                     margin: '4px 0',
                   }}
@@ -203,9 +207,9 @@ export default function QuoteDetailSummary({
             )}
 
             <Grid
-              role="row"
               container
               justifyContent="space-between"
+              role="row"
               sx={{
                 margin: '24px 0 0',
               }}

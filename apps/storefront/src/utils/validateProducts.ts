@@ -53,9 +53,9 @@ type ValidatedProduct<T> =
   | ValidatedProductError<T>;
 
 interface ValidateProductsResult<T> {
-  success: ValidatedProductSuccess<T>[];
-  warning: ValidatedProductWarning<T>[];
-  error: ValidatedProductError<T>[];
+  success: Array<ValidatedProductSuccess<T>>;
+  warning: Array<ValidatedProductWarning<T>>;
+  error: Array<ValidatedProductError<T>>;
 }
 
 type ValidateProductsInput =
@@ -77,7 +77,9 @@ type ValidateProductsInput =
   | CustomFieldItems;
 
 const isProduct = (input: ValidateProductsInput): input is Product => {
-  if (typeof input !== 'object' || input === null) return false;
+  if (typeof input !== 'object' || input === null) {
+    return false;
+  }
 
   return (
     'productId' in input && 'variantId' in input && 'quantity' in input && 'productOptions' in input
@@ -193,12 +195,14 @@ export const validateProducts = async <T extends ValidateProductsInput>(
           },
           product,
         };
+
       case 'WARNING':
         return {
           status: 'warning',
           message: res.value.message,
           product,
         };
+
       case 'SUCCESS':
       default:
         return {

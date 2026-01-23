@@ -107,10 +107,10 @@ describe('stencil', () => {
   it('can add a product with required options to a shopping list', async () => {
     render(
       <FakeProductDataProvider
-        productId="123"
-        sku="SKU-123"
-        quantity="2"
         options={{ 'attribute[114]': '104' }}
+        productId="123"
+        quantity="2"
+        sku="SKU-123"
       />,
     );
 
@@ -195,10 +195,10 @@ describe('stencil', () => {
   it('can add a variant of the product using a SKU to a shopping list', async () => {
     render(
       <FakeProductDataProvider
-        productId="123"
-        sku="SKU-123"
-        quantity="2"
         options={{ 'attribute[114]': '104' }}
+        productId="123"
+        quantity="2"
+        sku="SKU-123"
       />,
     );
 
@@ -352,7 +352,7 @@ describe('stencil', () => {
         },
       });
 
-    render(<FakeProductDataProvider productId="123" sku="SKU-123" quantity="1" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="SKU-123" />);
 
     const shoppingListClickNode = screen.getByRole('link', { name: 'Shopping List Click Node' });
 
@@ -421,10 +421,10 @@ describe('stencil', () => {
 
     render(
       <FakeProductDataProvider
-        productId="123"
-        sku="SKU-123"
-        quantity="2"
         options={{ 'attribute[1]': 'bar' }}
+        productId="123"
+        quantity="2"
+        sku="SKU-123"
       />,
     );
 
@@ -454,10 +454,10 @@ describe('stencil', () => {
     it('triggers an error alert that indicates the product is missing required variant', async () => {
       render(
         <FakeProductDataProvider
-          productId="123"
-          sku="SKU-123"
-          quantity="1"
           options={{ 'attribute[1]': '2' }}
+          productId="123"
+          quantity="1"
+          sku="SKU-123"
         />,
       );
 
@@ -483,6 +483,7 @@ describe('stencil', () => {
           }),
         ),
       );
+
       const shoppingListClickNode = screen.getByRole('link', { name: 'Shopping List Click Node' });
 
       renderWithProviders(<PDP />, {
@@ -508,10 +509,10 @@ describe('stencil', () => {
     it('triggers an error alert that indicates something went wrong', async () => {
       render(
         <FakeProductDataProvider
-          productId="123"
-          sku="SKU-123"
-          quantity="1"
           options={{ 'attribute[114]': '104' }}
+          productId="123"
+          quantity="1"
+          sku="SKU-123"
         />,
       );
 
@@ -693,9 +694,9 @@ describe('other/catalyst', () => {
           },
         }),
       ),
-      graphql.mutation('AddItemsToShoppingList', ({ variables }) => {
-        return HttpResponse.json(addItemsToShoppingList({ variables }));
-      }),
+      graphql.mutation('AddItemsToShoppingList', ({ variables }) =>
+        HttpResponse.json(addItemsToShoppingList({ variables })),
+      ),
     );
 
     when(addItemsToShoppingList)

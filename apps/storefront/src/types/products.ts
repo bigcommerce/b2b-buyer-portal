@@ -122,7 +122,7 @@ export interface AllOptionProps {
   display_name: string;
   type: string;
   sort_order: number;
-  option_values: Partial<ALlOptionValue>[];
+  option_values: Array<Partial<ALlOptionValue>>;
   config?: {
     default_value?: string;
     text_characters_limited?: boolean;
@@ -169,7 +169,7 @@ export interface Product {
   modifiers: Modifiers[];
   options?: ProductItemOption[];
   optionsV3?: Modifiers[];
-  allOptions?: Partial<AllOptionProps>[];
+  allOptions?: Array<Partial<AllOptionProps>>;
   productUrl: string;
   quantity: number;
   product_options?: ProductOptionsItem[];
@@ -186,5 +186,5 @@ export interface CalculatedOptions {
 export interface CalculatedItems {
   product_id: number;
   variant_id: number;
-  options: Partial<CalculatedOptions>[];
+  options: Array<Partial<CalculatedOptions>>;
 }

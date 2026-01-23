@@ -18,8 +18,11 @@ export function B3CollapseContainer(props: CollapseContainerProps) {
   const handleClick = () => {
     setOpen(!open);
   };
+
   useEffect(() => {
-    if (handleOnChange) handleOnChange(open);
+    if (handleOnChange) {
+      handleOnChange(open);
+    }
   }, [handleOnChange, open]);
 
   useEffect(() => {

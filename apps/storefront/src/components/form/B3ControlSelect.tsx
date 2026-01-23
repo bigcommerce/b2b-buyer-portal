@@ -56,21 +56,21 @@ export function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
 
   return ['dropdown'].includes(fieldType) ? (
     <FormControl
-      variant="filled"
+      disabled={disabled}
       style={{
         width: '100%',
         color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
       }}
-      disabled={disabled}
+      variant="filled"
     >
       {label && (
         <InputLabel
+          error={Boolean(errors[name])}
+          id={`${id}-label`}
+          required={required}
           sx={{
             color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
           }}
-          error={!!errors[name]}
-          required={required}
-          id={`${id}-label`}
         >
           {label}
         </InputLabel>
@@ -83,10 +83,10 @@ export function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
             {...field}
             {...muiAttributeProps}
             {...onChangeProps}
-            size={size}
-            error={!!errors[name]}
-            labelId={`${id}-label`}
+            error={Boolean(errors[name])}
             id={`${id}-select`}
+            labelId={`${id}-label`}
+            size={size}
             sx={{
               ...extraPadding,
             }}
@@ -104,7 +104,7 @@ export function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
         )}
       />
       {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
+        <FormHelperText error={Boolean(errors[name])}>
           {errors[name] ? errors[name].message : null}
         </FormHelperText>
       )}

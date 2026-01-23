@@ -54,7 +54,6 @@ export function AddressItemCard(props: OrderItemCardProps) {
       >
         {addressInfo.label && (
           <Typography
-            variant="h5"
             sx={{
               marginBottom:
                 addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
@@ -62,6 +61,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
                   : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
+            variant="h5"
           >
             {addressInfo.label}
           </Typography>
@@ -95,10 +95,10 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
         <Flex theme={theme}>
           <CustomButton
-            variant="text"
             onClick={() => {
               onSetAddress(addressInfo);
             }}
+            variant="text"
           >
             {b3Lang('quoteDraft.addressItemCard.chooseAddress')}
           </CustomButton>

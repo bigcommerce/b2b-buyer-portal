@@ -10,29 +10,27 @@ interface ToastOptions {
   description?: string;
 }
 
-const getLocalHandler = (variant: AlertTip) => {
-  return (message: string, options?: ToastOptions) => {
-    const msgs: Array<MsgsProps> = [
-      {
-        id: uuid(),
-        type: variant,
-        msg: message || `${variant} without any info.`,
-        action: options?.action,
-        time: 5000,
-        description: options?.description,
-      },
-    ];
+const getLocalHandler = (variant: AlertTip) => (message: string, options?: ToastOptions) => {
+  const msgs: MsgsProps[] = [
+    {
+      id: uuid(),
+      type: variant,
+      msg: message || `${variant} without any info.`,
+      action: options?.action,
+      time: 5000,
+      description: options?.description,
+    },
+  ];
 
-    window.tipDispatch?.({
-      type: 'tip',
-      payload: {
-        tipMessage: {
-          autoHideDuration: 5000,
-          msgs,
-        },
+  window.tipDispatch({
+    type: 'tip',
+    payload: {
+      tipMessage: {
+        autoHideDuration: 5000,
+        msgs,
       },
-    });
-  };
+    },
+  });
 };
 
 export const snackbar = window.catalyst?.toast || {
@@ -42,29 +40,27 @@ export const snackbar = window.catalyst?.toast || {
   warning: getLocalHandler('warning'),
 };
 
-const getGlobalHandler = (variant: AlertTip) => {
-  return (message: string, options?: ToastOptions) => {
-    const msgs = [
-      {
-        id: uuid(),
-        type: variant,
-        msg: message || `${variant} without any info.`,
-        action: options?.action,
-        time: 5000,
-        description: options?.description,
-      },
-    ];
+const getGlobalHandler = (variant: AlertTip) => (message: string, options?: ToastOptions) => {
+  const msgs = [
+    {
+      id: uuid(),
+      type: variant,
+      msg: message || `${variant} without any info.`,
+      action: options?.action,
+      time: 5000,
+      description: options?.description,
+    },
+  ];
 
-    window.globalTipDispatch({
-      type: 'globalTip',
-      payload: {
-        globalTipMessage: {
-          autoHideDuration: 5000,
-          msgs,
-        },
+  window.globalTipDispatch({
+    type: 'globalTip',
+    payload: {
+      globalTipMessage: {
+        autoHideDuration: 5000,
+        msgs,
       },
-    });
-  };
+    },
+  });
 };
 
 export const globalSnackbar = window.catalyst?.toast || {

@@ -29,6 +29,7 @@ const NoDataText = styled('span')(() => ({
 
 export function B3NoData({ text, backgroundColor, minHeight, isLoading = false }: B3NoDataProps) {
   const b3Lang = useB3Lang();
+
   return (
     <NoDataContainer backgroundColor={backgroundColor} minHeight={minHeight}>
       {!isLoading && <DataUsageRounded fontSize="large" />}

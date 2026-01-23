@@ -62,12 +62,13 @@ const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactE
 };
 
 function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
-  return routes.map((item) => {
-    return {
-      ...item,
-      component: routesMap[item.path],
-    } as RouteItem;
-  });
+  return routes.map(
+    (item) =>
+      ({
+        ...item,
+        component: routesMap[item.path],
+      }) as RouteItem,
+  );
 }
 
 const routes: RouteItem[] = addComponentToRoutes(routeList);
@@ -129,8 +130,10 @@ const gotoAllowedAppPage = async (
 
   const { company } = currentState;
   const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
+
   if (!isLoggedIn) {
     gotoPage('/login?loginFlag=loggedOutLogin&&closeIsLogout=1');
+
     return;
   }
 
@@ -138,14 +141,17 @@ const gotoAllowedAppPage = async (
 
   if (denyInvoiceRoles.includes(role) && isInvoicePage()) {
     gotoPage('/login?loginFlag=invoiceErrorTip');
+
     return;
   }
+
   try {
     const isBcLogin = await b2bVerifyBcLoginStatus();
 
     if (!isBcLogin && isB2bTokenPage()) {
       logoutSession();
       gotoPage('/login?loginFlag=deviceCrowdingLogIn');
+
       return;
     }
   } catch (err: unknown) {
@@ -156,6 +162,7 @@ const gotoAllowedAppPage = async (
 
   if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
     let isB2BUser = false;
+
     if (
       company.customer.userType === UserTypes.MULTIPLE_B2C &&
       company.companyInfo.status === CompanyStatus.APPROVED
@@ -171,20 +178,24 @@ const gotoAllowedAppPage = async (
       case CustomerRole.JUNIOR_BUYER:
         url = '/shoppingLists';
         break;
+
       case CustomerRole.SUPER_ADMIN:
         url = '/dashboard';
         break;
+
       default:
         url = currentAuthorizedPages;
         break;
     }
   }
+
   const [realPath] = url.split('?');
 
   const flag = routes.some((item: RouteItem) => {
     if (matchPath(item.path, realPath) || isInvoicePage()) {
       return item.permissions.includes(Number(role));
     }
+
     return false;
   });
 
@@ -192,14 +203,17 @@ const gotoAllowedAppPage = async (
     if (url.includes('/login?') || url.includes('payment')) {
       return true;
     }
+
     return matchPath(item.path, realPath);
   });
-  if (flag || isFirstLevelFlag) gotoPage(url);
+
+  if (flag || isFirstLevelFlag) {
+    gotoPage(url);
+  }
 };
 
-const getIsTokenGotoPage = (url: string): boolean => {
-  return routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin);
-};
+const getIsTokenGotoPage = (url: string): boolean =>
+  routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin);
 
 const getAllowedRoutes = (globalState: GlobalState) =>
   addComponentToRoutes(getAllowedRoutesWithoutComponent(globalState));

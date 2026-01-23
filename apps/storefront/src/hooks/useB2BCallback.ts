@@ -9,6 +9,5 @@ export type EventType =
 
 type Args = Record<string, any>;
 
-export const dispatchEvent = (event: EventType, data?: Args): boolean => {
-  return window.b2b.callbacks.dispatchEvent(event, data);
-};
+export const dispatchEvent = (event: EventType, data?: Args): boolean =>
+  window.b2b.callbacks.dispatchEvent(event, data);

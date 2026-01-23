@@ -18,7 +18,7 @@ function B3LayoutTip() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
+  const setMsgs = (msgs: [] | MsgsProps[] = []) => {
     dispatch({
       type: 'common',
       payload: {
@@ -39,7 +39,9 @@ function B3LayoutTip() {
   };
 
   const closeMsgs = (id: number | string, reason: string) => {
-    if (reason === 'clickaway') return;
+    if (reason === 'clickaway') {
+      return;
+    }
 
     flushSync(() => {
       if (msgs.length) {
@@ -60,13 +62,13 @@ function B3LayoutTip() {
 
   return (
     <B3Tip
-      msgs={msgs}
-      handleAllClose={closeMsgs}
       autoHideDuration={autoHideDuration}
+      handleAllClose={closeMsgs}
+      horizontal={horizontal}
+      msgs={msgs}
       handleItemClose={handleClose}
       // handleItemClose={isClose ? handleClose : undefined}
       vertical={vertical}
-      horizontal={horizontal}
     />
   );
 }

@@ -32,8 +32,8 @@ describe('LoginPage', () => {
       vi.mock('@/hooks/useB2BCallback');
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             data: {
               login: {
                 result: {
@@ -43,8 +43,8 @@ describe('LoginPage', () => {
                 },
               },
             },
-          });
-        }),
+          }),
+        ),
       );
 
       vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
@@ -72,8 +72,8 @@ describe('LoginPage', () => {
       vi.mock('@/hooks/useB2BCallback');
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             data: {
               login: {
                 result: {
@@ -83,8 +83,8 @@ describe('LoginPage', () => {
                 },
               },
             },
-          });
-        }),
+          }),
+        ),
       );
 
       vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
@@ -124,11 +124,12 @@ describe('LoginPage', () => {
 
     it('should show error message for invalid login credentials', async () => {
       const logoutMock = vi.fn();
+
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message: 'Invalid Login',
@@ -137,8 +138,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -152,11 +153,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for features/products/pricing and logout silently', async () => {
       const logoutMock = vi.fn();
+
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -166,8 +168,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -185,11 +187,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for products/pricing/ordering and logout silently', async () => {
       const logoutMock = vi.fn();
+
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -199,8 +202,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -217,11 +220,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for business features and logout silently', async () => {
       const logoutMock = vi.fn();
+
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -231,8 +235,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -250,11 +254,12 @@ describe('LoginPage', () => {
 
     it('should show inactive account message and logout silently', async () => {
       const logoutMock = vi.fn();
+
       vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -264,8 +269,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();

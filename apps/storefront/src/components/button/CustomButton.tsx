@@ -1,5 +1,5 @@
-import { forwardRef, MouseEvent } from 'react';
 import { Button, ButtonProps, SxProps } from '@mui/material';
+import { forwardRef, MouseEvent } from 'react';
 
 interface CustomButtonProps extends ButtonProps {
   onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void;
@@ -9,20 +9,18 @@ interface CustomButtonProps extends ButtonProps {
 }
 
 const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
-  ({ onClick, sx, children, ...rest }, ref) => {
-    return (
-      <Button
-        ref={ref}
-        {...rest}
-        sx={{
-          ...(sx || {}),
-        }}
-        onClick={onClick}
-      >
-        {children}
-      </Button>
-    );
-  },
+  ({ onClick, sx, children, ...rest }, ref) => (
+    <Button
+      ref={ref}
+      {...rest}
+      onClick={onClick}
+      sx={{
+        ...(sx || {}),
+      }}
+    >
+      {children}
+    </Button>
+  ),
 );
 
 export default CustomButton;

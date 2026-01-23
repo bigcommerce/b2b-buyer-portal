@@ -878,13 +878,13 @@ const expectedPayloadType1 = {
   trigger_account_created_notification: true,
 };
 
-type RegistrationData = {
+interface RegistrationData {
   accountType: string;
   contactInfo: Record<string, string | boolean>;
   businessDetails?: Record<string, string>;
   address: Record<string, string>;
   password: Record<string, string>;
-};
+}
 
 async function completeRegistration({
   accountType,
@@ -898,18 +898,22 @@ async function completeRegistration({
 
   for (const [label, value] of Object.entries(contactInfo)) {
     if (typeof value === 'boolean') {
-      if (value) await userEvent.click(screen.getByLabelText(new RegExp(label, 'i')));
+      if (value) {
+        await userEvent.click(screen.getByLabelText(new RegExp(label, 'i')));
+      }
     } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value);
     }
   }
+
   await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Step 2: Business Details (B2B only)
   if (businessDetails) {
     for (const [label, value] of Object.entries(businessDetails)) {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value);
     }
+
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   }
 
@@ -917,21 +921,24 @@ async function completeRegistration({
   for (const [label, value] of Object.entries(address)) {
     if (label === 'Country') {
       await userEvent.click(screen.getByLabelText(/Country/i));
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
+      await userEvent.click(screen.getByRole('option', { name: value }));
     } else if (label === 'State/Province' || label === 'State') {
       const stateInputs = screen.getAllByLabelText(/State/i);
+
       await userEvent.click(stateInputs[stateInputs.length - 1]);
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
+      await userEvent.click(screen.getByRole('option', { name: value }));
     } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value);
     }
   }
+
   await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Step 3: Password
   for (const [label, value] of Object.entries(password)) {
-    await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+    await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value);
   }
+
   await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
 }
 
@@ -1007,6 +1014,7 @@ describe('Registered Page', () => {
   describe('B2B registration pending approval scenarios', () => {
     it('can order, cannot view prices', async () => {
       const storageSpy = vi.spyOn(B3SStorage, 'get');
+
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(false);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
 
@@ -1036,6 +1044,7 @@ describe('Registered Page', () => {
 
     it('cannot order or view prices', async () => {
       const storageSpy = vi.spyOn(B3SStorage, 'get');
+
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
 
@@ -1065,12 +1074,14 @@ describe('Registered Page', () => {
 
     it('other restrictions', async () => {
       const storageSpy = vi.spyOn(B3SStorage, 'get');
+
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(false);
 
       vi.mocked(createB2BCompanyUser).mockResolvedValue({
         companyCreate: { company: { companyStatus: 0 } },
       });
+
       const { navigation } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />

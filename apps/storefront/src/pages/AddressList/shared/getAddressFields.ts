@@ -20,13 +20,14 @@ export interface CountryProps {
   id: string | number;
   states: StateProps[];
 }
+
 interface B2bExtraFieldsProps {
   defaultValue: string;
   fieldName: string;
   fieldType: string | number;
   isRequired: boolean;
   labelName: string;
-  listOfValue: null | Array<string>;
+  listOfValue: null | string[];
   maximumLength: string | number | null;
   maximumValue: string | number | null;
   numberOfRows: string | number | null;
@@ -41,11 +42,16 @@ interface ExtraFieldsProp extends RegisterFieldsItems {
 }
 
 const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): [] | ExtraFieldsProp[] => {
-  if (extraFields.length === 0) return [];
+  if (extraFields.length === 0) {
+    return [];
+  }
+
   const visibleFields =
     extraFields.filter((field: B2bExtraFieldsProps) => field.visibleToEnduser) || [];
 
-  if (visibleFields?.length === 0) return [];
+  if (visibleFields.length === 0) {
+    return [];
+  }
 
   const b2bExtraFields = visibleFields.map((field: B2bExtraFieldsProps) => {
     const fields = {
@@ -61,6 +67,7 @@ const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): [] | ExtraField
 
   convertB2BExtraFields.map((extraField: ExtraFieldsProp) => {
     const field = extraField;
+
     field.custom = true;
 
     return extraField;
@@ -83,6 +90,7 @@ const getBcAddressFields = async () => {
   } catch (e) {
     b2bLogger.error(e);
   }
+
   return undefined;
 };
 
@@ -91,10 +99,12 @@ const getB2BAddressFields = async () => {
     const res = await getB2BAddressExtraFields();
     const b2bExtraFields = convertExtraFields(res.addressExtraFields);
     const addressFields = [...b2bAddressFields, ...b2bExtraFields];
+
     return addressFields;
   } catch (e) {
     b2bLogger.error(e);
   }
+
   return [];
 };
 
@@ -105,14 +115,18 @@ export const getAddressFields = async (isB2BUser: boolean, countries: CountryPro
     if (isB2BUser) {
       const addressFields = await getB2BAddressFields();
 
-      if (addressFields) allAddressFields = addressFields;
+      if (addressFields) {
+        allAddressFields = addressFields;
+      }
     } else {
       const bcAddressFields = await getBcAddressFields();
+
       allAddressFields = bcAddressFields;
     }
 
     allAddressFields.map((addressField: CustomFieldItems) => {
       const field = addressField;
+
       if (addressField.name === 'country') {
         field.options = countries;
         field.required = true;
@@ -130,5 +144,6 @@ export const getAddressFields = async (isB2BUser: boolean, countries: CountryPro
   } catch (e) {
     b2bLogger.error(e);
   }
+
   return [];
 };

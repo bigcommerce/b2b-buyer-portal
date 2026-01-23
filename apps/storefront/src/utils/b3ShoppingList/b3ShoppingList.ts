@@ -26,10 +26,12 @@ CreateShoppingListParams) => {
       code: b2bPermissionsMap.submitShoppingListPermission,
     });
     const selectCompanyHierarchyId =
-      store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
+      store.getState().company.companyHierarchyInfo.selectCompanyHierarchyId || 0;
+
     createShoppingData.status = submitShoppingListPermission
       ? ShoppingListStatus.Draft
       : ShoppingListStatus.Approved;
+
     if (selectCompanyHierarchyId) {
       createShoppingData.companyId = selectCompanyHierarchyId;
     }

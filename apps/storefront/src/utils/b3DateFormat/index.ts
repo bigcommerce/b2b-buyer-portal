@@ -26,7 +26,9 @@ const formatCreator =
 
     const display = dateFormat[displayType];
 
-    if (!timestamp) return '';
+    if (!timestamp) {
+      return '';
+    }
 
     const dateTime = isDateStr ? timestamp : parseInt(String(timestamp), 10) * 1000;
     const localDate = new Date(dateTime);
@@ -35,11 +37,14 @@ const formatCreator =
     const utcTime = localTime + offset;
 
     const dateObject = new Date(utcTime);
+
     switch (handler) {
       case 'formatDate':
         return fmt.formatDate(dateObject, display) || '';
+
       case 'parseDate':
         return fmt.parseDate(dateObject, display) || '';
+
       default:
         throw new Error('Invalid value');
     }
@@ -60,7 +65,10 @@ const getUTCTimestamp = (timestamp: string | number, adjustment?: boolean, isDat
     timeFormat,
   );
 
-  if (!timestamp) return '';
+  if (!timestamp) {
+    return '';
+  }
+
   const dateTime = isDateStr ? timestamp : parseInt(String(timestamp), 10) * 1000;
   const localDate = new Date(dateTime);
   const localTime = localDate.getTime();

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { Box, Button, useTheme } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 import { useMobile } from '@/hooks/useMobile';
 
@@ -25,6 +25,7 @@ function LoginPanel(props: LoginPanelProps) {
       }}
     >
       <LoginWidget
+        html={widgetBodyText}
         sx={{
           minHeight: '250px',
           '& .panel': {
@@ -38,7 +39,6 @@ function LoginPanel(props: LoginPanelProps) {
             },
           },
         }}
-        html={widgetBodyText}
       />
       <Box
         sx={{
@@ -47,12 +47,12 @@ function LoginPanel(props: LoginPanelProps) {
       >
         <Button
           component={Link}
-          to="/register"
-          variant="contained"
           sx={{
             ml: isMobile ? 0 : 1,
             backgroundColor: theme.palette.primary.main,
           }}
+          to="/register"
+          variant="contained"
         >
           {createAccountButtonText}
         </Button>

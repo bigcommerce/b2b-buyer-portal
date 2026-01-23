@@ -12,16 +12,16 @@ import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes';
 
 import ChooseAddress from './ChooseAddress';
 
-type AddressItemProps = {
+interface AddressItemProps {
   node: AddressItemType;
-};
+}
 
 interface AccountFormFieldsProps extends Record<string, any> {
   name: string;
   label?: string;
   required?: boolean;
   fieldType?: string;
-  default?: string | Array<any> | number;
+  default?: string | any[] | number;
   xs: number;
   variant: string;
   size: string;
@@ -89,7 +89,10 @@ function QuoteAddress(
     const addressKey = Object.keys(address);
 
     addressKey.forEach((item: string) => {
-      if (item === 'company') return;
+      if (item === 'company') {
+        return;
+      }
+
       setValue(item, address[item]);
     });
   };
@@ -109,28 +112,33 @@ function QuoteAddress(
 
   const handleChangeAddress = (address: AddressItemType) => {
     reset(); // reset the form before setting new values
+
     const addressItem: any = {
-      label: address?.label || '',
-      firstName: address?.firstName || '',
-      lastName: address?.lastName || '',
-      company: address?.company || '',
-      country: address?.countryCode || '',
-      address: address?.addressLine1 || '',
-      apartment: address?.addressLine2 || '',
-      city: address?.city || '',
-      state: address?.state || '',
-      zipCode: address?.zipCode || '',
-      phoneNumber: address?.phoneNumber || '',
-      addressId: Number(address?.id) || 0,
+      label: address.label || '',
+      firstName: address.firstName || '',
+      lastName: address.lastName || '',
+      company: address.company || '',
+      country: address.countryCode || '',
+      address: address.addressLine1 || '',
+      apartment: address.addressLine2 || '',
+      city: address.city || '',
+      state: address.state || '',
+      zipCode: address.zipCode || '',
+      phoneNumber: address.phoneNumber || '',
+      addressId: Number(address.id) || 0,
     };
 
     // masterCopy temporarily stores the original address to detect changes and will be removed before submitting the quote.
     addressItem.masterCopy = cloneDeep(addressItem);
 
     Object.keys(addressItem).forEach((item: string) => {
-      if (item === 'company') return;
+      if (item === 'company') {
+        return;
+      }
+
       setValue(item, addressItem[item]);
     });
+
     if (type === 'billing' && shippingSameAsBilling) {
       setBillingChange(true);
     }
@@ -152,12 +160,12 @@ function QuoteAddress(
 
   return (
     <Box
-      role="group"
       aria-labelledby={fieldsetId}
-      width={isMobile ? '100%' : '50%'}
       mt={isMobile ? '2rem' : '0'}
-      pr={pr}
       pl={pl}
+      pr={pr}
+      role="group"
+      width={isMobile ? '100%' : '50%'}
     >
       <Box
         sx={{
@@ -195,18 +203,18 @@ function QuoteAddress(
       </Box>
 
       <B3CustomForm
-        formFields={quoteAddress}
-        errors={errors}
         control={control}
+        errors={errors}
+        formFields={quoteAddress}
         getValues={getValues}
         setValue={setValue}
       />
 
       <ChooseAddress
-        isOpen={isOpen}
-        handleChangeAddress={handleChangeAddress}
-        closeModal={handleCloseAddressChoose}
         addressList={addressList}
+        closeModal={handleCloseAddressChoose}
+        handleChangeAddress={handleChangeAddress}
+        isOpen={isOpen}
         type={type}
       />
     </Box>

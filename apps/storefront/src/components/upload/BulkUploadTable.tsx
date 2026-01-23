@@ -16,9 +16,7 @@ interface BulkUploadTableProps {
   fileName: string;
 }
 
-interface ListItem {
-  [key: string]: string;
-}
+type ListItem = Record<string, string>;
 
 const StyledTableContainer = styled(Box)(() => {
   const [isMobile] = useMobile();
@@ -29,6 +27,7 @@ const StyledTableContainer = styled(Box)(() => {
   const mobileStyle = {
     marginTop: '0.5rem',
   };
+
   return {
     '& div': isMobile ? mobileStyle : style,
   };
@@ -39,7 +38,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
-  const columnErrorsItems: TableColumnItem<ListItem>[] = [
+  const columnErrorsItems: Array<TableColumnItem<ListItem>> = [
     {
       key: 'sku',
       title: 'SKU',
@@ -98,7 +97,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     },
   ];
 
-  const columnValidItems: TableColumnItem<ListItem>[] = [
+  const columnValidItems: Array<TableColumnItem<ListItem>> = [
     {
       key: 'sku',
       title: 'SKU',
@@ -200,12 +199,12 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         </Box>
 
         <Button
-          sx={{
-            color: 'rgba(0, 0, 0, 0.54)',
-          }}
-          ref={ref}
           onClick={() => {
             handleOpenBtnList();
+          }}
+          ref={ref}
+          sx={{
+            color: 'rgba(0, 0, 0, 0.54)',
           }}
         >
           <MoreHoriz
@@ -215,7 +214,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
           />
         </Button>
 
-        <Menu anchorEl={ref.current} open={isOpen} onClose={handleClose}>
+        <Menu anchorEl={ref.current} onClose={handleClose} open={isOpen}>
           <MenuItem
             onClick={() => {
               handleRemoveCsv();
@@ -240,17 +239,17 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         }}
       >
         <Box>
-          <Tabs value={activeTab} onChange={handleChangeTab} aria-label="basic tabs example">
+          <Tabs aria-label="basic tabs example" onChange={handleChangeTab} value={activeTab}>
             {errorProduct.length > 0 && (
               <Tab
-                value="error"
                 label={errorProduct.length ? `Errors (${errorProduct.length})` : 'Errors'}
+                value="error"
               />
             )}
             {validProduct.length > 0 && (
               <Tab
-                value="valid"
                 label={validProduct.length ? `Valid (${validProduct.length})` : 'Valid'}
+                value="valid"
               />
             )}
           </Tabs>
@@ -259,17 +258,17 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         <StyledTableContainer>
           <B3PaginationTable
             columnItems={activeTab === 'error' ? columnErrorsItems : columnValidItems}
-            rowsPerPageOptions={[10, 20, 50]}
-            showBorder={!isMobile}
             getRequestList={getProductInfo}
-            labelRowsPerPage="Products per page:"
             itemIsMobileSpacing={0}
+            labelRowsPerPage="Products per page:"
             noDataText="No product"
-            tableKey="row"
+            renderItem={(row) => <BulkUploadTableCard activeTab={activeTab} products={row} />}
+            rowsPerPageOptions={[10, 20, 50]}
             searchParams={{
               activeTab,
             }}
-            renderItem={(row) => <BulkUploadTableCard products={row} activeTab={activeTab} />}
+            showBorder={!isMobile}
+            tableKey="row"
           />
         </StyledTableContainer>
 

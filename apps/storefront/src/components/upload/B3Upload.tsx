@@ -1,9 +1,9 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import styled from '@emotion/styled';
 import { InsertDriveFile } from '@mui/icons-material';
 import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { useMobile } from '@/hooks/useMobile';
 import { ValidProductItem } from '@/pages/QuickOrder/components/ValidProduct';
@@ -90,7 +90,7 @@ export function B3Upload(props: B3UploadProps) {
   const [fileErrorText, setFileErrorText] = useState('');
 
   const currency = useAppSelector(defaultCurrencyInfoSelector);
-  const { currency_code: currencyCode } = currency as Currency;
+  const { currency_code: currencyCode } = currency;
 
   const getRejectMessage = (
     rejectedFile: File,
@@ -112,12 +112,14 @@ export function B3Upload(props: B3UploadProps) {
     if (!isAcceptedFileType) {
       message = "Table structure is wrong. Please download sample and follow it's structure.";
       setFileErrorText(message);
+
       return message;
     }
 
     if (size > maxFileSize) {
       message = 'Maximum file size 50MB';
       setFileErrorText(message);
+
       return message;
     }
 
@@ -141,7 +143,10 @@ export function B3Upload(props: B3UploadProps) {
         withModifiers,
       };
 
-      if (role !== 100) params.channelId = channelId;
+      if (role !== 100) {
+        params.channelId = channelId;
+      }
+
       const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
       const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
 
@@ -179,6 +184,7 @@ export function B3Upload(props: B3UploadProps) {
           if (EmptyData.length > 1) {
             for (let i = 1; i < EmptyData.length; i += 1) {
               const signleRow = EmptyData[i].split(',');
+
               if (signleRow.length > columns) {
                 error = 'Please use the template file provided.';
               }
@@ -187,9 +193,12 @@ export function B3Upload(props: B3UploadProps) {
 
           if (error) {
             reject(new Error(error));
+
             return;
           }
+
           const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData);
+
           resolve(parseData);
         }
       });
@@ -203,6 +212,7 @@ export function B3Upload(props: B3UploadProps) {
     if (file) {
       try {
         const parseData = await parseFile(file);
+
         if (parseData.length) {
           setFileErrorText('');
           setStep('loading');
@@ -210,17 +220,20 @@ export function B3Upload(props: B3UploadProps) {
           await handleBulkUploadCSV(parseData);
         }
       } catch (error) {
-        if ((error as Error)?.message) {
-          setFileErrorText((error as Error)?.message);
+        if ((error as Error).message) {
+          setFileErrorText((error as Error).message);
         }
       }
     }
   };
 
   const handleConfirmToList = async () => {
-    const validProduct = fileDatas?.validProduct || [];
-    const stockErrorFile = fileDatas?.stockErrorFile || '';
-    if (validProduct?.length === 0) return;
+    const validProduct = fileDatas.validProduct || [];
+    const stockErrorFile = fileDatas.stockErrorFile || '';
+
+    if (validProduct?.length === 0) {
+      return;
+    }
 
     if (validProduct) {
       const productsData: { validProduct: ValidProductItem[]; stockErrorFile: string } = {
@@ -254,10 +267,10 @@ export function B3Upload(props: B3UploadProps) {
     >
       <Grid
         container
-        rowSpacing={1.5}
-        display="flex"
         direction="column"
+        display="flex"
         justifyContent="center"
+        rowSpacing={1.5}
         sx={{
           marginTop: '12px',
         }}
@@ -286,7 +299,6 @@ export function B3Upload(props: B3UploadProps) {
 
         <Grid
           display="flex"
-          xs={12}
           sx={{
             fontWeight: 400,
             fontSize: '14px',
@@ -294,6 +306,7 @@ export function B3Upload(props: B3UploadProps) {
             flexWrap: isMobile ? 'wrap' : 'nowrap',
             justifyContent: 'center',
           }}
+          xs={12}
         >
           <Box
             sx={{
@@ -313,11 +326,11 @@ export function B3Upload(props: B3UploadProps) {
           >
             <Link
               href="https://silk-demo-store45.mybigcommerce.com/content/sample_template.csv"
-              underline="none"
               sx={{
                 color: primaryColor,
                 pointerEvents: 'auto',
               }}
+              underline="none"
             >
               Download sample
             </Link>
@@ -325,7 +338,7 @@ export function B3Upload(props: B3UploadProps) {
         </Grid>
 
         <Grid display="flex" justifyContent="center" xs={12}>
-          <CustomButton variant="outlined" onClick={openFile} sx={{ pointerEvents: 'auto' }}>
+          <CustomButton onClick={openFile} sx={{ pointerEvents: 'auto' }} variant="outlined">
             Upload file
           </CustomButton>
         </Grid>
@@ -340,20 +353,6 @@ export function B3Upload(props: B3UploadProps) {
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      title={bulkUploadTitle}
-      maxWidth="lg"
-      rightSizeBtn={addBtnText}
-      leftSizeBtn="cancel"
-      handleLeftClick={() => {
-        setStep('init');
-        setIsOpen(false);
-      }}
-      handRightClick={() => {
-        handleConfirmToList();
-      }}
-      showRightBtn={step === 'end'}
-      isShowBordered={false}
       dialogContentSx={
         step === 'end'
           ? {
@@ -361,6 +360,20 @@ export function B3Upload(props: B3UploadProps) {
             }
           : {}
       }
+      handRightClick={() => {
+        handleConfirmToList();
+      }}
+      handleLeftClick={() => {
+        setStep('init');
+        setIsOpen(false);
+      }}
+      isOpen={isOpen}
+      isShowBordered={false}
+      leftSizeBtn="cancel"
+      maxWidth="lg"
+      rightSizeBtn={addBtnText}
+      showRightBtn={step === 'end'}
+      title={bulkUploadTitle}
     >
       {fileErrorText.length > 0 && (
         <Box
@@ -368,7 +381,7 @@ export function B3Upload(props: B3UploadProps) {
             m: '0 0 1rem 0',
           }}
         >
-          <Alert variant="filled" severity="error">
+          <Alert severity="error" variant="filled">
             {fileErrorText}
           </Alert>
         </Box>
@@ -388,17 +401,17 @@ export function B3Upload(props: B3UploadProps) {
           >
             {content}
             <DropzoneArea
-              dropzoneClass="file-upload-area"
-              filesLimit={1}
-              onChange={handleChange}
-              showPreviews={false}
-              showPreviewsInDropzone={false}
-              showAlerts={false}
-              dropzoneText=""
-              maxFileSize={50 * 1024 * 1024}
               acceptedFiles={['text/csv', '.csv']}
+              dropzoneClass="file-upload-area"
+              dropzoneText=""
+              filesLimit={1}
               getDropRejectMessage={getRejectMessage}
               getFileLimitExceedMessage={getFileLimitExceedMessage}
+              maxFileSize={50 * 1024 * 1024}
+              onChange={handleChange}
+              showAlerts={false}
+              showPreviews={false}
+              showPreviewsInDropzone={false}
             />
           </FileUploadContainer>
         )}
@@ -406,7 +419,7 @@ export function B3Upload(props: B3UploadProps) {
         {step === 'loading' && <B3UploadLoading step={step} />}
         <B3Spin isSpinning={isLoading} spinningHeight="auto">
           {step === 'end' && (
-            <BulkUploadTable setStep={setStep} fileDatas={fileDatas} fileName={fileName} />
+            <BulkUploadTable fileDatas={fileDatas} fileName={fileName} setStep={setStep} />
           )}
         </B3Spin>
       </Box>

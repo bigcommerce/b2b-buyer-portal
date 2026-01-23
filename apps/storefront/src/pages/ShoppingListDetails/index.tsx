@@ -1,6 +1,6 @@
+import { Box, Grid, useTheme } from '@mui/material';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Grid, useTheme } from '@mui/material';
 import Cookies from 'js-cookie';
 import { v1 as uuid } from 'uuid';
 
@@ -78,19 +78,16 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-const mapToProductsFailedArray = (items: ProductsProps[]) => {
-  return items.map((item: ProductsProps) => {
-    return {
-      ...item,
-      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
-      minQuantity: item.node.productsSearch.orderQuantityMinimum,
-      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.unlimitedBackorder
-        ? Infinity
-        : item.node.productsSearch.availableToSell,
-    };
-  });
-};
+const mapToProductsFailedArray = (items: ProductsProps[]) =>
+  items.map((item: ProductsProps) => ({
+    ...item,
+    isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
+    minQuantity: item.node.productsSearch.orderQuantityMinimum,
+    maxQuantity: item.node.productsSearch.orderQuantityMaximum,
+    stock: item.node.productsSearch.unlimitedBackorder
+      ? Infinity
+      : item.node.productsSearch.availableToSell,
+  }));
 
 const calculateSubTotal = (checkedArr: CustomFieldItems) => {
   if (checkedArr.length > 0) {
@@ -125,23 +122,27 @@ const verifyInventory = (checkedArr: ProductsProps[], inventoryInfos: ProductsPr
 
     if (inventoryInfo) {
       let isPassVerify = true;
+
       if (
         inventoryInfo.isStock === '1' &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
-      )
+        (node.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
+      ) {
         isPassVerify = false;
+      }
 
       if (
         inventoryInfo.minQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
-      )
+        (node.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
+      ) {
         isPassVerify = false;
+      }
 
       if (
         inventoryInfo.maxQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
-      )
+        (node.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
+      ) {
         isPassVerify = false;
+      }
 
       if (isPassVerify) {
         validateSuccessArr.push({
@@ -298,8 +299,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifyLevelPermission({
         code: submitShoppingListPermissionCode,
-        companyId: Number(companyInfo?.companyId || 0),
-        userId: Number(customerInfo?.userId || 0),
+        companyId: Number(companyInfo.companyId || 0),
+        userId: Number(customerInfo.userId || 0),
       });
 
       return submitShoppingListPermissionLevel;
@@ -338,8 +339,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     if (listProducts.length > 0) {
       try {
         const productIds: number[] = [];
+
         listProducts.forEach((item) => {
           const { node } = item;
+
           if (!productIds.includes(node.productId)) {
             productIds.push(node.productId);
           }
@@ -361,6 +364,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           node.productUrl = productInfo?.productUrl || node.productUrl;
 
           node.disableCurrentCheckbox = false;
+
           if (node.quantity === 0) {
             node.disableCurrentCheckbox = true;
           }
@@ -379,7 +383,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const shoppingListDetailInfo = await getShoppingList(params);
+
     setIsRequestLoading(true);
+
     const {
       products: { edges, totalCount },
     } = shoppingListDetailInfo;
@@ -388,9 +394,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     await calculateProductListPrice(listProducts, '2');
 
-    if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo);
+    if (isB2BUser) {
+      setCustomerInfo(shoppingListDetailInfo.customerInfo);
+    }
+
     setShoppingListInfo(shoppingListDetailInfo);
     setIsRequestLoading(false);
+
     if (!listProducts) {
       return {
         edges: [],
@@ -406,6 +416,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true);
+
     try {
       const params: UpdateShoppingListParamsProps = {
         id: Number(id),
@@ -458,7 +469,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           setCheckedArr([...newCheckedArr]);
         }
       } else {
-        if (checkedArr.length === 0) return;
+        if (checkedArr.length === 0) {
+          return;
+        }
+
         checkedArr.forEach(async (item) => {
           const { node } = item;
 
@@ -489,7 +503,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   useEffect(() => {
-    if (isJuniorApprove) getJuniorPlaceOrder();
+    if (isJuniorApprove) {
+      getJuniorPlaceOrder();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isJuniorApprove]);
 
@@ -500,8 +516,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
         code: shoppingListCreateActionsPermission,
-        companyId: Number(companyInfo?.companyId || 0),
-        userId: Number(customerInfo?.userId || 0),
+        companyId: Number(companyInfo.companyId || 0),
+        userId: Number(customerInfo.userId || 0),
       });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);
@@ -538,6 +554,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     if (!isValidate) {
       snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
+
       return;
     }
 
@@ -604,6 +621,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const handleAddSelectedToQuote = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
 
@@ -630,9 +648,12 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'));
       }
 
-      if (noSkuProducts.length === checkedArr.length) return;
+      if (noSkuProducts.length === checkedArr.length) {
+        return;
+      }
 
       const productIds: number[] = [];
+
       productsWithSku.forEach((product) => {
         const { node } = product;
 
@@ -652,6 +673,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       let isFoundVariant = true;
 
       const newProducts: CustomFieldItems[] = [];
+
       productsWithSku.forEach((product) => {
         const {
           node: {
@@ -718,6 +740,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         await calculateProductListPrice(newProducts, '2');
 
         const success = await addToQuote(newProducts);
+
         if (success) {
           snackbar.success(b3Lang('shoppingList.footer.productsAddedToQuote'), {
             action: {
@@ -792,6 +815,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           skus: cantPurchase.slice(0, -1),
         }),
       );
+
       return;
     }
 
@@ -799,7 +823,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     const { validateFailureArr, validateSuccessArr } = verifyInventory(
       checkedArr,
-      getInventoryInfos?.variantSku || [],
+      getInventoryInfos.variantSku || [],
     );
 
     if (validateSuccessArr.length !== 0) {
@@ -814,7 +838,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         res = await createOrUpdateExistingCart(lineItems);
         b3TriggerCartNumber();
       }
-      if (res && res.errors) {
+
+      if (res?.errors) {
         snackbar.error(res.errors[0].message);
       } else if (validateFailureArr.length === 0) {
         shouldRedirectToCheckoutAfterAddToCart();
@@ -831,6 +856,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     try {
       const lineItems = addLineItems(items);
       const cartInfo = await getCart();
+
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
         await deleteCart(deleteCartData(cartEntityId));
         await updateCart(cartInfo, lineItems);
@@ -838,6 +864,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         await createOrUpdateExistingCart(lineItems);
         b3TriggerCartNumber();
       }
+
       shouldRedirectToCheckoutAfterAddToCart();
       setSuccessProductsCount(items.length);
     } catch (e: unknown) {
@@ -854,6 +881,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+
       return;
     }
 
@@ -878,15 +906,15 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         }}
       >
         <ShoppingDetailHeader
-          isB2BUser={isB2BUser}
-          shoppingListInfo={shoppingListInfo}
+          customColor={primaryColor}
           customerInfo={customerInfo}
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
-          setOpenPage={setOpenPage}
           isAgenting={isAgenting}
+          isB2BUser={isB2BUser}
           openAPPParams={openAPPParams}
-          customColor={primaryColor}
+          setOpenPage={setOpenPage}
+          shoppingListInfo={shoppingListInfo}
         />
 
         <Grid
@@ -930,22 +958,22 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                 }
               >
                 <ShoppingDetailTable
-                  ref={tableRef}
-                  isReadForApprove={isReadForApprove}
-                  isJuniorApprove={isJuniorApprove}
                   allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-                  setCheckedArr={setCheckedArr}
-                  shoppingListInfo={shoppingListInfo}
+                  getShoppingListDetails={getShoppingListDetails}
+                  isB2BUser={isB2BUser}
+                  isCanEditShoppingList={isCanEditShoppingList}
+                  isJuniorApprove={isJuniorApprove}
+                  isJuniorBuyer={isJuniorBuyer}
+                  isReadForApprove={isReadForApprove}
                   isRequestLoading={isRequestLoading}
+                  productQuoteEnabled={productQuoteEnabled}
+                  ref={tableRef}
+                  setCheckedArr={setCheckedArr}
+                  setDeleteItemId={setDeleteItemId}
+                  setDeleteOpen={setDeleteOpen}
                   setIsRequestLoading={setIsRequestLoading}
                   shoppingListId={id}
-                  getShoppingListDetails={getShoppingListDetails}
-                  setDeleteOpen={setDeleteOpen}
-                  setDeleteItemId={setDeleteItemId}
-                  isB2BUser={isB2BUser}
-                  productQuoteEnabled={productQuoteEnabled}
-                  isCanEditShoppingList={isCanEditShoppingList}
-                  isJuniorBuyer={isJuniorBuyer}
+                  shoppingListInfo={shoppingListInfo}
                 />
               </Grid>
             </B3Spin>
@@ -954,9 +982,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           <Grid item sx={isMobile ? { flexBasis: '100%' } : { flexBasis: '340px' }}>
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
-                updateList={updateList}
-                type="shoppingList"
                 isB2BUser={isB2BUser}
+                type="shoppingList"
+                updateList={updateList}
               />
             )}
           </Grid>
@@ -965,38 +993,38 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         {!isReadForApprove &&
           (allowJuniorPlaceOrder || productQuoteEnabled || !isJuniorApprove) && (
             <ShoppingDetailFooter
-              shoppingListInfo={shoppingListInfo}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-              selectedSubTotal={calculateSubTotal(checkedArr)}
-              selectedProductCount={checkedArr.length}
-              onDelete={() => setDeleteOpen(true)}
-              onAddToCart={handleAddProductsToCart}
-              onAddToQuote={handleAddSelectedToQuote}
-              isB2BUser={isB2BUser}
               customColor={primaryColor}
+              isB2BUser={isB2BUser}
               isCanEditShoppingList={isCanEditShoppingList}
               isJuniorBuyer={isJuniorBuyer}
+              onAddToCart={handleAddProductsToCart}
+              onAddToQuote={handleAddSelectedToQuote}
+              onDelete={() => setDeleteOpen(true)}
+              selectedProductCount={checkedArr.length}
+              selectedSubTotal={calculateSubTotal(checkedArr)}
+              shoppingListInfo={shoppingListInfo}
             />
           )}
       </Box>
 
       <ReAddToCart
+        allowJuniorPlaceOrder={allowJuniorPlaceOrder}
         isOpen={validateFailureProducts.length > 0}
+        onAddToCart={retryAddToCart}
         onCancel={() => {
           setSuccessProductsCount(0);
           setValidateFailureProducts([]);
         }}
-        onAddToCart={retryAddToCart}
-        shoppingListInfo={shoppingListInfo}
         products={validateFailureProducts}
+        shoppingListInfo={shoppingListInfo}
         successProducts={successProductsCount}
-        allowJuniorPlaceOrder={allowJuniorPlaceOrder}
       />
 
       <ShoppingDetailDeleteItems
-        open={deleteOpen}
         handleCancelClick={handleCancelClick}
         handleDeleteProductClick={handleDeleteProductClick}
+        open={deleteOpen}
       />
     </>
   );

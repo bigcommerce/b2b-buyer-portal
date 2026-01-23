@@ -1,9 +1,9 @@
-import { KeyboardEvent } from 'react';
 import { Controller } from 'react-hook-form';
 import { Add, Clear } from '@mui/icons-material';
 import { Box, TextField, Typography } from '@mui/material';
 import { concat, debounce, uniq } from 'lodash-es';
 import isEmpty from 'lodash-es/isEmpty';
+import { KeyboardEvent } from 'react';
 
 import { useB3Lang } from '@/lib/lang';
 
@@ -83,6 +83,7 @@ export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UI
   const handleAddNewItem = () => {
     const currentValue = getValues(name).trim();
     const isValidValue = validate(currentValue, b3Lang);
+
     if (isValidValue) {
       setError(name, {
         type: 'custom',
@@ -92,13 +93,19 @@ export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UI
       const newItems = uniq(concat(existValue, currentValue.length ? [currentValue] : []));
 
       setValue(name, '');
-      if (handleSave) handleSave(newItems);
+
+      if (handleSave) {
+        handleSave(newItems);
+      }
     }
   };
 
   const handleDelete = (currentItem: string) => {
     const newItems = existValue.filter((item: string) => item !== currentItem);
-    if (handleSave) handleSave(newItems);
+
+    if (handleSave) {
+      handleSave(newItems);
+    }
   };
 
   const handleKeyDown = debounce((event: KeyboardEvent<HTMLInputElement>) => {
@@ -115,6 +122,7 @@ export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UI
         autoComplete: 'off',
       };
     }
+
     return {};
   };
 
@@ -138,16 +146,6 @@ export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UI
             {...textField}
             {...rest}
             {...otherProps}
-            sx={{
-              color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-              ...sx,
-              '& input': {
-                ...extraPadding,
-              },
-            }}
-            error={!!errors[name]}
-            helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-            onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
             InputProps={
               !isEmpty(InputProps)
                 ? { ...InputProps }
@@ -162,6 +160,16 @@ export function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UI
                     ),
                   }
             }
+            error={Boolean(errors[name])}
+            helperText={errors[name] ? errors[name].message : null}
+            onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
+            sx={{
+              color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+              ...sx,
+              '& input': {
+                ...extraPadding,
+              },
+            }}
             {...autoCompleteFn()}
           />
         )}

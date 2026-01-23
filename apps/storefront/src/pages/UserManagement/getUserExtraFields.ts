@@ -8,7 +8,7 @@ interface FieldsOptionProps {
 }
 
 interface FormattedItemsProps {
-  [key: string]: string | boolean | number | Array<any> | boolean | undefined;
+  [key: string]: string | boolean | number | any[] | undefined;
   name: string;
 }
 
@@ -41,7 +41,7 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
     switch (type) {
       case 'dropdown':
         if (listOfValue) {
-          const options: FieldsOptionProps[] = listOfValue?.map((option: string) => ({
+          const options: FieldsOptionProps[] = listOfValue.map((option: string) => ({
             label: option,
             value: option,
           }));
@@ -52,12 +52,15 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
         }
 
         break;
+
       case 'number':
         currentItems.max = item.maximumValue || '';
         break;
+
       case 'multiline':
         currentItems.rows = item.numberOfRows || '';
         break;
+
       default:
         currentItems.maxLength = item.maximumLength || '';
         break;
@@ -71,6 +74,7 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
 
 const getB2BUserExtraFields = async () => {
   let userExtraFieldsList: FormattedItemsProps[] = [];
+
   try {
     const { userExtraFields } = await getUsersExtraFieldsInfo();
     const visibleFields = userExtraFields.filter((item) => item.visibleToEnduser);

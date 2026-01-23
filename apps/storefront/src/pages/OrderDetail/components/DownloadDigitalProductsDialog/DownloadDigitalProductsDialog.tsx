@@ -33,16 +33,17 @@ function DownloadDigitalProductsDialog({
 
   return (
     <B3Dialog
-      isOpen={isOpen}
       fullWidth
       handleLeftClick={onClose}
-      title={b3Lang('orderDetail.digitalProducts.filesToDownload')}
+      isOpen={isOpen}
       leftSizeBtn={b3Lang('orderDetail.digitalProducts.close')}
       maxWidth="md"
       showRightBtn={false}
+      title={b3Lang('orderDetail.digitalProducts.filesToDownload')}
     >
       {product?.downloadFileUrls?.map((fileUrl: string, index: number) => {
-        const key = `${product?.product_id}-${index}`;
+        const key = `${product.product_id}-${index}`;
+
         return (
           <Box
             key={key}
@@ -73,7 +74,7 @@ function DownloadDigitalProductsDialog({
                   alignSelf: 'center',
                 }}
               >
-                {`${product?.name} ${index + 1}`}
+                {`${product.name} ${index + 1}`}
               </Typography>
             </Box>
             <Button

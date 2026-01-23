@@ -32,7 +32,7 @@ const getEnvironment = (environment?: Environment): Environment => {
     return environment;
   }
 
-  if (isEnvironment(window.B3?.setting?.environment)) {
+  if (isEnvironment(window.B3.setting.environment)) {
     return window.B3.setting.environment;
   }
 
@@ -64,6 +64,7 @@ const queryParse = <T>(query: T): string => {
   Object.keys(query || {}).forEach((key: string) => {
     queryText += `${key}=${(query as any)[key]}&`;
   });
+
   return queryText.slice(0, -1);
 };
 

@@ -38,8 +38,9 @@ interface HierarchyDialogProps {
   companyHierarchyAllList?: CompanyHierarchyListProps[] | [];
   title?: string;
   context?: string;
-  dialogParams?: { [key: string]: string };
+  dialogParams?: Record<string, string>;
 }
+
 function HierarchyDialog({
   open = false,
   handleClose,
@@ -64,7 +65,10 @@ function HierarchyDialog({
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSwitchCompanyClick = async () => {
-    if (!currentRow) return;
+    if (!currentRow) {
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -72,7 +76,9 @@ function HierarchyDialog({
 
       const { companyId } = currentRow;
 
-      if (!companyId) return;
+      if (!companyId) {
+        return;
+      }
 
       if (companyId === Number(currentCompanyId)) {
         await endUserMasqueradingCompany();
@@ -112,6 +118,7 @@ function HierarchyDialog({
       } else if (error instanceof Error) {
         snackbar.error(error.message);
       }
+
       isMasquerading.current = false;
     } finally {
       setLoading(false);
@@ -120,19 +127,28 @@ function HierarchyDialog({
   };
 
   const onExited = () => {
-    if (!currentRow) return;
+    if (!currentRow) {
+      return;
+    }
+
     const { companyId } = currentRow;
+
     if (companyId === Number(currentCompanyId)) {
       const { hash } = window.location;
+
       if (hash.includes('/shoppingList/')) {
         navigate('/shoppingLists');
       }
     }
-    if (!isMasquerading.current) return;
+
+    if (!isMasquerading.current) {
+      return;
+    }
+
     if (companyId !== Number(currentCompanyId) && !isHasCurrentPagePermission) {
-      const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
-        return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
-      });
+      const key = Object.keys(pagesSubsidiariesPermission).find((key) =>
+        Boolean(pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps]),
+      );
 
       const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
 
@@ -146,14 +162,6 @@ function HierarchyDialog({
 
   return (
     <B3Dialog
-      isOpen={open}
-      rightSizeBtn={b3Lang('global.button.next')}
-      title={title || b3Lang('companyHierarchy.dialog.title')}
-      fullWidth
-      loading={loading}
-      handleLeftClick={handleClose}
-      handRightClick={handleSwitchCompanyClick}
-      restDialogParams={{ TransitionProps: { onExited } }}
       dialogSx={{
         '& .MuiDialogTitle-root': {
           border: 0,
@@ -162,6 +170,14 @@ function HierarchyDialog({
           border: 0,
         },
       }}
+      fullWidth
+      handRightClick={handleSwitchCompanyClick}
+      handleLeftClick={handleClose}
+      isOpen={open}
+      loading={loading}
+      restDialogParams={{ TransitionProps: { onExited } }}
+      rightSizeBtn={b3Lang('global.button.next')}
+      title={title || b3Lang('companyHierarchy.dialog.title')}
       {...dialogParams}
     >
       <Box

@@ -11,6 +11,7 @@ const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
 
   useEffect(() => {
     const quickview = document.querySelectorAll('.quickview');
+
     quickview.forEach((dom: CustomFieldItems) => {
       dom.addEventListener('click', () => changeQuickview());
     });
@@ -23,12 +24,17 @@ const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
   }, []);
 
   const cd = useCallback(() => {
-    if (quoteCallBbck) quoteCallBbck();
+    if (quoteCallBbck) {
+      quoteCallBbck();
+    }
+
     const doms = document.querySelectorAll(dom);
+
     if (doms.length) {
       doms.forEach((dom: CustomFieldItems) => {
-        if (!dom?.ready) {
+        if (!dom.ready) {
           const d = dom;
+
           d.ready = true;
           changeQuickview();
         }

@@ -41,7 +41,7 @@ export function B3ControlRectangle({ control, errors, ...rest }: Form.B3UIProps)
   return ['rectangle'].includes(fieldType) ? (
     <FormControl>
       {label && (
-        <FormLabel error={!!errors[name]} required={required}>
+        <FormLabel error={Boolean(errors[name])} required={required}>
           {label}
         </FormLabel>
       )}
@@ -60,17 +60,18 @@ export function B3ControlRectangle({ control, errors, ...rest }: Form.B3UIProps)
             {options?.length &&
               options.map((option: Form.RadopGroupListProps) => {
                 const isActive = field.value.toString() === option.value.toString();
+
                 return (
                   <StyleRectangleFormControlLabel
-                    value={option.value}
-                    label={option.label}
+                    control={<Radio />}
                     key={option.value}
+                    label={option.label}
                     sx={{
                       border: isActive ? `1px solid ${primaryColor}` : '1px solid #767676',
                       boxShadow: isActive ? `0 0 0 1px ${primaryColor}` : 'none',
                       ...labelStyle,
                     }}
-                    control={<Radio />}
+                    value={option.value}
                   />
                 );
               })}
@@ -78,8 +79,8 @@ export function B3ControlRectangle({ control, errors, ...rest }: Form.B3UIProps)
         )}
       />
       {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {(errors as any)[name] ? (errors as any)[name].message : null}
+        <FormHelperText error={Boolean(errors[name])}>
+          {errors[name] ? errors[name].message : null}
         </FormHelperText>
       )}
     </FormControl>

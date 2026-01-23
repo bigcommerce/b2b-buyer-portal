@@ -36,8 +36,9 @@ import {
 import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
+
 // 1 bc 2 b2b
-const formType: Array<number> = [1, 2];
+const formType: number[] = [1, 2];
 
 function Registered(props: PageProps) {
   const { setOpenPage } = props;
@@ -106,7 +107,8 @@ function Registered(props: PageProps) {
           accountFormFields[1]?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
           const formFields = fields;
-          if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
+
+          if (b2bAddressRequiredFields.includes(fields.fieldId || '') && fields.groupId === 4) {
             formFields.isRequired = true;
             formFields.visible = true;
           }
@@ -125,6 +127,7 @@ function Registered(props: PageProps) {
           b2bAccountFormFields.address?.map(
             (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
               const fields = addressFields;
+
               if (addressFields.name === 'country') {
                 fields.options = countries;
                 fields.replaceOptions = {
@@ -132,6 +135,7 @@ function Registered(props: PageProps) {
                   value: 'countryName',
                 };
               }
+
               return addressFields;
             },
           ) || [];
@@ -140,20 +144,25 @@ function Registered(props: PageProps) {
           bcAccountFormFields.address?.map(
             (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
               const addressFormFields = addressFields;
+
               if (addressFields.name === 'country') {
                 addressFormFields.options = countries;
+
                 const countryDefaultValue = countries.find(
                   (country: CustomFieldItems) => country.countryName === addressFields.default,
                 );
+
                 addressFormFields.default =
                   countryDefaultValue?.countryCode || addressFields.default;
               }
+
               return addressFields;
             },
           ) || [];
         // accountLoginRegistration
         const { b2b, b2c } = accountLoginRegistration;
         const accountB2cEnabledInfo = b2c && !b2b;
+
         if (dispatch) {
           dispatch({
             type: 'all',
@@ -270,7 +279,9 @@ function Registered(props: PageProps) {
 
         const isLoginLandLocation = loginJump(navigate);
 
-        if (!isLoginLandLocation) return;
+        if (!isLoginLandLocation) {
+          return;
+        }
 
         if (isCloseGotoBCHome) {
           window.location.href = '/';
@@ -312,17 +323,17 @@ function Registered(props: PageProps) {
           >
             <RegisteredImage>
               <ImageListItem
-                sx={{
-                  maxWidth: '250px',
-                }}
                 onClick={() => {
                   window.location.href = '/';
                 }}
+                sx={{
+                  maxWidth: '250px',
+                }}
               >
                 <img
-                  src={logo || getAssetUrl(b2bLogo)}
                   alt={b3Lang('global.tips.registerLogo')}
                   loading="lazy"
+                  src={logo || getAssetUrl(b2bLogo)}
                 />
               </ImageListItem>
             </RegisteredImage>
@@ -330,8 +341,8 @@ function Registered(props: PageProps) {
               <RegisterContent
                 activeStep={activeStep}
                 handleBack={handleBack}
-                handleNext={handleNext}
                 handleFinish={handleFinish}
+                handleNext={handleNext}
               />
             </RegisteredStep>
           </Box>

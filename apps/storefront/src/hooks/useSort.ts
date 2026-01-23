@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const useSort = <T>(
-  sortKeys: { [key: string]: string },
+  sortKeys: Record<string, string>,
   initKey: string,
   filterData: T,
   setFilterData: React.Dispatch<React.SetStateAction<T>>,
@@ -12,6 +12,7 @@ const useSort = <T>(
 
   const handleSetOrderBy = (e: { key: string }) => {
     const sortDirection = order === 'asc' ? 'desc' : 'asc';
+
     setOrder(sortDirection);
     setOrderBy(e.key);
     setFilterData({

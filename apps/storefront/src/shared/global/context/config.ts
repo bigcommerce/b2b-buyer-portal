@@ -33,10 +33,10 @@ export interface GlobalState {
   isCompanyAccount: boolean;
   isAgenting: boolean;
   tipMessage: TipMessagesProps;
-  addressConfig?: {
+  addressConfig?: Array<{
     key: string;
     isEnabled: string;
-  }[];
+  }>;
   storefrontConfig?: {
     [k: string]:
       | boolean

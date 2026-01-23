@@ -10,11 +10,11 @@ function LoginWidget(props: LoginWidgetProps) {
 
   return (
     <Box
-      sx={{
-        ...sx,
-      }}
       dangerouslySetInnerHTML={{
         __html: html,
+      }}
+      sx={{
+        ...sx,
       }}
     />
   );

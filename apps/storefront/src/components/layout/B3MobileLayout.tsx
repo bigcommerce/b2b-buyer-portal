@@ -1,6 +1,6 @@
-import { ReactNode, useContext, useState } from 'react';
 import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material';
 import { Badge, Box } from '@mui/material';
+import { ReactNode, useContext, useState } from 'react';
 
 import { CART_URL } from '@/constants';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -94,10 +94,10 @@ export default function B3MobileLayout({
               }}
             >
               <ShoppingBagOutlined
-                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
                   window.location.href = CART_URL;
                 }}
+                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
               />
             </Badge>
           )}

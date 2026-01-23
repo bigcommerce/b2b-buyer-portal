@@ -18,7 +18,7 @@ export default function B3GlobalTip() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
+  const setMsgs = (msgs: [] | MsgsProps[] = []) => {
     dispatch({
       type: 'common',
       payload: {
@@ -31,19 +31,23 @@ export default function B3GlobalTip() {
   };
 
   const handleClose = (id: number | string) => {
-    const msgs = globalTipMessage?.msgs || [];
+    const msgs = globalTipMessage.msgs || [];
     const newMsgs = msgs.filter((msg) => msg.id !== id);
+
     setMsgs(newMsgs);
   };
 
   const closeMsgs = (id: number | string, reason: string) => {
     const { msgs = [] } = globalTipMessage;
 
-    if (reason === 'clickaway') return;
+    if (reason === 'clickaway') {
+      return;
+    }
 
     flushSync(() => {
       if (msgs.length) {
         const newMsgs = msgs.filter((item: MsgsProps) => item.id !== id);
+
         dispatch({
           type: 'common',
           payload: {
@@ -59,12 +63,12 @@ export default function B3GlobalTip() {
 
   return (
     <B3Tip
-      autoHideDuration={globalTipMessage?.autoHideDuration}
-      msgs={globalTipMessage?.msgs}
+      autoHideDuration={globalTipMessage.autoHideDuration}
       handleAllClose={closeMsgs}
       handleItemClose={handleClose}
-      vertical="top"
       horizontal="right"
+      msgs={globalTipMessage.msgs}
+      vertical="top"
     />
   );
 }

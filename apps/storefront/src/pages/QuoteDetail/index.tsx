@@ -1,8 +1,8 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Button, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
@@ -31,8 +31,8 @@ import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import { getSearchVal } from '@/utils/loginInfo';
 import {
-  ValidatedProductError,
   validateProducts as rawValidateProducts,
+  ValidatedProductError,
 } from '@/utils/validateProducts';
 
 import { FileObjects } from '../quote/components/FileUpload';
@@ -118,7 +118,7 @@ function useData() {
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
@@ -152,6 +152,7 @@ function useData() {
 
       return listProducts;
     }
+
     return undefined;
   };
 
@@ -194,8 +195,8 @@ function useData() {
   };
 }
 
-const containerStyle = (isMobile: boolean) => {
-  return isMobile
+const containerStyle = (isMobile: boolean) =>
+  isMobile
     ? {
         alignItems: 'flex-end',
         flexDirection: 'column',
@@ -203,10 +204,10 @@ const containerStyle = (isMobile: boolean) => {
     : {
         alignItems: 'center',
       };
-};
 
 function Footer({ children, isAgenting }: { children: React.ReactNode; isAgenting: boolean }) {
   const [isMobile] = useMobile();
+
   return (
     <Box
       sx={{
@@ -237,13 +238,14 @@ function ProceedToCheckoutButton({
   onClick: () => void;
 }) {
   const [isMobile] = useMobile();
+
   return (
     <Button
-      variant="contained"
       onClick={onClick}
       sx={{
         width: isMobile ? '100%' : 'auto',
       }}
+      variant="contained"
     >
       {children}
     </Button>
@@ -280,7 +282,7 @@ function QuoteDetail() {
   const [fileList, setFileList] = useState<FileObjects[]>([]);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<
-    ValidatedProductError<ProductInfoProps>[]
+    Array<ValidatedProductError<ProductInfoProps>>
   >([]);
   const [quoteHasWarnings, setQuoteHasWarnings] = useState(true);
 
@@ -321,10 +323,12 @@ function QuoteDetail() {
   const quoteReviewedBySalesRep =
     Object.keys(quoteDetail).length === 0
       ? false
-      : !!quoteDetail.salesRep || !!quoteDetail.salesRepEmail;
+      : Boolean(quoteDetail.salesRep) || Boolean(quoteDetail.salesRepEmail);
 
   useEffect(() => {
-    if (!quoteDetail?.id) return;
+    if (!quoteDetail?.id) {
+      return;
+    }
 
     const { quoteConvertToOrderPermission: quoteCheckoutPermissionCode } = b2bPermissionsMap;
 
@@ -332,6 +336,7 @@ function QuoteDetail() {
       if (isB2BUser) {
         const companyId = quoteDetail?.companyId?.id || null;
         const userEmail = quoteDetail?.contactInfo?.email || '';
+
         return {
           quotePurchasabilityPermission: purchasabilityPermission,
           quoteConvertToOrderPermission: verifyLevelPermission({
@@ -395,7 +400,7 @@ function QuoteDetail() {
     productListResponse.forEach((item: CustomFieldItems) => {
       const buyerInfo = getVariantInfoOOSAndPurchase(item);
 
-      if (buyerInfo?.type && isEnableProduct && !item?.purchaseHandled) {
+      if (buyerInfo.type && isEnableProduct && !item.purchaseHandled) {
         if (buyerInfo.type === 'oos') {
           oosErrorList += `${item.productName}${oosErrorList ? ',' : ''}`;
         }
@@ -406,21 +411,24 @@ function QuoteDetail() {
       }
     });
 
-    const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
+    const isHideCheckout = Boolean(oosErrorList) || Boolean(nonPurchasableErrorList);
+
     if (isEnableProduct && quoteReviewedBySalesRepResponse && isHideCheckout) {
-      if (oosErrorList)
+      if (oosErrorList) {
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
             ProductName: oosErrorList,
           }),
         );
+      }
 
-      if (nonPurchasableErrorList)
+      if (nonPurchasableErrorList) {
         snackbar.error(
           b3Lang('quoteDetail.message.nonPurchasable', {
             ProductName: nonPurchasableErrorList,
           }),
         );
+      }
     }
 
     setIsHideQuoteCheckout(isHideCheckout);
@@ -458,20 +466,24 @@ function QuoteDetail() {
   const hasQuoteValidationErrorsFrontendFlow = useCallback(() => {
     if (isHideQuoteCheckout) {
       const { oos, nonPurchasable } = noBuyerProductName;
-      if (oos)
+
+      if (oos) {
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
             ProductName: oos,
           }),
         );
+      }
 
-      if (nonPurchasable)
+      if (nonPurchasable) {
         snackbar.error(
           b3Lang('quoteDetail.message.nonPurchasable', {
             ProductName: nonPurchasable,
           }),
         );
+      }
     }
+
     return isHideQuoteCheckout;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -482,8 +494,10 @@ function QuoteDetail() {
     : hasQuoteValidationErrorsFrontendFlow;
 
   const classRates: TaxZoneRates[] = [];
-  if (taxZoneRates?.length) {
-    const defaultTaxZone = taxZoneRates?.find((taxZone: { id: number }) => taxZone.id === 1);
+
+  if (taxZoneRates.length) {
+    const defaultTaxZone = taxZoneRates.find((taxZone: { id: number }) => taxZone.id === 1);
+
     if (defaultTaxZone) {
       const { rates = [] } = defaultTaxZone;
 
@@ -497,17 +511,21 @@ function QuoteDetail() {
     if (variants.length) {
       const taxExclusive = get(variants, '[0].bc_calculated_price.tax_exclusive', 0);
       const taxInclusive = get(variants, '[0].bc_calculated_price.tax_inclusive', 0);
+
       return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0;
     }
+
     if (classRates.length) {
       return (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) / 100;
     }
+
     return 0;
   };
 
   const getQuoteExtraFields = async (currentExtraFields: QuoteExtraFieldsData[]) => {
     const extraFieldsInfo = await getB2BQuoteExtraFields();
     const quoteCurrentExtraFields: QuoteExtraFieldsData[] = [];
+
     if (extraFieldsInfo.length) {
       extraFieldsInfo.forEach((item) => {
         const extraField = item;
@@ -531,10 +549,11 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch(() => {
-        return undefined;
-      });
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch(
+        () => undefined,
+      );
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
+
       setQuoteDetail({
         ...quote,
         extraFields: quoteExtraFieldInfos,
@@ -548,6 +567,7 @@ function QuoteDetail() {
       });
 
       const productListResponse = productsWithMoreInfo ?? [];
+
       setProductList(productListResponse);
 
       const { salesRep, salesRepEmail } = quote;
@@ -561,6 +581,7 @@ function QuoteDetail() {
         setQuoteDetailTax(Number(quote.taxTotal));
       } else {
         let taxPrice = 0;
+
         productsWithMoreInfo?.forEach((product) => {
           const {
             quantity,
@@ -569,6 +590,7 @@ function QuoteDetail() {
           } = product;
 
           const taxRate = getTaxRate(taxClassId, variants);
+
           taxPrice += enteredInclusiveTax
             ? ((Number(offeredPrice) * taxRate) / (1 + taxRate)) * Number(quantity)
             : Number(offeredPrice) * taxRate * Number(quantity);
@@ -579,6 +601,7 @@ function QuoteDetail() {
 
       const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote;
       const newFileList: FileObjects[] = [];
+
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
           fileName: file.fileName,
@@ -611,6 +634,7 @@ function QuoteDetail() {
       if (error instanceof Error) {
         snackbar.error(error.message);
       }
+
       throw error;
     } finally {
       setIsRequestLoading(false);
@@ -620,7 +644,9 @@ function QuoteDetail() {
 
   const fetchPdfUrl = async (bool: boolean) => {
     setIsRequestLoading(true);
+
     const { id, createdAt } = quoteDetail;
+
     try {
       const data = {
         quoteId: Number(id),
@@ -642,6 +668,7 @@ function QuoteDetail() {
         snackbar.error(error.message);
       }
     }
+
     return {
       url: '',
       content: '',
@@ -651,6 +678,7 @@ function QuoteDetail() {
   const exportPdf = async () => {
     try {
       const { url: quotePdfUrl } = await fetchPdfUrl(false);
+
       if (quotePdfUrl) {
         window.open(`${quotePdfUrl}`, '_blank');
       }
@@ -668,6 +696,7 @@ function QuoteDetail() {
       const { content } = await fetchPdfUrl(true);
 
       const iframe = document.createElement('iframe');
+
       iframe.setAttribute('style', 'display:none;');
       document.getElementById('bundle-container')?.appendChild(iframe);
       iframe.contentDocument?.open();
@@ -687,6 +716,7 @@ function QuoteDetail() {
 
     if (allProductsList.length === 0) {
       const quote = await getQuoteDetail();
+
       allProductsList = quote?.productsList || [];
     }
 
@@ -699,6 +729,7 @@ function QuoteDetail() {
         totalCount: 0,
       };
     }
+
     const list = allProductsList.slice(startIndex, endIndex);
 
     return {
@@ -710,7 +741,9 @@ function QuoteDetail() {
   useEffect(() => {
     const { state } = location;
 
-    if (!state) return;
+    if (!state) {
+      return;
+    }
 
     setTimeout(() => {
       snackbar.success(
@@ -741,7 +774,10 @@ function QuoteDetail() {
 
   const quoteGotoCheckout = async () => {
     try {
-      if (hasQuoteValidationErrors()) return;
+      if (hasQuoteValidationErrors()) {
+        return;
+      }
+
       setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
@@ -754,6 +790,7 @@ function QuoteDetail() {
       setQuoteCheckoutLoading(false);
     }
   };
+
   useEffect(() => {
     if (location.search.includes('isCheckout') && id) {
       quoteGotoCheckout();
@@ -762,15 +799,22 @@ function QuoteDetail() {
   }, [id, isHideQuoteCheckout]);
 
   const isAutoEnableQuoteCheckout = useMemo(() => {
-    if (!isAutoQuotingEnabled && !quoteReviewedBySalesRep) return false;
+    if (!isAutoQuotingEnabled && !quoteReviewedBySalesRep) {
+      return false;
+    }
 
     return true;
   }, [quoteReviewedBySalesRep, isAutoQuotingEnabled]);
 
   const isEnableProductShowCheckoutFrontendFlow = () => {
     if (isEnableProduct) {
-      if (quoteReviewedBySalesRep && isHideQuoteCheckout) return true;
-      if (!isHideQuoteCheckout) return true;
+      if (quoteReviewedBySalesRep && isHideQuoteCheckout) {
+        return true;
+      }
+
+      if (!isHideQuoteCheckout) {
+        return true;
+      }
 
       return false;
     }
@@ -778,9 +822,7 @@ function QuoteDetail() {
     return true;
   };
 
-  const isEnableProductShowCheckoutBackendFlow = () => {
-    return !quoteHasWarnings || quoteReviewedBySalesRep;
-  };
+  const isEnableProductShowCheckoutBackendFlow = () => !quoteHasWarnings || quoteReviewedBySalesRep;
 
   const enableProceedToCheckoutButton = isMoveStockAndBackorderValidationToBackend
     ? isEnableProductShowCheckoutBackendFlow
@@ -823,14 +865,14 @@ function QuoteDetail() {
         }}
       >
         <QuoteDetailHeader
-          status={quoteDetail.status}
-          quoteNumber={quoteDetail.quoteNumber}
-          issuedAt={quoteDetail.createdAt}
           expirationDate={quoteDetail.expiredAt}
           exportPdf={exportPdf}
+          issuedAt={quoteDetail.createdAt}
           printQuote={printQuote}
+          quoteNumber={quoteDetail.quoteNumber}
           role={role}
           salesRepInfo={quoteDetail.salesRepInfo}
+          status={quoteDetail.status}
         />
 
         <Box
@@ -839,17 +881,17 @@ function QuoteDetail() {
           }}
         >
           <QuoteInfo
-            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
-            contactInfo={quoteDetail.contactInfo}
-            shippingAddress={quoteDetail.shippingAddress}
             billingAddress={quoteDetail.billingAddress}
+            contactInfo={quoteDetail.contactInfo}
+            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
+            shippingAddress={quoteDetail.shippingAddress}
           />
         </Box>
 
         <Grid
           container
-          spacing={isMobile ? 2 : 0}
           rowSpacing={0}
+          spacing={isMobile ? 2 : 0}
           sx={{
             overflow: 'auto',
             flexWrap: isMobile ? 'wrap' : 'nowrap',
@@ -863,7 +905,6 @@ function QuoteDetail() {
         >
           <Grid
             item
-            xs={isMobile ? 12 : 8}
             rowSpacing={0}
             sx={
               isMobile
@@ -875,6 +916,7 @@ function QuoteDetail() {
                     mr: '16px',
                   }
             }
+            xs={isMobile ? 12 : 8}
           >
             <Box
               sx={
@@ -886,18 +928,17 @@ function QuoteDetail() {
               }
             >
               <QuoteDetailTable
-                total={productList.length}
                 currency={quoteDetail.currency}
-                quoteReviewedBySalesRep={quoteReviewedBySalesRep}
+                displayDiscount={quoteDetail.displayDiscount}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
-                displayDiscount={quoteDetail.displayDiscount}
+                quoteReviewedBySalesRep={quoteReviewedBySalesRep}
+                total={productList.length}
               />
             </Box>
           </Grid>
           <Grid
             item
-            xs={isMobile ? 12 : 4}
             rowSpacing={0}
             sx={
               isMobile
@@ -908,6 +949,7 @@ function QuoteDetail() {
                     pl: 0,
                   }
             }
+            xs={isMobile ? 12 : 4}
           >
             <Box
               sx={{
@@ -915,11 +957,11 @@ function QuoteDetail() {
               }}
             >
               <QuoteDetailSummary
-                shouldHidePrice={shouldHidePrice}
-                quoteSummary={quoteSummary}
-                quoteDetailTax={quoteDetailTax}
-                status={quoteDetail.status}
                 quoteDetail={quoteDetail}
+                quoteDetailTax={quoteDetailTax}
+                quoteSummary={quoteSummary}
+                shouldHidePrice={shouldHidePrice}
+                status={quoteDetail.status}
               />
             </Box>
 
@@ -941,11 +983,11 @@ function QuoteDetail() {
               }}
             >
               <Message
-                id={id}
-                status={quoteDetail.status}
-                isB2BUser={isB2BUser}
                 email={emailAddress || ''}
+                id={id}
+                isB2BUser={isB2BUser}
                 msgs={quoteDetail?.trackingHistory || []}
+                status={quoteDetail.status}
               />
             </Box>
 
@@ -957,9 +999,9 @@ function QuoteDetail() {
             >
               <QuoteAttachment
                 allowUpload={Number(quoteDetail.status) !== 4}
+                defaultFileList={fileList}
                 quoteId={quoteDetail.id}
                 status={quoteDetail.status}
-                defaultFileList={fileList}
               />
             </Box>
 
@@ -986,7 +1028,10 @@ function QuoteDetail() {
             <Footer isAgenting={isAgenting}>
               <ProceedToCheckoutButton
                 onClick={() => {
-                  if (hasQuoteValidationErrors()) return;
+                  if (hasQuoteValidationErrors()) {
+                    return;
+                  }
+
                   handleQuoteCheckout({
                     role,
                     location,

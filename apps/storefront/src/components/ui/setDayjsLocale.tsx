@@ -12,6 +12,7 @@ import 'dayjs/locale/es';
 
 const setDayjsLocale = (localeKey: string) => {
   const locale = localeKey || 'en';
+
   dayjs.locale(locale);
 
   const activeLang = SUPPORT_LANGUAGE.find((item) => locale.includes(item)) || 'en';

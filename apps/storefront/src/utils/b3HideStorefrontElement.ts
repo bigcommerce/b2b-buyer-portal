@@ -1,8 +1,6 @@
 import config from '@/lib/config';
 
-interface Setting {
-  [key: string]: string;
-}
+type Setting = Record<string, string>;
 
 interface GlobalB3 {
   [key: string]: string | Setting | undefined;

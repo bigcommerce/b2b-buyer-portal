@@ -28,18 +28,23 @@ function useData() {
       return window.b2b.utils.shoppingList.itemFromCurrentPage[0];
     }
 
-    if (!shoppingListClickNode) return undefined;
+    if (!shoppingListClickNode) {
+      return undefined;
+    }
 
     const productView: HTMLElement | null = shoppingListClickNode.closest(
       config['dom.productView'],
     );
 
-    if (!productView) return undefined;
+    if (!productView) {
+      return undefined;
+    }
 
-    const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
-    const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
+    const productId = productView.querySelector('input[name=product_id]')?.value;
+    const quantity = productView.querySelector('[name="qty[]"]')?.value ?? 1;
     const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
-    const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
+    const form = productView.querySelector('form[data-cart-item-add]')!;
+
     return {
       productId: Number(productId),
       sku,
@@ -91,7 +96,10 @@ function PDP() {
   const handleShoppingConfirm = async (shoppingListId: string) => {
     const product = getShoppingListItem();
 
-    if (!product) return;
+    if (!product) {
+      return;
+    }
+
     try {
       setIsRequestLoading(true);
       await addToShoppingList({ shoppingListId, product })
@@ -121,18 +129,18 @@ function PDP() {
   return (
     <>
       <OrderShoppingList
-        isOpen={openShoppingList}
         dialogTitle={b3Lang('pdp.addToShoppingList')}
+        isLoading={isRequestLoading}
+        isOpen={openShoppingList}
         onClose={handleShoppingClose}
         onConfirm={handleShoppingConfirm}
         onCreate={handleOpenCreateDialog}
-        isLoading={isRequestLoading}
         setLoading={setIsRequestLoading}
       />
       <CreateShoppingList
-        open={isOpenCreateShopping}
         onChange={handleCreateShoppingClick}
         onClose={handleCloseShoppingClick}
+        open={isOpenCreateShopping}
       />
     </>
   );

@@ -15,10 +15,9 @@ interface ValidateOptionItems extends Record<string, any> {
   min?: number;
 }
 
-type ContactInformationItems = Array<RegisterFields>;
-interface FieldSXConfigs {
-  [key: string]: string | number;
-}
+type ContactInformationItems = RegisterFields[];
+
+type FieldSXConfigs = Record<string, string | number>;
 
 interface AccountFormFieldsItemsValueConfigs {
   defaultValue?: string;
@@ -49,7 +48,7 @@ export interface AccountFormFieldsItems {
   sx?: FieldSXConfigs;
 }
 
-type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>;
+type AccountFormFieldsList = Array<[]> | AccountFormFieldsItems[];
 
 interface ReplaceOptionsProps {
   label: string;
@@ -61,7 +60,7 @@ export interface RegisterFieldsItems {
   name: string;
   label: string;
   required: boolean;
-  default: string | number | Array<string>;
+  default: string | number | string[];
   fieldType: string | number;
   xs: number;
   visible: boolean;
@@ -102,17 +101,19 @@ const fieldsType = {
 
 const classificationType = (item: CustomFieldItems) => {
   let optionItems: ValidateOptionItems = {};
+
   if (fieldsType.text.includes(item.fieldType)) {
     optionItems = {
       minlength: item.minlength || null,
       maxLength: item.maxLength || Number(item.maximumLength) || null,
       min: item.min || null,
       max: item.max || Number(item.maximumValue) || null,
-      rows: item?.options?.rows || item.numberOfRows || null,
+      rows: item.options?.rows || item.numberOfRows || null,
     };
-    if (optionItems?.max) {
+
+    if (optionItems.max) {
       optionItems.validate = validatorRules(['max'], {
-        max: optionItems?.max,
+        max: optionItems.max,
       });
     }
 
@@ -120,27 +121,32 @@ const classificationType = (item: CustomFieldItems) => {
       optionItems.validate = validatorRules(['password']);
     }
 
-    if (item?.fieldName === 'email' || item?.fieldName === 'phone') {
+    if (item.fieldName === 'email' || item.fieldName === 'phone') {
       optionItems.validate = validatorRules([item.fieldName]);
     }
+
     if (item.fieldType === 'number' || (item.fieldType === 'text' && item.type === 'integer')) {
       optionItems.validate = validatorRules(['number']);
     }
   }
+
   if (fieldsType.checkbox.includes(item.fieldType)) {
     optionItems = {
       default: item.default || [],
       options: item.options?.items || null,
     };
   }
+
   if (fieldsType.dropdown.includes(item.fieldType)) {
     const items = [];
+
     if (item.options?.helperLabel) {
       items.push({
         label: item.options.helperLabel,
         value: '',
       });
     }
+
     const options = [...items, ...(item.options?.items || [])];
 
     if (item.listOfValue) {
@@ -157,6 +163,7 @@ const classificationType = (item: CustomFieldItems) => {
       options: options || null,
     };
   }
+
   if (fieldsType.radio.includes(item.fieldType)) {
     optionItems = {
       default: item.default || '',
@@ -164,9 +171,10 @@ const classificationType = (item: CustomFieldItems) => {
     };
   }
 
-  if (optionItems?.options) {
-    optionItems?.options.forEach((option: any) => {
+  if (optionItems.options) {
+    optionItems.options.forEach((option: any) => {
       const optionValue = option;
+
       if (option.value) {
         optionValue.value = option.label;
       }
@@ -181,6 +189,7 @@ const classificationType = (item: CustomFieldItems) => {
 };
 
 const noEncryptFieldList = ['country', 'state', 'email'];
+
 export const b2bAddressRequiredFields = [
   'field_country',
   'field_address_1',
@@ -201,6 +210,7 @@ export const deCodeField = (fieldName: string) => {
   if (noEncryptFieldList.includes(fieldName)) {
     return fieldName;
   }
+
   return Base64.decode(fieldName);
 };
 
@@ -216,9 +226,11 @@ const bcFieldName = (fieldName: string) => {
   if (fieldName === 'countryCode') {
     return 'country';
   }
+
   if (fieldName === 'stateOrProvince') {
     return 'state';
   }
+
   return fieldName;
 };
 
@@ -231,8 +243,8 @@ const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFieldsIte
     default: item.default || item.defaultValue || '',
     fieldType: item.fieldType,
     xs: 12,
-    visible: item?.visible || false,
-    custom: item?.custom || false,
+    visible: item.visible || false,
+    custom: item.custom || false,
     bcLabel: item.label || '',
     type: item.type || '',
   };
@@ -265,6 +277,7 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     }
 
     let obj: CustomFieldItems = {};
+
     if (item.valueConfigs?.id) {
       obj = conversionSingleItem(item.valueConfigs);
     } else {
@@ -278,7 +291,7 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     obj.groupName = item.groupName;
     obj.visible = item.visible;
     obj.label = item.labelName;
-    obj.custom = obj.custom || item?.custom;
+    obj.custom = obj.custom || item.custom;
     obj.variant = 'filled';
 
     if (obj.fieldType === 'date' && !obj.default) {
@@ -302,6 +315,7 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     if (item.fieldId === 'field_confirm_password') {
       obj.name = 'confirmPassword';
     }
+
     if (obj.fieldType === 'files') {
       obj.filesLimit = 3;
       obj.maxFileSize = 10485760;
@@ -330,8 +344,10 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
       if (obj.fieldType === 'multiline') {
         originPaddingTop = 0;
       }
+
       if (obj.fieldType === 'dropdown') {
         originPaddingTop = 0;
+
         if (lineNumber > 1) {
           lineNumber += isMobile ? 1.4 : 2;
         }
@@ -345,6 +361,7 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
         lineNumber === 1
           ? `${originPaddingTop}px`
           : `${originPaddingTop / 16 + (lineNumber - 1)}rem`;
+
       if (lineNumber > 0) {
         obj.extraPadding = {
           paddingTop: paddingTopVal,
@@ -359,11 +376,11 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
 };
 
 export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) => {
-  if (accountFormFields?.length) {
+  if (accountFormFields.length) {
     const filterVisibleAccountFormFields: AccountFormFieldsList = accountFormFields
       ? (accountFormFields as any).filter(
           (item: Partial<AccountFormFieldsItems>) =>
-            !!item.visible || (!!item.custom && !!item.isRequired),
+            Boolean(item.visible) || (Boolean(item.custom) && Boolean(item.isRequired)),
         )
       : [];
 
@@ -373,6 +390,7 @@ export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) =
 
     return getAccountFormItems;
   }
+
   return {};
 };
 
@@ -400,9 +418,7 @@ export interface State {
   id?: string;
 }
 
-type EmailError = {
-  [k: number]: string;
-};
+type EmailError = Record<number, string>;
 
 export const emailError: EmailError = {
   2: 'register.emailValidate.alreadyExitsBC',
@@ -424,10 +440,10 @@ export const validateExtraFields = async ({
   data,
   type,
   setError,
-}: ValidateExtraFieldsProps) => {
-  return new Promise((resolve, reject) => {
+}: ValidateExtraFieldsProps) =>
+  new Promise((resolve, reject) => {
     const init = async () => {
-      const customFields = fields.filter((item) => !!item.custom);
+      const customFields = fields.filter((item) => Boolean(item.custom));
 
       const extraFields = customFields.map((field: RegisterFields) => ({
         fieldName: Base64.decode(field.name),
@@ -447,6 +463,7 @@ export const validateExtraFields = async ({
 
         if (messageArr.length >= 2) {
           const field = customFields.find((field) => Base64.decode(field.name) === messageArr[0]);
+
           if (field) {
             setError(field.name, {
               type: 'manual',
@@ -454,11 +471,12 @@ export const validateExtraFields = async ({
             });
           }
         }
+
         reject(message);
       }
+
       resolve(result);
     };
 
     init();
   });
-};

@@ -24,6 +24,7 @@ const useSetCountry = () => {
         });
       }
     };
+
     init();
     // ignore dispatch, it's not affecting any value from this
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,7 +36,7 @@ interface FormFieldsProps extends Record<string, any> {
   label?: string;
   required?: boolean;
   fieldType?: string;
-  default?: string | Array<any> | number;
+  default?: string | any[] | number;
   xs: number;
   variant: string;
   size: string;
@@ -71,12 +72,14 @@ const useGetCountry = ({
     const countriesFieldIndex = addresses.findIndex(
       (formFields: FormFieldsProps) => formFields.name === 'country',
     );
+
     if (countriesList?.length && countriesFieldIndex !== -1) {
       setAddress(
         addresses.map((addressField, addressFieldIndex) => {
           if (countriesFieldIndex === addressFieldIndex) {
             return { ...addressField, options: countriesList };
           }
+
           return addressField;
         }),
       );
@@ -88,12 +91,16 @@ const useGetCountry = ({
 
   // Populate state array when the user change selected country
   useEffect(() => {
-    if (!countryCode || !countriesList?.length) return;
+    if (!countryCode || !countriesList?.length) {
+      return;
+    }
+
     const stateList =
       countriesList.find((country: Country) => country.countryCode === countryCode)?.states || [];
     const stateFieldIndex = addresses.findIndex(
       (formFields: FormFieldsProps) => formFields.name === 'state',
     );
+
     if (stateFieldIndex !== -1) {
       setAddress(
         addresses.map((addressField, addressFieldIndex) => {
@@ -106,8 +113,10 @@ const useGetCountry = ({
                 required: true,
               };
             }
+
             return { ...addressField, fieldType: 'text', options: [], required: false };
           }
+
           return addressField;
         }),
       );

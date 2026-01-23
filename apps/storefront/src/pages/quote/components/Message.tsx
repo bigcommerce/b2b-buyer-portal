@@ -46,6 +46,7 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+
   return (
     <Box
       sx={{
@@ -55,7 +56,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
         paddingTop: '5px',
       }}
     >
-      {msg?.role && (
+      {msg.role && (
         <Box
           sx={{
             height: '14px',
@@ -69,7 +70,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
           {msg.role}
         </Box>
       )}
-      {msg?.message && (
+      {msg.message && (
         <Box
           sx={{
             display: 'inline-block',
@@ -80,7 +81,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             m: '1px',
           }}
         >
-          <Tooltip title={format((msg.sendTime || 0) * 1000, 'K:m aa')} placement="top" arrow>
+          <Tooltip arrow placement="top" title={format((msg.sendTime || 0) * 1000, 'K:m aa')}>
             <Box
               sx={{
                 wordBreak: 'break-word',
@@ -129,7 +130,7 @@ function DateMessage({ msg }: DateMessageProps) {
         mb: '5px',
       }}
     >
-      {`${displayExtendedFormat(msg?.date || 0)}`}
+      {`${displayExtendedFormat(msg.date || 0)}`}
     </Box>
   );
 }
@@ -159,28 +160,29 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
     let nextMsg: MessageProps = {};
     const getNewMsgs: MessageProps[] = [];
     let readNum = 0;
+
     msgs.forEach((msg: MessageProps, index: number) => {
       if (index === 0) {
         getNewMsgs.push({
           isCustomer: !msg.role?.includes('Sales rep:'),
-          date: msg?.date,
-          key: `${msg?.date}date`,
+          date: msg.date,
+          key: `${msg.date}date`,
         });
         getNewMsgs.push({
           isCustomer: !msg.role?.includes('Sales rep:'),
           message: msg.message,
           sendTime: msg.date,
           role: msg.role,
-          key: msg?.date,
+          key: msg.date,
         });
         nextMsg = msg;
         nextMsg.isCustomer = !msg.role?.includes('Sales rep:');
       } else {
-        if ((msg?.date || 0) - (nextMsg?.date || 0) > 60 * 60) {
+        if ((msg.date || 0) - (nextMsg.date || 0) > 60 * 60) {
           getNewMsgs.push({
             isCustomer: !msg.role?.includes('Sales rep:'),
-            date: msg?.date,
-            key: `${msg?.date}date`,
+            date: msg.date,
+            key: `${msg.date}date`,
           });
         }
 
@@ -189,7 +191,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             isCustomer: !msg.role?.includes('Sales rep:'),
             message: msg.message,
             sendTime: msg.date,
-            key: msg?.date,
+            key: msg.date,
           });
         } else {
           getNewMsgs.push({
@@ -197,9 +199,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             message: msg.message,
             role: msg.role,
             sendTime: msg.date,
-            key: msg?.date,
+            key: msg.date,
           });
         }
+
         nextMsg = msg;
         nextMsg.isCustomer = !msg.role?.includes('Sales rep:');
       }
@@ -262,6 +265,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const updateMsgs = async (msg: string) => {
     try {
       setLoading(true);
+
       const {
         quoteUpdate: {
           quote: { trackingHistory },
@@ -275,6 +279,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           storeHash,
         },
       });
+
       setMessage('');
       setRead(0);
       convertedMsgs(trackingHistory);
@@ -292,7 +297,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const handleOnChange = useCallback(
     (open: boolean) => {
       if (open) {
-        if (!quotesUpdateMessagePermission && isB2BUser) return;
+        if (!quotesUpdateMessagePermission && isB2BUser) {
+          return;
+        }
 
         if (changeReadRef.current === 0 && msgs.length) {
           updateQuote({
@@ -304,10 +311,13 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             },
           });
         }
+
         setRead(0);
+
         if (messagesEndRef.current) {
           messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
         }
+
         changeReadRef.current += 1;
       }
     },
@@ -364,9 +374,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
               {messages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
                   <ChatMessage
-                    msg={item}
+                    isCustomer={Boolean(item.isCustomer)}
                     isEndMessage={index === messages.length - 1}
-                    isCustomer={!!item.isCustomer}
+                    msg={item}
                   />
                   {item.date && <DateMessage msg={item} />}
                 </Box>
@@ -376,10 +386,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
           {status !== 4 && quotesUpdateMessagePermission && (
             <B3Spin
-              isSpinning={loading}
-              spinningHeight={50}
-              size={10}
               isCloseLoading
+              isSpinning={loading}
+              size={10}
+              spinningHeight={50}
               tip="waiting.."
             >
               <Box
@@ -389,7 +399,12 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                 }}
               >
                 <TextField
+                  label={b3Lang('quoteDetail.message.typeMessage')}
+                  onChange={(event) => {
+                    setMessage(event.target.value);
+                  }}
                   onKeyDown={updateMessage}
+                  size="small"
                   sx={{
                     width: '100%',
                     '& .MuiFormLabel-root': {
@@ -400,11 +415,6 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                     },
                   }}
                   value={message}
-                  onChange={(event) => {
-                    setMessage(event.target.value);
-                  }}
-                  size="small"
-                  label={b3Lang('quoteDetail.message.typeMessage')}
                   variant="filled"
                 />
                 <Box
@@ -418,13 +428,13 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                   }}
                 >
                   <ArrowUpwardIcon
+                    fontSize="small"
                     sx={{
                       height: '18px',
                       width: '18px',
                       margin: '8px 0 0 9px',
                       color: '#0000008A',
                     }}
-                    fontSize="small"
                   />
                 </Box>
               </Box>

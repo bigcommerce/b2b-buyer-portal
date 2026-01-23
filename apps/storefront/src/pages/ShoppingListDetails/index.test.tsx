@@ -471,6 +471,7 @@ it('displays the details of each product', async () => {
   });
 
   const searchProductsQuerySpy = vi.fn();
+
   server.use(
     graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', ({ query }) => {
@@ -510,6 +511,7 @@ describe('when the user clicks on a product name', () => {
 
     // crude spy to intercept the window.location.href setter
     const hrefSpy = vitest.fn();
+
     vi.spyOn(window, 'location', 'get').mockReturnValue(
       Object.defineProperty({ ...window.location }, 'href', { set: hrefSpy }),
     );
@@ -782,6 +784,7 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
+
     expect(within(rowOfLovelySocks).getByRole('cell', { name: '$98.00' })).toBeInTheDocument();
 
     getShoppingList.mockReturnValueOnce(
@@ -839,6 +842,7 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelyBoots = screen.getByRole('row', { name: /Lovely boots/ });
+
     within(rowOfLovelyBoots).getByRole('checkbox').click();
 
     getShoppingList.mockReturnValueOnce(
@@ -850,6 +854,7 @@ describe("when a product's quantity is increased", () => {
     );
 
     const quantityInput = within(rowOfLovelyBoots).getByRole('spinbutton');
+
     await userEvent.type(quantityInput, '3', {
       initialSelectionStart: 0,
       initialSelectionEnd: Infinity,
@@ -906,6 +911,7 @@ describe('when the user updates the product notes', () => {
     const noteModal = screen.getByRole('dialog');
 
     const noteInput = within(noteModal).getByPlaceholderText('Add notes to products');
+
     await userEvent.clear(noteInput);
 
     await userEvent.type(noteInput, 'Updated note');
@@ -1016,6 +1022,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1117,6 +1124,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1440,6 +1448,7 @@ describe('Add to quote', () => {
     });
 
     const validateProduct = vi.fn();
+
     when(validateProduct)
       .calledWith(
         expect.objectContaining({
@@ -1581,9 +1590,7 @@ describe('CSV upload and add to quote flow', () => {
     let currentShoppingList = initialShoppingList;
 
     server.use(
-      graphql.query('B2BShoppingListDetails', () => {
-        return HttpResponse.json(currentShoppingList);
-      }),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(currentShoppingList)),
       graphql.mutation('B2BShoppingListsItemsCreate', () => {
         const shoppingListProducts = csvProducts.map((csvProduct) =>
           buildShoppingListProductEdgeWith({
@@ -1657,6 +1664,7 @@ describe('CSV upload and add to quote flow', () => {
             ),
           },
         };
+
         return HttpResponse.json(response);
       }),
       graphql.query('GetVariantInfoBySkus', () => {
@@ -1675,10 +1683,11 @@ describe('CSV upload and add to quote flow', () => {
             ),
           },
         });
+
         return HttpResponse.json(response);
       }),
-      graphql.query('priceProducts', () => {
-        return HttpResponse.json({
+      graphql.query('priceProducts', () =>
+        HttpResponse.json({
           data: {
             priceProducts: csvProducts.map((csvProduct) =>
               buildProductPriceWith({
@@ -1688,10 +1697,10 @@ describe('CSV upload and add to quote flow', () => {
               }),
             ),
           },
-        });
-      }),
-      graphql.mutation('AddItemsToShoppingList', () => {
-        return HttpResponse.json({
+        }),
+      ),
+      graphql.mutation('AddItemsToShoppingList', () =>
+        HttpResponse.json({
           data: {
             shoppingListsItemsCreate: {
               shoppingListsItems: csvProducts.map((csvProduct) =>
@@ -1706,10 +1715,11 @@ describe('CSV upload and add to quote flow', () => {
               ),
             },
           },
-        });
-      }),
+        }),
+      ),
       graphql.mutation('ProductUpload', () => {
         currentShoppingList = updatedShoppingList;
+
         return HttpResponse.json(
           buildProductUploadResponseWith({
             data: {
@@ -1744,6 +1754,7 @@ describe('CSV upload and add to quote flow', () => {
     await screen.findByRole('heading', { name: /add to list/i });
 
     const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
     await userEvent.click(uploadButton);
 
     const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -1751,7 +1762,8 @@ describe('CSV upload and add to quote flow', () => {
     const csvContent = 'variant_sku,qty\nCSV-001,2\nCSV-002,3';
     const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
-    const dropzoneInput = dialog.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzoneInput = dialog.querySelector('input[type="file"]')!;
+
     if (!dropzoneInput) {
       throw new Error('File input not found');
     }
@@ -1764,6 +1776,7 @@ describe('CSV upload and add to quote flow', () => {
     await within(dialog).findByText('products.csv');
 
     const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
     await userEvent.click(addToListButton);
 
     expect(await screen.findByText('CSV Product 1')).toBeInTheDocument();
@@ -1780,6 +1793,7 @@ describe('CSV upload and add to quote flow', () => {
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
     const addToQuoteOption = screen.getByRole('menuitem', { name: /add selected to quote/i });
+
     await userEvent.click(addToQuoteOption);
 
     await screen.findByText(/products were added to your quote/i);

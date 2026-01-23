@@ -1,21 +1,22 @@
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
 
-type BuildHierarchyProps = {
+interface BuildHierarchyProps {
   data: CompanyHierarchyListProps[];
   companyId?: number | null;
   parentId?: number | null;
-};
+}
 
 export const buildHierarchy = ({
   data,
   companyId,
   parentId,
-}: BuildHierarchyProps): CompanyHierarchyProps[] => {
-  return data
+}: BuildHierarchyProps): CompanyHierarchyProps[] =>
+  data
     .filter((company) => {
       if (companyId) {
         return company.companyId === companyId;
       }
+
       if (!parentId) {
         return company.parentCompanyId === null || company.parentCompanyId === 0;
       }
@@ -29,7 +30,6 @@ export const buildHierarchy = ({
         parentId: company.companyId,
       }),
     }));
-};
 
 export const flattenBuildHierarchyCompanies = (company: CompanyHierarchyProps) => {
   let result: CompanyHierarchyProps[] = [];

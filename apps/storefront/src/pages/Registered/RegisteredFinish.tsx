@@ -1,5 +1,5 @@
-import { useContext, useRef } from 'react';
 import { Box } from '@mui/material';
+import { useContext, useRef } from 'react';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks/useMobile';
@@ -43,6 +43,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
     if (accountType === '1') {
       if (isAutoApproval) {
         shouldAutoLogin.current = true;
+
         return (
           <StyleTipContainer>
             {b3Lang('global.registerFinish.autoApproved.tip', { storeName })}
@@ -83,6 +84,7 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
     // Personal Account
     if (accountType === '2') {
       shouldAutoLogin.current = true;
+
       return (
         <StyleTipContainer>
           {b3Lang('global.registerFinish.bcSuccess.tip', { storeName })}

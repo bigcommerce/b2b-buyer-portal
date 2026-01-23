@@ -105,15 +105,18 @@ function AddressForm(
           const field = addressExtraFields.find(
             (field: CustomFieldItems) => deCodeField(field.name) === messageArr[0],
           );
+
           if (field) {
             setError(field.name, {
               type: 'manual',
               message: messageArr[1],
             });
             setAddUpdateLoading(false);
+
             return false;
           }
         }
+
         throw message;
       }
 
@@ -122,6 +125,7 @@ function AddressForm(
       if (error instanceof Error) {
         snackbar.error(error.message);
       }
+
       throw error;
     }
   };
@@ -144,6 +148,7 @@ function AddressForm(
 
       try {
         const isValidate = await validateCompanyExtraFieldsUnique(data);
+
         if (!isValidate) {
           return;
         }
@@ -160,6 +165,7 @@ function AddressForm(
 
         countries.forEach((country: CountryProps) => {
           const { countryName, countryCode, states } = country;
+
           if (countryCode === currentCountryCode) {
             currentCountryName = countryName;
 
@@ -205,6 +211,7 @@ function AddressForm(
 
           snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));
         }
+
         setShippingBilling({
           isShipping: false,
           isBilling: false,
@@ -242,6 +249,7 @@ function AddressForm(
 
         countries.forEach((country: CountryProps) => {
           const { countryName, countryCode, states } = country;
+
           if (countryCode === currentCountryCode) {
             currentCountryName = countryName;
 
@@ -282,8 +290,10 @@ function AddressForm(
               id: Number(bcAddressId),
             });
           }
+
           snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));
         }
+
         setOpen(false);
 
         await updateAddressList(true);
@@ -309,17 +319,20 @@ function AddressForm(
     if (type === 'add' && originAddressFields.length > 0) {
       allAddressFields.forEach((field: CustomFieldItems) => {
         const addressField = field;
+
         if (field.custom) {
           if (isB2BUser) {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) => item.name === field.name,
             )[0];
+
             addressField.default = originFields.default || '';
           } else {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) =>
                 item.name === field.name || item.bcLabel === field.bcLabel,
             )[0];
+
             addressField.default = originFields.default || '';
           }
         }
@@ -354,21 +367,21 @@ function AddressForm(
   };
 
   useEffect(() => {
-    const translatedAddressFields = addressFields.map((element) => {
-      return {
-        ...element,
-        label: b3Lang(element.idLang) || element.label,
-        default: !isB2BUser && element.fieldId === 'field_21' ? '' : element.default,
-      };
-    });
+    const translatedAddressFields = addressFields.map((element) => ({
+      ...element,
+      label: b3Lang(element.idLang) || element.label,
+      default: !isB2BUser && element.fieldId === 'field_21' ? '' : element.default,
+    }));
 
     setAllAddressFields(translatedAddressFields);
+
     const extraFields = addressFields.filter((field: CustomFieldItems) => field.custom);
 
     setAddressExtraFields(extraFields);
 
     if (originAddressFields.length === 0) {
       const fields = cloneDeep(addressFields);
+
       setOriginAddressFields(fields);
     }
     // disabling due to errors withing b3Lang
@@ -401,6 +414,7 @@ function AddressForm(
 
       allAddressFields.forEach((currentField: CustomFieldItems) => {
         const field = currentField;
+
         if (field.custom && extraFields.length > 0) {
           if (isB2BUser) {
             const name = deCodeField(field.name);
@@ -444,6 +458,7 @@ function AddressForm(
           setValue(field.name, countryCode);
         } else if (field.name === 'state') {
           setValue(field.name, stateCode || state);
+
           if (currentCountry[0]) {
             const { states } = currentCountry[0];
 
@@ -507,6 +522,7 @@ function AddressForm(
         handleCountryChange(country);
       }
     });
+
     return () => subscription.unsubscribe();
     // disabling the next eslint rule
     // setValue -> not needed as is a dispatcher
@@ -515,18 +531,18 @@ function AddressForm(
 
   return (
     <B3Dialog
+      handRightClick={handleSaveAddress}
+      handleLeftClick={handleCancelClick}
       isOpen={open}
+      isShowBordered
+      leftSizeBtn={b3Lang('addresses.addressForm.cancel')}
+      loading={addUpdateLoading}
+      rightSizeBtn={b3Lang('addresses.addressForm.saveAddress')}
       title={
         type === 'add'
           ? b3Lang('addresses.addressForm.addNewAddress')
           : b3Lang('addresses.addressForm.editAddress')
       }
-      leftSizeBtn={b3Lang('addresses.addressForm.cancel')}
-      rightSizeBtn={b3Lang('addresses.addressForm.saveAddress')}
-      handleLeftClick={handleCancelClick}
-      handRightClick={handleSaveAddress}
-      loading={addUpdateLoading}
-      isShowBordered
     >
       {isB2BUser && (
         <>
@@ -575,9 +591,9 @@ function AddressForm(
         </>
       )}
       <B3CustomForm
-        formFields={allAddressFields}
-        errors={errors}
         control={control}
+        errors={errors}
+        formFields={allAddressFields}
         getValues={getValues}
         setValue={setValue}
       />

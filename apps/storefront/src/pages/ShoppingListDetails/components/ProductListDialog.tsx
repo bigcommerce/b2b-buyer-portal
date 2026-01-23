@@ -39,23 +39,23 @@ function ProductTableAction(props: ProductTableActionProps) {
 
   return productOptions && productOptions.length > 0 ? (
     <CustomButton
-      variant="outlined"
+      disabled={isLoading}
+      fullWidth={isMobile}
       onClick={() => {
         onChooseOptionsClick(id);
       }}
-      disabled={isLoading}
-      fullWidth={isMobile}
+      variant="outlined"
     >
       {b3Lang('global.searchProduct.chooseOptionsButton')}
     </CustomButton>
   ) : (
     <CustomButton
-      variant="outlined"
+      disabled={isLoading}
+      fullWidth={isMobile}
       onClick={() => {
         onAddToListClick(id);
       }}
-      disabled={isLoading}
-      fullWidth={isMobile}
+      variant="outlined"
     >
       {addButtonText}
     </CustomButton>
@@ -119,8 +119,9 @@ export default function ProductListDialog(props: ProductListDialogProps) {
       const { variants = [] } = product || {};
       const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {};
 
-      if (type !== 'shoppingList' && purchasingDisabled === true && !isEnableProduct) {
+      if (type !== 'shoppingList' && purchasingDisabled && !isEnableProduct) {
         snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
+
         return false;
       }
 
@@ -155,13 +156,13 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   return (
     <B3Dialog
       fullWidth
-      isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
-      title={searchDialogTitle}
-      showRightBtn={false}
+      isOpen={isOpen}
+      leftSizeBtn={b3Lang('shoppingLists.close')}
       loading={isLoading}
       maxWidth="md"
-      leftSizeBtn={b3Lang('shoppingLists.close')}
+      showRightBtn={false}
+      title={searchDialogTitle}
     >
       <B3Spin isSpinning={isLoading}>
         <Box
@@ -171,14 +172,6 @@ export default function ProductListDialog(props: ProductListDialogProps) {
           }}
         >
           <TextField
-            hiddenLabel
-            variant="filled"
-            fullWidth
-            size="small"
-            value={searchText}
-            onChange={onSearchTextChange}
-            onKeyDown={handleSearchKeyDown}
-            error={!productList || productList.length <= 0}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -186,31 +179,39 @@ export default function ProductListDialog(props: ProductListDialogProps) {
                 </InputAdornment>
               ),
             }}
+            error={!productList || productList.length <= 0}
+            fullWidth
+            hiddenLabel
+            onChange={onSearchTextChange}
+            onKeyDown={handleSearchKeyDown}
+            size="small"
             sx={{
               margin: '12px 0',
               '& input': {
                 padding: '12px 12px 12px 0',
               },
             }}
+            value={searchText}
+            variant="filled"
           />
 
           {productList && productList.length > 0 ? (
             <ProductTable
-              products={productList}
-              quantityEditable
-              type={type}
-              textAlign={isMobile ? 'left' : 'right'}
+              actionWidth="180px"
               canToProduct
               onProductQuantityChange={onProductQuantityChange}
+              products={productList}
+              quantityEditable
               renderAction={(product) => (
                 <ProductTableAction
-                  product={product}
+                  addButtonText={addButtonText}
                   onAddToListClick={handleAddToList}
                   onChooseOptionsClick={onChooseOptionsClick}
-                  addButtonText={addButtonText}
+                  product={product}
                 />
               )}
-              actionWidth="180px"
+              textAlign={isMobile ? 'left' : 'right'}
+              type={type}
             />
           ) : (
             <Typography>No products found</Typography>

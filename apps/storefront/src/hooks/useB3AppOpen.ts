@@ -20,7 +20,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1);
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
-  const authorizedPages = initOpenState?.authorizedPages || '/orders';
+  const authorizedPages = initOpenState.authorizedPages || '/orders';
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
@@ -34,7 +34,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     const searchNodeKey = ['alt', 'title', 'name'];
 
     searchNodeKey.forEach((key) => {
-      if (target.getAttribute(key) && target.getAttribute(key)?.includes('search')) {
+      if (target.getAttribute(key)?.includes('search')) {
         isSearchNode = true;
       }
     });
@@ -42,19 +42,20 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     if (
       !isSearchNode &&
       typeof target.className === 'string' &&
-      target.className?.includes('search')
+      target.className.includes('search')
     ) {
-      const parentNode = target?.parentNode as HTMLAnchorElement;
-      const childNodeList = target?.childNodes;
+      const parentNode = target.parentNode as HTMLAnchorElement;
+      const childNodeList = target.childNodes;
 
-      if (parentNode && (parentNode?.title === 'search' || parentNode?.name === 'search')) {
+      if (parentNode && (parentNode.title === 'search' || parentNode.name === 'search')) {
         isSearchNode = true;
       }
 
       if (childNodeList && childNodeList.length > 0) {
         childNodeList.forEach((childNode) => {
           const child = childNode as HTMLAnchorElement;
-          if (child && (child?.title === 'search' || child?.name === 'search')) {
+
+          if (child && (child.title === 'search' || child.name === 'search')) {
             isSearchNode = true;
           }
         });
@@ -65,11 +66,15 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
   };
 
   const handleJudgeCheckoutNormalHref = (element: MouseEvent) => {
-    if (window?.location?.pathname !== CHECKOUT_URL) return false;
+    if (window.location.pathname !== CHECKOUT_URL) {
+      return false;
+    }
 
     const target = element.target as HTMLAnchorElement;
 
-    if (target.getAttribute('href') && target.getAttribute('href') === '#') return true;
+    if (target.getAttribute('href') && target.getAttribute('href') === '#') {
+      return true;
+    }
 
     return false;
   };
@@ -95,19 +100,27 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isSearchNode = handleJudgeSearchNode(e);
           const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e);
 
-          if (isSearchNode || isCheckoutNormalHref) return false;
+          if (isSearchNode || isCheckoutNormalHref) {
+            return false;
+          }
+
           e.preventDefault();
           e.stopPropagation();
+
           const isRegisterArrInclude = registerArr.includes(e.target as Element);
-          const tagHref = (e.target as HTMLAnchorElement)?.href;
+          const tagHref = (e.target as HTMLAnchorElement).href;
           let href = tagHref || authorizedPages;
+
           if (!tagHref || typeof tagHref !== 'string') {
-            let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
-            let parentHref = (parentNode as HTMLAnchorElement)?.href;
+            let parentNode = (e.target as HTMLAnchorElement).parentNode;
+            let parentHref = (parentNode as HTMLAnchorElement).href;
             let number = 0;
+
             while (number < 3 && !parentHref) {
-              parentNode = (parentNode as HTMLAnchorElement)?.parentNode;
-              const newUrl = (parentNode as HTMLAnchorElement)?.href;
+              parentNode = (parentNode as HTMLAnchorElement).parentNode;
+
+              const newUrl = (parentNode as HTMLAnchorElement).href;
+
               if (newUrl && typeof newUrl === 'string') {
                 parentHref = newUrl;
                 number += 3;
@@ -115,13 +128,16 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
                 number += 1;
               }
             }
+
             if (parentHref) {
               href = parentHref || authorizedPages;
             } else {
-              const childNodeList = (e.target as HTMLAnchorElement)?.childNodes;
+              const childNodeList = (e.target as HTMLAnchorElement).childNodes;
+
               if (childNodeList.length > 0) {
                 childNodeList.forEach((node: ChildNodeListProps) => {
-                  const nodeHref = node?.href;
+                  const nodeHref = node.href;
+
                   if (nodeHref && node.localName === 'a') {
                     href = nodeHref || authorizedPages;
                   }
@@ -132,6 +148,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
 
           const isLogin = role !== CustomerRole.GUEST;
           const hrefArr = href.split('/#');
+
           if (hrefArr[1] === '') {
             href = isLogin ? authorizedPages : '/login';
           }
@@ -145,20 +162,23 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
             href = authorizedPages;
           }
 
-          if (initOpenState?.handleEnterClick) {
+          if (initOpenState.handleEnterClick) {
             initOpenState.handleEnterClick(href, isRegisterArrInclude);
           }
         }
+
         return false;
       };
 
       window.addEventListener('click', handleTriggerClick, {
         capture: true,
       });
+
       return () => {
         window.removeEventListener('click', handleTriggerClick);
       };
     }
+
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutRegisterNumber, initOpenState, role]);

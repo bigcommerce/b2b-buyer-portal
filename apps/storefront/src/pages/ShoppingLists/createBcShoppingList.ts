@@ -33,7 +33,7 @@ export const createBcShoppingList = (data: ShoppingListParams) =>
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? Number(data.channelId) : 1,
+        channelId: data.channelId ? Number(data.channelId) : 1,
       },
     },
   });

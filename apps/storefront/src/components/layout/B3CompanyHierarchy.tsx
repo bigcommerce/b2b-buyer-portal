@@ -48,15 +48,17 @@ function B3CompanyHierarchy() {
 
   const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
 
-  const isPagesSubsidiariesPermission = useMemo(() => {
-    return Object.keys(pagesSubsidiariesPermission).some(
-      (key) => pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps],
-    );
-  }, [pagesSubsidiariesPermission]);
+  const isPagesSubsidiariesPermission = useMemo(
+    () =>
+      Object.keys(pagesSubsidiariesPermission).some(
+        (key) => pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps],
+      ),
+    [pagesSubsidiariesPermission],
+  );
 
   useEffect(() => {
-    if (isOpenCompanyHierarchyDropDown && dropDownRef?.current) {
-      dropDownRef.current?.setOpenDropDown();
+    if (isOpenCompanyHierarchyDropDown && dropDownRef.current) {
+      dropDownRef.current.setOpenDropDown();
     }
   }, [isOpenCompanyHierarchyDropDown]);
 
@@ -84,7 +86,11 @@ function B3CompanyHierarchy() {
   };
   const handleRowClick = (key: number) => {
     const item = info.list.find((list) => Number(list.key) === key);
-    if (!item) return;
+
+    if (!item) {
+      return;
+    }
+
     setCurrentRow({
       companyId: Number(item.key),
       companyName: item.name,
@@ -129,9 +135,13 @@ function B3CompanyHierarchy() {
     ? chipInfo.representingInfo
     : chipInfo.currentInfo;
 
-  if (!info?.list?.length || !isPagesSubsidiariesPermission) return null;
+  if (!info.list.length || !isPagesSubsidiariesPermission) {
+    return null;
+  }
 
-  if (!currentCompanyId && !salesRepCompanyId) return null;
+  if (!currentCompanyId && !salesRepCompanyId) {
+    return null;
+  }
 
   return (
     <>
@@ -149,19 +159,19 @@ function B3CompanyHierarchy() {
         }}
       >
         <B3DropDown
-          ref={dropDownRef}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
           }}
+          handleItemClick={(item) => handleRowClick(Number(item))}
+          list={info.list || []}
+          menuRenderItemName={menuRenderItemName}
+          ref={dropDownRef}
+          title={info.title || ''}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
           }}
-          menuRenderItemName={menuRenderItemName}
-          title={info?.title || ''}
-          handleItemClick={(item) => handleRowClick(Number(item))}
-          list={info?.list || []}
         />
 
         <Chip
@@ -178,7 +188,7 @@ function B3CompanyHierarchy() {
         />
       </Box>
 
-      <HierarchyDialog open={open} handleClose={handleClose} currentRow={currentRow} />
+      <HierarchyDialog currentRow={currentRow} handleClose={handleClose} open={open} />
     </>
   );
 }

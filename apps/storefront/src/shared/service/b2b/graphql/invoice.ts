@@ -7,13 +7,13 @@ query GetInvoices {
     search: "${data.q || ''}"
     first: ${data.first}
     offset: ${data.offset} 
-    ${data?.status ? `status: ${convertArrayToGraphql(data.status ? [data.status] : [])}` : ''}
-    ${data?.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
-    ${data?.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
-    orderBy: "${data?.orderBy}"
-    ${data?.beginDueDateAt ? `beginDueDateAt: "${data.beginDueDateAt}"` : ''}
-    ${data?.endDueDateAt ? `endDueDateAt: "${data.endDueDateAt}"` : ''}
-    ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
+    ${data.status ? `status: ${convertArrayToGraphql(data.status ? [data.status] : [])}` : ''}
+    ${data.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
+    ${data.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
+    orderBy: "${data.orderBy}"
+    ${data.beginDueDateAt ? `beginDueDateAt: "${data.beginDueDateAt}"` : ''}
+    ${data.endDueDateAt ? `endDueDateAt: "${data.endDueDateAt}"` : ''}
+    ${data.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
     pageInfo{

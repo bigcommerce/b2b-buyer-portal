@@ -7,6 +7,7 @@ const useGetButtonText = (
 ) => {
   const b3Lang = useB3Lang();
   const translatedText = b3Lang(translationVariable);
+
   if (translatedText === defaultText) {
     return storefrontText || defaultText;
   }

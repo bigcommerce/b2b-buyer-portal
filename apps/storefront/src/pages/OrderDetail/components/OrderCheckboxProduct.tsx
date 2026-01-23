@@ -22,6 +22,7 @@ interface ReturnListProps {
   returnId: number;
   returnQty: number;
 }
+
 interface OrderCheckboxProductProps {
   products: EditableProductItem[];
   getProductQuantity?: (item: EditableProductItem) => number;
@@ -67,6 +68,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     } else {
       const variantIds = products.map((item) => item.variant_id);
       const returnIds: ReturnListProps[] = [];
+
       products.forEach((item, index) => {
         returnIds[index] = {
           returnId: item.id,
@@ -84,6 +86,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     const newReturnList = [...returnList];
     const index = newList.findIndex((item) => item === variantId);
     const returnIndex = newReturnList.findIndex((item) => item.returnId === returnId);
+
     if (index !== -1) {
       newList.splice(index, 1);
       newReturnList.splice(returnIndex, 1);
@@ -94,6 +97,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         returnQty,
       });
     }
+
     setCheckedArr(newList);
     setReturnList(newReturnList);
   };
@@ -104,8 +108,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
       const element = product;
       const valueNum = e.target.value;
+
       if (Number(valueNum) >= 0 && Number(valueNum) <= 1000000) {
         element.editQuantity = valueNum;
+
         if (type === 'return') {
           if (Number(valueNum) > Number(product.quantity)) {
             element.editQuantity = product.quantity;
@@ -115,6 +121,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           } else {
             returnList.forEach((listItem) => {
               const item = listItem;
+
               if (item.returnId === product.id) {
                 item.returnQty = Number(valueNum);
               }
@@ -122,18 +129,20 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             setReturnArr(returnList);
           }
         }
+
         onProductChange([...products]);
       }
     };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
+    if (['KeyE', 'Equal', 'Minus'].includes(event.code)) {
       event.preventDefault();
     }
   };
 
   const handleNumberInputBlur = (product: EditableProductItem) => () => {
     const editableProduct = product;
+
     if (!product.editQuantity || Number(product.editQuantity) === 0) {
       editableProduct.editQuantity = '1';
       onProductChange([...products]);
@@ -171,13 +180,13 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
       {isMobile && (
         <FormControlLabel
-          label="Select all products"
           control={
             <Checkbox
               checked={checkedArr.length === products.length}
               onChange={handleSelectAllChange}
             />
           }
+          label="Select all products"
           sx={{
             paddingLeft: '0.6rem',
           }}
@@ -186,10 +195,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
       {products.map((product: EditableProductItem) => (
         <Flex
+          aria-labelledby={`group-label-${product.id}`}
           isMobile={isMobile}
           key={product.sku}
           role="group"
-          aria-labelledby={`group-label-${product.id}`}
         >
           <Checkbox
             checked={isChecked(product.variant_id)}
@@ -204,10 +213,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                 marginLeft: '16px',
               }}
             >
-              <Typography variant="body1" color="#212121" id={`group-label-${product.id}`}>
+              <Typography color="#212121" id={`group-label-${product.id}`} variant="body1">
                 {product.name}
               </Typography>
-              <Typography variant="body1" color="#616161">
+              <Typography color="#616161" variant="body1">
                 {product.sku}
               </Typography>
               {(product.product_options || []).map((option: OrderProductOption) => (
@@ -217,20 +226,19 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
               ))}
             </Box>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+          <FlexItem padding="10px 0 0" textAlignLocation={textAlign} {...itemStyle.default}>
             {isMobile && <span>{b3Lang('orderDetail.reorder.price')} </span>}
             {currencyFormat(product.base_price)}
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
             <TextField
-              type="number"
-              variant="filled"
+              error={Boolean(product.helperText)}
+              helperText={product.helperText}
               hiddenLabel={!isMobile}
               label={isMobile ? b3Lang('orderDetail.reorder.qty') : ''}
-              value={getProductQuantity(product)}
+              onBlur={handleNumberInputBlur(product)}
               onChange={handleProductQuantityChange(product)}
               onKeyDown={handleNumberInputKeyDown}
-              onBlur={handleNumberInputBlur(product)}
               size="small"
               sx={{
                 width: isMobile ? '60%' : '80px',
@@ -239,11 +247,12 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                   marginRight: '0',
                 },
               }}
-              error={!!product.helperText}
-              helperText={product.helperText}
+              type="number"
+              value={getProductQuantity(product)}
+              variant="filled"
             />
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+          <FlexItem padding="10px 0 0" textAlignLocation={textAlign} {...itemStyle.default}>
             {isMobile && <span>{b3Lang('orderDetail.reorder.total')} </span>}
             {currencyFormat(getProductTotals(getProductQuantity(product), product.base_price))}
           </FlexItem>

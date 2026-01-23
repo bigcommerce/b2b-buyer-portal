@@ -12,7 +12,7 @@ const createShoppingList = `
   }
 `;
 
-type CreateShoppingListResponse = {
+interface CreateShoppingListResponse {
   data: {
     shoppingListsCreate: {
       shoppingList: {
@@ -20,7 +20,7 @@ type CreateShoppingListResponse = {
       };
     };
   };
-};
+}
 
 interface CreateShoppingListVariables {
   name: string;

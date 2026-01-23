@@ -24,11 +24,10 @@ interface ProductsWithOptionSelections {
 const graphqlRequest: typeof B3Request.graphqlBC | typeof B3Request.graphqlBCProxy = ({
   query,
   variables,
-}) => {
-  return platform === 'bigcommerce'
+}) =>
+  platform === 'bigcommerce'
     ? B3Request.graphqlBC({ query, variables })
     : B3Request.graphqlBCProxy({ query, variables });
-};
 
 export const getSku = async ({
   selectedOptions = [],

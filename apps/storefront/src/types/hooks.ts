@@ -2,6 +2,6 @@ export interface OpenPageState {
   isOpen: boolean;
   openUrl?: string;
   handleEnterClick?: (href: string, bool: boolean) => void;
-  params?: { [key: string]: string };
+  params?: Record<string, string>;
   authorizedPages?: string;
 }

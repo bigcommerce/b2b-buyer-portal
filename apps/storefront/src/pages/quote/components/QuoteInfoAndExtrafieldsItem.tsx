@@ -1,5 +1,5 @@
-import { useId } from 'react';
 import { Box, Typography } from '@mui/material';
+import { useId } from 'react';
 
 import { useB3Lang } from '@/lib/lang';
 import { QuoteInfoAndExtrafieldsItemProps } from '@/types/quotes';
@@ -24,8 +24,8 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
 
   return (
     <Box
-      role="article"
       aria-labelledby={titleId}
+      role="article"
       sx={{
         width: '100%',
       }}

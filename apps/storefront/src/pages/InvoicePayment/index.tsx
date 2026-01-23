@@ -1,6 +1,6 @@
+import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box } from '@mui/material';
 
 import B3Dialog from '@/components/B3Dialog';
 import { Loading } from '@/components/loading';
@@ -32,14 +32,15 @@ function Payment() {
       if (!B2BToken) {
         setOpen(true);
         setLoading(false);
+
         return;
       }
 
-      if (!params?.id) {
+      if (!params.id) {
         snackbar.error(b3Lang('payment.errorInvoiceCantBeBlank'));
       }
 
-      if (params?.id) {
+      if (params.id) {
         try {
           const {
             invoice: {
@@ -64,7 +65,7 @@ function Payment() {
           await gotoInvoiceCheckoutUrl(data, platform, true);
         } catch (error: unknown) {
           snackbar.error(
-            (error as CustomFieldItems)?.message || b3Lang('payment.invoiceDoesNotExist'),
+            (error as CustomFieldItems).message || b3Lang('payment.invoiceDoesNotExist'),
           );
         } finally {
           setLoading(false);
@@ -83,12 +84,12 @@ function Payment() {
     <Box>
       {loading && <Loading backColor="#FFFFFF" />}
       <B3Dialog
-        isOpen={open}
         fullWidth
-        title=""
+        handRightClick={handleConfirm}
+        isOpen={open}
         rightSizeBtn="ok"
         showLeftBtn={false}
-        handRightClick={handleConfirm}
+        title=""
       >
         <Box
           sx={{

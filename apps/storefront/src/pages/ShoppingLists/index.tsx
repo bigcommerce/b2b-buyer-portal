@@ -57,7 +57,7 @@ function ShoppingLists() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null);
-  const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
+  const [filterMoreInfo, setFilterMoreInfo] = useState<any[]>([]);
   const getFilterMoreList = useGetFilterMoreList();
 
   const [isMobile] = useMobile();
@@ -196,12 +196,15 @@ function ShoppingLists() {
   };
 
   const handleDeleteUserClick = async () => {
-    if (!deleteItem) return;
+    if (!deleteItem) {
+      return;
+    }
+
     try {
       setIsRequestLoading(true);
       handleCancelClick();
 
-      await deleteShoppingList(deleteItem?.id || 0);
+      await deleteShoppingList(deleteItem.id || 0);
 
       snackbar.success(b3Lang('shoppingLists.deleteSuccess'));
     } finally {
@@ -220,51 +223,51 @@ function ShoppingLists() {
         }}
       >
         <B3Filter
-          showB3FilterMoreIcon={isB2BUser}
+          customButtonConfig={customItem}
           filterMoreInfo={filterMoreInfo}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtonConfig={customItem}
           handleFilterCustomButtonClick={handleAddShoppingListsClick}
+          showB3FilterMoreIcon={isB2BUser}
         />
         <B3PaginationTable
           columnItems={[]}
-          ref={paginationTableRef}
-          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}
-          searchParams={filterSearch}
           isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
-          requestLoading={setIsRequestLoading}
+          ref={paginationTableRef}
           renderItem={(row) => (
             <ShoppingListsCard
-              key={row.id || ''}
-              item={row}
-              isPermissions={isB2BUser ? shoppingListCreateActionsPermission : true}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onCopy={handleCopy}
               isB2BUser={isB2BUser}
+              isPermissions={isB2BUser ? shoppingListCreateActionsPermission : true}
+              item={row}
+              key={row.id || ''}
+              onCopy={handleCopy}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
             />
           )}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={[12, 24, 36]}
+          searchParams={filterSearch}
         />
         <AddEditShoppingLists
-          renderList={initSearchList}
-          ref={addEditShoppingListsRef}
           isB2BUser={isB2BUser}
+          ref={addEditShoppingListsRef}
+          renderList={initSearchList}
         />
         <B3Dialog
+          handRightClick={handleDeleteUserClick}
+          handleLeftClick={handleCancelClick}
           isOpen={deleteOpen}
-          title={b3Lang('shoppingLists.deleteShoppingList')}
+          isShowBordered={false}
           leftSizeBtn={b3Lang('shoppingLists.cancel')}
           rightSizeBtn={b3Lang('shoppingLists.delete')}
-          handleLeftClick={handleCancelClick}
-          handRightClick={handleDeleteUserClick}
-          row={deleteItem}
           rightStyleBtn={{
             color: '#D32F2F',
           }}
-          isShowBordered={false}
+          row={deleteItem}
+          title={b3Lang('shoppingLists.deleteShoppingList')}
         >
           <Box
             sx={{

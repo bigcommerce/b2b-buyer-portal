@@ -52,6 +52,7 @@ const redirectBcMenus = (
     switch (role) {
       case CustomerRole.SUPER_ADMIN:
         return '/dashboard';
+
       default:
         return authorizedPages;
     }
@@ -61,10 +62,10 @@ const redirectBcMenus = (
   // superAdmin exits's url
   const superAdminExistUrl = ['/accountSettings'];
   const currentItem: CustomFieldItems =
-    accountTarget.find((item) => key?.includes(item.originUrl)) || {};
+    accountTarget.find((item) => key.includes(item.originUrl)) || {};
 
   // super admin
-  if (currentItem?.newTargetUrl && Number(role) === CustomerRole.SUPER_ADMIN) {
+  if (currentItem.newTargetUrl && Number(role) === CustomerRole.SUPER_ADMIN) {
     return superAdminExistUrl.includes(currentItem.newTargetUrl) || isAgenting
       ? currentItem.newTargetUrl
       : '/dashboard';
@@ -72,12 +73,12 @@ const redirectBcMenus = (
 
   if (
     (Number(role) === CustomerRole.JUNIOR_BUYER || Number(role) === CustomerRole.CUSTOM_ROLE) &&
-    currentItem?.newTargetUrl?.includes('order_status')
+    currentItem.newTargetUrl?.includes('order_status')
   ) {
     return authorizedPages;
   }
 
-  if (currentItem?.newTargetUrl) {
+  if (currentItem.newTargetUrl) {
     return currentItem.newTargetUrl;
   }
 
@@ -86,11 +87,11 @@ const redirectBcMenus = (
 
 const getCurrentLoginUrl = (href: string): string => {
   // quit login
-  if (href?.includes('logout')) {
+  if (href.includes('logout')) {
     return '/login?loginFlag=loggedOutLogin';
   }
 
-  if (href?.includes('create_account')) {
+  if (href.includes('create_account')) {
     return '/register';
   }
 
@@ -104,25 +105,27 @@ const openPageByClick = ({
   isAgenting,
   authorizedPages,
 }: OpenPageByClickProps) => {
-  if (href?.includes('register')) {
+  if (href.includes('register')) {
     return '/register';
   }
-  if (href?.includes('/orders')) {
+
+  if (href.includes('/orders')) {
     return currentRole !== CustomerRole.GUEST ? authorizedPages : '/login';
   }
 
   if (
     Number(currentRole) === CustomerRole.JUNIOR_BUYER &&
-    (href?.includes('/orders') ||
-      href?.includes('/shoppingLists') ||
-      href?.includes('/login') ||
-      href?.includes('/account')) &&
-    !href?.includes('logout')
+    (href.includes('/orders') ||
+      href.includes('/shoppingLists') ||
+      href.includes('/login') ||
+      href.includes('/account')) &&
+    !href.includes('logout')
   ) {
     return authorizedPages;
   }
+
   // register and login click
-  if (href?.includes('/login') || isRegisterAndLogin || currentRole === CustomerRole.GUEST) {
+  if (href.includes('/login') || isRegisterAndLogin || currentRole === CustomerRole.GUEST) {
     return getCurrentLoginUrl(href);
   }
 

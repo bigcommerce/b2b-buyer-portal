@@ -14,6 +14,7 @@ import { useOpenPDP } from './useOpenPDP';
 import useRegisteredbctob2b from './useRegisteredbctob2b';
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>;
+
 interface MutationObserverProps {
   setOpenPage: DispatchProps;
   isOpen: boolean;

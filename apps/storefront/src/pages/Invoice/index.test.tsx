@@ -1,3 +1,6 @@
+import { when } from 'vitest-when';
+
+import { permissionLevels } from '@/constants';
 import {
   buildCompanyStateWith,
   builder,
@@ -18,12 +21,10 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { permissionLevels } from '@/constants';
 
 import { InvoiceStatusCode } from './components/InvoiceStatus';
 import { triggerPdfDownload } from './components/triggerPdfDownload';
+
 import Invoice from '.';
 
 const { server } = startMockServer();
@@ -510,6 +511,7 @@ const buildInvoicePaymentNodeWith = builder(() => ({
 
 const buildInvoicePaymentHistoryResponseWith = builder(() => {
   const totalCount = faker.number.int({ min: 1, max: 5 });
+
   return {
     data: {
       allReceiptLines: {
@@ -630,6 +632,7 @@ it('can expand an invoice to look at its details', async () => {
     .thenReturn('https://localhost:3000/mock-blob-url');
 
   const { log } = console;
+
   vi.spyOn(console, 'log').mockImplementation(log);
 
   // PDFObject will log a warning in the console if it cannot embed the PDF
@@ -842,6 +845,7 @@ describe('when using the action menu', () => {
     const row = screen.getByRole('row', { name: /3322/ });
 
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'View invoice' }));
@@ -888,6 +892,7 @@ describe('when using the action menu', () => {
     const row = screen.getByRole('row', { name: /3322/ });
 
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'View order' }));
@@ -929,6 +934,7 @@ describe('when using the action menu', () => {
     const row = screen.getByRole('row', { name: /3322/ });
 
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'Download' }));
@@ -982,6 +988,7 @@ describe('when using the action menu', () => {
     const row = screen.getByRole('row', { name: /3322/ });
 
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'Print' }));
@@ -1064,6 +1071,7 @@ describe('when using the action menu', () => {
 
     const row = screen.getByRole('row', { name: /3322/ });
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'View payment history' }));
@@ -1189,6 +1197,7 @@ describe('when using the action menu', () => {
 
     const row = screen.getByRole('row', { name: /3322/ });
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     await userEvent.click(screen.getByRole('menuitem', { name: 'Pay' }));
@@ -1230,6 +1239,7 @@ describe('when using the action menu', () => {
 
     const row = screen.getByRole('row', { name: /3322/ });
     const moreActionsButton = within(row).getByRole('button', { name: 'More actions' });
+
     await userEvent.click(moreActionsButton);
 
     expect(screen.queryByRole('menuitem', { name: 'Pay' })).not.toBeInTheDocument();
@@ -1280,6 +1290,7 @@ it('exports the list of invoices as CSV', async () => {
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
   const exportButton = screen.getByRole('button', { name: 'Export filtered as CSV' });
+
   await userEvent.click(exportButton);
 
   await waitFor(() => {
@@ -1368,6 +1379,7 @@ it('exports selected invoices as CSV', async () => {
   );
 
   const exportButton = screen.getByRole('button', { name: 'Export selected as CSV' });
+
   await userEvent.click(exportButton);
 
   await waitFor(() => {
@@ -1431,6 +1443,7 @@ describe('when the url contains an invoiceId parameter', () => {
     });
 
     const { log } = console;
+
     vi.spyOn(console, 'log').mockImplementation(log);
 
     // PDFObject will log a warning in the console if it cannot embed the PDF

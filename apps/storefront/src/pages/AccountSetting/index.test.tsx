@@ -1,3 +1,4 @@
+import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
 import {
   buildCompanyStateWith,
   builder,
@@ -10,7 +11,6 @@ import {
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
-import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 import AccountSetting from '.';
 
@@ -136,6 +136,7 @@ describe('B2B Upgrade Banner', () => {
     expect(alertBox).toBeInTheDocument();
 
     const updateLink = screen.getByRole('link', { name: 'Upgrade' });
+
     expect(updateLink).toHaveAttribute('href', '/registeredbctob2b');
   });
 });

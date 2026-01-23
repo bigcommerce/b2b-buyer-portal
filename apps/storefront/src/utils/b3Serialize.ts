@@ -1,6 +1,4 @@
-interface FromArrValues {
-  [key: string]: string | number;
-}
+type FromArrValues = Record<string, string | number>;
 
 type Serializer = (file: HTMLInputElement, formObjVal: FromArrValues) => FromArrValues;
 
@@ -12,7 +10,9 @@ const serializeAction: Serializer = (file, formObjVal) => {
   let { value } = file;
 
   if (serializeType.includes(type)) {
-    if (type === 'radio' && !checked) return {};
+    if (type === 'radio' && !checked) {
+      return {};
+    }
 
     return { [name]: checked ? value : '' };
   }
@@ -34,8 +34,10 @@ export const serialize = (form: HTMLFormElement) => {
         !currentValue.disabled
       ) {
         const result = serializeAction(currentValue, previousValue);
+
         return { ...previousValue, ...result };
       }
+
       return previousValue;
     },
     {},

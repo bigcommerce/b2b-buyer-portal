@@ -41,7 +41,7 @@ function AddEditShoppingLists(
 
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false);
 
-  const [usersFiles, setUsersFiles] = useState<Array<GetFilterMoreListProps>>([]);
+  const [usersFiles, setUsersFiles] = useState<GetFilterMoreListProps[]>([]);
   const b3Lang = useB3Lang();
 
   const {
@@ -74,6 +74,7 @@ function AddEditShoppingLists(
   const handleAddUserClick = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true);
+
       try {
         const params: Partial<ShoppingListsItemsProps> = {
           ...data,
@@ -84,6 +85,7 @@ function AddEditShoppingLists(
           ? createB2BShoppingList
           : createBcShoppingList;
         let successTip = b3Lang('shoppingLists.addSuccess');
+
         if (type === 'edit') {
           if (isB2BUser) {
             fn = updateB2BShoppingListDetails;
@@ -102,9 +104,11 @@ function AddEditShoppingLists(
         } else if (type === 'add') {
           if (isB2BUser) {
             const { submitShoppingListPermission } = b2bPermissions;
+
             if (selectCompanyHierarchyId) {
               params.companyId = Number(selectCompanyHierarchyId);
             }
+
             params.status = submitShoppingListPermission
               ? ShoppingListStatus.Draft
               : ShoppingListStatus.Approved;
@@ -125,8 +129,13 @@ function AddEditShoppingLists(
 
   const handleOpenAddEditShoppingListsClick = (type: string, data: ShoppingListsItemsProps) => {
     const usersFiles = getCreatedShoppingListFiles(b3Lang);
+
     setUsersFiles(usersFiles);
-    if (data) setEditData(data);
+
+    if (data) {
+      setEditData(data);
+    }
+
     setType(type);
     setOpen(true);
   };
@@ -139,26 +148,28 @@ function AddEditShoppingLists(
     if (type === 'edit') {
       return b3Lang('shoppingLists.edit');
     }
+
     if (type === 'add') {
       return b3Lang('shoppingLists.createNewShoppingList');
     }
+
     return b3Lang('shoppingLists.duplicateShoppingList');
   };
 
   return (
     <B3Dialog
-      isOpen={open}
-      title={getTitle()}
-      leftSizeBtn={b3Lang('shoppingLists.cancel')}
-      rightSizeBtn={b3Lang('shoppingLists.save')}
-      handleLeftClick={handleCancelClick}
       handRightClick={handleAddUserClick}
+      handleLeftClick={handleCancelClick}
+      isOpen={open}
+      leftSizeBtn={b3Lang('shoppingLists.cancel')}
       loading={addUpdateLoading}
+      rightSizeBtn={b3Lang('shoppingLists.save')}
+      title={getTitle()}
     >
       <B3CustomForm
-        formFields={usersFiles}
-        errors={errors}
         control={control}
+        errors={errors}
+        formFields={usersFiles}
         getValues={getValues}
         setValue={setValue}
       />

@@ -1,17 +1,17 @@
 import B3Request from '@/shared/service/request/b3Fetch';
 
-type DigitalProductNode = {
+interface DigitalProductNode {
   downloadFileUrls: string[];
   downloadPageUrl: string;
   name: string;
   productEntityId: number;
-};
+}
 
-type DigitalProduct = {
+interface DigitalProduct {
   node: DigitalProductNode;
-};
+}
 
-export type DigitalDownloadElementsResponse = {
+export interface DigitalDownloadElementsResponse {
   data: {
     site: {
       order: {
@@ -25,7 +25,7 @@ export type DigitalDownloadElementsResponse = {
       };
     };
   };
-};
+}
 
 const getDigitalDownloadLinks = `
   query GetDigitalDownloadLinks($orderId: Int!) {
@@ -54,6 +54,4 @@ export const getDigitalDownloadElements = (orderId: number | string): Promise<Di
   B3Request.graphqlBCProxy({
     query: getDigitalDownloadLinks,
     variables: { orderId },
-  }).then((res) => {
-    return res.data.site.order.consignments.downloads[0]?.lineItems.edges || [];
-  });
+  }).then((res) => res.data.site.order.consignments.downloads[0]?.lineItems.edges || []);

@@ -9,6 +9,7 @@ const useSetOpen = (isOpen: boolean, _?: string, params?: CustomFieldItems) => {
   const { dispatch } = useContext(GlobalContext);
 
   const { dispatch: dispatchMsg } = useContext(DynamicallyVariableContext);
+
   useEffect(() => {
     if (isOpen) {
       // The iframe screen is removed

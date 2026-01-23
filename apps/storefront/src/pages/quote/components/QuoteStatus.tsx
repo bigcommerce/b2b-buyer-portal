@@ -5,13 +5,14 @@ interface OrderStatusProps {
   code: string;
 }
 
-interface QuoteStatusObj {
-  [x: string]: {
+type QuoteStatusObj = Record<
+  string,
+  {
     textColor: string;
     idLang: string;
     color: string;
-  };
-}
+  }
+>;
 
 const quoteStatus: QuoteStatusObj = {
   '0': {

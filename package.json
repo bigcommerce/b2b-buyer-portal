@@ -17,11 +17,33 @@
     "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
-    "eslint": "^8.2.0",
-    "prettier": "^3.6.2",
+    "@eslint/js": "^9.39.2",
+    "@stylistic/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/eslint-plugin": "8.26.0",
+    "@typescript-eslint/parser": "8.26.0",
+    "eslint": "9",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-gettext": "^1.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jest": "^29.12.1",
+    "eslint-plugin-jest-dom": "^5.5.0",
+    "eslint-plugin-jest-formatting": "^3.1.0",
+    "eslint-plugin-jsdoc": "^62.3.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "5",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-switch-case": "3",
+    "eslint-plugin-testing-library": "^7.15.4",
+    "globals": "^17.0.0",
+    "prettier": "^3.8.1",
+    "tsutils": "^3.21.0",
     "turbo": "^2.6.3"
   },
   "engines": {
     "node": ">=22.16.0"
-  }
+  },
+  "prettier": "@bigcommerce/eslint-config/prettier"
 }

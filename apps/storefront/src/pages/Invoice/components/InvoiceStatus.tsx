@@ -5,11 +5,7 @@ interface StatusProps {
   code: InvoiceStatusCode;
 }
 
-interface InvoiceStatusProps {
-  [key: string]: {
-    [key: string]: string;
-  };
-}
+type InvoiceStatusProps = Record<string, Record<string, string>>;
 
 export enum InvoiceStatusCode {
   Open = 0,

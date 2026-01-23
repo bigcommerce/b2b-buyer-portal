@@ -67,7 +67,7 @@ query RecentlyOrderedProducts {
     offset: ${data.offset}
     beginDateAt: "${data.beginDateAt}"
     endDateAt: "${data.endDateAt}"
-    orderBy: "${data?.orderBy || ''}"
+    orderBy: "${data.orderBy || ''}"
   ){
     totalCount,
     pageInfo{

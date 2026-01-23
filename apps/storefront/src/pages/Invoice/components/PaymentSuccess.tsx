@@ -42,16 +42,20 @@ interface RowProps {
   label: string;
   code: string;
 }
+
 function Row({ isRow = true, type = '', value, label, code }: RowProps) {
   const getNewVal = (): string | number | Date => {
     if (type === 'time') {
       return displayFormat(Number(value)) || '';
     }
+
     if (type === 'currency') {
       const val = Number(value || 0);
       const accountValue = handleGetCorrespondingCurrency(code, val);
+
       return accountValue;
     }
+
     if (type === 'paymentType') {
       let val = `${value}`.trim();
 
@@ -61,6 +65,7 @@ function Row({ isRow = true, type = '', value, label, code }: RowProps) {
 
       return val;
     }
+
     return value || '–';
   };
 
@@ -83,7 +88,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     details,
   } = list;
 
-  const comment = details?.paymentDetails?.comment || '';
+  const comment = details.paymentDetails.comment || '';
 
   const b3Lang = useB3Lang();
 
@@ -136,12 +141,12 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     <Box>
       {paymentSuccessKeys.map((item) => (
         <Row
+          code={(list as CustomFieldItems).totalCode || 'SGD'}
+          isRow={Boolean(item.isRow)}
           key={item.key}
-          isRow={!!item.isRow}
+          label={b3Lang(item.idLang)}
           type={item.type}
           value={(list as CustomFieldItems)[item.key]}
-          code={(list as CustomFieldItems)?.totalCode || 'SGD'}
-          label={b3Lang(item.idLang)}
         />
       ))}
       <Box
@@ -207,6 +212,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           const val = Number(value || 0);
 
           const accountValue = handleGetCorrespondingCurrency(code, val);
+
           return (
             <Box
               key={id}
@@ -228,7 +234,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
 }
 
 interface PaymentSuccessProps {
-  receiptId: number | number;
+  receiptId: number;
   type: string;
 }
 
@@ -247,6 +253,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+
       const { receipt } = await getInvoicePaymentInfo(Number(receiptId));
 
       setDetailData(receipt);
@@ -271,11 +278,11 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
 
   return (
     <B3Dialog
+      customActions={customActions}
       isOpen={open}
       leftSizeBtn=""
-      customActions={customActions}
-      title={b3Lang('payment.paymentSuccess')}
       showLeftBtn={false}
+      title={b3Lang('payment.paymentSuccess')}
     >
       <Box
         sx={{

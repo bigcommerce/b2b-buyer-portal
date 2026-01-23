@@ -21,7 +21,9 @@ function CompanyCredit() {
 
   useEffect(() => {
     const init = async () => {
-      if (isCloseCompanyCredit) return;
+      if (isCloseCompanyCredit) {
+        return;
+      }
 
       if (permissionRoles.includes(Number(role)) || (Number(role) === 3 && isAgenting)) {
         const {
@@ -40,7 +42,9 @@ function CompanyCredit() {
     setEnabled(false);
   };
 
-  if (!isEnabled) return null;
+  if (!isEnabled) {
+    return null;
+  }
 
   return (
     <Box
@@ -48,7 +52,7 @@ function CompanyCredit() {
         margin: '1rem 0',
       }}
     >
-      <Alert variant="filled" onClose={() => handleCompanyCreditCloseClick()} severity="warning">
+      <Alert onClose={() => handleCompanyCreditCloseClick()} severity="warning" variant="filled">
         {b3Lang('global.companyCredit.alert')}
       </Alert>
     </Box>

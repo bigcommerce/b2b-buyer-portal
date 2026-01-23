@@ -34,11 +34,13 @@ export const gotoInvoiceCheckoutUrl = async (
 
   if (platform === 'bigcommerce') {
     handleStencil();
+
     return;
   }
 
   if (platform === 'catalyst') {
     window.location.assign(`/checkout?cartId=${cartId}`);
+
     return;
   }
 

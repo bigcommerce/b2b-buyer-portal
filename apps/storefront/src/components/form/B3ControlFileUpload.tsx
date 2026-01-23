@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import {
   CloudUploadOutlined as CloudUploadOutlinedIcon,
@@ -9,6 +8,7 @@ import {
 } from '@mui/icons-material';
 import { FormLabel, Typography } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
+import { useState } from 'react';
 
 import { useB3Lang } from '@/lib/lang';
 
@@ -25,11 +25,14 @@ const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
     className: classes.classes,
   };
 
-  if (type.startsWith('image/')) return <ImageRoundedIcon {...iconProps} />;
+  if (type.startsWith('image/')) {
+    return <ImageRoundedIcon {...iconProps} />;
+  }
 
   switch (type) {
     case 'application/pdf':
       return <PictureAsPdfRoundedIcon {...iconProps} />;
+
     // doc docx xls xlsx csv
     case 'application/msword':
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
@@ -37,6 +40,7 @@ const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
     case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
     case 'text/csv':
       return <DescriptionRounded {...iconProps} />;
+
     default:
       return <InsertDriveFileRoundedIcon {...iconProps} />;
   }
@@ -58,9 +62,11 @@ const getMaxFileSizeLabel = (maxSize: number) => {
   if (maxSize / 1048576 > 1) {
     return `${(maxSize / 1048576).toFixed(1)}MB`;
   }
+
   if (maxSize / 1024 > 1) {
     return `${(maxSize / 1024).toFixed(1)}KB`;
   }
+
   return `${maxSize}B`;
 };
 
@@ -90,6 +96,7 @@ export function B3ControlFileUpload(props: FileUploadProps) {
     const { name, size, type } = rejectedFile;
 
     let isAcceptFileType = false;
+
     acceptedFiles.forEach((acceptedFileType) => {
       isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
     });
@@ -125,14 +132,17 @@ export function B3ControlFileUpload(props: FileUploadProps) {
       });
       setDeleteCount(0);
     }
+
     if (files.length > 0 && !isEmpty(errors)) {
       const cError = errors[name];
+
       if (!isEmpty(cError)) {
         delete errors[name];
         // eslint-disable-next-line no-underscore-dangle
         control?._setErrors(errors);
       }
     }
+
     if (setValue) {
       setValue(name, files);
     }
@@ -154,21 +164,21 @@ export function B3ControlFileUpload(props: FileUploadProps) {
       <DropzoneBox>
         <DropzoneArea
           Icon={CloudUploadOutlinedIcon}
-          showPreviews
-          showFileNamesInPreview
-          showPreviewsInDropzone={false}
+          acceptedFiles={acceptedFiles}
+          dropzoneText={dropzoneText}
+          filesLimit={filesLimit}
           getDropRejectMessage={getRejectMessage}
           getFileLimitExceedMessage={getFileLimitExceedMessage}
           getPreviewIcon={getPreviewIcon}
-          showAlerts={['error']}
-          maxFileSize={maxFileSize}
           initialFiles={defaultValue}
-          acceptedFiles={acceptedFiles}
-          filesLimit={filesLimit}
-          dropzoneText={dropzoneText}
-          previewText={previewText}
+          maxFileSize={maxFileSize}
           onChange={handleFilesChange}
           onDelete={() => setDeleteCount(deleteCount + 1)}
+          previewText={previewText}
+          showAlerts={['error']}
+          showFileNamesInPreview
+          showPreviews
+          showPreviewsInDropzone={false}
         />
       </DropzoneBox>
       {errors[name] ? (

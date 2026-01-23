@@ -15,6 +15,7 @@ export function RedirectFallback({ path, setOpenPage }: RedirectFallbackProps) {
     // Strategy 1: Use first available route
     if (path) {
       navigate(path, { replace: true });
+
       return;
     }
 

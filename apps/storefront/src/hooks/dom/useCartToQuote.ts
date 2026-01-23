@@ -22,6 +22,7 @@ import useStorageState from '../useStorageState';
 import { addProductsFromCartToQuote } from './utils';
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>;
+
 interface MutationObserverProps {
   setOpenPage: DispatchProps;
   cartQuoteEnabled: boolean;
@@ -73,14 +74,21 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
   useEffect(() => {
     const showPendingAccountTip = () => {
-      if (![CART_URL, CHECKOUT_URL].includes(pathname)) return;
-
-      if (companyStatus || !blockPendingAccountOrderCreation) return;
-
-      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(CART_URL)) return;
-
-      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(CHECKOUT_URL))
+      if (![CART_URL, CHECKOUT_URL].includes(pathname)) {
         return;
+      }
+
+      if (companyStatus || !blockPendingAccountOrderCreation) {
+        return;
+      }
+
+      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(CART_URL)) {
+        return;
+      }
+
+      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(CHECKOUT_URL)) {
+        return;
+      }
 
       if (checkIsInPage(CART_URL)) {
         globalSnackbar.warning(
@@ -112,6 +120,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote');
 
     const b2bLoading = document.querySelector('#b2b-div-loading');
+
     if (b3CartToQuote && !b2bLoading) {
       addLoading(b3CartToQuote);
       addToQuote();
@@ -144,17 +153,23 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : [];
 
     let cartQuoteBtnDom: CustomFieldItems | null = null;
-    if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return;
 
-    if (!cartQuoteEnabled || window?.location?.pathname?.includes('checkout')) {
-      document.querySelector('.b2b-cart-to-quote')?.remove();
+    if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) {
       return;
     }
 
-    if (document.querySelectorAll('.b2b-cart-to-quote')?.length) {
+    if (!cartQuoteEnabled || window.location.pathname.includes('checkout')) {
+      document.querySelector('.b2b-cart-to-quote')?.remove();
+
+      return;
+    }
+
+    if (document.querySelectorAll('.b2b-cart-to-quote').length) {
       const cartToQuoteBtns = document.querySelectorAll('.b2b-cart-to-quote');
+
       cartToQuoteBtns.forEach((button: CustomFieldItems) => {
         const cartToQuoteBtn = button;
+
         cartToQuoteBtn.innerHTML = cartToQuoteBtnLabel;
         cartToQuoteBtn.setAttribute('style', customCss);
         cartToQuoteBtn.style.backgroundColor = color;
@@ -163,6 +178,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
         setMediaStyle(mediaBlocks, `b2b-cart-to-quote ${classSelector}`);
       });
+
       return;
     }
 
@@ -185,7 +201,6 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
       );
     }
 
-    // eslint-disable-next-line
     return () => {
       if (cartQuoteBtnDom) {
         cartQuoteBtnDom.removeEventListener('click', quoteCallBack);

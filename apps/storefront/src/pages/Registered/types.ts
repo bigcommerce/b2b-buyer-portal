@@ -3,5 +3,5 @@ export interface RegisterFields extends Record<string, any> {
   label?: string;
   required?: boolean;
   fieldType?: string;
-  default?: string | Array<any> | number;
+  default?: string | any[] | number;
 }

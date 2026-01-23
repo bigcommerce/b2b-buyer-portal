@@ -8,6 +8,7 @@ export const handleHideRegisterPage = (registerEnabled: boolean) => {
   if (registerPageAll.length > 0) {
     registerPageAll.forEach((page: CustomFieldItems) => {
       const node = page;
+
       node.style.display = registerEnabled ? 'inline-block' : 'none';
     });
   }
@@ -15,6 +16,7 @@ export const handleHideRegisterPage = (registerEnabled: boolean) => {
   if (navUserOrText.length > 0) {
     navUserOrText.forEach((text: CustomFieldItems) => {
       const node = text;
+
       node.style.display = registerEnabled ? 'inline-block' : 'none';
     });
   }

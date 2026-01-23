@@ -5,6 +5,7 @@ export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
     ? window.requestIdleCallback
     : (cb: IdleRequestCallback) => {
         const start = Date.now();
+
         return window.setTimeout(() => {
           cb({
             didTimeout: false,
@@ -38,7 +39,9 @@ window.b2b = {
 };
 
 export const initApp = async () => {
-  if (window.b2b.initializationEnvironment.isInit) return;
+  if (window.b2b.initializationEnvironment.isInit) {
+    return;
+  }
 
   await import('./react-setup');
 };
@@ -57,6 +60,7 @@ export const bindLinks = () => {
 
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
+
 export const unbindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
