@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Grid, useTheme } from '@mui/material';
-import Cookies from 'js-cookie';
 import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -50,7 +49,12 @@ import {
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
-import { createOrUpdateExistingCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import {
+  CartError,
+  createOrUpdateExistingCart as rawCreateOrUpdateExistingCart,
+  deleteCartData,
+  updateCart as rawUpdateCart,
+} from '@/utils/cartUtils';
 import { validateProducts } from '@/utils/validateProducts';
 
 import { type PageProps } from '../PageProps';
@@ -241,6 +245,39 @@ function useData() {
 }
 
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
+
+const createOrUpdateExistingCart = (products: ProductsProps[]) =>
+  rawCreateOrUpdateExistingCart(addLineItems(products));
+
+const updateCart = (cartInfo: any, products: ProductsProps[]) =>
+  rawUpdateCart(cartInfo, addLineItems(products));
+
+const partialAddToCart = async (checkedArr: ProductsProps[]) => {
+  try {
+    await createOrUpdateExistingCart(checkedArr);
+    return [];
+  } catch (apiError: unknown) {
+    if (!(apiError instanceof CartError)) {
+      throw apiError;
+    }
+
+    const { success, error, warning } = await validateProducts(
+      checkedArr.map((item) => ({
+        productId: item.node.productId,
+        variantId: item.node.variantId,
+        quantity: item.node.quantity ?? 0,
+        productOptions: getOptionsList(JSON.parse(item.node.optionList || '[]')),
+        item,
+      })),
+    );
+
+    if (success.length > 0) {
+      await createOrUpdateExistingCart(success.map((p) => p.product.item));
+    }
+
+    return [...error, ...warning];
+  }
+};
 
 function ShoppingListDetails({ setOpenPage }: PageProps) {
   const {
@@ -541,9 +578,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       return;
     }
 
-    const lineItems = addLineItems(products);
-
-    const res = await createOrUpdateExistingCart(lineItems);
+    const res = await createOrUpdateExistingCart(products);
 
     if (!res.errors) {
       shouldRedirectToCheckoutAfterRetry();
@@ -558,10 +593,12 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const retryAddToCartBackend = async (products: ProductsProps[]) => {
     try {
-      const lineItems = addLineItems(products);
-      const res = await createOrUpdateExistingCart(lineItems);
+      const errors = await partialAddToCart(products);
 
-      if (!res.errors) {
+      setSuccessProductsCount(products.length - errors.length);
+      setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+
+      if (!errors.length) {
         shouldRedirectToCheckoutAfterRetry();
       }
 
@@ -745,8 +782,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  const cartEntityId = Cookies.get('cartId');
-
   const retryAddToCart = backendValidationEnabled ? retryAddToCartBackend : retryAddToCartFrontend;
 
   const shouldRedirectToCheckoutAfterAddToCart = () => {
@@ -803,15 +838,14 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     );
 
     if (validateSuccessArr.length !== 0) {
-      const lineItems = addLineItems(validateSuccessArr);
       const cartInfo = await getCart();
       let res = null;
 
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartData(cartEntityId));
-        res = await updateCart(cartInfo, lineItems);
+        await deleteCart(deleteCartData(cartInfo.data.site.cart.entityId));
+        res = await updateCart(cartInfo, validateSuccessArr);
       } else {
-        res = await createOrUpdateExistingCart(lineItems);
+        res = await createOrUpdateExistingCart(validateSuccessArr);
         b3TriggerCartNumber();
       }
       if (res && res.errors) {
@@ -826,24 +860,29 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const handleAddToCartBackend = async () => {
-    const items = checkedArr.map(({ node }) => ({ node }));
-
     try {
-      const lineItems = addLineItems(items);
       const cartInfo = await getCart();
       if (allowJuniorPlaceOrder && cartInfo.data.site.cart) {
-        await deleteCart(deleteCartData(cartEntityId));
-        await updateCart(cartInfo, lineItems);
+        await deleteCart(deleteCartData(cartInfo.data.site.cart.entityId));
+        await updateCart(cartInfo, checkedArr);
       } else {
-        await createOrUpdateExistingCart(lineItems);
+        const errors = await partialAddToCart(checkedArr);
+
+        setSuccessProductsCount(checkedArr.length - errors.length);
+        setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+
+        if (!errors.length) {
+          shouldRedirectToCheckoutAfterAddToCart();
+        }
+
         b3TriggerCartNumber();
       }
-      shouldRedirectToCheckoutAfterAddToCart();
-      setSuccessProductsCount(items.length);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(mapToProductsFailedArray(items));
+        setValidateFailureProducts(mapToProductsFailedArray(checkedArr));
         snackbar.error(e.message);
+        // eslint-disable-next-line no-console
+        console.error(e);
       }
     }
   };
