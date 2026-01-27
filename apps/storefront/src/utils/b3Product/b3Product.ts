@@ -18,7 +18,6 @@ import { channelId, storeHash } from '@/utils/basicConfig';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 
 import b2bLogger from '../b3Logger';
-import { FeatureFlags } from '../featureFlags';
 
 interface NewOptionProps {
   optionId: string;
@@ -838,7 +837,7 @@ interface DisplayPriceProps {
 export const getProductInfoDisplayPrice = (
   price: string | number,
   productInfo: CustomFieldItems,
-  featureFlags: FeatureFlags,
+  isBackorderValidationEnabled: boolean,
 ) => {
   const currentPrice = price || '0';
   const {
@@ -858,7 +857,7 @@ export const getProductInfoDisplayPrice = (
     return currentPrice;
   }
 
-  if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+  if (isBackorderValidationEnabled) {
     if (!unlimitedBackorder && Number(quantity) > Number(availableToSell)) {
       return '';
     }
@@ -925,7 +924,7 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
 export const getVariantInfoDisplayPrice = (
   price: string | number,
   productInfo: CustomFieldItems,
-  featureFlags: FeatureFlags,
+  isBackorderValidationEnabled: boolean,
   option?: {
     sku?: string;
   },
@@ -979,7 +978,7 @@ export const getVariantInfoDisplayPrice = (
 
     if (inventoryTracking === 'none') return currentPrice;
 
-    if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+    if (isBackorderValidationEnabled) {
       const availableToSell =
         inventoryTracking === 'product' ? productAvailableToSell : variantAvailableToSell;
       const unlimitedBackorder =
@@ -1012,6 +1011,7 @@ const getDisplayPrice = ({
     global: {
       blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
       featureFlags,
+      backorderEnabled,
     },
   } = store.getState();
 
@@ -1021,25 +1021,33 @@ const getDisplayPrice = ({
 
   if (newProductInfo?.purchaseHandled) return price;
 
+  const isBackorderValidationEnabled =
+    (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false) &&
+    backorderEnabled;
+
   const newPrice = isProduct
-    ? getProductInfoDisplayPrice(price, newProductInfo, featureFlags)
-    : getVariantInfoDisplayPrice(price, newProductInfo, featureFlags);
+    ? getProductInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled)
+    : getVariantInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled);
 
   return newPrice || showText || '';
 };
 
 const judgmentBuyerProduct = ({ productInfo, isProduct, price }: DisplayPriceProps): boolean => {
   const {
-    global: { featureFlags },
+    global: { featureFlags, backorderEnabled },
   } = store.getState();
 
   const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
 
   if (newProductInfo?.purchaseHandled) return true;
 
+  const isBackorderValidationEnabled =
+    (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false) &&
+    backorderEnabled;
+
   const newPrice = isProduct
-    ? getProductInfoDisplayPrice(price, newProductInfo, featureFlags)
-    : getVariantInfoDisplayPrice(price, newProductInfo, featureFlags);
+    ? getProductInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled)
+    : getVariantInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled);
 
   return !!newPrice;
 };

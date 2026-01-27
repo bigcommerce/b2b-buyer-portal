@@ -45,6 +45,7 @@ export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => 
     title: faker.lorem.sentence(),
   },
   isOpenCompanyHierarchyDropDown: faker.datatype.boolean(),
+  backorderEnabled: faker.datatype.boolean(),
   _persist: {
     version: 1,
     rehydrated: true,
