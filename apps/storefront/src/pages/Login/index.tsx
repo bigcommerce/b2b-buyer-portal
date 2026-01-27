@@ -125,8 +125,11 @@ function Login(props: PageProps) {
         if (isLoginFlagType(loginFlag)) {
           setLoginFlag(loginFlag);
 
-          if (isLoggedIn && shouldLogout.includes(loginFlag)) {
-            await logout({ showLogoutBanner: loginFlag === 'loggedOutLogin' });
+          if (isLoggedIn && loginFlag === 'loggedOutLogin') {
+            await logout({ showLogoutBanner: true });
+            // All company-related flags have isLoggedIn set to false.
+          } else if (!isLoggedIn && shouldLogout.includes(loginFlag)) {
+            await logout({ showLogoutBanner: false });
           }
         }
 
