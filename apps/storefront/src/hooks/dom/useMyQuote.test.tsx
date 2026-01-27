@@ -34,6 +34,7 @@ const mockGlobalState: GlobalState = {
   blockPendingQuoteNonPurchasableOOS: {
     isEnableProduct: true,
   },
+  backorderEnabled: true,
   featureFlags: {
     'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
   },

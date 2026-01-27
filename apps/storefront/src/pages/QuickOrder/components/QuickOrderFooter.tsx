@@ -8,7 +8,7 @@ import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
@@ -96,13 +96,11 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobalContext);
   const b3Lang = useB3Lang();
-  const featureFlags = useFeatureFlags();
 
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
-  const backendValidationEnabled =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+  const backendValidationEnabled = useIsBackorderValidationEnabled();
 
   const isShowCartAction = isB2BUser ? purchasabilityPermission : true;
 

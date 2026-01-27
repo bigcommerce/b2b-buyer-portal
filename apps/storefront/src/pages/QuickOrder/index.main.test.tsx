@@ -1901,6 +1901,7 @@ describe('when adding to quote', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
+    const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
@@ -1966,7 +1967,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -1994,6 +1995,7 @@ describe('when adding to quote', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
+    const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
@@ -2076,7 +2078,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -2098,6 +2100,7 @@ describe('when adding to quote', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
+    const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
@@ -2277,7 +2280,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -2478,6 +2481,7 @@ describe('When backend validation feature flag is on', () => {
   const featureFlags = {
     'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
   };
+  const backorderEnabled = true;
 
   const backendValidationEnabledState = {
     ...preloadedState,
@@ -2488,13 +2492,14 @@ describe('When backend validation feature flag is on', () => {
         role: CustomerRole.SENIOR_BUYER, // Override to Senior Buyer (value 1)
       },
     },
-    global: buildGlobalStateWith({ featureFlags }),
+    global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
   };
 
   it('displays an error message when adding to cart fails', async () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -2610,6 +2615,7 @@ describe('When backend validation feature flag is on', () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -2757,6 +2763,7 @@ describe('When backend validation feature flag is on', () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -2895,6 +2902,7 @@ describe('When backend validation feature flag is on', () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -3041,6 +3049,7 @@ describe('When backend validation feature flag is on', () => {
     const preloadedStateWithFeatureFlag = {
       ...preloadedState,
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -4805,6 +4814,7 @@ describe('When backend validation feature flag is on', () => {
       const preloadedStateWithBothFlags = {
         ...backendValidationEnabledState,
         global: buildGlobalStateWith({
+          backorderEnabled,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
             'B2B-3978.pass_with_modifiers_to_product_upload': true,

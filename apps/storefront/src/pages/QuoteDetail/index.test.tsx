@@ -368,6 +368,7 @@ describe('when the user is a B2B customer', () => {
         },
         global: {
           ...preloadedState.global,
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -427,6 +428,7 @@ describe('when the user is a B2B customer', () => {
         ...preloadedState,
         global: {
           ...preloadedState.global,
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -497,6 +499,7 @@ describe('when the user is a B2B customer', () => {
         },
         global: {
           ...preloadedState.global,
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -592,6 +595,7 @@ describe('when the user is a B2B customer', () => {
         },
         global: {
           ...preloadedState.global,
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -682,6 +686,7 @@ describe('when the user is a B2B customer', () => {
           blockPendingQuoteNonPurchasableOOS: {
             isEnableProduct: false,
           },
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -805,6 +810,7 @@ describe('when the user is a B2B customer', () => {
         ...preloadedState,
         global: {
           ...preloadedState.global,
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
@@ -881,6 +887,7 @@ describe('when the user is a B2B customer', () => {
       },
       global: {
         ...preloadedState.global,
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -950,6 +957,7 @@ describe('when the user is a B2B customer', () => {
       ...preloadedState,
       global: {
         ...preloadedState.global,
+        backorderEnabled: true,
         featureFlags: {
           'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
         },
@@ -1082,6 +1090,7 @@ describe('when the user is a B2B customer', () => {
       preloadedState: {
         ...preloadedState,
         global: buildGlobalStateWith({
+          backorderEnabled: true,
           featureFlags: {
             'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
           },
