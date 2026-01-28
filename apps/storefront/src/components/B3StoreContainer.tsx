@@ -1,9 +1,17 @@
-import { ReactNode, useContext, useLayoutEffect } from 'react';
+import { ReactNode, useCallback, useContext, useLayoutEffect } from 'react';
 
 import { Z_INDEX } from '@/constants';
+import { useLocaleSync } from '@/hooks/useLocaleSync';
 import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
-import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
+import {
+  getGlobalTranslations,
+  resetTranslations,
+  setStoreInfo,
+  setTimeFormat,
+  useAppDispatch,
+} from '@/store';
+import b2bLogger from '@/utils/b3Logger';
 
 import { B3PageMask, usePageMask } from './loading';
 
@@ -27,6 +35,33 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
     dispatch,
   } = useContext(GlobalContext);
   const storeDispatch = useAppDispatch();
+
+  const handleLocaleChange = useCallback(
+    async (newLocale: string) => {
+      storeDispatch(resetTranslations());
+
+      try {
+        const { storeBasicInfo } = await getBCStoreChannelId();
+        const [storeInfo] = storeBasicInfo.storeSites;
+
+        if (storeInfo) {
+          const { channelId, translationVersion } = storeInfo;
+
+          storeDispatch(
+            getGlobalTranslations({
+              newVersion: translationVersion + 1,
+              channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
+            }),
+          );
+        }
+      } catch (error) {
+        b2bLogger.error(`[B2B] Failed to refresh translations for locale ${newLocale}:`, error);
+      }
+    },
+    [storeDispatch],
+  );
+
+  useLocaleSync(handleLocaleChange);
 
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {

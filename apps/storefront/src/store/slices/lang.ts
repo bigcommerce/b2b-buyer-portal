@@ -19,7 +19,13 @@ const initialState: LangState = {
 export const langSlice = createSlice({
   name: 'lang',
   initialState,
-  reducers: {},
+  reducers: {
+    resetTranslations: (state) => {
+      state.translations = {};
+      state.fetchedPages = [];
+      state.translationVersion = 0;
+    },
+  },
   extraReducers(builder) {
     builder.addCase(getGlobalTranslations.fulfilled, (state, { payload }) => {
       Object.entries(payload.globalTranslations).forEach(([key, translation]) => {
@@ -36,5 +42,7 @@ export const langSlice = createSlice({
     });
   },
 });
+
+export const { resetTranslations } = langSlice.actions;
 
 export default persistReducer({ key: 'lang', storage }, langSlice.reducer);
