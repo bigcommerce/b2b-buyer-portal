@@ -116,6 +116,7 @@ const getCountries = () => `query Countries {
 const createCompanyUser = (data: any) => `mutation{
   companyCreate(companyData: {
     customerId: "${data.customerId}",
+    customerEmail: "${data.customerEmail}",
     storeHash: "${data.storeHash}",
     companyName: "${data.companyName}",
     companyEmail: "${data.companyEmail}",

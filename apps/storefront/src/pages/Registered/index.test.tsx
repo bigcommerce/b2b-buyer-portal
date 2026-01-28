@@ -944,7 +944,7 @@ describe('Registered Page', () => {
     vi.mocked(checkUserEmail).mockResolvedValue({ isValid: true });
     vi.mocked(checkUserBCEmail).mockResolvedValue({ isValid: true });
     vi.mocked(createBCCompanyUser).mockResolvedValue({
-      customerCreate: { customer: { id: 1 } },
+      customerCreate: { customer: { id: 1, email: 'john.doe@example.com' } },
     });
     vi.mocked(validateAddressExtraFields).mockResolvedValue({ code: 200 });
     vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
