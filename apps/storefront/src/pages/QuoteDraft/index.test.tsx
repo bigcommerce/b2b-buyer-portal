@@ -2678,6 +2678,7 @@ describe('when the user is a B2B customer', () => {
             quoteInfo,
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              backorderEnabled,
               featureFlags,
             }),
           },
@@ -2801,6 +2802,7 @@ describe('when the user is a B2B customer', () => {
             quoteInfo,
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+              backorderEnabled,
               featureFlags,
             }),
           },
