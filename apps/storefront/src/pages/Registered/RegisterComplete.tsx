@@ -222,7 +222,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     try {
       const b2bFields: CustomFieldItems = {};
       b2bFields.customerId = customerId || '';
-      b2bFields.customerEmail = customerEmail;
+      b2bFields.customerEmail = customerEmail || '';
       b2bFields.storeHash = storeHash;
 
       // company user extra field

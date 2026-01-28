@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop, no-restricted-syntax */
 import userEvent from '@testing-library/user-event';
 import {
   buildCompanyStateWith,
@@ -275,32 +274,6 @@ const buildRegistrationDataWith = builder(() => ({
   },
 }));
 
-async function completeRegistration(data: {
-  businessDetails: Record<string, string>;
-  address: Record<string, string>;
-}) {
-  const { businessDetails, address } = data;
-
-  for (const [label, value] of Object.entries(businessDetails)) {
-    await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-  }
-
-  for (const [label, value] of Object.entries(address)) {
-    if (label === 'Country') {
-      await userEvent.click(screen.getByLabelText(/Country/i));
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else if (label === 'State') {
-      const stateInputs = screen.getAllByLabelText(/State/i);
-      await userEvent.click(stateInputs[stateInputs.length - 1]);
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-    }
-  }
-
-  await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
-}
-
 describe('RegisteredBCToB2B Page', () => {
   const customerEmail = 'john.doe@example.com';
   const customerId = 123;
@@ -343,11 +316,49 @@ describe('RegisteredBCToB2B Page', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Company Name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('Company Name', { exact: false })).toBeInTheDocument();
     });
 
     const testData = buildRegistrationDataWith('WHATEVER_VALUES');
-    await completeRegistration(testData);
+
+    // Fill business details
+    await userEvent.type(
+      screen.getByLabelText('Company Name', { exact: false }),
+      testData.businessDetails['Company Name'],
+    );
+    await userEvent.type(
+      screen.getByLabelText('Company Email', { exact: false }),
+      testData.businessDetails['Company Email'],
+    );
+    await userEvent.type(
+      screen.getByLabelText('Company Phone Number', { exact: false }),
+      testData.businessDetails['Company Phone Number'],
+    );
+
+    // Fill address
+    await userEvent.click(screen.getByLabelText('Country', { exact: false }));
+    await userEvent.click(screen.getByRole('option', { name: testData.address.Country }));
+
+    await userEvent.type(
+      screen.getByLabelText('Address 1', { exact: false }),
+      testData.address['Address 1'],
+    );
+    await userEvent.type(
+      screen.getByLabelText('Address 2', { exact: false }),
+      testData.address['Address 2'],
+    );
+    await userEvent.type(screen.getByLabelText('City', { exact: false }), testData.address.City);
+
+    const stateInputs = screen.getAllByLabelText('State', { exact: false });
+    await userEvent.click(stateInputs[stateInputs.length - 1]);
+    await userEvent.click(screen.getByRole('option', { name: testData.address.State }));
+
+    await userEvent.type(
+      screen.getByLabelText('Zip Code', { exact: false }),
+      testData.address['Zip Code'],
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
 
     await waitFor(() => {
       expect(createB2BCompanyUser).toHaveBeenCalled();
@@ -376,27 +387,35 @@ describe('RegisteredBCToB2B Page', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Company Name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('Company Name', { exact: false })).toBeInTheDocument();
     });
 
-    // Use specific test data to verify exact values are passed
-    const testData = buildRegistrationDataWith({
-      businessDetails: {
-        'Company Name': 'Test Co',
-        'Company Email': 'test.co@example.com',
-        'Company Phone Number': '1234567890',
-      },
-      address: {
-        Country: 'United States',
-        'Address 1': '2 bb street',
-        'Address 2': 'suite 100',
-        City: 'New York',
-        State: 'California',
-        'Zip Code': '54321',
-      },
-    });
+    // Fill business details with specific test values
+    await userEvent.type(screen.getByLabelText('Company Name', { exact: false }), 'Test Co');
+    await userEvent.type(
+      screen.getByLabelText('Company Email', { exact: false }),
+      'test.co@example.com',
+    );
+    await userEvent.type(
+      screen.getByLabelText('Company Phone Number', { exact: false }),
+      '1234567890',
+    );
 
-    await completeRegistration(testData);
+    // Fill address with specific test values
+    await userEvent.click(screen.getByLabelText('Country', { exact: false }));
+    await userEvent.click(screen.getByRole('option', { name: 'United States' }));
+
+    await userEvent.type(screen.getByLabelText('Address 1', { exact: false }), '2 bb street');
+    await userEvent.type(screen.getByLabelText('Address 2', { exact: false }), 'suite 100');
+    await userEvent.type(screen.getByLabelText('City', { exact: false }), 'New York');
+
+    const stateInputs = screen.getAllByLabelText('State', { exact: false });
+    await userEvent.click(stateInputs[stateInputs.length - 1]);
+    await userEvent.click(screen.getByRole('option', { name: 'California' }));
+
+    await userEvent.type(screen.getByLabelText('Zip Code', { exact: false }), '54321');
+
+    await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
 
     await waitFor(() => {
       expect(createB2BCompanyUser).toHaveBeenCalled();
