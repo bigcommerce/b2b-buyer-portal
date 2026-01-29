@@ -7,6 +7,7 @@ import { B3Upload } from '@/components/upload/B3Upload';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { validateProducts } from '@/shared/service/b2b/graphql/product';
@@ -32,8 +33,7 @@ export default function QuickOrderPad() {
   const [isLoading, setIsLoading] = useState(false);
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
   const featureFlags = useFeatureFlags();
-  const backendValidationEnabled =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+  const backendValidationEnabled = useIsBackorderValidationEnabled();
   const passWithModifiersToProductUpload =
     featureFlags['B2B-3978.pass_with_modifiers_to_product_upload'] ?? false;
 

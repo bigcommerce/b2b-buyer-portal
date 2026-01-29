@@ -1670,6 +1670,7 @@ describe('when a personal customer visits an order', () => {
       }),
       storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
       global: buildGlobalStateWith({
+        backorderEnabled: true,
         featureFlags: { 'B2B-3318.move_stock_and_backorder_validation_to_backend': true },
       }),
     };

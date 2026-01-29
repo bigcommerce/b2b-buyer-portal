@@ -229,6 +229,7 @@ const addProductFromProductPageToQuote = (
   setOpenPage: SetOpenPage,
   isEnableProduct: boolean,
   b3Lang: LangFormatFunction,
+  isBackorderValidationEnabled: boolean,
   featureFlags: FeatureFlags,
 ) => {
   const addToQuote = async (node?: HTMLElement) => {
@@ -274,7 +275,7 @@ const addProductFromProductPageToQuote = (
         return;
       }
 
-      if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+      if (isBackorderValidationEnabled) {
         const variantId = newProductInfo[0]?.variants.find(
           (variant: CustomFieldItems) => variant.sku === sku,
         )?.variant_id;

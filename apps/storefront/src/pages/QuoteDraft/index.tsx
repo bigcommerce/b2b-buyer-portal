@@ -10,8 +10,8 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useSetCountry } from '@/hooks/useGetCountry';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useValidatePermissionWithComparisonType } from '@/hooks/useVerifyPermission';
 import { useB3Lang } from '@/lib/lang';
@@ -139,7 +139,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     state: { countriesList, openAPPParams },
   } = useContext(GlobalContext);
   const dispatch = useAppDispatch();
-  const featureFlags = useFeatureFlags();
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
@@ -172,8 +171,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const isMoveStockAndBackorderValidationToBackend =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+  const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
 
   const quotesActionsPermission = useMemo(() => {
     if (isB2BUser) {

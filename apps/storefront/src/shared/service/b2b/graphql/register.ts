@@ -160,6 +160,7 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
     storeLogo
     storeUrl
     multiStorefrontEnabled
+    backorderEnabled
     storeSites{
       channelId
       urls

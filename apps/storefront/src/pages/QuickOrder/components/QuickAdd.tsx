@@ -7,7 +7,7 @@ import { B3ControlTextField } from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -32,7 +32,7 @@ const INITIAL_NUM_ROWS = 3;
 export default function QuickAdd() {
   const b3Lang = useB3Lang();
   const buttonText = b3Lang('purchasedProducts.quickOrderPad.addProductsToCart');
-  const featureFlags = useFeatureFlags();
+  const isBackorderValidationEnabled = useIsBackorderValidationEnabled();
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
   const [numRows, setNumRows] = useState(INITIAL_NUM_ROWS);
@@ -423,7 +423,7 @@ export default function QuickAdd() {
 
         const variantInfoList = await getVariantList(skus);
 
-        if (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend']) {
+        if (isBackorderValidationEnabled) {
           const { productItems, notFoundSkus, warning, error } = await handleBackendValidation(
             variantInfoList,
             skuQuantityMap,

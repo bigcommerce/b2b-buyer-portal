@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
@@ -95,8 +95,7 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const backendValidationEnabled =
-    useFeatureFlags()['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false;
+  const backendValidationEnabled = useIsBackorderValidationEnabled();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);

@@ -3,7 +3,13 @@ import { ReactNode, useContext, useLayoutEffect } from 'react';
 import { Z_INDEX } from '@/constants';
 import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
-import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
+import {
+  getGlobalTranslations,
+  setBackorderEnabled,
+  setStoreInfo,
+  setTimeFormat,
+  useAppDispatch,
+} from '@/store';
 
 import { B3PageMask, usePageMask } from './loading';
 
@@ -44,6 +50,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         if (!storeInfo) return;
 
         storeDispatch(setStoreInfo(storeInfo));
+        storeDispatch(setBackorderEnabled(storeBasicInfo.backorderEnabled ?? false));
 
         const {
           channelId,

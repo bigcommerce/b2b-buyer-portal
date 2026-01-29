@@ -5,7 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
@@ -310,10 +310,7 @@ function QuoteDetail() {
 
   const location = useLocation();
 
-  const featureFlags = useFeatureFlags();
-
-  const isMoveStockAndBackorderValidationToBackend =
-    featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'];
+  const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
 
   const isAutoQuotingEnabled =
     quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';

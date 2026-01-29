@@ -1374,6 +1374,7 @@ describe('Add to quote', () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
+    const backorderEnabled = true;
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -1477,6 +1478,7 @@ describe('Add to quote', () => {
       preloadedState: {
         company: b2bCompanyWithShoppingListPermissions,
         global: buildGlobalStateWith({
+          backorderEnabled,
           featureFlags,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
         }),
@@ -2054,6 +2056,7 @@ describe('when backend validation is enabled', () => {
   const preloadedState = {
     company: b2bCompanyWithShoppingListPermissions,
     global: buildGlobalStateWith({
+      backorderEnabled: true,
       featureFlags: {
         'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
       },
