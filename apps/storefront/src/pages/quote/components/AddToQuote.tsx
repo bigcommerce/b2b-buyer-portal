@@ -182,6 +182,12 @@ export default function AddToQuote(props: AddToListProps) {
         }
       });
 
+      // const { productsSearch } = await searchProducts({
+      //   productIds,
+      //   companyId,
+      //   customerGroupId,
+      // });
+
       // TODO(B2B-123): SearchProducts will only return 50 products at a time.
       const chunkedProductIds = chunkArray(productIds, 50);
       // Search with batches and await all.
@@ -195,9 +201,9 @@ export default function AddToQuote(props: AddToListProps) {
         ),
       );
       const productsSearch = chunkedProductSearches.reduce(
-        (accumulator, current) => accumulator.concat(current.productsSearch as Product[]),
+        (accumulator, current) => accumulator.concat(current.productsSearch),
         [],
-      );
+      ) as Product[];
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
 
