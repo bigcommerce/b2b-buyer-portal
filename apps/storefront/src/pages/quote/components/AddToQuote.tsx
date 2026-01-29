@@ -11,6 +11,7 @@ import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountV
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
+import { chunkArray } from '@/utils/arrayUtils';
 import b2bLogger from '@/utils/b3Logger';
 import { calculateProductListPrice, validProductQty } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
@@ -18,7 +19,7 @@ import { snackbar } from '@/utils/b3Tip';
 
 import QuickAdd from '../../ShoppingListDetails/components/QuickAdd';
 import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
-
+import { Product } from '@/types';
 interface AddToListProps {
   updateList: () => void;
   addToQuote: (products: CustomFieldItems[]) => Promise<boolean>;
@@ -180,11 +181,22 @@ export default function AddToQuote(props: AddToListProps) {
         }
       });
 
-      const { productsSearch } = await searchProducts({
-        productIds,
-        companyId,
-        customerGroupId,
-      });
+      // TODO(B2B-123): SearchProducts will only return 50 products at a time.
+      const chunkedProductIds = chunkArray(productIds, 50);
+      // Search with batches and await all.
+      const chunkedProductSearches = await Promise.all(
+        chunkedProductIds.map((chunk) =>
+          searchProducts({
+            productIds: chunk,
+            companyId,
+            customerGroupId,
+          }),
+        ),
+      );
+      const productsSearch = chunkedProductSearches.reduce(
+        (accumulator, current) => accumulator.concat(current.productsSearch as Product[]),
+        [],
+      );
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
 
