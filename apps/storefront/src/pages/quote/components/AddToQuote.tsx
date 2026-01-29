@@ -11,6 +11,7 @@ import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountV
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
+import { Product } from '@/types';
 import { chunkArray } from '@/utils/arrayUtils';
 import b2bLogger from '@/utils/b3Logger';
 import { calculateProductListPrice, validProductQty } from '@/utils/b3Product/b3Product';
@@ -19,7 +20,7 @@ import { snackbar } from '@/utils/b3Tip';
 
 import QuickAdd from '../../ShoppingListDetails/components/QuickAdd';
 import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
-import { Product } from '@/types';
+
 interface AddToListProps {
   updateList: () => void;
   addToQuote: (products: CustomFieldItems[]) => Promise<boolean>;

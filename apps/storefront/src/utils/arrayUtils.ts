@@ -6,9 +6,9 @@
  * @param chunkSize The size of each chunk.
  * @returns An array of chunks.
  */
-const chunkArray = <T,>(arr: T[], chunkSize: number): T[][] => {
+const chunkArray = <T>(arr: T[], chunkSize: number): T[][] => {
   if (chunkSize <= 0) {
-    throw new Error("chunkSize must be greater than 0");
+    throw new Error('chunkSize must be greater than 0');
   }
 
   const chunkedArray: T[][] = [];
