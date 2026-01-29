@@ -28,7 +28,6 @@ function MessageAlert({
 
         '& .MuiAlert-message': {
           overflow: 'unset',
-          whiteSpace: 'nowrap',
         },
       }}
       variant="filled"
@@ -66,7 +65,6 @@ export default function B3Tip({
               }}
               sx={{
                 top: `${24 + index * 10 + index * (isMobile ? 80 : 90)}px !important`,
-                width: '320px',
                 height: 'auto',
               }}
             >
