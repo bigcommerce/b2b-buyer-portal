@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop, no-restricted-syntax */
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 import { when } from 'vitest-when';
@@ -896,25 +895,28 @@ async function completeRegistration({
   // Step 1: Account type & Contact Info
   await userEvent.click(screen.getByLabelText(accountType));
 
-  for (const [label, value] of Object.entries(contactInfo)) {
+  await Object.entries(contactInfo).reduce(async (promise, [label, value]) => {
+    await promise;
     if (typeof value === 'boolean') {
       if (value) await userEvent.click(screen.getByLabelText(new RegExp(label, 'i')));
     } else {
       await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
     }
-  }
+  }, Promise.resolve());
   await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Step 2: Business Details (B2B only)
   if (businessDetails) {
-    for (const [label, value] of Object.entries(businessDetails)) {
+    await Object.entries(businessDetails).reduce(async (promise, [label, value]) => {
+      await promise;
       await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-    }
+    }, Promise.resolve());
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   }
 
   // Step 2: Address
-  for (const [label, value] of Object.entries(address)) {
+  await Object.entries(address).reduce(async (promise, [label, value]) => {
+    await promise;
     if (label === 'Country') {
       await userEvent.click(screen.getByLabelText(/Country/i));
       await userEvent.click(screen.getByRole('option', { name: value as string }));
@@ -925,13 +927,14 @@ async function completeRegistration({
     } else {
       await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
     }
-  }
+  }, Promise.resolve());
   await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Step 3: Password
-  for (const [label, value] of Object.entries(password)) {
+  await Object.entries(password).reduce(async (promise, [label, value]) => {
+    await promise;
     await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-  }
+  }, Promise.resolve());
   await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
 }
 
@@ -944,7 +947,7 @@ describe('Registered Page', () => {
     vi.mocked(checkUserEmail).mockResolvedValue({ isValid: true });
     vi.mocked(checkUserBCEmail).mockResolvedValue({ isValid: true });
     vi.mocked(createBCCompanyUser).mockResolvedValue({
-      customerCreate: { customer: { id: 1 } },
+      customerCreate: { customer: { id: 1, email: 'john.doe@example.com' } },
     });
     vi.mocked(validateAddressExtraFields).mockResolvedValue({ code: 200 });
     vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
@@ -1092,5 +1095,31 @@ describe('Registered Page', () => {
         expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/login/i));
       });
     });
+  });
+
+  it('passes customerEmail from createBCCompanyUser response to createB2BCompanyUser', async () => {
+    renderWithProviders(
+      <RegisteredProvider>
+        <Registered setOpenPage={vi.fn()} />
+      </RegisteredProvider>,
+      {
+        preloadedState: {},
+        initialGlobalContext: { storeName: 'My Store' },
+      },
+    );
+
+    await completeRegistration(mockRegistrationData.b2b);
+
+    await waitFor(() => {
+      expect(createB2BCompanyUser).toHaveBeenCalled();
+    });
+
+    const callArgs = vi.mocked(createB2BCompanyUser).mock.calls[0][0];
+    expect(callArgs).toEqual(
+      expect.objectContaining({
+        customerId: 1,
+        customerEmail: 'john.doe@example.com',
+      }),
+    );
   });
 });

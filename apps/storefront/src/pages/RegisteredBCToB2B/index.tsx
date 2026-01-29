@@ -332,12 +332,14 @@ function RegisteredBCToB2B(props: PageProps) {
   const getB2BFieldsValue = async (
     data: CustomFieldItems,
     customerId: number | string,
+    customerEmail: string,
     fileList: any,
     companyUserExtraFields: CustomFieldItems[],
   ) => {
     const b2bFields: CustomFieldItems = {};
 
     b2bFields.customerId = customerId || '';
+    b2bFields.customerEmail = customerEmail || '';
     b2bFields.storeHash = storeHash;
     b2bFields.userExtraFields = companyUserExtraFields;
     const companyInfo = bcTob2bCompanyInformation.filter(
@@ -567,7 +569,7 @@ function RegisteredBCToB2B(props: PageProps) {
           (list) => list.fieldType === 'files',
         );
         const fileList = await getFileUrl(attachmentsList || [], data);
-        await getB2BFieldsValue(data, customerId, fileList, companyUserExtraFields);
+        await getB2BFieldsValue(data, customerId, emailAddress, fileList, companyUserExtraFields);
 
         const isAuto = companyAutoApproval.enabled;
 
