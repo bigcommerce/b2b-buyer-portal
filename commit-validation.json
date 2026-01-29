@@ -19,6 +19,7 @@
     "invoices",
     "invoice-payment",
     "register",
-    "login"
+    "login",
+    "translation"
   ]
 }

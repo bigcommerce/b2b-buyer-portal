@@ -22,6 +22,7 @@ import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
 
+import setDayjsLocale from './components/ui/setDayjsLocale';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
@@ -44,7 +45,7 @@ const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700
 export default function App() {
   const showPageMask = usePageMask();
   const {
-    state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled },
+    state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled, bcLanguage },
     dispatch,
   } = useContext(GlobalContext);
 
@@ -66,6 +67,10 @@ export default function App() {
   const authorizedPages = useMemo(() => {
     return isB2BUser ? b2bJumpPath(role) : PATH_ROUTES.ORDERS;
   }, [role, isB2BUser]);
+
+  useEffect(() => {
+    setDayjsLocale(bcLanguage || 'en');
+  }, [bcLanguage]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(true);

@@ -19,4 +19,9 @@ const setDayjsLocale = (localeKey: string) => {
   return activeLang;
 };
 
+export const getDayjsLocale = () => {
+  const locale = dayjs.locale();
+  return SUPPORT_LANGUAGE.find((item) => locale.includes(item)) || 'en';
+};
+
 export default setDayjsLocale;

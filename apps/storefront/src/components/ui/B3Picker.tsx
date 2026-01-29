@@ -1,13 +1,11 @@
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { GlobalContext } from '@/shared/global';
-
-import setDayjsLocale from './setDayjsLocale';
+import { getDayjsLocale } from './setDayjsLocale';
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
@@ -31,11 +29,7 @@ export function B3Picker({
   const pickerRef = useRef<HTMLInputElement | null>(null);
   const container = useRef<HTMLInputElement | null>(null);
 
-  const {
-    state: { bcLanguage },
-  } = useContext(GlobalContext);
-
-  const activeLang = setDayjsLocale(bcLanguage || 'en');
+  const activeLang = getDayjsLocale() || 'en';
 
   const [open, setOpen] = useState(false);
   const openPickerClick = () => {
