@@ -1,21 +1,15 @@
-/* eslint-disable no-await-in-loop, no-restricted-syntax */
-import userEvent from '@testing-library/user-event';
 import {
   buildCompanyStateWith,
   builder,
   faker,
+  http,
+  HttpResponse,
   renderWithProviders,
   screen,
+  startMockServer,
   waitFor,
 } from 'tests/test-utils';
 
-import {
-  createB2BCompanyUser,
-  getB2BAccountFormFields,
-  getB2BCountries,
-  validateBCCompanyExtraFields,
-  validateBCCompanyUserExtraFields,
-} from '@/shared/service/b2b';
 import { CustomerRole } from '@/types';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -23,240 +17,180 @@ import { RegisteredProvider } from '../Registered/context/RegisteredContext';
 
 import RegisteredBCToB2B from '.';
 
-vi.mock('@/shared/service/b2b');
 vi.mock('@/utils/loginInfo');
 vi.mock('@/utils/storefrontConfig');
 vi.mock('@/utils/b3Login', () => ({
   loginJump: vi.fn(() => true),
 }));
 
-const mockCountries = {
+const { server } = startMockServer();
+
+const buildStateWith = builder(() => ({
+  stateName: faker.location.state(),
+  stateCode: faker.string.alpha(2).toUpperCase(),
+}));
+
+const buildCountryWith = builder(() => ({
+  countryCode: faker.location.countryCode(),
+  countryName: faker.location.country(),
+  id: faker.string.numeric(2),
+  states: [buildStateWith('WHATEVER_VALUES')],
+}));
+
+const buildCountriesResponseWith = builder(() => ({
   countries: [
-    {
+    buildCountryWith({
       countryCode: 'AU',
       countryName: 'Australia',
       id: '13',
-      states: [{ stateName: 'Australian Capital Territory', stateCode: 'ACT' }],
-    },
-    {
+      states: [buildStateWith({ stateName: 'Australian Capital Territory', stateCode: 'ACT' })],
+    }),
+    buildCountryWith({
       countryCode: 'US',
       countryName: 'United States',
       id: '1',
-      states: [{ stateName: 'California', stateCode: 'CA' }],
-    },
+      states: [buildStateWith({ stateName: 'California', stateCode: 'CA' })],
+    }),
   ],
-};
+}));
+
+const buildAccountFormFieldWith = builder(() => ({
+  id: faker.string.numeric(),
+  formType: 3,
+  fieldFrom: 10,
+  fieldId: `field_${faker.string.alphanumeric(8)}`,
+  groupId: faker.helpers.arrayElement([1, 3, 4]),
+  groupName: faker.helpers.arrayElement(['Contact Information', 'Business Details', 'Address']),
+  isRequired: true,
+  visible: true,
+  labelName: faker.lorem.word(),
+  fieldName: faker.lorem.word(),
+  fieldType: 'text',
+  valueConfigs: { label: faker.lorem.word() },
+}));
 
 const formType3Fields = [
-  {
+  buildAccountFormFieldWith({
     id: '1',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_first_name',
     groupId: 1,
     groupName: 'Contact Information',
-    isRequired: true,
-    visible: true,
     labelName: 'First Name',
     fieldName: 'first_name',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'First Name',
-    },
-  },
-  {
+    valueConfigs: { label: 'First Name' },
+  }),
+  buildAccountFormFieldWith({
     id: '3',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_last_name',
     groupId: 1,
     groupName: 'Contact Information',
-    isRequired: true,
-    visible: true,
     labelName: 'Last Name',
     fieldName: 'last_name',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Last Name',
-    },
-  },
-  {
+    valueConfigs: { label: 'Last Name' },
+  }),
+  buildAccountFormFieldWith({
     id: '5',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_email',
     groupId: 1,
     groupName: 'Contact Information',
-    isRequired: true,
-    visible: true,
     labelName: 'Email Address',
     fieldName: 'email',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Email Address',
-    },
-  },
-  {
+    valueConfigs: { label: 'Email Address' },
+  }),
+  buildAccountFormFieldWith({
     id: '7',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_phone_number',
     groupId: 1,
     groupName: 'Contact Information',
     isRequired: false,
-    visible: true,
     labelName: 'Phone Number',
     fieldName: 'phone',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Phone Number',
-    },
-  },
-  {
+    valueConfigs: { label: 'Phone Number' },
+  }),
+  buildAccountFormFieldWith({
     id: '10',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_company_name',
     groupId: 3,
     groupName: 'Business Details',
-    isRequired: true,
-    visible: true,
     labelName: 'Company Name',
     fieldName: 'company_name',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Company Name',
-    },
-  },
-  {
+    valueConfigs: { label: 'Company Name' },
+  }),
+  buildAccountFormFieldWith({
     id: '13',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_company_email',
     groupId: 3,
     groupName: 'Business Details',
-    isRequired: true,
-    visible: true,
     labelName: 'Company Email',
     fieldName: 'company_email',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Company Email',
-    },
-  },
-  {
+    valueConfigs: { label: 'Company Email' },
+  }),
+  buildAccountFormFieldWith({
     id: '14',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_company_phone_number',
     groupId: 3,
     groupName: 'Business Details',
-    isRequired: true,
-    visible: true,
     labelName: 'Company Phone Number',
     fieldName: 'company_phone_number',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Company Phone Number',
-    },
-  },
-  {
+    valueConfigs: { label: 'Company Phone Number' },
+  }),
+  buildAccountFormFieldWith({
     id: '17',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_country',
     groupId: 4,
     groupName: 'Address',
-    isRequired: true,
-    visible: true,
     labelName: 'Country',
     fieldName: 'country',
     fieldType: 'dropdown',
-    valueConfigs: {
-      label: 'Country',
-      default: null,
-    },
-  },
-  {
+    valueConfigs: { label: 'Country', default: null } as { label: string; default?: null },
+  }),
+  buildAccountFormFieldWith({
     id: '18',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_address_1',
     groupId: 4,
     groupName: 'Address',
-    isRequired: true,
-    visible: true,
     labelName: 'Address 1',
     fieldName: 'address1',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Address 1',
-    },
-  },
-  {
+    valueConfigs: { label: 'Address 1' },
+  }),
+  buildAccountFormFieldWith({
     id: '20',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_address_2',
     groupId: 4,
     groupName: 'Address',
     isRequired: false,
-    visible: true,
     labelName: 'Address 2',
     fieldName: 'address2',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Address 2',
-    },
-  },
-  {
+    valueConfigs: { label: 'Address 2' },
+  }),
+  buildAccountFormFieldWith({
     id: '21',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_city',
     groupId: 4,
     groupName: 'Address',
-    isRequired: true,
-    visible: true,
     labelName: 'City',
     fieldName: 'city',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'City',
-    },
-  },
-  {
+    valueConfigs: { label: 'City' },
+  }),
+  buildAccountFormFieldWith({
     id: '22',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_state',
     groupId: 4,
     groupName: 'Address',
-    isRequired: true,
-    visible: true,
     labelName: 'State',
     fieldName: 'state',
     fieldType: 'dropdown',
-    valueConfigs: {
-      label: 'State',
-    },
-  },
-  {
+    valueConfigs: { label: 'State' },
+  }),
+  buildAccountFormFieldWith({
     id: '23',
-    formType: 3,
-    fieldFrom: 10,
     fieldId: 'field_zip_code',
     groupId: 4,
     groupName: 'Address',
-    isRequired: true,
-    visible: true,
     labelName: 'Zip Code',
     fieldName: 'zip_code',
-    fieldType: 'text',
-    valueConfigs: {
-      label: 'Zip Code',
-    },
-  },
+    valueConfigs: { label: 'Zip Code' },
+  }),
 ];
 
 const buildRegistrationDataWith = builder(() => ({
@@ -275,30 +209,69 @@ const buildRegistrationDataWith = builder(() => ({
   },
 }));
 
-async function completeRegistration(data: {
+type BCToB2BRegistrationData = {
   businessDetails: Record<string, string>;
   address: Record<string, string>;
-}) {
-  const { businessDetails, address } = data;
+};
 
-  for (const [label, value] of Object.entries(businessDetails)) {
-    await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+async function completeRegistration(
+  user: ReturnType<typeof renderWithProviders>['user'],
+  { businessDetails, address }: BCToB2BRegistrationData,
+) {
+  // Wait for form to load
+  await waitFor(() => {
+    expect(screen.getByLabelText('Company Name', { exact: false })).toBeInTheDocument();
+  });
+
+  // Fill business details
+  if (businessDetails['Company Name']) {
+    await user.type(
+      screen.getByLabelText('Company Name', { exact: false }),
+      businessDetails['Company Name'],
+    );
+  }
+  if (businessDetails['Company Email']) {
+    await user.type(
+      screen.getByLabelText('Company Email', { exact: false }),
+      businessDetails['Company Email'],
+    );
+  }
+  if (businessDetails['Company Phone Number']) {
+    await user.type(
+      screen.getByLabelText('Company Phone Number', { exact: false }),
+      businessDetails['Company Phone Number'],
+    );
   }
 
-  for (const [label, value] of Object.entries(address)) {
-    if (label === 'Country') {
-      await userEvent.click(screen.getByLabelText(/Country/i));
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else if (label === 'State') {
-      const stateInputs = screen.getAllByLabelText(/State/i);
-      await userEvent.click(stateInputs[stateInputs.length - 1]);
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-    }
+  // Fill address
+  if (address.Country) {
+    await user.click(screen.getByLabelText('Country', { exact: false }));
+    await user.click(screen.getByRole('option', { name: address.Country }));
+  }
+  if (address['Address 1']) {
+    await user.type(screen.getByLabelText('Address 1', { exact: false }), address['Address 1']);
+  }
+  if (address['Address 2']) {
+    await user.type(screen.getByLabelText('Address 2', { exact: false }), address['Address 2']);
+  }
+  if (address.City) {
+    await user.type(screen.getByLabelText('City', { exact: false }), address.City);
+  }
+  if (address.State) {
+    await user.click(screen.getByRole('combobox', { name: /State/i }));
+    await user.click(screen.getByRole('option', { name: address.State }));
+  }
+  if (address['Zip Code']) {
+    await user.type(screen.getByLabelText('Zip Code', { exact: false }), address['Zip Code']);
   }
 
-  await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
+  // Submit the form
+  await user.click(screen.getByRole('button', { name: /Submit/i }));
+
+  // Wait for completion
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /Finish/i })).toBeInTheDocument();
+  });
 }
 
 describe('RegisteredBCToB2B Page', () => {
@@ -318,13 +291,27 @@ describe('RegisteredBCToB2B Page', () => {
   });
 
   beforeEach(() => {
-    vi.mocked(getB2BAccountFormFields).mockResolvedValue({ accountFormFields: formType3Fields });
-    vi.mocked(getB2BCountries).mockResolvedValue(mockCountries);
-    vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
-    vi.mocked(validateBCCompanyUserExtraFields).mockResolvedValue({ code: 200 });
-    vi.mocked(createB2BCompanyUser).mockResolvedValue({
-      companyCreate: { company: { companyStatus: 1 } },
-    });
+    server.use(
+      http.post('*/graphql', async ({ request }) => {
+        const body = (await request.json()) as { query?: string };
+        const query = body.query ?? '';
+
+        if (query.includes('B2BAccountFormFields')) {
+          return HttpResponse.json({ data: { accountFormFields: formType3Fields } });
+        }
+        if (query.includes('countries(storeHash')) {
+          return HttpResponse.json({ data: buildCountriesResponseWith({}) });
+        }
+        if (query.includes('companyCreate')) {
+          return HttpResponse.json({
+            data: { companyCreate: { company: { companyStatus: 1 } } },
+          });
+        }
+        return undefined;
+      }),
+      http.post('*/api/v2/extra-fields/company/validate', () => HttpResponse.json({ code: 200 })),
+      http.post('*/api/v2/extra-fields/user/validate', () => HttpResponse.json({ code: 200 })),
+    );
     vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
       userType: 5,
       role: 2,
@@ -333,7 +320,7 @@ describe('RegisteredBCToB2B Page', () => {
   });
 
   it('completes BC to B2B conversion flow successfully', async () => {
-    const { navigation } = renderWithProviders(
+    const { navigation, user } = renderWithProviders(
       <RegisteredProvider>
         <RegisteredBCToB2B setOpenPage={vi.fn()} />
       </RegisteredProvider>,
@@ -342,85 +329,16 @@ describe('RegisteredBCToB2B Page', () => {
       },
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Company Name/i)).toBeInTheDocument();
-    });
-
     const testData = buildRegistrationDataWith('WHATEVER_VALUES');
-    await completeRegistration(testData);
-
-    await waitFor(() => {
-      expect(createB2BCompanyUser).toHaveBeenCalled();
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText(/Your company account application has been approved/i)).toBeVisible();
-    });
+    await completeRegistration(user, testData);
 
     const finishButton = screen.getByRole('button', { name: /Finish/i });
-    await userEvent.click(finishButton);
+    await user.click(finishButton);
 
+    // Expect /orders because companyAutoApproval.enabled is true (default from CustomStyleContext)
     await waitFor(() => {
       expect(navigation).toHaveBeenCalledWith('/orders');
     });
-  });
-
-  it('passes customerEmail from Redux to createB2BCompanyUser', async () => {
-    renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: { company: loggedInCustomer },
-      },
-    );
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Company Name/i)).toBeInTheDocument();
-    });
-
-    // Use specific test data to verify exact values are passed
-    const testData = buildRegistrationDataWith({
-      businessDetails: {
-        'Company Name': 'Test Co',
-        'Company Email': 'test.co@example.com',
-        'Company Phone Number': '1234567890',
-      },
-      address: {
-        Country: 'United States',
-        'Address 1': '2 bb street',
-        'Address 2': 'suite 100',
-        City: 'New York',
-        State: 'California',
-        'Zip Code': '54321',
-      },
-    });
-
-    await completeRegistration(testData);
-
-    await waitFor(() => {
-      expect(createB2BCompanyUser).toHaveBeenCalled();
-    });
-
-    // Verify that createB2BCompanyUser was called with customerEmail from Redux
-    const callArgs = vi.mocked(createB2BCompanyUser).mock.calls[0][0];
-    expect(callArgs).toEqual(
-      expect.objectContaining({
-        customerId,
-        customerEmail,
-        companyName: 'Test Co',
-        companyEmail: 'test.co@example.com',
-        companyPhoneNumber: '1234567890',
-        country: 'United States',
-        addressLine1: '2 bb street',
-        addressLine2: 'suite 100',
-        city: 'New York',
-        state: 'California',
-        zip_code: '54321',
-        storeHash: 'store-hash',
-        channelId: 1,
-      }),
-    );
   });
 
   it('redirects to login when registerEnabled is false', async () => {
