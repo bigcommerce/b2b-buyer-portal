@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop, no-restricted-syntax */
-import userEvent from '@testing-library/user-event';
 import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
@@ -886,53 +884,128 @@ type RegistrationData = {
   password: Record<string, string>;
 };
 
-async function completeRegistration({
-  accountType,
-  contactInfo,
-  businessDetails,
-  address,
-  password,
-}: RegistrationData) {
-  // Step 1: Account type & Contact Info
-  await userEvent.click(screen.getByLabelText(accountType));
+async function completeRegistration(
+  user: ReturnType<typeof renderWithProviders>['user'],
+  { accountType, contactInfo, businessDetails, address, password }: RegistrationData,
+) {
+  // Step 1: Account type selection
+  await user.click(screen.getByLabelText(accountType));
 
-  for (const [label, value] of Object.entries(contactInfo)) {
-    if (typeof value === 'boolean') {
-      if (value) await userEvent.click(screen.getByLabelText(new RegExp(label, 'i')));
-    } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-    }
+  // Step 1: Contact Information
+  if (contactInfo['First Name']) {
+    await user.type(screen.getByLabelText(/First Name/i), contactInfo['First Name'] as string);
   }
-  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  if (contactInfo['Last Name']) {
+    await user.type(screen.getByLabelText(/Last Name/i), contactInfo['Last Name'] as string);
+  }
+  if (contactInfo['Email Address']) {
+    await user.type(
+      screen.getByLabelText(/Email Address/i),
+      contactInfo['Email Address'] as string,
+    );
+  }
+  if (contactInfo['Company Name']) {
+    await user.type(screen.getByLabelText(/Company Name/i), contactInfo['Company Name'] as string);
+  }
+  if (contactInfo['Phone Number']) {
+    await user.type(screen.getByLabelText(/Phone Number/i), contactInfo['Phone Number'] as string);
+  }
+  if (contactInfo['Email me special promotions and updates']) {
+    await user.click(screen.getByLabelText(/Email me special promotions and updates/i));
+  }
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Step 2: Business Details (B2B only)
   if (businessDetails) {
-    for (const [label, value] of Object.entries(businessDetails)) {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+    if (businessDetails['Company Name']) {
+      await user.type(
+        screen.getByLabelText(/Company Name/i),
+        businessDetails['Company Name'] as string,
+      );
     }
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    if (businessDetails['Company Email']) {
+      await user.type(
+        screen.getByLabelText(/Company Email/i),
+        businessDetails['Company Email'] as string,
+      );
+    }
+    if (businessDetails['Company Phone Number']) {
+      await user.type(
+        screen.getByLabelText(/Company Phone Number/i),
+        businessDetails['Company Phone Number'] as string,
+      );
+    }
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
   }
 
-  // Step 2: Address
-  for (const [label, value] of Object.entries(address)) {
-    if (label === 'Country') {
-      await userEvent.click(screen.getByLabelText(/Country/i));
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else if (label === 'State/Province' || label === 'State') {
-      const stateInputs = screen.getAllByLabelText(/State/i);
-      await userEvent.click(stateInputs[stateInputs.length - 1]);
-      await userEvent.click(screen.getByRole('option', { name: value as string }));
-    } else {
-      await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
-    }
+  // Step 3: Address
+  if (address['First Name']) {
+    await user.type(screen.getByLabelText(/First Name/i), address['First Name'] as string);
   }
-  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  if (address['Last Name']) {
+    await user.type(screen.getByLabelText(/Last Name/i), address['Last Name'] as string);
+  }
+  if (address['Company Name']) {
+    await user.type(screen.getByLabelText(/Company Name/i), address['Company Name'] as string);
+  }
+  if (address['Phone Number']) {
+    await user.type(screen.getByLabelText(/Phone Number/i), address['Phone Number'] as string);
+  }
+  if (address['Address Line 1'] || address['Address 1']) {
+    await user.type(
+      screen.getByLabelText(/Address Line 1|Address 1/i),
+      (address['Address Line 1'] || address['Address 1']) as string,
+    );
+  }
+  if (address['Address Line 2'] || address['Address 2']) {
+    await user.type(
+      screen.getByLabelText(/Address Line 2|Address 2/i),
+      (address['Address Line 2'] || address['Address 2']) as string,
+    );
+  }
+  if (address['Suburb/City'] || address.City) {
+    await user.type(
+      screen.getByLabelText(/Suburb\/City|City/i),
+      (address['Suburb/City'] || address.City) as string,
+    );
+  }
+  if (address.Country) {
+    await user.click(screen.getByLabelText(/Country/i));
+    await user.click(screen.getByRole('option', { name: address.Country as string }));
+  }
+  if (address['State/Province'] || address.State) {
+    await user.click(screen.getByRole('combobox', { name: /State/i }));
+    await user.click(
+      screen.getByRole('option', {
+        name: (address['State/Province'] || address.State) as string,
+      }),
+    );
+  }
+  if (address['Zip/Postcode'] || address['Zip Code']) {
+    await user.type(
+      screen.getByLabelText(/Zip\/Postcode|Zip Code/i),
+      (address['Zip/Postcode'] || address['Zip Code']) as string,
+    );
+  }
+  if (address.ceid) {
+    await user.type(screen.getByLabelText(/ceid/i), address.ceid as string);
+  }
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-  // Step 3: Password
-  for (const [label, value] of Object.entries(password)) {
-    await userEvent.type(screen.getByLabelText(new RegExp(label, 'i')), value as string);
+  // Step 4: Password
+  if (password['Create Password']) {
+    await user.type(
+      screen.getByLabelText(/Create Password/i),
+      password['Create Password'] as string,
+    );
   }
-  await userEvent.click(screen.getByRole('button', { name: /Register|Submit/i }));
+  if (password['Confirm Password']) {
+    await user.type(
+      screen.getByLabelText(/Confirm Password/i),
+      password['Confirm Password'] as string,
+    );
+  }
+  await user.click(screen.getByRole('button', { name: /Submit/i }));
 }
 
 describe('Registered Page', () => {
@@ -944,7 +1017,7 @@ describe('Registered Page', () => {
     vi.mocked(checkUserEmail).mockResolvedValue({ isValid: true });
     vi.mocked(checkUserBCEmail).mockResolvedValue({ isValid: true });
     vi.mocked(createBCCompanyUser).mockResolvedValue({
-      customerCreate: { customer: { id: 1 } },
+      customerCreate: { customer: { id: 1, email: 'john.doe@example.com' } },
     });
     vi.mocked(validateAddressExtraFields).mockResolvedValue({ code: 200 });
     vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
@@ -961,25 +1034,26 @@ describe('Registered Page', () => {
   });
 
   it('renders and completes personal (B2C) registration flow', async () => {
-    const { navigation } = renderWithProviders(
+    const { navigation, user } = renderWithProviders(
       <RegisteredProvider>
         <Registered setOpenPage={vi.fn()} />
       </RegisteredProvider>,
     );
 
-    await completeRegistration({ ...mockRegistrationData.b2c, businessDetails: undefined });
+    await completeRegistration(user, { ...mockRegistrationData.b2c, businessDetails: undefined });
 
     expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType1, '');
     expect(screen.getByRole('heading', { name: 'Registration complete!' })).toBeVisible();
     expect(screen.getByText('Thank you for creating your account at')).toBeVisible();
-    await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+    await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+    // Expect /orders because companyAutoApproval.enabled is true (default from CustomStyleContext)
     await waitFor(() => {
       expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/\/orders/i));
     });
   });
 
   it('renders and completes Business (B2B) registration flow with auto approval', async () => {
-    const { navigation } = renderWithProviders(
+    const { navigation, user } = renderWithProviders(
       <RegisteredProvider>
         <Registered setOpenPage={vi.fn()} />
       </RegisteredProvider>,
@@ -989,7 +1063,7 @@ describe('Registered Page', () => {
       },
     );
 
-    await completeRegistration(mockRegistrationData.b2b);
+    await completeRegistration(user, mockRegistrationData.b2b);
 
     expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
     expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
@@ -998,7 +1072,8 @@ describe('Registered Page', () => {
         'Thank you for creating your account at My Store. Your company account application has been approved',
       ),
     ).toBeVisible();
-    await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+    await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+    // Expect /orders because companyAutoApproval.enabled is true (default from CustomStyleContext)
     await waitFor(() => {
       expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/\/orders/i));
     });
@@ -1014,13 +1089,13 @@ describe('Registered Page', () => {
         companyCreate: { company: { companyStatus: 0 } },
       });
 
-      const { navigation } = renderWithProviders(
+      const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
       );
 
-      await completeRegistration(mockRegistrationData.b2b);
+      await completeRegistration(user, mockRegistrationData.b2b);
 
       expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
       expect(
@@ -1028,7 +1103,7 @@ describe('Registered Page', () => {
           'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
         ),
       ).toBeVisible();
-      await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+      await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
       await waitFor(() => {
         expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/login/i));
       });
@@ -1043,13 +1118,13 @@ describe('Registered Page', () => {
         companyCreate: { company: { companyStatus: 0 } },
       });
 
-      const { navigation } = renderWithProviders(
+      const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
       );
 
-      await completeRegistration(mockRegistrationData.b2b);
+      await completeRegistration(user, mockRegistrationData.b2b);
 
       expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
       expect(
@@ -1057,7 +1132,7 @@ describe('Registered Page', () => {
           'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.',
         ),
       ).toBeVisible();
-      await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+      await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
       await waitFor(() => {
         expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/login/i));
       });
@@ -1071,13 +1146,13 @@ describe('Registered Page', () => {
       vi.mocked(createB2BCompanyUser).mockResolvedValue({
         companyCreate: { company: { companyStatus: 0 } },
       });
-      const { navigation } = renderWithProviders(
+      const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
       );
 
-      await completeRegistration(mockRegistrationData.b2b);
+      await completeRegistration(user, mockRegistrationData.b2b);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
@@ -1087,10 +1162,33 @@ describe('Registered Page', () => {
           'Your business account is pending approval. You will gain access to business account features after account approval.',
         ),
       ).toBeVisible();
-      await userEvent.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+      await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
       await waitFor(() => {
         expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/login/i));
       });
+    });
+  });
+
+  it('passes customerEmail from createBCCompanyUser response to createB2BCompanyUser', async () => {
+    const { user } = renderWithProviders(
+      <RegisteredProvider>
+        <Registered setOpenPage={vi.fn()} />
+      </RegisteredProvider>,
+      {
+        preloadedState: {},
+        initialGlobalContext: { storeName: 'My Store' },
+      },
+    );
+
+    await completeRegistration(user, mockRegistrationData.b2b);
+
+    await waitFor(() => {
+      expect(createB2BCompanyUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerId: 1,
+          customerEmail: 'john.doe@example.com',
+        }),
+      );
     });
   });
 });
