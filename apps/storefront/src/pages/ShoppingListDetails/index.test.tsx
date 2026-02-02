@@ -19,10 +19,7 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import {
-  SearchProductsResponse,
-  ValidateProductResponse,
-} from '@/shared/service/b2b/graphql/product';
+import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { GetCart } from '@/shared/service/bc/graphql/cart';
 import { CompanyStatus, CustomerRole, ShoppingListStatus, UserTypes } from '@/types';
@@ -153,8 +150,6 @@ type SearchB2BProduct = SearchProductsResponse['data']['productsSearch'][number]
 type SearchB2BProductV3Option = SearchB2BProduct['optionsV3'][number];
 type SearchB2BProductV3OptionValue = SearchB2BProductV3Option['option_values'][number];
 type SearchB2BProductVariants = SearchB2BProduct['variants'][number];
-
-type ValidateProduct = ValidateProductResponse['data']['validateProduct'];
 
 const buildSearchB2BProductV3OptionValueWith = builder<SearchB2BProductV3OptionValue>(() => ({
   id: faker.number.int(),
@@ -369,27 +364,6 @@ const buildProductUploadResponseWith = builder(() => ({
     },
   },
 }));
-
-const buildValidateProductWith = builder<ValidateProduct>(() =>
-  faker.helpers.arrayElement([
-    {
-      responseType: 'SUCCESS',
-      message: faker.lorem.sentence(),
-    },
-    {
-      responseType: 'WARNING',
-      message: faker.lorem.sentence(),
-    },
-    {
-      responseType: 'ERROR',
-      message: faker.lorem.sentence(),
-      errorCode: faker.helpers.arrayElement(['NON_PURCHASABLE', 'OOS', 'INVALID_FIELDS', 'OTHER']),
-      product: {
-        availableToSell: faker.number.int(),
-      },
-    },
-  ]),
-);
 
 it('displays a summary of products within the shopping list', async () => {
   vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -1436,21 +1410,25 @@ describe('Add to quote', () => {
       ],
     });
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: 73737,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: 4,
-          productOptions: [
-            { optionId: 1, optionValue: 'red' },
-            { optionId: 2, optionValue: 'large' },
-          ],
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: 73737,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: 4,
+            productOptions: [
+              { optionId: 1, optionValue: 'red' },
+              { optionId: 2, optionValue: 'large' },
+            ],
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+          validateProducts: {
+            products: [{ responseType: 'SUCCESS', message: '' }],
+          },
         },
       });
 
@@ -1469,8 +1447,8 @@ describe('Add to quote', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -1572,26 +1550,31 @@ describe('Add to quote', () => {
       ],
     });
 
-    const validateProduct = vi.fn();
-    when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: 73737,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: 4,
-          productOptions: expect.any(Array),
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: 73737,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: 4,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: buildValidateProductWith({
-            responseType: 'ERROR',
-            message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
-            errorCode: 'OTHER',
-            product: {
-              availableToSell: 0,
-            },
-          }),
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
+                errorCode: 'OTHER',
+                product: {
+                  availableToSell: 0,
+                },
+              },
+            ],
+          },
         },
       });
 
@@ -1610,8 +1593,8 @@ describe('Add to quote', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -1704,26 +1687,31 @@ describe('Add to quote', () => {
       ],
     });
 
-    const validateProduct = vi.fn();
-    when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: 73737,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: 4,
-          productOptions: expect.any(Array),
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: 73737,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: 4,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: buildValidateProductWith({
-            responseType: 'ERROR',
-            message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
-            errorCode: 'OTHER',
-            product: {
-              availableToSell: 0,
-            },
-          }),
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
+                errorCode: 'OTHER',
+                product: {
+                  availableToSell: 0,
+                },
+              },
+            ],
+          },
         },
       });
 
@@ -1742,8 +1730,8 @@ describe('Add to quote', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2065,7 +2053,6 @@ describe('when backend validation is enabled', () => {
 
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2109,21 +2096,28 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: lovelySocksProductEdge.node.productId,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: lovelySocksProductEdge.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2137,9 +2131,14 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
+      ),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2167,7 +2166,6 @@ describe('when backend validation is enabled', () => {
 
   it('respects unlimited backorder stock', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2205,21 +2203,28 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: lovelySocksProductEdge.node.productId,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: lovelySocksProductEdge.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Failed validation',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Failed validation',
+                errorCode: 'OTHER',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2244,9 +2249,14 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
+      ),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2278,7 +2288,6 @@ describe('when backend validation is enabled', () => {
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2322,21 +2331,28 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: lovelySocksProductEdge.node.productId,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: lovelySocksProductEdge.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Min quantity not reached',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Min quantity not reached',
+                errorCode: 'OTHER',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2350,9 +2366,14 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
+      ),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2380,7 +2401,6 @@ describe('when backend validation is enabled', () => {
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2425,21 +2445,28 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: lovelySocksProductEdge.node.productId,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: lovelySocksProductEdge.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Max quantity exceeded',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Max quantity exceeded',
+                errorCode: 'OTHER',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2453,9 +2480,14 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
+      ),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2526,21 +2558,28 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: lovelySocksProductEdge.node.productId,
+            variantId: lovelySocksProductEdge.node.variantId,
+            quantity: lovelySocksProductEdge.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Lovely socks, out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Lovely socks, out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2555,10 +2594,13 @@ describe('when backend validation is enabled', () => {
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
       graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2670,21 +2712,28 @@ describe('when backend validation is enabled', () => {
       })
       .thenReturn(HttpResponse.json({ data: { cart: { addCartLineItems: { cart } } } }));
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: outOfStockProduct.node.productId,
-          variantId: outOfStockProduct.node.variantId,
-          quantity: outOfStockProduct.node.quantity,
-        }),
-      )
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: outOfStockProduct.node.productId,
+            variantId: outOfStockProduct.node.variantId,
+            quantity: outOfStockProduct.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+              },
+            ],
           },
         },
       });
@@ -2701,8 +2750,8 @@ describe('when backend validation is enabled', () => {
       graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
         addCartLineItemsMutation(variables),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2860,29 +2909,38 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'ERROR',
-          message: 'Out of stock',
-          errorCode: 'OOS',
-          product: { availableToSell: 0 },
-        },
-      },
-    });
-
-    when(validateProductMock)
+    const validateProducts = when(vi.fn())
       .calledWith({
-        productId: validProduct.node.productId,
-        variantId: validProduct.node.variantId,
-        quantity: validProduct.node.quantity,
-        productOptions: [{ optionId: 101, optionValue: 'Red' }],
+        products: [
+          {
+            productId: validProduct.node.productId,
+            variantId: validProduct.node.variantId,
+            quantity: validProduct.node.quantity,
+            productOptions: [{ optionId: 101, optionValue: 'Red' }],
+          },
+          {
+            productId: invalidProduct.node.productId,
+            variantId: invalidProduct.node.variantId,
+            quantity: invalidProduct.node.quantity,
+            productOptions: [{ optionId: 202, optionValue: 'Large' }],
+          },
+        ],
       })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'SUCCESS',
-            message: '',
+          validateProducts: {
+            products: [
+              {
+                responseType: 'SUCCESS',
+                message: '',
+              },
+              {
+                responseType: 'ERROR',
+                message: 'Out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: 0 },
+              },
+            ],
           },
         },
       });
@@ -2910,8 +2968,8 @@ describe('when backend validation is enabled', () => {
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
       graphql.mutation('createCartSimple', ({ variables }) => createCartMock(variables)),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -2930,7 +2988,6 @@ describe('when backend validation is enabled', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
 
     expect(createCartMock).toHaveBeenCalledTimes(2);
-    expect(validateProductMock).toHaveBeenCalledTimes(2);
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
@@ -2990,16 +3047,43 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'ERROR',
-          message: 'Out of stock',
-          errorCode: 'OOS',
-          product: { availableToSell: 0 },
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: product1.node.productId,
+            variantId: product1.node.variantId,
+            quantity: product1.node.quantity,
+            productOptions: expect.any(Array),
+          },
+          {
+            productId: product2.node.productId,
+            variantId: product2.node.variantId,
+            quantity: product2.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
+      .thenReturn({
+        data: {
+          validateProducts: {
+            products: [
+              {
+                responseType: 'ERROR',
+                message: 'Out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: 0 },
+              },
+              {
+                responseType: 'ERROR',
+                message: 'Out of stock',
+                errorCode: 'OOS',
+                product: { availableToSell: 0 },
+              },
+            ],
+          },
         },
-      },
-    });
+      });
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
@@ -3008,10 +3092,13 @@ describe('when backend validation is enabled', () => {
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
       graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -3028,8 +3115,6 @@ describe('when backend validation is enabled', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(validateProductMock).toHaveBeenCalledTimes(2);
 
     expect(
       within(dialog).getByText('2 product(s) were not added to cart, please change the quantity'),
@@ -3071,14 +3156,29 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'WARNING',
-          message: 'Some warning message',
+    const validateProducts = when(vi.fn())
+      .calledWith({
+        products: [
+          {
+            productId: warningProduct.node.productId,
+            variantId: warningProduct.node.variantId,
+            quantity: warningProduct.node.quantity,
+            productOptions: expect.any(Array),
+          },
+        ],
+      })
+      .thenReturn({
+        data: {
+          validateProducts: {
+            products: [
+              {
+                responseType: 'WARNING',
+                message: 'Some warning message',
+              },
+            ],
+          },
         },
-      },
-    });
+      });
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
@@ -3087,10 +3187,13 @@ describe('when backend validation is enabled', () => {
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
       graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -3108,7 +3211,6 @@ describe('when backend validation is enabled', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
 
-    expect(validateProductMock).toHaveBeenCalledTimes(1);
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
@@ -3118,7 +3220,9 @@ describe('when backend validation is enabled', () => {
 
   it('shows all products as failed when second cart add fails after validation', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    when(vi.spyOn(console, 'error'))
+      .calledWith(expect.objectContaining({ message: 'Cart add failed' }))
+      .thenReturn();
 
     const product = buildShoppingListProductEdgeWith({
       node: {
@@ -3152,18 +3256,26 @@ describe('when backend validation is enabled', () => {
       },
     });
 
-    const validateProductMock = when(vi.fn())
+    const validateProducts = when(vi.fn())
       .calledWith({
-        productId: product.node.productId,
-        variantId: product.node.variantId,
-        quantity: product.node.quantity,
-        productOptions: [{ optionId: 303, optionValue: 'Blue' }],
+        products: [
+          {
+            productId: product.node.productId,
+            variantId: product.node.variantId,
+            quantity: product.node.quantity,
+            productOptions: [{ optionId: 303, optionValue: 'Blue' }],
+          },
+        ],
       })
       .thenReturn({
         data: {
-          validateProduct: {
-            responseType: 'SUCCESS',
-            message: '',
+          validateProducts: {
+            products: [
+              {
+                responseType: 'SUCCESS',
+                message: '',
+              },
+            ],
           },
         },
       });
@@ -3173,10 +3285,13 @@ describe('when backend validation is enabled', () => {
       graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
       graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
       graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
+        HttpResponse.json({
+          data: { cart: { addCartLineItems: null } },
+          errors: [{ message: 'Cart add failed' }],
+        }),
       ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
+      graphql.query('ValidateProducts', ({ variables }) =>
+        HttpResponse.json(validateProducts(variables)),
       ),
     );
 
@@ -3201,7 +3316,9 @@ describe('when backend validation is enabled', () => {
 
   it('does not validate products on network error and shows all products as failed', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    when(vi.spyOn(console, 'error'))
+      .calledWith(expect.objectContaining({ message: 'Failed to fetch' }))
+      .thenReturn();
 
     const product = buildShoppingListProductEdgeWith({
       node: {
@@ -3259,10 +3376,5 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
     expect(within(dialog).getByText('Happy Product')).toBeVisible();
-
-    // eslint-disable-next-line no-console
-    expect(console.error).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to fetch' }),
-    );
   });
 });

@@ -34,7 +34,7 @@ import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
 import {
   convertStockAndThresholdValidationErrorToWarning,
-  validateProducts,
+  validateProductsLegacy,
 } from '@/utils/validateProducts';
 
 import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList';
@@ -230,7 +230,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   };
 
   const addToQuoteBackend = async (products: CustomFieldItems[]) => {
-    const validatedProducts = await validateProducts(products);
+    const validatedProducts = await validateProductsLegacy(products);
     const { success, warning, error } =
       convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 

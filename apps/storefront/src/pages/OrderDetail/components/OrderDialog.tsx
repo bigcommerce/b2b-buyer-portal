@@ -21,7 +21,7 @@ import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { validateProducts as rawValidateProducts } from '@/utils/validateProducts';
+import { validateProductsLegacy as rawValidateProducts } from '@/utils/validateProducts';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
 import getReturnFormFields from '../shared/config';

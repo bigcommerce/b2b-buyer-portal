@@ -50,7 +50,7 @@ import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 import {
   convertStockAndThresholdValidationErrorToWarning,
-  validateProducts,
+  validateProductsLegacy,
 } from '@/utils/validateProducts';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
@@ -463,7 +463,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       addQuoteDraftProducts(products);
       return true;
     }
-    const validatedProducts = await validateProducts(products);
+    const validatedProducts = await validateProductsLegacy(products);
     const { success, warning, error } =
       convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 

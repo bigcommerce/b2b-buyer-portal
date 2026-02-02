@@ -4,7 +4,7 @@ import { when } from 'vitest-when';
 
 import {
   convertStockAndThresholdValidationErrorToWarning,
-  validateProducts,
+  validateProductsLegacy,
 } from './validateProducts';
 
 const { server } = startMockServer();
@@ -157,7 +157,7 @@ it('standardizes products and preserves the original payload', async () => {
     productOptions: [{ optionId: 'attribute[7]', optionValue: 'Green' }],
   };
 
-  const result = await validateProducts([
+  const result = await validateProductsLegacy([
     graphQlNodeProduct,
     productWithProductsSearch,
     plainProduct,
@@ -212,7 +212,7 @@ it('groups products by their validation status', async () => {
     ),
   );
 
-  const result = await validateProducts(products);
+  const result = await validateProductsLegacy(products);
 
   expect(result).toEqual({
     success: [{ status: 'success', product: products[0] }],
@@ -235,7 +235,7 @@ it('groups products by their validation status', async () => {
 // This is here until TS can handle the type correctly
 it('throws an error if the product shape is not valid', async () => {
   await expect(() =>
-    validateProducts([{ productId: 1, variantId: 1, quantity: 1 }]),
+    validateProductsLegacy([{ productId: 1, variantId: 1, quantity: 1 }]),
   ).rejects.toThrow('Unsupported product shape provided to validateProducts');
 });
 
