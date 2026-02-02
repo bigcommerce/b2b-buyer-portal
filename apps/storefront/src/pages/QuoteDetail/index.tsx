@@ -32,7 +32,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { getSearchVal } from '@/utils/loginInfo';
 import {
   ValidatedProductError,
-  validateProducts as rawValidateProducts,
+  validateProductsLegacy as validateProductsApi,
 } from '@/utils/validateProducts';
 
 import { FileObjects } from '../quote/components/FileUpload';
@@ -90,7 +90,7 @@ const validateProducts = (products: ProductInfoProps[]) => {
     },
   }));
 
-  return rawValidateProducts(transformedProducts);
+  return validateProductsApi(transformedProducts);
 };
 
 function useData() {

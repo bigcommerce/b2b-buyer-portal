@@ -618,15 +618,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 
       error.forEach((err) => {
-        if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.node?.productName || '',
-            }),
-          );
-        } else {
-          snackbar.error(err.error.message);
-        }
+        snackbar.error(err.error.message);
       });
 
       const validProducts = [...success, ...warning].map((product) => product.product);

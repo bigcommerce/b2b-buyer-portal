@@ -1,4 +1,7 @@
-import { validateProduct } from '@/shared/service/b2b/graphql/product';
+import {
+  validateProduct,
+  validateProducts as validateProductsService,
+} from '@/shared/service/b2b/graphql/product';
 
 interface Option {
   optionId: number | `attribute[${number}]`;
@@ -47,15 +50,26 @@ export type ValidatedProductError<T> =
   | ValidatedProductServerError<T>
   | ValidatedProductNetworkError<T>;
 
-type ValidatedProduct<T> =
+type ValidatedProductLegacy<T> =
   | ValidatedProductSuccess<T>
   | ValidatedProductWarning<T>
   | ValidatedProductError<T>;
 
-interface ValidateProductsResult<T> {
+type ValidatedProduct<T> =
+  | ValidatedProductSuccess<T>
+  | ValidatedProductWarning<T>
+  | ValidatedProductServerError<T>;
+
+interface ValidateProductsLegacyResult<T> {
   success: ValidatedProductSuccess<T>[];
   warning: ValidatedProductWarning<T>[];
   error: ValidatedProductError<T>[];
+}
+
+interface ValidateProductsResult<T> {
+  success: ValidatedProductSuccess<T>[];
+  warning: ValidatedProductWarning<T>[];
+  error: ValidatedProductServerError<T>[];
 }
 
 type ValidateProductsInput =
@@ -160,14 +174,17 @@ function mapToValidateProducts<T extends ValidateProductsInput>(product: T) {
   };
 }
 
-export const validateProducts = async <T extends ValidateProductsInput>(
+/**
+ * @deprecated Use validateProducts instead
+ */
+export const validateProductsLegacy = async <T extends ValidateProductsInput>(
   products: T[],
-): Promise<ValidateProductsResult<T>> => {
+): Promise<ValidateProductsLegacyResult<T>> => {
   const results = await Promise.allSettled(
     products.map(mapToValidateProducts).map(validateProduct),
   );
 
-  const validatedProducts = products.map<ValidatedProduct<T>>((product, index) => {
+  const validatedProducts = products.map<ValidatedProductLegacy<T>>((product, index) => {
     const res = results[index];
 
     if (res.status === 'rejected') {
@@ -215,13 +232,63 @@ export const validateProducts = async <T extends ValidateProductsInput>(
   };
 };
 
+export const validateProducts = async <T extends ValidateProductsInput>(
+  products: T[],
+): Promise<ValidateProductsResult<T>> => {
+  const { products: results } = await validateProductsService({
+    products: products.map(mapToValidateProducts),
+  });
+
+  const validatedProducts = products.map<ValidatedProduct<T>>((product, index) => {
+    const res = results[index];
+
+    switch (res.responseType) {
+      case 'ERROR':
+        return {
+          status: 'error',
+          error: {
+            type: 'validation',
+            message: res.message,
+            errorCode: res.errorCode,
+            availableToSell: res.product.availableToSell,
+          },
+          product,
+        };
+      case 'WARNING':
+        return {
+          status: 'warning',
+          message: res.message,
+          product,
+        };
+      case 'SUCCESS':
+      default:
+        return {
+          status: 'success',
+          product,
+        };
+    }
+  });
+
+  return {
+    success: validatedProducts.filter((product) => product.status === 'success'),
+    warning: validatedProducts.filter((product) => product.status === 'warning'),
+    error: validatedProducts.filter((product) => product.status === 'error'),
+  };
+};
+
 /* 
   Required in case of adding to the quote, because min, max threshold error
   products should still be added to the quote
 */
-export const convertStockAndThresholdValidationErrorToWarning = <T extends ValidateProductsInput>(
+export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
   validatedProducts: ValidateProductsResult<T>,
-): ValidateProductsResult<T> => {
+): ValidateProductsResult<T>;
+export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
+  validatedProducts: ValidateProductsLegacyResult<T>,
+): ValidateProductsLegacyResult<T>;
+export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
+  validatedProducts: ValidateProductsLegacyResult<T> | ValidateProductsResult<T>,
+): ValidateProductsLegacyResult<T> | ValidateProductsResult<T> {
   const isThresholdError = (error: ValidatedProductError<T>['error']) =>
     error.errorCode === 'OTHER' && /purchase a (minimum|maximum) of/im.test(error.message);
 
@@ -247,4 +314,4 @@ export const convertStockAndThresholdValidationErrorToWarning = <T extends Valid
     error: nonStockAndThresholdErrors,
     warning: [...validatedProducts.warning, ...stockAndThresholdWarnings],
   };
-};
+}

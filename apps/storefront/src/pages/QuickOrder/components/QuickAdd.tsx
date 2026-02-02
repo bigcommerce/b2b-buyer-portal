@@ -14,7 +14,7 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { ValidatedProductError, validateProducts } from '@/utils/validateProducts';
+import { ValidatedProductError, validateProductsLegacy } from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
@@ -335,7 +335,7 @@ export default function QuickAdd() {
 
     const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
 
-    const { success, warning, error } = await validateProducts(productsToValidate);
+    const { success, warning, error } = await validateProductsLegacy(productsToValidate);
 
     const validProducts = success.map((product) => product.product);
 
