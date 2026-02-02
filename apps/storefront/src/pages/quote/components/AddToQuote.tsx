@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider } from '@mui/material';
+import { chunk } from 'lodash-es';
 import { v1 as uuid } from 'uuid';
 
 import { B3CollapseContainer } from '@/components/B3CollapseContainer';
@@ -8,11 +9,11 @@ import CustomButton from '@/components/button/CustomButton';
 import { B3Upload } from '@/components/upload/B3Upload';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { Product } from '@/types';
-import { chunkArray } from '@/utils/arrayUtils';
 import b2bLogger from '@/utils/b3Logger';
 import { calculateProductListPrice, validProductQty } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
@@ -39,6 +40,10 @@ export default function AddToQuote(props: AddToListProps) {
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const b3Lang = useB3Lang();
+
+  const featureFlags = useFeatureFlags();
+  const breakProductSearchesIntoChunks =
+    featureFlags['B2B-4231.chunk_product_searches_in_csv_upload'] ?? false;
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) =>
     products.map((product) => {
@@ -182,28 +187,31 @@ export default function AddToQuote(props: AddToListProps) {
         }
       });
 
-      // const { productsSearch } = await searchProducts({
-      //   productIds,
-      //   companyId,
-      //   customerGroupId,
-      // });
-
-      // TODO(B2B-123): SearchProducts will only return 50 products at a time.
-      const chunkedProductIds = chunkArray(productIds, 50);
-      // Search with batches and await all.
-      const chunkedProductSearches = await Promise.all(
-        chunkedProductIds.map((chunk) =>
-          searchProducts({
-            productIds: chunk,
-            companyId,
-            customerGroupId,
-          }),
-        ),
-      );
-      const productsSearch = chunkedProductSearches.reduce(
-        (accumulator, current) => accumulator.concat(current.productsSearch),
-        [],
-      ) as Product[];
+      let productsSearch: Product[] = [];
+      if (breakProductSearchesIntoChunks) {
+        // TODO(B2B-4256): SearchProducts will only return 50 products at a time.
+        const chunkedProductIds = chunk(productIds, 50);
+        // Search with batches and await all.
+        const chunkedProductSearches = await Promise.all(
+          chunkedProductIds.map((chunk) =>
+            searchProducts({
+              productIds: chunk,
+              companyId,
+              customerGroupId,
+            }),
+          ),
+        );
+        productsSearch = chunkedProductSearches.flatMap(
+          (result) => result.productsSearch,
+        ) as Product[];
+      } else {
+        const { productsSearch: ps } = await searchProducts({
+          productIds,
+          companyId,
+          customerGroupId,
+        });
+        productsSearch = ps;
+      }
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
 
