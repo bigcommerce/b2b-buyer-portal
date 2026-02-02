@@ -6,7 +6,7 @@ import ceil from 'lodash-es/ceil';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
 import { Product } from '@/types';
@@ -184,7 +184,7 @@ interface QuoteTableProps {
 function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
-  const featureFlags = useFeatureFlags();
+  const isBackorderValidationEnabled = useIsBackorderValidationEnabled();
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
@@ -310,9 +310,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
     snackbar.success(b3Lang('quoteDraft.quoteTable.productUpdated'));
   };
 
-  const getAvailabilityWarnings = featureFlags[
-    'B2B-3318.move_stock_and_backorder_validation_to_backend'
-  ]
+  const getAvailabilityWarnings = isBackorderValidationEnabled
     ? getAvailabilityWarningsBackend
     : getAvailabilityWarningsFrontend;
 

@@ -25,6 +25,7 @@ import { setCartPermissions } from '@/utils/b3CheckPermissions/juniorRolePermiss
 
 import { useFeatureFlags } from '../useFeatureFlags';
 import { useGetButtonText } from '../useGetButtonText';
+import { useIsBackorderValidationEnabled } from '../useIsBackorderValidationEnabled';
 
 import useDomVariation from './useDomVariation';
 import usePurchasableQuote from './usePurchasableQuote';
@@ -56,6 +57,7 @@ interface UseMyQuoteProps {
 export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuoteProps) => {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
+  const isBackorderValidationEnabled = useIsBackorderValidationEnabled();
   const featureFlags = useFeatureFlags();
 
   const quoteDraftUserId = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId);
@@ -87,6 +89,7 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
     setOpenPage,
     isEnableProduct,
     b3Lang,
+    isBackorderValidationEnabled,
     featureFlags,
   );
 
