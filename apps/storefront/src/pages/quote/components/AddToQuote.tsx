@@ -193,9 +193,9 @@ export default function AddToQuote(props: AddToListProps) {
         const chunkedProductIds = chunk(productIds, 50);
         // Search with batches and await all.
         const chunkedProductSearches = await Promise.all(
-          chunkedProductIds.map((chunk) =>
+          chunkedProductIds.map((chunkOfProductIds) =>
             searchProducts({
-              productIds: chunk,
+              productIds: chunkOfProductIds,
               companyId,
               customerGroupId,
             }),
