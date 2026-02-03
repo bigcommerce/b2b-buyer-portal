@@ -22,7 +22,7 @@ const handleConversionExtraItemFormat = (quoteExtraFields: QuoteExtraFieldsOrigi
     switch (item.fieldCategory) {
       case 'dropdown':
         if (listOfValue) {
-          const options = listOfValue?.map((option) => ({
+          const options = listOfValue.map((option) => ({
             label: option,
             value: option,
           }));
@@ -33,12 +33,15 @@ const handleConversionExtraItemFormat = (quoteExtraFields: QuoteExtraFieldsOrigi
         }
 
         break;
+
       case 'number':
         currentItems.max = item.maximumValue || '';
         break;
+
       case 'multiline':
         currentItems.rows = item.numberOfRows || '';
         break;
+
       default:
         currentItems.maxLength = item.maximumLength || '';
         break;
@@ -52,6 +55,7 @@ const handleConversionExtraItemFormat = (quoteExtraFields: QuoteExtraFieldsOrigi
 
 const getB2BQuoteExtraFields = async () => {
   let quoteExtraFieldsList: QuoteFormattedItemsProps[] = [];
+
   try {
     const { quoteExtraFieldsConfig } = await getQuoteExtraFieldsConfig();
 

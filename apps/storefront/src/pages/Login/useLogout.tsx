@@ -58,6 +58,7 @@ export const useLogout = () => {
         // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
         window.sessionStorage.clear();
         logoutSession();
+
         if (showLogoutBanner) {
           dispatchEvent('on-logout');
         }

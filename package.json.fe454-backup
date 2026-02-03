@@ -1,0 +1,27 @@
+{
+  "name": "b2b-buyer-portal",
+  "version": "2.0.0",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint --parallel --continue",
+    "format": "turbo run format --parallel --continue",
+    "test": "turbo run test",
+    "clean": "yarn run clean:node-modules",
+    "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
+  },
+  "devDependencies": {
+    "eslint": "^8.2.0",
+    "prettier": "^3.6.2",
+    "turbo": "^2.6.3"
+  },
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

@@ -33,7 +33,7 @@ export interface ShoppingListProductItem extends ProductItem {
   modifiers?: Modifiers[];
   costPrice?: string;
   variants?: Variant[];
-  allOptions?: Partial<AllOptionProps>[];
+  allOptions?: Array<Partial<AllOptionProps>>;
   selectOptions?: string;
   orderQuantityMaximum?: number;
   orderQuantityMinimum?: number;

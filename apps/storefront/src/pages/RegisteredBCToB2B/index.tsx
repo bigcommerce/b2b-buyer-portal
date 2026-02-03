@@ -51,9 +51,7 @@ import {
 } from '../Registered/styled';
 import { RegisterFields } from '../Registered/types';
 
-interface CustomerInfo {
-  [k: string]: string;
-}
+type CustomerInfo = Record<string, string>;
 
 const StyledRegisterContent = styled(Box)({
   '& #b3-customForm-id-name': {
@@ -120,6 +118,7 @@ function RegisteredBCToB2B(props: PageProps) {
 
   useEffect(() => {
     showLoading(false);
+
     if (!registerEnabled) {
       navigate('/login');
     }
@@ -143,10 +142,11 @@ function RegisteredBCToB2B(props: PageProps) {
         const accountFormAllFields = await getB2BAccountFormFields(3);
 
         const newAccountFormFields: AccountFormFieldsItems[] = (
-          accountFormAllFields?.accountFormFields || []
+          accountFormAllFields.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
           const accountFields = fields;
-          if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
+
+          if (b2bAddressRequiredFields.includes(fields.fieldId || '') && fields.groupId === 4) {
             accountFields.isRequired = true;
             accountFields.visible = true;
           }
@@ -160,6 +160,7 @@ function RegisteredBCToB2B(props: PageProps) {
         const newAddressInformationFields = bcToB2BAccountFormFields.address.map(
           (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
             const fields = addressFields;
+
             if (addressFields.name === 'country') {
               fields.options = countries;
               fields.replaceOptions = {
@@ -167,6 +168,7 @@ function RegisteredBCToB2B(props: PageProps) {
                 value: 'countryName',
               };
             }
+
             return addressFields;
           },
         );
@@ -181,13 +183,14 @@ function RegisteredBCToB2B(props: PageProps) {
         const newContactInformation = bcToB2BAccountFormFields.contactInformation.map(
           (contactInformationField: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
             const field = contactInformationField;
+
             field.disabled = true;
 
             field.default =
-              customerInfo[deCodeField(contactInformationField.name as string)] ||
+              customerInfo[deCodeField(contactInformationField.name!)] ||
               contactInformationField.default;
 
-            if (contactInformationField.required && !contactInformationField?.default) {
+            if (contactInformationField.required && !contactInformationField.default) {
               field.disabled = false;
             }
 
@@ -272,16 +275,20 @@ function RegisteredBCToB2B(props: PageProps) {
     const handleInitCountryAndState = () => {
       const countryValue = getValues('country');
       const stateValue = getValues('state');
+
       handleCountryChange(countryValue, stateValue);
     };
+
     handleInitCountryAndState();
 
     const subscription = watch((value, { name, type }) => {
       const { country, state } = value;
+
       if (name === 'country' && type === 'change') {
         handleCountryChange(country, state);
       }
     });
+
     return () => subscription.unsubscribe();
     // disabling as we only need to run this when countryList changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -290,7 +297,9 @@ function RegisteredBCToB2B(props: PageProps) {
   const getFileUrl = async (attachmentsList: RegisterFields[], data: CustomFieldItems) => {
     let attachments: File[] = [];
 
-    if (!attachmentsList.length) return undefined;
+    if (!attachmentsList.length) {
+      return undefined;
+    }
 
     attachmentsList.forEach((field: any) => {
       attachments = data[field.name] || [];
@@ -308,10 +317,12 @@ function RegisteredBCToB2B(props: PageProps) {
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         let list = fileList;
+
         if (res.code === 200) {
           const newData = {
             ...res.data,
           };
+
           newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
           list = [...fileList, newData];
         } else {
@@ -319,6 +330,7 @@ function RegisteredBCToB2B(props: PageProps) {
             res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
           );
         }
+
         return list;
       }, []);
 
@@ -332,20 +344,20 @@ function RegisteredBCToB2B(props: PageProps) {
   const getB2BFieldsValue = async (
     data: CustomFieldItems,
     customerId: number | string,
-    customerEmail: string,
     fileList: any,
     companyUserExtraFields: CustomFieldItems[],
   ) => {
     const b2bFields: CustomFieldItems = {};
 
     b2bFields.customerId = customerId || '';
-    b2bFields.customerEmail = customerEmail || '';
     b2bFields.storeHash = storeHash;
     b2bFields.userExtraFields = companyUserExtraFields;
+
     const companyInfo = bcTob2bCompanyInformation.filter(
       (list) => !list.custom && list.fieldType !== 'files',
     );
-    const companyExtraInfo = bcTob2bCompanyInformation.filter((list) => !!list.custom);
+    const companyExtraInfo = bcTob2bCompanyInformation.filter((list) => Boolean(list.custom));
+
     // company field
     if (companyInfo.length) {
       companyInfo.forEach((item: any) => {
@@ -355,9 +367,11 @@ function RegisteredBCToB2B(props: PageProps) {
 
     // Company Additional Field
     if (companyExtraInfo.length) {
-      const extraFields: Array<CustomFieldItems> = [];
+      const extraFields: CustomFieldItems[] = [];
+
       companyExtraInfo.forEach((item: CustomFieldItems) => {
         const itemExtraField: CustomFieldItems = {};
+
         itemExtraField.fieldName = deCodeField(item.name);
         itemExtraField.fieldValue = data[item.name] || '';
         extraFields.push(itemExtraField);
@@ -367,32 +381,38 @@ function RegisteredBCToB2B(props: PageProps) {
 
     // address Field
     const addressBasicInfo = bcTob2bAddressBasicFields.filter((list) => !list.custom);
-    const addressExtraBasicInfo = bcTob2bAddressBasicFields.filter((list) => !!list.custom);
+    const addressExtraBasicInfo = bcTob2bAddressBasicFields.filter((list) => Boolean(list.custom));
 
     if (addressBasicInfo.length) {
       addressBasicInfo.forEach((field: CustomFieldItems) => {
         const name = deCodeField(field.name);
+
         if (name === 'address1') {
           b2bFields.addressLine1 = data[field.name] || '';
         }
+
         if (name === 'address2') {
           b2bFields.addressLine2 = data[field.name] || '';
         }
+
         b2bFields[name] = data[field.name] || '';
       });
     }
 
     // address Additional Field
     if (addressExtraBasicInfo.length) {
-      const extraFields: Array<CustomFieldItems> = [];
+      const extraFields: CustomFieldItems[] = [];
+
       addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
         const itemExtraField: CustomFieldItems = {};
+
         itemExtraField.fieldName = deCodeField(item.name);
         itemExtraField.fieldValue = data[item.name] || '';
         extraFields.push(itemExtraField);
       });
       b2bFields.addressExtraFields = extraFields;
     }
+
     b2bFields.fileList = fileList;
     b2bFields.channelId = channelId;
 
@@ -401,8 +421,8 @@ function RegisteredBCToB2B(props: PageProps) {
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
-      const extraCompanyInformation = bcTob2bCompanyInformation.filter(
-        (item: RegisterFields) => !!item.custom,
+      const extraCompanyInformation = bcTob2bCompanyInformation.filter((item: RegisterFields) =>
+        Boolean(item.custom),
       );
       const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
         fieldName: deCodeField(field.name),
@@ -422,19 +442,23 @@ function RegisteredBCToB2B(props: PageProps) {
           const field = extraCompanyInformation.find(
             (field) => deCodeField(field.name) === messageArr[0],
           );
+
           if (field) {
             setError(field.name, {
               type: 'manual',
               message: messageArr[1],
             });
             showLoading(false);
+
             return false;
           }
         }
+
         throw message;
       }
 
       setErrorMessage('');
+
       return true;
     } catch (error) {
       b2bLogger.error(error);
@@ -447,6 +471,7 @@ function RegisteredBCToB2B(props: PageProps) {
     const attachmentsFilesFiled = bcTob2bCompanyInformation.find(
       (info) => info.fieldId === 'field_attachments',
     );
+
     if (
       !isEmpty(attachmentsFilesFiled) &&
       attachmentsFilesFiled.required &&
@@ -460,6 +485,7 @@ function RegisteredBCToB2B(props: PageProps) {
       });
 
       showLoading(false);
+
       return true;
     }
 
@@ -476,6 +502,7 @@ function RegisteredBCToB2B(props: PageProps) {
               disabled: false,
             };
           }
+
           return contactInformationField;
         },
       );
@@ -506,6 +533,7 @@ function RegisteredBCToB2B(props: PageProps) {
           const field = bcTob2bContactInformation?.find(
             (field: RegisterFields) => field.custom && Base64.decode(field.name) === messageArr[0],
           );
+
           if (field) {
             setError(field.name, {
               type: 'manual',
@@ -513,14 +541,19 @@ function RegisteredBCToB2B(props: PageProps) {
             });
             handleResetBcTob2bContactInformation(field.name);
             showLoading(false);
+
             return false;
           }
         }
+
         setErrorMessage(message);
         showLoading(false);
+
         return false;
       }
+
       setErrorMessage('');
+
       return true;
     } catch (error) {
       return false;
@@ -531,36 +564,44 @@ function RegisteredBCToB2B(props: PageProps) {
     const hasAttachmentsFilesError = handleValidateAttachmentFiles();
 
     handleSubmit(async (data: CustomFieldItems) => {
-      if (hasAttachmentsFilesError) return;
+      if (hasAttachmentsFilesError) {
+        return;
+      }
+
       showLoading(true);
 
       try {
         const isValidate = await validateCompanyExtraFieldsUnique(data);
+
         if (!isValidate) {
           return;
         }
 
         // get company user extra field
         const b2bContactInformationList = bcTob2bContactInformation || [];
-        const companyUserExtraFieldsList = b2bContactInformationList.filter(
-          (item) => !!item.custom,
+        const companyUserExtraFieldsList = b2bContactInformationList.filter((item) =>
+          Boolean(item.custom),
         );
 
-        const companyUserExtraFields: Array<CustomFieldItems> = [];
+        const companyUserExtraFields: CustomFieldItems[] = [];
+
         if (companyUserExtraFieldsList.length) {
           companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
             const itemExtraField: CustomFieldItems = {};
+
             itemExtraField.fieldName = deCodeField(item.name);
-            itemExtraField.fieldValue = data[item.name] || item?.default || '';
+            itemExtraField.fieldValue = data[item.name] || item.default || '';
             companyUserExtraFields.push(itemExtraField);
           });
         }
 
         let isCompanyUserValidate = true;
+
         if (companyUserExtraFields.length > 0) {
           isCompanyUserValidate =
             await handleValidateCompanyUserExtraFields(companyUserExtraFields);
         }
+
         if (!isCompanyUserValidate) {
           return;
         }
@@ -569,7 +610,8 @@ function RegisteredBCToB2B(props: PageProps) {
           (list) => list.fieldType === 'files',
         );
         const fileList = await getFileUrl(attachmentsList || [], data);
-        await getB2BFieldsValue(data, customerId, emailAddress, fileList, companyUserExtraFields);
+
+        await getB2BFieldsValue(data, customerId, fileList, companyUserExtraFields);
 
         const isAuto = companyAutoApproval.enabled;
 
@@ -603,7 +645,9 @@ function RegisteredBCToB2B(props: PageProps) {
   const handleFinish = () => {
     const isLoginLandLocation = loginJump(navigate, true);
 
-    if (!isLoginLandLocation) return;
+    if (!isLoginLandLocation) {
+      return;
+    }
 
     if (companyAutoApproval.enabled) {
       navigate('/orders');
@@ -636,14 +680,14 @@ function RegisteredBCToB2B(props: PageProps) {
             {logo && (
               <RegisteredImage>
                 <ImageListItem
-                  sx={{
-                    maxWidth: '250px',
-                  }}
                   onClick={() => {
                     window.location.href = '/';
                   }}
+                  sx={{
+                    maxWidth: '250px',
+                  }}
                 >
-                  <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
+                  <img alt={b3Lang('global.tips.registerLogo')} loading="lazy" src={logo} />
                 </ImageListItem>
               </RegisteredImage>
             )}
@@ -681,9 +725,9 @@ function RegisteredBCToB2B(props: PageProps) {
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
-                    formFields={bcTob2bContactInformation || []}
-                    errors={errors}
                     control={control}
+                    errors={errors}
+                    formFields={bcTob2bContactInformation || []}
                     getValues={getValues}
                     setValue={setValue}
                   />
@@ -695,17 +739,17 @@ function RegisteredBCToB2B(props: PageProps) {
                   }}
                 >
                   <InformationFourLabels>
-                    {bcTob2bCompanyInformation?.length
+                    {bcTob2bCompanyInformation.length
                       ? bcTob2bCompanyInformation[0]?.groupName
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
-                    formFields={[...bcTob2bCompanyInformation, ...bcTob2bCompanyExtraFields]}
-                    errors={errors}
                     control={control}
+                    errors={errors}
+                    formFields={[...bcTob2bCompanyInformation, ...bcTob2bCompanyExtraFields]}
                     getValues={getValues}
-                    setValue={setValue}
                     setError={setError}
+                    setValue={setValue}
                   />
                 </Box>
 
@@ -715,15 +759,15 @@ function RegisteredBCToB2B(props: PageProps) {
                   }}
                 >
                   <InformationFourLabels>
-                    {bcTob2bAddressBasicFields?.length
+                    {bcTob2bAddressBasicFields.length
                       ? bcTob2bAddressBasicFields[0]?.groupName
                       : ''}
                   </InformationFourLabels>
 
                   <B3CustomForm
-                    formFields={bcTob2bAddressBasicFields}
-                    errors={errors}
                     control={control}
+                    errors={errors}
+                    formFields={bcTob2bAddressBasicFields}
                     getValues={getValues}
                     setValue={setValue}
                   />
@@ -738,7 +782,7 @@ function RegisteredBCToB2B(props: PageProps) {
                       width: '100%',
                     }}
                   >
-                    <CustomButton variant="contained" onClick={handleNext}>
+                    <CustomButton onClick={handleNext} variant="contained">
                       {b3Lang('global.button.submit')}
                     </CustomButton>
                   </Box>

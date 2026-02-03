@@ -26,7 +26,10 @@ function GlobalDialog() {
   };
 
   const handleSaveMessage = () => {
-    if (globalMessage?.saveFn) globalMessage.saveFn();
+    if (globalMessage.saveFn) {
+      globalMessage.saveFn();
+    }
+
     messageDialogClose();
   };
 
@@ -39,13 +42,13 @@ function GlobalDialog() {
       }}
     >
       <B3Dialog
-        isOpen={globalMessage?.open || false}
-        title={globalMessage?.title || ''}
-        leftSizeBtn={globalMessage?.cancelText || 'cancel'}
-        rightSizeBtn={globalMessage?.saveText || 'save'}
-        handleLeftClick={globalMessage?.cancelFn || messageDialogClose}
         handRightClick={handleSaveMessage}
-        showRightBtn={!!globalMessage?.saveText}
+        handleLeftClick={globalMessage.cancelFn || messageDialogClose}
+        isOpen={globalMessage.open || false}
+        leftSizeBtn={globalMessage.cancelText || 'cancel'}
+        rightSizeBtn={globalMessage.saveText || 'save'}
+        showRightBtn={Boolean(globalMessage.saveText)}
+        title={globalMessage.title || ''}
       >
         <Box
           sx={{
@@ -55,7 +58,7 @@ function GlobalDialog() {
             height: '100%',
           }}
         >
-          {globalMessage?.message || ''}
+          {globalMessage.message || ''}
         </Box>
       </B3Dialog>
     </Box>

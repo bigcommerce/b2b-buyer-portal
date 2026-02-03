@@ -17,6 +17,7 @@ interface CaptchaProps {
 export function loadCaptchaScript(iframeDocument: HTMLIFrameElement['contentDocument']) {
   if (iframeDocument?.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null) {
     const captchaScript = iframeDocument.createElement('script');
+
     captchaScript.src = CAPTCHA_URL;
     iframeDocument.head.appendChild(captchaScript);
   }
@@ -41,9 +42,7 @@ export function loadCaptchaWidgetHandlers(
   iframeDocument.head.appendChild(handlerScript);
 }
 
-const useWidgetId = () => {
-  return useMemo(() => `widget_${Date.now()}`, []);
-};
+const useWidgetId = () => useMemo(() => `widget_${Date.now()}`, []);
 
 export function Captcha({ theme, size, handleGetKey, siteKey }: CaptchaProps) {
   const iframeDocument = useAppSelector(themeFrameSelector);
@@ -52,7 +51,7 @@ export function Captcha({ theme, size, handleGetKey, siteKey }: CaptchaProps) {
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event?.data?.startsWith?.(widgetId)) {
+      if (event.data?.startsWith?.(widgetId)) {
         const message = event.data.slice(widgetId.length);
         const { payload: key, type } = JSON.parse(message);
 
@@ -81,5 +80,5 @@ export function Captcha({ theme, size, handleGetKey, siteKey }: CaptchaProps) {
     initialized.current = true;
   }, [iframeDocument, widgetId]);
 
-  return <div id={widgetId} data-sitekey={siteKey} data-theme={theme} data-size={size} />;
+  return <div data-sitekey={siteKey} data-size={size} data-theme={theme} id={widgetId} />;
 }

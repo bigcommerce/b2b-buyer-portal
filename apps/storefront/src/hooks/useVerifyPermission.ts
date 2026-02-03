@@ -15,7 +15,9 @@ export const useValidatePermissionWithComparisonType = ({
   const [isValidate, setIsValidate] = useState(false);
 
   useEffect(() => {
-    if (!permissions?.length) return;
+    if (!permissions.length) {
+      return;
+    }
 
     const isPermissions = validateBasePermissionWithComparisonType({
       level,
@@ -23,6 +25,7 @@ export const useValidatePermissionWithComparisonType = ({
       containOrEqual,
       permissions,
     });
+
     setIsValidate(isPermissions);
   }, [permissions, level, code, containOrEqual]);
 
@@ -35,14 +38,18 @@ export const useVerifyCreatePermission = (codes: string[]) => {
   );
 
   const { permissions } = useAppSelector(({ company }) => company);
-  const level = useMemo(() => {
-    return selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER;
-  }, [selectCompanyHierarchyId]);
+  const level = useMemo(
+    () =>
+      selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
+    [selectCompanyHierarchyId],
+  );
 
   const [permissionInfo, setPermissionsInfo] = useState<boolean[]>([]);
 
   useEffect(() => {
-    if (!permissions?.length) return;
+    if (!permissions.length) {
+      return;
+    }
 
     const info = codes.map((code) => {
       const isPermissions = validateBasePermissionWithComparisonType({

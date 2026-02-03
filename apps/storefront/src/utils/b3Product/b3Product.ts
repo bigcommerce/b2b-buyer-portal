@@ -65,6 +65,7 @@ const getDateValuesArray = (id: number, value: number) => {
   const year = data.getFullYear();
   const month = data.getMonth() + 1;
   const day = data.getDate();
+
   return [
     {
       option_id: id,
@@ -85,10 +86,11 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
   let date = [];
   const dateTypes = ['year', 'month', 'day'] as const;
   const isIncludeDate = (date: string) => newOption.optionId.includes(date);
+
   if (isIncludeDate(dateTypes[0]) || isIncludeDate(dateTypes[1]) || isIncludeDate(dateTypes[2])) {
     date = [
       {
-        option_id: itemOption?.id ? Number(itemOption.id) : 0,
+        option_id: itemOption.id ? Number(itemOption.id) : 0,
         value_id: Number(newOption.optionValue),
       },
     ];
@@ -97,17 +99,18 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
     const year = data.getFullYear();
     const month = data.getMonth() + 1;
     const day = data.getDate();
+
     date = [
       {
-        option_id: itemOption?.id ? Number(itemOption.id) : 0,
+        option_id: itemOption.id ? Number(itemOption.id) : 0,
         value_id: month,
       },
       {
-        option_id: itemOption?.id ? Number(itemOption.id) : 0,
+        option_id: itemOption.id ? Number(itemOption.id) : 0,
         value_id: year,
       },
       {
-        option_id: itemOption?.id ? Number(itemOption.id) : 0,
+        option_id: itemOption.id ? Number(itemOption.id) : 0,
         value_id: day,
       },
     ];
@@ -119,29 +122,30 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
 const getCalculatedParams = (
   optionList: CustomFieldItems[],
   variantItem: Partial<Variant>,
-  allOptions: Partial<AllOptionProps>[] = [],
-): Partial<CalculatedItems>[] | [] => {
+  allOptions: Array<Partial<AllOptionProps>> = [],
+): Array<Partial<CalculatedItems>> | [] => {
   if (variantItem) {
-    const arr: Partial<CalculatedOptions>[] = [];
-    const date: Partial<CalculatedOptions>[] = [];
+    const arr: Array<Partial<CalculatedOptions>> = [];
+    const date: Array<Partial<CalculatedOptions>> = [];
 
     (optionList || []).forEach((option: CustomFieldItems) => {
       const newOption = {
-        optionId: option?.option_id || option.optionId,
-        optionValue: option?.option_value || option.optionValue,
+        optionId: option.option_id || option.optionId,
+        optionValue: option.option_value || option.optionValue,
       };
       const itemOption = (allOptions || []).find(
         (select: Partial<AllOptionProps>) =>
-          `${newOption.optionId}`.includes(`${select?.id}`) &&
+          `${newOption.optionId}`.includes(`${select.id}`) &&
           ((select.type !== 'text' && select.option_values?.length) ||
             (select.type === 'date' && newOption.optionValue)),
       );
+
       if (itemOption && newOption.optionValue) {
         if (itemOption.type === 'date' && Number(newOption.optionValue)) {
           date.push(...calculatedDate(newOption, itemOption));
         } else {
           arr.push({
-            option_id: itemOption?.id ? Number(itemOption.id) : 0,
+            option_id: itemOption.id ? Number(itemOption.id) : 0,
             value_id: Number(newOption.optionValue),
           });
         }
@@ -168,6 +172,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const calculatedNoTaxPrice = calculatedPrice.tax_exclusive;
   let enteredPrice = calculatedPrice.as_entered;
   const enteredInclusive = calculatedPrice.entered_inclusive;
+
   store.dispatch(setEnteredInclusiveTax(enteredInclusive));
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice;
@@ -176,6 +181,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   let finalDiscount = 0;
   let itemTotalTaxPrice = 0;
   let singlePrice = 0;
+
   bulkPrices.forEach(
     ({ minimum, maximum, discount_type: discountType, discount_amount: bulkPrice }: any) => {
       if (qty >= minimum && qty <= (maximum || qty)) {
@@ -184,12 +190,15 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
             finalDiscount = 0;
             enteredPrice = bulkPrice;
             break;
+
           case 'percent':
             finalDiscount = enteredPrice * Number((bulkPrice / 100).toFixed(decimalPlaces));
             break;
+
           case 'price':
             finalDiscount = bulkPrice;
             break;
+
           default:
             break;
         }
@@ -231,12 +240,16 @@ const getCustomerGroupId = () => {
   const currentState = store.getState();
   const customerInfo = currentState.company.customer;
 
-  if (customerInfo.customerGroupId) customerGroupId = customerInfo.customerGroupId;
+  if (customerInfo.customerGroupId) {
+    customerGroupId = customerInfo.customerGroupId;
+  }
 
   const { isAgenting, customerGroupId: salesRepCustomerGroupId } =
     currentState.b2bFeatures.masqueradeCompany;
 
-  if (isAgenting) return salesRepCustomerGroupId || customerGroupId;
+  if (isAgenting) {
+    return salesRepCustomerGroupId || customerGroupId;
+  }
 
   return customerGroupId;
 };
@@ -255,10 +268,10 @@ const getCalculatedProductPrice = async (
 
   const { variants = [] } = productsSearch;
 
-  const variantItem = variants.find((item) => item.sku?.toUpperCase() === sku.toUpperCase());
+  const variantItem = variants.find((item) => item.sku.toUpperCase() === sku.toUpperCase());
 
   if (variantItem) {
-    const items = getCalculatedParams(optionList, variantItem, productsSearch?.allOptions || []);
+    const items = getCalculatedParams(optionList, variantItem, productsSearch.allOptions || []);
     const customerGroupId = getCustomerGroupId();
 
     const data = {
@@ -305,10 +318,13 @@ const getCalculatedProductPrice = async (
 
   return '';
 };
-const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<AllOptionProps>[]) =>
+const formatOptionsSelections = (
+  options: ProductOption[],
+  allOptions: Array<Partial<AllOptionProps>>,
+) =>
   options.reduce((accumulator: CalculatedOptions[], option) => {
-    const optionEntityId = option?.optionEntityId || option?.entityId || '';
-    const optionValueEntityId = option?.optionValueEntityId || option?.valueEntityId || '';
+    const optionEntityId = option.optionEntityId || option.entityId || '';
+    const optionValueEntityId = option.optionValueEntityId || option.valueEntityId || '';
     const matchedOption = allOptions.find(({ id, type, option_values }) => {
       if (optionEntityId && Number(optionEntityId) === id) {
         if (
@@ -318,12 +334,14 @@ const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<A
           return true;
         }
       }
+
       return false;
     });
 
     if (matchedOption) {
       if (matchedOption.type === 'date') {
         const id = matchedOption.id ? Number(matchedOption.id) : 0;
+
         accumulator.push(...getDateValuesArray(id, Number(optionValueEntityId)));
       } else {
         accumulator.push({
@@ -338,27 +356,33 @@ const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<A
 
 const getSelectedOptions = (
   selectedOptions: ProductOption[],
-  allOptions: Partial<AllOptionProps>[],
+  allOptions: Array<Partial<AllOptionProps>>,
 ) => {
-  if (selectedOptions.length === 0) return [];
+  if (selectedOptions.length === 0) {
+    return [];
+  }
+
   const newSelectedOptions: ProductOptionString[] = [];
 
   selectedOptions.forEach((option: ProductOption) => {
-    const optionEntityId = option?.optionEntityId || option?.entityId;
-    let optionValueEntityId: string | number = option?.optionValueEntityId || option?.valueEntityId;
+    const optionEntityId = option.optionEntityId || option.entityId;
+    let optionValueEntityId: string | number = option.optionValueEntityId || option.valueEntityId;
 
-    const currentOptions = allOptions.find((option) => optionEntityId === option?.id);
+    const currentOptions = allOptions.find((option) => optionEntityId === option.id);
 
     let isDate = false;
+
     if (currentOptions && !optionValueEntityId) {
       switch (currentOptions.type) {
         case 'date':
           isDate = true;
           optionValueEntityId = option.date.utc;
           break;
+
         case 'numbers_only_text':
           optionValueEntityId = option.number;
           break;
+
         default:
           optionValueEntityId = option.text;
           break;
@@ -414,6 +438,7 @@ const formatLineItemsToGetPrices = (items: LineItem[], productsSearch: ShoppingL
       if (!variantItem || !selectedProduct) {
         return formattedLineItems;
       }
+
       const { allOptions = [] } = selectedProduct;
 
       const options = formatOptionsSelections(selectedOptions, allOptions);
@@ -429,6 +454,7 @@ const formatLineItemsToGetPrices = (items: LineItem[], productsSearch: ShoppingL
         productsSearch: selectedProduct,
         optionSelections: getSelectedOptions(selectedOptions, allOptions),
       });
+
       return formattedLineItems;
     },
     { items: [], variants: [] },
@@ -458,6 +484,7 @@ const calculateProductsPrice = async (
       storeHash,
       ...data,
     });
+
     calculatedPrices = res.data;
   }
 
@@ -473,6 +500,7 @@ const calculateProductsPrice = async (
       product_id: productId,
     } = variants[index];
     const { taxPrice, itemPrice } = getBulkPrice(calculatedPrice, quantity);
+
     return {
       node: {
         id: uuid(),
@@ -492,20 +520,22 @@ const calculateProductsPrice = async (
   });
 };
 
-const calculateProductListPrice = async (products: Partial<Product>[], type = '1') => {
+const calculateProductListPrice = async (products: Array<Partial<Product>>, type = '1') => {
   const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
     getActiveCurrencyInfo();
+
   try {
     let isError = false;
     let i = 0;
-    let itemsOptions: Partial<CalculatedItems>[] | [] = [];
+    let itemsOptions: Array<Partial<CalculatedItems>> | [] = [];
+
     while (i < products.length && !isError) {
       let newSelectOptionList = [];
-      let allOptions: Partial<AllOptionProps>[] = [];
-      let variants: Partial<Variant>[] = [];
+      let allOptions: Array<Partial<AllOptionProps>> = [];
+      let variants: Array<Partial<Variant>> = [];
       let variantId = 0;
-      let modifiers: Partial<Modifiers>[] = [];
-      let optionsV3: Partial<Modifiers>[] = [];
+      let modifiers: Array<Partial<Modifiers>> = [];
+      let optionsV3: Array<Partial<Modifiers>> = [];
 
       if (type === '1') {
         newSelectOptionList = products[i].newSelectOptionList;
@@ -523,7 +553,7 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
         optionsV3 = products[i]?.node?.productsSearch?.optionsV3 || [];
       }
 
-      let allOptionsArr: Partial<AllOptionProps>[] = allOptions;
+      let allOptionsArr: Array<Partial<AllOptionProps>> = allOptions;
 
       if (!allOptionsArr.length) {
         allOptionsArr = [...modifiers, ...optionsV3];
@@ -538,6 +568,7 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
       if (variantItem) {
         const items =
           getCalculatedParams(newSelectOptionList, variantItem, allOptionsArr || []) || [];
+
         itemsOptions = [...itemsOptions, ...items];
       } else {
         isError = true;
@@ -569,9 +600,9 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
       let qty = 0;
 
       if (type === '1') {
-        qty = product?.quantity ? Number(product.quantity) : 0;
+        qty = product.quantity ? Number(product.quantity) : 0;
       } else {
-        qty = product?.node?.quantity ? Number(product.node.quantity) : 0;
+        qty = product.node?.quantity ? Number(product.node.quantity) : 0;
       }
 
       const { taxPrice, itemPrice } = getBulkPrice(calculatedData[index], qty);
@@ -588,9 +619,11 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
         productNode.node.calculatedValue = calculatedData[index];
       }
     });
+
     return products;
   } catch (error) {
     b2bLogger.error(error);
+
     return [];
   }
 };
@@ -623,7 +656,7 @@ const setModifierQtyPrice = async (product: CustomFieldItems, qty: number, isReq
       );
     }
 
-    if (newProduct && (newProduct as CustomFieldItems)?.node?.id) {
+    if (newProduct && (newProduct as CustomFieldItems).node?.id) {
       (newProduct as CustomFieldItems).node.id = product.id;
 
       return (newProduct as CustomFieldItems).node;
@@ -632,18 +665,26 @@ const setModifierQtyPrice = async (product: CustomFieldItems, qty: number, isReq
     return product;
   } catch (e) {
     b2bLogger.error(e);
+
     return product;
   }
 };
 
 const compareOption = (langList: CustomFieldItems[], shortList: CustomFieldItems[]) => {
   let flag = true;
+
   langList.forEach((item: CustomFieldItems) => {
     const option = shortList.find((list: CustomFieldItems) => list.optionId === item.optionId);
+
     if (!option) {
-      if (item?.optionValue) flag = false;
-    } else if (item.optionValue !== option.optionValue) flag = false;
+      if (item.optionValue) {
+        flag = false;
+      }
+    } else if (item.optionValue !== option.optionValue) {
+      flag = false;
+    }
   });
+
   return flag;
 };
 
@@ -652,10 +693,12 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
 
   if (draftQuoteList.length === 0) {
     store.dispatch(setDraftQuoteList(products as QuoteItem[]));
+
     return;
   }
 
   const draftQuote = cloneDeep(draftQuoteList);
+
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList);
@@ -671,6 +714,7 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
 
       if (draftQuoteProduct) {
         draftQuoteProduct.node.quantity += quoteProduct.node.quantity;
+
         if (quoteProduct.node?.calculatedValue) {
           draftQuoteProduct.node.calculatedValue = quoteProduct.node.calculatedValue;
         }
@@ -687,6 +731,7 @@ const validProductQty = (products: CustomFieldItems) => {
   const { draftQuoteList } = store.getState().quoteInfo;
 
   let canAdd = true;
+
   products.forEach((product: CustomFieldItems) => {
     const draftQuote = draftQuoteList.find(
       (item) => item.node.variantSku === product.node.variantSku,
@@ -724,7 +769,7 @@ const addQuoteDraftProduce = async (
   const draftList = cloneDeep(store.getState().quoteInfo.draftQuoteList);
 
   const draft = draftList.find(
-    (item: QuoteItem) => item?.node?.variantSku === quoteListitem.node.variantSku,
+    (item: QuoteItem) => item.node.variantSku === quoteListitem.node.variantSku,
   );
 
   if (draft) {
@@ -773,6 +818,7 @@ const getBCPrice = (basePrice: number, taxPrice: number) => {
   } = store.getState();
 
   let price: number;
+
   if (enteredInclusiveTax) {
     price = showInclusiveTaxPrice ? basePrice : basePrice - taxPrice;
   } else {
@@ -787,12 +833,13 @@ const getValidOptionsList = (
   originProduct: CustomFieldItems,
 ) => {
   const targetType = ['text', 'numbers_only_text', 'multi_line_text'];
-  const originOptions = originProduct?.modifiers || originProduct?.allOptions;
+  const originOptions = originProduct.modifiers || originProduct.allOptions;
   const newOptions: CustomFieldItems = [];
+
   options.forEach((option: { optionId: number | string; optionValue: number | string }) => {
     const currentOption = originOptions.find((item: { id: string | number }) => {
       const optionId = option.optionId.toString();
-      const targetId = optionId?.includes('attribute')
+      const targetId = optionId.includes('attribute')
         ? optionId.split('[')[1].split(']')[0]
         : optionId;
 
@@ -805,13 +852,15 @@ const getValidOptionsList = (
 
         const checkboxValue = optionValues.find(
           (value: { value_data: { checked_value: boolean }; label: string }) =>
-            !value?.value_data?.checked_value || value?.label === 'No',
+            !value.value_data.checked_value || value.label === 'No',
         );
+
         newOptions.push({
           optionId: option.optionId,
           optionValue: checkboxValue.id.toString(),
         });
       }
+
       if (
         (targetType.includes(currentOption.type) || currentOption.type.includes('text')) &&
         option.optionValue
@@ -869,7 +918,7 @@ export const getProductInfoDisplayPrice = (
 };
 
 export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
-  const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
+  const newProductInfo = productInfo.node ? productInfo.node : productInfo;
 
   const inventoryTracking: string = newProductInfo?.productsSearch
     ? newProductInfo.productsSearch.inventoryTracking
@@ -894,14 +943,16 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
     : newProductInfo?.variants || [];
 
   const variant = variants ? variants.find((item: Variant) => item.sku === variantSku) : {};
-  if (variant && variant?.sku) {
+
+  if (variant?.sku) {
     const { purchasing_disabled: purchasingDisabled, inventory_level: inventoryLevel } = variant;
 
-    if (purchasingDisabled)
+    if (purchasingDisabled) {
       return {
         type: 'non-purchasable',
         name: newProductInfo?.productName || '',
       };
+    }
 
     if (inventoryTracking === 'product' && Number(quantity) > productInventoryLevel) {
       return {
@@ -930,7 +981,7 @@ export const getVariantInfoDisplayPrice = (
   },
 ) => {
   const currentPrice = price || '0';
-  const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
+  const newProductInfo = productInfo.node ? productInfo.node : productInfo;
 
   const inventoryTracking: string = newProductInfo?.productsSearch
     ? newProductInfo.productsSearch.inventoryTracking
@@ -966,7 +1017,7 @@ export const getVariantInfoDisplayPrice = (
 
   const variant = newVariants ? newVariants.find((item: Variant) => item.sku === variantSku) : {};
 
-  if (variant && variant?.sku) {
+  if (variant?.sku) {
     const {
       purchasing_disabled: variantPurchasingDisabled,
       inventory_level: variantInventoryLevel,
@@ -974,9 +1025,13 @@ export const getVariantInfoDisplayPrice = (
       unlimited_backorder: variantUnlimitedBackorder,
     } = variant;
 
-    if (variantPurchasingDisabled) return '';
+    if (variantPurchasingDisabled) {
+      return '';
+    }
 
-    if (inventoryTracking === 'none') return currentPrice;
+    if (inventoryTracking === 'none') {
+      return currentPrice;
+    }
 
     if (isBackorderValidationEnabled) {
       const availableToSell =
@@ -1015,11 +1070,15 @@ const getDisplayPrice = ({
     },
   } = store.getState();
 
-  if (!isEnableProduct && !forcedSkip) return price;
+  if (!isEnableProduct && !forcedSkip) {
+    return price;
+  }
 
-  const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
+  const newProductInfo = productInfo.node ? productInfo.node : productInfo;
 
-  if (newProductInfo?.purchaseHandled) return price;
+  if (newProductInfo?.purchaseHandled) {
+    return price;
+  }
 
   const isBackorderValidationEnabled =
     (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false) &&
@@ -1037,9 +1096,11 @@ const judgmentBuyerProduct = ({ productInfo, isProduct, price }: DisplayPricePro
     global: { featureFlags, backorderEnabled },
   } = store.getState();
 
-  const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
+  const newProductInfo = productInfo.node ? productInfo.node : productInfo;
 
-  if (newProductInfo?.purchaseHandled) return true;
+  if (newProductInfo?.purchaseHandled) {
+    return true;
+  }
 
   const isBackorderValidationEnabled =
     (featureFlags['B2B-3318.move_stock_and_backorder_validation_to_backend'] ?? false) &&
@@ -1049,7 +1110,7 @@ const judgmentBuyerProduct = ({ productInfo, isProduct, price }: DisplayPricePro
     ? getProductInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled)
     : getVariantInfoDisplayPrice(price, newProductInfo, isBackorderValidationEnabled);
 
-  return !!newPrice;
+  return Boolean(newPrice);
 };
 
 export {

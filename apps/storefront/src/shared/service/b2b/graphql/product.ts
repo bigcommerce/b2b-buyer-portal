@@ -66,7 +66,7 @@ const getSearchProductsQuery = (data: CustomFieldItems) => `
       storeHash: "${storeHash}"
       channelId: ${channelId}
       customerGroupId: ${data.customerGroupId || 0}
-      ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
+      ${data.categoryFilter ? `categoryFilter: ${data.categoryFilter}` : ''}
     ){
       id,
       name,
@@ -138,7 +138,7 @@ const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation ProductUploa
     productListData: {
       currencyCode: "${data.currencyCode || ''}"
       productList: ${convertArrayToGraphql(data.productList || [])}
-      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
+      ${!data.channelId ? '' : `channelId: ${data.channelId}`}
       isToCart: ${data.isToCart || false}
       withModifiers: ${data.withModifiers || false}
     }
@@ -158,7 +158,7 @@ const productAnonUploadBulkUploadCSV = (data: CustomFieldItems) => `mutation {
     productListData: {
       currencyCode: "${data.currencyCode || ''}"
       productList: ${convertArrayToGraphql(data.productList || [])}
-      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
+      ${!data.channelId ? '' : `channelId: ${data.channelId}`}
       isToCart: ${data.isToCart || false}
       withModifiers: ${data.withModifiers || false}
       storeHash: "${storeHash}"
@@ -205,16 +205,16 @@ export interface ProductSearch {
   availability: string;
   orderQuantityMinimum: number;
   orderQuantityMaximum: number;
-  variants: {
+  variants: Array<{
     variant_id: number;
     product_id: number;
     sku: string;
-    option_values: {
+    option_values: Array<{
       id: number;
       label: string;
       option_id: number;
       option_display_name: string;
-    }[];
+    }>;
     calculated_price: number;
     image_url: string;
     has_price_list: boolean;
@@ -228,32 +228,32 @@ export interface ProductSearch {
       tax_exclusive: number;
       entered_inclusive: boolean;
     };
-  }[];
+  }>;
   currencyCode: string;
   imageUrl: string;
   modifiers: unknown[];
-  options: {
+  options: Array<{
     option_id: number;
     display_name: string;
     sort_order: number;
     is_required: boolean;
-  }[];
-  optionsV3: {
+  }>;
+  optionsV3: Array<{
     id: number;
     product_id: number;
     name: string;
     display_name: string;
     type: string;
     sort_order: number;
-    option_values: {
+    option_values: Array<{
       id: number;
       label: string;
       sort_order: number;
       value_data: unknown | null;
       is_default: boolean;
-    }[];
+    }>;
     config: unknown[];
-  }[];
+  }>;
   channelId: unknown[];
   productUrl: string;
   taxClassId: number;
@@ -291,7 +291,7 @@ export interface SearchProductsResponse {
         calculated_price: number;
         image_url: string;
         has_price_list: boolean;
-        bulk_prices: Array<unknown>;
+        bulk_prices: unknown[];
         purchasing_disabled: boolean;
         cost_price: number;
         inventory_level: number;
@@ -306,7 +306,7 @@ export interface SearchProductsResponse {
       }>;
       currencyCode: string;
       imageUrl: string;
-      modifiers: Array<unknown>;
+      modifiers: unknown[];
       options: Array<{
         option_id: number;
         display_name: string;
@@ -327,9 +327,9 @@ export interface SearchProductsResponse {
           value_data: unknown;
           is_default: boolean;
         }>;
-        config: Array<unknown>;
+        config: unknown[];
       }>;
-      channelId: Array<unknown>;
+      channelId: unknown[];
       productUrl: string;
       taxClassId: number;
       isPriceHidden: boolean;
@@ -363,11 +363,12 @@ export interface ValidateProductResponse {
     validateProduct: ValidateProductSuccess | ValidateProductWarning | ValidateProductError;
   };
 }
+
 interface ValidateProductsResponse {
   data: {
     validateProducts: {
       isValid: boolean;
-      products: {
+      products: Array<{
         errorCode: string;
         responseType: string;
         message: string;
@@ -378,7 +379,7 @@ interface ValidateProductsResponse {
           availableToSell: number;
           unlimitedBackorder: boolean;
         };
-      }[];
+      }>;
     };
   };
 }
@@ -389,7 +390,7 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
   return B3Request.graphqlB2B({
     query: getSearchProductsQuery({
       ...data,
-      currencyCode: data?.currencyCode || currencyCode,
+      currencyCode: data.currencyCode || currencyCode,
     }),
   });
 };
@@ -398,28 +399,27 @@ interface ValidateProductVariables {
   productId: number;
   variantId: number;
   quantity: number;
-  productOptions?: {
+  productOptions?: Array<{
     optionId: number;
     optionValue: string;
-  }[];
+  }>;
 }
+
 interface ValidateProductsVariables {
   products: ValidateProductVariables[];
 }
 
-export const validateProduct = (data: ValidateProductVariables) => {
-  return B3Request.graphqlB2B<ValidateProductResponse>({
+export const validateProduct = (data: ValidateProductVariables) =>
+  B3Request.graphqlB2B<ValidateProductResponse>({
     query: validateProductQuery,
     variables: data,
   }).then((res) => res.validateProduct);
-};
 
-export const validateProducts = (data: ValidateProductsVariables) => {
-  return B3Request.graphqlB2B<ValidateProductsResponse>({
+export const validateProducts = (data: ValidateProductsVariables) =>
+  B3Request.graphqlB2B<ValidateProductsResponse>({
     query: validateProductsQuery,
     variables: data,
   }).then((res) => res.validateProducts);
-};
 
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({

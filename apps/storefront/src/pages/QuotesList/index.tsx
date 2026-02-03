@@ -26,7 +26,7 @@ import { addPrice } from '../quote/shared/config';
 import { QuoteItemCard } from './QuoteItemCard';
 
 interface ListItem {
-  [key: string]: string | Object;
+  [key: string]: string | object;
   status: string;
   quoteNumber: string;
 }
@@ -85,11 +85,10 @@ function useData() {
 
   const getQuotesList = (
     params: Partial<FilterSearchProps>,
-  ): ReturnType<typeof getB2BQuotesList | typeof getBCQuotesList> => {
-    return isB2BUser
+  ): ReturnType<typeof getB2BQuotesList | typeof getBCQuotesList> =>
+    isB2BUser
       ? getB2BQuotesList({ ...params, channelId })
       : getBCQuotesList({ ...params, channelId });
-  };
 
   const getFilters = () => [
     {
@@ -116,12 +115,12 @@ function useData() {
     const createdByUsers = await getShoppingListsCreatedByUser(Number(companyId), 2);
 
     const newCreatedByUsers =
-      createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
+      createdByUsers.createdByUser?.results?.createdBy.map((item: any) => ({
         createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
       })) || [];
 
     const newCreatedBySalesReps =
-      createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
+      createdByUsers.createdByUser?.results?.salesRep.map((item: any) => ({
         salesRep: `${item.salesRep || item.salesRepEmail}`,
       })) || [];
 
@@ -231,10 +230,11 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         render: (item: ListItem) => {
           const { totalAmount, currency } = item;
           const newCurrency = currency as CurrencyProps;
+
           return currencyFormatConvert(Number(totalAmount), {
             currency: newCurrency,
             isConversionRate: false,
-            useCurrentCurrency: !!currency,
+            useCurrentCurrency: Boolean(currency),
           });
         },
         style: {
@@ -270,7 +270,7 @@ function QuotesList() {
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
-  const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
+  const [filterMoreInfo, setFilterMoreInfo] = useState<any[]>([]);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
@@ -313,6 +313,7 @@ function QuotesList() {
       navigate('/quoteDraft');
     } else {
       const uuidParam = item.uuid ? `&uuid=${item.uuid}` : '';
+
       navigate(`/quoteDetail/${item.id}?date=${item.createdAt}${uuidParam}`);
     }
   };
@@ -333,9 +334,9 @@ function QuotesList() {
             createdBy: `${customer.firstName} ${customer.lastName}`,
             updatedAt: '—',
             expiredAt: '—',
-            totalAmount: summaryPrice?.grandTotal,
+            totalAmount: summaryPrice.grandTotal,
             status: 0,
-            taxTotal: summaryPrice?.tax,
+            taxTotal: summaryPrice.tax,
           },
         };
 
@@ -347,7 +348,10 @@ function QuotesList() {
           const getCreatedByReg = /^[^(]+/;
           const createdByUserRegArr = getCreatedByReg.exec(createdBy);
           const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : '';
-          if (createdByUser === quoteDraft.node.createdBy) edges.unshift(quoteDraft);
+
+          if (createdByUser === quoteDraft.node.createdBy) {
+            edges.unshift(quoteDraft);
+          }
         } else if (showDraft) {
           edges.unshift(quoteDraft);
         }
@@ -372,11 +376,11 @@ function QuotesList() {
 
   const handleFilterChange = (value: Partial<FilterSearchProps>) => {
     const search: Partial<FilterSearchProps> = {
-      createdBy: value?.createdBy || '',
-      status: value?.status || '',
-      salesRep: value?.salesRep || '',
-      dateCreatedBeginAt: value?.startValue || '',
-      dateCreatedEndAt: value?.endValue || '',
+      createdBy: value.createdBy || '',
+      status: value.status || '',
+      salesRep: value.salesRep || '',
+      dateCreatedBeginAt: value.startValue || '',
+      dateCreatedEndAt: value.endValue || '',
     };
 
     setFilterData({
@@ -395,41 +399,41 @@ function QuotesList() {
         }}
       >
         <B3Filter
-          filterMoreInfo={filterMoreInfo}
-          startPicker={{
-            isEnabled: true,
-            label: b3Lang('quotes.from'),
-            defaultValue: filterData?.dateCreatedBeginAt || '',
-            pickerKey: 'start',
-          }}
           endPicker={{
             isEnabled: true,
             label: b3Lang('quotes.to'),
-            defaultValue: filterData?.dateCreatedEndAt || '',
+            defaultValue: filterData.dateCreatedEndAt || '',
             pickerKey: 'end',
           }}
+          filterMoreInfo={filterMoreInfo}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
+          startPicker={{
+            isEnabled: true,
+            label: b3Lang('quotes.from'),
+            defaultValue: filterData.dateCreatedBeginAt || '',
+            pickerKey: 'start',
+          }}
         />
         <B3PaginationTable
           columnItems={columns}
-          rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}
-          searchParams={filterData}
+          hover
           isCustomRender={false}
-          requestLoading={setIsRequestLoading}
-          tableKey="quoteNumber"
-          sortDirection={order}
-          orderBy={orderBy}
-          sortByFn={handleSetOrderBy}
           labelRowsPerPage={
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
           }
-          renderItem={(row) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
           onClickRow={(row) => {
             goToDetail(row, Number(row.status));
           }}
-          hover
+          orderBy={orderBy}
+          renderItem={(row) => <QuoteItemCard goToDetail={goToDetail} item={row} />}
+          requestLoading={setIsRequestLoading}
+          rowsPerPageOptions={[10, 20, 30]}
+          searchParams={filterData}
+          sortByFn={handleSetOrderBy}
+          sortDirection={order}
+          tableKey="quoteNumber"
         />
       </Box>
     </B3Spin>

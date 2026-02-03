@@ -21,9 +21,7 @@ interface FlexItemProps {
   width?: string;
   padding?: string;
   textAlignLocation?: string;
-  sx?: {
-    [key: string]: string | number;
-  };
+  sx?: Record<string, string | number>;
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -166,7 +164,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
   };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
+    if (['KeyE', 'Equal', 'Minus'].includes(event.code)) {
       event.preventDefault();
     }
   };
@@ -183,6 +181,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
 
   const handleSelectAllChange = () => {
     const newList = [...list];
+
     if (newList.length === products.length) {
       setList([]);
     } else {
@@ -193,11 +192,13 @@ export function B3ProductList<T>(props: ProductProps<T>) {
   const handleSelectChange = (product: ProductItem) => {
     const newList = [...list];
     const index = newList.findIndex((item) => item.id === product.id);
+
     if (index !== -1) {
       newList.splice(index, 1);
     } else {
       newList.push(product);
     }
+
     setList(newList);
   };
 
@@ -224,6 +225,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
         isProduct: true,
       });
     }
+
     if (type === 'shoppingList' || type === 'quickOrder') {
       const { isPriceHidden } = product;
       const isBuyerProduct = judgmentBuyerProduct({
@@ -231,6 +233,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
         productInfo: product,
         isProduct: true,
       });
+
       return isPriceHidden && !isBuyerProduct ? '' : newMoney;
     }
 
@@ -268,10 +271,10 @@ export function B3ProductList<T>(props: ProductProps<T>) {
 
       {isMobile && showCheckbox && (
         <FormControlLabel
-          label={selectAllText}
           control={
             <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           }
+          label={selectAllText}
           sx={{
             paddingLeft: '0.6rem',
           }}
@@ -284,6 +287,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
         const originQuantity = Number(product.quantity) || 1;
 
         let discountAccountForSingleProduct = 0;
+
         appliedDiscounts.forEach((discount) => {
           if (discount.target === 'product') {
             discountAccountForSingleProduct += Number(discount.amount) / originQuantity;
@@ -292,6 +296,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
 
         const currentVariant = variants[0];
         let productPrice = Number(product.base_price);
+
         if (currentVariant) {
           const bcCalculatedPrice = currentVariant.bc_calculated_price;
 
@@ -301,8 +306,8 @@ export function B3ProductList<T>(props: ProductProps<T>) {
         }
 
         if (!currentVariant) {
-          const priceIncTax = product?.price_inc_tax || product.base_price;
-          const priceExTax = product?.price_ex_tax || product.base_price;
+          const priceIncTax = product.price_inc_tax || product.base_price;
+          const priceExTax = product.price_ex_tax || product.base_price;
 
           productPrice = showInclusiveTaxPrice ? Number(priceIncTax) : Number(priceExTax);
         }
@@ -324,51 +329,49 @@ export function B3ProductList<T>(props: ProductProps<T>) {
           priceLabel: string,
           priceValue: number,
           priceDiscountedValue: number,
-        ) => {
-          return (
-            <FlexItem
-              textAlignLocation={textAlign}
-              padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
-              sx={
-                isMobile
-                  ? {
-                      fontSize: '14px',
-                    }
-                  : {}
-              }
+        ) => (
+          <FlexItem
+            padding={quantityEditable ? '10px 0 0' : ''}
+            textAlignLocation={textAlign}
+            {...itemStyle.default}
+            sx={
+              isMobile
+                ? {
+                    fontSize: '14px',
+                  }
+                : {}
+            }
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                justifyContent: textAlign === 'right' ? 'flex-end' : 'flex-start',
+              }}
             >
               <Box
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  justifyContent: textAlign === 'right' ? 'flex-end' : 'flex-start',
+                  '& #product-price': {
+                    textDecoration: discountAccountForSingleProduct > 0 ? 'line-through' : 'none',
+                  },
                 }}
               >
+                {isMobile && <span>{priceLabel}: </span>}
+                <span id="product-price">{getDisplayPrice(priceValue)}</span>
+              </Box>
+              {discountAccountForSingleProduct > 0 ? (
                 <Box
                   sx={{
-                    '& #product-price': {
-                      textDecoration: discountAccountForSingleProduct > 0 ? 'line-through' : 'none',
-                    },
+                    color: '#2E7D32',
                   }}
                 >
-                  {isMobile && <span>{priceLabel}: </span>}
-                  <span id="product-price">{getDisplayPrice(priceValue)}</span>
+                  {getDisplayPrice(priceDiscountedValue)}
                 </Box>
-                {discountAccountForSingleProduct > 0 ? (
-                  <Box
-                    sx={{
-                      color: '#2E7D32',
-                    }}
-                  >
-                    {getDisplayPrice(priceDiscountedValue)}
-                  </Box>
-                ) : null}
-              </Box>
-            </FlexItem>
-          );
-        };
+              ) : null}
+            </Box>
+          </FlexItem>
+        );
 
         return (
           <Flex isMobile={isMobile} key={product.id}>
@@ -383,7 +386,6 @@ export function B3ProductList<T>(props: ProductProps<T>) {
                 }}
               >
                 <Typography
-                  variant="body1"
                   color="#212121"
                   onClick={() => {
                     if (canToProduct) {
@@ -391,29 +393,31 @@ export function B3ProductList<T>(props: ProductProps<T>) {
                         location: { origin },
                       } = window;
 
-                      if (product?.productUrl)
-                        window.location.href = `${origin}${product?.productUrl}`;
+                      if (product.productUrl) {
+                        window.location.href = `${origin}${product.productUrl}`;
+                      }
                     }
                   }}
                   sx={{
                     cursor: 'pointer',
                   }}
+                  variant="body1"
                 >
                   {product.name}
                 </Typography>
-                <Typography variant="body1" color="#616161">
+                <Typography color="#616161" variant="body1">
                   {product.sku}
                 </Typography>
                 {product.type === 'digital' &&
                   product.downloadFileUrls &&
                   product.downloadFileUrls.length > 0 && (
                     <Button
+                      onClick={() => getCurrentProductUrls?.(product.product_id)}
                       sx={{
                         m: '0 0 0 -8px',
                         minWidth: 0,
                       }}
                       variant="text"
-                      onClick={() => getCurrentProductUrls?.(product.product_id)}
                     >
                       {b3Lang('orderDetail.digitalProducts.viewFiles')}
                     </Button>
@@ -440,14 +444,13 @@ export function B3ProductList<T>(props: ProductProps<T>) {
             >
               {quantityEditable ? (
                 <TextField
-                  type="number"
-                  variant="filled"
+                  error={Boolean(product.helperText)}
+                  helperText={product.helperText}
                   hiddenLabel={!isMobile}
                   label={isMobile ? 'Qty' : ''}
-                  value={quantity}
+                  onBlur={handleNumberInputBlur(product)}
                   onChange={handleProductQuantityChange(product.id)}
                   onKeyDown={handleNumberInputKeyDown}
-                  onBlur={handleNumberInputBlur(product)}
                   size="small"
                   sx={{
                     width: isMobile ? '110px' : '72px',
@@ -456,8 +459,9 @@ export function B3ProductList<T>(props: ProductProps<T>) {
                       marginRight: '0',
                     },
                   }}
-                  error={!!product.helperText}
-                  helperText={product.helperText}
+                  type="number"
+                  value={quantity}
+                  variant="filled"
                 />
               ) : (
                 <>

@@ -12,7 +12,7 @@ interface TablePagination {
 interface PaginationTableProps<Row extends object> {
   tableFixed?: boolean;
   tableHeaderHide?: boolean;
-  columnItems: TableColumnItem<Row>[];
+  columnItems: Array<TableColumnItem<Row>>;
   itemSpacing?: number;
   itemXs?: number;
   rowsPerPageOptions?: number[];
@@ -39,7 +39,7 @@ interface PaginationTableProps<Row extends object> {
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
   pageType?: string;
-  items: PossibleNodeWrapper<Row>[];
+  items: Array<PossibleNodeWrapper<Row>>;
 }
 
 function PaginationTable<Row extends object>({
@@ -88,7 +88,9 @@ function PaginationTable<Row extends object>({
   const [isMobile] = useMobile();
 
   useEffect(() => {
-    if (getSelectCheckbox) getSelectCheckbox(selectCheckbox);
+    if (getSelectCheckbox) {
+      getSelectCheckbox(selectCheckbox);
+    }
     // disabling as getSelectCheckbox will trigger rerenders if the user passes a function that is not memoized
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectCheckbox, items]);
@@ -103,7 +105,10 @@ function PaginationTable<Row extends object>({
   };
 
   const getCurrentAllItemsSelect = useCallback(() => {
-    if (!selectCheckbox.length) return false;
+    if (!selectCheckbox.length) {
+      return false;
+    }
+
     return items.every((item) => {
       const option = isNodeWrapper(item) ? item.node : item;
 
@@ -115,6 +120,7 @@ function PaginationTable<Row extends object>({
   useEffect(() => {
     if (isSelectOtherPageCheckbox) {
       const flag = getCurrentAllItemsSelect();
+
       setAllSelect(flag);
     }
   }, [selectCheckbox, pagination, isSelectOtherPageCheckbox, getCurrentAllItemsSelect]);
@@ -125,8 +131,10 @@ function PaginationTable<Row extends object>({
         setSelectCheckbox([]);
       } else {
         const selects: Array<string | number> = [];
+
         items.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
+
           if (option) {
             if (pageType === 'shoppingListDetailsTable') {
               selects.push(
@@ -147,16 +155,19 @@ function PaginationTable<Row extends object>({
       const flag = getCurrentAllItemsSelect();
 
       const newSelectCheckbox = [...selectCheckbox];
+
       if (flag) {
         items.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
           // @ts-expect-error typed previously as an any
           const index = newSelectCheckbox.findIndex((item) => item === option[selectedSymbol]);
+
           newSelectCheckbox.splice(index, 1);
         });
       } else {
         items.forEach((item) => {
           const option = isNodeWrapper(item) ? item.node : item;
+
           // @ts-expect-error typed previously as an any
           if (!selectCheckbox.includes(option[selectedSymbol])) {
             // @ts-expect-error typed previously as an any
@@ -178,51 +189,53 @@ function PaginationTable<Row extends object>({
   const handleSelectOneItem = (id: string | number) => {
     const selects = [...selectCheckbox];
     const index = selects.indexOf(id);
+
     if (index !== -1) {
       selects.splice(index, 1);
     } else {
       selects.push(id);
     }
+
     setSelectCheckbox(selects);
   };
 
   return (
     <B3Table
-      hover={hover}
-      columnItems={columnItems || []}
-      listItems={items.slice(pagination.offset, pagination.offset + pagination.first)}
-      pagination={tablePagination}
-      rowsPerPageOptions={rowsPerPageOptions}
-      onPaginationChange={handlePaginationChange}
-      isCustomRender={isCustomRender}
-      isInfiniteScroll={isMobile}
-      renderItem={renderItem}
-      tableFixed={tableFixed}
-      tableHeaderHide={tableHeaderHide}
-      itemSpacing={itemSpacing}
-      itemXs={itemXs}
-      noDataText={noDataText}
-      tableKey={tableKey}
-      itemIsMobileSpacing={itemIsMobileSpacing}
-      showCheckbox={showCheckbox}
-      showSelectAllCheckbox={showSelectAllCheckbox}
-      disableCheckbox={disableCheckbox}
-      selectedSymbol={selectedSymbol}
-      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
-      isAllSelect={isAllSelect}
-      selectCheckbox={selectCheckbox}
-      handleSelectAllItems={handleSelectAllItems}
-      handleSelectOneItem={handleSelectOneItem}
-      showBorder={showBorder}
-      labelRowsPerPage={labelRowsPerPage}
-      onClickRow={onClickRow}
-      showPagination={showPagination}
-      showRowsPerPageOptions={showRowsPerPageOptions}
       CollapseComponent={CollapseComponent}
       applyAllDisableCheckbox={applyAllDisableCheckbox}
-      sortDirection={sortDirection}
-      sortByFn={sortByFn}
+      columnItems={columnItems || []}
+      disableCheckbox={disableCheckbox}
+      handleSelectAllItems={handleSelectAllItems}
+      handleSelectOneItem={handleSelectOneItem}
+      hover={hover}
+      isAllSelect={isAllSelect}
+      isCustomRender={isCustomRender}
+      isInfiniteScroll={isMobile}
+      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
+      itemIsMobileSpacing={itemIsMobileSpacing}
+      itemSpacing={itemSpacing}
+      itemXs={itemXs}
+      labelRowsPerPage={labelRowsPerPage}
+      listItems={items.slice(pagination.offset, pagination.offset + pagination.first)}
+      noDataText={noDataText}
+      onClickRow={onClickRow}
+      onPaginationChange={handlePaginationChange}
       orderBy={orderBy}
+      pagination={tablePagination}
+      renderItem={renderItem}
+      rowsPerPageOptions={rowsPerPageOptions}
+      selectCheckbox={selectCheckbox}
+      selectedSymbol={selectedSymbol}
+      showBorder={showBorder}
+      showCheckbox={showCheckbox}
+      showPagination={showPagination}
+      showRowsPerPageOptions={showRowsPerPageOptions}
+      showSelectAllCheckbox={showSelectAllCheckbox}
+      sortByFn={sortByFn}
+      sortDirection={sortDirection}
+      tableFixed={tableFixed}
+      tableHeaderHide={tableHeaderHide}
+      tableKey={tableKey}
     />
   );
 }

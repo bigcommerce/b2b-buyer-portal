@@ -2,10 +2,10 @@ import { EventType } from '@/hooks/useB2BCallback';
 
 import b2bLogger from './b3Logger';
 
-type CallbackEvent = {
+interface CallbackEvent {
   data: CustomFieldItems;
   preventDefault: () => void;
-};
+}
 
 type Callback = (event: CallbackEvent) => any;
 
@@ -21,6 +21,7 @@ export default class CallbackManager {
   addEventListener(callbackKey: EventType, callback: Callback): void {
     if (typeof callback !== 'function') {
       console.error('callback should be a function'); // eslint-disable-line no-console
+
       return;
     }
 
@@ -46,13 +47,17 @@ export default class CallbackManager {
     if (!this.callbacks.has(callbackKey)) {
       return false;
     }
+
     const list = this.callbacks.get(callbackKey) ?? [];
     const index = list.findIndex((cb) => cb === callback);
+
     if (index === -1) {
       return false;
     }
+
     list.splice(index, 1);
     this.callbacks.set(callbackKey, list);
+
     return true;
   }
 
@@ -70,20 +75,25 @@ export default class CallbackManager {
         success = false;
       },
     };
+
     if (!this.callbacks.has(callbackKey)) {
       return true;
     }
+
     const list = this.callbacks.get(callbackKey) ?? [];
+
     list.forEach((callback) => {
       try {
         callback(event);
       } catch (e) {
         success = false;
+
         if (e instanceof Error) {
           b2bLogger.error(e.message);
         }
       }
     });
+
     return success;
   }
 }

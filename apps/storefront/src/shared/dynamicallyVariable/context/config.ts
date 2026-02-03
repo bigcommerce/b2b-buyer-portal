@@ -13,7 +13,7 @@ export interface MsgsProps {
   };
 }
 export interface TipMessagesProps {
-  msgs?: Array<MsgsProps> | [];
+  msgs?: MsgsProps[] | [];
   autoHideDuration?: number;
   vertical?: 'top' | 'bottom';
   horizontal?: 'left' | 'right' | 'center';

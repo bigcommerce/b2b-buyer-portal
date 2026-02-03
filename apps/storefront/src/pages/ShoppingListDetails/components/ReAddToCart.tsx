@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Delete } from '@mui/icons-material';
 import { Alert, Box, Grid, Typography } from '@mui/material';
 import { cloneDeep } from 'lodash-es';
+import { useEffect, useState } from 'react';
 
 import B3Dialog from '@/components/B3Dialog';
 import CustomButton from '@/components/button/CustomButton';
@@ -176,8 +176,10 @@ export default function ReAddToCart({
     isValid: boolean,
   ) => {
     const newProduct: ProductsProps[] = [...internalProducts];
+
     newProduct[index].node.quantity = Number(value);
     newProduct[index].isValid = isValid;
+
     const calculateProduct = await setModifierQtyPrice(newProduct[index].node, Number(value));
 
     if (calculateProduct) {
@@ -206,7 +208,8 @@ export default function ReAddToCart({
   // this need the information of the SearchGraphQLQuery endpoint change
   const handleClearNoStock = async () => {
     const newProduct = internalProducts.filter((item) => item.isStock === '0' || item.stock !== 0);
-    const requestArr: Promise<any>[] = [];
+    const requestArr: Array<Promise<any>> = [];
+
     newProduct.forEach((product) => {
       const item = product;
       const {
@@ -218,18 +221,20 @@ export default function ReAddToCart({
       } = product;
 
       const quantityNumber = parseInt(`${quantity}`, 10) || 0;
+
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
         item.node.quantity = minQuantity;
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         item.node.quantity = maxQuantity;
       }
+
       if (isStock !== '0' && stock && (quantity ? Number(quantity) : 0) > stock) {
         item.node.quantity = stock;
       }
 
       item.isValid = true;
 
-      const qty = product?.node?.quantity ? Number(product.node.quantity) : 0;
+      const qty = product.node.quantity ? Number(product.node.quantity) : 0;
 
       requestArr.push(setModifierQtyPrice(product.node, qty));
     });
@@ -244,20 +249,20 @@ export default function ReAddToCart({
 
   return (
     <B3Dialog
-      isOpen={isOpen}
-      handleLeftClick={onCancel}
       handRightClick={handlePrimaryAction}
-      title={
-        allowJuniorPlaceOrder
-          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
-          : b3Lang('shoppingList.reAddToCart.addToCart')
-      }
+      handleLeftClick={onCancel}
+      isOpen={isOpen}
+      maxWidth="xl"
       rightSizeBtn={
         allowJuniorPlaceOrder
           ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
           : b3Lang('shoppingList.reAddToCart.addToCart')
       }
-      maxWidth="xl"
+      title={
+        allowJuniorPlaceOrder
+          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
+          : b3Lang('shoppingList.reAddToCart.addToCart')
+      }
     >
       <Grid>
         <Box
@@ -266,7 +271,7 @@ export default function ReAddToCart({
           }}
         >
           {successProducts > 0 && (
-            <Alert variant="filled" severity="success">
+            <Alert severity="success" variant="filled">
               {allowJuniorPlaceOrder
                 ? b3Lang('shoppingList.reAddToCart.productsCanCheckout', {
                     successProducts,
@@ -284,7 +289,7 @@ export default function ReAddToCart({
           }}
         >
           {internalProducts.length > 0 && (
-            <Alert variant="filled" severity="error">
+            <Alert severity="error" variant="filled">
               {allowJuniorPlaceOrder
                 ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
                     quantity: internalProducts.length,
@@ -295,7 +300,7 @@ export default function ReAddToCart({
             </Alert>
           )}
         </Box>
-        <B3Spin isSpinning={loading} size={16} isFlex={false}>
+        <B3Spin isFlex={false} isSpinning={loading} size={16}>
           <Box
             sx={{
               display: 'flex',
@@ -382,22 +387,22 @@ export default function ReAddToCart({
                           marginLeft: '16px',
                         }}
                       >
-                        <Typography variant="body1" color="#212121">
+                        <Typography color="#212121" variant="body1">
                           {productName}
                         </Typography>
-                        <Typography variant="body1" color="#616161">
+                        <Typography color="#616161" variant="body1">
                           {variantSku}
                         </Typography>
                         {newOptionList.length > 0 &&
                           optionsValue.length > 0 &&
                           optionsValue.map((option: CustomFieldItems) => (
                             <Typography
+                              key={option.valueLabel}
                               sx={{
                                 fontSize: '0.75rem',
                                 lineHeight: '1.5',
                                 color: '#455A64',
                               }}
-                              key={option.valueLabel}
                             >
                               {`${option.valueLabel}: ${option.valueText}`}
                             </Typography>
@@ -413,11 +418,11 @@ export default function ReAddToCart({
                         isStock={isStock}
                         maxQuantity={maxQuantity || node.productsSearch?.orderQuantityMaximum}
                         minQuantity={minQuantity || node.productsSearch?.orderQuantityMinimum}
-                        stock={stock}
-                        value={quantity}
                         onChange={(value, isValid) => {
                           handleUpdateProductQty(index, value, isValid);
                         }}
+                        stock={stock}
+                        value={quantity}
                       />
                     </FlexItem>
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
@@ -427,12 +432,12 @@ export default function ReAddToCart({
 
                     <FlexItem {...itemStyle.delete}>
                       <Delete
+                        onClick={() => {
+                          deleteProduct(index);
+                        }}
                         sx={{
                           cursor: 'pointer',
                           color: 'rgba(0, 0, 0, 0.54)',
-                        }}
-                        onClick={() => {
-                          deleteProduct(index);
                         }}
                       />
                     </FlexItem>

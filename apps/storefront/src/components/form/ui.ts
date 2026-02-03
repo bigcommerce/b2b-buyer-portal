@@ -10,12 +10,12 @@ namespace Form {
   }
 
   export interface B3CustomFormProps {
-    formFields?: {}[];
+    formFields?: Array<{}>;
     [key: string]: any;
   }
 
   export interface B3UIProps {
-    control?: Control<FieldValues>;
+    control?: Control;
     [key: string]: any;
   }
 

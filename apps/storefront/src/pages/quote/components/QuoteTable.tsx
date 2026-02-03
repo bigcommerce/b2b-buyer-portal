@@ -63,10 +63,10 @@ const StyledTextField = styled(TextField)(() => ({
 
 const QUOTE_PRODUCT_QTY_MAX = 1000000;
 
-type ProductOptionsValue = {
+interface ProductOptionsValue {
   valueLabel: string;
   valueText: string;
-};
+}
 
 function getProductOptionsValues({ productsSearch, optionList: selectOptions }: QuoteItem['node']) {
   const productFields = getProductOptionsFields(
@@ -79,7 +79,10 @@ function getProductOptionsValues({ productsSearch, optionList: selectOptions }: 
   return optionList.length > 0 ? productFields.filter((item) => item.valueText) : [];
 }
 
-type AvailabilityWarnings = { warningMessage: string | null; warningDetails: string | null };
+interface AvailabilityWarnings {
+  warningMessage: string | null;
+  warningDetails: string | null;
+}
 
 function getAvailabilityWarningsFrontend(
   row: QuoteItem['node'],
@@ -93,13 +96,14 @@ function getAvailabilityWarningsFrontend(
   let warningMessage: string | null = null;
   let warningDetails: string | null = null;
   const currentProduct = getVariantInfoOOSAndPurchase(row);
-  const showWarning = currentProduct?.name;
+  const showWarning = currentProduct.name;
 
   if (showWarning) {
-    if (currentProduct?.type === 'oos') {
+    if (currentProduct.type === 'oos') {
       const inventoryTracking = product.inventoryTracking || row.inventoryTracking || 'none';
 
       let inventoryLevel = product.inventoryLevel || row.inventoryLevel || 0;
+
       if (inventoryTracking === 'variant' && product.variants) {
         const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
 
@@ -136,6 +140,7 @@ function getAvailabilityWarningsBackend(
 
     if (product.inventoryTracking === 'variant' && product.variants) {
       const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
+
       if (currentVariant) {
         hasUnlimitedBackorder = currentVariant.unlimited_backorder;
         availableStock = currentVariant.available_to_sell;
@@ -207,7 +212,10 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
   const handleCheckProductQty = async (item: QuoteItem['node'], quantity: number) => {
     let newQty = ceil(quantity);
-    if (newQty === Number(quantity) && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) return;
+
+    if (newQty === Number(quantity) && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) {
+      return;
+    }
 
     if (quantity < 1) {
       newQty = 1;
@@ -252,6 +260,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       } = product;
 
       let [variantInfo] = variants;
+
       if (variants.length > 1) {
         variantInfo = variants.find((item) => item.variant_id === variantId) ?? variantInfo;
       }
@@ -259,13 +268,14 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       const { image_url: primaryImage = '', sku: variantSku } = variantInfo;
 
       let selectOptions;
+
       try {
         selectOptions = JSON.stringify(newSelectOptionList);
       } catch (error) {
         selectOptions = '[]';
       }
 
-      const taxExclusive = variantInfo!.bc_calculated_price?.tax_exclusive || 0;
+      const taxExclusive = variantInfo.bc_calculated_price.tax_exclusive || 0;
       const basePriceExclusiveTax = basePrice || taxExclusive;
 
       return {
@@ -292,11 +302,13 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
   const handleChooseOptionsDialogConfirm = async (products: Product[]) => {
     await calculateProductListPrice(products);
+
     const newProducts = getNewQuoteProduct(products);
 
     newProducts.forEach((product) => {
       const { basePrice } = product.node;
       const newProduct = product;
+
       newProduct.node.id = optionsProductId;
 
       newProduct.node.basePrice = basePrice;
@@ -314,7 +326,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
     ? getAvailabilityWarningsBackend
     : getAvailabilityWarningsFrontend;
 
-  const columnItems: TableColumnItem<QuoteItem['node']>[] = [
+  const columnItems: Array<TableColumnItem<QuoteItem['node']>> = [
     {
       key: 'Product',
       title: b3Lang('quoteDraft.quoteTable.product'),
@@ -325,7 +337,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
           ? availabilityWarning.warningMessage
           : thresholdWarning;
         const productOptionsValues = getProductOptionsValues(row);
-        const productUrl = row.productsSearch?.productUrl;
+        const productUrl = row.productsSearch.productUrl;
 
         return (
           <Box
@@ -335,13 +347,12 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
             }}
           >
             <StyledImage
-              src={row.primaryImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
+              src={row.primaryImage || PRODUCT_DEFAULT_IMAGE}
             />
             <Box>
               <Typography
-                variant="body1"
                 color="#212121"
                 onClick={() => {
                   if (productUrl) {
@@ -351,22 +362,23 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                 sx={{
                   cursor: 'pointer',
                 }}
+                variant="body1"
               >
                 {row.productName}
               </Typography>
-              <Typography variant="body1" color="#616161">
+              <Typography color="#616161" variant="body1">
                 {row.variantSku}
               </Typography>
               {productOptionsValues.length > 0 && (
                 <Box>
                   {productOptionsValues.map((option: any) => (
                     <Typography
+                      key={option.valueLabel}
                       sx={{
                         fontSize: '0.75rem',
                         lineHeight: '1.5',
                         color: '#455A64',
                       }}
-                      key={option.valueLabel}
                     >
                       {`${option.valueLabel}: ${option.valueText}`}
                     </Typography>
@@ -405,6 +417,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
         const { basePrice, taxPrice } = row;
 
         const inTaxPrice = getBCPrice(Number(basePrice), Number(taxPrice));
+
         return (
           <Typography
             sx={{
@@ -429,23 +442,23 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       title: b3Lang('quoteDraft.quoteTable.qty'),
       render: (row) => (
         <StyledTextField
-          size="small"
-          type="number"
-          variant="filled"
-          value={row.quantity}
           inputProps={{
             inputMode: 'numeric',
             pattern: '[0-9]*',
           }}
-          onChange={(e) => {
-            handleUpdateProductQty(row, Number(e.target.value));
-          }}
           onBlur={(e) => {
             handleCheckProductQty(row, Number(e.target.value));
           }}
+          onChange={(e) => {
+            handleUpdateProductQty(row, Number(e.target.value));
+          }}
+          size="small"
           sx={{
             width: '75%',
           }}
+          type="number"
+          value={row.quantity}
+          variant="filled"
         />
       ),
       width: '15%',
@@ -477,20 +490,15 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
               })}
             </Typography>
             <Box
+              id="shoppingList-actionList"
               sx={{
                 marginTop: '1rem',
                 opacity: 0,
                 textAlign: 'end',
               }}
-              id="shoppingList-actionList"
             >
               {optionList.length > 0 && (
                 <Edit
-                  sx={{
-                    marginRight: '0.5rem',
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
                   onClick={() => {
                     const { productsSearch, id, optionList, quantity } = row;
 
@@ -503,13 +511,18 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                       id,
                     );
                   }}
+                  sx={{
+                    marginRight: '0.5rem',
+                    cursor: 'pointer',
+                    color: 'rgba(0, 0, 0, 0.54)',
+                  }}
                 />
               )}
               <Delete
-                sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
                 onClick={() => {
                   handleDeleteClick(row.id);
                 }}
+                sx={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.54)' }}
               />{' '}
             </Box>
           </Box>
@@ -543,35 +556,35 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
       <PaginationTable
         columnItems={columnItems}
-        rowsPerPageOptions={[12, 24, 36]}
-        items={items}
-        isCustomRender={false}
         hover
-        labelRowsPerPage={b3Lang('quoteDraft.quoteTable.perPage')}
-        showBorder={false}
+        isCustomRender={false}
         itemIsMobileSpacing={0}
+        items={items}
+        labelRowsPerPage={b3Lang('quoteDraft.quoteTable.perPage')}
         noDataText={b3Lang('quoteDraft.quoteTable.noProducts')}
         renderItem={(row, index = 0) => (
           <QuoteTableCard
-            item={row}
-            isLast={index === total - 1}
-            onEdit={handleOpenProductEdit}
-            onDelete={handleDeleteClick}
             handleUpdateProductQty={handleUpdateProductQty}
+            isLast={index === total - 1}
+            item={row}
+            onDelete={handleDeleteClick}
+            onEdit={handleOpenProductEdit}
           />
         )}
+        rowsPerPageOptions={[12, 24, 36]}
+        showBorder={false}
       />
 
       <ChooseOptionsDialog
-        isOpen={chooseOptionsOpen}
+        isEdit
         isLoading={isRequestLoading}
-        setIsLoading={setIsRequestLoading}
-        product={optionsProduct}
+        isOpen={chooseOptionsOpen}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={
           handleChooseOptionsDialogConfirm as unknown as (products: CustomFieldItems[]) => void
         }
-        isEdit
+        product={optionsProduct}
+        setIsLoading={setIsRequestLoading}
       />
     </StyledQuoteTableContainer>
   );

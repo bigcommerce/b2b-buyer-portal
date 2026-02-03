@@ -18,9 +18,11 @@ interface B3StoreContainerProps {
 }
 
 type ZIndexType = keyof typeof Z_INDEX;
+
 const setZIndexVariables = () => {
   Object.keys(Z_INDEX).forEach((key) => {
     const zIndexKey = key as ZIndexType;
+
     document.documentElement.style.setProperty(`--z-index-${key}`, Z_INDEX[zIndexKey].toString());
   });
 };
@@ -47,7 +49,9 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         const { storeBasicInfo } = await getBCStoreChannelId();
         const [storeInfo] = storeBasicInfo.storeSites;
 
-        if (!storeInfo) return;
+        if (!storeInfo) {
+          return;
+        }
 
         storeDispatch(setStoreInfo(storeInfo));
         storeDispatch(setBackorderEnabled(storeBasicInfo.backorderEnabled ?? false));
@@ -88,6 +92,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         showPageMask(false);
       }
     };
+
     setZIndexVariables();
     getStoreBasicInfo();
     // disabling because dispatchers are not supposed to be here

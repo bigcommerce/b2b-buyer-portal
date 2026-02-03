@@ -1,4 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
+
+import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
+import { when } from 'vitest-when';
+
+import { B2BProductPurchasableResponse } from '@/shared/service/b2b/graphql/product';
+import { GlobalState, initialState } from '@/store';
 import {
   builder,
   FakeProductDataProvider,
@@ -8,11 +14,6 @@ import {
   startMockServer,
   stringContainingAll,
 } from 'tests/test-utils';
-import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
-import { when } from 'vitest-when';
-
-import { B2BProductPurchasableResponse } from '@/shared/service/b2b/graphql/product';
-import { GlobalState, initialState } from '@/store';
 
 import { useMyQuote } from './useMyQuote';
 
@@ -63,7 +64,7 @@ describe('when NP&OOS setting is enabled', () => {
       ),
     );
 
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -109,7 +110,7 @@ describe('when NP&OOS setting is enabled', () => {
       ),
     );
 
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -140,7 +141,7 @@ describe('when NP&OOS setting is disabled', () => {
   });
 
   it('should render add to quote button if product is purchasable', async () => {
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>
@@ -163,7 +164,7 @@ describe('when NP&OOS setting is disabled', () => {
   });
 
   it('should not render add to quote button if product is not purchasable', async () => {
-    render(<FakeProductDataProvider productId="123" quantity="1" sku="TEST-SKU" options={{}} />);
+    render(<FakeProductDataProvider options={{}} productId="123" quantity="1" sku="TEST-SKU" />);
 
     renderHookWithProviders(
       () =>

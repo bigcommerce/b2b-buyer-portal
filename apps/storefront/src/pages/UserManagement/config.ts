@@ -16,7 +16,7 @@ interface FilterProps {
 }
 
 interface UsersFilesProps {
-  [key: string]: string | boolean | number | Array<any> | boolean | undefined;
+  [key: string]: string | boolean | number | any[] | undefined;
   name: string;
 }
 
@@ -28,7 +28,7 @@ interface UserRoleProps {
 }
 
 const getUserRole = () => {
-  const userRole: Array<UserRoleProps> = [
+  const userRole: UserRoleProps[] = [
     {
       label: 'Admin',
       name: 'Admin',
@@ -52,8 +52,8 @@ const getUserRole = () => {
   return userRole;
 };
 
-const getFilterMoreList = (b3Lang: LangFormatFunction) => {
-  return [
+const getFilterMoreList = (b3Lang: LangFormatFunction) =>
+  [
     {
       name: 'companyRoleId',
       label: b3Lang('userManagement.config.userRole'),
@@ -67,10 +67,10 @@ const getFilterMoreList = (b3Lang: LangFormatFunction) => {
       size: 'small',
     },
   ] satisfies [unknown];
-};
 
 const getUsersFiles = (type: string, b3Lang: LangFormatFunction, disabledUserRole = false) => {
   const roleArr = getFilterMoreList(b3Lang);
+
   roleArr[0].required = true;
   roleArr[0].disabled = disabledUserRole;
 
@@ -122,9 +122,7 @@ const getUsersFiles = (type: string, b3Lang: LangFormatFunction, disabledUserRol
   return usersFiles;
 };
 
-type EmailError = {
-  [k: number]: string;
-};
+type EmailError = Record<number, string>;
 
 const emailError: EmailError = {
   3: 'global.emailValidate.multipleCustomer',

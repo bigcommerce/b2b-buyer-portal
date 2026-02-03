@@ -10,9 +10,7 @@ import {
   OrderSummary,
 } from '../../../types';
 
-interface CouponInfo {
-  [key: string]: string;
-}
+type CouponInfo = Record<string, string>;
 
 const getOrderShipping = (data: B2BOrderData) => {
   const { shipments, shippingAddress, products = [] } = data;
@@ -22,8 +20,10 @@ const getOrderShipping = (data: B2BOrderData) => {
     const { items } = shipment;
 
     const itemsInfo: OrderProductItem[] = [];
+
     items.forEach((item) => {
       const product = products.find((product) => product.id === item.order_product_id);
+
       if (product) {
         itemsInfo.push({
           ...product,
@@ -76,8 +76,10 @@ const getOrderBilling = (data: B2BOrderData) => {
 
 const formatPrice = (price: string | number) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
+
   try {
     const priceNumber = parseFloat(price.toString()) || 0;
+
     return priceNumber.toFixed(decimalPlaces);
   } catch (error) {
     return '0.00';
@@ -112,10 +114,11 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
 
   coupons.forEach((coupon) => {
     const key = b3Lang('orderDetail.summary.coupon', {
-      couponCode: coupon?.code ? `(${coupon.code})` : '',
+      couponCode: coupon.code ? `(${coupon.code})` : '',
     });
+
     couponLabel[key] = key;
-    couponPrice[key] = coupon?.discount;
+    couponPrice[key] = coupon.discount;
     couponSymbol[key] = 'coupon';
   });
 
@@ -194,9 +197,8 @@ const handleProductQuantity = (data: B2BOrderData) => {
   return newProducts;
 };
 
-const getDigitalProducts = (products: OrderProductItem[]) => {
-  return products.filter((product) => product.type === 'digital');
-};
+const getDigitalProducts = (products: OrderProductItem[]) =>
+  products.filter((product) => product.type === 'digital');
 
 const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) => ({
   shippings: getOrderShipping(data),
@@ -208,7 +210,7 @@ const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) 
   status: data.status,
   statusCode: data.statusId,
   currencyCode: data.currencyCode,
-  currency: data.money?.currency_token || '$',
+  currency: data.money.currency_token || '$',
   money: data.money,
   orderSummary: getOrderSummary(data, b3Lang),
   payment: getPaymentData(data),

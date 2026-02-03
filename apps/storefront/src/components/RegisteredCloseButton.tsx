@@ -1,6 +1,6 @@
+import { Box } from '@mui/material';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
 
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobalContext } from '@/shared/global';
@@ -21,6 +21,7 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
 
   const handleCloseForm = () => {
     const isInLoginPage = window.location.hash.startsWith('#/login');
+
     if (isCloseGotoBCHome || isInLoginPage) {
       window.location.href = '/';
     } else {

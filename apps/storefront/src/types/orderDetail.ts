@@ -32,11 +32,11 @@ export interface OrderProductItem {
   name: string;
   name_customer: string;
   name_merchant: string;
-  optionList: {
+  optionList: Array<{
     optionId: number;
     optionValue: string;
     type: string;
-  }[];
+  }>;
   option_set_id: number;
   order_address_id: number;
   order_id: number;
@@ -251,10 +251,6 @@ export interface B2BOrderData {
 export interface OrderSummary {
   createAt: string;
   name: string;
-  priceData: {
-    [k: string]: string;
-  };
-  priceSymbol: {
-    [k: string]: string;
-  };
+  priceData: Record<string, string>;
+  priceSymbol: Record<string, string>;
 }

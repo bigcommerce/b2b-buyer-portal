@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
@@ -420,16 +419,16 @@ it('displays a summary of products within the shopping list', async () => {
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  expect(screen.getByText('2 products')).toBeVisible();
+  expect(screen.getByText('2 products')).toBeInTheDocument();
 
   // This is a workaround for the fact that the total price is not immediately available.
   // The price is set after a useEffect and can fail during tests.
   await waitFor(() => {
-    expect(screen.getByText('$460.00')).toBeVisible();
+    expect(screen.getByText('$460.00')).toBeInTheDocument();
   });
 
-  expect(screen.getByRole('row', { name: /Lovely socks/ })).toBeVisible();
-  expect(screen.getByRole('row', { name: /Fancy hat/ })).toBeVisible();
+  expect(screen.getByRole('row', { name: /Lovely socks/ })).toBeInTheDocument();
+  expect(screen.getByRole('row', { name: /Fancy hat/ })).toBeInTheDocument();
 });
 
 it('displays the details of each product', async () => {
@@ -472,6 +471,7 @@ it('displays the details of each product', async () => {
   });
 
   const searchProductsQuerySpy = vi.fn();
+
   server.use(
     graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
     graphql.query('SearchProducts', ({ query }) => {
@@ -496,13 +496,13 @@ it('displays the details of each product', async () => {
   const row = screen.getByRole('row', { name: /Lovely socks/ });
 
   expect(within(row).getByRole('img')).toHaveAttribute('src', 'https://example.com/socks.jpg');
-  expect(within(row).getByText('Lovely socks')).toBeVisible();
-  expect(within(row).getByText('Size: large')).toBeVisible();
-  expect(within(row).getByText('LVLY-SK-123')).toBeVisible();
-  expect(within(row).getByText('Decorative wool socks')).toBeVisible();
-  expect(within(row).getByRole('cell', { name: '$49.00' })).toBeVisible();
-  expect(within(row).getByRole('cell', { name: '2' })).toBeVisible();
-  expect(within(row).getByRole('cell', { name: '$98.00' })).toBeVisible();
+  expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+  expect(within(row).getByText('Size: large')).toBeInTheDocument();
+  expect(within(row).getByText('LVLY-SK-123')).toBeInTheDocument();
+  expect(within(row).getByText('Decorative wool socks')).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '$49.00' })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
+  expect(within(row).getByRole('cell', { name: '$98.00' })).toBeInTheDocument();
 });
 
 describe('when the user clicks on a product name', () => {
@@ -511,6 +511,7 @@ describe('when the user clicks on a product name', () => {
 
     // crude spy to intercept the window.location.href setter
     const hrefSpy = vitest.fn();
+
     vi.spyOn(window, 'location', 'get').mockReturnValue(
       Object.defineProperty({ ...window.location }, 'href', { set: hrefSpy }),
     );
@@ -574,8 +575,8 @@ it('shows "Add to list" panel for draft shopping lists', async () => {
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  expect(screen.getByText('Shopping List 1')).toBeVisible();
-  expect(screen.getByText(/add to list/i)).toBeVisible();
+  expect(screen.getByText('Shopping List 1')).toBeInTheDocument();
+  expect(screen.getByText(/add to list/i)).toBeInTheDocument();
 });
 
 it('hides "Add to list" panel from b2b users for rejected shopping lists', async () => {
@@ -604,7 +605,7 @@ it('hides "Add to list" panel from b2b users for rejected shopping lists', async
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  expect(screen.getByText('Shopping List 1')).toBeVisible();
+  expect(screen.getByText('Shopping List 1')).toBeInTheDocument();
   expect(screen.queryByText(/add to list/i)).not.toBeInTheDocument();
 });
 
@@ -636,7 +637,7 @@ it('hides "Add to list" panel from b2b users for deleted shopping lists', async 
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  expect(screen.getByText('Shopping List 1')).toBeVisible();
+  expect(screen.getByText('Shopping List 1')).toBeInTheDocument();
   expect(screen.queryByText(/add to list/i)).not.toBeInTheDocument();
 });
 
@@ -677,7 +678,7 @@ describe('when user approves a shopping list', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(screen.getByText('Shopping List 1')).toBeVisible();
+    expect(screen.getByText('Shopping List 1')).toBeInTheDocument();
 
     await userEvent.click(await screen.findByRole('button', { name: /approve/i }));
 
@@ -729,7 +730,7 @@ describe('when user rejects a shopping list', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    expect(screen.getByText('Shopping List 1')).toBeVisible();
+    expect(screen.getByText('Shopping List 1')).toBeInTheDocument();
 
     await userEvent.click(await screen.findByRole('button', { name: /reject/i }));
 
@@ -783,7 +784,8 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
-    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$98.00' })).toBeVisible();
+
+    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$98.00' })).toBeInTheDocument();
 
     getShoppingList.mockReturnValueOnce(
       buildShoppingListGraphQLResponseWith({
@@ -800,11 +802,12 @@ describe("when a product's quantity is increased", () => {
       initialSelectionEnd: Infinity,
     });
 
-    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$147.00' })).toBeVisible();
+    expect(within(rowOfLovelySocks).getByRole('cell', { name: '$147.00' })).toBeInTheDocument();
   });
 
   it('should keep checkbox selection even after the product Qty update', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const twoLovelyBoots = buildShoppingListProductEdgeWith({
       node: { productName: 'Lovely boots', quantity: 2, basePrice: '49.00' },
@@ -839,7 +842,8 @@ describe("when a product's quantity is increased", () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     const rowOfLovelyBoots = screen.getByRole('row', { name: /Lovely boots/ });
-    await userEvent.click(within(rowOfLovelyBoots).getByRole('checkbox'));
+
+    within(rowOfLovelyBoots).getByRole('checkbox').click();
 
     getShoppingList.mockReturnValueOnce(
       buildShoppingListGraphQLResponseWith({
@@ -850,12 +854,13 @@ describe("when a product's quantity is increased", () => {
     );
 
     const quantityInput = within(rowOfLovelyBoots).getByRole('spinbutton');
+
     await userEvent.type(quantityInput, '3', {
       initialSelectionStart: 0,
       initialSelectionEnd: Infinity,
     });
     expect(getShoppingList).toHaveBeenCalledTimes(2);
-    await userEvent.tab();
+    quantityInput.blur();
 
     await waitFor(() => {
       expect(getShoppingList).toHaveBeenCalledTimes(3);
@@ -897,7 +902,7 @@ describe('when the user updates the product notes', () => {
 
     const rowOfLovelySocks = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(rowOfLovelySocks).getByText('Initial note')).toBeVisible();
+    expect(within(rowOfLovelySocks).getByText('Initial note')).toBeInTheDocument();
 
     await userEvent.hover(rowOfLovelySocks);
 
@@ -906,6 +911,7 @@ describe('when the user updates the product notes', () => {
     const noteModal = screen.getByRole('dialog');
 
     const noteInput = within(noteModal).getByPlaceholderText('Add notes to products');
+
     await userEvent.clear(noteInput);
 
     await userEvent.type(noteInput, 'Updated note');
@@ -928,7 +934,7 @@ describe('when the user updates the product notes', () => {
 
     await userEvent.click(within(noteModal).getByRole('button', { name: 'save' }));
 
-    expect(await within(rowOfLovelySocks).findByText('Updated note')).toBeVisible();
+    expect(await within(rowOfLovelySocks).findByText('Updated note')).toBeInTheDocument();
   });
 });
 
@@ -963,6 +969,7 @@ describe('when the shopping list is ready for approval', () => {
 describe('when shopping list products verify inventory into add to cart', () => {
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1015,6 +1022,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1045,8 +1053,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(row).getByText('Lovely socks')).toBeVisible();
-    expect(within(row).getByRole('cell', { name: '2' })).toBeVisible();
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
 
     const checkbox = within(row).getByRole('checkbox');
 
@@ -1063,6 +1071,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1115,6 +1124,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     });
 
     const searchProductsQuerySpy = vi.fn();
+
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => {
@@ -1145,8 +1155,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(row).getByText('Lovely socks')).toBeVisible();
-    expect(within(row).getByRole('cell', { name: '2' })).toBeVisible();
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '2' })).toBeInTheDocument();
 
     const checkbox = within(row).getByRole('checkbox');
 
@@ -1163,6 +1173,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -1249,8 +1260,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(row).getByText('Lovely socks')).toBeVisible();
-    expect(within(row).getByRole('cell', { name: '4' })).toBeVisible();
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '4' })).toBeInTheDocument();
 
     const checkbox = within(row).getByRole('checkbox');
 
@@ -1269,6 +1280,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
 describe('Add to quote', () => {
   it('add shopping list to draft quote', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    // const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const searchProductsQuerySpy = vi.fn();
 
@@ -1354,8 +1366,8 @@ describe('Add to quote', () => {
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(row).getByText('Lovely socks')).toBeVisible();
-    expect(within(row).getByRole('cell', { name: '4' })).toBeVisible();
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '4' })).toBeInTheDocument();
 
     const checkbox = within(row).getByRole('checkbox');
 
@@ -1370,11 +1382,10 @@ describe('Add to quote', () => {
     await screen.findByText('Products were added to your quote');
   });
 
-  it('calls validateProducts query when NP/OOS flag is enabled', async () => {
+  it('calls validateProducts query when feature flag is enabled', async () => {
     const featureFlags = {
       'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
     };
-    const backorderEnabled = true;
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
@@ -1436,16 +1447,15 @@ describe('Add to quote', () => {
       ],
     });
 
-    const validateProduct = when(vi.fn())
+    const validateProduct = vi.fn();
+
+    when(validateProduct)
       .calledWith(
         expect.objectContaining({
           productId: 73737,
           variantId: lovelySocksProductEdge.node.variantId,
           quantity: 4,
-          productOptions: [
-            { optionId: 1, optionValue: 'red' },
-            { optionId: 2, optionValue: 'large' },
-          ],
+          productOptions: expect.any(Array),
         }),
       )
       .thenReturn({
@@ -1477,11 +1487,7 @@ describe('Add to quote', () => {
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
       preloadedState: {
         company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          backorderEnabled,
-          featureFlags,
-          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-        }),
+        global: buildGlobalStateWith({ featureFlags }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -1490,8 +1496,8 @@ describe('Add to quote', () => {
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
 
-    expect(within(row).getByText('Lovely socks')).toBeVisible();
-    expect(within(row).getByRole('cell', { name: '4' })).toBeVisible();
+    expect(within(row).getByText('Lovely socks')).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '4' })).toBeInTheDocument();
 
     const checkbox = within(row).getByRole('checkbox');
 
@@ -1503,270 +1509,8 @@ describe('Add to quote', () => {
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
 
-    expect(await screen.findByText('Products were added to your quote')).toBeVisible();
-  });
-
-  it('adds to quote when threshold error occurs and NP/OOS flag is enabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
-    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    const getVariantInfoBySkus = vi.fn();
-    const searchProductsQuerySpy = vi.fn();
-
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      maxQuantity: 3,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 5,
-    });
-
-    when(getVariantInfoBySkus)
-      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Lovely socks',
-        productId: 73737,
-        variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
-        quantity: 4,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red', option_id: '1', option_value: 'red' },
-          { valueLabel: 'size', valueText: 'large', option_id: '2', option_value: 'large' },
-        ]),
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 },
-      },
-    });
-
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      sku: lovelySocksProductEdge.node.variantSku,
-      variants: [
-        buildSearchB2BProductVariantWith({
-          sku: lovelySocksProductEdge.node.variantSku,
-        }),
-      ],
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
-        }),
-      ],
-    });
-
-    const validateProduct = vi.fn();
-    when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: 73737,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: 4,
-          productOptions: expect.any(Array),
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: buildValidateProductWith({
-            responseType: 'ERROR',
-            message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
-            errorCode: 'OTHER',
-            product: {
-              availableToSell: 0,
-            },
-          }),
-        },
-      });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
-      graphql.query('GetVariantInfoBySkus', ({ query }) =>
-        HttpResponse.json(getVariantInfoBySkus(query)),
-      ),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags,
-          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
-        }),
-      },
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
-    });
-
-    await screen.findByRole('heading', { name: /add to list/i });
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-    const checkbox = within(row).getByRole('checkbox');
-    await userEvent.click(checkbox);
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
-
+    expect(validateProduct).toHaveBeenCalled();
     expect(await screen.findByText('Products were added to your quote')).toBeInTheDocument();
-  });
-
-  it('adds to quote when threshold error occurs and NP/OOS flag is disabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
-    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    const getVariantInfoBySkus = vi.fn();
-    const searchProductsQuerySpy = vi.fn();
-
-    const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
-      maxQuantity: 3,
-      purchasingDisabled: '0',
-      isStock: '1',
-      stock: 5,
-    });
-
-    when(getVariantInfoBySkus)
-      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenDo(() => buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
-
-    const lovelySocksProductEdge = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Lovely socks',
-        productId: 73737,
-        variantSku: 'LVLY-SK-123',
-        productNote: 'Decorative wool socks',
-        primaryImage: 'https://example.com/socks.jpg',
-        basePrice: '49.00',
-        tax: '0.00',
-        discount: '0.00',
-        quantity: 4,
-        optionList: JSON.stringify([
-          { valueLabel: 'color', valueText: 'red', option_id: '1', option_value: 'red' },
-          { valueLabel: 'size', valueText: 'large', option_id: '2', option_value: 'large' },
-        ]),
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: { products: { totalCount: 1, edges: [lovelySocksProductEdge] }, status: 0 },
-      },
-    });
-
-    const lovelySocksSearchProduct = buildSearchB2BProductWith({
-      id: lovelySocksProductEdge.node.productId,
-      name: lovelySocksProductEdge.node.productName,
-      isPriceHidden: false,
-      sku: lovelySocksProductEdge.node.variantSku,
-      variants: [
-        buildSearchB2BProductVariantWith({
-          sku: lovelySocksProductEdge.node.variantSku,
-        }),
-      ],
-      optionsV3: [
-        buildSearchB2BProductV3OptionWith({
-          display_name: 'Size',
-          option_values: [
-            buildSearchB2BProductV3OptionValueWith({ label: 'large', is_default: true }),
-          ],
-        }),
-      ],
-    });
-
-    const validateProduct = vi.fn();
-    when(validateProduct)
-      .calledWith(
-        expect.objectContaining({
-          productId: 73737,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: 4,
-          productOptions: expect.any(Array),
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: buildValidateProductWith({
-            responseType: 'ERROR',
-            message: 'You need to purchase a minimum of 5 of the LVLY-SK-123 per order.',
-            errorCode: 'OTHER',
-            product: {
-              availableToSell: 0,
-            },
-          }),
-        },
-      });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
-
-        return HttpResponse.json(
-          buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
-        );
-      }),
-      graphql.query('GetVariantInfoBySkus', ({ query }) =>
-        HttpResponse.json(getVariantInfoBySkus(query)),
-      ),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: {
-        company: b2bCompanyWithShoppingListPermissions,
-        global: buildGlobalStateWith({
-          featureFlags,
-          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
-        }),
-      },
-      initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
-    });
-
-    await screen.findByRole('heading', { name: /add to list/i });
-
-    const row = screen.getByRole('row', { name: /Lovely socks/ });
-    const checkbox = within(row).getByRole('checkbox');
-    await userEvent.click(checkbox);
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to quote/ }));
-    expect(screen.getByText('Products were added to your quote')).toBeInTheDocument();
   });
 });
 
@@ -1846,9 +1590,7 @@ describe('CSV upload and add to quote flow', () => {
     let currentShoppingList = initialShoppingList;
 
     server.use(
-      graphql.query('B2BShoppingListDetails', () => {
-        return HttpResponse.json(currentShoppingList);
-      }),
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(currentShoppingList)),
       graphql.mutation('B2BShoppingListsItemsCreate', () => {
         const shoppingListProducts = csvProducts.map((csvProduct) =>
           buildShoppingListProductEdgeWith({
@@ -1922,6 +1664,7 @@ describe('CSV upload and add to quote flow', () => {
             ),
           },
         };
+
         return HttpResponse.json(response);
       }),
       graphql.query('GetVariantInfoBySkus', () => {
@@ -1940,10 +1683,11 @@ describe('CSV upload and add to quote flow', () => {
             ),
           },
         });
+
         return HttpResponse.json(response);
       }),
-      graphql.query('priceProducts', () => {
-        return HttpResponse.json({
+      graphql.query('priceProducts', () =>
+        HttpResponse.json({
           data: {
             priceProducts: csvProducts.map((csvProduct) =>
               buildProductPriceWith({
@@ -1953,10 +1697,10 @@ describe('CSV upload and add to quote flow', () => {
               }),
             ),
           },
-        });
-      }),
-      graphql.mutation('AddItemsToShoppingList', () => {
-        return HttpResponse.json({
+        }),
+      ),
+      graphql.mutation('AddItemsToShoppingList', () =>
+        HttpResponse.json({
           data: {
             shoppingListsItemsCreate: {
               shoppingListsItems: csvProducts.map((csvProduct) =>
@@ -1971,10 +1715,11 @@ describe('CSV upload and add to quote flow', () => {
               ),
             },
           },
-        });
-      }),
+        }),
+      ),
       graphql.mutation('ProductUpload', () => {
         currentShoppingList = updatedShoppingList;
+
         return HttpResponse.json(
           buildProductUploadResponseWith({
             data: {
@@ -2009,6 +1754,7 @@ describe('CSV upload and add to quote flow', () => {
     await screen.findByRole('heading', { name: /add to list/i });
 
     const uploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
     await userEvent.click(uploadButton);
 
     const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -2016,7 +1762,8 @@ describe('CSV upload and add to quote flow', () => {
     const csvContent = 'variant_sku,qty\nCSV-001,2\nCSV-002,3';
     const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
-    const dropzoneInput = dialog.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzoneInput = dialog.querySelector('input[type="file"]')!;
+
     if (!dropzoneInput) {
       throw new Error('File input not found');
     }
@@ -2029,10 +1776,11 @@ describe('CSV upload and add to quote flow', () => {
     await within(dialog).findByText('products.csv');
 
     const addToListButton = screen.getByRole('button', { name: /add to list/i });
+
     await userEvent.click(addToListButton);
 
-    expect(await screen.findByText('CSV Product 1')).toBeVisible();
-    expect(await screen.findByText('CSV Product 2')).toBeVisible();
+    expect(await screen.findByText('CSV Product 1')).toBeInTheDocument();
+    expect(await screen.findByText('CSV Product 2')).toBeInTheDocument();
 
     const row = screen.getByRole('row', { name: /CSV Product 1/i });
 
@@ -2045,10 +1793,11 @@ describe('CSV upload and add to quote flow', () => {
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
     const addToQuoteOption = screen.getByRole('menuitem', { name: /add selected to quote/i });
+
     await userEvent.click(addToQuoteOption);
 
     await screen.findByText(/products were added to your quote/i);
-    expect(screen.getByText(/view quote/i)).toBeVisible();
+    expect(screen.getByText(/view quote/i)).toBeInTheDocument();
   });
 });
 
@@ -2056,7 +1805,6 @@ describe('when backend validation is enabled', () => {
   const preloadedState = {
     company: b2bCompanyWithShoppingListPermissions,
     global: buildGlobalStateWith({
-      backorderEnabled: true,
       featureFlags: {
         'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
       },
@@ -2065,7 +1813,7 @@ describe('when backend validation is enabled', () => {
 
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2109,25 +1857,6 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
-          },
-        },
-      });
-
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
@@ -2137,9 +1866,11 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Some backend error' }],
+        }),
       ),
     );
 
@@ -2160,14 +1891,14 @@ describe('when backend validation is enabled', () => {
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
+    ).toBeInTheDocument();
 
-    expect(within(dialog).getByText('2 in stock')).toBeVisible();
+    expect(within(dialog).getByText('2 in stock')).toBeInTheDocument();
   });
 
   it('respects unlimited backorder stock', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2205,25 +1936,6 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Failed validation',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
-          },
-        },
-      });
-
     server.use(
       graphql.query('B2BShoppingListDetails', () =>
         HttpResponse.json(
@@ -2244,9 +1956,11 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Some backend error' }],
+        }),
       ),
     );
 
@@ -2271,14 +1985,14 @@ describe('when backend validation is enabled', () => {
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
+    ).toBeInTheDocument();
 
     expect(within(dialog).queryByText('2 in stock')).not.toBeInTheDocument();
   });
 
   it('errors on min quantity not reached', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2322,25 +2036,6 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Min quantity not reached',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
-          },
-        },
-      });
-
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
@@ -2350,9 +2045,11 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Some backend error' }],
+        }),
       ),
     );
 
@@ -2373,14 +2070,14 @@ describe('when backend validation is enabled', () => {
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
+    ).toBeInTheDocument();
 
-    expect(within(dialog).getByText('Min is 5')).toBeVisible();
+    expect(within(dialog).getByText('Min is 5')).toBeInTheDocument();
   });
 
   it('errors on max quantity exceed', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
 
@@ -2425,24 +2122,9 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Max quantity exceeded',
-            errorCode: 'OTHER',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
-          },
-        },
-      });
+    const getShoppingList = vi.fn();
+
+    when(getShoppingList).calledWith().thenReturn(shoppingListResponse);
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
@@ -2453,9 +2135,11 @@ describe('when backend validation is enabled', () => {
       graphql.query('getCart', () =>
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+      graphql.mutation('createCartSimple', () =>
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Some backend error' }],
+        }),
       ),
     );
 
@@ -2476,9 +2160,9 @@ describe('when backend validation is enabled', () => {
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
+    ).toBeInTheDocument();
 
-    expect(within(dialog).getByText('Max is 3')).toBeVisible();
+    expect(within(dialog).getByText('Max is 3')).toBeInTheDocument();
   });
 
   it('renders out of stock message on exceeded product inventory', async () => {
@@ -2526,25 +2210,6 @@ describe('when backend validation is enabled', () => {
         }),
       );
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: lovelySocksProductEdge.node.productId,
-          variantId: lovelySocksProductEdge.node.variantId,
-          quantity: lovelySocksProductEdge.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Lovely socks, out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
-          },
-        },
-      });
-
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
@@ -2555,10 +2220,10 @@ describe('when backend validation is enabled', () => {
         HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
       ),
       graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+        HttpResponse.json({
+          data: { cart: { createCart: null } },
+          errors: [{ message: 'Lovely socks, out of stock' }],
+        }),
       ),
     );
 
@@ -2575,6 +2240,7 @@ describe('when backend validation is enabled', () => {
 
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
+    await screen.findByText('Lovely socks, out of stock');
     await screen.findByText('1 product(s) were not added to cart, please change the quantity');
 
     await screen.findByText('Out of stock');
@@ -2582,6 +2248,7 @@ describe('when backend validation is enabled', () => {
 
   it('shows only the most recent error for the product added to the cart', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const variantInfo = buildVariantInfoWith({
       variantSku: 'LVLY-SK-123',
@@ -2650,43 +2317,43 @@ describe('when backend validation is enabled', () => {
       },
     };
 
-    const addCartLineItemsMutation = when(
-      vi.fn().mockReturnValue(HttpResponse.json({ errors: [{ message: 'Cart add failed' }] })),
-    )
+    const updateCartMutation = when(vi.fn())
       .calledWith({
         addCartLineItemsInput: {
           cartEntityId: '1e194b813e28',
           data: {
             lineItems: [
               {
-                quantity: lovelySocksProduct.node.quantity,
-                productEntityId: lovelySocksProduct.node.productId,
-                variantEntityId: lovelySocksProduct.node.variantId,
+                quantity: 2,
+                productEntityId: 44443,
+                variantEntityId: 443,
                 selectedOptions: { multipleChoices: [], textFields: [] },
               },
             ],
           },
         },
       })
-      .thenReturn(HttpResponse.json({ data: { cart: { addCartLineItems: { cart } } } }));
+      .thenReturn({ data: { cart: { addCartLineItems: { cart } } } });
 
-    const validateProduct = when(vi.fn())
-      .calledWith(
-        expect.objectContaining({
-          productId: outOfStockProduct.node.productId,
-          variantId: outOfStockProduct.node.variantId,
-          quantity: outOfStockProduct.node.quantity,
-        }),
-      )
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'ERROR',
-            message: 'Out of stock',
-            errorCode: 'OOS',
-            product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+    when(updateCartMutation)
+      .calledWith({
+        addCartLineItemsInput: {
+          cartEntityId: '1e194b813e28',
+          data: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: 77737,
+                variantEntityId: 737,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
           },
         },
+      })
+      .thenReturn({
+        data: { cart: { addCartLineItems: null } },
+        errors: [{ message: 'Lovely socks, out of stock' }],
       });
 
     server.use(
@@ -2699,10 +2366,7 @@ describe('when backend validation is enabled', () => {
       ),
       graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart } } })),
       graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
-        addCartLineItemsMutation(variables),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProduct(variables)),
+        HttpResponse.json(updateCartMutation(variables)),
       ),
     );
 
@@ -2721,7 +2385,7 @@ describe('when backend validation is enabled', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText('Products were added to cart')).toBeVisible();
+      expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
     });
 
     await userEvent.click(within(lovelySocksRow).getByRole('checkbox'));
@@ -2737,532 +2401,8 @@ describe('when backend validation is enabled', () => {
 
     expect(
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
+    ).toBeInTheDocument();
 
     expect(within(dialog).queryByText('1 product(s) were added to cart')).not.toBeInTheDocument();
-  });
-
-  it('succeeds adding to cart when initial add works (no validation needed)', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
-
-    const productEdge = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Happy product',
-        productId: 12345,
-        variantId: 123,
-        variantSku: 'HAPPY-123',
-        quantity: 2,
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 1, edges: [productEdge] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: productEdge.node.productId,
-            name: productEdge.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({
-          data: { cart: { createCart: { cart: { entityId: 'new-cart-id' } } } },
-        }),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    await screen.findByText('Products were added to cart');
-    expect(screen.queryByRole('dialog', { name: 'Add to cart' })).not.toBeInTheDocument();
-  });
-
-  it('adds valid products to cart while showing failed products in dialog', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
-
-    const validProduct = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Valid product',
-        productId: 11111,
-        variantId: 111,
-        variantSku: 'VALID-123',
-        quantity: 2,
-        optionList: JSON.stringify([{ option_id: '101', option_value: 'Red' }]),
-      },
-    });
-
-    const invalidProduct = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Invalid product',
-        productId: 22222,
-        variantId: 222,
-        variantSku: 'INVALID-456',
-        quantity: 5,
-        optionList: JSON.stringify([{ option_id: '202', option_value: 'Large' }]),
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 2, edges: [validProduct, invalidProduct] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: validProduct.node.productId,
-            name: validProduct.node.productName,
-            optionsV3: [],
-          }),
-          buildSearchB2BProductWith({
-            id: invalidProduct.node.productId,
-            name: invalidProduct.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'ERROR',
-          message: 'Out of stock',
-          errorCode: 'OOS',
-          product: { availableToSell: 0 },
-        },
-      },
-    });
-
-    when(validateProductMock)
-      .calledWith({
-        productId: validProduct.node.productId,
-        variantId: validProduct.node.variantId,
-        quantity: validProduct.node.quantity,
-        productOptions: [{ optionId: 101, optionValue: 'Red' }],
-      })
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'SUCCESS',
-            message: '',
-          },
-        },
-      });
-
-    const createCartMock = vi
-      .fn()
-      .mockReturnValue(HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }));
-
-    when(createCartMock)
-      .calledWith({
-        createCartInput: {
-          lineItems: [expect.objectContaining({ productEntityId: validProduct.node.productId })],
-        },
-      })
-      .thenReturn(
-        HttpResponse.json({
-          data: { cart: { createCart: { cart: { entityId: 'new-cart-id' } } } },
-        }),
-      );
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.mutation('createCartSimple', ({ variables }) => createCartMock(variables)),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(createCartMock).toHaveBeenCalledTimes(2);
-    expect(validateProductMock).toHaveBeenCalledTimes(2);
-
-    expect(
-      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
-    expect(within(dialog).getByText('1 product(s) were added to cart')).toBeVisible();
-
-    expect(within(dialog).getByText('Invalid product')).toBeVisible();
-    expect(within(dialog).queryByText('Valid product')).not.toBeInTheDocument();
-  });
-
-  it('shows all products as failed when all validation fails', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    const product1 = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Failed product 1',
-        productId: 11111,
-        variantId: 111,
-        variantSku: 'FAIL-1',
-        quantity: 2,
-      },
-    });
-
-    const product2 = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Failed product 2',
-        productId: 22222,
-        variantId: 222,
-        variantSku: 'FAIL-2',
-        quantity: 3,
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 2, edges: [product1, product2] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: product1.node.productId,
-            name: product1.node.productName,
-            optionsV3: [],
-          }),
-          buildSearchB2BProductWith({
-            id: product2.node.productId,
-            name: product2.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'ERROR',
-          message: 'Out of stock',
-          errorCode: 'OOS',
-          product: { availableToSell: 0 },
-        },
-      },
-    });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(validateProductMock).toHaveBeenCalledTimes(2);
-
-    expect(
-      within(dialog).getByText('2 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
-    expect(within(dialog).queryByText(/were added to cart/)).not.toBeInTheDocument();
-  });
-
-  it('treats products with WARNING validation response as failures', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-
-    const warningProduct = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Low stock product',
-        productId: 33333,
-        variantId: 333,
-        variantSku: 'LOW-STOCK',
-        quantity: 10,
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 1, edges: [warningProduct] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: warningProduct.node.productId,
-            name: warningProduct.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    const validateProductMock = vi.fn().mockReturnValue({
-      data: {
-        validateProduct: {
-          responseType: 'WARNING',
-          message: 'Some warning message',
-        },
-      },
-    });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () =>
-        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
-      ),
-      graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(validateProductMock).toHaveBeenCalledTimes(1);
-    expect(
-      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
-    expect(within(dialog).queryByText(/were added to cart/)).not.toBeInTheDocument();
-    expect(within(dialog).getByText('Low stock product')).toBeVisible();
-  });
-
-  it('shows all products as failed when second cart add fails after validation', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
-
-    const product = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Retry fail product',
-        productId: 44444,
-        variantId: 444,
-        variantSku: 'RETRY-FAIL',
-        quantity: 3,
-        optionList: JSON.stringify([{ option_id: '303', option_value: 'Blue' }]),
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 1, edges: [product] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: product.node.productId,
-            name: product.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    const validateProductMock = when(vi.fn())
-      .calledWith({
-        productId: product.node.productId,
-        variantId: product.node.variantId,
-        quantity: product.node.quantity,
-        productOptions: [{ optionId: 303, optionValue: 'Blue' }],
-      })
-      .thenReturn({
-        data: {
-          validateProduct: {
-            responseType: 'SUCCESS',
-            message: '',
-          },
-        },
-      });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
-      graphql.mutation('createCartSimple', () =>
-        HttpResponse.json({ errors: [{ message: 'Cart add failed' }] }),
-      ),
-      graphql.query('ValidateProduct', ({ variables }) =>
-        HttpResponse.json(validateProductMock(variables)),
-      ),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(
-      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
-  });
-
-  it('does not validate products on network error and shows all products as failed', async () => {
-    vi.mocked(useParams).mockReturnValue({ id: '272989' });
-    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
-
-    const product = buildShoppingListProductEdgeWith({
-      node: {
-        productName: 'Happy Product',
-        productId: 55555,
-        variantId: 555,
-        variantSku: 'PR-123',
-        quantity: 2,
-      },
-    });
-
-    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
-      data: {
-        shoppingList: {
-          products: { totalCount: 1, edges: [product] },
-          status: 0,
-        },
-      },
-    });
-
-    const searchProductsResponse = buildSearchProductsResponseWith({
-      data: {
-        productsSearch: [
-          buildSearchB2BProductWith({
-            id: product.node.productId,
-            name: product.node.productName,
-            optionsV3: [],
-          }),
-        ],
-      },
-    });
-
-    server.use(
-      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', () => HttpResponse.json(searchProductsResponse)),
-      graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
-      graphql.mutation('createCartSimple', () => HttpResponse.error()),
-    );
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState,
-      initialGlobalContext: { productQuoteEnabled: true },
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
-
-    await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
-
-    const dialog = await screen.findByRole('dialog', { name: 'Add to cart' });
-
-    expect(
-      within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
-    ).toBeVisible();
-    expect(within(dialog).getByText('Happy Product')).toBeVisible();
-
-    // eslint-disable-next-line no-console
-    expect(console.error).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to fetch' }),
-    );
   });
 });

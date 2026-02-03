@@ -55,6 +55,7 @@ export const addProductsToShoppingList = async ({
     }
 
     const newOptionLists = getValidOptionsList(optionList, productsInfo[index]);
+
     products.push({
       productId,
       variantId,

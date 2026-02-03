@@ -29,12 +29,12 @@ interface RegisterCompleteProps {
   handleNext: (password: string) => void;
 }
 
-type RegisterCompleteList = Array<RegisterFields> | undefined;
+type RegisterCompleteList = RegisterFields[] | undefined;
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang();
   const { handleBack, handleNext } = props;
-  const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
+  const [personalInfo, setPersonalInfo] = useState<CustomFieldItems[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [enterEmail, setEnterEmail] = useState<string>('');
 
@@ -64,7 +64,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }, []);
 
   useEffect(() => {
-    if (captchaKey) setIsCaptchaMissing(false);
+    if (captchaKey) {
+      setIsCaptchaMissing(false);
+    }
   }, [captchaKey]);
 
   const {
@@ -116,12 +118,15 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
 
   useEffect(() => {
-    if (!accountType) return;
-    if (list && list.length) {
+    if (!accountType) {
+      return;
+    }
+
+    if (list?.length) {
       const emailFields: CustomFieldItems =
         list.find((item: RegisterFields) => item.name === 'email') || {};
 
-      setEnterEmail(emailFields?.default || '');
+      setEnterEmail(emailFields.default || '');
     }
 
     setPersonalInfo(passwordInfo);
@@ -140,15 +145,17 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (list) {
       list.forEach((item: any) => {
         const name = deCodeField(item.name);
+
         if (name === 'accepts_marketing_emails') {
-          bcFields.accepts_product_review_abandoned_cart_emails = !!item?.default?.length;
+          bcFields.accepts_product_review_abandoned_cart_emails = Boolean(item?.default?.length);
         } else if (!item.custom) {
           bcFields[name] = item?.default || '';
         }
       });
 
       bcFields.form_fields = [];
-      if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
+
+      if (additionalInfo && (additionalInfo as CustomFieldItems[]).length) {
         additionalInfo.forEach((field: CustomFieldItems) => {
           bcFields.form_fields.push({
             name: field.bcLabel,
@@ -188,6 +195,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       }
 
       addresses.form_fields = [];
+
       // BC Extra field
       if (getBCExtraAddressField && getBCExtraAddressField.length) {
         getBCExtraAddressField.forEach((field: any) => {
@@ -221,20 +229,25 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   ) => {
     try {
       const b2bFields: CustomFieldItems = {};
+
       b2bFields.customerId = customerId || '';
       b2bFields.customerEmail = customerEmail || '';
       b2bFields.storeHash = storeHash;
 
       // company user extra field
       const b2bContactInformationList = list || [];
-      const companyUserExtraFieldsList = b2bContactInformationList.filter((item) => !!item.custom);
+      const companyUserExtraFieldsList = b2bContactInformationList.filter((item) =>
+        Boolean(item.custom),
+      );
 
       if (companyUserExtraFieldsList.length) {
-        const companyUserExtraFields: Array<CustomFieldItems> = [];
+        const companyUserExtraFields: CustomFieldItems[] = [];
+
         companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
           const itemExtraField: CustomFieldItems = {};
+
           itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
+          itemExtraField.fieldValue = item.default || '';
           companyUserExtraFields.push(itemExtraField);
         });
         b2bFields.userExtraFields = companyUserExtraFields;
@@ -243,7 +256,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const companyInfo = companyInformation.filter(
         (list) => !list.custom && list.fieldType !== 'files',
       );
-      const companyExtraInfo = companyInformation.filter((list) => !!list.custom);
+      const companyExtraInfo = companyInformation.filter((list) => Boolean(list.custom));
+
       // company field
       if (companyInfo.length) {
         companyInfo.forEach((item: any) => {
@@ -253,11 +267,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       // Company Additional Field
       if (companyExtraInfo.length) {
-        const extraFields: Array<CustomFieldItems> = [];
+        const extraFields: CustomFieldItems[] = [];
+
         companyExtraInfo.forEach((item: CustomFieldItems) => {
           const itemExtraField: CustomFieldItems = {};
+
           itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
+          itemExtraField.fieldValue = item.default || '';
           extraFields.push(itemExtraField);
         });
         b2bFields.extraFields = extraFields;
@@ -265,32 +281,38 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       // address Field
       const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || [];
-      const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || [];
+      const addressExtraBasicInfo = addressBasicList.filter((list) => Boolean(list.custom)) || [];
 
       if (addressBasicInfo.length) {
         addressBasicInfo.forEach((field: CustomFieldItems) => {
           const name = deCodeField(field.name);
+
           if (name === 'address1') {
             b2bFields.addressLine1 = field.default;
           }
+
           if (name === 'address2') {
             b2bFields.addressLine2 = field.default;
           }
+
           b2bFields[name] = field.default;
         });
       }
 
       // address Additional Field
       if (addressExtraBasicInfo.length) {
-        const extraFields: Array<CustomFieldItems> = [];
+        const extraFields: CustomFieldItems[] = [];
+
         addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
           const itemExtraField: CustomFieldItems = {};
+
           itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
+          itemExtraField.fieldValue = item.default || '';
           extraFields.push(itemExtraField);
         });
         b2bFields.addressExtraFields = extraFields;
       }
+
       b2bFields.fileList = fileList;
       b2bFields.channelId = channelId;
 
@@ -298,13 +320,16 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     } catch (error) {
       b2bLogger.error(error);
     }
+
     return undefined;
   };
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
     let attachments: File[] = [];
 
-    if (!attachmentsList.length) return undefined;
+    if (!attachmentsList.length) {
+      return undefined;
+    }
 
     attachmentsList.forEach((field: any) => {
       attachments = field.default;
@@ -322,10 +347,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         let list = fileList;
+
         if (res.code === 200) {
           const newData = {
             ...res.data,
           };
+
           newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
           list = [...fileList, newData];
         } else {
@@ -333,6 +360,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
           );
         }
+
         return list;
       }, []);
 
@@ -346,14 +374,17 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const saveRegisterPassword = (data: CustomFieldItems) => {
     const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
       const registerField = field;
+
       if (accountType === '1') {
         registerField.default = data[field.name] || field.default;
       }
+
       return field;
     });
 
     const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
       const registerField = field;
+
       if (accountType === '2') {
         registerField.default = data[field.name] || field.default;
       }
@@ -383,7 +414,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const isChecked = emailMe?.isChecked || false;
       const defaultValue = emailMe?.default || [];
 
-      if (isChecked && (defaultValue as Array<string>).length > 0) {
+      if (isChecked && (defaultValue as string[]).length > 0) {
         try {
           await sendSubscribersState({
             storeHash,
@@ -410,11 +441,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           type: 'manual',
           message: b3Lang('global.registerComplete.passwordMatchPrompt'),
         });
+
         return;
       }
 
       if (isEnabledOnStorefront && !captchaKey) {
         setIsCaptchaMissing(true);
+
         return;
       }
 
@@ -428,6 +461,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           });
 
           let isAuto = true;
+
           if (accountType === '2') {
             await getBCFieldsValue({ password, confirmPassword });
           } else {
@@ -445,8 +479,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             );
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
+
             isAuto = Number(companyStatus) === 1;
           }
+
           dispatch({
             type: 'finishInfo',
             payload: {
@@ -512,12 +548,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
                 {`Create password for ${enterEmail}`}
               </Box>
             )}
-            <B3CustomForm formFields={personalInfo} errors={errors} control={control} />
+            <B3CustomForm control={control} errors={errors} formFields={personalInfo} />
           </>
         )}
         {isCaptchaMissing ? (
           <Typography
-            variant="body1"
             sx={{
               color: 'red',
               display: 'flex',
@@ -526,6 +561,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               marginTop: '2px',
               fontSize: '13px',
             }}
+            variant="body1"
           >
             {b3Lang('login.loginText.missingCaptcha')}
           </Typography>
@@ -540,7 +576,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               marginTop: '20px',
             }}
           >
-            <Captcha siteKey={storefrontSiteKey} size="normal" handleGetKey={handleGetCaptchaKey} />
+            <Captcha handleGetKey={handleGetCaptchaKey} siteKey={storefrontSiteKey} size="normal" />
           </Box>
         ) : (
           ''

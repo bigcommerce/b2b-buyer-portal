@@ -12,6 +12,7 @@ export const uploadB2BFile = (data: UploadFileData) => {
   const { file, type } = data;
 
   const formData = new FormData();
+
   formData.append('mediaFile', file);
   formData.append('requestType', type); // companyAttachedFile,quoteAttachedFile
 

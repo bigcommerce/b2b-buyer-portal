@@ -5,7 +5,7 @@ const getRoles = (data: CustomFieldItems) => `
     companyRoles (
       first: ${data.first}
       offset: ${data.offset}
-      search: "${data?.search || ''}"
+      search: "${data.search || ''}"
     ) {
       edges {
         node {

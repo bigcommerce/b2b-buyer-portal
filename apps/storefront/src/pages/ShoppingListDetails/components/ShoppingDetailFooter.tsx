@@ -108,20 +108,27 @@ function ShoppingDetailFooter({
   };
 
   const allowButtonList = () => {
-    if (!(shoppingListInfo?.status === ShoppingListStatus.Approved || !isB2BUser)) return [];
+    if (!(shoppingListInfo?.status === ShoppingListStatus.Approved || !isB2BUser)) {
+      return [];
+    }
 
-    if (!isCanAddToCart && isB2BUser)
+    if (!isCanAddToCart && isB2BUser) {
       return productQuoteEnabled ? [buttons.addSelectedToQuote] : [];
+    }
 
     if (b2bSubmitShoppingListPermission) {
       if (allowJuniorPlaceOrder && productQuoteEnabled) {
         return [buttons.proceedToCheckout, buttons.addSelectedToQuote];
       }
 
-      if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout];
+      if (allowJuniorPlaceOrder) {
+        return [buttons.proceedToCheckout];
+      }
+
       if (productQuoteEnabled) {
         return [buttons.addSelectedToQuote];
       }
+
       return [];
     }
 
@@ -134,6 +141,8 @@ function ShoppingDetailFooter({
 
   return (
     <Grid
+      container
+      spacing={2}
       sx={{
         position: 'fixed',
         bottom: isMobile && isAgenting ? '52px' : 0,
@@ -147,8 +156,6 @@ function ShoppingDetailFooter({
         flexWrap: 'nowrap',
         zIndex: '999',
       }}
-      container
-      spacing={2}
     >
       <Grid
         item
@@ -200,12 +207,12 @@ function ShoppingDetailFooter({
             }}
           >
             <Typography
-              variant="h6"
               sx={{
                 fontSize: '16px',
                 fontWeight: '700',
                 color: '#000000',
               }}
+              variant="h6"
             >
               {b3Lang('shoppingList.footer.subtotal', {
                 subtotal: currencyFormat(selectedSubTotal),
@@ -223,20 +230,20 @@ function ShoppingDetailFooter({
                 isCanEditShoppingList &&
                 b2bShoppingListActionsPermission && (
                   <CustomButton
+                    disabled={shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval}
                     sx={{
                       padding: '5px',
                       border: `1px solid ${customColor || '#1976d2'}`,
                       margin: isMobile ? '0 1rem 0 0' : '0 1rem',
                       minWidth: 'auto',
                     }}
-                    disabled={shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval}
                   >
                     <Delete
                       color="primary"
+                      onClick={onDelete}
                       sx={{
                         color: customColor,
                       }}
-                      onClick={onDelete}
                     />
                   </CustomButton>
                 )}
@@ -252,12 +259,12 @@ function ShoppingDetailFooter({
                 >
                   {buttonList.length === 1 && buttonList[0] && (
                     <CustomButton
-                      variant="contained"
                       onClick={buttonList[0].handleClick}
                       sx={{
                         marginRight: isMobile ? '1rem' : 0,
                         width: isMobile ? '100%' : 'auto',
                       }}
+                      variant="contained"
                     >
                       {buttonList[0].name}
                     </CustomButton>
@@ -265,25 +272,25 @@ function ShoppingDetailFooter({
                   {buttonList.length === 2 && (
                     <>
                       <CustomButton
-                        variant="contained"
+                        endIcon={<ArrowDropDown />}
                         onClick={handleOpenBtnList}
                         ref={ref}
                         sx={{
                           marginRight: isMobile ? '1rem' : 0,
                           width: isMobile ? '100%' : 'auto',
                         }}
-                        endIcon={<ArrowDropDown />}
+                        variant="contained"
                       >
                         {b3Lang('shoppingList.footer.addSelectedTo')}
                       </CustomButton>
                       <Menu
-                        id="basic-menu"
-                        anchorEl={ref.current}
-                        open={isOpen}
-                        onClose={handleClose}
                         MenuListProps={{
                           'aria-labelledby': 'basic-button',
                         }}
+                        anchorEl={ref.current}
+                        id="basic-menu"
+                        onClose={handleClose}
+                        open={isOpen}
                       >
                         {buttonList.length > 1 &&
                           buttonList.map((button) => (

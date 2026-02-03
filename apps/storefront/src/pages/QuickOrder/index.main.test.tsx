@@ -2,6 +2,22 @@
 
 import Cookies from 'js-cookie';
 import { set } from 'lodash-es';
+
+import { when } from 'vitest-when';
+
+import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
+import {
+  SearchProductsResponse,
+  ValidateProductResponse,
+} from '@/shared/service/b2b/graphql/product';
+import {
+  OptionList,
+  OrderedProductNode,
+  RecentlyOrderedProductsResponse,
+} from '@/shared/service/b2b/graphql/quickOrder';
+import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { LineItem } from '@/utils/b3Product/b3Product';
 import {
   buildCompanyStateWith,
   builder,
@@ -22,21 +38,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { when } from 'vitest-when';
-
-import { PriceProductsResponse } from '@/shared/service/b2b/graphql/global';
-import {
-  SearchProductsResponse,
-  ValidateProductResponse,
-} from '@/shared/service/b2b/graphql/product';
-import {
-  OptionList,
-  OrderedProductNode,
-  RecentlyOrderedProductsResponse,
-} from '@/shared/service/b2b/graphql/quickOrder';
-import { GetCart } from '@/shared/service/bc/graphql/cart';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { LineItem } from '@/utils/b3Product/b3Product';
 
 import QuickOrder from '.';
 
@@ -1734,6 +1735,7 @@ describe('when the user does not have permissions to purchase and shopping list/
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister', basePrice: '122.33' },
     });
+
     when(getRecentlyOrderedProducts)
       .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
       .thenReturn(
@@ -1935,6 +1937,7 @@ describe('when adding to quote', () => {
       });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
     when(validateProduct)
       .calledWith(
         expect.objectContaining({
@@ -2294,6 +2297,7 @@ describe('when adding to quote', () => {
     await userEvent.click(within(nonPurchasableRow3).getByRole('checkbox'));
 
     const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
     await userEvent.click(addButton);
     await userEvent.click(screen.getByRole('menuitem', { name: 'Add selected to quote' }));
 
@@ -2695,6 +2699,7 @@ describe('When backend validation feature flag is on', () => {
       });
 
     const createCartSimple = vi.fn();
+
     when(createCartSimple)
       .calledWith({
         createCartInput: {
@@ -2742,6 +2747,7 @@ describe('When backend validation feature flag is on', () => {
     expect(screen.getByText('Quick order pad')).toBeInTheDocument();
 
     const searchInput = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchInput, 'Out of Stock Product');
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
 
@@ -2751,9 +2757,11 @@ describe('When backend validation feature flag is on', () => {
     expect(within(dialog).getByText('OOS-123')).toBeInTheDocument();
 
     const addToCartButton = within(dialog).getByRole('button', { name: 'Add to cart' });
+
     await userEvent.click(addToCartButton);
 
     const errorMessage = await screen.findByText('Product "Out of Stock Product" is out of stock.');
+
     expect(errorMessage).toBeInTheDocument();
 
     expect(Cookies.get('cartId')).toBeUndefined();
@@ -2979,6 +2987,7 @@ describe('When backend validation feature flag is on', () => {
       });
 
     const createCartSimple = vi.fn();
+
     when(createCartSimple)
       .calledWith({
         createCartInput: {
@@ -3026,6 +3035,7 @@ describe('When backend validation feature flag is on', () => {
     expect(screen.getByText('Quick order pad')).toBeInTheDocument();
 
     const searchInput = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchInput, 'Min Quantity Product');
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
 
@@ -3035,11 +3045,13 @@ describe('When backend validation feature flag is on', () => {
     expect(within(dialog).getByText('MIN-QTY-123')).toBeInTheDocument();
 
     const addToCartButton = within(dialog).getByRole('button', { name: 'Add to cart' });
+
     await userEvent.click(addToCartButton);
 
     const errorMessage = await screen.findByText(
       'You need to purchase a minimum of 5 of the MIN-QTY-123 per order.',
     );
+
     expect(errorMessage).toBeInTheDocument();
 
     expect(Cookies.get('cartId')).toBeUndefined();
@@ -3159,6 +3171,7 @@ describe('When backend validation feature flag is on', () => {
     expect(screen.getByText('Quick order pad')).toBeInTheDocument();
 
     const searchInput = screen.getByPlaceholderText('Search products');
+
     await userEvent.type(searchInput, 'Max Quantity Product');
     await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
 
@@ -3168,15 +3181,18 @@ describe('When backend validation feature flag is on', () => {
     expect(within(dialog).getByText('MAX-QTY-123')).toBeInTheDocument();
 
     const quantityInput = within(dialog).getByRole('spinbutton');
+
     await userEvent.clear(quantityInput);
     await userEvent.type(quantityInput, '5');
 
     const addToCartButton = within(dialog).getByRole('button', { name: 'Add to cart' });
+
     await userEvent.click(addToCartButton);
 
     const errorMessage = await screen.findByText(
       'You need to purchase a maximum of 3 of the MAX-QTY-123 per order.',
     );
+
     expect(errorMessage).toBeInTheDocument();
 
     expect(Cookies.get('cartId')).toBeUndefined();
@@ -3256,6 +3272,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInput, '2');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     await waitFor(() => {
@@ -3356,6 +3373,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInput, '3');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     await waitFor(() => {
@@ -3410,6 +3428,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInput, '1');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     const error = await screen.findByText(
@@ -3512,6 +3531,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInputs[1], '3');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     expect(await screen.findByText('Products were added to cart')).toBeVisible();
@@ -3656,6 +3676,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInputs[2], '3');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     expect(
@@ -3748,6 +3769,7 @@ describe('When backend validation feature flag is on', () => {
     await userEvent.type(qtyInputs[0], '2');
 
     const addButton = screen.getByRole('button', { name: /Add products to cart/i });
+
     await userEvent.click(addButton);
 
     expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
@@ -3980,6 +4002,7 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -3988,6 +4011,7 @@ describe('When backend validation feature flag is on', () => {
       const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
       const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
       if (!dropzoneInput) {
         throw new Error('File input not found');
       }
@@ -4005,6 +4029,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(
@@ -4123,6 +4148,7 @@ describe('When backend validation feature flag is on', () => {
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
         const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
         await userEvent.click(bulkUploadButton);
 
         const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4131,6 +4157,7 @@ describe('When backend validation feature flag is on', () => {
         const file = new File([csvContent], 'new-cart.csv', { type: 'text/csv' });
 
         const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
         if (!dropzoneInput) {
           throw new Error('File input not found');
         }
@@ -4144,6 +4171,7 @@ describe('When backend validation feature flag is on', () => {
         const addToCartButton = await screen.findByRole('button', {
           name: /Add 1 products to cart/i,
         });
+
         await userEvent.click(addToCartButton);
 
         await waitFor(
@@ -4227,6 +4255,7 @@ describe('When backend validation feature flag is on', () => {
           },
         },
       });
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -4245,6 +4274,7 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4253,6 +4283,7 @@ describe('When backend validation feature flag is on', () => {
       const file = new File([csvContent], 'fail-cart.csv', { type: 'text/csv' });
 
       const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
       if (!dropzoneInput) {
         throw new Error('File input not found');
       }
@@ -4266,6 +4297,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -4383,15 +4415,18 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nVALID-SKU-123,1\nINVALID-SKU-456,1'], 'test.csv', {
         type: 'text/csv',
       });
       const uploadButton = screen.getByRole('button', { name: /upload file/i });
+
       await userEvent.click(uploadButton);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector('input[type="file"]')!;
+
       expect(fileInput).toBeTruthy();
 
       Object.defineProperty(fileInput, 'files', {
@@ -4519,13 +4554,16 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nOOS-SKU-123,5'], 'test.csv', { type: 'text/csv' });
       const uploadButton = screen.getByRole('button', { name: /upload file/i });
+
       await userEvent.click(uploadButton);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector('input[type="file"]')!;
+
       expect(fileInput).toBeTruthy();
 
       Object.defineProperty(fileInput, 'files', {
@@ -4542,6 +4580,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -4622,6 +4661,7 @@ describe('When backend validation feature flag is on', () => {
           },
         },
       });
+
       server.use(
         graphql.query('RecentlyOrderedProducts', () =>
           HttpResponse.json(getRecentlyOrderedProducts()),
@@ -4645,15 +4685,18 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nMIN-QTY-SKU-123,1'], 'test.csv', {
         type: 'text/csv',
       });
       const uploadButton = screen.getByRole('button', { name: /upload file/i });
+
       await userEvent.click(uploadButton);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector('input[type="file"]')!;
+
       expect(fileInput).toBeTruthy();
 
       Object.defineProperty(fileInput, 'files', {
@@ -4670,6 +4713,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -4778,13 +4822,16 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const file = new File(['variant_sku,qty\nERROR-SKU-123,1'], 'test.csv', { type: 'text/csv' });
       const uploadButton = screen.getByRole('button', { name: /upload file/i });
+
       await userEvent.click(uploadButton);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector('input[type="file"]')!;
+
       expect(fileInput).toBeTruthy();
 
       Object.defineProperty(fileInput, 'files', {
@@ -4801,6 +4848,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {
@@ -4881,6 +4929,7 @@ describe('When backend validation feature flag is on', () => {
       });
 
       const productUpload = vi.fn();
+
       when(productUpload)
         .calledWith(expect.stringContaining('withModifiers: true'))
         .thenReturn(csvUpload());
@@ -4918,6 +4967,7 @@ describe('When backend validation feature flag is on', () => {
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
       const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+
       await userEvent.click(bulkUploadButton);
 
       const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
@@ -4926,6 +4976,7 @@ describe('When backend validation feature flag is on', () => {
       const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
 
       const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+
       if (!dropzoneInput) {
         throw new Error('File input not found');
       }
@@ -4943,6 +4994,7 @@ describe('When backend validation feature flag is on', () => {
       const addToCartButton = await screen.findByRole('button', {
         name: /Add 1 products to cart/i,
       });
+
       await userEvent.click(addToCartButton);
 
       await waitFor(() => {

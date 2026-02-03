@@ -12,6 +12,7 @@ export async function initHeadlessScripts() {
       const existingBuyerPortalScriptNodes = document.querySelectorAll(
         `script.${BUYER_PORTAL_INJECTED_SCRIPT_CLASS}`,
       );
+
       if (existingBuyerPortalScriptNodes.length > 0) {
         existingBuyerPortalScriptNodes.forEach((oldNode) => {
           oldNode.parentNode?.removeChild(oldNode);
@@ -20,8 +21,9 @@ export async function initHeadlessScripts() {
 
       b2bScriptNodes.forEach((node) => {
         const scriptElement = document.createElement('script');
+
         [...node.attributes].forEach((attr) => {
-          scriptElement.setAttribute(attr.nodeName, attr.nodeValue as string);
+          scriptElement.setAttribute(attr.nodeName, attr.nodeValue!);
         });
         scriptElement.innerHTML = node.innerHTML;
         scriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
@@ -42,9 +44,9 @@ export async function initHeadlessScripts() {
       environment?: Environment;
     } = {
       siteUrl: originUrl,
-      storeHash: headlessScriptNode?.dataset?.storehash ?? '',
-      channelId: headlessScriptNode?.dataset?.channelid ?? '',
-      environment: headlessScriptNode?.dataset?.environment as Environment,
+      storeHash: headlessScriptNode?.dataset.storehash ?? '',
+      channelId: headlessScriptNode?.dataset.channelid ?? '',
+      environment: headlessScriptNode?.dataset.environment as Environment,
     };
     const response = await fetch(`${getAPIBaseURL(params.environment)}/graphql`, {
       method: 'POST',
@@ -74,9 +76,11 @@ export async function initHeadlessScripts() {
     const {
       data: { storefrontScript },
     } = await response.json();
+
     return storefrontScript.script;
   }
 
   const scriptContent = await getScriptContent(window.location.origin);
+
   parseAndInsertStorefrontScripts(scriptContent);
 }

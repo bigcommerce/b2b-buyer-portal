@@ -10,14 +10,14 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `
       first: ${data.first}
       offset: ${data.offset}
       search: "${data.q || ''}"
-      orderBy: "${data?.orderBy || ''}"
-      createdBy: "${data?.createdBy || ''}"
-      email: "${data?.email || ''}"
-      salesRep: "${data?.salesRep || ''}"
-      ${data?.status ? `status: "${data.status}"` : ''}
-      ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
-      ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
-      ${type === 'bc' ? `channelId: ${data?.channelId || 1}` : ''}
+      orderBy: "${data.orderBy || ''}"
+      createdBy: "${data.createdBy || ''}"
+      email: "${data.email || ''}"
+      salesRep: "${data.salesRep || ''}"
+      ${data.status ? `status: "${data.status}"` : ''}
+      ${data.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
+      ${data.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
+      ${type === 'bc' ? `channelId: ${data.channelId || 1}` : ''}
     ) {
       totalCount,
       edges {
@@ -122,11 +122,11 @@ const quoteCreate = (data: CustomFieldItems) => `mutation CreateQuote{
     grandTotal: "${data.grandTotal}",
     subtotal: "${data.subtotal || ''}",
     taxTotal: "${data.taxTotal || ''}"
-    ${data?.companyId ? `companyId: ${data.companyId}` : ''}
+    ${data.companyId ? `companyId: ${data.companyId}` : ''}
     storeHash: "${data.storeHash}",
     discount: "${data.discount}",
     channelId: ${data.channelId},
-    userEmail: "${data?.userEmail || ''}",
+    userEmail: "${data.userEmail || ''}",
     currency: ${convertObjectToGraphql(data.currency)}
     shippingAddress: ${convertObjectToGraphql(data.shippingAddress)}
     billingAddress: ${convertObjectToGraphql(data.billingAddress)}
@@ -134,9 +134,9 @@ const quoteCreate = (data: CustomFieldItems) => `mutation CreateQuote{
     productList: ${convertArrayToGraphql(data.productList || [])},
     fileList: ${convertArrayToGraphql(data.fileList || [])},
     quoteTitle: "${data.quoteTitle}"
-    ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data?.extraFields || [])}` : ''}
-    ${data?.referenceNumber ? `referenceNumber: "${data?.referenceNumber}"` : ''}
-    ${data?.recipients ? `recipients: ${convertArrayToGraphql(data?.recipients || [])}` : ''}
+    ${data.extraFields ? `extraFields: ${convertArrayToGraphql(data.extraFields || [])}` : ''}
+    ${data.referenceNumber ? `referenceNumber: "${data.referenceNumber}"` : ''}
+    ${data.recipients ? `recipients: ${convertArrayToGraphql(data.recipients || [])}` : ''}
   }) {
     quote{
       id,
@@ -514,12 +514,12 @@ export interface B2BQuoteDetail {
         companyName: string;
         phoneNumber: string;
       };
-      trackingHistory: {
+      trackingHistory: Array<{
         date: number;
         read: boolean;
         role: string;
         message: string;
-      }[];
+      }>;
       extraFields: unknown[];
       notes: string;
       legalTerms: string;
@@ -573,7 +573,7 @@ export interface B2BQuoteDetail {
         phoneNumber: string;
         addressLabel: string;
       };
-      productsList: {
+      productsList: Array<{
         productId: string;
         sku: string;
         basePrice: string;
@@ -586,18 +586,18 @@ export interface B2BQuoteDetail {
         orderQuantityMinimum: number;
         productName: string;
         purchaseHandled: boolean;
-        options: {
+        options: Array<{
           type: string;
           optionId: number;
           optionName: string;
           optionLabel: string;
           optionValue: string;
-        }[];
+        }>;
         notes: string;
         costPrice: string;
         inventoryTracking: string;
         inventoryLevel: number;
-      }[];
+      }>;
       storefrontAttachFiles: unknown[];
       backendAttachFiles: unknown[];
       storeInfo: {

@@ -73,20 +73,10 @@ function B3FilterSearch({
         }}
       />
       <InputBase
-        sx={{
-          ml: 1,
-          flex: 1,
-          '& .MuiInputBase-input': {
-            pb: 0,
-          },
-        }}
-        size="small"
-        value={search}
-        placeholder={placeholder}
-        onChange={handleOnChange}
         endAdornment={
           search.length > 0 && (
             <ClearIcon
+              onClick={handleClearSearchValue}
               sx={{
                 marginRight: '8px',
                 cursor: 'pointer',
@@ -98,10 +88,20 @@ function B3FilterSearch({
                   borderRadius: '48px',
                 },
               }}
-              onClick={handleClearSearchValue}
             />
           )
         }
+        onChange={handleOnChange}
+        placeholder={placeholder}
+        size="small"
+        sx={{
+          ml: 1,
+          flex: 1,
+          '& .MuiInputBase-input': {
+            pb: 0,
+          },
+        }}
+        value={search}
       />
     </Paper>
   );

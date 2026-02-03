@@ -91,7 +91,9 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const priceFormat = (price: number) => currencyFormat(price);
 
   const showPrice = (price: string | number): string | number => {
-    if (isHideQuoteDraftPrice) return b3Lang('quoteDraft.quoteSummary.tbd');
+    if (isHideQuoteDraftPrice) {
+      return b3Lang('quoteDraft.quoteSummary.tbd');
+    }
 
     return price;
   };
@@ -99,7 +101,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const cardId = useId();
 
   return (
-    <Card role="article" aria-labelledby={cardId}>
+    <Card aria-labelledby={cardId} role="article">
       <CardContent>
         <Box>
           <Typography id={cardId} variant="h5">
@@ -184,4 +186,5 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     </Card>
   );
 });
+
 export default QuoteSummary;

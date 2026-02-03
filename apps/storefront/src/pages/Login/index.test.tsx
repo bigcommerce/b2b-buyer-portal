@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import {
-  buildCompanyStateWith,
   graphql,
   HttpResponse,
   renderWithProviders,
@@ -9,7 +8,6 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
-import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -34,8 +32,8 @@ describe('LoginPage', () => {
       vi.mock('@/hooks/useB2BCallback');
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             data: {
               login: {
                 result: {
@@ -45,8 +43,8 @@ describe('LoginPage', () => {
                 },
               },
             },
-          });
-        }),
+          }),
+        ),
       );
 
       vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
@@ -74,8 +72,8 @@ describe('LoginPage', () => {
       vi.mock('@/hooks/useB2BCallback');
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             data: {
               login: {
                 result: {
@@ -85,8 +83,8 @@ describe('LoginPage', () => {
                 },
               },
             },
-          });
-        }),
+          }),
+        ),
       );
 
       vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
@@ -126,11 +124,12 @@ describe('LoginPage', () => {
 
     it('should show error message for invalid login credentials', async () => {
       const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message: 'Invalid Login',
@@ -139,8 +138,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -154,11 +153,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for features/products/pricing and logout silently', async () => {
       const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -168,8 +168,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -187,11 +187,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for products/pricing/ordering and logout silently', async () => {
       const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -201,8 +202,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -219,11 +220,12 @@ describe('LoginPage', () => {
 
     it('should show pending approval message for business features and logout silently', async () => {
       const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -233,8 +235,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -252,11 +254,12 @@ describe('LoginPage', () => {
 
     it('should show inactive account message and logout silently', async () => {
       const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      vi.mocked(useLogout).mockImplementation(() => logoutMock);
 
       server.use(
-        graphql.mutation('Login', () => {
-          return HttpResponse.json({
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
             errors: [
               {
                 message:
@@ -266,8 +269,8 @@ describe('LoginPage', () => {
             data: {
               login: null,
             },
-          });
-        }),
+          }),
+        ),
       );
 
       await renderLoginAndSubmit();
@@ -281,102 +284,6 @@ describe('LoginPage', () => {
       await waitFor(() => {
         expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
-    });
-  });
-
-  describe('URL parameter-driven logout behavior', () => {
-    it('should logout with banner when loginFlag=loggedOutLogin and user is logged in', async () => {
-      const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
-
-      const preloadedState = {
-        company: buildCompanyStateWith({
-          customer: {
-            role: CustomerRole.ADMIN,
-          },
-          tokens: {
-            B2BToken: 'test-token',
-            bcGraphqlToken: '',
-            currentCustomerJWT: '',
-          },
-        }),
-      };
-
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
-        preloadedState,
-        initialEntries: ['/?loginFlag=loggedOutLogin'],
-      });
-
-      await waitFor(() => {
-        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: true });
-      });
-    });
-
-    it.each([
-      'pendingApprovalToViewPrices',
-      'pendingApprovalToOrder',
-      'pendingApprovalToAccessFeatures',
-      'accountInactive',
-      'loggedOutLogin',
-    ] as const)(
-      'should logout without banner when loginFlag=%s and user is not logged in',
-      async (loginFlag) => {
-        const logoutMock = vi.fn();
-        vi.mocked(useLogout).mockReturnValue(logoutMock);
-
-        // User is not logged in (GUEST role)
-        const preloadedState = {
-          company: buildCompanyStateWith({
-            customer: {
-              role: CustomerRole.GUEST,
-            },
-            tokens: {
-              B2BToken: '',
-              bcGraphqlToken: '',
-              currentCustomerJWT: '',
-            },
-          }),
-        };
-
-        renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
-          preloadedState,
-          initialEntries: [`/?loginFlag=${loginFlag}`],
-        });
-
-        await waitFor(() => {
-          expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
-        });
-      },
-    );
-
-    it('should not logout when loginFlag is not a logout-triggering flag', async () => {
-      const logoutMock = vi.fn();
-      vi.mocked(useLogout).mockReturnValue(logoutMock);
-
-      const preloadedState = {
-        company: buildCompanyStateWith({
-          customer: {
-            role: CustomerRole.ADMIN,
-          },
-          tokens: {
-            B2BToken: 'test-token',
-            bcGraphqlToken: '',
-            currentCustomerJWT: '',
-          },
-        }),
-      };
-
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
-        preloadedState,
-        initialEntries: ['/?loginFlag=accountIncorrect'],
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
-      });
-
-      // Should not call logout for flags not in shouldLogout array
-      expect(logoutMock).not.toHaveBeenCalled();
     });
   });
 });

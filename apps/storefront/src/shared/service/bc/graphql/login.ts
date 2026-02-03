@@ -24,7 +24,7 @@ interface UserLoginResult {
         },
       ];
     };
-    errors?: { message: string }[];
+    errors?: Array<{ message: string }>;
   };
 }
 

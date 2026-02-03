@@ -27,6 +27,7 @@ export default function B3CloseAppButton() {
         openUrl: '',
       });
     }
+
     window.history.replaceState(null, '', window.location.pathname || '/');
   };
 
@@ -35,10 +36,10 @@ export default function B3CloseAppButton() {
   return (
     <Box>
       <CloseButton
+        onClick={handleCloseForm}
         sx={{
           color: '#757371',
         }}
-        onClick={handleCloseForm}
       />
     </Box>
   );

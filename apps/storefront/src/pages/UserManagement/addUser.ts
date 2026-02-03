@@ -26,7 +26,7 @@ interface AddUserVariables {
   companyRoleId?: number | string;
   addChannel?: boolean;
   companyRoleName?: string;
-  extraFields?: { fieldName: string; fieldValue: string }[];
+  extraFields?: Array<{ fieldName: string; fieldValue: string }>;
 }
 
 export const addUser = (data: AddUserVariables) => {

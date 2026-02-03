@@ -176,13 +176,15 @@ function ContactInfo(
   useEffect(() => {
     if (info && JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info && info[item as keyof ContactInfoType]);
+        setValue(item, info[item as keyof ContactInfoType]);
       });
     }
 
     if (extraFieldsDefault.length) {
       extraFieldsDefault.forEach((item) => {
-        if (item.fieldName) setValue(item.fieldName, item.value);
+        if (item.fieldName) {
+          setValue(item.fieldName, item.value);
+        }
       });
     }
     // Disable eslint exhaustive-deps rule for setValue dispatcher
@@ -190,7 +192,9 @@ function ContactInfo(
   }, [info, extraFieldsDefault]);
 
   const validateEmailValue = async (emailValue: string) => {
-    if (emailAddress === trim(emailValue)) return true;
+    if (emailAddress === trim(emailValue)) {
+      return true;
+    }
 
     if (!isValidUserType) {
       setError('email', {
@@ -219,8 +223,9 @@ function ContactInfo(
       const messageArr = message.split(':');
 
       if (messageArr.length >= 2) {
-        const field = quoteExtraFields?.find((field) => field.name === messageArr[0]);
-        if (field && field.name) {
+        const field = quoteExtraFields.find((field) => field.name === messageArr[0]);
+
+        if (field?.name) {
           setError(field.name, {
             type: 'manual',
             message: messageArr[1],
@@ -229,8 +234,10 @@ function ContactInfo(
           return false;
         }
       }
+
       return false;
     }
+
     return true;
   };
 
@@ -240,6 +247,7 @@ function ContactInfo(
 
   const getContactInfoValue = async () => {
     let isValid = true;
+
     await handleSubmit(
       async (data) => {
         isValid = await validateEmailValue(data.email);
@@ -294,18 +302,18 @@ function ContactInfo(
               fontSize: '24px',
               height: '32px',
               mb: '20px',
-              ...data?.style,
+              ...data.style,
             }}
           >
             {data.title}
           </Box>
 
           <B3CustomForm
-            formFields={data.infos}
-            errors={errors}
             control={control}
-            setError={setError}
+            errors={errors}
+            formFields={data.infos}
             getValues={getValues}
+            setError={setError}
             setValue={setValue}
           />
         </Box>

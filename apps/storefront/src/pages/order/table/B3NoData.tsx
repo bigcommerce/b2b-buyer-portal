@@ -20,6 +20,7 @@ const NoDataText = styled('span')(() => ({
 
 export default function B3NoData() {
   const b3Lang = useB3Lang();
+
   return (
     <NoDataContainer>
       <DataUsageRounded fontSize="large" />
