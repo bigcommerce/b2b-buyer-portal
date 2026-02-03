@@ -19,6 +19,10 @@ export const featureFlags = [
     key: 'B2B-3978.pass_with_modifiers_to_product_upload',
     name: 'passWithModifiersToProductUpload',
   },
+  {
+    key: 'B2B-4231.chunk_product_searches_in_csv_upload',
+    name: 'chunkProductSearchesInCsvUpload',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
