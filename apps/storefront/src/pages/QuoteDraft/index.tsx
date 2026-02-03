@@ -603,7 +603,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       const note = info?.note || '';
-      const newNote = note.trim().replace(/[\r\n]/g, '\\n').replace(/"/g, '\\"');
+      const newNote = note
+        .trim()
+        .replace(/[\r\n]/g, '\\n')
+        .replace(/"/g, '\\"');
 
       const perfectAddress = (address: AddressWithMasterCopy) => {
         const newAddress = cloneAddressWithId(address);
