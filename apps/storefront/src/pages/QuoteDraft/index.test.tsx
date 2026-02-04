@@ -4686,8 +4686,8 @@ describe('when the user is a B2B customer', () => {
           HttpResponse.json({ data: { quote: { id: '272989', quoteNumber: '911911' } } }),
         ),
         http.post('*/api/v2/extra-fields/quote/validate', () => HttpResponse.json({ code: 200 })),
-        graphql.mutation('CreateQuote', ({ query }) => {
-          createQuoteMutation(query);
+        graphql.mutation('CreateQuote', ({ variables }) => {
+          createQuoteMutation(JSON.stringify(variables.quoteData));
           return HttpResponse.json(
             buildQuoteCreateResponseWith({
               data: {
