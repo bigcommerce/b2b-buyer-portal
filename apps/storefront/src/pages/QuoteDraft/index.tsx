@@ -603,10 +603,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       const note = info?.note || '';
-      const newNote = note
-        .trim()
-        .replace(/[\r\n]/g, '\\n')
-        .replace(/"/g, '\\"');
 
       const perfectAddress = (address: AddressWithMasterCopy) => {
         const newAddress = cloneAddressWithId(address);
@@ -692,7 +688,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
 
       const data = {
-        message: newNote,
+        message: note,
         legalTerms: '',
         totalAmount: enteredInclusiveTax
           ? allPrice.toFixed(currency.decimal_places)
