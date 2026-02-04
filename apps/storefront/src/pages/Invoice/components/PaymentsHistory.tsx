@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 
 import B3Dialog from '@/components/B3Dialog';
 import B3Spin from '@/components/spin/B3Spin';
@@ -9,6 +8,7 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getInvoicePaymentHistory } from '@/shared/service/b2b';
 import { handleGetCorrespondingCurrency } from '@/utils/b3CurrencyFormat';
+import { dateWithLocaleSupport } from '@/utils/b3DateFormat';
 
 interface PaymentsHistoryProps {
   open: boolean;
@@ -74,7 +74,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
               >
                 <Title title="Date received" />
                 <Typography variant="body1">
-                  {dayjs.unix(Number(createdAt)).format('D MMMM YYYY')}
+                  {createdAt ? dateWithLocaleSupport(Number(createdAt)) : '-'}
                 </Typography>
               </Box>
               <Box

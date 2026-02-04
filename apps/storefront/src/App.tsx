@@ -22,9 +22,9 @@ import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
 
-import setDayjsLocale from './components/ui/setDayjsLocale';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
+import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
@@ -69,7 +69,7 @@ export default function App() {
   }, [role, isB2BUser]);
 
   useEffect(() => {
-    setDayjsLocale(bcLanguage || 'en');
+    setDayjsLocale(bcLanguage);
   }, [bcLanguage]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {

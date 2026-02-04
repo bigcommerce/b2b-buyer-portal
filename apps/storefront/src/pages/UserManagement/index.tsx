@@ -186,13 +186,12 @@ function UserManagement() {
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        const message =
-          err.message === 'Company only have one user can not be deleted'
-            ? b3Lang('userManagement.delete.error.atLeastOneUser')
-            : b3Lang('userManagement.delete.error');
-        snackbar.error(message);
-      }
+      const isAtLeastOneUserError =
+        err instanceof Error && err.message === 'Company only have one user can not be deleted';
+      const message = isAtLeastOneUserError
+        ? b3Lang('userManagement.delete.error.atLeastOneUser')
+        : b3Lang('userManagement.delete.error');
+      snackbar.error(message);
     } finally {
       setIsRequestLoading(false);
       initSearchList();

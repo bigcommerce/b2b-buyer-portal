@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -20,7 +19,7 @@ import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { currencyFormat, currencyFormatInfo } from '@/utils/b3CurrencyFormat';
-import { getUTCTimestamp } from '@/utils/b3DateFormat';
+import { dateWithLocaleSupport, getUTCTimestamp } from '@/utils/b3DateFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
@@ -610,7 +609,7 @@ function Invoice() {
       title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
       render: (item: InvoiceList) =>
-        item.createdAt ? dayjs.unix(Number(item.createdAt)).format('D MMMM YYYY') : '–',
+        item.createdAt ? dateWithLocaleSupport(Number(item.createdAt)) : '–',
       width: '15%',
     },
     {
@@ -627,7 +626,7 @@ function Invoice() {
               fontSize: '14px',
             }}
           >
-            {item.dueDate ? dayjs.unix(Number(item.dueDate)).format('D MMMM YYYY') : '–'}
+            {item.dueDate ? dateWithLocaleSupport(Number(item.dueDate)) : '–'}
           </Typography>
         );
       },

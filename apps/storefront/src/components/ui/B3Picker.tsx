@@ -5,7 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { getDayjsLocale } from './setDayjsLocale';
+import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
@@ -29,7 +29,7 @@ export function B3Picker({
   const pickerRef = useRef<HTMLInputElement | null>(null);
   const container = useRef<HTMLInputElement | null>(null);
 
-  const activeLang = getDayjsLocale() || 'en';
+  const activeLang = getDayjsLocale();
 
   const [open, setOpen] = useState(false);
   const openPickerClick = () => {

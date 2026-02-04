@@ -7,8 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
 import { useB3Lang } from '@/lib/lang';
-
-import { getDayjsLocale } from '../ui/setDayjsLocale';
+import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
 
 import { PickerFormControl } from './styled';
 import Form from './ui';
@@ -34,7 +33,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const pickerRef = useRef<HTMLInputElement | null>(null);
 
   const b3Lang = useB3Lang();
-  const activeLang = getDayjsLocale() || 'en';
+  const activeLang = getDayjsLocale();
 
   const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 
