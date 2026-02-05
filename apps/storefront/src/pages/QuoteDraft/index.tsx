@@ -603,7 +603,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       }
 
       const note = info?.note || '';
-      const newNote = note.trim().replace(/[\r\n]/g, '\\n');
+      const newNote = note.trim();
+      // just trim the note,
+      // no matter it's empty or not, to avoid unnecessary space in the quote info
 
       const perfectAddress = (address: AddressWithMasterCopy) => {
         const newAddress = cloneAddressWithId(address);
