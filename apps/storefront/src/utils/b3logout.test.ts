@@ -7,7 +7,8 @@ import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteIn
 
 import b2bVerifyBcLoginStatus from './b2bVerifyBcLoginStatus';
 import b2bLogger from './b3Logger';
-import { isB2bTokenPage, isUserGotoLogin, logoutSession } from './b3logout';
+import { isB2bTokenPage, isUserGotoLogin } from './b3logout';
+import { logoutSession } from './logoutSession';
 
 vi.mock('./b2bVerifyBcLoginStatus');
 vi.mock('./b3Logger');

@@ -5,7 +5,7 @@ import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/se
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
-import { logoutSession } from '@/utils/b3logout';
+import { logoutSession } from '@/utils/logoutSession';
 
 const useEndMasquerade = () => {
   const isMasquerading = useAppSelector(
