@@ -185,6 +185,13 @@ function UserManagement() {
         companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
+    } catch (err: unknown) {
+      const isAtLeastOneUserError =
+        err instanceof Error && err.message === 'Company only have one user can not be deleted';
+      const message = isAtLeastOneUserError
+        ? b3Lang('userManagement.delete.error.atLeastOneUser')
+        : b3Lang('userManagement.delete.error');
+      snackbar.error(message);
     } finally {
       setIsRequestLoading(false);
       initSearchList();

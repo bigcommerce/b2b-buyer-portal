@@ -21,10 +21,13 @@ interface DeleteUserVariables {
 }
 
 export const deleteUser = (variables: DeleteUserVariables) =>
-  B3Request.graphqlB2B<DeleteUserResponse>({
-    query: deleteUserQl,
-    variables: {
-      companyId: toNumberSafely(variables.companyId),
-      userId: toNumberSafely(variables.userId),
+  B3Request.graphqlB2B<DeleteUserResponse>(
+    {
+      query: deleteUserQl,
+      variables: {
+        companyId: toNumberSafely(variables.companyId),
+        userId: toNumberSafely(variables.userId),
+      },
     },
-  });
+    true,
+  );

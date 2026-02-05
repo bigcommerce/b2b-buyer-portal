@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -7,9 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
 import { useB3Lang } from '@/lib/lang';
-import { GlobalContext } from '@/shared/global';
-
-import setDayjsLocale from '../ui/setDayjsLocale';
+import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
 
 import { PickerFormControl } from './styled';
 import Form from './ui';
@@ -28,10 +26,6 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
     getValues,
   } = rest;
 
-  const {
-    state: { bcLanguage },
-  } = useContext(GlobalContext);
-
   const [open, setOpen] = useState(false);
 
   const container = useRef<HTMLInputElement | null>(null);
@@ -39,7 +33,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const pickerRef = useRef<HTMLInputElement | null>(null);
 
   const b3Lang = useB3Lang();
-  const activeLang = setDayjsLocale(bcLanguage || 'en');
+  const activeLang = getDayjsLocale();
 
   const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 

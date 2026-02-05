@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import merge from 'lodash-es/merge';
 
 import { store } from '@/store';
@@ -45,10 +46,22 @@ const formatCreator =
     }
   };
 
-const displayFormat = formatCreator('display', 'formatDate');
-const displayExtendedFormat = formatCreator('extendedDisplay', 'formatDate');
+export const displayFormat = formatCreator('display', 'formatDate');
+export const displayExtendedFormat = formatCreator('extendedDisplay', 'formatDate');
 
-const getUTCTimestamp = (timestamp: string | number, adjustment?: boolean, isDateStr = false) => {
+/**
+ * Formats a Unix timestamp (seconds) as a locale-aware date (e.g. "August 16, 2018").
+ * Uses dayjs `LL` format. Locale is set in setDayjsLocale.tsx.
+ *
+ * @param date - Unix timestamp in seconds
+ */
+export const dateWithLocaleSupport = (date: number) => dayjs.unix(date).format('LL');
+
+export const getUTCTimestamp = (
+  timestamp: string | number,
+  adjustment?: boolean,
+  isDateStr = false,
+) => {
   const { timeFormat } = store.getState().storeInfo;
   const dateFormat = merge(
     {
@@ -72,5 +85,3 @@ const getUTCTimestamp = (timestamp: string | number, adjustment?: boolean, isDat
 
   return utcTime / 1000;
 };
-
-export { displayExtendedFormat, displayFormat, getUTCTimestamp };

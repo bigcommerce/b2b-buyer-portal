@@ -806,13 +806,13 @@ describe('when using the action menu', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Payments history' });
 
-    expect(within(dialog).getByText('23 July 2025')).toBeInTheDocument();
+    expect(within(dialog).getByText('July 23, 2025')).toBeInTheDocument();
     expect(within(dialog).getByText('Foo Bar')).toBeInTheDocument();
     expect(within(dialog).getByText('visa ending in 1111')).toBeInTheDocument();
     expect(within(dialog).getByText('1234')).toBeInTheDocument();
     expect(within(dialog).getByText('$50.50')).toBeInTheDocument();
 
-    expect(within(dialog).getByText('14 July 2025')).toBeInTheDocument();
+    expect(within(dialog).getByText('July 14, 2025')).toBeInTheDocument();
     expect(within(dialog).getByText('Bar Baz')).toBeInTheDocument();
     expect(within(dialog).getByText('visa ending in 1212')).toBeInTheDocument();
     expect(within(dialog).getByText('3222')).toBeInTheDocument();

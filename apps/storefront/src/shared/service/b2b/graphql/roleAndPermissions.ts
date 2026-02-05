@@ -44,7 +44,7 @@ export interface CompanyRolesResponse {
   };
 }
 
-export const getB2BRoleList = (data: CustomFieldItems): CustomFieldItems =>
+export const getB2BRoleList = (data: CustomFieldItems): Promise<CompanyRolesResponse['data']> =>
   B3Request.graphqlB2B({
     query: getRoles(data),
   });

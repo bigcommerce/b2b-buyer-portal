@@ -74,7 +74,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
       isOpen={isOpen}
       title={b3Lang('addresses.setDefaultDialog.setDefaultAddress')}
       leftSizeBtn={b3Lang('addresses.setDefaultDialog.cancel')}
-      rightSizeBtn="set"
+      rightSizeBtn={b3Lang('addresses.setDefaultDialog.set')}
       handleLeftClick={closeDialog}
       handRightClick={handleSetDefault}
     >
