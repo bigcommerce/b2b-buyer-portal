@@ -412,6 +412,7 @@ function QuotesList() {
           handleFilterChange={handleFilterChange}
         />
         <B3PaginationTable
+          tableFixed={true}
           columnItems={columns}
           rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}
