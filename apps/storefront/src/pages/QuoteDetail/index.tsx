@@ -206,7 +206,8 @@ const containerStyle = (isMobile: boolean) => {
 };
 
 function Footer({ children, isAgenting }: { children: React.ReactNode; isAgenting: boolean }) {
-  const [isMobile] = useMobile();
+  const location = useLocation();
+  const [isMobile] = useMobile(location?.pathname);
   return (
     <Box
       sx={{
@@ -236,7 +237,8 @@ function ProceedToCheckoutButton({
   children: React.ReactNode;
   onClick: () => void;
 }) {
-  const [isMobile] = useMobile();
+  const location = useLocation();
+  const [isMobile] = useMobile(location?.pathname);
   return (
     <Button
       variant="contained"
@@ -271,7 +273,8 @@ function QuoteDetail() {
     getQuote,
   } = useData();
 
-  const [isMobile] = useMobile();
+  const location = useLocation();
+  const [isMobile] = useMobile(location?.pathname);
 
   const b3Lang = useB3Lang();
 
@@ -307,8 +310,6 @@ function QuoteDetail() {
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
   const [shouldHidePrices, setShouldHidePrices] = useState<boolean>(true);
-
-  const location = useLocation();
 
   const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
 

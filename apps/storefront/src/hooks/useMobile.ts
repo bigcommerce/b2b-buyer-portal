@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 
-const SPECIAL_URL_PATTERNS = ['/#/quoteDraft', '/#/quotes', '/#/quoteDetail'];
+const SPECIAL_URL_PATTERNS = ['quoteDraft', 'quotes', 'quoteDetail'];
 
-const useMobile = (): [boolean] => {
+const useMobile = (pathName?: string): [boolean] => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
   useEffect(() => {
     const resize = () => {
-      const url = window.location.href;
-      const isSpecialUrl = SPECIAL_URL_PATTERNS.some((pattern) => url?.includes(pattern));
+      const isSpecialUrl = SPECIAL_URL_PATTERNS.some((pattern) => pathName?.includes(pattern));
       const breakpoint = isSpecialUrl ? 958 : 768;
 
       setIsMobile(document.body.clientWidth <= breakpoint);
@@ -21,7 +20,7 @@ const useMobile = (): [boolean] => {
     return () => {
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [pathName]);
 
   return [isMobile];
 };

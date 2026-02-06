@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
@@ -282,8 +282,8 @@ function QuotesList() {
   const navigate = useNavigate();
 
   const b3Lang = useB3Lang();
-
-  const [isMobile] = useMobile();
+  const location = useLocation();
+  const [isMobile] = useMobile(location?.pathname);
 
   const {
     state: { openAPPParams },
