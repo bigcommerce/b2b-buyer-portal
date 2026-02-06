@@ -8,7 +8,7 @@ const useMobile = (): [boolean] => {
   useEffect(() => {
     const resize = () => {
       const url = window.location.href;
-      const isSpecialUrl = SPECIAL_URL_PATTERNS.some((pattern) => url.includes(pattern));
+      const isSpecialUrl = SPECIAL_URL_PATTERNS.some((pattern) => url?.includes(pattern));
       const breakpoint = isSpecialUrl ? 958 : 768;
 
       setIsMobile(document.body.clientWidth <= breakpoint);
