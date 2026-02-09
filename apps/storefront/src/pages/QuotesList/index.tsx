@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
@@ -192,12 +192,14 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         key: 'quoteTitle',
         title: b3Lang('quotes.title'),
         isSortable: true,
+        width: '15%',
       },
       {
         key: 'salesRep',
         title: b3Lang('quotes.salesRep'),
         render: (item: ListItem) => `${item.salesRep || item.salesRepEmail}`,
         isSortable: true,
+        width: '15%',
       },
       {
         key: 'createdBy',
@@ -282,8 +284,7 @@ function QuotesList() {
   const navigate = useNavigate();
 
   const b3Lang = useB3Lang();
-  const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
+  const [isMobile] = useMobile();
 
   const {
     state: { openAPPParams },
@@ -389,6 +390,7 @@ function QuotesList() {
     <B3Spin isSpinning={isRequestLoading}>
       <Box
         sx={{
+          overflowX: 'auto',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
@@ -412,7 +414,6 @@ function QuotesList() {
           handleFilterChange={handleFilterChange}
         />
         <B3PaginationTable
-          tableFixed
           columnItems={columns}
           rowsPerPageOptions={[10, 20, 30]}
           getRequestList={fetchList}

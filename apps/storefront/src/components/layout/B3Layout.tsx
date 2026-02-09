@@ -90,7 +90,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   };
 
   const overflowStyle = useMemo(() => {
-    const overflowXHiddenPage = ['/invoice'];
+    const overflowXHiddenPage = ['/invoice', '/quotes', '/company-orders', '/orders'];
     if (overflowXHiddenPage.includes(location.pathname)) {
       return {
         overflowX: 'hidden',

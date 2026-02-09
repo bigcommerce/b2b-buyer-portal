@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const SPECIAL_URL_PATTERNS = ['quoteDraft', 'quotes', 'quoteDetail'];
+const SPECIAL_URL_PATTERNS = ['quoteDraft', 'quoteDetail'];
 
 const useMobile = (pathName?: string): [boolean] => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
