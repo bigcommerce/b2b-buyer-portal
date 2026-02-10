@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import type { PersistConfig, PersistedState } from 'redux-persist';
+import { getStoredState, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import storageSession from 'redux-persist/lib/storage/session';
 
 import {
   BillingAddress,
@@ -9,6 +11,7 @@ import {
   QuoteItem,
   ShippingAddress,
 } from '@/types/quotes';
+import b2bLogger from '@/utils/b3Logger';
 
 interface SetDraftProductQuantityParams {
   id: string;
@@ -170,4 +173,33 @@ export const {
   setQuoteDetailToCheckoutUrl,
 } = draftQuoteListSlice.actions;
 
-export default persistReducer({ key: 'quoteInfo', storage }, draftQuoteListSlice.reducer);
+export const persistConfig: PersistConfig<QuoteInfoState> = {
+  key: 'quoteInfo',
+  storage: storageSession,
+  /* 
+    We changed quoteinfo from localstorage to sessionStorage
+    Therefore need to make sure that users which had draft quote in localstorage,
+      we add it to sessionStorage and remove it from localStorage
+  */
+  getStoredState: async (config): Promise<PersistedState | undefined> => {
+    try {
+      // Try to load from the current engine (sessionStorage)
+      const sessionState = await getStoredState(config);
+      if (sessionState) return sessionState as PersistedState;
+
+      // Fallback: Try to migrate from the old engine (localStorage)
+      const localState = await getStoredState({ ...config, storage });
+
+      if (localState) {
+        // Delete the old key to prevent data duplication
+        localStorage.removeItem(`persist:${config.key}`);
+        return localState as PersistedState;
+      }
+    } catch (error) {
+      b2bLogger.error('Migration from localStorage failed:', error);
+    }
+    return undefined; // Rehydrates with initial state if nothing found
+  },
+};
+
+export default persistReducer(persistConfig, draftQuoteListSlice.reducer);
