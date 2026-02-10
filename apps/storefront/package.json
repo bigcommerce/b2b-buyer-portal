@@ -76,7 +76,7 @@
     "@vitest/coverage-istanbul": "^3.2.4",
     "babel-plugin-import": "^1.13.8",
     "csv-stringify": "^6.6.0",
-    "dependency-cruiser": "^17.2.0",
+    "dependency-cruiser": "^17.3.8",
     "eslint": "^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^18.0.0",
