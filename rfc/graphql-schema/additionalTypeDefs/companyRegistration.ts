@@ -21,10 +21,10 @@ export default /* GraphQL */ `
   }
 
   input CompanyExtraFieldsInput {
-    multipleChoices: [MultipleChoiceFormFieldInput!]
-    numbers: [NumberFormFieldInput!]
-    texts: [TextFormFieldInput!]
-    multilineTexts: [MultilineTextFormFieldInput!]
+    multipleChoices: [MultipleChoiceExtraFieldInput!]
+    numbers: [NumberExtraFieldInput!]
+    texts: [TextExtraFieldInput!]
+    multilineTexts: [MultilineTextExtraFieldInput!]
   }
 
   input AddCompanyAddressInput {

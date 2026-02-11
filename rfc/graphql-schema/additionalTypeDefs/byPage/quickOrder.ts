@@ -80,24 +80,6 @@ type AddConfiguredProductsToCartResult {
     errors: [AddConfiguredProductsToCartError!]! # Error only contains message: string.
 }
 
-input AddQuoteLineItemsDataInput {
-    lineItems: [CartLineItemInput!]!
-}
-
-input AddQuoteLineItemsInput {
-    quoteId: ID!
-    data: AddQuoteLineItemsDataInput!
-}
-
-type AddQuoteLineItemsError implements Error {
-    message: String!
-}
-
-type AddQuoteLineItemsResult {
-    quote: Quote # AddCartLineItemsResult returns cart, we should return Quote
-    errors: [AddQuoteLineItemsError!]! # Error only contains message: string.
-}
-
 input AddConfiguredProductsToShoppingListInput {
     shoppingListId: ID!
     data: AddConfiguredProductsDataInput!
@@ -130,24 +112,7 @@ extend type CartMutations {
     addConfiguredProducts(input: AddConfiguredProductsToCartInput!): AddConfiguredProductsToCartResult!
 }
 
-input CreateQuoteInput {
-    title: String
-    lineItems: [CartLineItemInput!]
-    currencyCode: String
-}
-
-type CreateQuoteError implements Error {
-    message: String!
-}
-
-type CreateQuoteResult {
-    quote: Quote
-    errors: [CreateQuoteError!]!
-}
-
-type QuoteMutations {
-    create: (input: CreateQuoteInput!): CreateQuoteResult!
-    addLineItems(input: AddQuoteLineItemsInput!): AddQuoteLineItemsResult!
+extend type QuoteMutations {
     addConfiguredProducts(input: AddConfiguredProductsToQuoteInput!): AddConfiguredProductsToQuoteResult!
 }
 
