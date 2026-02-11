@@ -4842,6 +4842,116 @@ describe('when the user is a B2B customer', () => {
       expect(mutationData).not.toContain(BILLING_ADDRESS_ID);
       expect(mutationData).not.toContain(SHIPPING_ADDRESS_ID);
     });
+
+    it('should map company field from saved address to companyName field in form', async () => {
+      const savedAddressCompanyName = 'Acme Corporation Inc';
+      const savedAddressWithCompany = {
+        ...buildAddressWith({
+          country: country.countryCode,
+          state: state.stateName,
+        }),
+        id: BILLING_ADDRESS_ID,
+        company: savedAddressCompanyName,
+        isShipping: 0,
+        isBilling: 1,
+        isDefaultShipping: 0,
+        isDefaultBilling: 0,
+      };
+
+      server.use(
+        graphql.query('Addresses', () =>
+          HttpResponse.json({
+            data: {
+              addresses: {
+                totalCount: 1,
+                edges: [{ node: { ...savedAddressWithCompany } }],
+              },
+            },
+          }),
+        ),
+      );
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const billingFields = screen.getByRole('group', { name: 'Billing' });
+      await userEvent.click(within(billingFields).getByText('Choose from saved'));
+
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      await waitFor(() =>
+        expect(
+          within(billingFields).getByDisplayValue(savedAddressCompanyName),
+        ).toBeInTheDocument(),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(`"companyName":"${savedAddressCompanyName}"`);
+    });
+
+    it('should map company field from saved shipping address to companyName field in form', async () => {
+      const savedAddressCompanyName = 'Shipping Company Ltd';
+      const savedShippingAddressWithCompany = {
+        ...buildAddressWith({
+          country: country.countryCode,
+          state: state.stateName,
+        }),
+        id: SHIPPING_ADDRESS_ID,
+        company: savedAddressCompanyName,
+        isShipping: 1,
+        isBilling: 0,
+        isDefaultShipping: 0,
+        isDefaultBilling: 0,
+      };
+
+      server.use(
+        graphql.query('Addresses', () =>
+          HttpResponse.json({
+            data: {
+              addresses: {
+                totalCount: 1,
+                edges: [{ node: { ...savedShippingAddressWithCompany } }],
+              },
+            },
+          }),
+        ),
+      );
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, getPreloadedState());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit info' }));
+
+      const shippingFields = screen.getByRole('group', { name: 'Shipping' });
+      await userEvent.click(within(shippingFields).getByText('Choose from saved'));
+
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: 'Choose from saved' })).toBeVisible(),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Choose address' }));
+
+      await waitFor(() =>
+        expect(
+          within(shippingFields).getByDisplayValue(savedAddressCompanyName),
+        ).toBeInTheDocument(),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save info' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain(`"companyName":"${savedAddressCompanyName}"`);
+    });
   });
 
   describe('when adding products to quote with Non-Purchasable & Out of Stock enabled', () => {
