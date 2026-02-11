@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cloneDeep, concat, has, isEqual, omit, uniq } from 'lodash-es';
+import { cloneDeep, concat, isEqual, omit, uniq } from 'lodash-es';
 import { v4 as generateUuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
@@ -537,12 +537,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       return address;
     }
 
-    if (has(masterCopy, 'company')) {
-      masterCopy.companyName = masterCopy.company || '';
-    }
-
     const addressForComparison = omit(address, ['addressId']);
-    const masterCopyForComparison = omit(masterCopy, ['addressId', 'company']);
+    const masterCopyForComparison = omit(masterCopy, ['addressId']);
 
     return {
       ...address,

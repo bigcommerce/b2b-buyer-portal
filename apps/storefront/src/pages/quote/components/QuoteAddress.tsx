@@ -113,7 +113,7 @@ function QuoteAddress(
       label: address?.label || '',
       firstName: address?.firstName || '',
       lastName: address?.lastName || '',
-      company: address?.company || '',
+      companyName: address?.company || '',
       country: address?.countryCode || '',
       address: address?.addressLine1 || '',
       apartment: address?.addressLine2 || '',
@@ -128,7 +128,6 @@ function QuoteAddress(
     addressItem.masterCopy = cloneDeep(addressItem);
 
     Object.keys(addressItem).forEach((item: string) => {
-      if (item === 'company') return;
       setValue(item, addressItem[item]);
     });
     if (type === 'billing' && shippingSameAsBilling) {
