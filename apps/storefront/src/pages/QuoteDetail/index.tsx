@@ -197,17 +197,16 @@ function useData() {
 const containerStyle = (isMobile: boolean) => {
   return isMobile
     ? {
-        alignItems: 'flex-end',
-        flexDirection: 'column',
-      }
+      alignItems: 'flex-end',
+      flexDirection: 'column',
+    }
     : {
-        alignItems: 'center',
-      };
+      alignItems: 'center',
+    };
 };
 
 function Footer({ children, isAgenting }: { children: React.ReactNode; isAgenting: boolean }) {
-  const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
+  const [isMobile] = useMobile();
   return (
     <Box
       sx={{
@@ -237,8 +236,7 @@ function ProceedToCheckoutButton({
   children: React.ReactNode;
   onClick: () => void;
 }) {
-  const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
+  const [isMobile] = useMobile();
   return (
     <Button
       variant="contained"
@@ -273,8 +271,7 @@ function QuoteDetail() {
     getQuote,
   } = useData();
 
-  const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
+  const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
 
@@ -310,6 +307,8 @@ function QuoteDetail() {
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
   const [shouldHidePrices, setShouldHidePrices] = useState<boolean>(true);
+
+  const location = useLocation();
 
   const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
 
@@ -866,20 +865,20 @@ function QuoteDetail() {
             sx={
               isMobile
                 ? {
-                    flexBasis: '100%',
-                    pl: '16px',
-                  }
+                  flexBasis: '100%',
+                  pl: '16px',
+                }
                 : {
-                    mr: '16px',
-                  }
+                  mr: '16px',
+                }
             }
           >
             <Box
               sx={
                 isMobile
                   ? {
-                      flexBasis: '100%',
-                    }
+                    flexBasis: '100%',
+                  }
                   : {}
               }
             >
@@ -900,11 +899,11 @@ function QuoteDetail() {
             sx={
               isMobile
                 ? {
-                    flexBasis: '100%',
-                  }
+                  flexBasis: '100%',
+                }
                 : {
-                    pl: 0,
-                  }
+                  pl: 0,
+                }
             }
           >
             <Box

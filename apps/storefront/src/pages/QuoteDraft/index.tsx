@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cloneDeep, concat, has, isEqual, omit, uniq } from 'lodash-es';
@@ -188,8 +188,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const b3Lang = useB3Lang();
 
-  const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
+  const [isMobile] = useMobile();
 
   const [loading, setLoading] = useState<boolean>(false);
 

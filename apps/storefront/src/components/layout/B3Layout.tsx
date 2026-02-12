@@ -24,10 +24,10 @@ const SPECIAL_PATH_TEXTS = {
 } as const;
 
 export default function B3Layout({ children }: { children: ReactNode }) {
+  const [isMobile] = useMobile();
   const isDesktopLimit = useMediaQuery('(min-width:1775px)');
 
   const location = useLocation();
-  const [isMobile] = useMobile(location?.pathname);
 
   const [title, setTitle] = useState<string>('');
 
