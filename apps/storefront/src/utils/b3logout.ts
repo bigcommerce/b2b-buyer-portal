@@ -1,15 +1,6 @@
-import { store } from '@/store';
-import { clearCompanySlice } from '@/store/slices/company';
-import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
-
 import b2bVerifyBcLoginStatus from './b2bVerifyBcLoginStatus';
 import b2bLogger from './b3Logger';
-
-export const logoutSession = () => {
-  store.dispatch(clearCompanySlice());
-  store.dispatch(resetDraftQuoteList());
-  store.dispatch(resetDraftQuoteInfo());
-};
+import { logoutSession } from './logoutSession';
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
   const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login', 'forgotpassword'];

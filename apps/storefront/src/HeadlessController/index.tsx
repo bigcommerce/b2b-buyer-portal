@@ -27,12 +27,12 @@ import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
 import CallbackManager from '@/utils/b3CallbackManager';
 import b2bLogger from '@/utils/b3Logger';
-import { logoutSession } from '@/utils/b3logout';
 import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { logoutSession } from '@/utils/logoutSession';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { getSku } from './getSku';

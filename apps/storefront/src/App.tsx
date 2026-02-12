@@ -162,58 +162,63 @@ export default function App() {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
     const init = async () => {
-      // bc graphql token
-      if (!bcGraphqlToken) {
-        await loginInfo();
-      }
-      setChannelStoreType();
-
-      // load the store config before fetching other data
-      // as some fetches depend on the store config or feature flags being present
-      await getStoreConfigs(styleDispatch, dispatch);
-
       try {
+        // bc graphql token
+        if (!bcGraphqlToken) {
+          await loginInfo();
+        }
+        setChannelStoreType();
+
+        // load the store config before fetching other data
+        // as some fetches depend on the store config or feature flags being present
+        await getStoreConfigs(styleDispatch, dispatch);
+
         await Promise.allSettled([
           getGlobalStoreTax(),
           setStorefrontConfig(dispatch),
           getCompanyInfo(role, b2bId),
         ]);
+
+        const userInfo = {
+          role: Number(role),
+          isAgenting,
+        };
+        if (!customerId) {
+          const info = await getCurrentCustomerInfo().catch((error) => {
+            if (isCompanyError(error)) {
+              gotoPage(`/login?loginFlag=${error.reason}`);
+            }
+          });
+          if (info) {
+            userInfo.role = info?.role;
+          }
+        }
+
+        // background login enter judgment and refresh
+        if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
+          await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
+        } else {
+          showPageMask(false);
+        }
+
+        if (customerId) {
+          clearInvoiceCart();
+        }
+
+        storeDispatch(
+          setGlobalCommonState({
+            isPageComplete: true,
+          }),
+        );
       } catch (e) {
         b2bLogger.error(e);
-      }
-
-      const userInfo = {
-        role: Number(role),
-        isAgenting,
-      };
-
-      if (!customerId) {
-        const info = await getCurrentCustomerInfo().catch((error) => {
-          if (isCompanyError(error)) {
-            gotoPage(`/login?loginFlag=${error.reason}`);
-          }
-        });
-        if (info) {
-          userInfo.role = info?.role;
-        }
-      }
-
-      // background login enter judgment and refresh
-      if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
-        await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
-      } else {
         showPageMask(false);
+        storeDispatch(
+          setGlobalCommonState({
+            isPageComplete: true,
+          }),
+        );
       }
-
-      if (customerId) {
-        clearInvoiceCart();
-      }
-
-      storeDispatch(
-        setGlobalCommonState({
-          isPageComplete: true,
-        }),
-      );
     };
 
     init();

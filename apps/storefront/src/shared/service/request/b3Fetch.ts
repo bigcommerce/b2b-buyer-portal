@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { store } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import { BigCommerceStorefrontAPIBaseURL, channelId, storeHash } from '@/utils/basicConfig';
+import { logoutSession } from '@/utils/logoutSession';
 
 import { getAPIBaseURL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';
@@ -107,6 +108,9 @@ const B3Request = {
       const extensions = error?.extensions;
 
       if (extensions?.code === 40101) {
+        window.sessionStorage.clear();
+        logoutSession();
+
         if (window.location.hash.startsWith('#/')) {
           window.location.href = '#/login?loginFlag=loggedOutLogin&showTip=false';
         }
@@ -115,7 +119,7 @@ const B3Request = {
           snackbar.error(message);
         }
 
-        return new Promise(() => {});
+        return Promise.reject(message);
       }
 
       if (extensions && extensions?.productValidationErrors) {
