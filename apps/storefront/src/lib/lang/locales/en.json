@@ -122,6 +122,7 @@
   "global.statusNotifications.checkEmailLetterWithDetailsResubmitApplication": "Your business account has been rejected. Check your email inbox, we sent you a letter with all details. You can resubmit your application.",
   "global.statusNotifications.accountRejectedOrderingDisabled": "Your business account has been rejected. Ordering is disabled.",
   "global.statusNotifications.businessAccountInactive": "This business account is inactive. Reach out to our support team to reactivate your account.",
+  "global.statusNotifications.purchasabilityDisabled": "User does not have permission to place an order.",
   "global.B2BAutoCompleteCheckbox.input.label": "Company",
   "global.B2BSwitchCompanyModal.title": "Switch company",
   "global.B2BSwitchCompanyModal.confirm.button": "Switch company",

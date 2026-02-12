@@ -10,7 +10,7 @@ import { CART_URL, CHECKOUT_URL } from '@/constants';
 import config from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { CompanyStatus } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { B3SStorage } from '@/utils/b3Storage';
@@ -59,11 +59,22 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
   } = useContext(CustomStyleContext);
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
   const blockPendingAccountOrderCreation = B3SStorage.get('blockPendingAccountOrderCreation');
 
   const checkIsInPage = (url: string) => window.location.href.includes(url);
 
   const { pathname } = window.location;
+
+  useEffect(() => {
+    if (!isB2BUser) return;
+    if (purchasabilityPermission) return;
+    if (!checkIsInPage(CHECKOUT_URL)) return;
+
+    globalSnackbar.error(b3Lang('global.statusNotifications.purchasabilityDisabled'));
+    window.location.href = '/';
+  }, [pathname, isB2BUser, purchasabilityPermission, b3Lang]);
 
   useEffect(() => {
     if (checkIsInPage(CHECKOUT_URL) && companyStatus === CompanyStatus.REJECTED) {
