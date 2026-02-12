@@ -192,12 +192,14 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         key: 'quoteTitle',
         title: b3Lang('quotes.title'),
         isSortable: true,
+        width: '15%',
       },
       {
         key: 'salesRep',
         title: b3Lang('quotes.salesRep'),
         render: (item: ListItem) => `${item.salesRep || item.salesRepEmail}`,
         isSortable: true,
+        width: '15%',
       },
       {
         key: 'createdBy',
@@ -282,7 +284,6 @@ function QuotesList() {
   const navigate = useNavigate();
 
   const b3Lang = useB3Lang();
-
   const [isMobile] = useMobile();
 
   const {
@@ -389,6 +390,7 @@ function QuotesList() {
     <B3Spin isSpinning={isRequestLoading}>
       <Box
         sx={{
+          overflowX: 'auto',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,

@@ -5,7 +5,7 @@ const useMobile = (): [boolean] => {
 
   useEffect(() => {
     const resize = () => {
-      setIsMobile(document.body.clientWidth <= 750);
+      setIsMobile(document.body.clientWidth <= 768);
     };
 
     resize();
