@@ -1,6 +1,6 @@
 import { useContext, useRef, useState } from 'react';
 import { ArrowDropDown, Delete } from '@mui/icons-material';
-import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Grid, Menu, MenuItem, Typography, useTheme } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks/useMobile';
@@ -17,7 +17,6 @@ interface ShoppingDetailFooterProps {
   allowJuniorPlaceOrder: boolean;
   selectedSubTotal: number;
   isB2BUser: boolean;
-  customColor: string;
   isCanEditShoppingList: boolean;
   isJuniorBuyer: boolean;
   onDelete: () => void;
@@ -34,12 +33,13 @@ function ShoppingDetailFooter({
   allowJuniorPlaceOrder,
   selectedSubTotal,
   isB2BUser,
-  customColor,
   isCanEditShoppingList,
   isJuniorBuyer,
 }: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
+  const theme = useTheme();
+  const customColor = theme.palette.primary.main;
 
   const {
     state: { productQuoteEnabled = false },

@@ -334,7 +334,7 @@ export const getProductOptionsFields = (
 };
 
 export const getAllModifierDefaultValue = (modifiers: CustomFieldItems) => {
-  const modifierDefaultValue: CustomFieldItems = [];
+  const modifierDefaultValue: CustomFieldItems[] = [];
 
   modifiers.forEach((modifier: CustomFieldItems) => {
     const {
