@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -8,12 +8,14 @@ export interface LangState {
   translations: Record<string, string>;
   fetchedPages: string[];
   translationVersion: number;
+  locale: string;
 }
 
 const initialState: LangState = {
   translations: {},
   fetchedPages: [],
   translationVersion: 0,
+  locale: 'en',
 };
 
 export const langSlice = createSlice({
@@ -24,6 +26,9 @@ export const langSlice = createSlice({
       state.translations = {};
       state.fetchedPages = [];
       state.translationVersion = 0;
+    },
+    setLocale: (state, action: PayloadAction<string>) => {
+      state.locale = action.payload;
     },
   },
   extraReducers(builder) {
@@ -43,6 +48,6 @@ export const langSlice = createSlice({
   },
 });
 
-export const { resetTranslations } = langSlice.actions;
+export const { resetTranslations, setLocale } = langSlice.actions;
 
 export default persistReducer({ key: 'lang', storage }, langSlice.reducer);

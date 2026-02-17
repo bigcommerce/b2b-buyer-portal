@@ -14,11 +14,19 @@ import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutesWithoutComponent } from '@/shared/routeList';
-import { getB2BShoppingList, getBcShoppingList, superAdminCompanies } from '@/shared/service/b2b';
+import {
+  getB2BShoppingList,
+  getBcShoppingList,
+  getBCStoreChannelId,
+  superAdminCompanies,
+} from '@/shared/service/b2b';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
   formattedQuoteDraftListSelector,
+  getGlobalTranslations,
   isB2BUserSelector,
+  resetTranslations,
+  setLocale as setLangLocale,
   useAppDispatch,
   useAppSelector,
   useAppStore,
@@ -155,6 +163,26 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           }, 0),
         setConfig: (key: string, value: string) => {
           setElementsListenersConfig(key, value);
+        },
+        setLocale: async (locale: string) => {
+          storeDispatch(setLangLocale(locale));
+
+          try {
+            const { storeBasicInfo } = await getBCStoreChannelId();
+            const [storeInfo] = storeBasicInfo.storeSites;
+
+            if (storeInfo) {
+              storeDispatch(resetTranslations());
+              storeDispatch(
+                getGlobalTranslations({
+                  newVersion: storeInfo.translationVersion + 1,
+                  channelId: storeBasicInfo.multiStorefrontEnabled ? storeInfo.channelId : 0,
+                }),
+              );
+            }
+          } catch (error) {
+            b2bLogger.error(error);
+          }
         },
         quote: {
           addProductFromPage: async (item) => {
