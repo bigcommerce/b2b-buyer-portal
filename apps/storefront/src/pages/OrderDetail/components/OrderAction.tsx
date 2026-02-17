@@ -14,7 +14,7 @@ import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
-import { b2bPrintInvoice } from '@/utils/b3PrintInvoice';
+import { b2bPrintInvoice, getPrintInvoiceUrl } from '@/utils/b3PrintInvoice';
 import { snackbar } from '@/utils/b3Tip';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
@@ -176,7 +176,7 @@ function OrderCard(props: OrderCardProps) {
         b2bPrintInvoice(orderId, 'b2b_print_invoice');
       }
     } else if (name === 'printInvoice') {
-      window.open(`/account.php?action=print_invoice&order_id=${orderId}`);
+      window.open(getPrintInvoiceUrl(orderId));
     } else {
       const isNeedSwitch = handleShowSwitchCompanyModal();
       if (isNeedSwitch) return;
