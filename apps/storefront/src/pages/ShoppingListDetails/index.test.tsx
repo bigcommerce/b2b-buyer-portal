@@ -1345,9 +1345,6 @@ describe('Add to quote', () => {
   });
 
   it('calls validateProducts query when NP/OOS flag is enabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
     const backorderEnabled = true;
 
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
@@ -1457,7 +1454,6 @@ describe('Add to quote', () => {
         company: b2bCompanyWithShoppingListPermissions,
         global: buildGlobalStateWith({
           backorderEnabled,
-          featureFlags,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
         }),
       },
@@ -1485,10 +1481,6 @@ describe('Add to quote', () => {
   });
 
   it('adds to quote when threshold error occurs and NP/OOS flag is enabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const getVariantInfoBySkus = vi.fn();
@@ -1602,7 +1594,7 @@ describe('Add to quote', () => {
       preloadedState: {
         company: b2bCompanyWithShoppingListPermissions,
         global: buildGlobalStateWith({
-          featureFlags,
+          backorderEnabled: true,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
         }),
       },
@@ -1622,10 +1614,6 @@ describe('Add to quote', () => {
   });
 
   it('adds to quote when threshold error occurs and NP/OOS flag is disabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
     const getVariantInfoBySkus = vi.fn();
@@ -1739,7 +1727,7 @@ describe('Add to quote', () => {
       preloadedState: {
         company: b2bCompanyWithShoppingListPermissions,
         global: buildGlobalStateWith({
-          featureFlags,
+          backorderEnabled: true,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
         }),
       },
@@ -2045,9 +2033,6 @@ describe('when backend validation is enabled', () => {
     company: b2bCompanyWithShoppingListPermissions,
     global: buildGlobalStateWith({
       backorderEnabled: true,
-      featureFlags: {
-        'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-      },
     }),
   };
 

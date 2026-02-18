@@ -5,7 +5,7 @@ import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
@@ -310,7 +310,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const tableRef = useRef<TableRefProps | null>(null);
 
-  const backendValidationEnabled = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
 
   const [checkedArr, setCheckedArr] = useState<ProductsProps[]>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
@@ -612,7 +612,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (backendValidationEnabled) {
+    if (isBackorderEnabled) {
       const validatedProducts = await validateProducts(products);
       const { success, warning, error } =
         convertStockAndThresholdValidationErrorToWarning(validatedProducts);
@@ -777,7 +777,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  const retryAddToCart = backendValidationEnabled ? retryAddToCartBackend : retryAddToCartFrontend;
+  const retryAddToCart = isBackorderEnabled ? retryAddToCartBackend : retryAddToCartFrontend;
 
   const shouldRedirectToCheckoutAfterAddToCart = () => {
     if (
@@ -882,7 +882,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  const addToCart = backendValidationEnabled ? handleAddToCartBackend : handleAddToCartOnFrontend;
+  const addToCart = isBackorderEnabled ? handleAddToCartBackend : handleAddToCartOnFrontend;
 
   // Add selected product to cart
   const handleAddProductsToCart = async () => {

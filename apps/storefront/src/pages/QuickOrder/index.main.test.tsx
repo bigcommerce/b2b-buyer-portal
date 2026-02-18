@@ -1897,10 +1897,7 @@ describe('when adding to quote', () => {
     expect(await screen.findByText('Products were added to your quote')).toBeInTheDocument();
   });
 
-  it('calls validateProducts query when feature flag is enabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
+  it('calls validateProducts query when backorder is enabled', async () => {
     const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
@@ -1967,7 +1964,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -1992,9 +1989,6 @@ describe('when adding to quote', () => {
   });
 
   it('displays correct error messages when adding to quote with NON_PURCHASABLE errors', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
     const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
@@ -2078,7 +2072,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -2097,9 +2091,6 @@ describe('when adding to quote', () => {
   });
 
   it('groups multiple products with the same error type into a single snackbar', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
     const backorderEnabled = true;
 
     const getRecentlyOrderedProducts = vi.fn();
@@ -2280,7 +2271,7 @@ describe('when adding to quote', () => {
     renderWithProviders(<QuickOrder />, {
       preloadedState: {
         ...preloadedState,
-        global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
+        global: buildGlobalStateWith({ backorderEnabled }),
       },
       initialGlobalContext: { productQuoteEnabled: true, shoppingListEnabled: true },
     });
@@ -2309,10 +2300,6 @@ describe('when adding to quote', () => {
   });
 
   it('adds to quote when threshold error occurs and NP/OOS flag is enabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister' },
     });
@@ -2375,7 +2362,7 @@ describe('when adding to quote', () => {
       preloadedState: {
         ...preloadedState,
         global: buildGlobalStateWith({
-          featureFlags,
+          backorderEnabled: true,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
         }),
       },
@@ -2393,10 +2380,6 @@ describe('when adding to quote', () => {
   });
 
   it('adds to quote when threshold error occurs and NP/OOS flag is disabled', async () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
-
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: { productName: 'Laugh Canister' },
     });
@@ -2459,7 +2442,7 @@ describe('when adding to quote', () => {
       preloadedState: {
         ...preloadedState,
         global: buildGlobalStateWith({
-          featureFlags,
+          backorderEnabled: true,
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
         }),
       },
@@ -2477,13 +2460,10 @@ describe('when adding to quote', () => {
   });
 });
 
-describe('When backend validation feature flag is on', () => {
-  const featureFlags = {
-    'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-  };
+describe('when backorder validation is enabled', () => {
   const backorderEnabled = true;
 
-  const backendValidationEnabledState = {
+  const backorderEnabledState = {
     ...preloadedState,
     company: {
       ...preloadedState.company,
@@ -2492,7 +2472,7 @@ describe('When backend validation feature flag is on', () => {
         role: CustomerRole.SENIOR_BUYER, // Override to Senior Buyer (value 1)
       },
     },
-    global: buildGlobalStateWith({ backorderEnabled, featureFlags }),
+    global: buildGlobalStateWith({ backorderEnabled }),
   };
 
   it('displays an error message when adding to cart fails', async () => {
@@ -2500,9 +2480,6 @@ describe('When backend validation feature flag is on', () => {
       ...preloadedState,
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-        },
       }),
     };
     const getRecentlyOrderedProducts = vi.fn();
@@ -2616,9 +2593,6 @@ describe('When backend validation feature flag is on', () => {
       ...preloadedState,
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-        },
       }),
     };
 
@@ -2764,9 +2738,6 @@ describe('When backend validation feature flag is on', () => {
       ...preloadedState,
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-        },
       }),
     };
     const getRecentlyOrderedProducts = vi.fn();
@@ -2903,9 +2874,6 @@ describe('When backend validation feature flag is on', () => {
       ...preloadedState,
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-        },
       }),
     };
 
@@ -3050,9 +3018,6 @@ describe('When backend validation feature flag is on', () => {
       ...preloadedState,
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-        },
       }),
     };
 
@@ -3243,7 +3208,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3343,7 +3308,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3397,7 +3362,7 @@ describe('When backend validation feature flag is on', () => {
       graphql.query('getCart', () => HttpResponse.json(getCart())),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3498,7 +3463,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3639,7 +3604,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3737,7 +3702,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -3851,7 +3816,7 @@ describe('When backend validation feature flag is on', () => {
       ),
     );
 
-    renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
     const row = await screen.findByRole('row', { name: /Laugh Canister/ });
 
@@ -3975,7 +3940,7 @@ describe('When backend validation feature flag is on', () => {
         ),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4118,7 +4083,7 @@ describe('When backend validation feature flag is on', () => {
           graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
         );
 
-        renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+        renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4240,7 +4205,7 @@ describe('When backend validation feature flag is on', () => {
         graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4378,7 +4343,7 @@ describe('When backend validation feature flag is on', () => {
         ),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4514,7 +4479,7 @@ describe('When backend validation feature flag is on', () => {
         graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4640,7 +4605,7 @@ describe('When backend validation feature flag is on', () => {
         graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4773,7 +4738,7 @@ describe('When backend validation feature flag is on', () => {
         graphql.mutation('addCartLineItemsTwo', () => HttpResponse.json(addCartLineItemsTwo())),
       );
 
-      renderWithProviders(<QuickOrder />, { preloadedState: backendValidationEnabledState });
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
@@ -4812,11 +4777,10 @@ describe('When backend validation feature flag is on', () => {
 
     it('handles successful CSV upload when pass_with_modifiers feature flag is enabled', async () => {
       const preloadedStateWithBothFlags = {
-        ...backendValidationEnabledState,
+        ...backorderEnabledState,
         global: buildGlobalStateWith({
           backorderEnabled,
           featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
             'B2B-3978.pass_with_modifiers_to_product_upload': true,
           },
         }),

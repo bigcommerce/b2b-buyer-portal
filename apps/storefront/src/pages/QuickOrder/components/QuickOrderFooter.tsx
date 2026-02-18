@@ -8,7 +8,7 @@ import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
@@ -100,7 +100,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
-  const backendValidationEnabled = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
 
   const isShowCartAction = isB2BUser ? purchasabilityPermission : true;
 
@@ -203,7 +203,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setIsRequestLoading(true);
     handleClose();
 
-    if (backendValidationEnabled) {
+    if (isBackorderEnabled) {
       handleBackendAddSelectedToCart();
     } else {
       handleFrontedAddSelectedToCart();
@@ -296,7 +296,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
     return true;
   };
-  const addToQuote = backendValidationEnabled ? addToQuoteBackend : addToQuoteFrontend;
+  const addToQuote = isBackorderEnabled ? addToQuoteBackend : addToQuoteFrontend;
 
   const handleAddSelectedToQuote = async () => {
     setIsRequestLoading(true);

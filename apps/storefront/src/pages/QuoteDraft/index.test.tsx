@@ -1338,6 +1338,7 @@ describe('when the user is a B2B customer', () => {
         quoteInfo,
         global: buildGlobalStateWith({
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+          backorderEnabled: false,
         }),
       },
     });
@@ -1382,9 +1383,7 @@ describe('when the user is a B2B customer', () => {
         quoteInfo,
         global: buildGlobalStateWith({
           blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
-          featureFlags: {
-            'B2B-3318.move_stock_and_backorder_validation_to_backend': false,
-          },
+          backorderEnabled: false,
         }),
       },
     });
@@ -1396,9 +1395,6 @@ describe('when the user is a B2B customer', () => {
   });
 
   describe('when the backordering feature flag is enabled', () => {
-    const featureFlags = {
-      'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-    };
     const backorderEnabled = true;
 
     describe('when product-level inventory tracking is enabled', () => {
@@ -1439,7 +1435,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1486,7 +1481,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1533,7 +1527,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1588,7 +1581,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1644,7 +1636,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1699,7 +1690,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1748,7 +1738,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1795,7 +1784,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1842,7 +1830,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1900,7 +1887,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -1959,7 +1945,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -2005,7 +1990,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -2092,9 +2076,6 @@ describe('when the user is a B2B customer', () => {
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
             backorderEnabled: true,
-            featureFlags: {
-              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-            },
             quoteSubmissionResponse: {
               value: '0',
             },
@@ -2243,9 +2224,6 @@ describe('when the user is a B2B customer', () => {
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
             backorderEnabled: true,
-            featureFlags: {
-              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-            },
             quoteSubmissionResponse: {
               value: '1', // Show the submission response dialog
               key: 'test-key',
@@ -2360,9 +2338,6 @@ describe('when the user is a B2B customer', () => {
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
             backorderEnabled: true,
-            featureFlags: {
-              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-            },
             quoteSubmissionResponse: {
               value: '0',
             },
@@ -2559,7 +2534,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -2679,7 +2653,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -2803,7 +2776,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -2927,7 +2899,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3051,7 +3022,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3159,7 +3129,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3299,7 +3268,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3434,7 +3402,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3573,7 +3540,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3700,7 +3666,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -3889,7 +3854,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -4094,7 +4058,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -4303,7 +4266,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -4497,7 +4459,6 @@ describe('when the user is a B2B customer', () => {
             global: buildGlobalStateWith({
               blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
               backorderEnabled,
-              featureFlags,
             }),
           },
         });
@@ -5052,9 +5013,6 @@ describe('when the user is a B2B customer', () => {
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
             backorderEnabled: true,
-            featureFlags: {
-              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-            },
           }),
         },
       });
@@ -5175,9 +5133,6 @@ describe('when the user is a B2B customer', () => {
           global: buildGlobalStateWith({
             blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
             backorderEnabled: true,
-            featureFlags: {
-              'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-            },
           }),
         },
       });

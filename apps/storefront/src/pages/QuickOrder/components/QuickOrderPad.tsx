@@ -7,7 +7,7 @@ import { B3Upload } from '@/components/upload/B3Upload';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { validateProducts } from '@/shared/service/b2b/graphql/product';
@@ -33,7 +33,7 @@ export default function QuickOrderPad() {
   const [isLoading, setIsLoading] = useState(false);
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
   const featureFlags = useFeatureFlags();
-  const backendValidationEnabled = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
   const passWithModifiersToProductUpload =
     featureFlags['B2B-3978.pass_with_modifiers_to_product_upload'] ?? false;
 
@@ -453,9 +453,7 @@ export default function QuickOrderPad() {
 
           <SearchProduct
             addToList={
-              backendValidationEnabled
-                ? handleBackendQuickSearchAddToCart
-                : handleQuickSearchAddCart
+              isBackorderEnabled ? handleBackendQuickSearchAddToCart : handleQuickSearchAddCart
             }
           />
 
@@ -477,7 +475,7 @@ export default function QuickOrderPad() {
       <B3Upload
         isOpen={isOpenBulkLoadCSV}
         setIsOpen={setIsOpenBulkLoadCSV}
-        handleAddToList={backendValidationEnabled ? handleAddCSVToCart : handleAddToCart}
+        handleAddToList={isBackorderEnabled ? handleAddCSVToCart : handleAddToCart}
         setProductData={setProductData}
         addBtnText={addBtnText}
         isLoading={isLoading}

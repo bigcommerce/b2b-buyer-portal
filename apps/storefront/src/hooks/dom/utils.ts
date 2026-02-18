@@ -229,7 +229,7 @@ const addProductFromProductPageToQuote = (
   setOpenPage: SetOpenPage,
   isEnableProduct: boolean,
   b3Lang: LangFormatFunction,
-  isBackorderValidationEnabled: boolean,
+  isBackorderEnabled: boolean,
   featureFlags: FeatureFlags,
 ) => {
   const addToQuote = async (node?: HTMLElement) => {
@@ -275,7 +275,7 @@ const addProductFromProductPageToQuote = (
         return;
       }
 
-      if (isBackorderValidationEnabled) {
+      if (isBackorderEnabled) {
         const variantId = newProductInfo[0]?.variants.find(
           (variant: CustomFieldItems) => variant.sku === sku,
         )?.variant_id;

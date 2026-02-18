@@ -5,7 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
 import { useB3Lang } from '@/lib/lang';
@@ -310,7 +310,7 @@ function QuoteDetail() {
 
   const location = useLocation();
 
-  const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
 
   const isAutoQuotingEnabled =
     quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';
@@ -428,7 +428,7 @@ function QuoteDetail() {
     });
   };
 
-  const validateQuoteProducts = isMoveStockAndBackorderValidationToBackend
+  const validateQuoteProducts = isBackorderEnabled
     ? quoteDetailBackendValidations
     : quoteDetailFrontendValidations;
 
@@ -474,7 +474,7 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName]);
 
-  const hasQuoteValidationErrors = isMoveStockAndBackorderValidationToBackend
+  const hasQuoteValidationErrors = isBackorderEnabled
     ? hasQuoteValidationErrorsBackendFlow
     : hasQuoteValidationErrorsFrontendFlow;
 
@@ -779,7 +779,7 @@ function QuoteDetail() {
     return !quoteHasWarnings || quoteReviewedBySalesRep;
   };
 
-  const enableProceedToCheckoutButton = isMoveStockAndBackorderValidationToBackend
+  const enableProceedToCheckoutButton = isBackorderEnabled
     ? isEnableProductShowCheckoutBackendFlow
     : isEnableProductShowCheckoutFrontendFlow;
 
@@ -806,9 +806,7 @@ function QuoteDetail() {
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
     quotePurchasabilityPermissionInfo;
 
-  const shouldHidePrice = isMoveStockAndBackorderValidationToBackend
-    ? shouldHidePrices
-    : isHideQuoteCheckout;
+  const shouldHidePrice = isBackorderEnabled ? shouldHidePrices : isHideQuoteCheckout;
 
   return (
     <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading}>

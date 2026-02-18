@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
@@ -95,7 +95,7 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const backendValidationEnabled = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
@@ -352,7 +352,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true);
 
-      if (backendValidationEnabled) {
+      if (isBackorderEnabled) {
         await handleReorderBackend();
       } else {
         await handleReorderOnFrontend();
