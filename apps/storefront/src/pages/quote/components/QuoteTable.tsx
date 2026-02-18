@@ -128,29 +128,27 @@ function getAvailabilityWarningsBackend(
   };
 
   let warningMessage: string | null = null;
-  let warningDetails: string | null = null;
 
   if (product.inventoryTracking !== 'none') {
     let hasUnlimitedBackorder = product.unlimitedBackorder;
-    let availableStock = product.availableToSell;
+    let { availableToSell } = product;
 
     if (product.inventoryTracking === 'variant' && product.variants) {
       const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
       if (currentVariant) {
         hasUnlimitedBackorder = currentVariant.unlimited_backorder;
-        availableStock = currentVariant.available_to_sell;
+        availableToSell = currentVariant.available_to_sell;
       }
     }
 
-    if (!hasUnlimitedBackorder && availableStock < row.quantity) {
-      warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tip');
-      warningDetails = b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
-        qty: availableStock,
+    if (!hasUnlimitedBackorder && availableToSell < row.quantity) {
+      warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tipWithAvailability', {
+        availableToSell: availableToSell ?? 0,
       });
     }
   }
 
-  return { warningMessage, warningDetails };
+  return { warningMessage, warningDetails: null };
 }
 
 const getThresholdWarning = (row: QuoteItem['node'], b3Lang: LangFormatFunction): string | null => {
