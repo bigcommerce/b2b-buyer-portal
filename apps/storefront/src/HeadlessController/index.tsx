@@ -175,7 +175,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               storeDispatch(resetTranslations());
               storeDispatch(
                 getGlobalTranslations({
-                  newVersion: storeInfo.translationVersion + 1,
+                  newVersion: storeInfo.translationVersion,
                   channelId: storeBasicInfo.multiStorefrontEnabled ? storeInfo.channelId : 0,
                 }),
               );
