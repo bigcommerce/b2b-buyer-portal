@@ -35,9 +35,6 @@ const mockGlobalState: GlobalState = {
     isEnableProduct: true,
   },
   backorderEnabled: true,
-  featureFlags: {
-    'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
-  },
 };
 
 describe('when NP&OOS setting is enabled', () => {

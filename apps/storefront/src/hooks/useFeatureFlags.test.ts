@@ -8,13 +8,13 @@ it('should return feature flags from global state', () => {
   const preloadedState = {
     global: buildGlobalStateWith({
       featureFlags: {
-        'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+        'B2B-3817.disable_masquerading_cleanup_on_login': true,
       },
     }),
   };
 
   const { result } = renderHookWithProviders(() => useFeatureFlags(), { preloadedState });
   expect(result.result.current).toEqual({
-    'B2B-3318.move_stock_and_backorder_validation_to_backend': true,
+    'B2B-3817.disable_masquerading_cleanup_on_login': true,
   });
 });

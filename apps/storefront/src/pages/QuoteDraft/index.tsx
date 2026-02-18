@@ -11,7 +11,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useSetCountry } from '@/hooks/useGetCountry';
-import { useIsBackorderValidationEnabled } from '@/hooks/useIsBackorderValidationEnabled';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useValidatePermissionWithComparisonType } from '@/hooks/useVerifyPermission';
 import { useB3Lang } from '@/lib/lang';
@@ -171,7 +171,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const isMoveStockAndBackorderValidationToBackend = useIsBackorderValidationEnabled();
+  const isBackorderEnabled = useIsBackorderEnabled();
 
   const quotesActionsPermission = useMemo(() => {
     if (isB2BUser) {
@@ -459,7 +459,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   };
 
   const addToQuote = async (products: CustomFieldItems[]) => {
-    if (!isMoveStockAndBackorderValidationToBackend) {
+    if (!isBackorderEnabled) {
       addQuoteDraftProducts(products);
       return true;
     }
@@ -584,10 +584,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         return;
       }
 
-      if (
-        !isAddNonPurchasableOutOfStockToQuoteEnabled &&
-        !isMoveStockAndBackorderValidationToBackend
-      ) {
+      if (!isAddNonPurchasableOutOfStockToQuoteEnabled && !isBackorderEnabled) {
         const itHasInvalidProduct = draftQuoteList.some((item) => {
           return getVariantInfoOOSAndPurchase(item)?.name;
         });
@@ -726,7 +723,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
       const response = await createQuote(data);
 
-      if (isMoveStockAndBackorderValidationToBackend) {
+      if (isBackorderEnabled) {
         if (response?.error?.extensions?.productValidationErrors?.length) {
           response.error.extensions.productValidationErrors.forEach(
             (err: { productId: number }) => {
