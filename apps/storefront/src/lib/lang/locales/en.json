@@ -598,6 +598,7 @@
   "quoteDraft.searchProduct.addToQuoteButton": "Add to quote",
   "quoteDraft.submission.response.button.text": "OK",
   "quoteDraft.quoteTable.outOfStock.tip": "Insufficient stock",
+  "quoteDraft.quoteTable.outOfStock.tipWithAvailability": "{availableToSell, plural, =0 {Insufficient stock — none available} other {Insufficient stock, only # available}}",
   "quoteDraft.quoteTable.oosNumber.tip": "In stock: {qty}",
   "quoteDraft.quoteTable.unavailable.tip": "Not available for purchase",
   "quoteDraft.productPageToQuote.outOfStock": "{name} Out of stock. In stock: {qty}",
