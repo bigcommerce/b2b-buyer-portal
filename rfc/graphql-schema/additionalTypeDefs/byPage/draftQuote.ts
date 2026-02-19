@@ -4,7 +4,6 @@ export default /* GraphQL */ `
     email: String!
   }
 
-
   # could this reuse QuotePhysicalItem (or an interface that backs both)?
   type QuoteLineItem implements Node {
     id: ID!
@@ -157,12 +156,8 @@ export default /* GraphQL */ `
   }
 
   union AddQuoteLineItemsError =
-      SomeAddQuoteLineItemsError
+    | SomeAddQuoteLineItemsError
     | AnotherAddQuoteLineItemsError
-
-  type QuoteMutations {
-    addLineItems(input: AddQuoteLineItemsInput): AddQuoteLineItemsResult!
-  }
 
   input UpdateQuoteLineItemInput {
     quoteId: ID!
@@ -189,12 +184,8 @@ export default /* GraphQL */ `
   }
 
   union UpdateQuoteLineItemError =
-      SomeUpdateQuoteLineItemError
+    | SomeUpdateQuoteLineItemError
     | AnotherUpdateQuoteLineItemError
-
-  extend type QuoteMutations {
-    updateLineItem(input: UpdateQuoteLineItemInput!): UpdateQuoteLineItemResult
-  }
 
   input DeleteQuoteLineItemInput {
     quoteId: ID!
@@ -204,10 +195,6 @@ export default /* GraphQL */ `
   type DeleteQuoteLineItemResult {
     deletedLineItemEntityId: ID
     quote: Quote
-  }
-
-  extend type QuoteMutations {
-    deleteLineItem(input: DeleteQuoteLineItemInput): DeleteQuoteLineItemResult
   }
 
   # Placeholder for real domain errors
@@ -221,7 +208,7 @@ export default /* GraphQL */ `
   }
 
   union AddMessageResultError =
-      SomeAddMessageResultError
+    | SomeAddMessageResultError
     | AnotherAddMessageResultError
 
   type AddMessageResult {
@@ -232,10 +219,6 @@ export default /* GraphQL */ `
   input AddQuoteMessageInput {
     quoteId: ID!
     message: String!
-  }
-
-  extend type QuoteMutations {
-    addMessage(message: AddQuoteMessageInput!): AddMessageResult!
   }
 
   # Placeholder for real domain errors
@@ -249,7 +232,7 @@ export default /* GraphQL */ `
   }
 
   union AddAttachmentResultError =
-      SomeAddAttachmentResultError
+    | SomeAddAttachmentResultError
     | AnotherAddAttachmentResultError
 
   type AddAttachmentResult {
@@ -260,10 +243,6 @@ export default /* GraphQL */ `
   input AddQuoteAttachmentInput {
     quoteId: ID!
     attachmentId: ID!
-  }
-
-  extend type QuoteMutations {
-    addAttachment(input: AddQuoteAttachmentInput): AddAttachmentResult!
   }
 
   # Placeholder for real domain errors
@@ -277,7 +256,7 @@ export default /* GraphQL */ `
   }
 
   union RemoveAttachmentResultError =
-      SomeRemoveAttachmentResultError
+    | SomeRemoveAttachmentResultError
     | AnotherRemoveAttachmentResultError
 
   type RemoveAttachmentResult {
@@ -289,29 +268,31 @@ export default /* GraphQL */ `
     attachmentId: ID!
   }
 
-  extend type QuoteMutations {
-    removeAttachment(
-      input: RemoveQuoteAttachmentInput!
-    ): RemoveAttachmentResult!
-  }
-
   input CreateQuoteInput {
-      title: String
-      lineItems: [QuoteLineItemInput!]
-      currencyCode: String
+    title: String
+    lineItems: [QuoteLineItemInput!]
+    currencyCode: String
   }
 
   type CreateQuoteError implements Error {
-      message: String!
+    message: String!
   }
 
   type CreateQuoteResult {
-      quote: Quote
-      errors: [CreateQuoteError!]!
+    quote: Quote
+    errors: [CreateQuoteError!]!
   }
 
   extend type QuoteMutations {
-      create(input: CreateQuoteInput!): CreateQuoteResult!
+    create(input: CreateQuoteInput!): CreateQuoteResult!
+    addLineItems(input: AddQuoteLineItemsInput): AddQuoteLineItemsResult!
+    addMessage(message: AddQuoteMessageInput!): AddMessageResult!
+    addAttachment(input: AddQuoteAttachmentInput): AddAttachmentResult!
+    deleteLineItem(input: DeleteQuoteLineItemInput): DeleteQuoteLineItemResult
+    removeAttachment(
+      input: RemoveQuoteAttachmentInput!
+    ): RemoveAttachmentResult!
+    updateLineItem(input: UpdateQuoteLineItemInput!): UpdateQuoteLineItemResult
   }
 
   extend type Mutation {
