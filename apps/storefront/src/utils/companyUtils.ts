@@ -11,7 +11,7 @@ interface CompanyStatusMapping {
 const COMPANY_STATUS_MESSAGE_MAPPINGS: Record<string, CompanyStatusKey> = {
   'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.':
     'pendingApprovalToViewPrices',
-  'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.':
+  'Your account is pending approval. Until your account is approved, you’ll have limited access to certain features.':
     'pendingApprovalToOrder',
   'Your business account is pending approval. You will gain access to business account features after account approval.':
     'pendingApprovalToAccessFeatures',
