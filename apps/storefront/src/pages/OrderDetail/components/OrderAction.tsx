@@ -207,34 +207,35 @@ function OrderCard(props: OrderCardProps) {
         return null;
       }
       return (
-      <Fragment key={key}>
-        {symbol[key] === 'grandTotal' && (
-          <Divider
-            sx={{
-              marginBottom: '1rem',
-              marginTop: '0.5rem',
-            }}
-          />
-        )}
-
-        <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
-          <p id="item-name-key">{key}</p>{' '}
-          {displayAsNegativeNumber.includes(symbol[key]) ? (
-            <p>
-              {infos?.money
-                ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
-                : `-${currencyFormat(infoValue[index])}`}
-            </p>
-          ) : (
-            <p>
-              {infos?.money
-                ? ordersCurrencyFormat(infos.money, infoValue[index])
-                : currencyFormat(infoValue[index])}
-            </p>
+        <Fragment key={key}>
+          {symbol[key] === 'grandTotal' && (
+            <Divider
+              sx={{
+                marginBottom: '1rem',
+                marginTop: '0.5rem',
+              }}
+            />
           )}
-        </ItemContainer>
-      </Fragment>
-    )});
+
+          <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
+            <p id="item-name-key">{key}</p>{' '}
+            {displayAsNegativeNumber.includes(symbol[key]) ? (
+              <p>
+                {infos?.money
+                  ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                  : `-${currencyFormat(infoValue[index])}`}
+              </p>
+            ) : (
+              <p>
+                {infos?.money
+                  ? ordersCurrencyFormat(infos.money, infoValue[index])
+                  : currencyFormat(infoValue[index])}
+              </p>
+            )}
+          </ItemContainer>
+        </Fragment>
+      );
+    });
   }
 
   return (
