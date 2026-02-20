@@ -200,35 +200,42 @@ function OrderCard(props: OrderCardProps) {
     showedInformation = infos;
   } else if (infos?.money) {
     const symbol = infos?.symbol || {};
-    showedInformation = infoKey?.map((key: string, index: number) => (
-      <Fragment key={key}>
-        {symbol[key] === 'grandTotal' && (
-          <Divider
-            sx={{
-              marginBottom: '1rem',
-              marginTop: '0.5rem',
-            }}
-          />
-        )}
+    const OptionalInfoKey = [b3Lang('orderDetail.summary.handlingFee')];
 
-        <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
-          <p id="item-name-key">{key}</p>{' '}
-          {displayAsNegativeNumber.includes(symbol[key]) ? (
-            <p>
-              {infos?.money
-                ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
-                : `-${currencyFormat(infoValue[index])}`}
-            </p>
-          ) : (
-            <p>
-              {infos?.money
-                ? ordersCurrencyFormat(infos.money, infoValue[index])
-                : currencyFormat(infoValue[index])}
-            </p>
+    showedInformation = infoKey?.map((key: string, index: number) => {
+      if (Number(infoValue[index]) === 0 && OptionalInfoKey.includes(key)) {
+        return null;
+      }
+      return (
+        <Fragment key={key}>
+          {symbol[key] === 'grandTotal' && (
+            <Divider
+              sx={{
+                marginBottom: '1rem',
+                marginTop: '0.5rem',
+              }}
+            />
           )}
-        </ItemContainer>
-      </Fragment>
-    ));
+
+          <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
+            <p id="item-name-key">{key}</p>{' '}
+            {displayAsNegativeNumber.includes(symbol[key]) ? (
+              <p>
+                {infos?.money
+                  ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                  : `-${currencyFormat(infoValue[index])}`}
+              </p>
+            ) : (
+              <p>
+                {infos?.money
+                  ? ordersCurrencyFormat(infos.money, infoValue[index])
+                  : currencyFormat(infoValue[index])}
+              </p>
+            )}
+          </ItemContainer>
+        </Fragment>
+      );
+    });
   }
 
   return (
