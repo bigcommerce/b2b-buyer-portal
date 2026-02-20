@@ -1587,8 +1587,9 @@ describe('when the user is a B2B customer', () => {
 
         const productTable = await screen.findByRole('table');
 
-        expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
-        expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
+        expect(
+          within(productTable).getByText('Insufficient stock, only 5 available'),
+        ).toBeInTheDocument();
       });
 
       it('does not show stock warning when quantity is less than available to sell', async () => {
@@ -1893,8 +1894,9 @@ describe('when the user is a B2B customer', () => {
 
         const productTable = await screen.findByRole('table');
 
-        expect(within(productTable).getByText('Insufficient stock')).toBeInTheDocument();
-        expect(within(productTable).getByText('In stock: 5')).toBeInTheDocument();
+        expect(
+          within(productTable).getByText('Insufficient stock, only 5 available'),
+        ).toBeInTheDocument();
       });
 
       it('does not show stock warning when quantity is less than available to sell', async () => {
@@ -5152,7 +5154,7 @@ describe('when the user is a B2B customer', () => {
 
       const cell = await screen.findByRole('cell', { name: /LC-123/ });
 
-      expect(within(cell).getByText('Insufficient stock')).toBeInTheDocument();
+      expect(within(cell).getByText('Insufficient stock, only 0 available')).toBeInTheDocument();
     });
   });
 });
