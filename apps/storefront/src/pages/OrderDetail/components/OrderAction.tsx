@@ -200,7 +200,13 @@ function OrderCard(props: OrderCardProps) {
     showedInformation = infos;
   } else if (infos?.money) {
     const symbol = infos?.symbol || {};
-    showedInformation = infoKey?.map((key: string, index: number) => (
+    const OptionalInfoKey = [b3Lang('orderDetail.summary.handlingFee')];
+
+    showedInformation = infoKey?.map((key: string, index: number) => {
+      if (Number(infoValue[index]) === 0 && OptionalInfoKey.includes(key)) {
+        return null;
+      }
+      return (
       <Fragment key={key}>
         {symbol[key] === 'grandTotal' && (
           <Divider
@@ -228,7 +234,7 @@ function OrderCard(props: OrderCardProps) {
           )}
         </ItemContainer>
       </Fragment>
-    ));
+    )});
   }
 
   return (
