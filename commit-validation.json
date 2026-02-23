@@ -1,5 +1,6 @@
 {
   "scopes": [
+    "agents",
     "common",
     "companies",
     "quotes",

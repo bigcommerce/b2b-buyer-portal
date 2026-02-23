@@ -218,21 +218,21 @@ The codebase contains these patterns, but **do not add more**:
 
 All commands must be run from `apps/storefront/`:
 
-| Command | Description | Use When |
-|---------|-------------|----------|
-| `yarn dev` | Start development server | Local development |
-| `yarn build` | Build for production | Pre-deployment |
-| `yarn tsc --noEmit` | Type checking only | Quick type validation |
-| `yarn lint` | Run all linters | Before committing |
-| `yarn lint:eslint` | ESLint only | Fix code style issues |
-| `yarn lint:dependencies` | Dependency validation | Check import rules |
-| `yarn lint:knip` | Unused code detection | Find dead code |
-| `yarn format` | Auto-fix linting issues | Fix auto-fixable errors |
-| `yarn test` | Run tests (watch mode) | During development |
-| `yarn test <filename>` | Run specific test file | Test single file |
-| `yarn coverage` | Test coverage report | Check test coverage |
-| `yarn generate` | Generate GraphQL types | After schema changes |
-| `yarn generate:local` | Generate types (local env) | Local development |
+| Command                  | Description                | Use When                |
+| ------------------------ | -------------------------- | ----------------------- |
+| `yarn dev`               | Start development server   | Local development       |
+| `yarn build`             | Build for production       | Pre-deployment          |
+| `yarn tsc --noEmit`      | Type checking only         | Quick type validation   |
+| `yarn lint`              | Run all linters            | Before committing       |
+| `yarn lint:eslint`       | ESLint only                | Fix code style issues   |
+| `yarn lint:dependencies` | Dependency validation      | Check import rules      |
+| `yarn lint:knip`         | Unused code detection      | Find dead code          |
+| `yarn format`            | Auto-fix linting issues    | Fix auto-fixable errors |
+| `yarn test`              | Run tests (watch mode)     | During development      |
+| `yarn test <filename>`   | Run specific test file     | Test single file        |
+| `yarn coverage`          | Test coverage report       | Check test coverage     |
+| `yarn generate`          | Generate GraphQL types     | After schema changes    |
+| `yarn generate:local`    | Generate types (local env) | Local development       |
 
 ### Example Workflow
 
@@ -273,7 +273,6 @@ src/pages/[PageName]/
 
 ### Shared Code Structure
 
- 
 > ⚠️ **We are removing the B3/B2/B2B prefixes** Prefer clean, semantic names.
 
 ```
@@ -301,11 +300,10 @@ src/
 
 1. **Page-specific code stays with the page** - Don't move components to `src/components/` unless they're truly reusable and domain agnostic
 2. **Tests live next to code** - `Component.tsx` → `Component.test.tsx`
-3. **Test from a use-case point of view** - For pages, focus on integration tests that cover user workflows.  Add component-level tests only for reusable components.
+3. **Test from a use-case point of view** - For pages, focus on integration tests that cover user workflows. Add component-level tests only for reusable components.
 4. **Hooks live with their users** - Page-specific hooks go in `pages/[Page]/hooks/`
 5. **Shared code must be domain-agnostic** - No business logic in `src/components/` or `src/utils/`
 6. **Resolve feature flags and conditions at the highest level possible** - Then pass explicit props down to focused components.
-
 
 ---
 
@@ -491,7 +489,7 @@ when(getOrders)
 ```typescript
 // ❌ BAD
 it('should display invoice details after loading', ...)
-// ✅ GOOD  
+// ✅ GOOD
 it('displays invoice details after loading', ...)
 ```
 
@@ -636,10 +634,10 @@ import { formatCurrency } from '../utils/formatters'; // Use path alias
 
 Configured in `tsconfig.json` and `vite.config.ts`:
 
-| Alias | Resolves To | Use For |
-|-------|-------------|---------|
-| `@/` | `src/` | Application code |
-| `tests/` | `tests/` | Test utilities |
+| Alias    | Resolves To | Use For          |
+| -------- | ----------- | ---------------- |
+| `@/`     | `src/`      | Application code |
+| `tests/` | `tests/`    | Test utilities   |
 
 ```typescript
 // ✅ Use path aliases
@@ -661,12 +659,12 @@ import { Invoice } from '../../../types/invoice';
 
 These rules are intentionally disabled project-wide due to legacy code, but **avoid adding more code that violates them**:
 
-| Rule | Why It's Bad | What To Do Instead |
-|------|--------------|-------------------|
-| `react/jsx-props-no-spreading` | Spreads hide which props are being passed | Explicitly list props |
-| `@typescript-eslint/no-explicit-any` | Loses type safety | Use proper types or `unknown` |
-| `no-console` | Console logs in production | Use proper logging or remove |
-| `react/destructuring-assignment` | Unclear prop usage | Destructure props at function start |
+| Rule                                 | Why It's Bad                              | What To Do Instead                  |
+| ------------------------------------ | ----------------------------------------- | ----------------------------------- |
+| `react/jsx-props-no-spreading`       | Spreads hide which props are being passed | Explicitly list props               |
+| `@typescript-eslint/no-explicit-any` | Loses type safety                         | Use proper types or `unknown`       |
+| `no-console`                         | Console logs in production                | Use proper logging or remove        |
+| `react/destructuring-assignment`     | Unclear prop usage                        | Destructure props at function start |
 
 ```typescript
 // ❌ BAD
@@ -733,14 +731,14 @@ function InvoiceList() {
 
 The store contains these slices (avoid adding to them):
 
-| Slice | Purpose | Example Data |
-|-------|---------|--------------|
-| `company` | User/company info | Customer ID, company name, role |
-| `b2bFeatures` | Feature flags | Masquerade mode, enabled features |
-| `global` | Global UI state | Messages, loading states |
-| `storeInfo` | Store configuration | Store ID, currency, tax settings |
-| `lang` | Translations | Current locale, translated strings |
-| `quoteInfo` | Quote state | Current quote, quote items |
+| Slice         | Purpose             | Example Data                       |
+| ------------- | ------------------- | ---------------------------------- |
+| `company`     | User/company info   | Customer ID, company name, role    |
+| `b2bFeatures` | Feature flags       | Masquerade mode, enabled features  |
+| `global`      | Global UI state     | Messages, loading states           |
+| `storeInfo`   | Store configuration | Store ID, currency, tax settings   |
+| `lang`        | Translations        | Current locale, translated strings |
+| `quoteInfo`   | Quote state         | Current quote, quote items         |
 
 ### Accessing Redux State (If You Must)
 
@@ -781,12 +779,12 @@ function InvoiceList({ customerId }: { customerId: number }) {
 
 ## ⚙️ Key Configuration Files
 
-| File | Purpose | When to Modify |
-|------|---------|----------------|
-| `vite.config.ts` | Build & test configuration | Add Vite plugins, change build output |
-| `.eslintrc.cjs` | Linting rules | Add/modify lint rules (rare) |
-| `tsconfig.json` | TypeScript configuration | Add path aliases, compiler options |
-| `.dependency-cruiser.cjs` | Dependency validation rules | Enforce import patterns |
+| File                      | Purpose                     | When to Modify                        |
+| ------------------------- | --------------------------- | ------------------------------------- |
+| `vite.config.ts`          | Build & test configuration  | Add Vite plugins, change build output |
+| `.eslintrc.cjs`           | Linting rules               | Add/modify lint rules (rare)          |
+| `tsconfig.json`           | TypeScript configuration    | Add path aliases, compiler options    |
+| `.dependency-cruiser.cjs` | Dependency validation rules | Enforce import patterns               |
 
 ---
 
@@ -824,6 +822,7 @@ Based on `CONTRIBUTING.md`:
 - Is the Matroska structure followed? ✅
 - Is code simpler than before? ✅
 - Is code clean? ✅
+- Are `react-intl` messages using ICU syntax correctly (especially `plural`/`select`), instead of manual patterns like `product(s)`? ✅
 - Explicit Props: No hidden dependencies ✅
 - Mixed concerns in one component ❌
 - Feature flag checks scattered throughout ❌
