@@ -145,9 +145,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
       [labels.shipping]: formatPrice(
         showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax,
       ),
-      ...(hasHandlingFee
-        ? { [labels.handingFee]: formatPrice(handlingRaw || '') }
-        : {}),
+      ...(hasHandlingFee ? { [labels.handingFee]: formatPrice(handlingRaw || '') } : {}),
       [labels.discountAmount]: formatPrice(discountAmount || ''),
       ...couponPrice,
       [labels.tax]: formatPrice(totalTax || ''),

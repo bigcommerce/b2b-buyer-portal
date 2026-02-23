@@ -478,9 +478,9 @@ export function OrderAction(props: OrderActionProps) {
       subtitle:
         dateCreateAt && name
           ? b3Lang('orderDetail.purchaseDetails', {
-            name,
-            updatedAt: displayFormat(Number(dateCreateAt)),
-          })
+              name,
+              updatedAt: displayFormat(Number(dateCreateAt)),
+            })
           : '',
       buttons,
       infos: {
