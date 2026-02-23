@@ -119,15 +119,23 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     couponSymbol[key] = 'coupon';
   });
 
-  const labels = {
+  const labels: Record<string, string> = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
     shipping: b3Lang('orderDetail.summary.shipping'),
-    handingFee: b3Lang('orderDetail.summary.handlingFee'),
     discountAmount: b3Lang('orderDetail.summary.discountAmount'),
     ...couponLabel,
     tax: b3Lang('orderDetail.summary.tax'),
     grandTotal: b3Lang('orderDetail.summary.grandTotal'),
   };
+
+  // determine handling fee value based on tax display preference
+  const handlingRaw = showInclusiveTaxPrice ? handlingCostIncTax : handlingCostExTax;
+  const handlingNumeric = parseFloat(handlingRaw?.toString() || '0');
+  const hasHandlingFee = handlingNumeric > 0;
+
+  if (hasHandlingFee) {
+    labels.handingFee = b3Lang('orderDetail.summary.handlingFee');
+  }
 
   const orderSummary: OrderSummary = {
     createAt: dateCreated,
@@ -137,7 +145,9 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
       [labels.shipping]: formatPrice(
         showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax,
       ),
-      [labels.handingFee]: formatPrice(handlingCostIncTax || handlingCostExTax || ''),
+      ...(hasHandlingFee
+        ? { [labels.handingFee]: formatPrice(handlingRaw || '') }
+        : {}),
       [labels.discountAmount]: formatPrice(discountAmount || ''),
       ...couponPrice,
       [labels.tax]: formatPrice(totalTax || ''),
@@ -146,7 +156,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     priceSymbol: {
       [labels.subTotal]: 'subTotal',
       [labels.shipping]: 'shipping',
-      [labels.handingFee]: 'handingFee',
+      ...(hasHandlingFee ? { [labels.handingFee]: 'handingFee' } : {}),
       [labels.discountAmount]: 'discountAmount',
       ...couponSymbol,
       [labels.tax]: 'tax',

@@ -200,42 +200,35 @@ function OrderCard(props: OrderCardProps) {
     showedInformation = infos;
   } else if (infos?.money) {
     const symbol = infos?.symbol || {};
-    const OptionalInfoKey = [b3Lang('orderDetail.summary.handlingFee')];
+    showedInformation = infoKey?.map((key: string, index: number) => (
+      <Fragment key={key}>
+        {symbol[key] === 'grandTotal' && (
+          <Divider
+            sx={{
+              marginBottom: '1rem',
+              marginTop: '0.5rem',
+            }}
+          />
+        )}
 
-    showedInformation = infoKey?.map((key: string, index: number) => {
-      if (Number(infoValue[index]) === 0 && OptionalInfoKey.includes(key)) {
-        return null;
-      }
-      return (
-        <Fragment key={key}>
-          {symbol[key] === 'grandTotal' && (
-            <Divider
-              sx={{
-                marginBottom: '1rem',
-                marginTop: '0.5rem',
-              }}
-            />
+        <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
+          <p id="item-name-key">{key}</p>{' '}
+          {displayAsNegativeNumber.includes(symbol[key]) ? (
+            <p>
+              {infos?.money
+                ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                : `-${currencyFormat(infoValue[index])}`}
+            </p>
+          ) : (
+            <p>
+              {infos?.money
+                ? ordersCurrencyFormat(infos.money, infoValue[index])
+                : currencyFormat(infoValue[index])}
+            </p>
           )}
-
-          <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
-            <p id="item-name-key">{key}</p>{' '}
-            {displayAsNegativeNumber.includes(symbol[key]) ? (
-              <p>
-                {infos?.money
-                  ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
-                  : `-${currencyFormat(infoValue[index])}`}
-              </p>
-            ) : (
-              <p>
-                {infos?.money
-                  ? ordersCurrencyFormat(infos.money, infoValue[index])
-                  : currencyFormat(infoValue[index])}
-              </p>
-            )}
-          </ItemContainer>
-        </Fragment>
-      );
-    });
+        </ItemContainer>
+      </Fragment>
+    ));
   }
 
   return (
@@ -485,9 +478,9 @@ export function OrderAction(props: OrderActionProps) {
       subtitle:
         dateCreateAt && name
           ? b3Lang('orderDetail.purchaseDetails', {
-              name,
-              updatedAt: displayFormat(Number(dateCreateAt)),
-            })
+            name,
+            updatedAt: displayFormat(Number(dateCreateAt)),
+          })
           : '',
       buttons,
       infos: {
