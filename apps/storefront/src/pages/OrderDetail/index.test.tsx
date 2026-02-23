@@ -970,6 +970,37 @@ describe('when a personal customer visits an order', () => {
     expect(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' })).toBeVisible();
   });
 
+  it('omits the handling fee row when cost is zero', async () => {
+    server.use(
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetCustomerOrder', () =>
+        HttpResponse.json(
+          buildCustomerOrderResponseWith({
+            data: {
+              customerOrder: {
+                handlingCostExTax: 0,
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState,
+      initialGlobalContext: { shoppingListEnabled: true },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(screen.queryByRole('group', { name: 'Handling Fee' })).not.toBeInTheDocument();
+  });
+
   describe('when there is no order history', () => {
     it('does not render the order history section', async () => {
       server.use(
