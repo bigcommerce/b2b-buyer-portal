@@ -983,8 +983,7 @@ describe('when a personal customer visits an order', () => {
           buildCustomerOrderResponseWith({
             data: {
               customerOrder: {
-                handlingCostExTax: 0,
-                handlingCostIncTax: 0,
+                handlingCostExTax: 0
               },
             },
           }),
