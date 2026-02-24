@@ -355,6 +355,7 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              errorCode: 'OOS',
               product: {
                 availableToSell: faker.number.int(),
               },
@@ -386,7 +387,7 @@ describe('when the user is a B2B customer', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(
-      await screen.findByText('A product with the id of 123 does not have sufficient stock'),
+      await screen.findByText(/does not have sufficient stock\. Please contact your Sales Rep/),
     ).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /PROCEED TO CHECKOUT/i })).toBeInTheDocument();
   });
@@ -480,6 +481,7 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              errorCode: 'OOS',
               product: {
                 availableToSell: faker.number.int(),
               },
@@ -516,7 +518,7 @@ describe('when the user is a B2B customer', () => {
     // the error message is shown in a snackbar when loading the page and when user tries clicking the checkout button
     // and a product has an error
     expect(
-      await screen.findAllByText('A product with the id of 123 does not have sufficient stock'),
+      await screen.findAllByText(/does not have sufficient stock\. Please contact your Sales Rep/),
     ).toHaveLength(2);
   });
 
@@ -665,6 +667,7 @@ describe('when the user is a B2B customer', () => {
             validateProduct: {
               responseType: 'ERROR',
               message: 'A product with the id of 123 does not have sufficient stock',
+              errorCode: 'OOS',
               product: {
                 availableToSell: faker.number.int(),
               },
@@ -691,7 +694,7 @@ describe('when the user is a B2B customer', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
     expect(
-      screen.getByText('A product with the id of 123 does not have sufficient stock'),
+      screen.getByText(/does not have sufficient stock\. Please contact your Sales Rep/),
     ).toBeInTheDocument();
     const summaryElement = screen.getByTestId('quote-summary');
     const withinSummary = within(summaryElement);

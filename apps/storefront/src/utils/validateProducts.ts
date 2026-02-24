@@ -1,4 +1,6 @@
 import {
+  type ProductValidationErrorCode,
+  QUOTE_VALIDATION_ERROR_CODES,
   validateProduct,
   validateProducts as validateProductsService,
 } from '@/shared/service/b2b/graphql/product';
@@ -30,7 +32,7 @@ interface ValidatedProductServerError<T> {
   status: 'error';
   error: {
     type: 'validation';
-    errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+    errorCode: ProductValidationErrorCode;
     message: string;
     availableToSell: number;
   };
@@ -41,7 +43,7 @@ interface ValidatedProductNetworkError<T> {
   status: 'error';
   error: {
     type: 'network';
-    errorCode: 'NETWORK_ERROR';
+    errorCode: typeof QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR;
   };
   product: T;
 }
@@ -192,7 +194,7 @@ export const validateProductsLegacy = async <T extends ValidateProductsInput>(
         status: 'error',
         error: {
           type: 'network',
-          errorCode: 'NETWORK_ERROR',
+          errorCode: QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR,
         },
         product,
       };
@@ -290,10 +292,13 @@ export function convertStockAndThresholdValidationErrorToWarning<T extends Valid
   validatedProducts: ValidateProductsLegacyResult<T> | ValidateProductsResult<T>,
 ): ValidateProductsLegacyResult<T> | ValidateProductsResult<T> {
   const isThresholdError = (error: ValidatedProductError<T>['error']) =>
-    error.errorCode === 'OTHER' && /purchase a (minimum|maximum) of/im.test(error.message);
+    error.type === 'validation' &&
+    error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OTHER &&
+    /purchase a (minimum|maximum) of/im.test(error.message);
 
   // out of stock or low on stock error
-  const isStockError = (error: ValidatedProductError<T>['error']) => error.errorCode === 'OOS';
+  const isStockError = (error: ValidatedProductError<T>['error']) =>
+    error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OOS;
 
   const stockAndThresholdErrors = validatedProducts.error.filter(
     ({ error }) => isThresholdError(error) || isStockError(error),
