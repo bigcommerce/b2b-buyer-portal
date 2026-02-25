@@ -61,6 +61,7 @@ import {
 } from '@/utils/validateProducts';
 
 import { type PageProps } from '../PageProps';
+import { getQuoteValidationErrorMessage } from '../quote/shared/getQuoteValidationErrorMessage';
 
 import AddToShoppingList from './components/AddToShoppingList';
 import ReAddToCart from './components/ReAddToCart';
@@ -618,7 +619,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 
       error.forEach((err) => {
-        snackbar.error(err.error.message);
+        snackbar.error(
+          getQuoteValidationErrorMessage({
+            b3Lang,
+            errorCode: err.error.errorCode,
+            productName: err.product.node?.productName || '',
+          }),
+        );
       });
 
       const validProducts = [...success, ...warning].map((product) => product.product);

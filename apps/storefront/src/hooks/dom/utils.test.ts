@@ -683,19 +683,19 @@ describe('addProductFromProductPageToQuote', () => {
   });
 
   describe('when the feature flag is enabled', () => {
-    const validateProduct = vi.fn();
+    const validateProducts = vi.fn();
 
     beforeEach(() => {
       server.use(
-        graphql.query('ValidateProduct', ({ variables }) =>
+        graphql.query('ValidateProducts', ({ variables }) =>
           HttpResponse.json({
-            data: { validateProduct: validateProduct(variables) },
+            data: { validateProducts: validateProducts(variables) },
           }),
         ),
       );
     });
 
-    it('shows error when validateProduct returns an error', async () => {
+    it('shows error when validation returns an error', async () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
@@ -717,25 +717,40 @@ describe('addProductFromProductPageToQuote', () => {
         )
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-      when(validateProduct)
+      when(validateProducts)
         .calledWith(
           expect.objectContaining({
-            productId: 123,
-            variantId: 1,
-            quantity: 1,
-            productOptions: [],
+            products: [
+              {
+                productId: 123,
+                variantId: 1,
+                quantity: 1,
+                productOptions: [],
+              },
+            ],
           }),
         )
-        .thenReturn(buildValidateProductWith({ responseType: 'ERROR', message: 'test' }));
+        .thenReturn({
+          products: [
+            buildValidateProductWith({
+              responseType: 'ERROR',
+              message: 'test',
+              errorCode: 'INVALID_FIELDS',
+              product: {
+                availableToSell: 10,
+              },
+            }),
+          ],
+        });
 
       const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, true, {});
       await addToQuote();
 
-      expect(globalSnackbar.error).toHaveBeenCalledWith('test');
+      expect(globalSnackbar.error).toHaveBeenCalledWith('unavailable');
       expect(addQuoteDraftProduce).not.toHaveBeenCalled();
     });
 
-    it('adds product successfully when validateProduct returns a warning', async () => {
+    it('adds product successfully when validation returns a warning', async () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
@@ -757,16 +772,22 @@ describe('addProductFromProductPageToQuote', () => {
         )
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-      when(validateProduct)
+      when(validateProducts)
         .calledWith(
           expect.objectContaining({
-            productId: 123,
-            variantId: 1,
-            quantity: 1,
-            productOptions: [],
+            products: [
+              {
+                productId: 123,
+                variantId: 1,
+                quantity: 1,
+                productOptions: [],
+              },
+            ],
           }),
         )
-        .thenReturn(buildValidateProductWith({ responseType: 'WARNING', message: 'test' }));
+        .thenReturn({
+          products: [buildValidateProductWith({ responseType: 'WARNING', message: 'test' })],
+        });
 
       const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, true, {});
       await addToQuote();
@@ -774,7 +795,7 @@ describe('addProductFromProductPageToQuote', () => {
       expect(addQuoteDraftProduce).toHaveBeenCalled();
     });
 
-    it('adds product successfully when validateProduct returns a success', async () => {
+    it('adds product successfully when validation returns a success', async () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
@@ -796,16 +817,22 @@ describe('addProductFromProductPageToQuote', () => {
         )
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-      when(validateProduct)
+      when(validateProducts)
         .calledWith(
           expect.objectContaining({
-            productId: 123,
-            variantId: 1,
-            quantity: 1,
-            productOptions: [],
+            products: [
+              {
+                productId: 123,
+                variantId: 1,
+                quantity: 1,
+                productOptions: [],
+              },
+            ],
           }),
         )
-        .thenReturn(buildValidateProductWith({ responseType: 'SUCCESS', message: '' }));
+        .thenReturn({
+          products: [buildValidateProductWith({ responseType: 'SUCCESS', message: '' })],
+        });
 
       const { addToQuote } = addProductFromProductPageToQuote(setOpenPage, false, b3Lang, true, {});
       await addToQuote();
@@ -836,16 +863,22 @@ describe('addProductFromProductPageToQuote', () => {
         )
         .thenReturn(buildProductPriceWith('WHATEVER_VALUES'));
 
-      when(validateProduct)
+      when(validateProducts)
         .calledWith(
           expect.objectContaining({
-            productId: 123,
-            variantId: 1,
-            quantity: 1,
-            productOptions: [],
+            products: [
+              {
+                productId: 123,
+                variantId: 1,
+                quantity: 1,
+                productOptions: [],
+              },
+            ],
           }),
         )
-        .thenReturn(buildValidateProductWith({ responseType: 'SUCCESS', message: '' }));
+        .thenReturn({
+          products: [buildValidateProductWith({ responseType: 'SUCCESS', message: '' })],
+        });
 
       when(getProductOptionList).calledWith(expect.any(Object)).thenReturn([]);
 

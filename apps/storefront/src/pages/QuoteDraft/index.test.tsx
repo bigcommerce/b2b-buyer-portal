@@ -3039,7 +3039,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(addToQuote);
 
         expect(validateProduct).toHaveBeenCalled();
-        expect(await screen.findByText('validation error')).toBeInTheDocument();
+        expect(await screen.findByText(/Product validation failed for/)).toBeInTheDocument();
         expect(screen.queryByText('Product was added to your quote.')).not.toBeInTheDocument();
       });
 
@@ -3554,7 +3554,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Add products to Quote' }));
 
         expect(validateProduct).toHaveBeenCalled();
-        expect(await screen.findByText('validation error')).toBeInTheDocument();
+        expect(await screen.findByText(/Product validation failed for/)).toBeInTheDocument();
         expect(screen.queryByText('Products were added to your quote.')).not.toBeInTheDocument();
       });
 
@@ -4295,7 +4295,7 @@ describe('when the user is a B2B customer', () => {
         await userEvent.click(addToListButton);
 
         expect(validateProduct).toHaveBeenCalledTimes(2);
-        expect(await screen.findAllByText('validation error')).toHaveLength(2);
+        expect(await screen.findAllByText(/Product validation failed for/)).toHaveLength(2);
         expect(screen.queryByText('Products were added to your quote.')).not.toBeInTheDocument();
       });
 

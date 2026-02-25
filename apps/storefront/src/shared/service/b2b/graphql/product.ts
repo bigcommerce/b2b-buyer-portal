@@ -339,6 +339,29 @@ export interface SearchProductsResponse {
   };
 }
 
+/**
+ * Validation error codes returned by the product validation API.
+ * Used for typing API responses and for QUOTE_VALIDATION_ERROR_CODES (quote display).
+ */
+const PRODUCT_VALIDATION_ERROR_CODES = {
+  OOS: 'OOS',
+  NON_PURCHASABLE: 'NON_PURCHASABLE',
+  INVALID_FIELDS: 'INVALID_FIELDS',
+  OTHER: 'OTHER',
+} as const;
+
+export type ProductValidationErrorCode =
+  (typeof PRODUCT_VALIDATION_ERROR_CODES)[keyof typeof PRODUCT_VALIDATION_ERROR_CODES];
+
+/**
+ * Quote validation error codes: API codes plus NETWORK_ERROR (client-side).
+ * Re-exported from getQuoteValidationErrorMessage for consumers that need the full set.
+ */
+export const QUOTE_VALIDATION_ERROR_CODES = {
+  ...PRODUCT_VALIDATION_ERROR_CODES,
+  NETWORK_ERROR: 'NETWORK_ERROR',
+} as const;
+
 interface ValidateProductSuccess {
   responseType: 'SUCCESS';
   message: string;
@@ -346,7 +369,7 @@ interface ValidateProductSuccess {
 
 interface ValidateProductError {
   responseType: 'ERROR';
-  errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+  errorCode: ProductValidationErrorCode;
   message: string;
   product: {
     availableToSell: number;
@@ -369,7 +392,7 @@ interface ValidateProductsResponse {
     validateProducts: {
       isValid: boolean;
       products: {
-        errorCode: 'NON_PURCHASABLE' | 'OOS' | 'INVALID_FIELDS' | 'OTHER';
+        errorCode: ProductValidationErrorCode;
         responseType: 'SUCCESS' | 'WARNING' | 'ERROR';
         message: string;
         product: {

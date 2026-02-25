@@ -1,8 +1,11 @@
 import config from '@/lib/config';
 import { LangFormatFunction } from '@/lib/lang';
+import {
+  getQuoteValidationErrorMessage,
+  QUOTE_VALIDATION_MESSAGE_CONTEXTS,
+} from '@/pages/quote/shared/getQuoteValidationErrorMessage';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchProducts } from '@/shared/service/b2b';
-import { validateProduct } from '@/shared/service/b2b/graphql/product';
 import { GetCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
@@ -22,6 +25,7 @@ import { B3LStorage, B3SStorage } from '@/utils/b3Storage';
 import { globalSnackbar } from '@/utils/b3Tip';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 import { FeatureFlags } from '@/utils/featureFlags';
+import { validateProducts } from '@/utils/validateProducts';
 
 interface DiscountsProps {
   discountedAmount: number;
@@ -285,15 +289,26 @@ const addProductFromProductPageToQuote = (
           optionValue: option.optionValue,
         }));
 
-        const { responseType, message } = await validateProduct({
-          productId: Number(productId),
-          variantId: Number(variantId),
-          quantity: Number(qty),
-          productOptions,
-        });
+        const { error } = await validateProducts([
+          {
+            productId: Number(productId),
+            variantId: Number(variantId),
+            quantity: Number(qty),
+            productOptions,
+          },
+        ]);
 
-        if (responseType === 'ERROR') {
-          globalSnackbar.error(message);
+        if (error.length > 0) {
+          const [validationError] = error;
+          globalSnackbar.error(
+            getQuoteValidationErrorMessage({
+              b3Lang,
+              errorCode: validationError.error.errorCode,
+              productName: newProductInfo[0]?.name,
+              availableToSell: validationError.error.availableToSell,
+              context: QUOTE_VALIDATION_MESSAGE_CONTEXTS.PDP,
+            }),
+          );
 
           return;
         }

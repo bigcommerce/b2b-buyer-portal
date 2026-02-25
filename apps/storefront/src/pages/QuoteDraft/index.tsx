@@ -67,6 +67,10 @@ import QuoteSubmissionResponse from '../quote/components/QuoteSubmissionResponse
 import QuoteSummary from '../quote/components/QuoteSummary';
 import QuoteTable from '../quote/components/QuoteTable';
 import getAccountFormFields from '../quote/config';
+import {
+  getQuoteValidationErrorMessage,
+  QUOTE_VALIDATION_ERROR_CODES,
+} from '../quote/shared/getQuoteValidationErrorMessage';
 import Container from '../quote/style';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
@@ -468,15 +472,18 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       convertStockAndThresholdValidationErrorToWarning(validatedProducts);
 
     error.forEach((err) => {
-      if (err.error.type === 'network') {
-        snackbar.error(
-          b3Lang('quotes.productValidationFailed', {
-            productName: err.product.node?.productName || '',
-          }),
-        );
-      } else {
-        snackbar.error(err.error.message);
-      }
+      const errorCode =
+        err.error.type === 'network'
+          ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
+          : err.error.errorCode;
+
+      snackbar.error(
+        getQuoteValidationErrorMessage({
+          b3Lang,
+          errorCode,
+          productName: err.product.node?.productName || '',
+        }),
+      );
     });
 
     const validProducts = [...success, ...warning].map((product) => product.product);

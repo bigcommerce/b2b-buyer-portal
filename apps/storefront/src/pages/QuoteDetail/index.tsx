@@ -44,6 +44,10 @@ import QuoteDetailTable from '../quote/components/QuoteDetailTable';
 import QuoteInfo from '../quote/components/QuoteInfo';
 import QuoteNote from '../quote/components/QuoteNote';
 import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions';
+import {
+  getQuoteValidationErrorMessage,
+  QUOTE_VALIDATION_ERROR_CODES,
+} from '../quote/shared/getQuoteValidationErrorMessage';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
@@ -370,9 +374,17 @@ function QuoteDetail() {
     }
 
     error.forEach((err) => {
-      if (err.error.type === 'validation') {
-        snackbar.error(err.error.message);
-      }
+      const errorCode =
+        err.error.type === 'network'
+          ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
+          : err.error.errorCode;
+      snackbar.error(
+        getQuoteValidationErrorMessage({
+          b3Lang,
+          errorCode,
+          productName: err.product.productName || '',
+        }),
+      );
     });
 
     if (quoteReviewedBySalesRepResponse) {
@@ -435,15 +447,17 @@ function QuoteDetail() {
   const hasQuoteValidationErrorsBackendFlow = () => {
     if (quoteValidationErrors.length) {
       quoteValidationErrors.forEach((err) => {
-        if (err.error.type === 'network') {
-          snackbar.error(
-            b3Lang('quotes.productValidationFailed', {
-              productName: err.product.productName || '',
-            }),
-          );
-        } else {
-          snackbar.error(err.error.message);
-        }
+        const errorCode =
+          err.error.type === 'network'
+            ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
+            : err.error.errorCode;
+        snackbar.error(
+          getQuoteValidationErrorMessage({
+            b3Lang,
+            errorCode,
+            productName: err.product.productName || '',
+          }),
+        );
       });
 
       return true;
