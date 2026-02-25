@@ -4,10 +4,10 @@ import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs from 'dayjs';
+import { format as dateFnsFormat } from 'date-fns';
 
 import { useB3Lang } from '@/lib/lang';
-import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
+import { getDateLang } from '@/utils/b3DateFormat/setDateLocale';
 
 import { PickerFormControl } from './styled';
 import Form from './ui';
@@ -33,9 +33,9 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const pickerRef = useRef<HTMLInputElement | null>(null);
 
   const b3Lang = useB3Lang();
-  const activeLang = getDayjsLocale();
+  const activeLang = getDateLang();
 
-  const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
+  const { inputFormat = 'yyyy-MM-dd' } = muiTextFieldProps;
 
   const fieldsProps = {
     type: fieldType,
@@ -56,7 +56,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
 
   const handleDatePickerChange = (value: Date) => {
     try {
-      setValue(name, dayjs(value).format(inputFormat));
+      setValue(name, dateFnsFormat(new Date(value), inputFormat));
     } catch (error) {
       setValue(name, value);
     }

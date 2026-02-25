@@ -3,9 +3,9 @@ import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs from 'dayjs';
+import { format as dateFnsFormat } from 'date-fns';
 
-import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
+import { getDateLang } from '@/utils/b3DateFormat/setDateLocale';
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
@@ -23,13 +23,13 @@ export function B3Picker({
   value,
   label,
   disableOpenPicker = true,
-  formatInput = 'YYYY-MM-DD',
+  formatInput = 'yyyy-MM-dd',
   size = 'small',
 }: B3PickerProps) {
   const pickerRef = useRef<HTMLInputElement | null>(null);
   const container = useRef<HTMLInputElement | null>(null);
 
-  const activeLang = getDayjsLocale();
+  const activeLang = getDateLang();
 
   const [open, setOpen] = useState(false);
   const openPickerClick = () => {
@@ -41,7 +41,7 @@ export function B3Picker({
 
   const onHandleChange = (value: Date | number | string) => {
     if (typeof value !== 'string') {
-      const pickerValue = dayjs(value).format(formatInput);
+      const pickerValue = dateFnsFormat(new Date(value), formatInput);
       onChange(pickerValue);
     } else {
       onChange(value);

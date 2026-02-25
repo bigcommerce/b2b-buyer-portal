@@ -51,7 +51,7 @@ export const displayExtendedFormat = formatCreator('extendedDisplay', 'formatDat
 
 /**
  * Formats a Unix timestamp (seconds) as a locale-aware date (e.g. "August 16, 2018").
- * Uses dayjs `LL` format. Locale is set in setDayjsLocale.tsx.
+ * Uses dayjs `LL` format. Locale is set in setDateLocale.ts.
  *
  * @param date - Unix timestamp in seconds
  */
