@@ -24,7 +24,7 @@ import { getQuoteEnabled } from '@/utils/b3Init';
 
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
-import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
+import setDateLocale from './utils/b3DateFormat/setDateLocale';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
@@ -69,7 +69,7 @@ export default function App() {
   }, [role, isB2BUser]);
 
   useEffect(() => {
-    setDayjsLocale(bcLanguage);
+    setDateLocale(bcLanguage);
   }, [bcLanguage]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
@@ -169,15 +169,15 @@ export default function App() {
         }
         setChannelStoreType();
 
-        // load the store config before fetching other data
-        // as some fetches depend on the store config or feature flags being present
-        await getStoreConfigs(styleDispatch, dispatch);
-
+        // getCompanyInfo only needs B2BToken (already in store), so it can run
+        // alongside getStoreConfigs. getGlobalStoreTax and setStorefrontConfig
+        // depend on feature flags that getStoreConfigs dispatches to the store.
         await Promise.allSettled([
-          getGlobalStoreTax(),
-          setStorefrontConfig(dispatch),
+          getStoreConfigs(styleDispatch, dispatch),
           getCompanyInfo(role, b2bId),
         ]);
+
+        await Promise.allSettled([getGlobalStoreTax(), setStorefrontConfig(dispatch)]);
 
         const userInfo = {
           role: Number(role),
