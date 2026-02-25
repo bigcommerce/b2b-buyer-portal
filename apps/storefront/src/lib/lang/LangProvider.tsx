@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { IntlProvider } from 'react-intl';
 import { useSelector } from 'react-redux';
 
-import locales from './locales';
+import localesPromise, { getCachedMessages } from './locales';
 
 interface LangProviderProps {
   readonly children: ReactNode;
@@ -19,12 +19,17 @@ interface RootState {
 
 function LangProvider({ children, customText = {} }: LangProviderProps) {
   const translations = useSelector<RootState, Translations>(({ lang }) => lang.translations);
+  const [defaultMessages, setDefaultMessages] = useState<Translations>(getCachedMessages);
+
+  useEffect(() => {
+    localesPromise.then(setDefaultMessages);
+  }, []);
 
   return (
     <IntlProvider
       defaultLocale="en"
       locale="en"
-      messages={{ ...locales.en, ...customText, ...translations }}
+      messages={{ ...defaultMessages, ...customText, ...translations }}
     >
       {children}
     </IntlProvider>
