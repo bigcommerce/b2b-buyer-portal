@@ -1,26 +1,27 @@
-import { ReactNode, useContext } from 'react';
-import * as materialMultiLanguages from '@mui/material/locale';
+import { ReactNode, useContext, useMemo } from 'react';
+import {
+  deDE,
+  enUS,
+  esES,
+  frFR,
+  itIT,
+  type Localization,
+  nlNL,
+  zhCN,
+} from '@mui/material/locale';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { CustomStyleContext } from './shared/customStyleButton';
 import { BROWSER_LANG } from './constants';
 
-type LangMapType = {
-  [index: string]: string;
-};
-
-const MUI_LANG_MAP: LangMapType = {
-  en: 'enUS',
-  zh: 'zhCN',
-  fr: 'frFR',
-  nl: 'nlNL',
-  de: 'deDE',
-  it: 'itIT',
-  es: 'esES',
-};
-
-type MaterialMultiLanguagesType = {
-  [K: string]: materialMultiLanguages.Localization;
+const MUI_LANG_MAP: Record<string, Localization> = {
+  en: enUS,
+  zh: zhCN,
+  fr: frFR,
+  nl: nlNL,
+  de: deDE,
+  it: itIT,
+  es: esES,
 };
 
 type Props = {
@@ -34,22 +35,25 @@ function B3ThemeProvider({ children }: Props) {
     },
   } = useContext(CustomStyleContext);
 
-  const theme = (lang: string) =>
-    createTheme(
-      {
-        palette: {
-          background: {
-            default: backgroundColor,
-          },
-          primary: {
-            main: primaryColor || '#1976d2',
+  const theme = useMemo(
+    () =>
+      createTheme(
+        {
+          palette: {
+            background: {
+              default: backgroundColor,
+            },
+            primary: {
+              main: primaryColor || '#1976d2',
+            },
           },
         },
-      },
-      (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'],
-    );
+        MUI_LANG_MAP[BROWSER_LANG] || enUS,
+      ),
+    [backgroundColor, primaryColor],
+  );
 
-  return <ThemeProvider theme={theme(BROWSER_LANG)}>{children}</ThemeProvider>;
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }
 
 export default B3ThemeProvider;
