@@ -685,14 +685,17 @@ export const exportQuotePdf = (data: {
   });
 
 export const quoteCheckout = ({ id, uuid }: { id: number; uuid?: string }) =>
-  B3Request.graphqlB2B({
-    query: getQuoteCheckoutQuery,
-    variables: {
-      id,
-      storeHash,
-      uuid: uuid || null,
+  B3Request.graphqlB2B(
+    {
+      query: getQuoteCheckoutQuery,
+      variables: {
+        id,
+        storeHash,
+        uuid: uuid || null,
+      },
     },
-  });
+    true,
+  );
 
 export const quoteDetailAttachFileCreate = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
@@ -705,10 +708,13 @@ export const quoteDetailAttachFileDelete = (data: CustomFieldItems) =>
   });
 
 export const getBCStorefrontProductSettings = () =>
-  B3Request.graphqlB2B({
-    query: getStorefrontProductSettings,
-    variables: { storeHash, channelId },
-  });
+  B3Request.graphqlB2B(
+    {
+      query: getStorefrontProductSettings,
+      variables: { storeHash, channelId },
+    },
+    true,
+  );
 
 export interface QuoteExtraFieldsConfig {
   data: {

@@ -16,6 +16,7 @@ import {
   getBcQuoteDetail,
   searchProducts,
 } from '@/shared/service/b2b';
+import type { ProductValidationError } from '@/shared/service/request/b3Fetch';
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
@@ -47,6 +48,7 @@ import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions
 import {
   getQuoteValidationErrorMessage,
   QUOTE_VALIDATION_ERROR_CODES,
+  QUOTE_VALIDATION_MESSAGE_CONTEXTS,
 } from '../quote/shared/getQuoteValidationErrorMessage';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
@@ -750,6 +752,14 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, navigate, role]);
 
+  const formatQuoteValidationError = (err: ProductValidationError) =>
+    getQuoteValidationErrorMessage({
+      b3Lang,
+      errorCode: err.code,
+      productName: err.productName ?? '',
+      context: QUOTE_VALIDATION_MESSAGE_CONTEXTS.QUOTE,
+    });
+
   const quoteGotoCheckout = async () => {
     try {
       if (hasQuoteValidationErrors()) return;
@@ -760,6 +770,8 @@ function QuoteDetail() {
         role,
         location,
         navigate,
+        b3Lang,
+        formatValidationError: formatQuoteValidationError,
       });
     } finally {
       setQuoteCheckoutLoading(false);
@@ -1002,6 +1014,8 @@ function QuoteDetail() {
                     quoteId: quoteDetail.id,
                     quoteUuid: quoteDetail.uuid,
                     navigate,
+                    b3Lang,
+                    formatValidationError: formatQuoteValidationError,
                   });
                 }}
               >
