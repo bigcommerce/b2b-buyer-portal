@@ -60,12 +60,13 @@ function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   return b3Fetch(url, init);
 }
 
-type ProductValidationError = {
+export type ProductValidationError = {
   itemId: string;
   productId: number;
   variantId: number;
   responseType: string;
   code: string;
+  productName?: string;
 };
 
 interface B2bGQLResponse {
