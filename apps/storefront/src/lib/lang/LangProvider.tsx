@@ -14,16 +14,18 @@ type Translations = Record<string, string>;
 interface RootState {
   lang: {
     translations: Translations;
+    locale: string;
   };
 }
 
 function LangProvider({ children, customText = {} }: LangProviderProps) {
   const translations = useSelector<RootState, Translations>(({ lang }) => lang.translations);
+  const locale = useSelector<RootState, string>(({ lang }) => lang.locale);
 
   return (
     <IntlProvider
       defaultLocale="en"
-      locale="en"
+      locale={locale}
       messages={{ ...locales.en, ...customText, ...translations }}
     >
       {children}
