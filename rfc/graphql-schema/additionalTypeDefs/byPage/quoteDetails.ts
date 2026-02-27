@@ -134,14 +134,14 @@ export default /* GraphQL */ `
   }
 
   union AddMessageResultError =
-      SomeAddMessageResultError
+    | SomeAddMessageResultError
     | AnotherAddMessageResultError
 
   type AddMessageResult {
     errors: [AddMessageResultError!]!
     message: QuoteMessage
   }
-  
+
   input AddMessageInput {
     id: ID!
     message: String!
@@ -158,7 +158,7 @@ export default /* GraphQL */ `
   }
 
   union AddAttachmentResultError =
-      SomeAddAttachmentResultError
+    | SomeAddAttachmentResultError
     | AnotherAddAttachmentResultError
 
   type AddAttachmentResult {
@@ -182,7 +182,7 @@ export default /* GraphQL */ `
   }
 
   union RemoveAttachmentResultError =
-      SomeRemoveAttachmentResultError
+    | SomeRemoveAttachmentResultError
     | AnotherRemoveAttachmentResultError
 
   type RemoveAttachmentResult {
@@ -205,7 +205,7 @@ export default /* GraphQL */ `
   }
 
   union CreatePDFResultError =
-      SomeCreatePDFResultError
+    | SomeCreatePDFResultError
     | AnotherCreatePDFResultError
 
   interface QuotePDF {
