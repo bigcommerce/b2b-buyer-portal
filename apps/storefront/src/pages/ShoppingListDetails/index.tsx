@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Grid, useTheme } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { v1 as uuid } from 'uuid';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -69,10 +69,6 @@ import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems';
 import ShoppingDetailFooter from './components/ShoppingDetailFooter';
 import ShoppingDetailHeader from './components/ShoppingDetailHeader';
 import ShoppingDetailTable from './components/ShoppingDetailTable';
-import {
-  ShoppingListDetailsContext,
-  ShoppingListDetailsProvider,
-} from './context/ShoppingListDetailsContext';
 
 interface TableRefProps extends HTMLInputElement {
   initSearch: () => void;
@@ -186,8 +182,7 @@ const getOptionsList = (options: Option[]) =>
     optionValue: opt.option_value,
   }));
 
-function useData() {
-  const { id = '' } = useParams();
+function useData(shoppingListId: number) {
   const {
     state: { openAPPParams, productQuoteEnabled = false },
   } = useContext(GlobalContext);
@@ -196,11 +191,6 @@ function useData() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-
-  const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
 
   const {
     shoppingListCreateActionsPermission,
@@ -218,13 +208,13 @@ function useData() {
   };
 
   const getShoppingList = (params: SearchProps) => {
-    const options = { ...params, id };
+    const options = { ...params, id: shoppingListId };
 
     return isB2BUser ? getB2BShoppingListDetails(options) : getBcShoppingListDetails(options);
   };
 
   const deleteShoppingListItem = (itemId: string | number) => {
-    const options = { itemId, shoppingListId: id };
+    const options = { itemId, shoppingListId };
 
     return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
   };
@@ -232,12 +222,9 @@ function useData() {
   const isJuniorBuyer = Number(role) === CustomerRole.JUNIOR_BUYER;
 
   return {
-    id,
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    isAgenting,
-    primaryColor,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
@@ -283,14 +270,14 @@ const partialAddToCart = async (checkedArr: ProductsProps[]) => {
   }
 };
 
-function ShoppingListDetails({ setOpenPage }: PageProps) {
+function ShoppingListDetails({
+  setOpenPage,
+  shoppingListId,
+}: PageProps & { shoppingListId: number }) {
   const {
-    id,
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    isAgenting,
-    primaryColor,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
@@ -298,14 +285,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     getShoppingList,
     deleteShoppingListItem,
     isJuniorBuyer,
-  } = useData();
+  } = useData(shoppingListId);
 
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
   const navigate = useNavigate();
   const [isMobile] = useMobile();
-  const { dispatch } = useContext(ShoppingListDetailsContext);
 
   const b3Lang = useB3Lang();
 
@@ -357,21 +343,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
     // We need to add Deleted here so that the shopping lists that were previously rejected remain the same behavior
     shoppingListInfo?.status === ShoppingListStatus.Deleted;
-
-  const goToShoppingLists = () => {
-    navigate('/shoppingLists');
-  };
-
-  useEffect(() => {
-    dispatch({
-      type: 'init',
-      payload: {
-        id: parseInt(id, 10) || 0,
-      },
-    });
-    // disabling as we don't need a dispatcher here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
@@ -447,7 +418,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     setIsRequestLoading(true);
     try {
       const params: UpdateShoppingListParamsProps = {
-        id: Number(id),
+        id: Number(shoppingListId),
         name: shoppingListInfo?.name || '',
         description: shoppingListInfo?.description || '',
       };
@@ -922,12 +893,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           isB2BUser={isB2BUser}
           shoppingListInfo={shoppingListInfo}
           customerInfo={customerInfo}
-          goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
           setOpenPage={setOpenPage}
-          isAgenting={isAgenting}
           openAPPParams={openAPPParams}
-          customColor={primaryColor}
         />
 
         <Grid
@@ -979,7 +947,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                   shoppingListInfo={shoppingListInfo}
                   isRequestLoading={isRequestLoading}
                   setIsRequestLoading={setIsRequestLoading}
-                  shoppingListId={id}
+                  shoppingListId={shoppingListId}
                   getShoppingListDetails={getShoppingListDetails}
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
@@ -995,8 +963,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           <Grid item sx={isMobile ? { flexBasis: '100%' } : { flexBasis: '340px' }}>
             {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
+                shoppingListId={shoppingListId}
                 updateList={updateList}
-                type="shoppingList"
                 isB2BUser={isB2BUser}
               />
             )}
@@ -1014,7 +982,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               onAddToCart={handleAddProductsToCart}
               onAddToQuote={handleAddSelectedToQuote}
               isB2BUser={isB2BUser}
-              customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
               isJuniorBuyer={isJuniorBuyer}
             />
@@ -1043,12 +1010,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   );
 }
 
-function ShoppingListDetailsContent({ setOpenPage }: PageProps) {
-  return (
-    <ShoppingListDetailsProvider>
-      <ShoppingListDetails setOpenPage={setOpenPage} />
-    </ShoppingListDetailsProvider>
-  );
-}
+export default function ShoppingListDetailsContent({ setOpenPage }: PageProps) {
+  const { id = '0' } = useParams();
+  const shoppingListId = parseInt(id, 10) || 0;
 
-export default ShoppingListDetailsContent;
+  return <ShoppingListDetails setOpenPage={setOpenPage} shoppingListId={shoppingListId} />;
+}

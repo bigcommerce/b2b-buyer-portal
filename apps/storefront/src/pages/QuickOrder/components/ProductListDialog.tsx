@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback } from 'react';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 
@@ -8,7 +8,6 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { ShoppingListDetailsContext } from '@/pages/ShoppingListDetails/context/ShoppingListDetailsContext';
 import { useAppSelector } from '@/store';
 import { ShoppingListProductItem } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
@@ -28,10 +27,6 @@ function ProductTableAction(props: ProductTableActionProps) {
     addButtonText,
   } = props;
 
-  const {
-    state: { isLoading = false },
-  } = useContext(ShoppingListDetailsContext);
-
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
@@ -42,7 +37,6 @@ function ProductTableAction(props: ProductTableActionProps) {
       onClick={() => {
         onChooseOptionsClick(id);
       }}
-      disabled={isLoading}
       fullWidth={isMobile}
     >
       {b3Lang('global.searchProduct.chooseOptionsButton')}
@@ -53,7 +47,6 @@ function ProductTableAction(props: ProductTableActionProps) {
       onClick={() => {
         onAddToListClick(id);
       }}
-      disabled={isLoading}
       fullWidth={isMobile}
     >
       {addButtonText}
