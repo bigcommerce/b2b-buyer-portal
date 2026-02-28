@@ -20,7 +20,6 @@ import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
   rolePermissionSelector,
-  TaxZoneRates,
   useAppSelector,
 } from '@/store';
 import { QuoteExtraFieldsData } from '@/types/quotes';
@@ -117,7 +116,6 @@ function useData() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
-  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -189,7 +187,6 @@ function useData() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
-    taxZoneRates,
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
@@ -267,7 +264,6 @@ function QuoteDetail() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
-    taxZoneRates,
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
@@ -492,26 +488,11 @@ function QuoteDetail() {
     ? hasQuoteValidationErrorsBackendFlow
     : hasQuoteValidationErrorsFrontendFlow;
 
-  const classRates: TaxZoneRates[] = [];
-  if (taxZoneRates?.length) {
-    const defaultTaxZone = taxZoneRates?.find((taxZone: { id: number }) => taxZone.id === 1);
-    if (defaultTaxZone) {
-      const { rates = [] } = defaultTaxZone;
-
-      if (rates[0] && rates[0].enabled && rates[0].classRates.length) {
-        rates[0].classRates.forEach((rate) => classRates.push(rate));
-      }
-    }
-  }
-
-  const getTaxRate = (taxClassId: number, variants: any) => {
+  const getTaxRate = (_taxClassId: number, variants: any) => {
     if (variants.length) {
       const taxExclusive = get(variants, '[0].bc_calculated_price.tax_exclusive', 0);
       const taxInclusive = get(variants, '[0].bc_calculated_price.tax_inclusive', 0);
       return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0;
-    }
-    if (classRates.length) {
-      return (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) / 100;
     }
     return 0;
   };
