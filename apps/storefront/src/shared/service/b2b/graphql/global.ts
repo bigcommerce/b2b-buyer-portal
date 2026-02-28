@@ -278,30 +278,6 @@ const storefrontSettings = `query GetStorefrontSettings($storeHash: String!) {
   }
 }`;
 
-const taxZoneRates = () => `
-query TaxZoneRates {
-	taxZoneRates(storeHash: "${storeHash}") {
-		rates {
-			id,
-			name,
-			enabled,
-			priority,
-			classRates {
-				rate,
-				taxClassId,
-			}
-		},
-		priceDisplaySettings {
-			showInclusive,
-			showBothOnDetailView,
-			showBothOnListView,
-		},
-		enabled,
-		id,
-		name,
-	}
-}`;
-
 const storefrontDefaultLanguage = (channelId: number) => `{
 	storefrontDefaultLanguage(storeHash: "${storeHash}", channelId: ${channelId}) {
 		language,
@@ -568,11 +544,6 @@ export const getStorefrontSettings = () =>
   B3Request.graphqlB2B({
     query: storefrontSettings,
     variables: { storeHash },
-  });
-
-export const getTaxZoneRates = () =>
-  B3Request.graphqlB2B({
-    query: taxZoneRates(),
   });
 
 export const getStorefrontDefaultLanguages = (channelId: number) =>

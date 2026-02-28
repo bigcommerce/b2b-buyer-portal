@@ -12,7 +12,6 @@ import {
   getStorefrontConfigs,
   getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
-  getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
 import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
@@ -25,7 +24,6 @@ import {
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
   setShowInclusiveTaxPrice,
-  setTaxZoneRates,
 } from '@/store/slices/global';
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage } from '@/utils/b3Storage';
@@ -44,27 +42,6 @@ interface CurrencyNodeProps {
     entityId: number;
     isActive: boolean;
   };
-}
-
-interface TaxZoneRatesProps {
-  rates: {
-    id: number;
-    name: string;
-    enabled: boolean;
-    priority: number;
-    classRates: {
-      rate: number;
-      taxClassId: number;
-    }[];
-  }[];
-  priceDisplaySettings: {
-    showInclusive: boolean;
-    showBothOnDetailView: boolean;
-    showBothOnListView: boolean;
-  };
-  enabled: boolean;
-  id: number;
-  name: string;
 }
 
 const storefrontKeys: StorefrontKeysProps[] = [
@@ -472,41 +449,11 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
   }
 };
 
-const getTaxDisplayTypeFromStorefrontGraph = async () => {
+const getGlobalStoreTax = async () => {
   const response = await getStorefrontTaxDisplayType();
   const showInclusive = response.pdp === 'INC';
   B3SStorage.set('showInclusiveTaxPrice', showInclusive);
   store.dispatch(setShowInclusiveTaxPrice(showInclusive));
-};
-
-const getStoreTaxZoneRates = async () => {
-  const { taxZoneRates = [] } = await getTaxZoneRates();
-
-  if (taxZoneRates.length) {
-    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
-      (taxZone: { id: number }) => taxZone.id === 1,
-    );
-    if (defaultTaxZone) {
-      const {
-        priceDisplaySettings: { showInclusive },
-      } = defaultTaxZone;
-      B3SStorage.set('showInclusiveTaxPrice', showInclusive);
-      store.dispatch(setShowInclusiveTaxPrice(showInclusive));
-    }
-  }
-
-  store.dispatch(setTaxZoneRates(taxZoneRates));
-};
-
-const getGlobalStoreTax = async () => {
-  const { featureFlags } = store.getState().global;
-  const taxZoneRatesPromise = featureFlags[
-    'B2B-3857.move_tax_display_settings_to_bc_storefront_graph'
-  ]
-    ? getTaxDisplayTypeFromStorefrontGraph()
-    : getStoreTaxZoneRates();
-
-  return taxZoneRatesPromise;
 };
 
 export { getStoreConfigs, setStorefrontConfig, getGlobalStoreTax };
