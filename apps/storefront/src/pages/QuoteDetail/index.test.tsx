@@ -613,6 +613,183 @@ describe('when the user is a B2B customer', () => {
     );
   });
 
+  it('shows error snackbar when quote checkout returns no checkout payload', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '123',
+          quoteNumber: '123',
+          status: 2,
+          allowCheckout: true,
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchResponseWith({
+            data: {
+              productsSearch: [buildProductSearchWith({ id: 123 })],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: 'Product is valid',
+            },
+          },
+        }),
+      ),
+      graphql.query('getStorefrontProductSettings', () =>
+        HttpResponse.json({
+          data: {
+            storefrontProductSettings: {
+              hidePriceFromGuests: false,
+            },
+          },
+        }),
+      ),
+      graphql.mutation('CheckoutQuote', () => HttpResponse.json({ data: {} })),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '123' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [
+            { code: 'purchase_enable', permissionLevel: 1 },
+            { code: 'checkout_with_quote', permissionLevel: 1 },
+          ],
+        },
+        global: {
+          ...preloadedState.global,
+          backorderEnabled: true,
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
+
+    const checkoutButton = await screen.findByRole('button', { name: 'Proceed to checkout' });
+    await userEvent.click(checkoutButton);
+
+    expect(await screen.findByText('Product validation failed for this quote')).toBeInTheDocument();
+  });
+
+  it('shows structured validation error snackbars when quote checkout returns productValidationErrors', async () => {
+    const quote = buildQuoteWith({
+      data: {
+        quote: {
+          id: '123',
+          quoteNumber: '123',
+          status: 2,
+          allowCheckout: true,
+          productsList: [buildQuoteProductWith({ productId: '123' })],
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildProductSearchResponseWith({
+            data: {
+              productsSearch: [buildProductSearchWith({ id: 123 })],
+            },
+          }),
+        ),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('ValidateProduct', () =>
+        HttpResponse.json({
+          data: {
+            validateProduct: {
+              responseType: 'SUCCESS',
+              message: 'Product is valid',
+            },
+          },
+        }),
+      ),
+      graphql.query('getStorefrontProductSettings', () =>
+        HttpResponse.json({
+          data: {
+            storefrontProductSettings: {
+              hidePriceFromGuests: false,
+            },
+          },
+        }),
+      ),
+      graphql.mutation('CheckoutQuote', () =>
+        HttpResponse.json({
+          data: {},
+          errors: [
+            {
+              message: 'Product validation failed',
+              extensions: {
+                productValidationErrors: [
+                  {
+                    itemId: 'item-1',
+                    productId: 101,
+                    variantId: 201,
+                    responseType: 'ERROR',
+                    code: 'OOS',
+                    productName: 'Test Product',
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+      ),
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '123' });
+
+    renderWithProviders(<QuoteDetail />, {
+      preloadedState: {
+        ...preloadedState,
+        company: {
+          ...preloadedState.company,
+          permissions: [
+            { code: 'purchase_enable', permissionLevel: 1 },
+            { code: 'checkout_with_quote', permissionLevel: 1 },
+          ],
+        },
+        global: {
+          ...preloadedState.global,
+          backorderEnabled: true,
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
+
+    const checkoutButton = await screen.findByRole('button', { name: 'Proceed to checkout' });
+    await userEvent.click(checkoutButton);
+
+    expect(
+      await screen.findByText(
+        'Test Product does not have sufficient stock. Please contact your Sales Rep to have it re-issued.',
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('renders TBD instead of price in quote summary if product has an error', async () => {
     const quote = buildQuoteWith({
       data: {
