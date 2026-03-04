@@ -12,6 +12,10 @@
 - [Development Commands](#-development-commands)
 - [File Structure Patterns](#-file-structure-patterns)
 - [Testing Guidelines](#-testing-guidelines)
+  - [Testing Requirements](#testing-requirements)
+  - [Testing Library Philosophy](#testing-library-philosophy)
+  - [Mocking Best Practices](#mocking-best-practices)
+  - [Test Infrastructure Reminders](#test-infrastructure-reminders)
 - [Import Rules & Path Aliases](#-import-rules--path-aliases)
 - [Code Generation](#-code-generation)
 - [Common Pitfalls & Anti-Patterns](#-common-pitfalls--anti-patterns)
@@ -309,6 +313,44 @@ src/
 
 ## 🧪 Testing Guidelines
 
+### Testing Requirements
+
+- **React components**: Aim for high test coverage; focus on user-facing behavior and integration workflows.
+- **Test stack**: Vitest + MSW + Testing Library (all from `apps/storefront/`).
+- **Coverage**: Run `yarn coverage` for reports. Thresholds can be enforced at build time via `vite.config.ts` when needed.
+- **Legacy code**: Maintain or improve existing coverage when touching legacy areas.
+
+### Testing Library Philosophy
+
+Core principle: *"The more your tests resemble the way your software is used, the more confidence they can give you."*
+
+1. **Query by accessibility role first** - Use `getByRole`, `getByLabelText`, `getByText`. Prefer the `name` option with `getByRole` (e.g. `getByRole('button', { name: /submit/i })`). Never use `getByTestId` or `container.querySelector`.
+2. **Use `userEvent` for all interactions** - Never `fireEvent`. Import `userEvent` from `tests/test-utils`. With fake timers use `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })`.
+3. **Use `screen` for queries** - Do not rely on destructured queries from `render()`; query from `screen` so assertions stay resilient to re-renders.
+4. **Prefer `findBy*` for async appearance** - When waiting for something to appear, use `await screen.findByRole(...)` (or other `findBy*`) instead of `getBy*` inside `waitFor`; it is simpler and uses the same timeout.
+5. **Single assertion per `waitFor`** - When using `waitFor`, put only one assertion inside the callback; follow-up assertions go outside the block.
+6. **Test "renders nothing" with queries** - Prefer `expect(screen.queryByRole(...)).not.toBeInTheDocument()` over `expect(container).toBeEmptyDOMElement()`.
+7. **Assert on behavior, not implementation** - Assert on DOM and user-visible outcomes; avoid asserting on component state, refs, or internal props.
+8. **Name tests by user-facing behavior** - Describe what the user sees or can do (e.g. "shows error when submit fails") rather than implementation (e.g. "calls setState when submit fails").
+
+### Mocking Best Practices
+
+1. **Mock boundaries, not implementations** - Mock external services and system boundaries (HTTP via MSW, browser APIs). Avoid mocking your own hooks and internal modules when possible.
+2. **Only mock what the component under test uses** - If a `vi.mock` exists only because a transitive dependency needs it, fix the test setup (providers, wrappers in `tests/test-utils.tsx`) rather than adding manual mocks per file.
+3. **Assert on every mock you keep** - If no test asserts on a mocked function, it is a signal it should be in global setup or removed entirely.
+4. **Prefer MSW over `vi.mock` for HTTP** - Use `startMockServer()` from `tests/test-utils` with `server.use()` for handlers. Define handlers per test or per test file; avoid global or shared handler modules so each test explicitly declares the API behavior it needs. Unmocked requests hang forever, so you only need to mock the requests your test actually uses.
+5. **Always use the custom render from `tests/test-utils`** - Use `renderWithProviders`, never import `render` directly from `@testing-library/react`. The custom wrapper provides QueryClient, Redux, Router, and other providers.
+6. **Keep mocks type-safe** - Use `vi.mocked()` to get typed mock references.
+
+### Test Infrastructure Reminders
+
+- **No global MSW handlers** - Define handlers per test or per test file with `server.use()`. Avoid app-wide or shared handler modules so tests stay explicit and isolated.
+- **Global mocks** - For modules that need mocking across many tests, use `__mocks__/` at repo root or under `apps/storefront/` as appropriate.
+- **Data fixtures** - Prefer builders (see [Test Data Builders](#test-data-builders)); when exporting fixture data from modules, export functions that return fresh instances rather than shared constants.
+- **Vitest config** - `vite.config.ts` sets `clearMocks`, `mockReset`, and `restoreMocks`; mocks are reset after each test, so avoid redundant `vi.clearAllMocks()` in `beforeEach` unless you need to reset call history within a file.
+
+---
+
 ### Test File Conventions
 
 - **Co-locate tests**: `index.tsx` → `index.test.tsx`
@@ -401,7 +443,7 @@ renderWithProviders(<Invoice />, {
 
 ### API Mocking with MSW
 
-Use Mock Service Worker (MSW) for API mocking:
+Use Mock Service Worker (MSW) for API mocking. The test server is configured so that **any request that is not mocked hangs forever** (never resolves). You only need to mock the requests your test actually needs; unmocked requests will not complete, so you avoid having to mock every possible API call.
 
 ```typescript
 import { graphql, http, HttpResponse, startMockServer } from 'tests/test-utils';
