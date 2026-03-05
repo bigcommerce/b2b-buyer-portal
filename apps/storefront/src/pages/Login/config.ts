@@ -23,7 +23,7 @@ export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
   },
 ];
 
-export const getLoginFields = (b3Lang: LangFormatFunction, submitLoginFn: () => void) => [
+export const getLoginFields = (b3Lang: LangFormatFunction) => [
   {
     name: 'email',
     label: b3Lang('global.loginText.emailAddress'),
@@ -43,8 +43,6 @@ export const getLoginFields = (b3Lang: LangFormatFunction, submitLoginFn: () => 
     fieldType: 'password',
     xs: 12,
     variant: 'filled',
-    isEnterTrigger: true,
-    handleEnterClick: submitLoginFn,
     isAutoComplete: true,
   },
 ];

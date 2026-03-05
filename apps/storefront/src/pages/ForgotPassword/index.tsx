@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Box, ImageListItem, Typography } from '@mui/material';
@@ -37,6 +37,7 @@ export function ForgotPassword({
 }: ForgotPasswordProps) {
   const [isMobile] = useMobile();
   const [isLoading, setLoading] = useState<boolean>(false);
+  const isSubmittingRef = useRef(false);
   const b3Lang = useB3Lang();
   const forgotPasswordFields = getForgotPasswordFields(b3Lang);
   const [isCaptchaMissing, setIsCaptchaMissing] = useState(false);
@@ -64,13 +65,15 @@ export function ForgotPassword({
       return;
     }
 
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setLoading(true);
+
     try {
-      setLoading(true);
       if (isEnabledOnStorefront && captchaKey) {
         try {
           await requestResetPassword(captchaKey, email);
           navigate('/login?loginFlag=receivePassword');
-          setLoading(false);
         } catch (e) {
           b2bLogger.error(e);
         }
@@ -78,11 +81,13 @@ export function ForgotPassword({
 
       if (!isEnabledOnStorefront) {
         await sendForgotPasswordEmailFor(email);
-        setLoading(false);
         navigate('/login?loginFlag=receivePassword');
       }
     } catch (e) {
       b2bLogger.error(e);
+    } finally {
+      isSubmittingRef.current = false;
+      setLoading(false);
     }
   });
 
@@ -179,6 +184,7 @@ export function ForgotPassword({
                 size="medium"
                 onClick={handleLoginClick}
                 variant="contained"
+                disabled={isLoading}
                 sx={{ width: 'auto' }}
               >
                 {b3Lang('forgotPassword.resetPasswordBtn')}
