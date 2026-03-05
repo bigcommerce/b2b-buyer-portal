@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
@@ -67,6 +67,7 @@ function Login(props: PageProps) {
   );
 
   const [isLoading, setLoading] = useState(true);
+  const isSubmittingRef = useRef(false);
   const [isMobile] = useMobile();
 
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
@@ -133,9 +134,9 @@ function Login(props: PageProps) {
           }
         }
 
-        setLoading(false);
+        if (!isSubmittingRef.current) setLoading(false);
       } finally {
-        setLoading(false);
+        if (!isSubmittingRef.current) setLoading(false);
       }
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
@@ -175,6 +176,8 @@ function Login(props: PageProps) {
   };
 
   const handleLoginSubmit = async (data: LoginConfig) => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     setLoginAccount(data);
     setSearchParams((prevURLSearchParams) => {
@@ -197,6 +200,7 @@ function Login(props: PageProps) {
         b2bLogger.error(error);
         await getForcePasswordReset(data.email);
       } finally {
+        isSubmittingRef.current = false;
         setLoading(false);
       }
     } else {
@@ -209,7 +213,9 @@ function Login(props: PageProps) {
         };
 
         const isForcePasswordReset = await forcePasswordReset(data.email, data.password);
-        if (isForcePasswordReset) return;
+        if (isForcePasswordReset) {
+          return;
+        }
 
         const {
           login: {
@@ -228,7 +234,6 @@ function Login(props: PageProps) {
             const { message } = errors[0];
             if (message === 'Operation cannot be performed as the storefront channel is not live') {
               setLoginFlag('accountPrelaunch');
-              setLoading(false);
               return;
             }
           }
@@ -268,6 +273,7 @@ function Login(props: PageProps) {
           snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
         }
       } finally {
+        isSubmittingRef.current = false;
         setLoading(false);
       }
     }
@@ -380,6 +386,7 @@ function Login(props: PageProps) {
                           loginBtn={loginInfo.loginBtn}
                           handleLoginSubmit={handleLoginSubmit}
                           backgroundColor={backgroundColor}
+                          isLoading={isLoading}
                         />
                       </Box>
 
