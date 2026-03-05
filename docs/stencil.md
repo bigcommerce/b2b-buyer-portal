@@ -3,7 +3,8 @@
 ## Running Project Locally
 
 1. Activate store channel in the Channel Manager.
-2. Configure header and footer scripts:
+2. Make sure that the `Feature_StorefrontScripts` store config is set to `true`. You can check it by navigating to your https://store-{storeHash}.store.bcdev/tools/assetsmanager.php.
+3. Configure header and footer scripts:
   - Navigate to 
     - Multi-storefront: Channel Manager -> Scripts
     - Single storefront: Storefront -> Script Manager
@@ -55,14 +56,14 @@
 </script>
 ```
 
-3. Navigate to the B2B Edition App Dashboard and set the following values (not needed for single storefront):
+4. Navigate to the B2B Edition App Dashboard and set the following values (not needed for single storefront):
   - Global Config: In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
 ![Buyer portal type global settings](../public/images/buyer-portal-type-settings-global.png)
   - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
 ![Buyer portal type channel settings](../public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
 
 
-4. Visit the headless storefront and attempt to sign in.
+5. Visit the headless storefront and attempt to sign in.
 
 **FAQs:**
 - linters are not working: run `yarn prepare` first.
