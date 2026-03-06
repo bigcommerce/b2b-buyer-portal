@@ -86,16 +86,21 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-const mapToProductsFailedArray = (items: ProductsProps[]) => {
-  return items.map((item: ProductsProps) => {
+interface FailedProductInput {
+  product: ProductsProps;
+  availableToSell?: number;
+}
+
+const mapToProductsFailedArray = (inputs: FailedProductInput[]) => {
+  return inputs.map(({ product, availableToSell }) => {
     return {
-      ...item,
-      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
-      minQuantity: item.node.productsSearch.orderQuantityMinimum,
-      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.unlimitedBackorder
+      ...product,
+      isStock: product.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
+      minQuantity: product.node.productsSearch.orderQuantityMinimum,
+      maxQuantity: product.node.productsSearch.orderQuantityMaximum,
+      stock: product.node.productsSearch.unlimitedBackorder
         ? Infinity
-        : item.node.productsSearch.availableToSell,
+        : (availableToSell ?? product.node.productsSearch.availableToSell),
     };
   });
 };
@@ -598,7 +603,14 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const errors = await partialAddToCart(products);
 
       setSuccessProductsCount(products.length - errors.length);
-      setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+      setValidateFailureProducts(
+        mapToProductsFailedArray(
+          errors.map((p) => ({
+            product: p.product.item,
+            availableToSell: p.status === 'error' ? p.error.availableToSell : undefined,
+          })),
+        ),
+      );
 
       if (!errors.length) {
         shouldRedirectToCheckoutAfterRetry();
@@ -871,7 +883,14 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         const errors = await partialAddToCart(checkedArr);
 
         setSuccessProductsCount(checkedArr.length - errors.length);
-        setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+        setValidateFailureProducts(
+          mapToProductsFailedArray(
+            errors.map((p) => ({
+              product: p.product.item,
+              availableToSell: p.status === 'error' ? p.error.availableToSell : undefined,
+            })),
+          ),
+        );
 
         if (!errors.length) {
           shouldRedirectToCheckoutAfterAddToCart();
@@ -881,7 +900,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       }
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(mapToProductsFailedArray(checkedArr));
+        setValidateFailureProducts(
+          mapToProductsFailedArray(checkedArr.map((product) => ({ product }))),
+        );
         snackbar.error(e.message);
         // eslint-disable-next-line no-console
         console.error(e);
