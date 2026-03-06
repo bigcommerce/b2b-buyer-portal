@@ -12,10 +12,11 @@ interface LoginFormProps {
   loginBtn: string;
   handleLoginSubmit: (data: LoginConfig) => void;
   backgroundColor: string;
+  isLoading?: boolean;
 }
 
 function LoginForm(props: LoginFormProps) {
-  const { loginBtn, handleLoginSubmit, backgroundColor } = props;
+  const { loginBtn, handleLoginSubmit, backgroundColor, isLoading = false } = props;
 
   const b3Lang = useB3Lang();
   const theme = useTheme();
@@ -34,7 +35,7 @@ function LoginForm(props: LoginFormProps) {
     handleLoginSubmit(data);
   };
 
-  const loginFields = getLoginFields(b3Lang, handleSubmit(handleLoginClick));
+  const loginFields = getLoginFields(b3Lang);
 
   return (
     <Box
@@ -72,6 +73,7 @@ function LoginForm(props: LoginFormProps) {
             control={control}
             getValues={getValues}
             setValue={setValue}
+            disabled={isLoading}
           />
           <Box
             sx={{
@@ -85,6 +87,7 @@ function LoginForm(props: LoginFormProps) {
             <Button
               type="submit"
               variant="contained"
+              disabled={isLoading}
               sx={{
                 backgroundColor: theme.palette.primary.main,
               }}

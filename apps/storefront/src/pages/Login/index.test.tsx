@@ -14,6 +14,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import LoginPage from './index';
+import LoginForm from './LoginForm';
 import { useLogout } from './useLogout';
 
 vi.mock('./useLogout', () => ({
@@ -57,12 +58,12 @@ describe('LoginPage', () => {
 
       const { navigation } = renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
 
-      await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-      await userEvent.type(screen.getByLabelText(/Password/i), 'Password123');
+      await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
+      await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
       });
 
       await waitFor(() => {
@@ -97,12 +98,12 @@ describe('LoginPage', () => {
 
       const { navigation } = renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
 
-      await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-      await userEvent.type(screen.getByLabelText(/Password/i), 'Password123');
+      await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
+      await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
       });
 
       await waitFor(() => {
@@ -115,12 +116,12 @@ describe('LoginPage', () => {
     const renderLoginAndSubmit = async () => {
       renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
 
-      await userEvent.type(screen.getByLabelText(/Email address/i), 'test@example.com');
-      await userEvent.type(screen.getByLabelText(/Password/i), 'Password123');
+      await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
+      await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
       });
     };
 
@@ -284,6 +285,53 @@ describe('LoginPage', () => {
     });
   });
 
+  describe('loading state prevents duplicate submit', () => {
+    it('passes isLoading to LoginForm so Sign In button can be disabled', async () => {
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+
+      const signInButton = screen.getByRole('button', { name: 'SIGN IN' });
+      expect(signInButton).toBeEnabled();
+    });
+  });
+
+  describe('LoginForm', () => {
+    it('disables Sign In button when isLoading is true', () => {
+      const handleLoginSubmit = vi.fn();
+
+      renderWithProviders(
+        <LoginForm
+          loginBtn="SIGN IN"
+          handleLoginSubmit={handleLoginSubmit}
+          backgroundColor="#FFF"
+          isLoading
+        />,
+      );
+
+      const signInButton = screen.getByRole('button', { name: 'SIGN IN' });
+      expect(signInButton).toBeDisabled();
+    });
+
+    it('enables Sign In button when isLoading is false', () => {
+      const handleLoginSubmit = vi.fn();
+
+      renderWithProviders(
+        <LoginForm
+          loginBtn="SIGN IN"
+          handleLoginSubmit={handleLoginSubmit}
+          backgroundColor="#FFF"
+          isLoading={false}
+        />,
+      );
+
+      const signInButton = screen.getByRole('button', { name: 'SIGN IN' });
+      expect(signInButton).toBeEnabled();
+    });
+  });
+
   describe('URL parameter-driven logout behavior', () => {
     it('should logout with banner when loginFlag=loggedOutLogin and user is logged in', async () => {
       const logoutMock = vi.fn();
@@ -372,7 +420,7 @@ describe('LoginPage', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
       });
 
       // Should not call logout for flags not in shouldLogout array

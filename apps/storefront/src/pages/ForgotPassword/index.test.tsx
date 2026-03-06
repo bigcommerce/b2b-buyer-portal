@@ -17,6 +17,8 @@ vi.mock('@/utils/b3Logger');
 
 const { server } = startMockServer();
 
+const forgotPasswordApiUrl = 'http://localhost:3000/login.php';
+
 const now = Date.now();
 
 // using fireEvent as a workaround for https://github.com/jsdom/jsdom/issues/2745
@@ -44,7 +46,7 @@ it('shows the header', async () => {
     <ForgotPassword isEnabledOnStorefront={false} storefrontSiteKey="" setOpenPage={vi.fn()} />,
   );
 
-  screen.getByRole('heading', { name: /reset password/i });
+  screen.getByRole('heading', { name: 'Reset password' });
 });
 
 it('closes the popover when clicking `close`', async () => {
@@ -73,7 +75,7 @@ describe('when a logo is provided', () => {
       />,
     );
 
-    const logo = screen.getByRole('img', { name: /logo/i });
+    const logo = screen.getByRole('img', { name: 'register Logo' });
 
     expect(logo).toHaveAttribute('src', 'https://foo/bar.png');
   });
@@ -92,7 +94,7 @@ describe('when a logo is provided', () => {
       />,
     );
 
-    const logo = screen.getByRole('img', { name: /logo/i });
+    const logo = screen.getByRole('img', { name: 'register Logo' });
 
     await user.click(logo);
 
@@ -108,7 +110,7 @@ describe('when a logo is not provided', () => {
       <ForgotPassword isEnabledOnStorefront={false} storefrontSiteKey="" setOpenPage={vi.fn()} />,
     );
 
-    expect(screen.queryByRole('img', { name: /logo/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'register Logo' })).not.toBeInTheDocument();
   });
 });
 
@@ -127,14 +129,14 @@ describe('when captcha is enabled', () => {
       },
     );
 
-    const emailInput = screen.getByRole('textbox', { name: /email/i });
+    const emailInput = screen.getByRole('textbox', { name: 'Email address' });
     await user.type(emailInput, 'test@example.com');
 
-    const button = screen.getByRole('button', { name: /reset password/i });
+    const button = screen.getByRole('button', { name: 'Reset Password' });
 
     await user.click(button);
 
-    await screen.findByText(/the captcha you entered is incorrect/i);
+    await screen.findByText('The captcha you entered is incorrect. Please try again.');
   });
 
   it('succeeds when captcha is valid', async () => {
@@ -166,10 +168,10 @@ describe('when captcha is enabled', () => {
       },
     );
 
-    const emailInput = screen.getByRole('textbox', { name: /email/i });
+    const emailInput = screen.getByRole('textbox', { name: 'Email address' });
     await user.type(emailInput, 'test@example.com');
 
-    const button = screen.getByRole('button', { name: /reset password/i });
+    const button = screen.getByRole('button', { name: 'Reset Password' });
 
     captchaResponse(
       {
@@ -217,7 +219,7 @@ describe('when captcha is enabled', () => {
       },
     );
 
-    await user.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com');
+    await user.type(screen.getByRole('textbox', { name: 'Email address' }), 'test@example.com');
 
     captchaResponse(
       {
@@ -228,12 +230,12 @@ describe('when captcha is enabled', () => {
       iframe,
     );
 
-    await user.click(screen.getByRole('button', { name: /reset password/i }));
+    await user.click(screen.getByRole('button', { name: 'Reset Password' }));
 
     await waitFor(() => {
       expect(b2blogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringMatching(/failed to fetch/i),
+          message: expect.stringContaining('fetch'),
         }),
       );
     });
@@ -245,7 +247,7 @@ describe('when captcha is disabled', () => {
     const serverMock = vi.fn();
 
     server.use(
-      http.post('http://localhost:3000/login.php', async ({ request }) => {
+      http.post(forgotPasswordApiUrl, async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
@@ -263,11 +265,11 @@ describe('when captcha is disabled', () => {
       />,
     );
 
-    const emailInput = screen.getByRole('textbox', { name: /email/i });
+    const emailInput = screen.getByRole('textbox', { name: 'Email address' });
 
     await user.type(emailInput, 'test@example.com');
 
-    const button = screen.getByRole('button', { name: /reset password/i });
+    const button = screen.getByRole('button', { name: 'Reset Password' });
 
     await user.click(button);
 
@@ -275,9 +277,49 @@ describe('when captcha is disabled', () => {
     expect(navigation).toHaveBeenCalledWith('/login?loginFlag=receivePassword');
   });
 
+  it('disables Reset Password button and allows only one request when submit is in progress', async () => {
+    const serverMock = vi.fn();
+    let resolveRequest!: () => void;
+    const responsePromise = new Promise<HttpResponse<string>>((resolve) => {
+      resolveRequest = () => resolve(HttpResponse.text());
+    });
+
+    server.use(
+      http.post(forgotPasswordApiUrl, async ({ request }) => {
+        assertQueryParams(request, {
+          action: 'send_password_email',
+        });
+        serverMock(await request.text());
+        return responsePromise;
+      }),
+    );
+
+    const { user } = renderWithProviders(
+      <ForgotPassword
+        isEnabledOnStorefront={false}
+        storefrontSiteKey="foo-bar"
+        setOpenPage={vi.fn()}
+      />,
+    );
+
+    const emailInput = screen.getByRole('textbox', { name: 'Email address' });
+    await user.type(emailInput, 'test@example.com');
+
+    const button = screen.getByRole('button', { name: 'Reset Password' });
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(button).toBeDisabled();
+    });
+
+    resolveRequest();
+
+    expect(serverMock).toHaveBeenCalledTimes(1);
+  });
+
   it('logs an error when the request to reset password fails', async () => {
     server.use(
-      http.post('http://localhost:3000/login.php', async ({ request }) => {
+      http.post(forgotPasswordApiUrl, async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
@@ -293,11 +335,11 @@ describe('when captcha is disabled', () => {
       />,
     );
 
-    const emailInput = screen.getByRole('textbox', { name: /email/i });
+    const emailInput = screen.getByRole('textbox', { name: 'Email address' });
 
     await user.type(emailInput, 'test@example.com');
 
-    const button = screen.getByRole('button', { name: /reset password/i });
+    const button = screen.getByRole('button', { name: 'Reset Password' });
 
     await user.click(button);
 
@@ -305,7 +347,7 @@ describe('when captcha is disabled', () => {
       expect(b2blogger.error).toHaveBeenCalledWith(
         'error',
         expect.objectContaining({
-          message: expect.stringMatching(/failed to fetch/i),
+          message: expect.stringContaining('fetch'),
         }),
       );
     });
@@ -317,11 +359,11 @@ it('shows a missing email error when the email is missing', async () => {
     <ForgotPassword isEnabledOnStorefront storefrontSiteKey="foo-bar" setOpenPage={vi.fn()} />,
   );
 
-  const button = screen.getByRole('button', { name: /reset password/i });
+  const button = screen.getByRole('button', { name: 'Reset Password' });
 
   await user.click(button);
 
-  await screen.findByText(/email address is required/i);
+  await screen.findByText('Email address is required');
 
   expect(navigation).not.toHaveBeenCalledWith('/login?loginFlag=receivePassword');
 });
