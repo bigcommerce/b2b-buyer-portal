@@ -2146,7 +2146,7 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
 
-    expect(within(dialog).getByText('2 in stock')).toBeVisible();
+    expect(within(dialog).getByText('2 available')).toBeVisible();
   });
 
   it('respects unlimited backorder stock', async () => {
@@ -2268,7 +2268,7 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
 
-    expect(within(dialog).queryByText('2 in stock')).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('2 available')).not.toBeInTheDocument();
   });
 
   it('errors on min quantity not reached', async () => {
