@@ -5,7 +5,6 @@ import { builder } from 'tests/builder';
 import { GlobalState } from '@/store/slices/global';
 
 export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => ({
-  taxZoneRates: [],
   isClickEnterBtn: faker.datatype.boolean(),
   currentClickedUrl: faker.internet.url(),
   isRegisterAndLogin: faker.datatype.boolean(),
