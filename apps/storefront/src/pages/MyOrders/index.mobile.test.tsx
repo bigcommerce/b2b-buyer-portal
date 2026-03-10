@@ -1176,7 +1176,10 @@ describe('when a company customer', () => {
             buildCompanyOrderStatusesWith({
               data: {
                 orderStatuses: [
-                  buildOrderStatusWith({ systemLabel: 'Awaiting Payment', customLabel: 'Testing!' }),
+                  buildOrderStatusWith({
+                    systemLabel: 'Awaiting Payment',
+                    customLabel: 'Testing!',
+                  }),
                 ],
               },
             }),

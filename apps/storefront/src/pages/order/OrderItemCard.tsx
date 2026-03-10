@@ -24,7 +24,7 @@ interface ListItem {
 interface OrderItemCardProps {
   goToDetail: () => void;
   item: ListItem;
-  getStatusText?: (status: string) => string;
+  getStatusText: (status: string) => string;
 }
 
 const Flex = styled('div')(() => ({
@@ -75,7 +75,7 @@ export function OrderItemCard({ item, goToDetail, getStatusText }: OrderItemCard
             </Typography>
           </Box>
           <Box>
-            <OrderStatus code={item.status} text={getStatusText?.(item.status)} />
+            <OrderStatus code={item.status} text={getStatusText(item.status)} />
           </Box>
         </Flex>
 
