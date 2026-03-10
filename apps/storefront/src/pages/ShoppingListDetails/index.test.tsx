@@ -2100,7 +2100,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Out of stock',
                 errorCode: 'OOS',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 1 },
               },
             ],
           },
@@ -2146,7 +2146,7 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
 
-    expect(within(dialog).getByText('2 available')).toBeVisible();
+    expect(within(dialog).getByText('1 available')).toBeVisible();
   });
 
   it('respects unlimited backorder stock', async () => {
@@ -2207,7 +2207,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Failed validation',
                 errorCode: 'OTHER',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 1 },
               },
             ],
           },
@@ -2268,7 +2268,7 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
 
-    expect(within(dialog).queryByText('2 available')).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('1 available')).not.toBeInTheDocument();
   });
 
   it('errors on min quantity not reached', async () => {
@@ -2335,7 +2335,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Min quantity not reached',
                 errorCode: 'OTHER',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 20 },
               },
             ],
           },
@@ -2449,7 +2449,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Max quantity exceeded',
                 errorCode: 'OTHER',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 0 },
               },
             ],
           },
@@ -2562,7 +2562,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Lovely socks, out of stock',
                 errorCode: 'OOS',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 0 },
               },
             ],
           },
@@ -2716,7 +2716,7 @@ describe('when backend validation is enabled', () => {
                 responseType: 'ERROR',
                 message: 'Out of stock',
                 errorCode: 'OOS',
-                product: { availableToSell: faker.number.int() }, // this is not used atm for the UI
+                product: { availableToSell: 0 },
               },
             ],
           },

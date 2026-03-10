@@ -34,7 +34,6 @@ import b2bLogger from '@/utils/b3Logger';
 import {
   addQuoteDraftProducts,
   calculateProductListPrice,
-  getBCPrice,
   validProductQty,
 } from '@/utils/b3Product/b3Product';
 import {
@@ -46,6 +45,11 @@ import {
   SearchProps,
   ShoppingListInfoProps,
 } from '@/utils/b3Product/shared/config';
+import {
+  calculateSubTotal,
+  mapToProductsFailedArray,
+  verifyInventory,
+} from '@/utils/b3ShoppingList/b3ShoppingList';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
@@ -85,95 +89,6 @@ interface UpdateShoppingListParamsProps {
   status?: number;
   channelId?: number;
 }
-
-const mapToProductsFailedArray = (items: ProductsProps[]) => {
-  return items.map((item: ProductsProps) => {
-    return {
-      ...item,
-      isStock: item.node.productsSearch.inventoryTracking === 'none' ? '0' : '1',
-      minQuantity: item.node.productsSearch.orderQuantityMinimum,
-      maxQuantity: item.node.productsSearch.orderQuantityMaximum,
-      stock: item.node.productsSearch.unlimitedBackorder
-        ? Infinity
-        : item.node.productsSearch.availableToSell,
-    };
-  });
-};
-
-const calculateSubTotal = (checkedArr: CustomFieldItems) => {
-  if (checkedArr.length > 0) {
-    let total = 0.0;
-
-    checkedArr.forEach((item: ListItemProps) => {
-      const {
-        node: { quantity, basePrice, taxPrice },
-      } = item;
-
-      const price = getBCPrice(Number(basePrice), Number(taxPrice));
-
-      total += price * Number(quantity);
-    });
-
-    return (1000 * total) / 1000;
-  }
-
-  return 0.0;
-};
-
-const verifyInventory = (checkedArr: ProductsProps[], inventoryInfos: ProductsProps[]) => {
-  const validateFailureArr: ProductsProps[] = [];
-  const validateSuccessArr: ProductsProps[] = [];
-
-  checkedArr.forEach((item: ProductsProps) => {
-    const { node } = item;
-
-    const inventoryInfo: CustomFieldItems =
-      inventoryInfos.find((option: CustomFieldItems) => option.variantSku === node.variantSku) ||
-      {};
-
-    if (inventoryInfo) {
-      let isPassVerify = true;
-      if (
-        inventoryInfo.isStock === '1' &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
-      )
-        isPassVerify = false;
-
-      if (
-        inventoryInfo.minQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
-      )
-        isPassVerify = false;
-
-      if (
-        inventoryInfo.maxQuantity !== 0 &&
-        (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
-      )
-        isPassVerify = false;
-
-      if (isPassVerify) {
-        validateSuccessArr.push({
-          node,
-        });
-      } else {
-        validateFailureArr.push({
-          node: {
-            ...node,
-          },
-          stock: inventoryInfo.stock,
-          isStock: inventoryInfo.isStock,
-          maxQuantity: inventoryInfo.maxQuantity,
-          minQuantity: inventoryInfo.minQuantity,
-        });
-      }
-    }
-  });
-
-  return {
-    validateFailureArr,
-    validateSuccessArr,
-  };
-};
 
 interface Option {
   option_id: string | number;
@@ -598,7 +513,14 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const errors = await partialAddToCart(products);
 
       setSuccessProductsCount(products.length - errors.length);
-      setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+      setValidateFailureProducts(
+        mapToProductsFailedArray(
+          errors.map((p) => ({
+            product: p.product.item,
+            availableToSell: p.status === 'error' ? p.error.availableToSell : undefined,
+          })),
+        ),
+      );
 
       if (!errors.length) {
         shouldRedirectToCheckoutAfterRetry();
@@ -871,7 +793,14 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         const errors = await partialAddToCart(checkedArr);
 
         setSuccessProductsCount(checkedArr.length - errors.length);
-        setValidateFailureProducts(mapToProductsFailedArray(errors.map((p) => p.product.item)));
+        setValidateFailureProducts(
+          mapToProductsFailedArray(
+            errors.map((p) => ({
+              product: p.product.item,
+              availableToSell: p.status === 'error' ? p.error.availableToSell : undefined,
+            })),
+          ),
+        );
 
         if (!errors.length) {
           shouldRedirectToCheckoutAfterAddToCart();
@@ -881,7 +810,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       }
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setValidateFailureProducts(mapToProductsFailedArray(checkedArr));
+        setValidateFailureProducts(
+          mapToProductsFailedArray(checkedArr.map((product) => ({ product }))),
+        );
         snackbar.error(e.message);
         // eslint-disable-next-line no-console
         console.error(e);
