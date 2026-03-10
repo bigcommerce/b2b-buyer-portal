@@ -1157,6 +1157,52 @@ describe('when a company customer', () => {
       });
     });
 
+    it('displays store custom status label on order card', async () => {
+      const order = buildCompanyOrderNodeWith({
+        node: {
+          orderId: '66996',
+          status: 'Awaiting Payment',
+          totalIncTax: 100,
+          createdAt: getUnixTime(new Date('13 March 2025')),
+          firstName: 'Mike',
+          lastName: 'Wazowski',
+          companyInfo: { companyName: 'Monsters Inc.' },
+        },
+      });
+
+      server.use(
+        graphql.query('GetOrderStatuses', () =>
+          HttpResponse.json(
+            buildCompanyOrderStatusesWith({
+              data: {
+                orderStatuses: [
+                  buildOrderStatusWith({ systemLabel: 'Awaiting Payment', customLabel: 'Testing!' }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json(
+            buildCompanyOrdersWith({
+              data: {
+                allOrders: {
+                  totalCount: 1,
+                  edges: [order],
+                },
+              },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<MyOrders />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByText('Testing!')).toBeInTheDocument();
+    });
+
     it('navigates to the order details page when clicking on an element', async () => {
       server.use(
         graphql.query('GetAllOrders', () =>
