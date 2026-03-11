@@ -57,15 +57,8 @@ const getProductPurchasable = ({
   }
 }`;
 
-const getSearchProductsQuery = (data: CustomFieldItems) => {
-  const { featureFlags } = store.getState().global;
-  // This feature flag has a different name to the variable, however it is intended to be enabled at
-  // the same time. Once the GQL limit increases are permanently rolled out, logic in this repo should
-  // remain in place, as a general improvement to the code.
-  const separateQueryAndVariablesForProductSearches =
-    featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
-
-  if (separateQueryAndVariablesForProductSearches) {
+const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementation: boolean) => {
+  if (useVariablesImplementation) {
     return `
   query SearchProducts(
     $search: String,
@@ -75,7 +68,7 @@ const getSearchProductsQuery = (data: CustomFieldItems) => {
     $storeHash: String,
     $channelId: Int,
     $customerGroupId: Int,
-    $categoryFilter: Boolean,
+    ${data?.categoryFilter ? `$categoryFilter: Boolean,` : ''}    
   ) {
     productsSearch (
       search: $search,
@@ -85,7 +78,7 @@ const getSearchProductsQuery = (data: CustomFieldItems) => {
       storeHash: $storeHash,
       channelId: $channelId,
       customerGroupId: $customerGroupId,
-      categoryFilter: $categoryFilter,
+      ${data?.categoryFilter ? `categoryFilter: $categoryFilter,` : ''}
     ){
       id,
       name,
@@ -476,12 +469,12 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
 
   if (separateQueryAndVariablesForProductSearches) {
     return B3Request.graphqlB2B({
-      query: getSearchProductsQuery(data),
+      query: getSearchProductsQuery(data, true),
       variables: {
         search: data?.search || '',
         productIds: data?.productIds || [],
         currencyCode: data?.currencyCode || currencyCode || '',
-        companyId: data?.companyId || '',
+        companyId: `${data?.companyId || ''}`,
         storeHash,
         channelId,
         customerGroupId: data?.customerGroupId || 0,
@@ -493,7 +486,7 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
     query: getSearchProductsQuery({
       ...data,
       currencyCode: data?.currencyCode || currencyCode,
-    }),
+    }, false),
   });
 };
 
