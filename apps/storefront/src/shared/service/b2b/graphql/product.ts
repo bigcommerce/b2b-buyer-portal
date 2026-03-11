@@ -1,7 +1,8 @@
+import { store } from '@/store';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
-import { store } from '@/store';
+
 import B3Request from '../../request/b3Fetch';
 
 interface ProductPurchasable {
@@ -109,9 +110,9 @@ const getSearchProductsQuery = (data: CustomFieldItems) => {
       unlimitedBackorder,
     }
   }
-`
-  } else {
-    return `
+`;
+  }
+  return `
   query SearchProducts {
     productsSearch (
       search: "${data.search || ''}"
@@ -146,8 +147,7 @@ const getSearchProductsQuery = (data: CustomFieldItems) => {
       unlimitedBackorder
     }
   }
-`
-  }
+`;
 };
 
 const validateProductQuery = `
@@ -482,20 +482,19 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
         productIds: data?.productIds || [],
         currencyCode: data?.currencyCode || currencyCode || '',
         companyId: data?.companyId || '',
-        storeHash: storeHash,
-        channelId: channelId,
+        storeHash,
+        channelId,
         customerGroupId: data?.customerGroupId || 0,
         ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
-      }
-    });
-  } else {
-    return B3Request.graphqlB2B({
-      query: getSearchProductsQuery({
-        ...data,
-        currencyCode: data?.currencyCode || currencyCode,
-      }),
+      },
     });
   }
+  return B3Request.graphqlB2B({
+    query: getSearchProductsQuery({
+      ...data,
+      currencyCode: data?.currencyCode || currencyCode,
+    }),
+  });
 };
 
 interface ValidateProductVariables {
