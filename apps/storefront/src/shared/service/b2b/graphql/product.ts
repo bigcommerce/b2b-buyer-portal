@@ -4,13 +4,6 @@ import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
 import { store } from '@/store';
 import B3Request from '../../request/b3Fetch';
 
-const { featureFlags } = store.getState().global;
-// This feature flag has a different name to the variable, however it is intended to be enabled at
-// the same time. Once the GQL limit increases are permanently rolled out, logic in this repo should
-// remain as well, as a general improvement to the code.
-const separateQueryAndVariablesForProductSearches =
-  featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'] ?? false;
-
 interface ProductPurchasable {
   productId: number;
   isProduct: boolean;
@@ -64,6 +57,13 @@ const getProductPurchasable = ({
 }`;
 
 const getSearchProductsQuery = (data: CustomFieldItems) => {
+  const { featureFlags } = store.getState().global;
+  // This feature flag has a different name to the variable, however it is intended to be enabled at
+  // the same time. Once the GQL limit increases are permanently rolled out, logic in this repo should
+  // remain in place, as a general improvement to the code.
+  const separateQueryAndVariablesForProductSearches =
+    featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
+
   if (separateQueryAndVariablesForProductSearches) {
     return `
   query SearchProducts(
@@ -466,6 +466,13 @@ interface ValidateProductsResponse {
 
 export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
+
+  const { featureFlags } = store.getState().global;
+  // This feature flag has a different name to the variable, however it is intended to be enabled at
+  // the same time. Once the GQL limit increases are permanently rolled out, logic in this repo should
+  // remain in place, as a general improvement to the code.
+  const separateQueryAndVariablesForProductSearches =
+    featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
 
   if (separateQueryAndVariablesForProductSearches) {
     return B3Request.graphqlB2B({
