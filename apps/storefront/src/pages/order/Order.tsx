@@ -377,10 +377,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     queryKey: ['orderList', filterData, pagination, orderBy, getOrderStatuses],
     enabled: Boolean(filterData),
     queryFn: () =>
-      fetchList(
-        { ...filterData, ...pagination, orderBy: getOrderBy(orderBy) },
-        getOrderStatuses,
-      ),
+      fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }, getOrderStatuses),
   });
 
   return (
@@ -440,11 +437,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           onPaginationChange={setPagination}
           isInfiniteScroll={isMobile}
           renderItem={(row, index) => (
-            <OrderItemCard
-              key={row.orderId}
-              goToDetail={() => goToDetail(row, index)}
-              item={row}
-            />
+            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
           )}
           onClickRow={goToDetail}
           sortDirection={orderBy.dir}

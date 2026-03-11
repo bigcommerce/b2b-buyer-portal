@@ -1521,7 +1521,7 @@ describe('when a company customer', () => {
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
-      const row = await waitFor(() => screen.getByRole('row', { name: /66996/ }));
+      const row = await screen.findByRole('row', { name: /66996/ });
       expect(within(row).getByRole('cell', { name: 'Testing!' })).toBeVisible();
     });
 
