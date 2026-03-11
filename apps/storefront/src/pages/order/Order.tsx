@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { CustomerRole, OrderStatusItem } from '@/types';
+import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
@@ -217,10 +217,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
   }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role, selectedCompanyId]);
 
-  const fetchList = async (
-    { createdBy, ...params }: Partial<FilterSearchProps>,
-    orderStatuses: OrderStatusItem[],
-  ): Promise<{ edges: ListItem[]; totalCount: number }> => {
+  const fetchList = async ({
+    createdBy,
+    ...params
+  }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders({
           ...params,
@@ -231,15 +231,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     setAllTotal(totalCount);
 
-    const listItems: ListItem[] = edges.map((row: PossibleNodeWrapper<object>) => {
-      const order = ('node' in row ? row.node : row) as ListItem;
-      return {
-        ...order,
-        statusText: getOrderStatusText(order.status, orderStatuses),
-      };
-    });
-
-    return { edges: listItems, totalCount };
+    return {
+      edges: edges.map((row: PossibleNodeWrapper<object>) => ('node' in row ? row.node : row)),
+      totalCount,
+    };
   };
 
   const navigate = useNavigate();
@@ -374,11 +369,19 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   };
 
   const { data, isFetching } = useQuery({
-    queryKey: ['orderList', filterData, pagination, orderBy, getOrderStatuses],
+    queryKey: ['orderList', filterData, pagination, orderBy],
     enabled: Boolean(filterData),
-    queryFn: () =>
-      fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }, getOrderStatuses),
+    queryFn: () => fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }),
   });
+
+  const listItems = useMemo(
+    () =>
+      (data?.edges ?? []).map((edge) => ({
+        ...edge,
+        statusText: getOrderStatusText(edge.status, getOrderStatuses),
+      })),
+    [data?.edges, getOrderStatuses],
+  );
 
   return (
     <B3Spin isSpinning={isFetching}>
@@ -432,7 +435,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
         <B3Table
           columnItems={columnItems}
-          listItems={data?.edges || []}
+          listItems={listItems}
           pagination={{ ...pagination, count: data?.totalCount || 0 }}
           onPaginationChange={setPagination}
           isInfiniteScroll={isMobile}
