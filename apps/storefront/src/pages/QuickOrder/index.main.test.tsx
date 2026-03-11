@@ -585,28 +585,22 @@ it('can change sort order by clicking the table headers', async () => {
       }),
     );
 
-  when(searchProducts)
-    .calledWith(
-      expect.objectContaining({
-        productIds: [laughCanister.node.productId, doorStationPanel.node.productId],
-      }),
-    )
-    .thenReturn({
-      data: {
-        productsSearch: [
-          buildSearchProductWith({
-            id: Number(laughCanister.node.productId),
-            name: laughCanister.node.productName,
-            sku: laughCanister.node.sku,
-          }),
-          buildSearchProductWith({
-            id: Number(doorStationPanel.node.productId),
-            name: doorStationPanel.node.productName,
-            sku: doorStationPanel.node.sku,
-          }),
-        ],
-      },
-    });
+  searchProducts.mockReturnValue({
+    data: {
+      productsSearch: [
+        buildSearchProductWith({
+          id: Number(laughCanister.node.productId),
+          name: laughCanister.node.productName,
+          sku: laughCanister.node.sku,
+        }),
+        buildSearchProductWith({
+          id: Number(doorStationPanel.node.productId),
+          name: doorStationPanel.node.productName,
+          sku: doorStationPanel.node.sku,
+        }),
+      ],
+    },
+  });
 
   server.use(
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
@@ -935,31 +929,29 @@ it('adds a product to the cart', async () => {
       }),
     );
 
-  when(searchProducts)
-    .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-    .thenReturn({
-      data: {
-        productsSearch: [
-          buildSearchProductWith({
-            id: Number(laughCanister.node.productId),
-            name: laughCanister.node.productName,
-            sku: laughCanister.node.sku,
-            orderQuantityMaximum: 0,
-            orderQuantityMinimum: 0,
-            inventoryLevel: 100,
-            variants: [
-              buildVariantWith({
-                product_id: Number(laughCanister.node.productId),
-                variant_id: Number(laughCanister.node.variantId),
-                sku: laughCanister.node.variantSku,
-                purchasing_disabled: false,
-              }),
-              buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
-            ],
-          }),
-        ],
-      },
-    });
+  searchProducts.mockReturnValue({
+    data: {
+      productsSearch: [
+        buildSearchProductWith({
+          id: Number(laughCanister.node.productId),
+          name: laughCanister.node.productName,
+          sku: laughCanister.node.sku,
+          orderQuantityMaximum: 0,
+          orderQuantityMinimum: 0,
+          inventoryLevel: 100,
+          variants: [
+            buildVariantWith({
+              product_id: Number(laughCanister.node.productId),
+              variant_id: Number(laughCanister.node.variantId),
+              sku: laughCanister.node.variantSku,
+              purchasing_disabled: false,
+            }),
+            buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+          ],
+        }),
+      ],
+    },
+  });
 
   when(createCartSimple)
     .calledWith({
@@ -1110,31 +1102,29 @@ describe('when product purchasing_disabled', () => {
           }),
         );
 
-      when(searchProducts)
-        .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-        .thenReturn({
-          data: {
-            productsSearch: [
-              buildSearchProductWith({
-                id: Number(laughCanister.node.productId),
-                name: laughCanister.node.productName,
-                sku: laughCanister.node.sku,
-                orderQuantityMaximum: 0,
-                orderQuantityMinimum: 0,
-                inventoryLevel: 100,
-                variants: [
-                  buildVariantWith({
-                    product_id: Number(laughCanister.node.productId),
-                    variant_id: Number(laughCanister.node.variantId),
-                    sku: laughCanister.node.variantSku,
-                    purchasing_disabled: true, // This variant is not purchasable
-                  }),
-                  buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
-                ],
-              }),
-            ],
-          },
-        });
+      searchProducts.mockReturnValue({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 100,
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: true, // This variant is not purchasable
+                }),
+                buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+              ],
+            }),
+          ],
+        },
+      });
 
       when(createCartSimple)
         .calledWith({
@@ -1376,29 +1366,27 @@ describe('when the quantity is not within the min/max', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 10,
-              orderQuantityMinimum: 5,
-              inventoryTracking: 'none',
-              variants: [
-                buildVariantWith({
-                  product_id: Number(laughCanister.node.productId),
-                  variant_id: Number(laughCanister.node.variantId),
-                  sku: laughCanister.node.variantSku,
-                  purchasing_disabled: false,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 10,
+            orderQuantityMinimum: 5,
+            inventoryTracking: 'none',
+            variants: [
+              buildVariantWith({
+                product_id: Number(laughCanister.node.productId),
+                variant_id: Number(laughCanister.node.variantId),
+                sku: laughCanister.node.variantSku,
+                purchasing_disabled: false,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const addCartLineItemsTwo = vi.fn();
 
@@ -1893,22 +1881,20 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 5,
-              orderQuantityMinimum: 0,
-              inventoryTracking: 'none',
-              variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 5,
+            orderQuantityMinimum: 0,
+            inventoryTracking: 'none',
+            variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
+          }),
+        ],
+      },
+    });
 
     server.use(
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
@@ -1960,22 +1946,20 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 5,
-              orderQuantityMinimum: 0,
-              inventoryTracking: 'none',
-              variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 5,
+            orderQuantityMinimum: 0,
+            inventoryTracking: 'none',
+            variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
     when(validateProduct)
@@ -2054,27 +2038,25 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [nonPurchasableProduct.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct.node.productId),
-              sku: nonPurchasableProduct.node.variantSku,
-              name: 'Non Purchasable Product',
-              inventoryTracking: 'none',
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct.node.productId),
-                  variant_id: Number(nonPurchasableProduct.node.variantId),
-                  sku: nonPurchasableProduct.node.variantSku,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct.node.productId),
+            sku: nonPurchasableProduct.node.variantSku,
+            name: 'Non Purchasable Product',
+            inventoryTracking: 'none',
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct.node.productId),
+                variant_id: Number(nonPurchasableProduct.node.variantId),
+                sku: nonPurchasableProduct.node.variantSku,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
@@ -2171,64 +2153,54 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(
-        expect.objectContaining({
-          productIds: [
-            nonPurchasbleProduct1.node.productId,
-            nonPurchasableProduct2.node.productId,
-            nonPurchasableProduct3.node.productId,
-          ],
-        }),
-      )
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(nonPurchasbleProduct1.node.productId),
-              sku: nonPurchasbleProduct1.node.variantSku,
-              name: nonPurchasbleProduct1.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasbleProduct1.node.productId),
-                  variant_id: Number(nonPurchasbleProduct1.node.variantId),
-                  sku: nonPurchasbleProduct1.node.variantSku,
-                }),
-              ],
-            }),
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct2.node.productId),
-              sku: nonPurchasableProduct2.node.variantSku,
-              name: nonPurchasableProduct2.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct2.node.productId),
-                  variant_id: Number(nonPurchasableProduct2.node.variantId),
-                  sku: nonPurchasableProduct2.node.variantSku,
-                }),
-              ],
-            }),
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct3.node.productId),
-              sku: nonPurchasableProduct3.node.variantSku,
-              name: nonPurchasableProduct3.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct3.node.productId),
-                  variant_id: Number(nonPurchasableProduct3.node.variantId),
-                  sku: nonPurchasableProduct3.node.variantSku,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(nonPurchasbleProduct1.node.productId),
+            sku: nonPurchasbleProduct1.node.variantSku,
+            name: nonPurchasbleProduct1.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasbleProduct1.node.productId),
+                variant_id: Number(nonPurchasbleProduct1.node.variantId),
+                sku: nonPurchasbleProduct1.node.variantSku,
+              }),
+            ],
+          }),
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct2.node.productId),
+            sku: nonPurchasableProduct2.node.variantSku,
+            name: nonPurchasableProduct2.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct2.node.productId),
+                variant_id: Number(nonPurchasableProduct2.node.variantId),
+                sku: nonPurchasableProduct2.node.variantSku,
+              }),
+            ],
+          }),
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct3.node.productId),
+            sku: nonPurchasableProduct3.node.variantSku,
+            name: nonPurchasableProduct3.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct3.node.productId),
+                variant_id: Number(nonPurchasableProduct3.node.variantId),
+                sku: nonPurchasableProduct3.node.variantSku,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
@@ -2560,24 +2532,22 @@ describe('when backorder validation is enabled', () => {
       inventory_level: 100,
     });
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
-              inventoryLevel: 2, // This product is out of stock
-              inventoryTracking: 'product',
-              variants: [variant],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 0,
+            orderQuantityMinimum: 0,
+            inventoryLevel: 2, // This product is out of stock
+            inventoryTracking: 'product',
+            variants: [variant],
+          }),
+        ],
+      },
+    });
 
     const createCartSimple = vi.fn();
 
@@ -2822,24 +2792,22 @@ describe('when backorder validation is enabled', () => {
       inventory_level: 100,
     });
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
-              inventoryLevel: 2,
-              inventoryTracking: 'product',
-              variants: [variant],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 0,
+            orderQuantityMinimum: 0,
+            inventoryLevel: 2,
+            inventoryTracking: 'product',
+            variants: [variant],
+          }),
+        ],
+      },
+    });
 
     const addCartLineItemsTwo = vi.fn();
 
@@ -3828,30 +3796,28 @@ describe('when backorder validation is enabled', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 10,
-              orderQuantityMinimum: 5,
-              inventoryLevel: 100,
-              variants: [
-                buildVariantWith({
-                  product_id: Number(laughCanister.node.productId),
-                  variant_id: Number(laughCanister.node.variantId),
-                  sku: laughCanister.node.variantSku,
-                  purchasing_disabled: false,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 10,
+            orderQuantityMinimum: 5,
+            inventoryLevel: 100,
+            variants: [
+              buildVariantWith({
+                product_id: Number(laughCanister.node.productId),
+                variant_id: Number(laughCanister.node.variantId),
+                sku: laughCanister.node.variantSku,
+                purchasing_disabled: false,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     when(createCartSimple)
       .calledWith({
