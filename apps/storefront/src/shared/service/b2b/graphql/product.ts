@@ -425,11 +425,11 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       search: data.search || '',
       productIds: data.productIds || [],
       currencyCode: data?.currencyCode || currencyCode,
-      companyId: data.companyId || '',
+      companyId: data.companyId ? String(data.companyId) : '',
       storeHash,
       channelId,
       customerGroupId: data.customerGroupId || 0,
-      categoryFilter: data?.categoryFilter ?? false,
+      categoryFilter: data?.categoryFilter ?? null,
     },
   });
 };
