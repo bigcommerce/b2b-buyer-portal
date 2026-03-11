@@ -17,6 +17,7 @@ interface ListItem {
   lastName: string;
   poNumber?: string;
   status: string;
+  statusText?: string;
   totalIncTax: string;
   createdAt: string;
 }
@@ -74,7 +75,7 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
             </Typography>
           </Box>
           <Box>
-            <OrderStatus code={item.status} />
+            <OrderStatus code={item.status} text={item.statusText} />
           </Box>
         </Flex>
 

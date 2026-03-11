@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -54,6 +54,7 @@ interface ListItem {
   money?: string;
   totalIncTax: string;
   status: string;
+  statusText?: string;
   createdAt: string;
   companyName: string;
   companyInfo?: CompanyInfoProps;
@@ -292,9 +293,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'status',
       title: b3Lang('orders.orderStatus'),
-      render: ({ status }) => (
-        <OrderStatus text={getOrderStatusText(status, getOrderStatuses)} code={status} />
-      ),
+      render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
       width: '10%',
       isSortable: true,
     },
@@ -375,6 +374,15 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     queryFn: () => fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }),
   });
 
+  const listItems = useMemo(
+    () =>
+      (data?.edges ?? []).map((edge) => ({
+        ...edge,
+        statusText: getOrderStatusText(edge.status, getOrderStatuses),
+      })),
+    [data?.edges, getOrderStatuses],
+  );
+
   return (
     <B3Spin isSpinning={isFetching}>
       <Box
@@ -427,7 +435,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
         <B3Table
           columnItems={columnItems}
-          listItems={data?.edges || []}
+          listItems={listItems}
           pagination={{ ...pagination, count: data?.totalCount || 0 }}
           onPaginationChange={setPagination}
           isInfiniteScroll={isMobile}
