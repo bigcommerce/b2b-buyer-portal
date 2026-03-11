@@ -9,7 +9,7 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
-import { CustomerRole } from '@/types';
+import { CustomerRole, UserTypes } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -71,7 +71,7 @@ describe('LoginPage', () => {
       });
     });
 
-    it('should redirect SuperAdmin to /dashboard after successful login', async () => {
+    it('redirects SuperAdmin to /dashboard after successful login', async () => {
       vi.mock('@/hooks/useB2BCallback');
 
       server.use(
@@ -91,8 +91,8 @@ describe('LoginPage', () => {
       );
 
       vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
-        userType: 3,
-        role: 3,
+        userType: UserTypes.MULTIPLE_B2C,
+        role: CustomerRole.SUPER_ADMIN,
         companyRoleName: 'SuperAdmin',
       });
 
@@ -107,8 +107,10 @@ describe('LoginPage', () => {
       });
 
       await waitFor(() => {
-        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/dashboard'));
+        expect(navigation).toHaveBeenCalledTimes(1);
       });
+      expect(navigation).toHaveBeenCalledWith('/dashboard');
+      expect(navigation).not.toHaveBeenCalledWith('/orders');
     });
   });
 
