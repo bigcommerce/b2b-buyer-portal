@@ -483,10 +483,13 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
     });
   }
   return B3Request.graphqlB2B({
-    query: getSearchProductsQuery({
-      ...data,
-      currencyCode: data?.currencyCode || currencyCode,
-    }, false),
+    query: getSearchProductsQuery(
+      {
+        ...data,
+        currencyCode: data?.currencyCode || currencyCode,
+      },
+      false,
+    ),
   });
 };
 
