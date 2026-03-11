@@ -17,6 +17,7 @@ interface ListItem {
   lastName: string;
   poNumber?: string;
   status: string;
+  statusText?: string;
   totalIncTax: string;
   createdAt: string;
 }
@@ -24,7 +25,6 @@ interface ListItem {
 interface OrderItemCardProps {
   goToDetail: () => void;
   item: ListItem;
-  getStatusText: (status: string) => string;
 }
 
 const Flex = styled('div')(() => ({
@@ -35,7 +35,7 @@ const Flex = styled('div')(() => ({
   },
 }));
 
-export function OrderItemCard({ item, goToDetail, getStatusText }: OrderItemCardProps) {
+export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
   const theme = useTheme();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const customer = useAppSelector(({ company }) => company.customer);
@@ -75,7 +75,7 @@ export function OrderItemCard({ item, goToDetail, getStatusText }: OrderItemCard
             </Typography>
           </Box>
           <Box>
-            <OrderStatus code={item.status} text={getStatusText(item.status)} />
+            <OrderStatus code={item.status} text={item.statusText} />
           </Box>
         </Flex>
 

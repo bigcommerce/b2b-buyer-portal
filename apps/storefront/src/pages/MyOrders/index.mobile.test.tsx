@@ -1201,9 +1201,9 @@ describe('when a company customer', () => {
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
-      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-      expect(screen.getByText('Testing!')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Testing!')).toBeVisible();
+      });
     });
 
     it('navigates to the order details page when clicking on an element', async () => {

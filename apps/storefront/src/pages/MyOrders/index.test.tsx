@@ -1521,10 +1521,8 @@ describe('when a company customer', () => {
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
-      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-      const row = screen.getByRole('row', { name: /66996/ });
-      expect(within(row).getByRole('cell', { name: 'Testing!' })).toBeInTheDocument();
+      const row = await waitFor(() => screen.getByRole('row', { name: /66996/ }));
+      expect(within(row).getByRole('cell', { name: 'Testing!' })).toBeVisible();
     });
 
     it('navigates to the order details page when clicking on a row', async () => {

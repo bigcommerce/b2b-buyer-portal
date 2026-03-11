@@ -9,7 +9,7 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { CustomerRole } from '@/types';
+import { CustomerRole, OrderStatusItem } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
@@ -54,6 +54,7 @@ interface ListItem {
   money?: string;
   totalIncTax: string;
   status: string;
+  statusText?: string;
   createdAt: string;
   companyName: string;
   companyInfo?: CompanyInfoProps;
@@ -216,10 +217,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
   }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role, selectedCompanyId]);
 
-  const fetchList = async ({
-    createdBy,
-    ...params
-  }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
+  const fetchList = async (
+    { createdBy, ...params }: Partial<FilterSearchProps>,
+    orderStatuses: OrderStatusItem[],
+  ): Promise<{ edges: ListItem[]; totalCount: number }> => {
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders({
           ...params,
@@ -230,10 +231,15 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     setAllTotal(totalCount);
 
-    return {
-      edges: edges.map((row: PossibleNodeWrapper<object>) => ('node' in row ? row.node : row)),
-      totalCount,
-    };
+    const listItems: ListItem[] = edges.map((row: PossibleNodeWrapper<object>) => {
+      const order = ('node' in row ? row.node : row) as ListItem;
+      return {
+        ...order,
+        statusText: getOrderStatusText(order.status, orderStatuses),
+      };
+    });
+
+    return { edges: listItems, totalCount };
   };
 
   const navigate = useNavigate();
@@ -292,9 +298,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'status',
       title: b3Lang('orders.orderStatus'),
-      render: ({ status }) => (
-        <OrderStatus text={getOrderStatusText(status, getOrderStatuses)} code={status} />
-      ),
+      render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
       width: '10%',
       isSortable: true,
     },
@@ -370,9 +374,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   };
 
   const { data, isFetching } = useQuery({
-    queryKey: ['orderList', filterData, pagination, orderBy],
+    queryKey: ['orderList', filterData, pagination, orderBy, getOrderStatuses],
     enabled: Boolean(filterData),
-    queryFn: () => fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }),
+    queryFn: () =>
+      fetchList(
+        { ...filterData, ...pagination, orderBy: getOrderBy(orderBy) },
+        getOrderStatuses,
+      ),
   });
 
   return (
@@ -436,7 +444,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               key={row.orderId}
               goToDetail={() => goToDetail(row, index)}
               item={row}
-              getStatusText={(status) => getOrderStatusText(status, getOrderStatuses)}
             />
           )}
           onClickRow={goToDetail}
