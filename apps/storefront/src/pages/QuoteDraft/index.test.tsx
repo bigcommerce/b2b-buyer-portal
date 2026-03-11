@@ -1068,7 +1068,7 @@ describe('when the user is a B2B customer', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1209,7 +1209,7 @@ describe('when the user is a B2B customer', () => {
     });
 
     when(searchProducts)
-      .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+      .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -2453,7 +2453,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2571,7 +2571,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2692,7 +2692,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2817,7 +2817,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2942,7 +2942,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3068,7 +3068,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister', currencyCode: 'USD' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3178,7 +3178,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+          .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3314,7 +3314,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+          .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3450,7 +3450,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+          .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3591,7 +3591,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+          .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -4961,7 +4961,7 @@ describe('when the user is a B2B customer', () => {
       });
 
       when(searchProducts)
-        .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+        .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
         .thenReturn({
           data: {
             productsSearch: [
@@ -5072,7 +5072,7 @@ describe('when the user is a B2B customer', () => {
       });
 
       when(searchProducts)
-        .calledWith(expect.stringContaining(`productIds: [${variant.product_id}]`))
+        .calledWith(expect.objectContaining({ productIds: [variant.product_id] }))
         .thenReturn({
           data: {
             productsSearch: [
