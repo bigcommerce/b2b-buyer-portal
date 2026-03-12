@@ -30,6 +30,7 @@ import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
+import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
 import {
   isB2BUserSelector,
@@ -176,6 +177,7 @@ export default function App() {
         await Promise.allSettled([
           getGlobalStoreTax(),
           setStorefrontConfig(dispatch),
+          getStoreSettings(),
           getCompanyInfo(role, b2bId),
         ]);
 

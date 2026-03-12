@@ -58,6 +58,9 @@ const buildQuoteProductWith = builder<QuoteProduct>(() => ({
   costPrice: faker.commerce.price(),
   inventoryTracking: faker.lorem.word(),
   inventoryLevel: faker.number.int(),
+  backorderMessage: undefined,
+  totalOnHand: undefined,
+  quantityBackordered: undefined,
 }));
 
 const buildProductSearchWith = builder<ProductSearch>(() => ({
@@ -1407,6 +1410,101 @@ describe('when the user is a B2B customer', () => {
         expect(sessionStorage.getItem('quoteCheckoutId')).toEqual(id);
         expect(sessionStorage.getItem('quoteDate')).toEqual(dateString);
       });
+    });
+  });
+
+  describe('backorder details toggle', () => {
+    const backorderPreloadedState = {
+      ...preloadedState,
+      global: buildGlobalStateWith({
+        backorderEnabled: true,
+        backorderDisplaySettings: {
+          showQuantityOnBackorder: true,
+          showQuantityOnHand: true,
+          showBackorderMessage: true,
+        },
+      }),
+    };
+
+    beforeEach(() => {
+      server.use(
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('ValidateProduct', () =>
+          HttpResponse.json({
+            data: { validateProduct: { responseType: 'SUCCESS', message: '' } },
+          }),
+        ),
+      );
+    });
+
+    it('does not show the toggle when no products have backordered quantities', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [buildQuoteProductWith({ quantityBackordered: 0 })],
+          },
+        },
+      });
+
+      server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.queryByText(/backorder details/i)).not.toBeInTheDocument();
+    });
+
+    it('shows the toggle when at least one product has backordered quantities', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [buildQuoteProductWith({ quantityBackordered: 3 })],
+          },
+        },
+      });
+
+      server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(await screen.findByText(/backorder details/i)).toBeInTheDocument();
+    });
+
+    it('does not show the toggle when backorders are disabled', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [buildQuoteProductWith({ quantityBackordered: 3 })],
+          },
+        },
+      });
+
+      server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({ backorderEnabled: false }),
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.queryByText(/backorder details/i)).not.toBeInTheDocument();
     });
   });
 });

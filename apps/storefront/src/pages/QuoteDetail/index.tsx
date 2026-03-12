@@ -908,11 +908,13 @@ function QuoteDetail() {
             >
               <QuoteDetailTable
                 total={productList.length}
+                productList={productList}
                 currency={quoteDetail.currency}
                 quoteReviewedBySalesRep={quoteReviewedBySalesRep}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
+                status={quoteDetail.status}
               />
             </Box>
           </Grid>

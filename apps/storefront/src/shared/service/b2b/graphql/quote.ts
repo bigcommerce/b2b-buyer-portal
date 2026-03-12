@@ -229,6 +229,9 @@ const getQuoteInfo = `
         costPrice,
         inventoryTracking,
         inventoryLevel,
+        backorderMessage,
+        totalOnHand,
+        quantityBackordered,
       },
       storefrontAttachFiles {
         id,
@@ -616,6 +619,9 @@ export interface B2BQuoteDetail {
         costPrice: string;
         inventoryTracking: string;
         inventoryLevel: number;
+        backorderMessage?: string;
+        totalOnHand?: number;
+        quantityBackordered?: number;
       }[];
       storefrontAttachFiles: unknown[];
       backendAttachFiles: unknown[];

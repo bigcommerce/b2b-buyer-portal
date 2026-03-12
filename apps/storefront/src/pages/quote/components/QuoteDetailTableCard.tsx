@@ -1,5 +1,6 @@
 import { Box, CardContent, styled, Typography } from '@mui/material';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
@@ -14,6 +15,8 @@ interface QuoteTableCardProps {
   showPrice: (price: string, row: CustomFieldItems) => string | number;
   displayDiscount: boolean;
   currency: CurrencyProps;
+  showBackorderDetails?: boolean;
+  status?: string | number;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -31,11 +34,15 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     showPrice,
     currency,
     displayDiscount,
+    showBackorderDetails = false,
+    status,
   } = props;
+  const isOrdered = Number(status) === 4;
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
+  const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
 
   const {
     basePrice,
@@ -46,6 +53,9 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     sku,
     notes,
     offeredPrice,
+    backorderMessage,
+    quantityBackordered,
+    totalOnHand,
     productsSearch: { productUrl, variants = [], taxClassId },
   } = quoteTableItem;
 
@@ -135,7 +145,14 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-
+          {isBackorderEnabled && !isOrdered && (
+            <BackorderMessage
+              totalOnHand={totalOnHand}
+              quantityBackordered={quantityBackordered}
+              backorderMessage={backorderMessage}
+              visible={showBackorderDetails}
+            />
+          )}
           <Typography
             sx={{
               fontSize: '14px',
@@ -180,7 +197,6 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           >
             {b3Lang('quoteDetail.tableCard.qty', { quantity })}
           </Typography>
-
           <Typography
             sx={{
               fontSize: '14px',

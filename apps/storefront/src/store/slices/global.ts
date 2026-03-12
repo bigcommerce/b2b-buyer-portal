@@ -60,6 +60,12 @@ interface QuoteSubmissionResponseProps {
   title: string;
 }
 
+export interface BackorderDisplaySettings {
+  showQuantityOnBackorder: boolean;
+  showQuantityOnHand: boolean;
+  showBackorderMessage: boolean;
+}
+
 export interface GlobalState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
@@ -79,6 +85,7 @@ export interface GlobalState {
   isOpenCompanyHierarchyDropDown: boolean;
   featureFlags: FeatureFlags;
   backorderEnabled: boolean;
+  backorderDisplaySettings: BackorderDisplaySettings;
 }
 
 export const initialState: GlobalState = {
@@ -116,6 +123,11 @@ export const initialState: GlobalState = {
   loginLandingLocation: LOGIN_LANDING_LOCATIONS.BUYER_PORTAL,
   recordOpenHash: '',
   backorderEnabled: false,
+  backorderDisplaySettings: {
+    showQuantityOnBackorder: false,
+    showQuantityOnHand: false,
+    showBackorderMessage: false,
+  },
   quoteSubmissionResponse: {
     value: '0',
     key: 'quote_submission_response',
@@ -186,6 +198,15 @@ export const globalSlice = createSlice({
     setBackorderEnabled: (state, { payload }: PayloadAction<boolean>) => {
       state.backorderEnabled = payload;
     },
+    setBackorderDisplaySettings: (
+      state,
+      { payload }: PayloadAction<Partial<BackorderDisplaySettings>>,
+    ) => {
+      state.backorderDisplaySettings = {
+        ...state.backorderDisplaySettings,
+        ...payload,
+      };
+    },
   },
 });
 
@@ -204,6 +225,7 @@ export const {
   setOpenCompanyHierarchyDropDown,
   setFeatureFlags,
   setBackorderEnabled,
+  setBackorderDisplaySettings,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

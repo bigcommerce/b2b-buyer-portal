@@ -1,6 +1,7 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
-import { Box, styled, Typography } from '@mui/material';
+import { Box, FormControlLabel, styled, Switch, Typography } from '@mui/material';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
@@ -31,6 +32,9 @@ interface ProductInfoProps {
   variantSku: string;
   productsSearch: CustomFieldItems;
   offeredPrice: number | string;
+  backorderMessage?: string;
+  totalOnHand?: number;
+  quantityBackordered?: number;
 }
 
 interface ListItemProps {
@@ -39,11 +43,13 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   total: number;
+  productList: ProductInfoProps[];
   getQuoteTableDetails: GetRequestList<SearchProps, ProductInfoProps>;
   quoteReviewedBySalesRep: boolean;
   getTaxRate: (taxClassId: number, variants: any) => number;
   displayDiscount: boolean;
   currency: CurrencyProps;
+  status: string | number;
 }
 
 interface SearchProps {
@@ -100,16 +106,22 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const b3Lang = useB3Lang();
   const {
     total,
+    productList,
     getQuoteTableDetails,
     getTaxRate,
     quoteReviewedBySalesRep,
     displayDiscount,
     currency,
+    status,
   } = props;
+  const isOrdered = Number(status) === 4;
 
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
+  const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
+  const backorderDisplaySettings = useAppSelector(({ global }) => global.backorderDisplaySettings);
+  const hasAnyBackorderDisplay = Object.values(backorderDisplaySettings).some(Boolean);
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -120,6 +132,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     first: 12,
     offset: 0,
   });
+
+  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+
+  const hasBackorderedItems = productList.some((item) => (item.quantityBackordered ?? 0) > 0);
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
@@ -290,17 +306,22 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Qty',
       title: b3Lang('quoteDetail.table.qty'),
       render: (row) => (
-        <Typography
-          sx={{
-            padding: '12px 0',
-          }}
-        >
-          {row.quantity}
-        </Typography>
+        <Box>
+          <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
+          {isBackorderEnabled && !isOrdered && (
+            <BackorderMessage
+              totalOnHand={row.totalOnHand}
+              quantityBackordered={row.quantityBackordered}
+              backorderMessage={row.backorderMessage}
+              visible={showBackorderDetails}
+            />
+          )}
+        </Box>
       ),
-      width: '15%',
+      width: '130px',
       style: {
-        textAlign: 'right',
+        textAlign: 'left',
+        minWidth: '130px',
       },
     },
     {
@@ -390,6 +411,19 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         >
           {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
+        {isBackorderEnabled && !isOrdered && hasAnyBackorderDisplay && hasBackorderedItems && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showBackorderDetails}
+                onChange={(e) => setShowBackorderDetails(e.target.checked)}
+              />
+            }
+            label={b3Lang('quoteDetail.table.backorderDetails')}
+            labelPlacement="start"
+            sx={{ mr: 0, gap: '0.5rem' }}
+          />
+        )}
       </Box>
       <B3PaginationTable
         ref={paginationTableRef}
@@ -413,6 +447,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             currency={currency}
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
+            showBackorderDetails={showBackorderDetails}
+            status={status}
           />
         )}
       />
