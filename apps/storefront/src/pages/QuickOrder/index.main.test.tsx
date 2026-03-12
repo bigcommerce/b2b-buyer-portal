@@ -450,7 +450,7 @@ it('displays a table with product information', async () => {
     );
 
   when(searchProducts)
-    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
     .thenReturn({
       data: {
         productsSearch: [
@@ -467,7 +467,9 @@ it('displays a table with product information', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -518,7 +520,7 @@ it('displays all the information associated with the products', async () => {
     );
 
   when(searchProducts)
-    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
     .thenReturn({
       data: {
         productsSearch: [
@@ -536,7 +538,9 @@ it('displays all the information associated with the products', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -581,30 +585,30 @@ it('can change sort order by clicking the table headers', async () => {
       }),
     );
 
-  when(searchProducts)
-    .calledWith(stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId))
-    .thenReturn({
-      data: {
-        productsSearch: [
-          buildSearchProductWith({
-            id: Number(laughCanister.node.productId),
-            name: laughCanister.node.productName,
-            sku: laughCanister.node.sku,
-          }),
-          buildSearchProductWith({
-            id: Number(doorStationPanel.node.productId),
-            name: doorStationPanel.node.productName,
-            sku: doorStationPanel.node.sku,
-          }),
-        ],
-      },
-    });
+  searchProducts.mockReturnValue({
+    data: {
+      productsSearch: [
+        buildSearchProductWith({
+          id: Number(laughCanister.node.productId),
+          name: laughCanister.node.productName,
+          sku: laughCanister.node.sku,
+        }),
+        buildSearchProductWith({
+          id: Number(doorStationPanel.node.productId),
+          name: doorStationPanel.node.productName,
+          sku: doorStationPanel.node.sku,
+        }),
+      ],
+    },
+  });
 
   server.use(
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -667,7 +671,7 @@ it('can filter products by date-range and search', async () => {
     });
 
   when(searchProducts)
-    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
     .thenReturn({
       data: {
         productsSearch: [
@@ -684,7 +688,9 @@ it('can filter products by date-range and search', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -727,7 +733,7 @@ it('recalculates product price when quantity is modified', async () => {
     });
 
   when(searchProducts)
-    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+    .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
     .thenReturn({
       data: {
         productsSearch: [
@@ -745,7 +751,9 @@ it('recalculates product price when quantity is modified', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -784,7 +792,11 @@ it('updates the subtotal when products are selected', async () => {
     );
 
   when(searchProducts)
-    .calledWith(stringContainingAll(laughCanister.node.productId, doorStationPanel.node.productId))
+    .calledWith(
+      expect.objectContaining({
+        productIds: [laughCanister.node.productId, doorStationPanel.node.productId],
+      }),
+    )
     .thenReturn({
       data: {
         productsSearch: [
@@ -806,7 +818,9 @@ it('updates the subtotal when products are selected', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
   );
 
   renderWithProviders(<QuickOrder />, { preloadedState });
@@ -845,7 +859,7 @@ describe('when the user has permission to purchase but quote/shoppingList are di
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -862,7 +876,9 @@ describe('when the user has permission to purchase but quote/shoppingList are di
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
     );
 
     renderWithProviders(<QuickOrder />, {
@@ -913,31 +929,29 @@ it('adds a product to the cart', async () => {
       }),
     );
 
-  when(searchProducts)
-    .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-    .thenReturn({
-      data: {
-        productsSearch: [
-          buildSearchProductWith({
-            id: Number(laughCanister.node.productId),
-            name: laughCanister.node.productName,
-            sku: laughCanister.node.sku,
-            orderQuantityMaximum: 0,
-            orderQuantityMinimum: 0,
-            inventoryLevel: 100,
-            variants: [
-              buildVariantWith({
-                product_id: Number(laughCanister.node.productId),
-                variant_id: Number(laughCanister.node.variantId),
-                sku: laughCanister.node.variantSku,
-                purchasing_disabled: false,
-              }),
-              buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
-            ],
-          }),
-        ],
-      },
-    });
+  searchProducts.mockReturnValue({
+    data: {
+      productsSearch: [
+        buildSearchProductWith({
+          id: Number(laughCanister.node.productId),
+          name: laughCanister.node.productName,
+          sku: laughCanister.node.sku,
+          orderQuantityMaximum: 0,
+          orderQuantityMinimum: 0,
+          inventoryLevel: 100,
+          variants: [
+            buildVariantWith({
+              product_id: Number(laughCanister.node.productId),
+              variant_id: Number(laughCanister.node.variantId),
+              sku: laughCanister.node.variantSku,
+              purchasing_disabled: false,
+            }),
+            buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+          ],
+        }),
+      ],
+    },
+  });
 
   when(createCartSimple)
     .calledWith({
@@ -964,7 +978,9 @@ it('adds a product to the cart', async () => {
     graphql.query('RecentlyOrderedProducts', ({ query }) =>
       HttpResponse.json(getRecentlyOrderedProducts(query)),
     ),
-    graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+    graphql.query('SearchProducts', ({ variables }) =>
+      HttpResponse.json(searchProducts(variables)),
+    ),
     graphql.query('getCart', () => HttpResponse.json(getCart())),
     graphql.mutation('createCartSimple', ({ variables }) =>
       HttpResponse.json(createCartSimple(variables)),
@@ -1010,7 +1026,7 @@ describe('when product purchasing_disabled', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1039,7 +1055,9 @@ describe('when product purchasing_disabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
@@ -1084,31 +1102,29 @@ describe('when product purchasing_disabled', () => {
           }),
         );
 
-      when(searchProducts)
-        .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-        .thenReturn({
-          data: {
-            productsSearch: [
-              buildSearchProductWith({
-                id: Number(laughCanister.node.productId),
-                name: laughCanister.node.productName,
-                sku: laughCanister.node.sku,
-                orderQuantityMaximum: 0,
-                orderQuantityMinimum: 0,
-                inventoryLevel: 100,
-                variants: [
-                  buildVariantWith({
-                    product_id: Number(laughCanister.node.productId),
-                    variant_id: Number(laughCanister.node.variantId),
-                    sku: laughCanister.node.variantSku,
-                    purchasing_disabled: true, // This variant is not purchasable
-                  }),
-                  buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
-                ],
-              }),
-            ],
-          },
-        });
+      searchProducts.mockReturnValue({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 100,
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: Number(laughCanister.node.variantId),
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: true, // This variant is not purchasable
+                }),
+                buildVariantWith({ product_id: Number(laughCanister.node.productId) }),
+              ],
+            }),
+          ],
+        },
+      });
 
       when(createCartSimple)
         .calledWith({
@@ -1135,7 +1151,9 @@ describe('when product purchasing_disabled', () => {
         graphql.query('RecentlyOrderedProducts', ({ query }) =>
           HttpResponse.json(getRecentlyOrderedProducts(query)),
         ),
-        graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+        graphql.query('SearchProducts', ({ variables }) =>
+          HttpResponse.json(searchProducts(variables)),
+        ),
         graphql.query('getCart', () => HttpResponse.json(getCart())),
         graphql.mutation('createCartSimple', ({ variables }) =>
           HttpResponse.json(createCartSimple(variables)),
@@ -1190,7 +1208,7 @@ describe('when the product does not have enough stock', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1220,7 +1238,9 @@ describe('when the product does not have enough stock', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
@@ -1266,7 +1286,7 @@ describe('when the product does not have enough stock', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1297,7 +1317,9 @@ describe('when the product does not have enough stock', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
@@ -1344,29 +1366,27 @@ describe('when the quantity is not within the min/max', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 10,
-              orderQuantityMinimum: 5,
-              inventoryTracking: 'none',
-              variants: [
-                buildVariantWith({
-                  product_id: Number(laughCanister.node.productId),
-                  variant_id: Number(laughCanister.node.variantId),
-                  sku: laughCanister.node.variantSku,
-                  purchasing_disabled: false,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 10,
+            orderQuantityMinimum: 5,
+            inventoryTracking: 'none',
+            variants: [
+              buildVariantWith({
+                product_id: Number(laughCanister.node.productId),
+                variant_id: Number(laughCanister.node.variantId),
+                sku: laughCanister.node.variantSku,
+                purchasing_disabled: false,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const addCartLineItemsTwo = vi.fn();
 
@@ -1395,7 +1415,9 @@ describe('when the quantity is not within the min/max', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(
           buildGetCartWith({
@@ -1457,7 +1479,7 @@ describe('when the quantity is not within the min/max', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1476,7 +1498,9 @@ describe('when the quantity is not within the min/max', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
     );
 
@@ -1515,7 +1539,7 @@ describe('when the quantity is not within the min/max', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1534,7 +1558,9 @@ describe('when the quantity is not within the min/max', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
     );
 
@@ -1578,7 +1604,7 @@ describe('when the quantity is not within the min/max', () => {
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1605,7 +1631,9 @@ describe('when the quantity is not within the min/max', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(
           buildGetCartWith({
@@ -1674,7 +1702,7 @@ describe('when the user has no permissions to purchase but shoppingList and quot
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1691,7 +1719,9 @@ describe('when the user has no permissions to purchase but shoppingList and quot
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
     );
 
     renderWithProviders(<QuickOrder />, {
@@ -1743,7 +1773,7 @@ describe('when the user does not have permissions to purchase and shopping list/
       );
 
     when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .calledWith(expect.objectContaining({ productIds: [laughCanister.node.productId] }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1760,7 +1790,9 @@ describe('when the user does not have permissions to purchase and shopping list/
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
     );
 
     const preloadedState = {
@@ -1849,28 +1881,28 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 5,
-              orderQuantityMinimum: 0,
-              inventoryTracking: 'none',
-              variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 5,
+            orderQuantityMinimum: 0,
+            inventoryTracking: 'none',
+            variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
+          }),
+        ],
+      },
+    });
 
     server.use(
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
     );
 
@@ -1914,22 +1946,20 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              sku: 'SKU-123',
-              orderQuantityMaximum: 5,
-              orderQuantityMinimum: 0,
-              inventoryTracking: 'none',
-              variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            sku: 'SKU-123',
+            orderQuantityMaximum: 5,
+            orderQuantityMinimum: 0,
+            inventoryTracking: 'none',
+            variants: [buildVariantWith({ sku: laughCanister.node.variantSku })],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
     when(validateProduct)
@@ -1954,7 +1984,9 @@ describe('when adding to quote', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
       graphql.query('ValidateProduct', ({ variables }) =>
         HttpResponse.json(validateProduct(variables)),
@@ -2006,27 +2038,25 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${nonPurchasableProduct.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct.node.productId),
-              sku: nonPurchasableProduct.node.variantSku,
-              name: 'Non Purchasable Product',
-              inventoryTracking: 'none',
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct.node.productId),
-                  variant_id: Number(nonPurchasableProduct.node.variantId),
-                  sku: nonPurchasableProduct.node.variantSku,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct.node.productId),
+            sku: nonPurchasableProduct.node.variantSku,
+            name: 'Non Purchasable Product',
+            inventoryTracking: 'none',
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct.node.productId),
+                variant_id: Number(nonPurchasableProduct.node.variantId),
+                sku: nonPurchasableProduct.node.variantSku,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
@@ -2061,7 +2091,9 @@ describe('when adding to quote', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
       graphql.query('priceProducts', () => HttpResponse.json({ data: priceProductsResponse })),
       graphql.query('ValidateProduct', ({ variables }) =>
@@ -2121,60 +2153,54 @@ describe('when adding to quote', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(
-        stringContainingAll(
-          `productIds: [${nonPurchasbleProduct1.node.productId},${nonPurchasableProduct2.node.productId},${nonPurchasableProduct3.node.productId}]`,
-        ),
-      )
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(nonPurchasbleProduct1.node.productId),
-              sku: nonPurchasbleProduct1.node.variantSku,
-              name: nonPurchasbleProduct1.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasbleProduct1.node.productId),
-                  variant_id: Number(nonPurchasbleProduct1.node.variantId),
-                  sku: nonPurchasbleProduct1.node.variantSku,
-                }),
-              ],
-            }),
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct2.node.productId),
-              sku: nonPurchasableProduct2.node.variantSku,
-              name: nonPurchasableProduct2.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct2.node.productId),
-                  variant_id: Number(nonPurchasableProduct2.node.variantId),
-                  sku: nonPurchasableProduct2.node.variantSku,
-                }),
-              ],
-            }),
-            buildSearchProductWith({
-              id: Number(nonPurchasableProduct3.node.productId),
-              sku: nonPurchasableProduct3.node.variantSku,
-              name: nonPurchasableProduct3.node.productName,
-              inventoryTracking: 'none',
-              optionsV3: [],
-              variants: [
-                buildVariantWith({
-                  product_id: Number(nonPurchasableProduct3.node.productId),
-                  variant_id: Number(nonPurchasableProduct3.node.variantId),
-                  sku: nonPurchasableProduct3.node.variantSku,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(nonPurchasbleProduct1.node.productId),
+            sku: nonPurchasbleProduct1.node.variantSku,
+            name: nonPurchasbleProduct1.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasbleProduct1.node.productId),
+                variant_id: Number(nonPurchasbleProduct1.node.variantId),
+                sku: nonPurchasbleProduct1.node.variantSku,
+              }),
+            ],
+          }),
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct2.node.productId),
+            sku: nonPurchasableProduct2.node.variantSku,
+            name: nonPurchasableProduct2.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct2.node.productId),
+                variant_id: Number(nonPurchasableProduct2.node.variantId),
+                sku: nonPurchasableProduct2.node.variantSku,
+              }),
+            ],
+          }),
+          buildSearchProductWith({
+            id: Number(nonPurchasableProduct3.node.productId),
+            sku: nonPurchasableProduct3.node.variantSku,
+            name: nonPurchasableProduct3.node.productName,
+            inventoryTracking: 'none',
+            optionsV3: [],
+            variants: [
+              buildVariantWith({
+                product_id: Number(nonPurchasableProduct3.node.productId),
+                variant_id: Number(nonPurchasableProduct3.node.variantId),
+                sku: nonPurchasableProduct3.node.variantSku,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
 
@@ -2260,7 +2286,9 @@ describe('when adding to quote', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(buildGetCartWith('WHATEVER_VALUES'))),
       graphql.query('priceProducts', () => HttpResponse.json({ data: priceProductsResponse })),
       graphql.query('ValidateProduct', ({ variables }) =>
@@ -2504,24 +2532,22 @@ describe('when backorder validation is enabled', () => {
       inventory_level: 100,
     });
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
-              inventoryLevel: 2, // This product is out of stock
-              inventoryTracking: 'product',
-              variants: [variant],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 0,
+            orderQuantityMinimum: 0,
+            inventoryLevel: 2, // This product is out of stock
+            inventoryTracking: 'product',
+            variants: [variant],
+          }),
+        ],
+      },
+    });
 
     const createCartSimple = vi.fn();
 
@@ -2555,7 +2581,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
       ),
@@ -2618,7 +2646,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Out of Stock Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Out of Stock Product', currencyCode: 'USD' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -2699,7 +2727,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -2762,24 +2792,22 @@ describe('when backorder validation is enabled', () => {
       inventory_level: 100,
     });
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 0,
-              orderQuantityMinimum: 0,
-              inventoryLevel: 2,
-              inventoryTracking: 'product',
-              variants: [variant],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 0,
+            orderQuantityMinimum: 0,
+            inventoryLevel: 2,
+            inventoryTracking: 'product',
+            variants: [variant],
+          }),
+        ],
+      },
+    });
 
     const addCartLineItemsTwo = vi.fn();
 
@@ -2816,7 +2844,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () =>
         HttpResponse.json(
           buildGetCartWith({
@@ -2896,7 +2926,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Min Quantity Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Min Quantity Product', currencyCode: 'USD' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -2977,7 +3007,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -3040,7 +3072,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Max Quantity Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Max Quantity Product', currencyCode: 'USD' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -3107,7 +3139,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -3198,7 +3232,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -3298,7 +3334,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -3355,7 +3393,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -3450,7 +3490,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -3591,7 +3633,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -3752,30 +3796,28 @@ describe('when backorder validation is enabled', () => {
         }),
       );
 
-    when(searchProducts)
-      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
-      .thenReturn({
-        data: {
-          productsSearch: [
-            buildSearchProductWith({
-              id: Number(laughCanister.node.productId),
-              name: laughCanister.node.productName,
-              sku: laughCanister.node.sku,
-              orderQuantityMaximum: 10,
-              orderQuantityMinimum: 5,
-              inventoryLevel: 100,
-              variants: [
-                buildVariantWith({
-                  product_id: Number(laughCanister.node.productId),
-                  variant_id: Number(laughCanister.node.variantId),
-                  sku: laughCanister.node.variantSku,
-                  purchasing_disabled: false,
-                }),
-              ],
-            }),
-          ],
-        },
-      });
+    searchProducts.mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(laughCanister.node.productId),
+            name: laughCanister.node.productName,
+            sku: laughCanister.node.sku,
+            orderQuantityMaximum: 10,
+            orderQuantityMinimum: 5,
+            inventoryLevel: 100,
+            variants: [
+              buildVariantWith({
+                product_id: Number(laughCanister.node.productId),
+                variant_id: Number(laughCanister.node.variantId),
+                sku: laughCanister.node.variantSku,
+                purchasing_disabled: false,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
 
     when(createCartSimple)
       .calledWith({
@@ -3809,7 +3851,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.mutation('createCartSimple', ({ variables }) =>
         HttpResponse.json(createCartSimple(variables)),

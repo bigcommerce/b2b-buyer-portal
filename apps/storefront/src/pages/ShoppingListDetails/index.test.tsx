@@ -448,8 +448,8 @@ it('displays the details of each product', async () => {
   const searchProductsQuerySpy = vi.fn();
   server.use(
     graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-    graphql.query('SearchProducts', ({ query }) => {
-      searchProductsQuerySpy(query);
+    graphql.query('SearchProducts', ({ variables }) => {
+      searchProductsQuerySpy(variables);
 
       return HttpResponse.json(
         buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -464,7 +464,7 @@ it('displays the details of each product', async () => {
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
   expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-    expect.stringContaining('productIds: [73737]'),
+    expect.objectContaining({ productIds: [73737] }),
   );
 
   const row = screen.getByRole('row', { name: /Lovely socks/ });
@@ -991,8 +991,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
     const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1014,7 +1014,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
+      expect.objectContaining({ productIds: [73737] }),
     );
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
@@ -1091,8 +1091,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
     const searchProductsQuerySpy = vi.fn();
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1114,7 +1114,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
+      expect.objectContaining({ productIds: [73737] }),
     );
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
@@ -1195,8 +1195,8 @@ describe('when shopping list products verify inventory into add to cart', () => 
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1218,7 +1218,7 @@ describe('when shopping list products verify inventory into add to cart', () => 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(searchProductsQuerySpy).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
+      expect.objectContaining({ productIds: [73737] }),
     );
 
     const row = screen.getByRole('row', { name: /Lovely socks/ });
@@ -1304,8 +1304,8 @@ describe('Add to quote', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1431,8 +1431,8 @@ describe('Add to quote', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1572,8 +1572,8 @@ describe('Add to quote', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -1705,8 +1705,8 @@ describe('Add to quote', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', async () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => {
-        searchProductsQuerySpy(query);
+      graphql.query('SearchProducts', ({ variables }) => {
+        searchProductsQuerySpy(variables);
 
         return HttpResponse.json(
           buildSearchProductsResponseWith({ data: { productsSearch: [lovelySocksSearchProduct] } }),
@@ -2061,7 +2061,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuery = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .calledWith(expect.objectContaining({ productIds: [73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: {
@@ -2109,7 +2109,9 @@ describe('when backend validation is enabled', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuery(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2168,7 +2170,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuery = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .calledWith(expect.objectContaining({ productIds: [73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: {
@@ -2227,7 +2229,9 @@ describe('when backend validation is enabled', () => {
           }),
         ),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuery(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2253,7 +2257,7 @@ describe('when backend validation is enabled', () => {
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
     expect(searchProductsQuery).toHaveBeenCalledWith(
-      expect.stringContaining('productIds: [73737]'),
+      expect.objectContaining({ productIds: [73737] }),
     );
 
     await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
@@ -2296,7 +2300,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuery = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .calledWith(expect.objectContaining({ productIds: [73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: {
@@ -2344,7 +2348,9 @@ describe('when backend validation is enabled', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuery(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2409,7 +2415,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuery = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .calledWith(expect.objectContaining({ productIds: [73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: {
@@ -2458,7 +2464,9 @@ describe('when backend validation is enabled', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuery(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2523,7 +2531,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuery = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [73737]'))
+      .calledWith(expect.objectContaining({ productIds: [73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: {
@@ -2571,7 +2579,9 @@ describe('when backend validation is enabled', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProductsQuery(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuery(variables)),
+      ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),
       ),
@@ -2660,7 +2670,7 @@ describe('when backend validation is enabled', () => {
     });
 
     const searchProductsQuerySpy = when(vi.fn())
-      .calledWith(expect.stringContaining('productIds: [44443,73737]'))
+      .calledWith(expect.objectContaining({ productIds: [44443, 73737] }))
       .thenReturn(
         buildSearchProductsResponseWith({
           data: { productsSearch: [lovelySocksSearchProduct, outOfStockSearchProduct] },
@@ -2725,8 +2735,8 @@ describe('when backend validation is enabled', () => {
 
     server.use(
       graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
-      graphql.query('SearchProducts', ({ query }) =>
-        HttpResponse.json(searchProductsQuerySpy(query)),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProductsQuerySpy(variables)),
       ),
       graphql.query('GetVariantInfoBySkus', ({ query }) =>
         HttpResponse.json(getVariantInfoBySkus(query)),

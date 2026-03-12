@@ -56,38 +56,47 @@ const getProductPurchasable = ({
   }
 }`;
 
-const getSearchProductsQuery = (data: CustomFieldItems) => `
-  query SearchProducts {
-    productsSearch (
-      search: "${data.search || ''}"
-      productIds: [${data.productIds || []}]
-      currencyCode: "${data.currencyCode || ''}"
-      companyId: "${data.companyId || ''}"
-      storeHash: "${storeHash}"
-      channelId: ${channelId}
-      customerGroupId: ${data.customerGroupId || 0}
-      ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
-    ){
-      id,
-      name,
-      sku,
-      costPrice,
-      inventoryLevel,
-      inventoryTracking,
-      availability,
-      orderQuantityMinimum,
-      orderQuantityMaximum,
-      variants,
-      currencyCode,
-      imageUrl,
-      modifiers,
-      options,
-      optionsV3,
-      channelId,
-      productUrl,
-      taxClassId,
-      isPriceHidden,
-      availableToSell,
+const searchProductsQuery = `
+  query SearchProducts(
+    $search: String
+    $productIds: [Int]
+    $currencyCode: String
+    $companyId: String
+    $storeHash: String
+    $channelId: Int
+    $customerGroupId: Int
+    $categoryFilter: Boolean
+  ) {
+    productsSearch(
+      search: $search
+      productIds: $productIds
+      currencyCode: $currencyCode
+      companyId: $companyId
+      storeHash: $storeHash
+      channelId: $channelId
+      customerGroupId: $customerGroupId
+      categoryFilter: $categoryFilter
+    ) {
+      id
+      name
+      sku
+      costPrice
+      inventoryLevel
+      inventoryTracking
+      availability
+      orderQuantityMinimum
+      orderQuantityMaximum
+      variants
+      currencyCode
+      imageUrl
+      modifiers
+      options
+      optionsV3
+      channelId
+      productUrl
+      taxClassId
+      isPriceHidden
+      availableToSell
       unlimitedBackorder
     }
   }
@@ -411,10 +420,17 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
   return B3Request.graphqlB2B({
-    query: getSearchProductsQuery({
-      ...data,
+    query: searchProductsQuery,
+    variables: {
+      search: data.search || '',
+      productIds: data.productIds || [],
       currencyCode: data?.currencyCode || currencyCode,
-    }),
+      companyId: data.companyId ? String(data.companyId) : '',
+      storeHash,
+      channelId,
+      customerGroupId: data.customerGroupId || 0,
+      categoryFilter: data?.categoryFilter ?? null,
+    },
   });
 };
 
