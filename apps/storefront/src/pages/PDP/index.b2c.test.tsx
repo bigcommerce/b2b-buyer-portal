@@ -289,16 +289,14 @@ describe('stencil', () => {
       graphql.mutation('CreateCustomerShoppingList', ({ variables }) =>
         HttpResponse.json(createCustomerShoppingList(variables)),
       ),
-      graphql.query('SearchProducts', ({ variables }) =>
-        HttpResponse.json(searchProducts(variables)),
-      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
       graphql.mutation('AddItemsToCustomerShoppingList', ({ variables }) =>
         HttpResponse.json(addItemsToCustomerShoppingList({ variables })),
       ),
     );
 
     when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [123] }))
+      .calledWith(stringContainingAll('productIds: [123]'))
       .thenReturn({
         data: {
           productsSearch: [buildProductSearchResultWith('WHATEVER_VALUES')],
@@ -746,16 +744,14 @@ describe('other/catalyst', () => {
       graphql.mutation('CreateCustomerShoppingList', ({ variables }) =>
         HttpResponse.json(createCustomerShoppingList(variables)),
       ),
-      graphql.query('SearchProducts', ({ variables }) =>
-        HttpResponse.json(searchProducts(variables)),
-      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
       graphql.mutation('AddItemsToCustomerShoppingList', ({ variables }) =>
         HttpResponse.json(addItemsToCustomerShoppingList({ variables })),
       ),
     );
 
     when(searchProducts)
-      .calledWith(expect.objectContaining({ productIds: [123] }))
+      .calledWith(stringContainingAll('productIds: [123]'))
       .thenReturn({
         data: {
           productsSearch: [buildProductSearchResultWith('WHATEVER_VALUES')],
