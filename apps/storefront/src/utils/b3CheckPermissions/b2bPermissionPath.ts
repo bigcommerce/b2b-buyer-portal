@@ -9,6 +9,10 @@ const hasPermission = (key: keyof B2BPermissionsMapParams): boolean => {
 };
 
 export const b2bJumpPath = (role: number): string => {
+  if (role === CustomerRole.SUPER_ADMIN) {
+    return PATH_ROUTES.DASHBOARD;
+  }
+
   if (role === CustomerRole.JUNIOR_BUYER) {
     return PATH_ROUTES.SHOPPING_LISTS;
   }

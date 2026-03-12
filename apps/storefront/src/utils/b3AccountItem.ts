@@ -121,6 +121,11 @@ const openPageByClick = ({
   ) {
     return authorizedPages;
   }
+
+  if (currentRole === CustomerRole.SUPER_ADMIN) {
+    return authorizedPages;
+  }
+
   // register and login click
   if (href?.includes('/login') || isRegisterAndLogin || currentRole === CustomerRole.GUEST) {
     return getCurrentLoginUrl(href);
