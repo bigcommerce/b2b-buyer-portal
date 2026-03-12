@@ -213,7 +213,7 @@ const buildValidateProductWith = builder<ValidateProduct>(() =>
 );
 
 const priceProduct = vi.fn<(variables: unknown) => PriceProduct>();
-const searchProduct = vi.fn<(variables: unknown) => SearchB2BProduct>();
+const searchProduct = vi.fn<(query: string) => SearchB2BProduct>();
 const setOpenPage = vi.fn();
 
 beforeEach(() => {
@@ -224,10 +224,10 @@ beforeEach(() => {
     graphql.query('priceProducts', async ({ variables }) =>
       HttpResponse.json({ data: { priceProducts: [priceProduct(variables)] } }),
     ),
-    graphql.query('SearchProducts', ({ variables }) =>
+    graphql.query('SearchProducts', ({ query }) =>
       HttpResponse.json({
         data: {
-          productsSearch: [searchProduct(variables)],
+          productsSearch: [searchProduct(query)],
         },
       }),
     ),
@@ -252,7 +252,7 @@ describe('addProductFromProductPageToQuote', () => {
     createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
     when(searchProduct)
-      .calledWith(expect.objectContaining({ productIds: [123] }))
+      .calledWith(expect.stringContaining('productIds: [123]'))
       .thenReturn(
         buildSearchB2BProductWith({
           id: 123,
@@ -274,7 +274,7 @@ describe('addProductFromProductPageToQuote', () => {
     createDOM({ productId: 123, qty: 1000001, sku: 'SKU123' });
 
     when(searchProduct)
-      .calledWith(expect.objectContaining({ productIds: [123] }))
+      .calledWith(expect.stringContaining('productIds: [123]'))
       .thenReturn(
         buildSearchB2BProductWith({
           id: 123,
@@ -318,7 +318,7 @@ describe('addProductFromProductPageToQuote', () => {
         createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
         when(searchProduct)
-          .calledWith(expect.objectContaining({ productIds: [123] }))
+          .calledWith(expect.stringContaining('productIds: [123]'))
           .thenReturn(
             buildSearchB2BProductWith({
               id: 123,
@@ -347,7 +347,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -377,7 +377,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -417,7 +417,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -448,7 +448,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -490,7 +490,7 @@ describe('addProductFromProductPageToQuote', () => {
         createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
         when(searchProduct)
-          .calledWith(expect.objectContaining({ productIds: [123] }))
+          .calledWith(expect.stringContaining('productIds: [123]'))
           .thenReturn(
             buildSearchB2BProductWith({
               id: 123,
@@ -527,7 +527,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -565,7 +565,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -605,7 +605,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 11, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -644,7 +644,7 @@ describe('addProductFromProductPageToQuote', () => {
           createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
           when(searchProduct)
-            .calledWith(expect.objectContaining({ productIds: [123] }))
+            .calledWith(expect.stringContaining('productIds: [123]'))
             .thenReturn(
               buildSearchB2BProductWith({
                 id: 123,
@@ -699,7 +699,7 @@ describe('addProductFromProductPageToQuote', () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
-        .calledWith(expect.objectContaining({ productIds: [123] }))
+        .calledWith(expect.stringContaining('productIds: [123]'))
         .thenReturn(
           buildSearchB2BProductWith({
             id: 123,
@@ -754,7 +754,7 @@ describe('addProductFromProductPageToQuote', () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
-        .calledWith(expect.objectContaining({ productIds: [123] }))
+        .calledWith(expect.stringContaining('productIds: [123]'))
         .thenReturn(
           buildSearchB2BProductWith({
             id: 123,
@@ -799,7 +799,7 @@ describe('addProductFromProductPageToQuote', () => {
       createDOM({ productId: 123, qty: 1, sku: 'SKU123' });
 
       when(searchProduct)
-        .calledWith(expect.objectContaining({ productIds: [123] }))
+        .calledWith(expect.stringContaining('productIds: [123]'))
         .thenReturn(
           buildSearchB2BProductWith({
             id: 123,
@@ -845,7 +845,7 @@ describe('addProductFromProductPageToQuote', () => {
       createDOM({ productId: 123, qty: 1, sku: 'A&B' });
 
       when(searchProduct)
-        .calledWith(expect.objectContaining({ productIds: [123] }))
+        .calledWith(expect.stringContaining('productIds: [123]'))
         .thenReturn(
           buildSearchB2BProductWith({
             id: 123,
