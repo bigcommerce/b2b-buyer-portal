@@ -57,9 +57,9 @@ const getProductPurchasable = ({
 }`;
 
 const getSearchProductsQuery = (data: CustomFieldItems) => `
-  query SearchProducts {
+  query SearchProducts($search: String) {
     productsSearch (
-      search: "${data.search || ''}"
+      search: $search
       productIds: [${data.productIds || []}]
       currencyCode: "${data.currencyCode || ''}"
       companyId: "${data.companyId || ''}"
@@ -415,6 +415,9 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       ...data,
       currencyCode: data?.currencyCode || currencyCode,
     }),
+    variables: {
+      search: data.search || '',
+    },
   });
 };
 
