@@ -11,7 +11,6 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
-  stringContainingAll,
   userEvent,
   within,
 } from 'tests/test-utils';
@@ -227,11 +226,11 @@ describe('when search returns no results', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
       .thenReturn({ data: { productsSearch: [] } });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Door Station Panel"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Door Station Panel' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -248,7 +247,9 @@ describe('when search returns no results', () => {
       });
 
     server.use(
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
     );
 
@@ -300,7 +301,7 @@ describe('when search returns results', () => {
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -361,7 +362,9 @@ describe('when search returns results', () => {
       });
 
     server.use(
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),

@@ -2618,7 +2618,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Out of Stock Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Out of Stock Product' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -2699,7 +2699,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -2896,7 +2898,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Min Quantity Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Min Quantity Product' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -2977,7 +2979,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
@@ -3040,7 +3044,7 @@ describe('when backorder validation is enabled', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Max Quantity Product"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Max Quantity Product' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -3107,7 +3111,9 @@ describe('when backorder validation is enabled', () => {
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('getCart', () => HttpResponse.json(getCart())),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),

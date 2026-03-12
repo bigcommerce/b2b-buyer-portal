@@ -1068,7 +1068,7 @@ describe('when the user is a B2B customer', () => {
     });
 
     when(searchProducts)
-      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
       .thenReturn({
         data: {
           productsSearch: [
@@ -1111,7 +1111,9 @@ describe('when the user is a B2B customer', () => {
       graphql.query('getQuoteExtraFields', () =>
         HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
       ),
-      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('SearchProducts', ({ variables }) =>
+        HttpResponse.json(searchProducts(variables)),
+      ),
       graphql.query('priceProducts', ({ variables }) =>
         HttpResponse.json(getPriceProducts(variables)),
       ),
@@ -2449,7 +2451,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2511,7 +2513,9 @@ describe('when the user is a B2B customer', () => {
           graphql.query('getQuoteExtraFields', () =>
             HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
           ),
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
@@ -2565,7 +2569,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2630,7 +2634,9 @@ describe('when the user is a B2B customer', () => {
           graphql.query('getQuoteExtraFields', () =>
             HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
           ),
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
@@ -2684,7 +2690,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2753,7 +2759,9 @@ describe('when the user is a B2B customer', () => {
           graphql.query('getQuoteExtraFields', () =>
             HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
           ),
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
@@ -2807,7 +2815,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2876,7 +2884,9 @@ describe('when the user is a B2B customer', () => {
           graphql.query('getQuoteExtraFields', () =>
             HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
           ),
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
@@ -2930,7 +2940,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -2999,7 +3009,9 @@ describe('when the user is a B2B customer', () => {
           graphql.query('getQuoteExtraFields', () =>
             HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
           ),
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
@@ -3054,7 +3066,7 @@ describe('when the user is a B2B customer', () => {
         });
 
         when(searchProducts)
-          .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+          .calledWith(expect.objectContaining({ search: 'Laugh Canister' }))
           .thenReturn({
             data: {
               productsSearch: [
@@ -3107,7 +3119,9 @@ describe('when the user is a B2B customer', () => {
           });
 
         server.use(
-          graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+          graphql.query('SearchProducts', ({ variables }) =>
+            HttpResponse.json(searchProducts(variables)),
+          ),
           graphql.query('priceProducts', ({ variables }) =>
             HttpResponse.json(getPriceProducts(variables)),
           ),
