@@ -30,10 +30,10 @@ import {
   getVariantInfoDisplayPrice,
 } from '@/utils/b3Product/b3Product';
 import { snackbar } from '@/utils/b3Tip';
+import { Base64 } from '@/utils/base64';
 
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '../../../types';
 import {
-  Base64,
   getOptionRequestData,
   getProductOptionsFields,
 } from '../../../utils/b3Product/shared/config';

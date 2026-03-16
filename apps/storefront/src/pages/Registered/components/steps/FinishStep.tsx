@@ -8,16 +8,16 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { PrimaryButton } from './PrimaryButton';
-import { StyleTipContainer } from './styled';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { StyleTipContainer } from '../../styled';
+import { PrimaryButton } from '../PrimaryButton';
 
-interface Props {
+interface FinishStepProps {
   handleFinish: (shouldAutoLogin: boolean) => void;
   isBCToB2B?: boolean;
 }
 
-export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Props) {
+export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishStepProps) {
   const { state } = useContext(RegisteredContext);
   const b3Lang = useB3Lang();
   const shouldAutoLogin = useRef(false);

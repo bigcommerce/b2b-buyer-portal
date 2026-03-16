@@ -1,96 +1,35 @@
-import { UseFormSetError } from 'react-hook-form';
 import { format } from 'date-fns/format';
 
-import { LangFormatFunction } from '@/lib/lang';
-import { validateAddressExtraFields, validateBCCompanyExtraFields } from '@/shared/service/b2b';
 import { getLineNumber } from '@/utils/b3GetTextLenPX';
+import { Base64 } from '@/utils/base64';
 import { validatorRules } from '@/utils/validatorRules';
 
-import { RegisterFields } from './types';
+import { groupItems, noEncryptFieldList } from '../constants';
+import type {
+  AccountFormFieldsItems,
+  AccountFormFieldsList,
+  AccountFormFieldsResult,
+  RegisterFieldsItems,
+} from '../types';
+
+export function deCodeField(fieldName: string): string {
+  if (noEncryptFieldList.includes(fieldName)) {
+    return fieldName;
+  }
+  return Base64.decode(fieldName);
+}
+
+export function toHump(name: string): string {
+  return name.replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
+}
 
 const inputFormat = 'yyyy-MM-dd';
+const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown'];
 
-interface ValidateOptionItems extends Record<string, any> {
+interface ValidateOptionItems extends Record<string, unknown> {
   max?: number;
   min?: number;
 }
-
-type ContactInformationItems = Array<RegisterFields>;
-interface FieldSXConfigs {
-  [key: string]: string | number;
-}
-
-interface AccountFormFieldsItemsValueConfigs {
-  defaultValue?: string;
-  fieldName?: string;
-  isRequired?: boolean;
-  labelName?: string;
-  maximumLength?: string;
-  maxLength?: string;
-  name?: string;
-  required?: string;
-  type?: string;
-  custom?: boolean;
-  id: string | number;
-}
-
-export interface AccountFormFieldsItems {
-  fieldId?: string;
-  fieldName?: string;
-  fieldType?: string | number;
-  groupId: number | string;
-  groupName?: string;
-  id?: string;
-  isRequired?: boolean;
-  labelName?: string;
-  visible?: boolean;
-  custom?: boolean;
-  valueConfigs?: AccountFormFieldsItemsValueConfigs;
-  sx?: FieldSXConfigs;
-}
-
-type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>;
-
-interface ReplaceOptionsProps {
-  label: string;
-  value: string;
-}
-
-export interface RegisterFieldsItems {
-  id?: string | number;
-  name: string;
-  label: string;
-  required: boolean;
-  default: string | number | Array<string>;
-  fieldType: string | number;
-  xs: number;
-  visible: boolean;
-  custom: boolean;
-  bcLabel?: string;
-  fieldId: string;
-  groupId: string | number;
-  groupName: string;
-  options?: any;
-  disabled: boolean;
-  replaceOptions?: ReplaceOptionsProps;
-}
-
-export const steps = [
-  'register.step.account',
-  'register.step.details',
-  'register.step.finish',
-] as const;
-
-const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown'];
-
-export const Base64 = {
-  encode(str: string | number | boolean) {
-    return window.btoa(encodeURIComponent(str));
-  },
-  decode(str: string) {
-    return decodeURIComponent(window.atob(str));
-  },
-};
 
 const fieldsType = {
   text: ['text', 'number', 'password', 'multiline'],
@@ -144,7 +83,7 @@ const classificationType = (item: CustomFieldItems) => {
     const options = [...items, ...(item.options?.items || [])];
 
     if (item.listOfValue) {
-      item.listOfValue.forEach((value: any) =>
+      (item.listOfValue as Array<string | number>).forEach((value: string | number) =>
         options.push({
           label: value,
           value,
@@ -165,7 +104,7 @@ const classificationType = (item: CustomFieldItems) => {
   }
 
   if (optionItems?.options) {
-    optionItems?.options.forEach((option: any) => {
+    (optionItems.options as Array<{ label: string; value?: string }>).forEach((option) => {
       const optionValue = option;
       if (option.value) {
         optionValue.value = option.label;
@@ -180,37 +119,12 @@ const classificationType = (item: CustomFieldItems) => {
   return optionItems;
 };
 
-const noEncryptFieldList = ['country', 'state', 'email'];
-export const b2bAddressRequiredFields = [
-  'field_country',
-  'field_address_1',
-  'field_city',
-  'field_state',
-  'field_zip_code',
-];
-
-const groupItems = {
-  1: 'contactInformation',
-  2: 'additionalInformation',
-  3: 'businessDetails',
-  4: 'address',
-  5: 'password',
-};
-
-export const deCodeField = (fieldName: string) => {
+function enCodeFieldName(fieldName: string) {
   if (noEncryptFieldList.includes(fieldName)) {
     return fieldName;
   }
-  return Base64.decode(fieldName);
-};
-
-const enCodeFieldName = (fieldName: string) => {
-  if (noEncryptFieldList.includes(fieldName)) {
-    return fieldName;
-  }
-
   return Base64.encode(fieldName);
-};
+}
 
 const bcFieldName = (fieldName: string) => {
   if (fieldName === 'countryCode') {
@@ -252,10 +166,8 @@ const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFieldsIte
   };
 };
 
-export const toHump = (name: string) => name.replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
-
 const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
-  const getFormFields: any = {};
+  const getFormFields: AccountFormFieldsResult = {};
 
   FormFields.forEach((item: CustomFieldItems) => {
     const key: string = (groupItems as CustomFieldItems)[item.groupId];
@@ -358,10 +270,10 @@ const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   return getFormFields;
 };
 
-export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) => {
+export function getAccountFormFields(accountFormFields: AccountFormFieldsList) {
   if (accountFormFields?.length) {
     const filterVisibleAccountFormFields: AccountFormFieldsList = accountFormFields
-      ? (accountFormFields as any).filter(
+      ? (accountFormFields as AccountFormFieldsItems[]).filter(
           (item: Partial<AccountFormFieldsItems>) =>
             !!item.visible || (!!item.custom && !!item.isRequired),
         )
@@ -374,91 +286,4 @@ export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) =
     return getAccountFormItems;
   }
   return {};
-};
-
-export const companyAttachmentsFields = (b3lang: LangFormatFunction): ContactInformationItems => [
-  {
-    name: 'companyAttachments',
-    label: b3lang('register.label.companyAttachments'),
-    default: [],
-    fieldType: 'file',
-    required: false,
-    xs: 12,
-    filesLimit: 3,
-    maxFileSize: 10485760, // 10M
-  },
-];
-export interface Country {
-  countryCode: string;
-  countryName: string;
-  id?: string;
-  states: [];
 }
-export interface State {
-  stateCode?: string;
-  stateName?: string;
-  id?: string;
-}
-
-type EmailError = {
-  [k: number]: string;
-};
-
-export const emailError: EmailError = {
-  2: 'register.emailValidate.alreadyExitsBC',
-  3: 'global.emailValidate.multipleCustomer',
-  4: 'global.emailValidate.companyUsed',
-  5: 'global.emailValidate.alreadyExits',
-  6: 'global.emailValidate.usedSuperAdmin',
-};
-
-interface ValidateExtraFieldsProps {
-  fields: RegisterFields[];
-  data: CustomFieldItems;
-  type: 'company' | 'address';
-  setError: UseFormSetError<CustomFieldItems>;
-}
-
-export const validateExtraFields = async ({
-  fields,
-  data,
-  type,
-  setError,
-}: ValidateExtraFieldsProps) => {
-  return new Promise((resolve, reject) => {
-    const init = async () => {
-      const customFields = fields.filter((item) => !!item.custom);
-
-      const extraFields = customFields.map((field: RegisterFields) => ({
-        fieldName: Base64.decode(field.name),
-        fieldValue: data[field.name] || field.default,
-      }));
-
-      const fn = type === 'company' ? validateBCCompanyExtraFields : validateAddressExtraFields;
-
-      const result = await fn({
-        extraFields,
-      });
-
-      if (result.code !== 200) {
-        const message = result.data?.errMsg || result.message || '';
-
-        const messageArr = message.split(':');
-
-        if (messageArr.length >= 2) {
-          const field = customFields.find((field) => Base64.decode(field.name) === messageArr[0]);
-          if (field) {
-            setError(field.name, {
-              type: 'manual',
-              message: messageArr[1],
-            });
-          }
-        }
-        reject(message);
-      }
-      resolve(result);
-    };
-
-    init();
-  });
-};

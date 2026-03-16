@@ -24,12 +24,9 @@ import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
-import {
-  Base64,
-  getOptionRequestData,
-  getProductOptionsFields,
-} from '@/utils/b3Product/shared/config';
+import { getOptionRequestData, getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
+import { Base64 } from '@/utils/base64';
 
 const Flex = styled('div')({
   display: 'flex',

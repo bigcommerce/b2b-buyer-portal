@@ -1,11 +1,8 @@
 import { getB2BAccountFormFields, getB2BAddressExtraFields } from '@/shared/service/b2b';
 import b2bLogger from '@/utils/b3Logger';
 
-import {
-  AccountFormFieldsItems,
-  getAccountFormFields,
-  RegisterFieldsItems,
-} from '../../Registered/config';
+import type { AccountFormFieldsItems, RegisterFieldsItems } from '../../Registered/types';
+import { getAccountFormFields } from '../../Registered/utils';
 
 import { b2bAddressFields } from './config';
 
@@ -57,16 +54,14 @@ const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): [] | ExtraField
     return fields;
   });
 
-  const convertB2BExtraFields = getAccountFormFields(b2bExtraFields).address;
+  const convertB2BExtraFields = getAccountFormFields(b2bExtraFields).address ?? [];
 
-  convertB2BExtraFields.map((extraField: ExtraFieldsProp) => {
-    const field = extraField;
-    field.custom = true;
-
-    return extraField;
+  const result = convertB2BExtraFields.map((extraField: Partial<RegisterFieldsItems>) => {
+    const field = { ...extraField, custom: true };
+    return field as ExtraFieldsProp;
   });
 
-  return convertB2BExtraFields;
+  return result;
 };
 
 const getBcAddressFields = async () => {
@@ -108,7 +103,7 @@ export const getAddressFields = async (isB2BUser: boolean, countries: CountryPro
       if (addressFields) allAddressFields = addressFields;
     } else {
       const bcAddressFields = await getBcAddressFields();
-      allAddressFields = bcAddressFields;
+      allAddressFields = bcAddressFields ?? [];
     }
 
     allAddressFields.map((addressField: CustomFieldItems) => {

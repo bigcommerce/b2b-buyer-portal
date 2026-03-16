@@ -16,7 +16,7 @@ import {
 import { snackbar } from '@/utils/b3Tip';
 
 import { AddressItemType } from '../../../types/address';
-import { deCodeField } from '../../Registered/config';
+import { deCodeField } from '../../Registered/utils';
 import { b2bShippingBilling, B2bShippingBillingProps } from '../shared/config';
 import { CountryProps, StateProps } from '../shared/getAddressFields';
 

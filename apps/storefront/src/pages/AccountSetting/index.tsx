@@ -28,7 +28,7 @@ import { B3SStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, platform } from '@/utils/basicConfig';
 
-import { deCodeField, getAccountFormFields } from '../Registered/config';
+import { deCodeField, getAccountFormFields } from '../Registered/utils';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
 import { UpgradeBanner } from './UpgradeBanner';
@@ -156,21 +156,24 @@ function AccountSetting() {
           accountFormAllFields.accountFormFields || [],
         );
 
-        const contactInformation = (accountFormFields?.contactInformation || []).filter(
-          (item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter',
-        );
+        const contactInformation: Partial<Fields>[] = (
+          accountFormFields?.contactInformation || []
+        ).filter(
+          (item: { fieldId?: string }) => item.fieldId !== 'field_email_marketing_newsletter',
+        ) as Partial<Fields>[];
 
         const { additionalInformation = [] } = accountFormFields;
+        const additionalInfo = additionalInformation as Partial<Fields>[];
 
         const { [key]: accountSettings } = await fn(params);
 
         const fields = isBCUser
-          ? initBcInfo(accountSettings, contactInformation, additionalInformation)
+          ? initBcInfo(accountSettings, contactInformation, additionalInfo)
           : initB2BInfo(
               accountSettings,
               contactInformation,
               getAccountSettingsFields(),
-              additionalInformation,
+              additionalInfo,
             );
 
         const passwordModifiedFields = getPasswordModifiedFields();
@@ -187,7 +190,7 @@ function AccountSetting() {
 
         setDecryptionFields(contactInformation);
 
-        setExtraFields(additionalInformation);
+        setExtraFields(additionalInfo);
       } finally {
         if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));

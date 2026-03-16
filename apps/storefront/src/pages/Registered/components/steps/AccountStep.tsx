@@ -13,19 +13,26 @@ import {
 } from '@/shared/service/b2b';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
+import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { Base64, emailError } from './config';
-import { PrimaryButton } from './PrimaryButton';
-import { InformationFourLabels, TipContent } from './styled';
-import { RegisterFields } from './types';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
+import {
+  applyContactEmailTip,
+  emailError,
+  getEmailFieldName,
+  mergeContactInfoWithFormData,
+  setRegisterFieldsFromFormData,
+} from '../../utils';
+import { PrimaryButton } from '../PrimaryButton';
 
-interface RegisteredAccountProps {
+interface AccountStepProps {
   handleNext: (email: string) => void;
 }
 
-export default function RegisteredAccount({ handleNext }: RegisteredAccountProps) {
+export default function AccountStep({ handleNext }: AccountStepProps) {
   const { state, dispatch } = useContext(RegisteredContext);
   const IframeDocument = useAppSelector(themeFrameSelector);
 
@@ -62,25 +69,18 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
   });
 
   const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation';
-  const additionalInfo: any =
-    accountType === '1' ? additionalInformation || [] : bcAdditionalInformation || [];
+  const additionalInfo =
+    accountType === '1' ? (additionalInformation ?? []) : (bcAdditionalInformation ?? []);
 
-  const newContactInformation = contactInformation?.map((contactInfo: CustomFieldItems) => {
-    const info = contactInfo;
-    if (contactInfo.fieldId === 'field_email' && accountType === '1') {
-      info.isTip = true;
-      info.tipText = 'This email will be used to sign in to your account';
-    }
-
-    return contactInfo;
-  });
-
-  const contactInfo: any = accountType === '1' ? newContactInformation : bcContactInformation || [];
-  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields';
+  const contactInfo =
+    accountType === '1'
+      ? applyContactEmailTip(contactInformation, accountType, b3Lang('register.tip.emailSignIn'))
+      : (bcContactInformation ?? []);
+  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformation';
 
   const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : '';
-
   const additionalInformationLabel = additionalInfo.length ? additionalInfo[0]?.groupName : '';
+  const emailName = getEmailFieldName(contactInformation);
 
   const showLoading = (isShow = false) => {
     dispatch({
@@ -99,10 +99,6 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
       },
     });
   };
-
-  const emailName =
-    contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name ||
-    'email';
 
   const validateEmailValue = async (email: string) => {
     const isRegisterAsB2BUser = accountType === '1';
@@ -147,14 +143,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
         return;
       }
 
-      const newContactInfo = contactInfo.map((item: RegisterFields) => {
-        const newContactItem = item;
-        newContactItem.default = data[item.name] || item.default;
-        if (item.fieldId === 'field_email_marketing_newsletter' && item.fieldType === 'checkbox') {
-          newContactItem.isChecked = data[item.name].length > 0;
-        }
-        return item;
-      });
+      const newContactInfo = mergeContactInfoWithFormData(contactInfo, data);
 
       try {
         showLoading(true);
@@ -202,16 +191,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
         showLoading(false);
       }
 
-      let newAdditionalInformation: Array<RegisterFields> = [];
-      if (additionalInfo) {
-        newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map(
-          (item: RegisterFields) => {
-            const additionalInfoItem = item;
-            additionalInfoItem.default = data[item.name] || item.default;
-            return item;
-          },
-        );
-      }
+      const newAdditionalInformation = setRegisterFieldsFromFormData(additionalInfo, data);
 
       dispatch({
         type: 'all',

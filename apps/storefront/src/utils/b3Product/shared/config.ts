@@ -12,6 +12,7 @@ import {
 } from '@/types';
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products';
 import b2bLogger from '@/utils/b3Logger';
+import { Base64 } from '@/utils/base64';
 
 export interface ShoppingListInfoProps {
   name: string;
@@ -99,15 +100,6 @@ const fieldTypes: CustomFieldItems = {
   swatch: 'swatch',
   product_list_with_images: 'productRadio',
   product_list: 'productRadio',
-};
-
-export const Base64 = {
-  encode(str: string | number | boolean) {
-    return window.btoa(encodeURIComponent(str));
-  },
-  decode(str: string) {
-    return decodeURIComponent(window.atob(str));
-  },
 };
 
 const getFieldOptions = (

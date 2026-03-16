@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
-import { LoginConfig } from '../Login/config';
+import { LoginConfig } from '../../Login/config';
 
-import RegisterComplete from './RegisterComplete';
-import RegisteredAccount from './RegisteredAccount';
-import RegisteredDetail from './RegisteredDetail';
-import RegisteredFinish from './RegisteredFinish';
+import AccountStep from './steps/AccountStep';
+import CompleteStep from './steps/CompleteStep';
+import DetailStep from './steps/DetailStep';
+import FinishStep from './steps/FinishStep';
 
 const StyledRegisterContent = styled(Box)({
   '& #b3-customForm-id-name': {
@@ -53,30 +53,30 @@ export default function RegisterContent({
     switch (step) {
       case 0:
         return (
-          <RegisteredAccount
-            handleNext={(email) => {
-              setEmail(email);
+          <AccountStep
+            handleNext={(emailValue) => {
+              setEmail(emailValue);
               handleNext();
             }}
           />
         );
 
       case 1:
-        return <RegisteredDetail handleBack={handleBack} handleNext={handleNext} />;
+        return <DetailStep handleBack={handleBack} handleNext={handleNext} />;
 
       case 2:
         return (
-          <RegisterComplete
+          <CompleteStep
             handleBack={handleBack}
-            handleNext={(password) => {
-              setPassword(password);
+            handleNext={(passwordValue) => {
+              setPassword(passwordValue);
               handleNext();
             }}
           />
         );
 
       case 3:
-        return <RegisteredFinish handleFinish={handleFinishClick} />;
+        return <FinishStep handleFinish={handleFinishClick} />;
 
       default:
         return null;

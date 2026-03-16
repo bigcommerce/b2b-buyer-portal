@@ -17,6 +17,7 @@ import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
+import { Base64 } from '@/utils/base64';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -29,19 +30,8 @@ import {
   validateBCCompanyUserExtraFields,
 } from '../../shared/service/b2b';
 import { type PageProps } from '../PageProps';
-import {
-  AccountFormFieldsItems,
-  b2bAddressRequiredFields,
-  Base64,
-  Country,
-  deCodeField,
-  getAccountFormFields,
-  RegisterFieldsItems,
-  State,
-  toHump,
-} from '../Registered/config';
+import FinishStep from '../Registered/components/steps/FinishStep';
 import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
-import RegisteredFinish from '../Registered/RegisteredFinish';
 import {
   InformationFourLabels,
   InformationLabels,
@@ -49,7 +39,19 @@ import {
   RegisteredImage,
   TipContent,
 } from '../Registered/styled';
+import type {
+  AccountFormFieldsItems,
+  Country,
+  RegisterFieldsItems,
+  State,
+} from '../Registered/types';
 import { RegisterFields } from '../Registered/types';
+import {
+  b2bAddressRequiredFields,
+  deCodeField,
+  getAccountFormFields,
+  toHump,
+} from '../Registered/utils';
 
 interface CustomerInfo {
   [k: string]: string;
@@ -200,10 +202,12 @@ function RegisteredBCToB2B(props: PageProps) {
             type: 'all',
             payload: {
               isLoading: false,
-              bcTob2bContactInformation: [...newContactInformation],
+              bcTob2bContactInformation: [...newContactInformation] as RegisterFields[],
               bcTob2bCompanyExtraFields: [],
-              bcTob2bCompanyInformation: [...bcToB2BAccountFormFields.businessDetails],
-              bcTob2bAddressBasicFields: [...newAddressInformationFields],
+              bcTob2bCompanyInformation: [
+                ...bcToB2BAccountFormFields.businessDetails,
+              ] as RegisterFields[],
+              bcTob2bAddressBasicFields: [...newAddressInformationFields] as RegisterFields[],
               countryList: [...countries],
             },
           });
@@ -649,7 +653,7 @@ function RegisteredBCToB2B(props: PageProps) {
             )}
 
             {showFinishPage ? (
-              <RegisteredFinish handleFinish={handleFinish} isBCToB2B />
+              <FinishStep handleFinish={handleFinish} isBCToB2B />
             ) : (
               <StyledRegisterContent
                 sx={{
