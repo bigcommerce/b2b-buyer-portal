@@ -33,9 +33,11 @@ import LoginWidget from './component/LoginWidget';
 import { CatalystLogin } from './CatalystLogin';
 import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
 import LoginForm from './LoginForm';
+import LoginImage from './LoginImage';
 import LoginPanel from './LoginPanel';
-import { LoginContainer, LoginImage } from './styled';
+import { LoginAndRegisterContainer, LoginContainer, LoginImageContainer } from './styled';
 import { useLogout } from './useLogout';
+import LoginTip from './LoginTip';
 
 const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
   pendingApprovalToViewPrices:
@@ -140,15 +142,6 @@ function Login(props: PageProps) {
       }
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
-
-  const tipInfo = (loginFlag: LoginFlagType, email = '') => {
-    const { tip, alertType } = loginType[loginFlag];
-
-    return {
-      message: b3Lang(tip, { email }),
-      severity: alertType,
-    };
-  };
 
   const getForcePasswordReset = async (email: string) => {
     const forcePasswordReset = await getBCForcePasswordReset(email);
@@ -282,8 +275,6 @@ function Login(props: PageProps) {
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
 
-  const tip = flag && tipInfo(flag, loginAccount?.email);
-
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
@@ -299,43 +290,13 @@ function Login(props: PageProps) {
           >
             {loginInfo && (
               <>
-                {flag && showTipInfo && (
-                  <Box
-                    sx={{
-                      padding: isMobile ? 0 : '0 5%',
-                      margin: '30px 0 0 0',
-                    }}
-                  >
-                    {tip && (
-                      <Alert severity={tip.severity} variant="filled">
-                        {tip.message}
-                      </Alert>
-                    )}
-                  </Box>
-                )}
+                <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
                 {quoteDetailToCheckoutUrl && (
                   <Alert severity="error" variant="filled">
                     {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
                   </Alert>
                 )}
-                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                  <LoginImage>
-                    <ImageListItem
-                      sx={{
-                        maxWidth: isMobile ? '70%' : '250px',
-                      }}
-                      onClick={() => {
-                        window.location.href = '/';
-                      }}
-                    >
-                      <img
-                        src={loginInfo.logo || getAssetUrl(b2bLogo)}
-                        alt={b3Lang('login.registerLogo')}
-                        loading="lazy"
-                      />
-                    </ImageListItem>
-                  </LoginImage>
-                </Box>
+                <LoginImage src={loginInfo.logo || getAssetUrl(b2bLogo)} />
                 {loginInfo.widgetHeadText && (
                   <LoginWidget
                     sx={{
@@ -353,16 +314,8 @@ function Login(props: PageProps) {
                     flexDirection: 'column',
                   }}
                 >
-                  <Box
-                    sx={{
-                      bgcolor: '#FFFFFF',
-                      borderRadius: '4px',
-                      margin: '20px 0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
-                    }}
+                  <LoginAndRegisterContainer
+                    containerWidth={isMobile ? 'auto' : loginAndRegisterContainerWidth}
                   >
                     <Box
                       sx={{
@@ -404,7 +357,7 @@ function Login(props: PageProps) {
                         </Box>
                       )}
                     </Box>
-                  </Box>
+                  </LoginAndRegisterContainer>
                 </Box>
                 {loginInfo.widgetFooterText && (
                   <LoginWidget

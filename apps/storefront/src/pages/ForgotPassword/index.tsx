@@ -16,7 +16,7 @@ import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/g
 import b2bLogger from '@/utils/b3Logger';
 
 import { getForgotPasswordFields, sendForgotPasswordEmailFor } from '../Login/config';
-import { B3ResetPassWordButton, LoginImage } from '../Login/styled';
+import { B3ResetPassWordButton, LoginImageContainer } from '../Login/styled';
 import { type PageProps } from '../PageProps';
 
 interface ForgotPasswordProps extends PageProps {
@@ -106,7 +106,7 @@ export function ForgotPassword({
       >
         <Box sx={{ mt: '20px' }}>
           {logo && (
-            <LoginImage>
+            <LoginImageContainer>
               <ImageListItem
                 sx={{
                   maxWidth: isMobile ? '175px' : '250px',
@@ -117,7 +117,7 @@ export function ForgotPassword({
               >
                 <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
               </ImageListItem>
-            </LoginImage>
+            </LoginImageContainer>
           )}
         </Box>
         <Box

@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 interface LoginContainerProps {
@@ -8,7 +9,7 @@ export const LoginContainer = styled('div')(({ paddings }: LoginContainerProps) 
   padding: paddings,
 }));
 
-export const LoginImage = styled('div')({
+export const LoginImageContainer = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -20,3 +21,19 @@ export const LoginImage = styled('div')({
 export const B3ResetPassWordButton = styled('div')({
   margin: '16px 0 20px 16px',
 });
+
+interface LoginAndRegisterContainerProps {
+  containerWidth: string;
+}
+
+export const LoginAndRegisterContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'containerWidth',
+})(({ containerWidth }: LoginAndRegisterContainerProps) => ({
+  backgroundColor: '#FFFFFF',
+  borderRadius: '4px',
+  margin: '20px 0',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  width: containerWidth,
+}));
