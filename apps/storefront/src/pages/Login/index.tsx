@@ -306,59 +306,42 @@ function Login(props: PageProps) {
                     html={loginInfo.widgetHeadText}
                   />
                 )}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'column',
-                  }}
+                <LoginAndRegisterContainer
+                  containerWidth={isMobile ? 'auto' : loginAndRegisterContainerWidth}
+                  flexDirection={isMobile ? 'column' : 'row'}
                 >
-                  <LoginAndRegisterContainer
-                    containerWidth={isMobile ? 'auto' : loginAndRegisterContainerWidth}
+                  <Box
+                    sx={{
+                      width: isMobile ? 'auto' : loginContainerWidth,
+                      paddingRight: isMobile ? 0 : '2%',
+                      ml: '16px',
+                      mr: isMobile ? '16px' : '',
+                      pb: registerEnabled ? '' : '36px',
+                    }}
                   >
+                    <LoginForm
+                      loginBtn={loginInfo.loginBtn}
+                      handleLoginSubmit={handleLoginSubmit}
+                      backgroundColor={backgroundColor}
+                      isLoading={isLoading}
+                    />
+                  </Box>
+
+                  {registerEnabled && (
                     <Box
                       sx={{
+                        flex: '1',
+                        paddingLeft: isMobile ? 0 : '2%',
                         mb: '20px',
-                        display: 'flex',
-                        flexDirection: isMobile ? 'column' : 'row',
-                        justifyContent: 'center',
-                        width: isMobile ? 'auto' : '100%',
                       }}
                     >
-                      <Box
-                        sx={{
-                          width: isMobile ? 'auto' : loginContainerWidth,
-                          paddingRight: isMobile ? 0 : '2%',
-                          ml: '16px',
-                          mr: isMobile ? '16px' : '',
-                          pb: registerEnabled ? '' : '36px',
-                        }}
-                      >
-                        <LoginForm
-                          loginBtn={loginInfo.loginBtn}
-                          handleLoginSubmit={handleLoginSubmit}
-                          backgroundColor={backgroundColor}
-                          isLoading={isLoading}
-                        />
-                      </Box>
-
-                      {registerEnabled && (
-                        <Box
-                          sx={{
-                            flex: '1',
-                            paddingLeft: isMobile ? 0 : '2%',
-                          }}
-                        >
-                          <LoginPanel
-                            createAccountButtonText={loginInfo.createAccountButtonText}
-                            widgetBodyText={loginInfo.widgetBodyText}
-                          />
-                        </Box>
-                      )}
+                      <LoginPanel
+                        createAccountButtonText={loginInfo.createAccountButtonText}
+                        widgetBodyText={loginInfo.widgetBodyText}
+                      />
                     </Box>
-                  </LoginAndRegisterContainer>
-                </Box>
+                  )}
+                </LoginAndRegisterContainer>
                 {loginInfo.widgetFooterText && (
                   <LoginWidget
                     sx={{

@@ -24,16 +24,18 @@ export const B3ResetPassWordButton = styled('div')({
 
 interface LoginAndRegisterContainerProps {
   containerWidth: string;
+  flexDirection: 'row' | 'column';
 }
 
 export const LoginAndRegisterContainer = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'containerWidth',
-})(({ containerWidth }: LoginAndRegisterContainerProps) => ({
+  shouldForwardProp: (prop) => !['containerWidth', 'flexDirection'].includes(prop as string),
+})(({ containerWidth, flexDirection }: LoginAndRegisterContainerProps) => ({
   backgroundColor: '#FFFFFF',
   borderRadius: '4px',
   margin: '20px 0',
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection,
   justifyContent: 'center',
   width: containerWidth,
+  marginBottom: '20px',
 }));
