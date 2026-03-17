@@ -4,6 +4,7 @@ import { format } from 'date-fns/format';
 import { LangFormatFunction } from '@/lib/lang';
 import { validateAddressExtraFields, validateBCCompanyExtraFields } from '@/shared/service/b2b';
 import { getLineNumber } from '@/utils/b3GetTextLenPX';
+import { Base64 } from '@/utils/base64';
 import { validatorRules } from '@/utils/validatorRules';
 
 import { RegisterFields } from './types';
@@ -82,15 +83,6 @@ export const steps = [
 ] as const;
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown'];
-
-export const Base64 = {
-  encode(str: string | number | boolean) {
-    return window.btoa(encodeURIComponent(str));
-  },
-  decode(str: string) {
-    return decodeURIComponent(window.atob(str));
-  },
-};
 
 const fieldsType = {
   text: ['text', 'number', 'password', 'multiline'],
