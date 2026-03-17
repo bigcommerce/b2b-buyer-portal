@@ -20,22 +20,22 @@ import { B3SStorage } from '@/utils/b3Storage';
 import { platform } from '@/utils/basicConfig';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import {
+  AccountFormFieldsItems,
+  getAccountFormFields,
+  RegisterFieldsItems,
+} from '@/utils/registerUtils';
 import { getStoreConfigs } from '@/utils/storefrontConfig';
 
 import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
 
 import { RegisteredContext, RegisteredProvider } from './context/RegisteredContext';
-import {
-  AccountFormFieldsItems,
-  b2bAddressRequiredFields,
-  companyAttachmentsFields,
-  getAccountFormFields,
-  RegisterFieldsItems,
-} from './config';
+import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
 import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
+import { RegisterFields } from './types';
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
 
@@ -161,20 +161,30 @@ function Registered(props: PageProps) {
               accountType: accountB2cEnabledInfo ? '2' : '1',
               isLoading: false,
               // account
-              contactInformation: [...(b2bAccountFormFields.contactInformation || [])],
-              bcContactInformation: [...(bcAccountFormFields.contactInformation || [])],
-              additionalInformation: [...(b2bAccountFormFields.additionalInformation || [])],
-              bcAdditionalInformation: [...(bcAccountFormFields.additionalInformation || [])],
+              contactInformation: [
+                ...(b2bAccountFormFields.contactInformation || []),
+              ] as RegisterFields[],
+              bcContactInformation: [
+                ...(bcAccountFormFields.contactInformation || []),
+              ] as RegisterFields[],
+              additionalInformation: [
+                ...(b2bAccountFormFields.additionalInformation || []),
+              ] as RegisterFields[],
+              bcAdditionalInformation: [
+                ...(bcAccountFormFields.additionalInformation || []),
+              ] as RegisterFields[],
               // detail
               companyExtraFields: [],
-              companyInformation: [...(b2bAccountFormFields?.businessDetails || [])],
+              companyInformation: [
+                ...(b2bAccountFormFields?.businessDetails || []),
+              ] as RegisterFields[],
               companyAttachment: [...companyAttachmentsFields(b3Lang)],
-              addressBasicFields: [...newAddressInformationFields],
-              bcAddressBasicFields: [...newBCAddressInformationFields],
+              addressBasicFields: [...newAddressInformationFields] as RegisterFields[],
+              bcAddressBasicFields: [...newBCAddressInformationFields] as RegisterFields[],
               countryList: [...countries],
               // password
-              passwordInformation: [...(b2bAccountFormFields.password || [])],
-              bcPasswordInformation: [...(bcAccountFormFields.password || [])],
+              passwordInformation: [...(b2bAccountFormFields.password || [])] as RegisterFields[],
+              bcPasswordInformation: [...(bcAccountFormFields.password || [])] as RegisterFields[],
             },
           });
         }
