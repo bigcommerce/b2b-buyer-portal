@@ -16,11 +16,11 @@ import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { RegisteredContext } from '../../context/RegisteredContext';
 import { emailError } from '../../config';
-import { PrimaryButton } from '../PrimaryButton';
+import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
+import { PrimaryButton } from '../PrimaryButton';
 
 interface AccountStepProps {
   handleNext: (email: string) => void;
@@ -63,10 +63,10 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
   });
 
   const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation';
-  const additionalInfo: any =
+  const additionalInfo: RegisterFields[] =
     accountType === '1' ? additionalInformation || [] : bcAdditionalInformation || [];
 
-  const newContactInformation = contactInformation?.map((contactInfo: CustomFieldItems) => {
+  const newContactInformation = contactInformation?.map((contactInfo: RegisterFields) => {
     const info = contactInfo;
     if (contactInfo.fieldId === 'field_email' && accountType === '1') {
       info.isTip = true;
@@ -76,7 +76,8 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
     return contactInfo;
   });
 
-  const contactInfo: any = accountType === '1' ? newContactInformation : bcContactInformation || [];
+  const contactInfo: RegisterFields[] =
+    accountType === '1' ? (newContactInformation ?? []) : bcContactInformation || [];
   const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields';
 
   const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : '';

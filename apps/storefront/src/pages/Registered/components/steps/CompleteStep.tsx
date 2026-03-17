@@ -20,9 +20,9 @@ import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
 import { RegisteredContext } from '../../context/RegisteredContext';
-import { PrimaryButton } from '../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
+import { PrimaryButton } from '../PrimaryButton';
 
 interface CompleteStepProps {
   handleBack: () => void;
@@ -103,8 +103,7 @@ export default function CompleteStep(props: CompleteStepProps) {
     emailMarketingNewsletter,
   } = state;
 
-  const list: CompleteStepList =
-    accountType === '1' ? contactInformation : bcContactInformation;
+  const list: CompleteStepList = accountType === '1' ? contactInformation : bcContactInformation;
   const passwordInfo: CompleteStepList =
     accountType === '1' ? passwordInformation : bcPasswordInformation;
 
@@ -138,10 +137,12 @@ export default function CompleteStep(props: CompleteStepProps) {
     bcFields.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter;
 
     if (list) {
-      list.forEach((item: any) => {
+      list.forEach((item: RegisterFields) => {
         const name = deCodeField(item.name);
         if (name === 'accepts_marketing_emails') {
-          bcFields.accepts_product_review_abandoned_cart_emails = !!item?.default?.length;
+          bcFields.accepts_product_review_abandoned_cart_emails = Array.isArray(item?.default)
+            ? !!item.default.length
+            : false;
         } else if (!item.custom) {
           bcFields[name] = item?.default || '';
         }
@@ -165,12 +166,14 @@ export default function CompleteStep(props: CompleteStepProps) {
     if (accountType === '2') {
       const addresses: CustomFieldItems = {};
 
-      const getBCAddressField = addressBasicList.filter((field: any) => !field.custom);
-      const getBCExtraAddressField = addressBasicList.filter((field: any) => field.custom);
+      const getBCAddressField = addressBasicList.filter((field: RegisterFields) => !field.custom);
+      const getBCExtraAddressField = addressBasicList.filter(
+        (field: RegisterFields) => field.custom,
+      );
 
       if (getBCAddressField) {
         bcFields.addresses = {};
-        getBCAddressField.forEach((field: any) => {
+        getBCAddressField.forEach((field: RegisterFields) => {
           if (field.name === 'country') {
             addresses.country_code = field.default;
           } else if (field.name === 'state') {
@@ -187,9 +190,10 @@ export default function CompleteStep(props: CompleteStepProps) {
         });
       }
 
+      // BC Extra field
       addresses.form_fields = [];
       if (getBCExtraAddressField && getBCExtraAddressField.length) {
-        getBCExtraAddressField.forEach((field: any) => {
+        getBCExtraAddressField.forEach((field: RegisterFields) => {
           addresses.form_fields.push({
             name: field.bcLabel,
             value: field.default,
@@ -216,7 +220,7 @@ export default function CompleteStep(props: CompleteStepProps) {
     _: CustomFieldItems,
     customerId: number | string,
     customerEmail: string,
-    fileList: any,
+    fileList: unknown,
   ) => {
     try {
       const b2bFields: CustomFieldItems = {};
@@ -224,6 +228,7 @@ export default function CompleteStep(props: CompleteStepProps) {
       b2bFields.customerEmail = customerEmail || '';
       b2bFields.storeHash = storeHash;
 
+      // company user extra field
       const b2bContactInformationList = list || [];
       const companyUserExtraFieldsList = b2bContactInformationList.filter((item) => !!item.custom);
 
@@ -242,12 +247,14 @@ export default function CompleteStep(props: CompleteStepProps) {
         (list) => !list.custom && list.fieldType !== 'files',
       );
       const companyExtraInfo = companyInformation.filter((list) => !!list.custom);
+      // company field
       if (companyInfo.length) {
-        companyInfo.forEach((item: any) => {
+        companyInfo.forEach((item: RegisterFields) => {
           b2bFields[toHump(deCodeField(item.name))] = item?.default || '';
         });
       }
 
+      // Company Additional Field
       if (companyExtraInfo.length) {
         const extraFields: Array<CustomFieldItems> = [];
         companyExtraInfo.forEach((item: CustomFieldItems) => {
@@ -259,6 +266,7 @@ export default function CompleteStep(props: CompleteStepProps) {
         b2bFields.extraFields = extraFields;
       }
 
+      // address Field
       const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || [];
       const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || [];
 
@@ -275,6 +283,7 @@ export default function CompleteStep(props: CompleteStepProps) {
         });
       }
 
+      // address Additional Field
       if (addressExtraBasicInfo.length) {
         const extraFields: Array<CustomFieldItems> = [];
         addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
@@ -300,8 +309,8 @@ export default function CompleteStep(props: CompleteStepProps) {
 
     if (!attachmentsList.length) return undefined;
 
-    attachmentsList.forEach((field: any) => {
-      attachments = field.default;
+    attachmentsList.forEach((field: RegisterFields) => {
+      attachments = (field.default as File[]) ?? [];
     });
 
     try {
@@ -314,21 +323,24 @@ export default function CompleteStep(props: CompleteStepProps) {
         ),
       );
 
-      const fileList = fileResponse.reduce((fileList: any, res: any) => {
-        let list = fileList;
-        if (res.code === 200) {
-          const newData = {
-            ...res.data,
-          };
-          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
-          list = [...fileList, newData];
-        } else {
-          throw (
-            res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
-          );
-        }
-        return list;
-      }, []);
+      const fileList = fileResponse.reduce(
+        (
+          accumulatedFileList: Array<Record<string, unknown>>,
+          res: { code: number; data?: { errMsg?: string; fileSize?: string }; message?: string },
+        ) => {
+          if (res.code === 200) {
+            const newData = {
+              ...res.data,
+            } as Record<string, unknown>;
+            newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
+            return [...accumulatedFileList, newData];
+          }
+          const message =
+            res.data?.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure');
+          throw new Error(message);
+        },
+        [],
+      );
 
       return fileList;
     } catch (error) {
@@ -386,8 +398,8 @@ export default function CompleteStep(props: CompleteStepProps) {
             last_name: lastName.default,
             channel_id: channelId || 1,
           });
-        } catch (err: any) {
-          setErrorMessage(err?.message || err);
+        } catch (err: unknown) {
+          setErrorMessage(err instanceof Error ? err.message : String(err));
         }
       }
     }
@@ -452,8 +464,8 @@ export default function CompleteStep(props: CompleteStepProps) {
           saveRegisterPassword({ password, confirmPassword });
           await handleSendSubscribersState();
           handleNext(password);
-        } catch (err: any) {
-          setErrorMessage(err?.message || err);
+        } catch (err: unknown) {
+          setErrorMessage(err instanceof Error ? err.message : String(err));
         } finally {
           dispatch({
             type: 'loading',
