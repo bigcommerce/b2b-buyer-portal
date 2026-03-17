@@ -9,8 +9,8 @@ import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
 import { RegisteredContext } from '../../context/RegisteredContext';
-import { PrimaryButton } from '../PrimaryButton';
 import { StyleTipContainer } from '../../styled';
+import { PrimaryButton } from '../PrimaryButton';
 
 interface FinishStepProps {
   handleFinish: (shouldAutoLogin: boolean) => void;
@@ -39,6 +39,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
   const blockPendingAccountViewPrice = B3SStorage.get('blockPendingAccountViewPrice');
 
   const renderB2BSuccessPage = () => {
+    // Business Account
     if (accountType === '1') {
       if (isAutoApproval) {
         shouldAutoLogin.current = true;
@@ -49,6 +50,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
         );
       }
 
+      // Pending approval, check feature blocks
       shouldAutoLogin.current = false;
 
       if (blockPendingAccountViewPrice && !blockPendingAccountOrderCreation) {
@@ -78,6 +80,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
       );
     }
 
+    // Personal Account
     if (accountType === '2') {
       shouldAutoLogin.current = true;
       return (
@@ -87,6 +90,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
       );
     }
 
+    // Unknown account type
     return undefined;
   };
 
