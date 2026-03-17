@@ -509,7 +509,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
                   wordWrap: 'break-word',
                 }}
               >
-                {`Create password for ${enterEmail}`}
+                {b3Lang('global.registerComplete.createPasswordFor', { email: enterEmail })}
               </Box>
             )}
             <B3CustomForm formFields={personalInfo} errors={errors} control={control} />

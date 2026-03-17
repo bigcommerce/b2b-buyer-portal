@@ -70,7 +70,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
     const info = contactInfo;
     if (contactInfo.fieldId === 'field_email' && accountType === '1') {
       info.isTip = true;
-      info.tipText = 'This email will be used to sign in to your account';
+      info.tipText = b3Lang('register.tip.emailSignIn');
     }
 
     return contactInfo;
