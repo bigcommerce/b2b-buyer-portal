@@ -8,18 +8,18 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { Country, State, validateExtraFields } from './config';
-import { PrimaryButton } from './PrimaryButton';
-import { InformationFourLabels, TipContent } from './styled';
-import { RegisterFields } from './types';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { Country, State, validateExtraFields } from '../../config';
+import { PrimaryButton } from '../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
 
-interface RegisteredDetailProps {
+interface DetailStepProps {
   handleBack: () => void;
   handleNext: () => void;
 }
 
-export default function RegisteredDetail({ handleBack, handleNext }: RegisteredDetailProps) {
+export default function DetailStep({ handleBack, handleNext }: DetailStepProps) {
   const b3Lang = useB3Lang();
 
   const { state, dispatch } = useContext(RegisteredContext);

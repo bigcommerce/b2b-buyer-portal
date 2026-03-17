@@ -32,8 +32,8 @@ import { type PageProps } from '../PageProps';
 
 import { RegisteredContext, RegisteredProvider } from './context/RegisteredContext';
 import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
-import RegisterContent from './RegisterContent';
-import RegisteredStep from './RegisteredStep';
+import RegisterContent from './components/RegisterContent';
+import RegisteredStep from './components/RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';
 // 1 bc 2 b2b

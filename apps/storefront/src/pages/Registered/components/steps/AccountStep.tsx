@@ -16,17 +16,17 @@ import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { emailError } from './config';
-import { PrimaryButton } from './PrimaryButton';
-import { InformationFourLabels, TipContent } from './styled';
-import { RegisterFields } from './types';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { emailError } from '../../config';
+import { PrimaryButton } from '../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
 
-interface RegisteredAccountProps {
+interface AccountStepProps {
   handleNext: (email: string) => void;
 }
 
-export default function RegisteredAccount({ handleNext }: RegisteredAccountProps) {
+export default function AccountStep({ handleNext }: AccountStepProps) {
   const { state, dispatch } = useContext(RegisteredContext);
   const IframeDocument = useAppSelector(themeFrameSelector);
 
