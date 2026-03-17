@@ -13,10 +13,11 @@ import {
 } from '@/shared/service/b2b';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
+import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
 import { RegisteredContext } from './context/RegisteredContext';
-import { Base64, emailError } from './config';
+import { emailError } from './config';
 import { PrimaryButton } from './PrimaryButton';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';

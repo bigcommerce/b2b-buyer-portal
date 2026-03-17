@@ -17,6 +17,7 @@ import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
+import { Base64 } from '@/utils/base64';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -32,7 +33,6 @@ import { type PageProps } from '../PageProps';
 import {
   AccountFormFieldsItems,
   b2bAddressRequiredFields,
-  Base64,
   Country,
   deCodeField,
   getAccountFormFields,
