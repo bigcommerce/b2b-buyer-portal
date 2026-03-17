@@ -19,19 +19,19 @@ import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { PrimaryButton } from './PrimaryButton';
-import { InformationFourLabels, TipContent } from './styled';
-import { RegisterFields } from './types';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { PrimaryButton } from '../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
 
-interface RegisterCompleteProps {
+interface CompleteStepProps {
   handleBack: () => void;
   handleNext: (password: string) => void;
 }
 
-type RegisterCompleteList = Array<RegisterFields> | undefined;
+type CompleteStepList = Array<RegisterFields> | undefined;
 
-export default function RegisterComplete(props: RegisterCompleteProps) {
+export default function CompleteStep(props: CompleteStepProps) {
   const b3Lang = useB3Lang();
   const { handleBack, handleNext } = props;
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
@@ -103,14 +103,14 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     emailMarketingNewsletter,
   } = state;
 
-  const list: RegisterCompleteList =
+  const list: CompleteStepList =
     accountType === '1' ? contactInformation : bcContactInformation;
-  const passwordInfo: RegisterCompleteList =
+  const passwordInfo: CompleteStepList =
     accountType === '1' ? passwordInformation : bcPasswordInformation;
 
   const passwordName = passwordInfo[0]?.groupName || '';
 
-  const additionalInfo: RegisterCompleteList =
+  const additionalInfo: CompleteStepList =
     accountType === '1' ? additionalInformation : bcAdditionalInformation;
 
   const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
@@ -188,7 +188,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       }
 
       addresses.form_fields = [];
-      // BC Extra field
       if (getBCExtraAddressField && getBCExtraAddressField.length) {
         getBCExtraAddressField.forEach((field: any) => {
           addresses.form_fields.push({
@@ -225,7 +224,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       b2bFields.customerEmail = customerEmail || '';
       b2bFields.storeHash = storeHash;
 
-      // company user extra field
       const b2bContactInformationList = list || [];
       const companyUserExtraFieldsList = b2bContactInformationList.filter((item) => !!item.custom);
 
@@ -244,14 +242,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         (list) => !list.custom && list.fieldType !== 'files',
       );
       const companyExtraInfo = companyInformation.filter((list) => !!list.custom);
-      // company field
       if (companyInfo.length) {
         companyInfo.forEach((item: any) => {
           b2bFields[toHump(deCodeField(item.name))] = item?.default || '';
         });
       }
 
-      // Company Additional Field
       if (companyExtraInfo.length) {
         const extraFields: Array<CustomFieldItems> = [];
         companyExtraInfo.forEach((item: CustomFieldItems) => {
@@ -263,7 +259,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         b2bFields.extraFields = extraFields;
       }
 
-      // address Field
       const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || [];
       const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || [];
 
@@ -280,7 +275,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         });
       }
 
-      // address Additional Field
       if (addressExtraBasicInfo.length) {
         const extraFields: Array<CustomFieldItems> = [];
         addressExtraBasicInfo.forEach((item: CustomFieldItems) => {

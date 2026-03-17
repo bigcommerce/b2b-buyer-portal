@@ -5,8 +5,8 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { steps } from './config';
+import { RegisteredContext } from '../context/RegisteredContext';
+import { steps } from '../config';
 
 interface RegisteredStepProps {
   children: ReactNode;

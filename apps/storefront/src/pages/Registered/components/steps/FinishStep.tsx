@@ -8,16 +8,16 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
-import { RegisteredContext } from './context/RegisteredContext';
-import { PrimaryButton } from './PrimaryButton';
-import { StyleTipContainer } from './styled';
+import { RegisteredContext } from '../../context/RegisteredContext';
+import { PrimaryButton } from '../PrimaryButton';
+import { StyleTipContainer } from '../../styled';
 
-interface Props {
+interface FinishStepProps {
   handleFinish: (shouldAutoLogin: boolean) => void;
   isBCToB2B?: boolean;
 }
 
-export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Props) {
+export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishStepProps) {
   const { state } = useContext(RegisteredContext);
   const b3Lang = useB3Lang();
   const shouldAutoLogin = useRef(false);
@@ -39,7 +39,6 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
   const blockPendingAccountViewPrice = B3SStorage.get('blockPendingAccountViewPrice');
 
   const renderB2BSuccessPage = () => {
-    // Business Account
     if (accountType === '1') {
       if (isAutoApproval) {
         shouldAutoLogin.current = true;
@@ -50,7 +49,6 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
         );
       }
 
-      // Pending approval, check feature blocks
       shouldAutoLogin.current = false;
 
       if (blockPendingAccountViewPrice && !blockPendingAccountOrderCreation) {
@@ -80,7 +78,6 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
       );
     }
 
-    // Personal Account
     if (accountType === '2') {
       shouldAutoLogin.current = true;
       return (
@@ -90,7 +87,6 @@ export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Pr
       );
     }
 
-    // Unknown account type
     return undefined;
   };
 

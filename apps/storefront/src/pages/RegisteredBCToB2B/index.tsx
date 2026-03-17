@@ -39,7 +39,7 @@ import {
 import { type PageProps } from '../PageProps';
 import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
 import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
-import RegisteredFinish from '../Registered/RegisteredFinish';
+import FinishStep from '../Registered/components/steps/FinishStep';
 import {
   InformationFourLabels,
   InformationLabels,
@@ -649,7 +649,7 @@ function RegisteredBCToB2B(props: PageProps) {
             )}
 
             {showFinishPage ? (
-              <RegisteredFinish handleFinish={handleFinish} isBCToB2B />
+              <FinishStep handleFinish={handleFinish} isBCToB2B />
             ) : (
               <StyledRegisterContent
                 sx={{
