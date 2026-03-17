@@ -1,7 +1,6 @@
 import { Fields, ParamProps } from '@/types/accountSetting';
+import { deCodeField } from '@/utils/registerUtils';
 import { validatorRules } from '@/utils/validatorRules';
-
-import { deCodeField } from '../Registered/config';
 
 const emailValidate = validatorRules(['email']);
 

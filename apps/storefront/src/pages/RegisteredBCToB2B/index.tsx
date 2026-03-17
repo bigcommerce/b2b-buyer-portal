@@ -20,6 +20,13 @@ import { loginJump } from '@/utils/b3Login';
 import { Base64 } from '@/utils/base64';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import {
+  AccountFormFieldsItems,
+  deCodeField,
+  getAccountFormFields,
+  RegisterFieldsItems,
+  toHump,
+} from '@/utils/registerUtils';
 
 import {
   createB2BCompanyUser,
@@ -30,16 +37,7 @@ import {
   validateBCCompanyUserExtraFields,
 } from '../../shared/service/b2b';
 import { type PageProps } from '../PageProps';
-import {
-  AccountFormFieldsItems,
-  b2bAddressRequiredFields,
-  Country,
-  deCodeField,
-  getAccountFormFields,
-  RegisterFieldsItems,
-  State,
-  toHump,
-} from '../Registered/config';
+import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
 import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
 import RegisteredFinish from '../Registered/RegisteredFinish';
 import {
@@ -157,7 +155,7 @@ function RegisteredBCToB2B(props: PageProps) {
         const bcToB2BAccountFormFields = getAccountFormFields(newAccountFormFields || []);
         const { countries } = await getB2BCountries();
 
-        const newAddressInformationFields = bcToB2BAccountFormFields.address.map(
+        const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
           (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
             const fields = addressFields;
             if (addressFields.name === 'country') {
@@ -178,7 +176,7 @@ function RegisteredBCToB2B(props: PageProps) {
           email: emailAddress,
         };
 
-        const newContactInformation = bcToB2BAccountFormFields.contactInformation.map(
+        const newContactInformation = (bcToB2BAccountFormFields.contactInformation ?? []).map(
           (contactInformationField: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
             const field = contactInformationField;
             field.disabled = true;
@@ -200,10 +198,12 @@ function RegisteredBCToB2B(props: PageProps) {
             type: 'all',
             payload: {
               isLoading: false,
-              bcTob2bContactInformation: [...newContactInformation],
+              bcTob2bContactInformation: [...newContactInformation] as RegisterFields[],
               bcTob2bCompanyExtraFields: [],
-              bcTob2bCompanyInformation: [...bcToB2BAccountFormFields.businessDetails],
-              bcTob2bAddressBasicFields: [...newAddressInformationFields],
+              bcTob2bCompanyInformation: [
+                ...(bcToB2BAccountFormFields.businessDetails ?? []),
+              ] as RegisterFields[],
+              bcTob2bAddressBasicFields: [...newAddressInformationFields] as RegisterFields[],
               countryList: [...countries],
             },
           });

@@ -27,8 +27,7 @@ import { Fields, ParamProps } from '@/types/accountSetting';
 import { B3SStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, platform } from '@/utils/basicConfig';
-
-import { deCodeField, getAccountFormFields } from '../Registered/config';
+import { deCodeField, getAccountFormFields } from '@/utils/registerUtils';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
 import { UpgradeBanner } from './UpgradeBanner';
@@ -157,10 +156,11 @@ function AccountSetting() {
         );
 
         const contactInformation = (accountFormFields?.contactInformation || []).filter(
-          (item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter',
-        );
+          (item) => item.fieldId !== 'field_email_marketing_newsletter',
+        ) as Partial<Fields>[];
 
-        const { additionalInformation = [] } = accountFormFields;
+        const additionalInformation = (accountFormFields?.additionalInformation ??
+          []) as Partial<Fields>[];
 
         const { [key]: accountSettings } = await fn(params);
 

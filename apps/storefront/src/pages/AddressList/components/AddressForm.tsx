@@ -14,9 +14,9 @@ import {
   validateAddressExtraFields,
 } from '@/shared/service/b2b';
 import { snackbar } from '@/utils/b3Tip';
+import { deCodeField } from '@/utils/registerUtils';
 
 import { AddressItemType } from '../../../types/address';
-import { deCodeField } from '../../Registered/config';
 import { b2bShippingBilling, B2bShippingBillingProps } from '../shared/config';
 import { CountryProps, StateProps } from '../shared/getAddressFields';
 
