@@ -5,7 +5,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
-import { AccountType, steps } from '../config';
+import { steps } from '../config';
 import { RegisteredContext } from '../context/RegisteredContext';
 
 interface RegisteredStepProps {
@@ -28,9 +28,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
   const pageTitle = useMemo(() => {
     return submitSuccess
       ? b3Lang(
-          accountType === AccountType.B2B
-            ? 'register.title.registerComplete'
-            : 'register.title.accountCreated',
+          accountType === '1' ? 'register.title.registerComplete' : 'register.title.accountCreated',
         )
       : b3Lang('register.title.accountRegister');
   }, [submitSuccess, accountType, b3Lang]);

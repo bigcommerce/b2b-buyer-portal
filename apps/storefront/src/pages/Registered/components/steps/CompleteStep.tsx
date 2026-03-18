@@ -19,7 +19,6 @@ import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
-import { AccountType } from '../../config';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
@@ -104,18 +103,16 @@ export default function CompleteStep(props: CompleteStepProps) {
     emailMarketingNewsletter,
   } = state;
 
-  const list: CompleteStepList =
-    accountType === AccountType.B2B ? contactInformation : bcContactInformation;
+  const list: CompleteStepList = accountType === '1' ? contactInformation : bcContactInformation;
   const passwordInfo: CompleteStepList =
-    accountType === AccountType.B2B ? passwordInformation : bcPasswordInformation;
+    accountType === '1' ? passwordInformation : bcPasswordInformation;
 
   const passwordName = passwordInfo[0]?.groupName || '';
 
   const additionalInfo: CompleteStepList =
-    accountType === AccountType.B2B ? additionalInformation : bcAdditionalInformation;
+    accountType === '1' ? additionalInformation : bcAdditionalInformation;
 
-  const addressBasicList =
-    accountType === AccountType.B2B ? addressBasicFields : bcAddressBasicFields;
+  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
 
   useEffect(() => {
     if (!accountType) return;
@@ -166,7 +163,7 @@ export default function CompleteStep(props: CompleteStepProps) {
     bcFields.origin_channel_id = channelId;
     bcFields.channel_ids = [channelId];
 
-    if (accountType === AccountType.BC) {
+    if (accountType === '2') {
       const addresses: CustomFieldItems = {};
 
       const getBCAddressField = addressBasicList.filter((field: RegisterFields) => !field.custom);
@@ -355,7 +352,7 @@ export default function CompleteStep(props: CompleteStepProps) {
   const saveRegisterPassword = (data: CustomFieldItems) => {
     const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
       const registerField = field;
-      if (accountType === AccountType.B2B) {
+      if (accountType === '1') {
         registerField.default = data[field.name] || field.default;
       }
       return field;
@@ -363,7 +360,7 @@ export default function CompleteStep(props: CompleteStepProps) {
 
     const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
       const registerField = field;
-      if (accountType === AccountType.BC) {
+      if (accountType === '2') {
         registerField.default = data[field.name] || field.default;
       }
 
@@ -437,7 +434,7 @@ export default function CompleteStep(props: CompleteStepProps) {
           });
 
           let isAuto = true;
-          if (accountType === AccountType.BC) {
+          if (accountType === '2') {
             await getBCFieldsValue({ password, confirmPassword });
           } else {
             const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');

@@ -8,12 +8,6 @@ import { RegisterFields } from './types';
 
 type ContactInformationItems = Array<RegisterFields>;
 
-/** Account type: 1 = B2B (business), 2 = BC (personal) */
-export enum AccountType {
-  B2B = '1',
-  BC = '2',
-}
-
 export const steps = [
   'register.step.account',
   'register.step.details',

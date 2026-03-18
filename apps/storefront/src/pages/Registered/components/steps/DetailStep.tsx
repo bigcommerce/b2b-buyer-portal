@@ -8,7 +8,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { AccountType, Country, State, validateExtraFields } from '../../config';
+import { Country, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
@@ -54,13 +54,10 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   } = useForm({
     mode: 'all',
   });
-  const businessDetailsName =
-    accountType === AccountType.B2B ? companyInformation[0]?.groupName : '';
+  const businessDetailsName = accountType === '1' ? companyInformation[0]?.groupName : '';
 
-  const addressBasicName =
-    accountType === AccountType.B2B ? 'addressBasicFields' : 'bcAddressBasicFields';
-  const addressBasicList =
-    accountType === AccountType.B2B ? addressBasicFields : bcAddressBasicFields;
+  const addressBasicName = accountType === '1' ? 'addressBasicFields' : 'bcAddressBasicFields';
+  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
 
   const addressName = addressBasicList[0]?.groupName || '';
 
@@ -179,7 +176,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   };
 
   const handleValidateAttachmentFiles = () => {
-    if (accountType === AccountType.B2B) {
+    if (accountType === '1') {
       const formData = getValues();
       const attachmentsFilesFiled = companyInformation.find(
         (info) => info.fieldId === 'field_attachments',
@@ -211,7 +208,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
       if (hasAttachmentsFilesError) return;
       showLoading(true);
       try {
-        if (accountType === AccountType.B2B) {
+        if (accountType === '1') {
           await Promise.all([
             validateExtraFields({
               fields: companyInformation,
@@ -272,7 +269,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
           <TipContent>{errorMessage}</TipContent>
         </Alert>
       )}
-      {accountType === AccountType.B2B ? (
+      {accountType === '1' ? (
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm
