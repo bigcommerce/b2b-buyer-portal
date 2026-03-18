@@ -16,7 +16,7 @@ import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { emailError } from '../../config';
+import { AccountType, emailError } from '../../config';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
@@ -62,13 +62,14 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
     mode: 'onSubmit',
   });
 
-  const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation';
+  const additionName =
+    accountType === AccountType.B2B ? 'additionalInformation' : 'bcAdditionalInformation';
   const additionalInfo: RegisterFields[] =
-    accountType === '1' ? additionalInformation || [] : bcAdditionalInformation || [];
+    accountType === AccountType.B2B ? additionalInformation || [] : bcAdditionalInformation || [];
 
   const newContactInformation = contactInformation?.map((contactInfo: RegisterFields) => {
     const info = contactInfo;
-    if (contactInfo.fieldId === 'field_email' && accountType === '1') {
+    if (contactInfo.fieldId === 'field_email' && accountType === AccountType.B2B) {
       info.isTip = true;
       info.tipText = b3Lang('register.tip.emailSignIn');
     }
@@ -77,8 +78,9 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
   });
 
   const contactInfo: RegisterFields[] =
-    accountType === '1' ? (newContactInformation ?? []) : bcContactInformation || [];
-  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields';
+    accountType === AccountType.B2B ? (newContactInformation ?? []) : bcContactInformation || [];
+  const contactName =
+    accountType === AccountType.B2B ? 'contactInformation' : 'bcContactInformationFields';
 
   const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : '';
 
@@ -107,7 +109,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
     'email';
 
   const validateEmailValue = async (email: string) => {
-    const isRegisterAsB2BUser = accountType === '1';
+    const isRegisterAsB2BUser = accountType === AccountType.B2B;
     try {
       showLoading(true);
       const {
@@ -160,7 +162,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
 
       try {
         showLoading(true);
-        if (accountType === '1') {
+        if (accountType === AccountType.B2B) {
           const extraCompanyUserInformation = newContactInfo.filter(
             (item: RegisterFields) => !!item.custom,
           );

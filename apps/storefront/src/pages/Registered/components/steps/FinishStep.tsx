@@ -8,6 +8,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
+import { AccountType } from '../../config';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { StyleTipContainer } from '../../styled';
 import { PrimaryButton } from '../PrimaryButton';
@@ -40,7 +41,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
 
   const renderB2BSuccessPage = () => {
     // Business Account
-    if (accountType === '1') {
+    if (accountType === AccountType.B2B) {
       if (isAutoApproval) {
         shouldAutoLogin.current = true;
         return (
@@ -81,7 +82,7 @@ export default function FinishStep({ handleFinish, isBCToB2B = false }: FinishSt
     }
 
     // Personal Account
-    if (accountType === '2') {
+    if (accountType === AccountType.BC) {
       shouldAutoLogin.current = true;
       return (
         <StyleTipContainer>
