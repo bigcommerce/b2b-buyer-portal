@@ -16,7 +16,7 @@ import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { emailError } from '../../config';
+import { EMAIL_ERROR } from '../../constants';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
@@ -120,7 +120,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
 
       if (!isValid) {
         setErrorTips(
-          b3Lang(emailError[userType], {
+          b3Lang(EMAIL_ERROR[userType], {
             companyName: companyName || '',
             email,
           }),

@@ -1,17 +1,21 @@
 import { MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, Box } from '@mui/material';
-import isEmpty from 'lodash-es/isEmpty';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { Country, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
-import { RegisterFields } from '../../types';
+import type { Country, RegisterFields, State } from '../../types';
+import {
+  buildDetailsFormValues,
+  setRegisterFieldsFromFormData,
+  validateAttachmentsRequired,
+  validateExtraFields,
+} from '../../utils';
 import { PrimaryButton } from '../PrimaryButton';
 
 interface DetailStepProps {
@@ -139,31 +143,14 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
     });
   };
 
-  const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) =>
-    formFields.map((field) => {
-      const item = field;
-      item.default = formData[field.name] || field.default;
-      return field;
-    });
-
-  interface DetailsFormValues {
-    [K: string]: string | number | boolean;
-  }
+  const allFields = [...companyInformation, ...companyAttachment, ...addressBasicList];
 
   const saveDetailsData = () => {
-    const data = [...companyInformation, ...companyAttachment, ...addressBasicList].reduce(
-      (formValues: DetailsFormValues, field: RegisterFields) => {
-        const values = formValues;
-        values[field.name] = getValues(field.name) || field.default;
+    const data = buildDetailsFormValues(allFields, (name) => getValues(name));
 
-        return formValues;
-      },
-      {},
-    );
-
-    const newCompanyInformation = setRegisterFieldsValue(companyInformation, data);
-    const newCompanyAttachment = setRegisterFieldsValue(companyAttachment, data);
-    const newAddressBasicFields = setRegisterFieldsValue(addressBasicList, data);
+    const newCompanyInformation = setRegisterFieldsFromFormData(companyInformation, data);
+    const newCompanyAttachment = setRegisterFieldsFromFormData(companyAttachment, data);
+    const newAddressBasicFields = setRegisterFieldsFromFormData(addressBasicList, data);
 
     dispatch({
       type: 'all',
@@ -176,28 +163,21 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   };
 
   const handleValidateAttachmentFiles = () => {
-    if (accountType === '1') {
-      const formData = getValues();
-      const attachmentsFilesFiled = companyInformation.find(
-        (info) => info.fieldId === 'field_attachments',
-      );
-      if (
-        !isEmpty(attachmentsFilesFiled) &&
-        attachmentsFilesFiled.required &&
-        formData[attachmentsFilesFiled.name].length === 0
-      ) {
-        setError(attachmentsFilesFiled.name, {
-          type: 'required',
-          message: b3Lang('global.validate.required', {
-            label: attachmentsFilesFiled.label ?? '',
-          }),
-        });
-
-        showLoading(false);
-        return true;
-      }
+    const result = validateAttachmentsRequired(
+      accountType,
+      companyInformation,
+      getValues() as Record<string, unknown>,
+    );
+    if (result.hasError && result.field) {
+      setError(result.field.name, {
+        type: 'required',
+        message: b3Lang('global.validate.required', {
+          label: result.field.label ?? '',
+        }),
+      });
+      showLoading(false);
+      return true;
     }
-
     return false;
   };
 

@@ -5,7 +5,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
-import { steps } from '../config';
+import { REGISTER_STEPS } from '../constants';
 import { RegisteredContext } from '../context/RegisteredContext';
 
 interface RegisteredStepProps {
@@ -74,7 +74,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
             },
           }}
         >
-          {steps.map((label) => (
+          {REGISTER_STEPS.map((label) => (
             <Step key={label}>
               <StepLabel>{b3Lang(label)}</StepLabel>
             </Step>

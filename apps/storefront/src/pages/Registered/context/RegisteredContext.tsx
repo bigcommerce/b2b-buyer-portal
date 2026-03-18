@@ -1,49 +1,13 @@
-import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react';
+import { createContext, useMemo, useReducer } from 'react';
 
-import { Country, State } from '../config';
-import { RegisterFields } from '../types';
+import type {
+  RegisterAction,
+  RegisterContext,
+  RegisteredProviderProps,
+  RegisterState,
+} from '../types';
 
-interface RegisterState {
-  contactInformation?: Array<RegisterFields>;
-  accountType?: string;
-  additionalInformation?: Array<RegisterFields>;
-  bcAdditionalInformation?: Array<RegisterFields>;
-  bcContactInformation?: Array<RegisterFields>;
-  emailMarketingNewsletter?: boolean;
-  companyInformation?: Array<RegisterFields>;
-  bcCompanyInformation?: Array<RegisterFields>;
-  companyExtraFields?: Array<RegisterFields>;
-  companyAttachment?: Array<RegisterFields>;
-  addressBasicFields?: Array<RegisterFields>;
-  bcAddressBasicFields?: Array<RegisterFields>;
-  addressExtraFields?: Array<RegisterFields>;
-  countryList?: Array<Country>;
-  stateList?: Array<State>;
-  passwordInformation?: Array<RegisterFields>;
-  bcPasswordInformation?: Array<RegisterFields>;
-  isLoading?: boolean;
-  submitSuccess?: boolean;
-  isAutoApproval?: boolean;
-  blockPendingAccountOrderCreation?: boolean;
-  bcTob2bContactInformation?: Array<RegisterFields>;
-  bcTob2bCompanyExtraFields?: Array<RegisterFields>;
-  bcTob2bCompanyInformation?: Array<RegisterFields>;
-  bcTob2bAddressBasicFields?: Array<RegisterFields>;
-}
-interface RegisterAction {
-  type: string;
-  payload: RegisterState;
-}
-interface RegisterContext {
-  state: RegisterState;
-  dispatch: Dispatch<RegisterAction>;
-}
-
-interface RegisteredProviderProps {
-  children: ReactNode;
-}
-
-const initState = {
+const initState: RegisterState = {
   contactInformation: [],
   bcContactInformation: [],
   additionalInformation: [],

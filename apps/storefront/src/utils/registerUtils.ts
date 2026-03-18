@@ -6,6 +6,14 @@ import { validatorRules } from '@/utils/validatorRules';
 
 const DATE_INPUT_FORMAT = 'yyyy-MM-dd';
 
+export const B2B_ADDRESS_REQUIRED_FIELDS = [
+  'field_country',
+  'field_address_1',
+  'field_city',
+  'field_state',
+  'field_zip_code',
+];
+
 interface ValidateOptionItems extends Record<string, unknown> {
   max?: number;
   min?: number;

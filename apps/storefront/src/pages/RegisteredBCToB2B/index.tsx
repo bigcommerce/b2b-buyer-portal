@@ -14,6 +14,14 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
+import {
+  createB2BCompanyUser,
+  getB2BAccountFormFields,
+  getB2BCountries,
+  uploadB2BFile,
+  validateBCCompanyExtraFields,
+  validateBCCompanyUserExtraFields,
+} from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
@@ -22,23 +30,15 @@ import { channelId, storeHash } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import {
   AccountFormFieldsItems,
+  B2B_ADDRESS_REQUIRED_FIELDS,
   deCodeField,
   getAccountFormFields,
   RegisterFieldsItems,
   toHump,
 } from '@/utils/registerUtils';
 
-import {
-  createB2BCompanyUser,
-  getB2BAccountFormFields,
-  getB2BCountries,
-  uploadB2BFile,
-  validateBCCompanyExtraFields,
-  validateBCCompanyUserExtraFields,
-} from '../../shared/service/b2b';
 import { type PageProps } from '../PageProps';
 import FinishStep from '../Registered/components/steps/FinishStep';
-import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
 import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
 import {
   InformationFourLabels,
@@ -47,7 +47,7 @@ import {
   RegisteredImage,
   TipContent,
 } from '../Registered/styled';
-import { RegisterFields } from '../Registered/types';
+import type { Country, RegisterFields, State } from '../Registered/types';
 
 interface CustomerInfo {
   [k: string]: string;
@@ -144,7 +144,7 @@ function RegisteredBCToB2B(props: PageProps) {
           accountFormAllFields?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
           const accountFields = fields;
-          if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
+          if (B2B_ADDRESS_REQUIRED_FIELDS.includes(fields?.fieldId || '') && fields.groupId === 4) {
             accountFields.isRequired = true;
             accountFields.visible = true;
           }
@@ -198,12 +198,14 @@ function RegisteredBCToB2B(props: PageProps) {
             type: 'all',
             payload: {
               isLoading: false,
-              bcTob2bContactInformation: [...newContactInformation] as RegisterFields[],
+              bcTob2bContactInformation: [...newContactInformation] as unknown as RegisterFields[],
               bcTob2bCompanyExtraFields: [],
               bcTob2bCompanyInformation: [
                 ...(bcToB2BAccountFormFields.businessDetails ?? []),
-              ] as RegisterFields[],
-              bcTob2bAddressBasicFields: [...newAddressInformationFields] as RegisterFields[],
+              ] as unknown as RegisterFields[],
+              bcTob2bAddressBasicFields: [
+                ...newAddressInformationFields,
+              ] as unknown as RegisterFields[],
               countryList: [...countries],
             },
           });

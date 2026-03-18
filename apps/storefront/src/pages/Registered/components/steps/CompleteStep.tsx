@@ -17,11 +17,15 @@ import {
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
-import { deCodeField, toHump } from '@/utils/registerUtils';
 
 import { RegisteredContext } from '../../context/RegisteredContext';
 import { InformationFourLabels, TipContent } from '../../styled';
-import { RegisterFields } from '../../types';
+import type { RegisterFields } from '../../types';
+import {
+  buildB2BCompanyPayload,
+  buildBCUserPayload,
+  uploadAttachmentsToFileList,
+} from '../../utils';
 import { PrimaryButton } from '../PrimaryButton';
 
 interface CompleteStepProps {
@@ -127,88 +131,16 @@ export default function CompleteStep(props: CompleteStepProps) {
   }, [contactInformation, bcContactInformation, accountType, list, passwordInfo]);
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
-    const bcFields: CustomFieldItems = {};
-
-    bcFields.authentication = {
-      force_password_reset: false,
-      new_password: data.password,
-    };
-
-    bcFields.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter;
-
-    if (list) {
-      list.forEach((item: RegisterFields) => {
-        const name = deCodeField(item.name);
-        if (name === 'accepts_marketing_emails') {
-          bcFields.accepts_product_review_abandoned_cart_emails = Array.isArray(item?.default)
-            ? !!item.default.length
-            : false;
-        } else if (!item.custom) {
-          bcFields[name] = item?.default || '';
-        }
-      });
-
-      bcFields.form_fields = [];
-      if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
-        additionalInfo.forEach((field: CustomFieldItems) => {
-          bcFields.form_fields.push({
-            name: field.bcLabel,
-            value: field.default,
-          });
-        });
-      }
-    }
-
-    bcFields.addresses = [];
-    bcFields.origin_channel_id = channelId;
-    bcFields.channel_ids = [channelId];
-
-    if (accountType === '2') {
-      const addresses: CustomFieldItems = {};
-
-      const getBCAddressField = addressBasicList.filter((field: RegisterFields) => !field.custom);
-      const getBCExtraAddressField = addressBasicList.filter(
-        (field: RegisterFields) => field.custom,
-      );
-
-      if (getBCAddressField) {
-        bcFields.addresses = {};
-        getBCAddressField.forEach((field: RegisterFields) => {
-          if (field.name === 'country') {
-            addresses.country_code = field.default;
-          } else if (field.name === 'state') {
-            addresses.state_or_province = field.default;
-          } else if (field.name === 'postalCode') {
-            addresses.postal_code = field.default;
-          } else if (field.name === 'firstName') {
-            addresses.first_name = field.default;
-          } else if (field.name === 'lastName') {
-            addresses.last_name = field.default;
-          } else {
-            addresses[field.name] = field.default;
-          }
-        });
-      }
-
-      // BC Extra field
-      addresses.form_fields = [];
-      if (getBCExtraAddressField && getBCExtraAddressField.length) {
-        getBCExtraAddressField.forEach((field: RegisterFields) => {
-          addresses.form_fields.push({
-            name: field.bcLabel,
-            value: field.default,
-          });
-        });
-      }
-
-      bcFields.addresses = [addresses];
-      bcFields.trigger_account_created_notification = true;
-    }
-
-    const userItem = {
+    const userItem = buildBCUserPayload({
+      data,
+      list,
+      additionalInfo: additionalInfo as RegisterFields[] | undefined,
+      addressBasicList,
+      accountType,
+      emailMarketingNewsletter,
+      channelId,
       storeHash,
-      ...bcFields,
-    };
+    });
 
     return createBCCompanyUser(userItem, captchaKey).then((res) => ({
       customerId: res.customerCreate.customer.id,
@@ -223,79 +155,16 @@ export default function CompleteStep(props: CompleteStepProps) {
     fileList: unknown,
   ) => {
     try {
-      const b2bFields: CustomFieldItems = {};
-      b2bFields.customerId = customerId || '';
-      b2bFields.customerEmail = customerEmail || '';
-      b2bFields.storeHash = storeHash;
-
-      // company user extra field
-      const b2bContactInformationList = list || [];
-      const companyUserExtraFieldsList = b2bContactInformationList.filter((item) => !!item.custom);
-
-      if (companyUserExtraFieldsList.length) {
-        const companyUserExtraFields: Array<CustomFieldItems> = [];
-        companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {};
-          itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
-          companyUserExtraFields.push(itemExtraField);
-        });
-        b2bFields.userExtraFields = companyUserExtraFields;
-      }
-
-      const companyInfo = companyInformation.filter(
-        (list) => !list.custom && list.fieldType !== 'files',
-      );
-      const companyExtraInfo = companyInformation.filter((list) => !!list.custom);
-      // company field
-      if (companyInfo.length) {
-        companyInfo.forEach((item: RegisterFields) => {
-          b2bFields[toHump(deCodeField(item.name))] = item?.default || '';
-        });
-      }
-
-      // Company Additional Field
-      if (companyExtraInfo.length) {
-        const extraFields: Array<CustomFieldItems> = [];
-        companyExtraInfo.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {};
-          itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
-          extraFields.push(itemExtraField);
-        });
-        b2bFields.extraFields = extraFields;
-      }
-
-      // address Field
-      const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || [];
-      const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || [];
-
-      if (addressBasicInfo.length) {
-        addressBasicInfo.forEach((field: CustomFieldItems) => {
-          const name = deCodeField(field.name);
-          if (name === 'address1') {
-            b2bFields.addressLine1 = field.default;
-          }
-          if (name === 'address2') {
-            b2bFields.addressLine2 = field.default;
-          }
-          b2bFields[name] = field.default;
-        });
-      }
-
-      // address Additional Field
-      if (addressExtraBasicInfo.length) {
-        const extraFields: Array<CustomFieldItems> = [];
-        addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {};
-          itemExtraField.fieldName = deCodeField(item.name);
-          itemExtraField.fieldValue = item?.default || '';
-          extraFields.push(itemExtraField);
-        });
-        b2bFields.addressExtraFields = extraFields;
-      }
-      b2bFields.fileList = fileList;
-      b2bFields.channelId = channelId;
+      const b2bFields = buildB2BCompanyPayload({
+        contactList: list || [],
+        companyInformation,
+        addressBasicList,
+        customerId,
+        customerEmail,
+        fileList,
+        storeHash,
+        channelId,
+      });
 
       return await createB2BCompanyUser(b2bFields);
     } catch (error) {
@@ -305,48 +174,9 @@ export default function CompleteStep(props: CompleteStepProps) {
   };
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
-    let attachments: File[] = [];
-
-    if (!attachmentsList.length) return undefined;
-
-    attachmentsList.forEach((field: RegisterFields) => {
-      attachments = (field.default as File[]) ?? [];
-    });
-
-    try {
-      const fileResponse = await Promise.all(
-        attachments.map((file: File) =>
-          uploadB2BFile({
-            file,
-            type: 'companyAttachedFile',
-          }),
-        ),
-      );
-
-      const fileList = fileResponse.reduce(
-        (
-          accumulatedFileList: Array<Record<string, unknown>>,
-          res: { code: number; data?: { errMsg?: string; fileSize?: string }; message?: string },
-        ) => {
-          if (res.code === 200) {
-            const newData = {
-              ...res.data,
-            } as Record<string, unknown>;
-            newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
-            return [...accumulatedFileList, newData];
-          }
-          const message =
-            res.data?.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure');
-          throw new Error(message);
-        },
-        [],
-      );
-
-      return fileList;
-    } catch (error) {
-      b2bLogger.error(error);
-      throw error;
-    }
+    return uploadAttachmentsToFileList(attachmentsList, uploadB2BFile, () =>
+      b3Lang('intl.global.fileUpload.fileUploadFailure'),
+    );
   };
 
   const saveRegisterPassword = (data: CustomFieldItems) => {
