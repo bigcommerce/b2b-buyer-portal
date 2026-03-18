@@ -33,11 +33,11 @@ import { type PageProps } from '../PageProps';
 import RegisterContent from './components/RegisterContent';
 import RegisteredStep from './components/RegisteredStep';
 import { RegisteredContext, RegisteredProvider } from './context/RegisteredContext';
-import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
+import { AccountType, b2bAddressRequiredFields, companyAttachmentsFields } from './config';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';
-// 1 bc 2 b2b
-const formType: Array<number> = [1, 2];
+
+const formType: Array<number> = [Number(AccountType.B2B), Number(AccountType.BC)];
 
 function Registered(props: PageProps) {
   const { setOpenPage } = props;
@@ -158,7 +158,7 @@ function Registered(props: PageProps) {
           dispatch({
             type: 'all',
             payload: {
-              accountType: accountB2cEnabledInfo ? '2' : '1',
+              accountType: accountB2cEnabledInfo ? AccountType.BC : AccountType.B2B,
               isLoading: false,
               // account
               contactInformation: [
