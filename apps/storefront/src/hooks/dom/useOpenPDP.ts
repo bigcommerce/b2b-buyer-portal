@@ -77,6 +77,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     state: { shoppingListEnabled, registerEnabled },
   } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
 
   const [roleText] = useRole();
 
@@ -136,7 +137,8 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const customTextColor = getStyles(cssValue).color || getContrastColor(color);
 
   useEffect(() => {
-    // if (role === 100) return
+    if (!isPageComplete) return;
+
     const addToShoppingListAll = document.querySelectorAll(config['dom.setToShoppingListParentEl']);
     const CustomAddToShoppingListAll = locationSelector
       ? document.querySelectorAll(locationSelector)
@@ -214,6 +216,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     };
   }, [
     isB2BUser,
+    isPageComplete,
     shoppingListEnabled,
     openQuickView,
     shoppingListBtn,
