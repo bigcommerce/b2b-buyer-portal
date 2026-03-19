@@ -1656,6 +1656,223 @@ describe('when the quantity is not within the min/max', () => {
   });
 });
 
+describe('when the product variant has changed (stale purchased products)', () => {
+  // Product no longer purchasable is covered in describe('when product purchasing_disabled') above.
+
+  it('displays error when variant in purchased products no longer exists in catalog', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Laugh Canister',
+        variantSku: 'OLD-VARIANT-SKU',
+        variantId: '66',
+        productId: '86',
+      },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: Number(laughCanister.node.productId),
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 100,
+              variants: [
+                buildVariantWith({
+                  product_id: Number(laughCanister.node.productId),
+                  variant_id: 99,
+                  sku: 'NEW-VARIANT-SKU',
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Selected product doesn't exist")).toBeInTheDocument();
+    });
+  });
+
+  it('displays error when product modifier in purchased products no longer exists', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    const createCartSimple = vi.fn();
+
+    const productId = 86;
+    const variantId = 66;
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Laugh Canister',
+        variantSku: 'VARIANT-WITH-OPTION',
+        variantId: String(variantId),
+        productId: String(productId),
+        optionList: [
+          buildRecentlyOrderedProductNodeOptionListWith({ product_option_id: 111, value: '106' }),
+        ],
+      },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: laughCanister.node.productName,
+              sku: laughCanister.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 100,
+              variants: [
+                buildVariantWith({
+                  product_id: productId,
+                  variant_id: variantId,
+                  sku: laughCanister.node.variantSku,
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    when(createCartSimple)
+      .calledWith(expect.anything())
+      .thenReturn({
+        data: { cart: { createCart: null } },
+        errors: [
+          {
+            message:
+              'Attributes cannot apply to simple products: Attributes cannot apply to simple products.',
+          },
+        ],
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+      graphql.mutation('createCartSimple', ({ variables }) =>
+        HttpResponse.json(createCartSimple(variables)),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Laugh Canister/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Product modifier is not valid')).toBeInTheDocument();
+    });
+  });
+
+  it('displays error when product in purchased products no longer exists in catalog', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const laughCanister = buildRecentlyOrderedProductNodeWith({
+      node: { productName: 'Deleted Product', variantSku: 'DELETED-SKU', productId: '999' },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: { orderedProducts: { totalCount: 1, edges: [laughCanister] } },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${laughCanister.node.productId}]`))
+      .thenReturn({ data: { productsSearch: [] } });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const row = await screen.findByRole('row', { name: /Deleted Product/ });
+
+    await userEvent.click(within(row).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Selected product doesn't exist")).toBeInTheDocument();
+    });
+  });
+});
+
 describe('when the user has no permissions to purchase but shoppingList and quotes are enabled', () => {
   it('displays add to quote/shopping list when -add selected to- is clicked', async () => {
     const getRecentlyOrderedProducts = vi.fn();

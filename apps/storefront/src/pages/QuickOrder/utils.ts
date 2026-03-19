@@ -22,7 +22,7 @@ export interface CheckedProduct {
 const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunction) => {
   const {
     variantId,
-    variants,
+    variants = [],
     inventoryLevel,
     inventoryTracking,
     orderQuantityMaximum,
@@ -133,7 +133,6 @@ export const addCartProductToVerify = async (
   b3lang: LangFormatFunction,
 ) => {
   const cartProducts: LineItem[] = await getCartProductInfo();
-
   const addCommonProducts = checkedArr.reduce((pre, checkItem) => {
     const { node } = checkItem;
 

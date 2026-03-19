@@ -10,7 +10,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
-import { useB3Lang } from '@/lib/lang';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,
@@ -41,6 +41,15 @@ import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList'
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
 import { addCartProductToVerify, CheckedProduct } from '../utils';
 
+const cartErrorMapping = (errMessage: string | undefined, b3Lang: LangFormatFunction) => {
+  if (!errMessage) return b3Lang('purchasedProducts.error.default');
+  if (errMessage.includes('Attributes cannot apply to simple products'))
+    return b3Lang('purchasedProducts.error.wrongModifier');
+  if (errMessage.includes('Product variant is not purchasable'))
+    return b3Lang('purchasedProducts.error.nonPurchasableVariant');
+  return errMessage;
+};
+
 interface QuickOrderFooterProps {
   checkedArr: CheckedProduct[];
   isAgenting: boolean;
@@ -48,6 +57,12 @@ interface QuickOrderFooterProps {
   isB2BUser: boolean;
 }
 
+/**
+ * Maps Quick Order checked rows plus `searchProducts` results into cart line payloads
+ * for `createOrUpdateExistingCart`. For each selection, finds the product by id, then
+ * the variant by sku + variant id; builds optionSelections from optionList. Rows with
+ * no matching product or variant are omitted.
+ */
 const transformToCartLineItems = (productsSearch: Product[], checkedArr: CheckedProduct[]) => {
   const lineItems: CustomFieldItems[] = [];
 
@@ -168,15 +183,23 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       if (!isPassVerify) return;
 
       const lineItems = await getProductsSearchInfo();
+      /*
+       when no product is valid from product search and we call createCart api
+       an ineligible error will be thrown, hence catching the error early
+      */
+      if (lineItems.length === 0) {
+        snackbar.error(b3Lang('purchasedProducts.error.notPresent'));
+        return;
+      }
 
       const res = await createOrUpdateExistingCart(lineItems);
 
       if (res && !res.errors) {
         showAddToCartSuccessMessage();
-      } else if (res && res.errors) {
-        snackbar.error(res.errors[0].message);
-      } else {
-        snackbar.error('Error has occurred');
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        snackbar.error(cartErrorMapping(err.message, b3Lang));
       }
     } finally {
       b3TriggerCartNumber();
@@ -187,11 +210,17 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const handleBackendAddSelectedToCart = async () => {
     try {
       const lineItems = await getProductsSearchInfo();
+
+      if (lineItems.length === 0) {
+        snackbar.error(b3Lang('purchasedProducts.error.notPresent'));
+        return;
+      }
+
       await createOrUpdateExistingCart(lineItems);
       showAddToCartSuccessMessage();
-    } catch (e) {
-      if (e instanceof Error) {
-        snackbar.error(e.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        snackbar.error(cartErrorMapping(err.message, b3Lang));
       }
     } finally {
       b3TriggerCartNumber();
