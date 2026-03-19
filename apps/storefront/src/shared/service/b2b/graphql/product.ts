@@ -472,7 +472,12 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       query: getSearchProductsQuery(data, true),
       variables: {
         search: data?.search || '',
-        productIds: data?.productIds || [],
+        // One of the calls to this API uses productId values that have been returned from the
+        // backend as strings.
+        // This is incorrect for the datatype, but in sending the values back as variables rather
+        // than interpolated into the query, we need to force-cast until proper types are enforced
+        // in the model.
+        productIds: data?.productIds ? data?.productIds.map(Number) : [],
         currencyCode: data?.currencyCode || currencyCode || '',
         companyId: `${data?.companyId || ''}`,
         storeHash,
