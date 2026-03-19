@@ -472,7 +472,7 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       query: getSearchProductsQuery(data, true),
       variables: {
         search: data?.search || '',
-        productIds: data?.productIds || [],
+        productIds: data?.productIds ? data?.productIds.map(Number) : [],
         currencyCode: data?.currencyCode || currencyCode || '',
         companyId: `${data?.companyId || ''}`,
         storeHash,
