@@ -30,16 +30,18 @@ You can get straight to work building for your unique B2B business cases.
 
 - [Index](#index)
 - [☑ Prerequisites](#-prerequisites)
-  - [Step 1: Access the Storefronts Manager](#step-1-access-the-storefronts-manager)
-  - [Step 2: Enable B2B on Your Channel](#step-2-enable-b2b-on-your-channel)
-  - [Step 3: Contact Us for Additional Support](#step-3-contact-us-for-additional-support)
+  - [Step 1: Ensure you have access to the B2B edition app](#step-1-ensure-you-have-access-to-the-b2b-edition-app)
+  - [Step 2 (optional): Access storefront manager (Only for B2B Multi-storefront and headless stores)](#step-2-optional-access-storefront-manager-only-for-b2b-multi-storefront-and-headless-stores)
+  - [Step 3: Enable B2B on Your Channel](#step-3-enable-b2b-on-your-channel)
+  - [Step 4: Contact Us for Additional Support](#step-4-contact-us-for-additional-support)
 - [🚀 Core Technologies](#-core-technologies)
 - [📦 Workspaces](#-workspaces)
 - [🛠 Tools and Libraries](#-tools-and-libraries)
 - [🛠 System Setup](#-system-setup)
-- [⚙ Local Development](#-local-development)
-- [Running Project Locally](#running-project-locally)
-- [Deploying the project](#deploying-the-project)
+- [⚙ Getting Started](#-getting-started)
+  - [Developing on Stencil](#developing-on-stencil)
+  - [Developing for Headless](#developing-for-headless)
+  - [Releases](#releases)
   - [Common issues:](#common-issues)
 - [🤝 Contribution](#-contribution)
 - [📞 Contact \& Support](#-contact--support)
@@ -107,6 +109,13 @@ For assistance with activating the remote buyer portal or to inquire about multi
 5. Update the values in `.env` with your specific values
 6. Start the development server: `yarn dev`.
 7. **Access to the store through the url i.e: https://my-store.mybigcommerce.com/ or https://my-store.com/ not http://localhost:3001**
+
+> [!TIP]
+>
+> You will need to follow one of the following paths
+> ([Developing on Stencil](#developing-on-stencil) or
+> [Developing for Headless](#developing-for-headless)) so that the buyer portal scripts are
+> configured and will be injected into the storefront pages.
 
 ### [Developing on Stencil](./docs/stencil.md)
 
