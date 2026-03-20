@@ -1,13 +1,5 @@
 import styled from '@emotion/styled';
 
-export const InformationLabels = styled('h3')(() => ({
-  margin: '1rem 0',
-  display: 'flex',
-  justifyContent: 'center',
-  fontSize: '34px',
-  fontWeight: '400',
-}));
-
 export const RegisteredContainer = styled('div')((props: CustomFieldItems) => {
   const { isMobile = false } = props;
   const style = isMobile
