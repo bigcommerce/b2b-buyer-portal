@@ -31,9 +31,8 @@ import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
 
 import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
-import RegisterContent from './RegisterContent';
 import { RegisteredContext, RegisteredProvider } from './RegisteredContext';
-import RegisteredStep from './RegisteredStep';
+import { RegisterSteps } from './RegisterSteps';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';
 // 1 bc 2 b2b
@@ -336,14 +335,13 @@ function Registered(props: PageProps) {
                 />
               </ImageListItem>
             </RegisteredImage>
-            <RegisteredStep activeStep={activeStep} backgroundColor={backgroundColor}>
-              <RegisterContent
-                activeStep={activeStep}
-                handleBack={handleBack}
-                handleNext={handleNext}
-                handleFinish={handleFinish}
-              />
-            </RegisteredStep>
+            <RegisterSteps
+              activeStep={activeStep}
+              backgroundColor={backgroundColor}
+              handleBack={handleBack}
+              handleNext={handleNext}
+              handleFinish={handleFinish}
+            />
           </Box>
         </B3Spin>
       </RegisteredContainer>
