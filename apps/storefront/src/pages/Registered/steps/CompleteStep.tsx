@@ -19,8 +19,8 @@ import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
-import { RegisteredContext } from '../context/RegisteredContext';
 import { PrimaryButton } from '../PrimaryButton';
+import { RegisteredContext } from '../RegisteredContext';
 import { InformationFourLabels, TipContent } from '../styled';
 import { RegisterFields } from '../types';
 

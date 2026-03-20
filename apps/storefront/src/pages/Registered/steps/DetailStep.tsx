@@ -9,8 +9,8 @@ import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { Country, State, validateExtraFields } from '../config';
-import { RegisteredContext } from '../context/RegisteredContext';
 import { PrimaryButton } from '../PrimaryButton';
+import { RegisteredContext } from '../RegisteredContext';
 import { InformationFourLabels, TipContent } from '../styled';
 import { RegisterFields } from '../types';
 

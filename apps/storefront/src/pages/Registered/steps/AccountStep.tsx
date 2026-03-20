@@ -17,8 +17,8 @@ import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
 import { emailError } from '../config';
-import { RegisteredContext } from '../context/RegisteredContext';
 import { PrimaryButton } from '../PrimaryButton';
+import { RegisteredContext } from '../RegisteredContext';
 import { InformationFourLabels, TipContent } from '../styled';
 import { RegisterFields } from '../types';
 

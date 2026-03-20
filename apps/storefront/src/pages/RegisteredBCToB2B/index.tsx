@@ -38,7 +38,7 @@ import {
 } from '../../shared/service/b2b';
 import { type PageProps } from '../PageProps';
 import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
-import { RegisteredContext, RegisteredProvider } from '../Registered/context/RegisteredContext';
+import { RegisteredContext, RegisteredProvider } from '../Registered/RegisteredContext';
 import FinishStep from '../Registered/steps/FinishStep';
 import {
   InformationFourLabels,

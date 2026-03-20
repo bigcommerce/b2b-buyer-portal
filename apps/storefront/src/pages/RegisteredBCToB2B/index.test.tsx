@@ -13,7 +13,7 @@ import {
 import { CustomerRole } from '@/types';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
-import { RegisteredProvider } from '../Registered/context/RegisteredContext';
+import { RegisteredProvider } from '../Registered/RegisteredContext';
 
 import RegisteredBCToB2B from '.';
 
