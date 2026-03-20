@@ -19,10 +19,10 @@ import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
-import { RegisteredContext } from '../../context/RegisteredContext';
-import { InformationFourLabels, TipContent } from '../../styled';
-import { RegisterFields } from '../../types';
+import { RegisteredContext } from '../context/RegisteredContext';
 import { PrimaryButton } from '../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../styled';
+import { RegisterFields } from '../types';
 
 interface CompleteStepProps {
   handleBack: () => void;

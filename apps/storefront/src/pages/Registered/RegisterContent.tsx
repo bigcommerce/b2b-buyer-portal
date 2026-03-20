@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
-import { LoginConfig } from '../../Login/config';
+import { LoginConfig } from '../Login/config';
 
 import AccountStep from './steps/AccountStep';
 import CompleteStep from './steps/CompleteStep';
