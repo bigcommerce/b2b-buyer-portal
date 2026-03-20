@@ -10,7 +10,8 @@ import { B3SStorage } from '@/utils/b3Storage';
 
 import { RegisteredContext } from '../../Context';
 import { StyleTipContainer } from '../../styled';
-import { PrimaryButton } from '../PrimaryButton';
+
+import { PrimaryButton } from './PrimaryButton';
 
 interface FinishStepProps {
   handleFinish: (shouldAutoLogin: boolean) => void;
