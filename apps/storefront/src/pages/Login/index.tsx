@@ -332,8 +332,8 @@ function Login(props: PageProps) {
                       width: isMobile ? 'auto' : loginContainerWidth,
                       paddingRight: isMobile ? 0 : '2%',
                       ml: '16px',
-                      mr: isMobile ? '16px' : '',
-                      pb: registerEnabled ? '' : '36px',
+                      mr: isMobile ? '16px' : undefined,
+                      pb: registerEnabled ? undefined : '36px',
                     }}
                   >
                     <LoginForm

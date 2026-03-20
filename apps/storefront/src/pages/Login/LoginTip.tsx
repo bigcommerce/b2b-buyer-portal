@@ -25,9 +25,10 @@ export default function LoginTip({ flag, loginAccount, showTipInfo }: LoginTipPr
     };
   };
 
-  const tip = flag && tipInfo(flag, loginAccount?.email);
-
   if (!flag || !showTipInfo) return null;
+
+  const tip = tipInfo(flag, loginAccount?.email);
+
   return (
     <Box
       sx={{
