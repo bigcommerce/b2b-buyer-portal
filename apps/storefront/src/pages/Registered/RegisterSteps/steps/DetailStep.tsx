@@ -10,10 +10,9 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { Country, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
-import { InformationFourLabels, TipContent } from '../../styled';
 import { RegisterFields } from '../../types';
-
-import { PrimaryButton } from './PrimaryButton';
+import { PrimaryButton } from '../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../styled';
 
 interface DetailStepProps {
   handleBack: () => void;
