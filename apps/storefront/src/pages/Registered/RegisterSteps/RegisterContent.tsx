@@ -1,7 +1,5 @@
 import { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from '@emotion/styled';
-import { Box } from '@mui/material';
 
 import { LoginConfig } from '../../Login/config';
 
@@ -9,20 +7,7 @@ import AccountStep from './steps/AccountStep';
 import CompleteStep from './steps/CompleteStep';
 import DetailStep from './steps/DetailStep';
 import FinishStep from './steps/FinishStep';
-
-const StyledRegisterContent = styled(Box)({
-  '& #b3-customForm-id-name': {
-    '& label[data-shrink="true"]': {
-      whiteSpace: 'break-spaces',
-      minWidth: 'calc(133% - 24px)',
-      transition: 'unset',
-    },
-
-    '& label[data-shrink="false"]': {
-      whiteSpace: 'break-spaces',
-    },
-  },
-});
+import { StyledRegisterContent } from './styled';
 
 interface RegisterContentProps {
   activeStep: number;

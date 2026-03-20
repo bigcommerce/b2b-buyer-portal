@@ -40,13 +40,8 @@ import { type PageProps } from '../PageProps';
 import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
 import { RegisteredContext, RegisteredProvider } from '../Registered/Context';
 import FinishStep from '../Registered/RegisterSteps/steps/FinishStep';
-import {
-  InformationFourLabels,
-  InformationLabels,
-  RegisteredContainer,
-  RegisteredImage,
-  TipContent,
-} from '../Registered/styled';
+import { InformationFourLabels, TipContent } from '../Registered/RegisterSteps/styled';
+import { InformationLabels, RegisteredContainer, RegisteredImage } from '../Registered/styled';
 import { RegisterFields } from '../Registered/types';
 
 interface CustomerInfo {

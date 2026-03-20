@@ -14,9 +14,9 @@ import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 
 import { RegisteredContext } from '../../../Context';
-import { InformationFourLabels, TipContent } from '../../../styled';
 import { RegisterFields } from '../../../types';
-import { PrimaryButton } from '../PrimaryButton';
+import { PrimaryButton } from '../../PrimaryButton';
+import { InformationFourLabels, TipContent } from '../../styled';
 
 import { createCompany } from './createCompany';
 import { createCustomer } from './createCustomer';
