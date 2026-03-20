@@ -16,11 +16,11 @@ import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { channelId } from '@/utils/basicConfig';
 
-import { emailError } from '../config';
+import { emailError } from '../../config';
+import { RegisteredContext } from '../../Context';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
-import { RegisteredContext } from '../RegisteredContext';
-import { InformationFourLabels, TipContent } from '../styled';
-import { RegisterFields } from '../types';
 
 interface AccountStepProps {
   handleNext: (email: string) => void;

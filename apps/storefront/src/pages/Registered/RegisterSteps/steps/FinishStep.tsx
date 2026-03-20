@@ -8,9 +8,9 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
+import { RegisteredContext } from '../../Context';
+import { StyleTipContainer } from '../../styled';
 import { PrimaryButton } from '../PrimaryButton';
-import { RegisteredContext } from '../RegisteredContext';
-import { StyleTipContainer } from '../styled';
 
 interface FinishStepProps {
   handleFinish: (shouldAutoLogin: boolean) => void;
