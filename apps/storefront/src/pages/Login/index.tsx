@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Alert, Box, ImageListItem } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components/B3Card';
@@ -31,13 +31,13 @@ import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
 import { CatalystLogin } from './CatalystLogin';
-import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
+import { isLoginFlagType, loginCheckout, LoginConfig } from './config';
 import LoginForm from './LoginForm';
 import LoginImage from './LoginImage';
 import LoginPanel from './LoginPanel';
-import { LoginAndRegisterContainer, LoginContainer, LoginImageContainer } from './styled';
-import { useLogout } from './useLogout';
 import LoginTip from './LoginTip';
+import { LoginContainer } from './styled';
+import { useLogout } from './useLogout';
 
 const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
   pendingApprovalToViewPrices:
@@ -283,6 +283,7 @@ function Login(props: PageProps) {
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              alignItems: !registerEnabled && !isMobile ? 'center' : 'stretch',
               width: '100%',
               minHeight: '400px',
               minWidth: '343px',
@@ -296,7 +297,16 @@ function Login(props: PageProps) {
                     {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
                   </Alert>
                 )}
-                <LoginImage src={loginInfo.logo || getAssetUrl(b2bLogo)} />
+                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+                  <LoginImage
+                    maxWidth={isMobile ? '70%' : '250px'}
+                    src={loginInfo.logo || getAssetUrl(b2bLogo)}
+                    alt={b3Lang('login.registerLogo')}
+                    onClick={() => {
+                      window.location.href = '/';
+                    }}
+                  />
+                </Box>
                 {loginInfo.widgetHeadText && (
                   <LoginWidget
                     sx={{
@@ -306,9 +316,16 @@ function Login(props: PageProps) {
                     html={loginInfo.widgetHeadText}
                   />
                 )}
-                <LoginAndRegisterContainer
-                  containerWidth={isMobile ? 'auto' : loginAndRegisterContainerWidth}
-                  flexDirection={isMobile ? 'column' : 'row'}
+                <Box
+                  sx={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '4px',
+                    margin: '20px 0',
+                    display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'center',
+                    width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+                  }}
                 >
                   <Box
                     sx={{
@@ -341,7 +358,7 @@ function Login(props: PageProps) {
                       />
                     </Box>
                   )}
-                </LoginAndRegisterContainer>
+                </Box>
                 {loginInfo.widgetFooterText && (
                   <LoginWidget
                     sx={{

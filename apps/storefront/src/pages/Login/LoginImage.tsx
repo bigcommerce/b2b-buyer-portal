@@ -1,33 +1,32 @@
 import { Box, ImageListItem } from '@mui/material';
 
-import { useMobile } from '@/hooks/useMobile';
-import { useB3Lang } from '@/lib/lang';
-
-import { LoginImageContainer } from './styled';
-
 interface LoginImageProps {
   src: string;
+  maxWidth: string;
+  alt: string;
+  onClick: (event: React.MouseEvent<HTMLLIElement>) => void;
 }
 
-export default function LoginImage({ src }: LoginImageProps) {
-  const [isMobile] = useMobile();
-  const b3Lang = useB3Lang();
-  const handleImageClick = () => {
-    window.location.href = '/';
-  };
-
+export default function LoginImage({ src, alt, maxWidth, onClick }: LoginImageProps) {
   return (
-    <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-      <LoginImageContainer>
-        <ImageListItem
-          sx={{
-            maxWidth: isMobile ? '70%' : '250px',
-          }}
-          onClick={handleImageClick}
-        >
-          <img src={src} alt={b3Lang('login.registerLogo')} loading="lazy" />
-        </ImageListItem>
-      </LoginImageContainer>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      <ImageListItem
+        sx={{
+          maxWidth,
+        }}
+        onClick={onClick}
+      >
+        <img src={src} alt={alt} loading="lazy" />
+      </ImageListItem>
     </Box>
   );
 }
