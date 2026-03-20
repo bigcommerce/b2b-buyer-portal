@@ -30,9 +30,9 @@ import { getStoreConfigs } from '@/utils/storefrontConfig';
 import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
 
-import { RegisteredContext, RegisteredProvider } from './context/RegisteredContext';
 import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
 import RegisterContent from './RegisterContent';
+import { RegisteredContext, RegisteredProvider } from './RegisteredContext';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';

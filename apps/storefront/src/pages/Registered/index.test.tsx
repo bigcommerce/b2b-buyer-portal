@@ -16,7 +16,7 @@ import { bcLogin } from '@/shared/service/bc';
 import { B3SStorage } from '@/utils/b3Storage';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
-import { RegisteredProvider } from './context/RegisteredContext';
+import { RegisteredProvider } from './RegisteredContext';
 import Registered from '.';
 
 vi.mock('@/shared/service/b2b');
