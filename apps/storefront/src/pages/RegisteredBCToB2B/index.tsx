@@ -1,7 +1,6 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import styled from '@emotion/styled';
 import { Alert, Box, ImageListItem } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 
@@ -40,27 +39,20 @@ import { type PageProps } from '../PageProps';
 import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
 import { RegisteredContext, RegisteredProvider } from '../Registered/Context';
 import FinishStep from '../Registered/RegisterSteps/steps/FinishStep';
-import { InformationFourLabels, TipContent } from '../Registered/RegisterSteps/styled';
-import { InformationLabels, RegisteredContainer, RegisteredImage } from '../Registered/styled';
 import { RegisterFields } from '../Registered/types';
+
+import {
+  InformationFourLabels,
+  InformationLabels,
+  RegisteredContainer,
+  RegisteredImage,
+  StyledRegisterContent,
+  TipContent,
+} from './styled';
 
 interface CustomerInfo {
   [k: string]: string;
 }
-
-const StyledRegisterContent = styled(Box)({
-  '& #b3-customForm-id-name': {
-    '& label[data-shrink="true"]': {
-      whiteSpace: 'break-spaces',
-      minWidth: 'calc(133% - 24px)',
-      transition: 'unset',
-    },
-
-    '& label[data-shrink="false"]': {
-      whiteSpace: 'break-spaces',
-    },
-  },
-});
 
 function RegisteredBCToB2B(props: PageProps) {
   const [errorMessage, setErrorMessage] = useState('');
