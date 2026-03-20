@@ -112,7 +112,10 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 > [!TIP]
 >
-> You will need to follow one of the following paths ([Developing on Stencil](#developing-on-stencil) or [Developing for Headless](#developing-for-headless)) in order that the buyer portal scripts are configured and will be injected into the storefront pages.
+> You will need to follow one of the following paths
+> ([Developing on Stencil](#developing-on-stencil) or
+> [Developing for Headless](#developing-for-headless)) so that the buyer portal scripts are
+> configured and will be injected into the storefront pages.
 
 ### [Developing on Stencil](./docs/stencil.md)
 
