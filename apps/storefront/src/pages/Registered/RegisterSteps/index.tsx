@@ -1,6 +1,7 @@
 import { LoginConfig } from '../../Login/config';
-import RegisterContent from '../RegisterContent';
-import RegisteredStep from '../RegisteredStep';
+
+import RegisterContent from './RegisterContent';
+import RegisteredStep from './RegisteredStep';
 
 interface RegisterStepsProps {
   activeStep: number;

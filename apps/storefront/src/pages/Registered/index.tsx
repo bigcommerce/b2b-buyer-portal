@@ -31,7 +31,7 @@ import { loginCheckout, LoginConfig } from '../Login/config';
 import { type PageProps } from '../PageProps';
 
 import { b2bAddressRequiredFields, companyAttachmentsFields } from './config';
-import { RegisteredContext, RegisteredProvider } from './RegisteredContext';
+import { RegisteredContext, RegisteredProvider } from './Context';
 import { RegisterSteps } from './RegisterSteps';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';

@@ -8,11 +8,11 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { Country, State, validateExtraFields } from '../config';
+import { Country, State, validateExtraFields } from '../../config';
+import { RegisteredContext } from '../../Context';
+import { InformationFourLabels, TipContent } from '../../styled';
+import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
-import { RegisteredContext } from '../RegisteredContext';
-import { InformationFourLabels, TipContent } from '../styled';
-import { RegisterFields } from '../types';
 
 interface DetailStepProps {
   handleBack: () => void;

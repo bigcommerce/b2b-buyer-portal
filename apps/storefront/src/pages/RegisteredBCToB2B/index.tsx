@@ -38,8 +38,8 @@ import {
 } from '../../shared/service/b2b';
 import { type PageProps } from '../PageProps';
 import { b2bAddressRequiredFields, Country, State } from '../Registered/config';
-import { RegisteredContext, RegisteredProvider } from '../Registered/RegisteredContext';
-import FinishStep from '../Registered/steps/FinishStep';
+import { RegisteredContext, RegisteredProvider } from '../Registered/Context';
+import FinishStep from '../Registered/RegisterSteps/steps/FinishStep';
 import {
   InformationFourLabels,
   InformationLabels,
