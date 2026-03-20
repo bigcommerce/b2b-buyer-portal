@@ -8,13 +8,13 @@ import { useB3Lang } from '@/lib/lang';
 import { steps } from '../config';
 import { RegisteredContext } from '../Context';
 
-interface RegisteredStepProps {
+interface RegisterStepProps {
   children: ReactNode;
   activeStep: number;
   backgroundColor: string;
 }
 
-export default function RegisteredStep(props: RegisteredStepProps) {
+export default function RegisterStep(props: RegisterStepProps) {
   const { children, activeStep, backgroundColor } = props;
 
   const b3Lang = useB3Lang();

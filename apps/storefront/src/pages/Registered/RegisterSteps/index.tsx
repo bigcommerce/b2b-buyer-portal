@@ -1,7 +1,7 @@
 import { LoginConfig } from '../../Login/config';
 
 import RegisterContent from './RegisterContent';
-import RegisteredStep from './RegisteredStep';
+import RegisterStep from './RegisterStep';
 
 interface RegisterStepsProps {
   activeStep: number;
@@ -19,13 +19,13 @@ export function RegisterSteps({
   handleFinish,
 }: RegisterStepsProps) {
   return (
-    <RegisteredStep activeStep={activeStep} backgroundColor={backgroundColor}>
+    <RegisterStep activeStep={activeStep} backgroundColor={backgroundColor}>
       <RegisterContent
         activeStep={activeStep}
         handleBack={handleBack}
         handleNext={handleNext}
         handleFinish={handleFinish}
       />
-    </RegisteredStep>
+    </RegisterStep>
   );
 }
