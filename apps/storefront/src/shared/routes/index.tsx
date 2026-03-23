@@ -129,7 +129,7 @@ const gotoAllowedAppPage = async (
   const currentState = store.getState();
 
   const { company } = currentState;
-  const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
+  const isLoggedIn = company.customer.id && Number(role) !== CustomerRole.GUEST;
   if (!isLoggedIn) {
     gotoPage('/login?loginFlag=loggedOutLogin&&closeIsLogout=1');
     return;
@@ -141,16 +141,15 @@ const gotoAllowedAppPage = async (
     gotoPage('/login?loginFlag=invoiceErrorTip');
     return;
   }
-  try {
-    const isBcLogin = await b2bVerifyBcLoginStatus();
-
-    if (!isBcLogin && isB2bTokenPage()) {
-      logoutSession();
-      gotoPage('/login?loginFlag=deviceCrowdingLogIn');
-      return;
-    }
-  } catch (err: unknown) {
+  const isBcLogin = await b2bVerifyBcLoginStatus().catch((err: unknown) => {
     b2bLogger.error(err);
+    return false;
+  });
+
+  if (!isBcLogin && isB2bTokenPage()) {
+    logoutSession();
+    gotoPage('/login?loginFlag=deviceCrowdingLogIn');
+    return;
   }
 
   let url = hash.substring(1);
