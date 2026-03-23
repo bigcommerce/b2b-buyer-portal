@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Box, ImageListItem, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { B3Card } from '@/components/B3Card';
 import { B3CustomForm } from '@/components/B3CustomForm';
@@ -16,7 +16,8 @@ import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/g
 import b2bLogger from '@/utils/b3Logger';
 
 import { getForgotPasswordFields, sendForgotPasswordEmailFor } from '../Login/config';
-import { B3ResetPassWordButton, LoginImage } from '../Login/styled';
+import LoginImage from '../Login/LoginImage';
+import { B3ResetPassWordButton } from '../Login/styled';
 import { type PageProps } from '../PageProps';
 
 interface ForgotPasswordProps extends PageProps {
@@ -106,18 +107,14 @@ export function ForgotPassword({
       >
         <Box sx={{ mt: '20px' }}>
           {logo && (
-            <LoginImage>
-              <ImageListItem
-                sx={{
-                  maxWidth: isMobile ? '175px' : '250px',
-                }}
-                onClick={() => {
-                  window.location.assign('/');
-                }}
-              >
-                <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
-              </ImageListItem>
-            </LoginImage>
+            <LoginImage
+              alt={b3Lang('global.tips.registerLogo')}
+              src={logo}
+              maxWidth={isMobile ? '175px' : '250px'}
+              onClick={() => {
+                window.location.assign('/');
+              }}
+            />
           )}
         </Box>
         <Box

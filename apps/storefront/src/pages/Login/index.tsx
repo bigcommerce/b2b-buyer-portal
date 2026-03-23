@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Alert, Box, ImageListItem } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 
 import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components/B3Card';
@@ -31,10 +31,12 @@ import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
 import { CatalystLogin } from './CatalystLogin';
-import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
+import { isLoginFlagType, loginCheckout, LoginConfig } from './config';
 import LoginForm from './LoginForm';
+import LoginImage from './LoginImage';
 import LoginPanel from './LoginPanel';
-import { LoginContainer, LoginImage } from './styled';
+import LoginTip from './LoginTip';
+import { LoginContainer } from './styled';
 import { useLogout } from './useLogout';
 
 const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
@@ -140,15 +142,6 @@ function Login(props: PageProps) {
       }
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
-
-  const tipInfo = (loginFlag: LoginFlagType, email = '') => {
-    const { tip, alertType } = loginType[loginFlag];
-
-    return {
-      message: b3Lang(tip, { email }),
-      severity: alertType,
-    };
-  };
 
   const getForcePasswordReset = async (email: string) => {
     const forcePasswordReset = await getBCForcePasswordReset(email);
@@ -282,8 +275,6 @@ function Login(props: PageProps) {
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
 
-  const tip = flag && tipInfo(flag, loginAccount?.email);
-
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
@@ -292,6 +283,7 @@ function Login(props: PageProps) {
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              alignItems: !registerEnabled && !isMobile ? 'center' : 'stretch',
               width: '100%',
               minHeight: '400px',
               minWidth: '343px',
@@ -299,42 +291,21 @@ function Login(props: PageProps) {
           >
             {loginInfo && (
               <>
-                {flag && showTipInfo && (
-                  <Box
-                    sx={{
-                      padding: isMobile ? 0 : '0 5%',
-                      margin: '30px 0 0 0',
-                    }}
-                  >
-                    {tip && (
-                      <Alert severity={tip.severity} variant="filled">
-                        {tip.message}
-                      </Alert>
-                    )}
-                  </Box>
-                )}
+                <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
                 {quoteDetailToCheckoutUrl && (
                   <Alert severity="error" variant="filled">
                     {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
                   </Alert>
                 )}
                 <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                  <LoginImage>
-                    <ImageListItem
-                      sx={{
-                        maxWidth: isMobile ? '70%' : '250px',
-                      }}
-                      onClick={() => {
-                        window.location.href = '/';
-                      }}
-                    >
-                      <img
-                        src={loginInfo.logo || getAssetUrl(b2bLogo)}
-                        alt={b3Lang('login.registerLogo')}
-                        loading="lazy"
-                      />
-                    </ImageListItem>
-                  </LoginImage>
+                  <LoginImage
+                    maxWidth={isMobile ? '70%' : '250px'}
+                    src={loginInfo.logo || getAssetUrl(b2bLogo)}
+                    alt={b3Lang('login.registerLogo')}
+                    onClick={() => {
+                      window.location.href = '/';
+                    }}
+                  />
                 </Box>
                 {loginInfo.widgetHeadText && (
                   <LoginWidget
@@ -347,64 +318,46 @@ function Login(props: PageProps) {
                 )}
                 <Box
                   sx={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '4px',
+                    margin: '20px 0',
                     display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
                     justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'column',
+                    width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
                   }}
                 >
                   <Box
                     sx={{
-                      bgcolor: '#FFFFFF',
-                      borderRadius: '4px',
-                      margin: '20px 0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+                      width: isMobile ? 'auto' : loginContainerWidth,
+                      paddingRight: isMobile ? 0 : '2%',
+                      ml: '16px',
+                      mr: isMobile ? '16px' : undefined,
+                      pb: registerEnabled ? undefined : '36px',
                     }}
                   >
+                    <LoginForm
+                      loginBtn={loginInfo.loginBtn}
+                      handleLoginSubmit={handleLoginSubmit}
+                      backgroundColor={backgroundColor}
+                      isLoading={isLoading}
+                    />
+                  </Box>
+
+                  {registerEnabled && (
                     <Box
                       sx={{
+                        flex: '1',
+                        paddingLeft: isMobile ? 0 : '2%',
                         mb: '20px',
-                        display: 'flex',
-                        flexDirection: isMobile ? 'column' : 'row',
-                        justifyContent: 'center',
-                        width: isMobile ? 'auto' : '100%',
                       }}
                     >
-                      <Box
-                        sx={{
-                          width: isMobile ? 'auto' : loginContainerWidth,
-                          paddingRight: isMobile ? 0 : '2%',
-                          ml: '16px',
-                          mr: isMobile ? '16px' : '',
-                          pb: registerEnabled ? '' : '36px',
-                        }}
-                      >
-                        <LoginForm
-                          loginBtn={loginInfo.loginBtn}
-                          handleLoginSubmit={handleLoginSubmit}
-                          backgroundColor={backgroundColor}
-                          isLoading={isLoading}
-                        />
-                      </Box>
-
-                      {registerEnabled && (
-                        <Box
-                          sx={{
-                            flex: '1',
-                            paddingLeft: isMobile ? 0 : '2%',
-                          }}
-                        >
-                          <LoginPanel
-                            createAccountButtonText={loginInfo.createAccountButtonText}
-                            widgetBodyText={loginInfo.widgetBodyText}
-                          />
-                        </Box>
-                      )}
+                      <LoginPanel
+                        createAccountButtonText={loginInfo.createAccountButtonText}
+                        widgetBodyText={loginInfo.widgetBodyText}
+                      />
                     </Box>
-                  </Box>
+                  )}
                 </Box>
                 {loginInfo.widgetFooterText && (
                   <LoginWidget
