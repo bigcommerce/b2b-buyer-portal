@@ -5,11 +5,13 @@ import { Alert, Box, Typography } from '@mui/material';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import { Captcha } from '@/components/captcha/Captcha';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
 import { sendSubscribersState, uploadB2BFile } from '@/shared/service/b2b';
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
+import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 
@@ -18,8 +20,10 @@ import { RegisterFields } from '../../../types';
 import { PrimaryButton } from '../../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../../styled';
 
+import { ensureBcStorefrontGraphqlToken, loginAndGetBcCustomer } from './bcHelpers';
 import { createCompany } from './createCompany';
 import { createCustomer } from './createCustomer';
+import { registerCompany } from './registerCompany';
 
 interface CompleteStepProps {
   handleBack: () => void;
@@ -30,6 +34,7 @@ type CompleteStepList = Array<RegisterFields> | undefined;
 
 export default function CompleteStep(props: CompleteStepProps) {
   const b3Lang = useB3Lang();
+  const featureFlags = useFeatureFlags();
   const { handleBack, handleNext } = props;
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -124,6 +129,9 @@ export default function CompleteStep(props: CompleteStepProps) {
     list,
     companyInformation,
     addressBasicList,
+    genericRegistrationErrorMessage: b3Lang(
+      'global.registerComplete.companyRegistrationGenericError',
+    ),
   };
 
   useEffect(() => {
@@ -267,7 +275,7 @@ export default function CompleteStep(props: CompleteStepProps) {
             },
           });
 
-          let isAuto = true;
+          let isAutoApproval = true;
           if (accountType === '2') {
             await createCustomer({ password, confirmPassword }, createCustomerContext);
           } else {
@@ -277,22 +285,41 @@ export default function CompleteStep(props: CompleteStepProps) {
               { password, confirmPassword },
               createCustomerContext,
             );
-            const accountInfo = await createCompany(
-              { password, confirmPassword },
-              customerId,
-              customerEmail,
-              fileList,
-              createCompanyContext,
-            );
 
-            const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
-            isAuto = Number(companyStatus) === 1;
+            if (featureFlags['B2B-4466.use_register_company_flow']) {
+              await ensureBcStorefrontGraphqlToken();
+
+              const customerDetails = await loginAndGetBcCustomer(
+                {
+                  email: customerEmail,
+                  password,
+                },
+                b3Lang('global.error.genericMessage'),
+              );
+              const registerCompanyStatus = await registerCompany(
+                customerDetails,
+                fileList,
+                createCompanyContext,
+              );
+              isAutoApproval = registerCompanyStatus === 'APPROVED';
+            } else {
+              const accountInfo = await createCompany(
+                { password, confirmPassword },
+                customerId,
+                customerEmail,
+                fileList,
+                createCompanyContext,
+              );
+
+              const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
+              isAutoApproval = Number(companyStatus) === CompanyStatus.APPROVED;
+            }
           }
           dispatch({
             type: 'finishInfo',
             payload: {
               submitSuccess: true,
-              isAutoApproval: isAuto,
+              isAutoApproval,
               blockPendingAccountOrderCreation,
             },
           });

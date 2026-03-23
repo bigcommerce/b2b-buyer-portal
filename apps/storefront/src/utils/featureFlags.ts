@@ -23,6 +23,10 @@ export const featureFlags = [
     key: 'B2B-3705.increase_graphql_limits_inline_with_platform_api',
     name: 'increaseGraphQLLimitsInlineWithPlatformApi',
   },
+  {
+    key: 'B2B-4466.use_register_company_flow',
+    name: 'useRegisterCompanyFlow',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
