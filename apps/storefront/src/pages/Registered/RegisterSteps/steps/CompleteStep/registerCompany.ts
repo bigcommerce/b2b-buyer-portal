@@ -3,6 +3,7 @@ import {
   registerCompany as submitRegisterCompany,
   type RegisterCompanyAddressInput,
   type RegisterCompanyInput,
+  type CompanyStatus,
 } from '@/shared/service/bc/graphql/company';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
@@ -191,7 +192,7 @@ export async function registerCompany(
   customerDetails: CustomerDetails,
   fileList: unknown,
   context: RegisterCompanyContext,
-): Promise<string> {
+): Promise<CompanyStatus> {
   const res = await submitRegisterCompany(
     buildRegisterCompanyInput(customerDetails, fileList, context),
   );

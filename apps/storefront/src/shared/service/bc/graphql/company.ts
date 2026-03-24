@@ -44,9 +44,20 @@ interface RegisterCompanyValidationError {
   path?: string[];
 }
 
-interface RegisterCompanyResult {
+/**
+ * Same lifecycle as numeric `CompanyStatus` in `@/types/company`: PENDING=0, APPROVED=1, REJECTED=2, INACTIVE=3, DELETED=4.
+ */
+export enum CompanyStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  INACTIVE = 'INACTIVE',
+  DELETED = 'DELETED',
+}
+
+export interface RegisterCompanyResult {
   entityId: number | null;
-  status: string;
+  status: CompanyStatus;
   errors: RegisterCompanyValidationError[];
 }
 

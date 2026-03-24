@@ -11,6 +11,7 @@ import * as b2bService from '@/shared/service/b2b';
 import * as recaptchaModule from '@/shared/service/b2b/graphql/recaptcha';
 import * as bcModule from '@/shared/service/bc';
 import type { RegisterCompanyMutationResponse } from '@/shared/service/bc/graphql/company';
+import { CompanyStatus } from '@/shared/service/bc/graphql/company';
 import * as companyGraphqlModule from '@/shared/service/bc/graphql/company';
 import { B3SStorage } from '@/utils/b3Storage';
 import * as loginInfoModule from '@/utils/loginInfo';
@@ -24,7 +25,7 @@ const mockRegisterCompanyGraphqlApproved: RegisterCompanyMutationResponse = {
     company: {
       registerCompany: {
         entityId: 1,
-        status: 'APPROVED',
+        status: CompanyStatus.APPROVED,
         errors: [],
       },
     },
@@ -1189,7 +1190,7 @@ describe('Registered Page', () => {
             company: {
               registerCompany: {
                 entityId: 2,
-                status: 'PENDING',
+                status: CompanyStatus.PENDING,
                 errors: [],
               },
             },
@@ -1231,7 +1232,7 @@ describe('Registered Page', () => {
             company: {
               registerCompany: {
                 entityId: null,
-                status: 'PENDING',
+                status: CompanyStatus.PENDING,
                 errors: [{ message: 'A company with this name already exists.', path: ['name'] }],
               },
             },
