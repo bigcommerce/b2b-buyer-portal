@@ -17,8 +17,9 @@ import {
   addProductToShoppingList,
   searchProducts,
 } from '@/shared/service/b2b';
+import { OptionList } from '@/shared/service/b2b/graphql/quickOrder';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { Product } from '@/types';
+import { Product, ProductItemOption } from '@/types';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { getProductPriceIncTaxOrExTaxBySetting } from '@/utils/b3Price';
@@ -41,15 +42,6 @@ import CreateShoppingList from '../../OrderDetail/components/CreateShoppingList'
 import OrderShoppingList from '../../OrderDetail/components/OrderShoppingList';
 import { addCartProductToVerify, CheckedProduct } from '../utils';
 
-const cartErrorMapping = (errMessage: string | undefined, b3Lang: LangFormatFunction) => {
-  if (!errMessage) return b3Lang('purchasedProducts.error.default');
-  if (errMessage.includes('Attributes cannot apply to simple products'))
-    return b3Lang('purchasedProducts.error.wrongModifier');
-  if (errMessage.includes('Product variant is not purchasable'))
-    return b3Lang('purchasedProducts.error.nonPurchasableVariant');
-  return errMessage;
-};
-
 interface QuickOrderFooterProps {
   checkedArr: CheckedProduct[];
   isAgenting: boolean;
@@ -58,13 +50,20 @@ interface QuickOrderFooterProps {
 }
 
 /**
- * Maps Quick Order checked rows plus `searchProducts` results into cart line payloads
- * for `createOrUpdateExistingCart`. For each selection, finds the product by id, then
- * the variant by sku + variant id; builds optionSelections from optionList. Rows with
- * no matching product or variant are omitted.
+ * Validates product/variant existence and modifier compatibility, then builds
+ * cart line payloads for `createOrUpdateExistingCart`. For each checked row,
+ * verifies the product exists in search results, the variant matches by sku +
+ * variant id, and all option modifiers are valid. Invalid rows are reported
+ * via snackbar errors and excluded from the returned line items.
  */
-const transformToCartLineItems = (productsSearch: Product[], checkedArr: CheckedProduct[]) => {
+const transformToCartLineItems = (
+  productsSearch: Product[],
+  checkedArr: CheckedProduct[],
+  b3Lang: LangFormatFunction,
+) => {
   const lineItems: CustomFieldItems[] = [];
+  const notFoundSkus: string[] = [];
+  const invalidModifierSkus: string[] = [];
 
   checkedArr.forEach((item: CheckedProduct) => {
     const { node } = item;
@@ -72,36 +71,64 @@ const transformToCartLineItems = (productsSearch: Product[], checkedArr: Checked
     const currentProduct: CustomFieldItems | undefined = productsSearch.find(
       (inventory: CustomFieldItems) => Number(node.productId) === inventory.id,
     );
-    if (currentProduct) {
-      const { variants }: CustomFieldItems = currentProduct;
-
-      if (variants.length > 0) {
-        const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
-          (variant: CustomFieldItems) =>
-            node.variantSku === variant.sku &&
-            Number(node.variantId) === Number(variant.variant_id),
-        );
-
-        if (currentInventoryInfo) {
-          const { optionList, quantity } = node;
-
-          const options = optionList.map((option: CustomFieldItems) => ({
-            optionId: option.product_option_id,
-            optionValue: option.value,
-          }));
-
-          lineItems.push({
-            optionSelections: options,
-            allOptions: optionList,
-            productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
-            quantity,
-            variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
-          });
-        }
-      }
+    if (!currentProduct) {
+      notFoundSkus.push(node.sku);
+      return;
     }
+
+    const { variants }: CustomFieldItems = currentProduct;
+    const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
+      (variant: CustomFieldItems) =>
+        node.variantSku === variant.sku && Number(node.variantId) === Number(variant.variant_id),
+    );
+    if (!currentInventoryInfo) {
+      notFoundSkus.push(node.sku);
+      return;
+    }
+
+    const { optionList = [], quantity } = node;
+
+    const hasValidModifiers = optionList.every((productToAddOption: OptionList) =>
+      currentProduct.options?.some(
+        (currentProductOption: ProductItemOption) =>
+          currentProductOption.option_id === productToAddOption.product_option_id &&
+          currentProductOption.display_name === productToAddOption.display_name,
+      ),
+    );
+
+    if (!hasValidModifiers) {
+      invalidModifierSkus.push(node.sku);
+      return;
+    }
+
+    lineItems.push({
+      optionSelections: optionList.map((option: OptionList) => ({
+        optionId: option.product_option_id,
+        optionValue: option.value,
+      })),
+      allOptions: optionList,
+      productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
+      quantity,
+      variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
+    });
   });
 
+  if (notFoundSkus.length > 0) {
+    snackbar.error(
+      b3Lang('purchasedProducts.error.notPresent', {
+        count: notFoundSkus.length,
+        sku: notFoundSkus.join(', '),
+      }),
+    );
+  }
+  if (invalidModifierSkus.length > 0) {
+    snackbar.error(
+      b3Lang('purchasedProducts.error.wrongModifier', {
+        count: invalidModifierSkus.length,
+        sku: invalidModifierSkus.join(', '),
+      }),
+    );
+  }
   return lineItems;
 };
 
@@ -153,8 +180,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setIsOpen(false);
   };
 
-  const showAddToCartSuccessMessage = () => {
-    snackbar.success(b3Lang('purchasedProducts.footer.productsAdded'), {
+  const showAddToCartSuccessMessage = (count: number) => {
+    snackbar.success(b3Lang('purchasedProducts.footer.productsAdded', { count }), {
       action: {
         label: b3Lang('purchasedProducts.footer.viewCart'),
         onClick: () => {
@@ -166,41 +193,33 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     });
   };
 
-  const getProductsSearchInfo = async () => {
+  const getProductsSearchInfo = async (validCheckedArr: CheckedProduct[]) => {
     const { productsSearch } = await searchProducts({
-      productIds: uniq(checkedArr.map(({ node }) => Number(node.productId))),
+      productIds: uniq(validCheckedArr.map(({ node }) => Number(node.productId))),
       companyId: companyInfoId,
       customerGroupId,
     });
 
-    return transformToCartLineItems(productsSearch || [], checkedArr);
+    return transformToCartLineItems(productsSearch || [], validCheckedArr, b3Lang);
   };
 
-  const handleFrontedAddSelectedToCart = async () => {
+  const handleFrontendAddSelectedToCart = async () => {
     try {
-      const isPassVerify = await addCartProductToVerify(checkedArr, b3Lang);
+      // Validation errors are already shown via snackbar in addCartProductToVerify
+      // and transformToCartLineItems. Skip API calls when no valid products remain.
+      const validCheckedArr = await addCartProductToVerify(checkedArr, b3Lang);
+      if (validCheckedArr.length === 0) return;
 
-      if (!isPassVerify) return;
-
-      const lineItems = await getProductsSearchInfo();
-      /*
-       when no product is valid from product search and we call createCart api
-       an ineligible error will be thrown, hence catching the error early
-      */
-      if (lineItems.length === 0) {
-        snackbar.error(b3Lang('purchasedProducts.error.notPresent'));
-        return;
-      }
+      const lineItems = await getProductsSearchInfo(validCheckedArr);
+      if (lineItems.length === 0) return;
 
       const res = await createOrUpdateExistingCart(lineItems);
-
       if (res && !res.errors) {
-        showAddToCartSuccessMessage();
+        showAddToCartSuccessMessage(lineItems.length);
       }
     } catch (err) {
-      if (err instanceof Error) {
-        snackbar.error(cartErrorMapping(err.message, b3Lang));
-      }
+      b2bLogger.error(err);
+      snackbar.error(b3Lang('purchasedProducts.error.default'));
     } finally {
       b3TriggerCartNumber();
       setIsRequestLoading(false);
@@ -209,19 +228,19 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const handleBackendAddSelectedToCart = async () => {
     try {
-      const lineItems = await getProductsSearchInfo();
+      const lineItems = await getProductsSearchInfo(checkedArr);
 
-      if (lineItems.length === 0) {
-        snackbar.error(b3Lang('purchasedProducts.error.notPresent'));
-        return;
+      if (lineItems.length === 0) return;
+
+      const res = await createOrUpdateExistingCart(lineItems);
+      if (res && !res.errors) {
+        showAddToCartSuccessMessage(lineItems.length);
       }
-
-      await createOrUpdateExistingCart(lineItems);
-      showAddToCartSuccessMessage();
     } catch (err) {
-      if (err instanceof Error) {
-        snackbar.error(cartErrorMapping(err.message, b3Lang));
-      }
+      b2bLogger.error(err);
+      snackbar.error(
+        err instanceof Error ? err.message : b3Lang('purchasedProducts.error.default'),
+      );
     } finally {
       b3TriggerCartNumber();
       setIsRequestLoading(false);
@@ -235,7 +254,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     if (isBackorderEnabled) {
       handleBackendAddSelectedToCart();
     } else {
-      handleFrontedAddSelectedToCart();
+      handleFrontendAddSelectedToCart();
     }
   };
 

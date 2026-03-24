@@ -404,10 +404,10 @@ export default function QuickOrderPad() {
       },
     };
 
-    const isPassVerify = await addCartProductToVerify([currentProduct], b3Lang);
+    const validProducts = await addCartProductToVerify([currentProduct], b3Lang);
 
     try {
-      if (isPassVerify) {
+      if (validProducts.length > 0) {
         await addSingleProductToCart(product);
       }
     } catch (error) {
