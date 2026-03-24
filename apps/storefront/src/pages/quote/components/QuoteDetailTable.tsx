@@ -120,6 +120,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
   const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
+  const isBackorderMessagingEnabled = useAppSelector(
+    ({ global }) =>
+      global.featureFlags['BACK-134.backorders_phase_1_1_control_messaging_on_storefront'] ?? false,
+  );
   const backorderDisplaySettings = useAppSelector(({ global }) => global.backorderDisplaySettings);
   const hasAnyBackorderDisplay = Object.values(backorderDisplaySettings).some(Boolean);
   const enteredInclusiveTax = useAppSelector(
@@ -308,7 +312,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row) => (
         <Box>
           <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
-          {isBackorderEnabled && !isOrdered && (
+          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
             <BackorderMessage
               totalOnHand={row.totalOnHand}
               quantityBackordered={row.quantityBackordered}
@@ -411,19 +415,23 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         >
           {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
-        {isBackorderEnabled && !isOrdered && hasAnyBackorderDisplay && hasBackorderedItems && (
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showBackorderDetails}
-                onChange={(e) => setShowBackorderDetails(e.target.checked)}
-              />
-            }
-            label={b3Lang('quoteDetail.table.backorderDetails')}
-            labelPlacement="start"
-            sx={{ mr: 0, gap: '0.5rem' }}
-          />
-        )}
+        {isBackorderEnabled &&
+          isBackorderMessagingEnabled &&
+          !isOrdered &&
+          hasAnyBackorderDisplay &&
+          hasBackorderedItems && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showBackorderDetails}
+                  onChange={(e) => setShowBackorderDetails(e.target.checked)}
+                />
+              }
+              label={b3Lang('quoteDetail.table.backorderDetails')}
+              labelPlacement="start"
+              sx={{ mr: 0, gap: '0.5rem' }}
+            />
+          )}
       </Box>
       <B3PaginationTable
         ref={paginationTableRef}

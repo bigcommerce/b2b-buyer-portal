@@ -43,6 +43,10 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
   const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
+  const isBackorderMessagingEnabled = useAppSelector(
+    ({ global }) =>
+      global.featureFlags['BACK-134.backorders_phase_1_1_control_messaging_on_storefront'] ?? false,
+  );
 
   const {
     basePrice,
@@ -145,7 +149,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderEnabled && !isOrdered && (
+          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
             <BackorderMessage
               totalOnHand={totalOnHand}
               quantityBackordered={quantityBackordered}

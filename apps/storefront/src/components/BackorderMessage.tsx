@@ -26,19 +26,21 @@ function BackorderMessage({
   return (
     <Box sx={{ visibility: visible ? 'visible' : 'hidden' }}>
       {showQuantityOnHand && (totalOnHand ?? 0) > 0 && (
-        <Typography sx={{ fontSize: '0.9rem' }}>
+        <Typography variant="body1" color="#616161">
           {b3Lang('quoteDetail.table.readyToShip', { totalOnHand: totalOnHand ?? 0 })}
         </Typography>
       )}
       {showQuantityOnBackorder && (
-        <Typography sx={{ fontSize: '0.9rem' }}>
+        <Typography variant="body1" color="#616161">
           {b3Lang('quoteDetail.table.willBeBackordered', {
             quantityBackordered: quantityBackordered ?? 0,
           })}
         </Typography>
       )}
       {showBackorderMessage && backorderMessage && (
-        <Typography sx={{ fontSize: '0.9rem' }}>{backorderMessage}</Typography>
+        <Typography variant="body1" color="#616161">
+          {backorderMessage}
+        </Typography>
       )}
     </Box>
   );

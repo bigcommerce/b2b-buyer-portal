@@ -82,6 +82,9 @@ interface ProductInfoProps {
   variantId: number;
   variantSku: string;
   productsSearch: CustomFieldItems;
+  backorderMessage?: string;
+  totalOnHand?: number;
+  quantityBackordered?: number;
 }
 
 const validateProducts = (products: ProductInfoProps[]) => {

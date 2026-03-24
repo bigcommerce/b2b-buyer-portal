@@ -1423,6 +1423,9 @@ describe('when the user is a B2B customer', () => {
           showQuantityOnHand: true,
           showBackorderMessage: true,
         },
+        featureFlags: {
+          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+        },
       }),
     };
 
