@@ -45,9 +45,11 @@ interface RegisterCompanyValidationError {
 }
 
 /**
- * Same lifecycle as numeric `CompanyStatus` in `@/types/company`: PENDING=0, APPROVED=1, REJECTED=2, INACTIVE=3, DELETED=4.
+ * String status returned by the Storefront GraphQL `registerCompany` mutation.
+ * Maps to the same lifecycle as numeric `CompanyStatus` in `@/types/company`
+ * (PENDING=0, APPROVED=1, REJECTED=2, INACTIVE=3, DELETED=4).
  */
-export enum CompanyStatus {
+export enum RegisterCompanyStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
@@ -55,9 +57,9 @@ export enum CompanyStatus {
   DELETED = 'DELETED',
 }
 
-export interface RegisterCompanyResult {
+interface RegisterCompanyResult {
   entityId: number | null;
-  status: CompanyStatus;
+  status: RegisterCompanyStatus;
   errors: RegisterCompanyValidationError[];
 }
 

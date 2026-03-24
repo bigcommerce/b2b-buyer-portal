@@ -11,8 +11,9 @@ import * as b2bService from '@/shared/service/b2b';
 import * as recaptchaModule from '@/shared/service/b2b/graphql/recaptcha';
 import * as bcModule from '@/shared/service/bc';
 import type { RegisterCompanyMutationResponse } from '@/shared/service/bc/graphql/company';
-import { CompanyStatus } from '@/shared/service/bc/graphql/company';
+import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import * as companyGraphqlModule from '@/shared/service/bc/graphql/company';
+import * as bcGraphqlLoginModule from '@/shared/service/bc/graphql/login';
 import { B3SStorage } from '@/utils/b3Storage';
 import * as loginInfoModule from '@/utils/loginInfo';
 import * as storefrontConfigModule from '@/utils/storefrontConfig';
@@ -25,7 +26,7 @@ const mockRegisterCompanyGraphqlApproved: RegisterCompanyMutationResponse = {
     company: {
       registerCompany: {
         entityId: 1,
-        status: CompanyStatus.APPROVED,
+        status: RegisterCompanyStatus.APPROVED,
         errors: [],
       },
     },
@@ -1070,6 +1071,9 @@ describe('Registered Page', () => {
       data: { fileSize: '' },
     });
     vi.spyOn(bcModule, 'bcLogin').mockResolvedValue({ error: undefined });
+    vi.spyOn(bcGraphqlLoginModule, 'bcLogoutLogin').mockResolvedValue({
+      data: { logout: { result: 'success' } },
+    });
     vi.spyOn(loginInfoModule, 'getCurrentCustomerInfo').mockResolvedValue({
       userType: 5,
       role: 2,
@@ -1117,6 +1121,7 @@ describe('Registered Page', () => {
 
     expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
     expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+    expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
     expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
     expect(
       screen.getByText(
@@ -1180,6 +1185,7 @@ describe('Registered Page', () => {
       await waitFor(() => {
         expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/\/orders/i));
       });
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
     });
 
     it('shows pending copy when Storefront registerCompany returns a non-APPROVED status', async () => {
@@ -1190,7 +1196,7 @@ describe('Registered Page', () => {
             company: {
               registerCompany: {
                 entityId: 2,
-                status: CompanyStatus.PENDING,
+                status: RegisterCompanyStatus.PENDING,
                 errors: [],
               },
             },
@@ -1213,6 +1219,7 @@ describe('Registered Page', () => {
         expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
       });
       expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).toHaveBeenCalledTimes(1);
       expect(
         screen.getByText(
           'Your business account is pending approval. You will gain access to business account features after account approval.',
@@ -1232,7 +1239,7 @@ describe('Registered Page', () => {
             company: {
               registerCompany: {
                 entityId: null,
-                status: CompanyStatus.PENDING,
+                status: RegisterCompanyStatus.PENDING,
                 errors: [{ message: 'A company with this name already exists.', path: ['name'] }],
               },
             },
@@ -1260,6 +1267,7 @@ describe('Registered Page', () => {
           'Thank you for creating your account at My Store. Your company account application has been approved',
         ),
       ).not.toBeInTheDocument();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
     });
 
     it('shows generic error when storefront login returns no customer', async () => {
@@ -1290,6 +1298,7 @@ describe('Registered Page', () => {
         expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
       });
       expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
     });
   });
 

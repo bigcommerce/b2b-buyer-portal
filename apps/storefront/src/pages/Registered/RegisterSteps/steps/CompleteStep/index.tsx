@@ -11,8 +11,8 @@ import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
 import { sendSubscribersState, uploadB2BFile } from '@/shared/service/b2b';
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
-import { CompanyStatus } from '@/shared/service/bc/graphql/company';
-import { CompanyStatus as CompanyStatusCode } from '@/types/company';
+import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
+import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
 
@@ -21,7 +21,11 @@ import { RegisterFields } from '../../../types';
 import { PrimaryButton } from '../../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../../styled';
 
-import { ensureBcStorefrontGraphqlToken, loginAndGetBcCustomer } from './bcHelpers';
+import {
+  ensureBcStorefrontGraphqlToken,
+  loginAndGetBcCustomer,
+  logoutBcCustomer,
+} from './bcHelpers';
 import { createCompany } from './createCompany';
 import { createCustomer } from './createCustomer';
 import { registerCompany } from './registerCompany';
@@ -302,7 +306,11 @@ export default function CompleteStep(props: CompleteStepProps) {
                 fileList,
                 createCompanyContext,
               );
-              isAutoApproval = registerCompanyStatus === CompanyStatus.APPROVED;
+              isAutoApproval = registerCompanyStatus === RegisterCompanyStatus.APPROVED;
+
+              if (!isAutoApproval) {
+                await logoutBcCustomer();
+              }
             } else {
               const accountInfo = await createCompany(
                 { password, confirmPassword },
@@ -313,7 +321,7 @@ export default function CompleteStep(props: CompleteStepProps) {
               );
 
               const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
-              isAutoApproval = Number(companyStatus) === CompanyStatusCode.APPROVED;
+              isAutoApproval = Number(companyStatus) === CompanyStatus.APPROVED;
             }
           }
           dispatch({

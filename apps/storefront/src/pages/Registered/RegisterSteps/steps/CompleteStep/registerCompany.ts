@@ -3,7 +3,7 @@ import {
   registerCompany as submitRegisterCompany,
   type RegisterCompanyAddressInput,
   type RegisterCompanyInput,
-  type CompanyStatus,
+  type RegisterCompanyStatus,
 } from '@/shared/service/bc/graphql/company';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
@@ -19,7 +19,7 @@ interface RegisterCompanyContext {
 interface CustomerDetails {
   firstName: string;
   lastName: string;
-  phone: string;
+  phone?: string;
 }
 
 function joinedErrorMessages(errors: Array<{ message: string }>): string {
@@ -121,10 +121,12 @@ function buildAddressFieldsFromForm(
   const getDefaultString = (decodedFieldName: string) =>
     String(fieldsByDecodedName[decodedFieldName]?.default ?? '');
 
+  const phone = String(customerDetails.phone ?? '').trim();
+
   return {
     firstName: customerDetails.firstName,
     lastName: customerDetails.lastName,
-    phone: customerDetails.phone,
+    ...(phone ? { phone } : {}),
     address1: getDefaultString('address1'),
     city: getDefaultString('city'),
     countryCode: getDefaultString('country'),
@@ -192,7 +194,7 @@ export async function registerCompany(
   customerDetails: CustomerDetails,
   fileList: unknown,
   context: RegisterCompanyContext,
-): Promise<CompanyStatus> {
+): Promise<RegisterCompanyStatus> {
   const res = await submitRegisterCompany(
     buildRegisterCompanyInput(customerDetails, fileList, context),
   );
