@@ -142,7 +142,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) =>
     formFields.map((field) => {
       const item = field;
-      item.default = formData[field.name] || field.default;
+      item.default = formData[field.name] ?? field.default;
       return field;
     });
 
@@ -154,7 +154,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
     const data = [...companyInformation, ...companyAttachment, ...addressBasicList].reduce(
       (formValues: DetailsFormValues, field: RegisterFields) => {
         const values = formValues;
-        values[field.name] = getValues(field.name) || field.default;
+        values[field.name] = getValues(field.name) ?? field.default;
 
         return formValues;
       },

@@ -200,7 +200,7 @@ export default function CompleteStep(props: CompleteStepProps) {
     const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
       const registerField = field;
       if (accountType === '1') {
-        registerField.default = data[field.name] || field.default;
+        registerField.default = data[field.name] ?? field.default;
       }
       return field;
     });
@@ -208,7 +208,7 @@ export default function CompleteStep(props: CompleteStepProps) {
     const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
       const registerField = field;
       if (accountType === '2') {
-        registerField.default = data[field.name] || field.default;
+        registerField.default = data[field.name] ?? field.default;
       }
 
       return field;

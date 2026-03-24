@@ -60,7 +60,8 @@ function coerceExtraFieldNumber(value: unknown): number | undefined {
 }
 
 /**
- * Maps form extra fields to GraphQL `ExtraFields` using each field's `default` as stored — no option/value resolution.
+ * Maps form extra fields to GraphQL `ExtraFields` using each field's stored value (`default` on `RegisterFields`).
+ * Omits empty / whitespace-only values so the mutation payload does not send pointless or invalid entries.
  */
 function buildGraphQLExtraFields(registerFields: RegisterFields[]): ExtraFields | undefined {
   const textEntries: NonNullable<ExtraFields['texts']> = [];
@@ -70,34 +71,37 @@ function buildGraphQLExtraFields(registerFields: RegisterFields[]): ExtraFields 
 
   registerFields.forEach((field) => {
     const decodedFieldName = deCodeField(field.name);
-    const fieldDefault = field.default;
-    if (fieldDefault === undefined || fieldDefault === null || Array.isArray(fieldDefault)) {
+    const storedValue = field.default;
+    if (storedValue === undefined || storedValue === null || Array.isArray(storedValue)) {
       return;
     }
 
-    switch (field.fieldType) {
-      case 'number': {
-        const numericValue = coerceExtraFieldNumber(fieldDefault);
-        if (numericValue !== undefined) {
-          numberEntries.push({ name: decodedFieldName, number: numericValue });
-        }
-        break;
+    if (field.fieldType === 'number') {
+      const numericValue = coerceExtraFieldNumber(storedValue);
+      if (numericValue !== undefined) {
+        numberEntries.push({ name: decodedFieldName, number: numericValue });
       }
+      return;
+    }
+
+    const trimmedString = String(storedValue).trim();
+    if (trimmedString === '') return;
+
+    switch (field.fieldType) {
       case 'multiline':
         multilineTextEntries.push({
           name: decodedFieldName,
-          multilineText: String(fieldDefault),
+          multilineText: trimmedString,
         });
         break;
       case 'dropdown':
         multipleChoiceEntries.push({
           name: decodedFieldName,
-          fieldValue: String(fieldDefault),
+          fieldValue: trimmedString,
         });
         break;
       default:
-        textEntries.push({ name: decodedFieldName, text: String(fieldDefault) });
-        break;
+        textEntries.push({ name: decodedFieldName, text: trimmedString });
     }
   });
 
@@ -126,13 +130,14 @@ function buildAddressFieldsFromForm(
   return {
     firstName: customerDetails.firstName,
     lastName: customerDetails.lastName,
-    ...(phone ? { phone } : {}),
+    phone: phone || undefined,
     address1: getDefaultString('address1'),
     city: getDefaultString('city'),
     countryCode: getDefaultString('country'),
     address2: getDefaultString('address2') || undefined,
     stateOrProvince: getDefaultString('state') || undefined,
     postalCode: getDefaultString('zip_code') || undefined,
+    extraFields: buildGraphQLExtraFields(filterCustomRegisterFields(addressBasicList)),
   };
 }
 
@@ -142,6 +147,13 @@ function buildCompanyStandardFields(companyInformation: RegisterFields[]): Recor
     fieldValuesByCamelName[toHump(deCodeField(field.name))] = String(field?.default ?? '');
   });
   return fieldValuesByCamelName;
+}
+
+function buildCompanyUserFields(
+  contactInformationFields: RegisterFields[],
+): RegisterCompanyInput['companyUser'] {
+  const extraFields = buildGraphQLExtraFields(filterCustomRegisterFields(contactInformationFields));
+  return extraFields ? { extraFields } : undefined;
 }
 
 function mapUploadedFilesToRegisterInput(
@@ -169,23 +181,15 @@ function buildRegisterCompanyInput(
 ): RegisterCompanyInput {
   const { list: contactInformationFields, companyInformation, addressBasicList } = context;
   const companyStandardFieldValues = buildCompanyStandardFields(companyInformation);
-  const addressFieldsFromForm = buildAddressFieldsFromForm(addressBasicList, customerDetails);
 
   return {
     name: companyStandardFieldValues.companyName ?? '',
     email: companyStandardFieldValues.companyEmail ?? '',
     phone: companyStandardFieldValues.companyPhoneNumber ?? '',
-    address: {
-      ...addressFieldsFromForm,
-      extraFields: buildGraphQLExtraFields(filterCustomRegisterFields(addressBasicList)),
-    },
+    address: buildAddressFieldsFromForm(addressBasicList, customerDetails),
     fileList: mapUploadedFilesToRegisterInput(fileList),
     extraFields: buildGraphQLExtraFields(filterCustomRegisterFields(companyInformation)),
-    companyUser: {
-      extraFields: buildGraphQLExtraFields(
-        filterCustomRegisterFields(contactInformationFields ?? []),
-      ),
-    },
+    companyUser: buildCompanyUserFields(contactInformationFields ?? []),
   };
 }
 
