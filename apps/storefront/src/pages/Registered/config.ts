@@ -77,7 +77,7 @@ export const validateExtraFields = async ({
 
       const extraFields = customFields.map((field: RegisterFields) => ({
         fieldName: Base64.decode(field.name),
-        fieldValue: data[field.name] || field.default,
+        fieldValue: data[field.name] ?? field.default,
       }));
 
       const fn = type === 'company' ? validateBCCompanyExtraFields : validateAddressExtraFields;

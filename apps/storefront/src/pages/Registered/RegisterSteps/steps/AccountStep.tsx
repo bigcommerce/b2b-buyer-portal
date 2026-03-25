@@ -151,7 +151,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
 
       const newContactInfo = contactInfo.map((item: RegisterFields) => {
         const newContactItem = item;
-        newContactItem.default = data[item.name] || item.default;
+        newContactItem.default = data[item.name] ?? item.default;
         if (item.fieldId === 'field_email_marketing_newsletter' && item.fieldType === 'checkbox') {
           newContactItem.isChecked = data[item.name].length > 0;
         }
@@ -166,7 +166,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
           );
           const extraFields = extraCompanyUserInformation.map((field: RegisterFields) => ({
             fieldName: Base64.decode(field.name),
-            fieldValue: data[field.name] || field.default,
+            fieldValue: data[field.name] ?? field.default,
           }));
           if (extraFields.length > 0) {
             const res = await validateBCCompanyUserExtraFields({
@@ -209,7 +209,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
         newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map(
           (item: RegisterFields) => {
             const additionalInfoItem = item;
-            additionalInfoItem.default = data[item.name] || item.default;
+            additionalInfoItem.default = data[item.name] ?? item.default;
             return item;
           },
         );

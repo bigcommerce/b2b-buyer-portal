@@ -1,29 +1,37 @@
-import { renderWithProviders, screen, waitFor } from 'tests/test-utils';
+import {
+  buildCompanyStateWith,
+  buildGlobalStateWith,
+  renderWithProviders,
+  screen,
+  waitFor,
+} from 'tests/test-utils';
 import { when } from 'vitest-when';
 
-import {
-  checkUserBCEmail,
-  checkUserEmail,
-  createB2BCompanyUser,
-  createBCCompanyUser,
-  getB2BAccountFormFields,
-  getB2BCountries,
-  validateAddressExtraFields,
-  validateBCCompanyExtraFields,
-} from '@/shared/service/b2b';
-import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
-import { bcLogin } from '@/shared/service/bc';
+import * as b2bService from '@/shared/service/b2b';
+import * as recaptchaModule from '@/shared/service/b2b/graphql/recaptcha';
+import * as bcModule from '@/shared/service/bc';
+import type { RegisterCompanyMutationResponse } from '@/shared/service/bc/graphql/company';
+import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
+import * as companyGraphqlModule from '@/shared/service/bc/graphql/company';
+import * as bcGraphqlLoginModule from '@/shared/service/bc/graphql/login';
 import { B3SStorage } from '@/utils/b3Storage';
-import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import * as loginInfoModule from '@/utils/loginInfo';
+import * as storefrontConfigModule from '@/utils/storefrontConfig';
 
 import { RegisteredProvider } from './Context';
 import Registered from '.';
 
-vi.mock('@/shared/service/b2b');
-vi.mock('@/shared/service/bc');
-vi.mock('@/utils/loginInfo');
-vi.mock('@/shared/service/b2b/graphql/recaptcha');
-vi.mock('@/utils/storefrontConfig');
+const mockRegisterCompanyGraphqlApproved: RegisterCompanyMutationResponse = {
+  data: {
+    company: {
+      registerCompany: {
+        entityId: 1,
+        status: RegisterCompanyStatus.APPROVED,
+        errors: [],
+      },
+    },
+  },
+};
 
 const mockCountries = {
   countries: [
@@ -1008,29 +1016,74 @@ async function completeRegistration(
   await user.click(screen.getByRole('button', { name: /Submit/i }));
 }
 
+/**
+ * FF off: B2B GraphQL `companyCreate` mutation (via `createB2BCompanyUser` from `@/shared/service/b2b/graphql/register`).
+ * FF on: BigCommerce Storefront GraphQL `registerCompany` (see `describe` below).
+ */
+const preloadedStateB2bCompanyCreate = {
+  global: buildGlobalStateWith({
+    featureFlags: { 'B2B-4466.use_register_company_flow': false },
+  }),
+};
+
+/** FF on: Storefront `registerCompany` + `bcLogin` after `createBCCompanyUser`. Prefetch `bcGraphqlToken` so `loginInfo` is not required in the happy path. */
+const preloadedStateStorefrontRegisterCompany = {
+  global: buildGlobalStateWith({
+    featureFlags: { 'B2B-4466.use_register_company_flow': true },
+  }),
+  company: buildCompanyStateWith({
+    tokens: {
+      bcGraphqlToken: 'prefetched-bc-storefront-token',
+      B2BToken: '',
+      currentCustomerJWT: '',
+    },
+  }),
+};
+
 describe('Registered Page', () => {
   beforeEach(() => {
-    vi.mocked(getB2BAccountFormFields).mockResolvedValue({ accountFormFields: formType2Fields });
-    when(getB2BAccountFormFields).calledWith(1).thenResolve({ accountFormFields: formType1Fields });
+    vi.spyOn(companyGraphqlModule, 'registerCompany').mockResolvedValue(
+      mockRegisterCompanyGraphqlApproved,
+    );
+    vi.spyOn(loginInfoModule, 'loginInfo').mockImplementation(() => Promise.resolve());
 
-    vi.mocked(getB2BCountries).mockResolvedValue(mockCountries);
-    vi.mocked(checkUserEmail).mockResolvedValue({ isValid: true });
-    vi.mocked(checkUserBCEmail).mockResolvedValue({ isValid: true });
-    vi.mocked(createBCCompanyUser).mockResolvedValue({
+    vi.spyOn(b2bService, 'getB2BAccountFormFields').mockResolvedValue({
+      accountFormFields: formType2Fields,
+    });
+    when(b2bService.getB2BAccountFormFields)
+      .calledWith(1)
+      .thenResolve({ accountFormFields: formType1Fields });
+
+    vi.spyOn(b2bService, 'getB2BCountries').mockResolvedValue(mockCountries);
+    vi.spyOn(b2bService, 'checkUserEmail').mockResolvedValue({ isValid: true });
+    vi.spyOn(b2bService, 'checkUserBCEmail').mockResolvedValue({ isValid: true });
+    vi.spyOn(b2bService, 'createBCCompanyUser').mockResolvedValue({
       customerCreate: { customer: { id: 1, email: 'john.doe@example.com' } },
     });
-    vi.mocked(validateAddressExtraFields).mockResolvedValue({ code: 200 });
-    vi.mocked(validateBCCompanyExtraFields).mockResolvedValue({ code: 200 });
-    vi.mocked(createB2BCompanyUser).mockResolvedValue({
+    vi.spyOn(b2bService, 'validateAddressExtraFields').mockResolvedValue({ code: 200 });
+    vi.spyOn(b2bService, 'validateBCCompanyExtraFields').mockResolvedValue({ code: 200 });
+    vi.spyOn(b2bService, 'createB2BCompanyUser').mockResolvedValue({
       companyCreate: { company: { companyStatus: 1 } },
     });
-    vi.mocked(bcLogin).mockResolvedValue({ error: undefined });
-    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+    vi.spyOn(b2bService, 'sendSubscribersState').mockImplementation(() => Promise.resolve({}));
+    vi.spyOn(b2bService, 'uploadB2BFile').mockResolvedValue({
+      code: 200,
+      data: { fileSize: '' },
+    });
+    vi.spyOn(bcModule, 'bcLogin').mockResolvedValue({ error: undefined });
+    vi.spyOn(bcGraphqlLoginModule, 'bcLogoutLogin').mockResolvedValue({
+      data: { logout: { result: 'success' } },
+    });
+    vi.spyOn(loginInfoModule, 'getCurrentCustomerInfo').mockResolvedValue({
       userType: 5,
       role: 2,
       companyRoleName: 'Junior Buyer',
     });
-    vi.mocked(getStorefrontToken).mockResolvedValue({ isEnabledOnStorefront: false, siteKey: '' });
+    vi.spyOn(recaptchaModule, 'getStorefrontToken').mockResolvedValue({
+      isEnabledOnStorefront: false,
+      siteKey: '',
+    });
+    vi.spyOn(storefrontConfigModule, 'getStoreConfigs').mockImplementation(() => Promise.resolve());
   });
 
   it('renders and completes personal (B2C) registration flow', async () => {
@@ -1038,11 +1091,12 @@ describe('Registered Page', () => {
       <RegisteredProvider>
         <Registered setOpenPage={vi.fn()} />
       </RegisteredProvider>,
+      { preloadedState: preloadedStateB2bCompanyCreate },
     );
 
     await completeRegistration(user, { ...mockRegistrationData.b2c, businessDetails: undefined });
 
-    expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType1, '');
+    expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType1, '');
     expect(screen.getByRole('heading', { name: 'Registration complete!' })).toBeVisible();
     expect(screen.getByText('Thank you for creating your account at')).toBeVisible();
     await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
@@ -1058,14 +1112,16 @@ describe('Registered Page', () => {
         <Registered setOpenPage={vi.fn()} />
       </RegisteredProvider>,
       {
-        preloadedState: {},
+        preloadedState: preloadedStateB2bCompanyCreate,
         initialGlobalContext: { storeName: 'My Store' },
       },
     );
 
     await completeRegistration(user, mockRegistrationData.b2b);
 
-    expect(createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
+    expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(expectedPayloadType2, '');
+    expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+    expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
     expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
     expect(
       screen.getByText(
@@ -1079,20 +1135,195 @@ describe('Registered Page', () => {
     });
   });
 
+  describe('B2B-4466.use_register_company_flow enabled (BC Storefront GraphQL registerCompany)', () => {
+    beforeEach(() => {
+      when(bcModule.bcLogin)
+        .calledWith({ email: 'john.doe@example.com', password: 'Password123' })
+        .thenResolve({
+          errors: [],
+          data: {
+            login: {
+              customer: {
+                firstName: 'John',
+                lastName: 'Doe',
+              },
+            },
+          },
+        });
+    });
+
+    it('completes B2B registration via Storefront registerCompany and does not call B2B companyCreate (createB2BCompanyUser)', async () => {
+      const { navigation, user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, mockRegistrationData.b2b);
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+      expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+      expect(b2bService.createBCCompanyUser).toHaveBeenCalled();
+      expect(bcModule.bcLogin).toHaveBeenCalledWith({
+        email: 'john.doe@example.com',
+        password: 'Password123',
+      });
+      expect(loginInfoModule.loginInfo).not.toHaveBeenCalled();
+      expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
+      expect(
+        screen.getByText(
+          'Thank you for creating your account at My Store. Your company account application has been approved',
+        ),
+      ).toBeVisible();
+      await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/\/orders/i));
+      });
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
+    });
+
+    it('shows pending copy when Storefront registerCompany returns a non-APPROVED status', async () => {
+      when(companyGraphqlModule.registerCompany)
+        .calledWith(expect.anything())
+        .thenResolve({
+          data: {
+            company: {
+              registerCompany: {
+                entityId: 2,
+                status: RegisterCompanyStatus.PENDING,
+                errors: [],
+              },
+            },
+          },
+        });
+
+      const { navigation, user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, mockRegistrationData.b2b);
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+      expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).toHaveBeenCalledTimes(1);
+      expect(
+        screen.getByText(
+          'Your business account is pending approval. You will gain access to business account features after account approval.',
+        ),
+      ).toBeVisible();
+      await user.click(screen.getByRole('button', { name: /Finish|FINISH/i }));
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/login/i));
+      });
+    });
+
+    it('shows mutation validation errors from registerCompany payload instead of success copy', async () => {
+      when(companyGraphqlModule.registerCompany)
+        .calledWith(expect.anything())
+        .thenResolve({
+          data: {
+            company: {
+              registerCompany: {
+                entityId: null,
+                status: RegisterCompanyStatus.PENDING,
+                errors: [{ message: 'A company with this name already exists.', path: ['name'] }],
+              },
+            },
+          },
+        });
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, mockRegistrationData.b2b);
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+      expect(screen.getByText('A company with this name already exists.')).toBeVisible();
+      expect(
+        screen.queryByText(
+          'Thank you for creating your account at My Store. Your company account application has been approved',
+        ),
+      ).not.toBeInTheDocument();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
+    });
+
+    it('shows generic error when storefront login returns no customer', async () => {
+      when(bcModule.bcLogin)
+        .calledWith({ email: 'john.doe@example.com', password: 'Password123' })
+        .thenResolve({
+          errors: [],
+          data: {
+            login: {
+              customer: null,
+            },
+          },
+        });
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, mockRegistrationData.b2b);
+
+      await waitFor(() => {
+        expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+      });
+      expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+      expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
+    });
+  });
+
   describe('B2B registration pending approval scenarios', () => {
     it('can order, cannot view prices', async () => {
       const storageSpy = vi.spyOn(B3SStorage, 'get');
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(false);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
 
-      vi.mocked(createB2BCompanyUser).mockResolvedValue({
-        companyCreate: { company: { companyStatus: 0 } },
-      });
+      when(b2bService.createB2BCompanyUser)
+        .calledWith(
+          expect.objectContaining({
+            customerId: 1,
+            customerEmail: 'john.doe@example.com',
+          }),
+        )
+        .thenResolve({
+          companyCreate: { company: { companyStatus: 0 } },
+        });
 
       const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
+        { preloadedState: preloadedStateB2bCompanyCreate },
       );
 
       await completeRegistration(user, mockRegistrationData.b2b);
@@ -1114,14 +1345,22 @@ describe('Registered Page', () => {
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(true);
 
-      vi.mocked(createB2BCompanyUser).mockResolvedValue({
-        companyCreate: { company: { companyStatus: 0 } },
-      });
+      when(b2bService.createB2BCompanyUser)
+        .calledWith(
+          expect.objectContaining({
+            customerId: 1,
+            customerEmail: 'john.doe@example.com',
+          }),
+        )
+        .thenResolve({
+          companyCreate: { company: { companyStatus: 0 } },
+        });
 
       const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
+        { preloadedState: preloadedStateB2bCompanyCreate },
       );
 
       await completeRegistration(user, mockRegistrationData.b2b);
@@ -1143,13 +1382,21 @@ describe('Registered Page', () => {
       when(storageSpy).calledWith('blockPendingAccountOrderCreation').thenReturn(true);
       when(storageSpy).calledWith('blockPendingAccountViewPrice').thenReturn(false);
 
-      vi.mocked(createB2BCompanyUser).mockResolvedValue({
-        companyCreate: { company: { companyStatus: 0 } },
-      });
+      when(b2bService.createB2BCompanyUser)
+        .calledWith(
+          expect.objectContaining({
+            customerId: 1,
+            customerEmail: 'john.doe@example.com',
+          }),
+        )
+        .thenResolve({
+          companyCreate: { company: { companyStatus: 0 } },
+        });
       const { navigation, user } = renderWithProviders(
         <RegisteredProvider>
           <Registered setOpenPage={vi.fn()} />
         </RegisteredProvider>,
+        { preloadedState: preloadedStateB2bCompanyCreate },
       );
 
       await completeRegistration(user, mockRegistrationData.b2b);
@@ -1169,13 +1416,13 @@ describe('Registered Page', () => {
     });
   });
 
-  it('passes customerEmail from createBCCompanyUser response to createB2BCompanyUser', async () => {
+  it('passes customerEmail from createBCCompanyUser response to B2B companyCreate (createB2BCompanyUser)', async () => {
     const { user } = renderWithProviders(
       <RegisteredProvider>
         <Registered setOpenPage={vi.fn()} />
       </RegisteredProvider>,
       {
-        preloadedState: {},
+        preloadedState: preloadedStateB2bCompanyCreate,
         initialGlobalContext: { storeName: 'My Store' },
       },
     );
@@ -1183,12 +1430,13 @@ describe('Registered Page', () => {
     await completeRegistration(user, mockRegistrationData.b2b);
 
     await waitFor(() => {
-      expect(createB2BCompanyUser).toHaveBeenCalledWith(
+      expect(b2bService.createB2BCompanyUser).toHaveBeenCalledWith(
         expect.objectContaining({
           customerId: 1,
           customerEmail: 'john.doe@example.com',
         }),
       );
     });
+    expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
   });
 });
