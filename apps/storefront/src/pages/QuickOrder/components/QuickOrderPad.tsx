@@ -408,7 +408,7 @@ export default function QuickOrderPad() {
 
     try {
       if (validProducts.length > 0) {
-        await addSingleProductToCart(product);
+        await addSingleProductToCart(validProducts[0].node?.productsSearch ?? product);
       }
     } catch (error) {
       b2bLogger.error(error);

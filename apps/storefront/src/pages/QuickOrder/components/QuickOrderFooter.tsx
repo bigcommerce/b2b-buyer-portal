@@ -76,7 +76,7 @@ const transformToCartLineItems = (
       return;
     }
 
-    const { variants }: CustomFieldItems = currentProduct;
+    const { variants = [] }: CustomFieldItems = currentProduct;
     const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
       (variant: CustomFieldItems) =>
         node.variantSku === variant.sku && Number(node.variantId) === Number(variant.variant_id),
@@ -219,7 +219,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       }
     } catch (err) {
       b2bLogger.error(err);
-      snackbar.error(b3Lang('purchasedProducts.error.default'));
+      snackbar.error(
+        err instanceof Error ? err.message : b3Lang('purchasedProducts.error.default'),
+      );
     } finally {
       b3TriggerCartNumber();
       setIsRequestLoading(false);
