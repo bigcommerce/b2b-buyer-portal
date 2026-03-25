@@ -19,6 +19,12 @@ export interface CheckedProduct {
   node: ProductInfo;
 }
 
+/**
+ * Checks whether a single product can be purchased at the given quantity.
+ * Validates stock availability, purchasing-disabled status, and min/max order
+ * quantity limits. Returns `{ isVerify: true }` on success, or shows a
+ * snackbar error and returns `{ isVerify: false }` on failure.
+ */
 const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunction) => {
   const {
     variantId,
@@ -47,6 +53,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
     stock = inventoryTracking === 'variant' ? currentVariant.inventory_level : stock;
     productSku = currentVariant.sku || sku;
   }
+  let isVerify = true;
 
   if (purchasingDisabled && !isEnableProduct) {
     snackbar.error(
@@ -54,11 +61,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
         notPurchaseSku: productSku,
       }),
     );
-
-    return {
-      isVerify: false,
-      type: 'notPurchaseableSku',
-    };
+    isVerify = false;
   }
 
   if (isStock && Number(quantity) > Number(stock)) {
@@ -67,11 +70,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
         sku: productSku,
       }),
     );
-
-    return {
-      isVerify: false,
-      type: 'insufficientStockSku',
-    };
+    isVerify = false;
   }
 
   if (Number(orderQuantityMinimum) > 0 && Number(quantity) < orderQuantityMinimum) {
@@ -81,11 +80,7 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
         sku: productSku,
       }),
     );
-
-    return {
-      isVerify: false,
-      type: 'minQuantity',
-    };
+    isVerify = false;
   }
 
   if (Number(orderQuantityMaximum) > 0 && Number(quantity) > Number(orderQuantityMaximum)) {
@@ -95,18 +90,13 @@ const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangFormatFunct
         sku: productSku,
       }),
     );
-
-    return {
-      isVerify: false,
-      type: 'maxQuantity',
-    };
+    isVerify = false;
   }
 
-  return {
-    isVerify: true,
-  };
+  return { isVerify };
 };
 
+/** Fetches the current cart and flattens all line items into a single array. */
 export const getCartProductInfo = async () => {
   const {
     data: {
@@ -128,31 +118,34 @@ export const getCartProductInfo = async () => {
   return [];
 };
 
-export const addCartProductToVerify = async (
-  checkedArr: Partial<CheckedProduct>[],
+/**
+ * Validates that every checked product can be purchased given current cart state.
+ * Sums each product's requested quantity with its existing cart quantity, then
+ * checks stock levels, min/max order limits, and purchasing-disabled status.
+ * Returns only the checked products that pass validation (and shows snackbar errors for failures).
+ */
+export const addCartProductToVerify = async <T extends Partial<CheckedProduct>>(
+  checkedArr: T[],
   b3lang: LangFormatFunction,
-) => {
+): Promise<T[]> => {
   const cartProducts: LineItem[] = await getCartProductInfo();
-  const addCommonProducts = checkedArr.reduce((pre, checkItem) => {
+
+  return checkedArr.filter((checkItem) => {
     const { node } = checkItem;
 
-    const num =
+    const existingCartQuantity =
       cartProducts.find(
         (item: LineItem) =>
           item.sku === node?.sku &&
           Number(item?.variantEntityId || 0) === Number(node?.variantId || 0),
       )?.quantity || 0;
 
-    pre.push({
+    const productToVerify: CommonProducts = {
       ...node?.productsSearch,
       variantId: node?.variantId,
-      quantity: (node?.quantity || 0) + num,
-    });
+      quantity: (node?.quantity || 0) + existingCartQuantity,
+    };
 
-    return pre;
-  }, [] as CommonProducts[]);
-
-  return addCommonProducts.every((product) => {
-    return handleVerifyProduct(product, b3lang).isVerify;
+    return handleVerifyProduct(productToVerify, b3lang).isVerify;
   });
 };

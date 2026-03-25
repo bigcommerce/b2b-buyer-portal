@@ -404,11 +404,11 @@ export default function QuickOrderPad() {
       },
     };
 
-    const isPassVerify = await addCartProductToVerify([currentProduct], b3Lang);
+    const validProducts = await addCartProductToVerify([currentProduct], b3Lang);
 
     try {
-      if (isPassVerify) {
-        await addSingleProductToCart(product);
+      if (validProducts.length > 0) {
+        await addSingleProductToCart(validProducts[0].node?.productsSearch ?? product);
       }
     } catch (error) {
       b2bLogger.error(error);

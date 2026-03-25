@@ -984,7 +984,7 @@ it('adds a product to the cart', async () => {
   await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
   await waitFor(() => {
-    expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+    expect(screen.getByText('1 product was added to cart')).toBeInTheDocument();
   });
 
   expect(Cookies.get('cartId')).toBe('12345');
@@ -1162,7 +1162,7 @@ describe('when product purchasing_disabled', () => {
       await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
       await waitFor(() => {
-        expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+        expect(screen.getByText('1 product was added to cart')).toBeInTheDocument();
       });
 
       expect(Cookies.get('cartId')).toBe('12345');
@@ -1437,7 +1437,7 @@ describe('when the quantity is not within the min/max', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+      expect(screen.getByText('1 product was added to cart')).toBeInTheDocument();
     });
   });
 
@@ -1657,8 +1657,6 @@ describe('when the quantity is not within the min/max', () => {
 });
 
 describe('when the product variant has changed (stale purchased products)', () => {
-  // Product no longer purchasable is covered in describe('when product purchasing_disabled') above.
-
   it('displays error when variant in purchased products no longer exists in catalog', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
@@ -1727,14 +1725,15 @@ describe('when the product variant has changed (stale purchased products)', () =
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText("Selected product doesn't exist")).toBeInTheDocument();
+      expect(
+        screen.getByText(`SKU ${laughCanister.node.sku} product doesn't exist`),
+      ).toBeInTheDocument();
     });
   });
 
   it('displays error when product modifier in purchased products no longer exists', async () => {
     const getRecentlyOrderedProducts = vi.fn();
     const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
-    const createCartSimple = vi.fn();
 
     const productId = 86;
     const variantId = 66;
@@ -1770,6 +1769,7 @@ describe('when the product variant has changed (stale purchased products)', () =
               orderQuantityMaximum: 0,
               orderQuantityMinimum: 0,
               inventoryLevel: 100,
+              options: [],
               variants: [
                 buildVariantWith({
                   product_id: productId,
@@ -1783,18 +1783,6 @@ describe('when the product variant has changed (stale purchased products)', () =
         },
       });
 
-    when(createCartSimple)
-      .calledWith(expect.anything())
-      .thenReturn({
-        data: { cart: { createCart: null } },
-        errors: [
-          {
-            message:
-              'Attributes cannot apply to simple products: Attributes cannot apply to simple products.',
-          },
-        ],
-      });
-
     server.use(
       graphql.query('RecentlyOrderedProducts', ({ query }) =>
         HttpResponse.json(getRecentlyOrderedProducts(query)),
@@ -1802,9 +1790,6 @@ describe('when the product variant has changed (stale purchased products)', () =
       graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
       graphql.query('getCart', () =>
         HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
-      ),
-      graphql.mutation('createCartSimple', ({ variables }) =>
-        HttpResponse.json(createCartSimple(variables)),
       ),
     );
 
@@ -1821,7 +1806,9 @@ describe('when the product variant has changed (stale purchased products)', () =
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText('Product modifier is not valid')).toBeInTheDocument();
+      expect(
+        screen.getByText(`SKU ${laughCanister.node.sku} has invalid modifiers`),
+      ).toBeInTheDocument();
     });
   });
 
@@ -1868,7 +1855,134 @@ describe('when the product variant has changed (stale purchased products)', () =
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText("Selected product doesn't exist")).toBeInTheDocument();
+      expect(
+        screen.getByText(`SKU ${laughCanister.node.sku} product doesn't exist`),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('groups multiple errors by type into separate snackbar messages', async () => {
+    const getRecentlyOrderedProducts = vi.fn();
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    const productId = 86;
+
+    const deletedProduct = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Deleted Product',
+        variantSku: 'DELETED-SKU',
+        productId: '999',
+      },
+    });
+
+    const staleVariantProduct = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Stale Variant Product',
+        variantSku: 'OLD-VARIANT-SKU',
+        variantId: '66',
+        productId: String(productId),
+      },
+    });
+
+    const staleModifierProduct = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Stale Modifier Product',
+        variantSku: 'MODIFIER-SKU',
+        variantId: '77',
+        productId: String(productId),
+        optionList: [
+          buildRecentlyOrderedProductNodeOptionListWith({
+            product_option_id: 111,
+            display_name: 'Old Color',
+            value: '106',
+          }),
+        ],
+      },
+    });
+
+    when(getRecentlyOrderedProducts)
+      .calledWith(stringContainingAll('first: 12', 'offset: 0', 'orderBy: "-lastOrderedAt"'))
+      .thenReturn(
+        buildGetRecentlyOrderedProductsWith({
+          data: {
+            orderedProducts: {
+              totalCount: 3,
+              edges: [deletedProduct, staleVariantProduct, staleModifierProduct],
+            },
+          },
+        }),
+      );
+
+    when(searchProducts)
+      .calledWith(
+        stringContainingAll(
+          `productIds:`,
+          deletedProduct.node.productId,
+          staleVariantProduct.node.productId,
+        ),
+      )
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: 'Catalog Product',
+              sku: staleVariantProduct.node.sku,
+              orderQuantityMaximum: 0,
+              orderQuantityMinimum: 0,
+              inventoryLevel: 100,
+              options: [
+                { option_id: 111, display_name: 'New Color', is_required: false, sort_order: 0 },
+              ],
+              variants: [
+                buildVariantWith({
+                  product_id: productId,
+                  variant_id: 77,
+                  sku: 'MODIFIER-SKU',
+                  purchasing_disabled: false,
+                }),
+              ],
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('getCart', () =>
+        HttpResponse.json(buildGetCartWith({ data: { site: { cart: null } } })),
+      ),
+    );
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    const deletedRow = await screen.findByRole('row', { name: /Deleted Product/ });
+    const staleVariantRow = await screen.findByRole('row', { name: /Stale Variant Product/ });
+    const staleModifierRow = await screen.findByRole('row', { name: /Stale Modifier Product/ });
+
+    await userEvent.click(within(deletedRow).getByRole('checkbox'));
+    await userEvent.click(within(staleVariantRow).getByRole('checkbox'));
+    await userEvent.click(within(staleModifierRow).getByRole('checkbox'));
+
+    const addButton = screen.getByRole('button', { name: 'Add selected to' });
+
+    await userEvent.click(addButton);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          `SKUs ${deletedProduct.node.sku}, ${staleVariantProduct.node.sku} products don't exist`,
+        ),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByText(`SKU ${staleModifierProduct.node.sku} has invalid modifiers`),
+      ).toBeInTheDocument();
     });
   });
 });
@@ -2732,7 +2846,7 @@ describe('when backorder validation is enabled', () => {
               sku: laughCanister.node.sku,
               orderQuantityMaximum: 0,
               orderQuantityMinimum: 0,
-              inventoryLevel: 2, // This product is out of stock
+              inventoryLevel: 2,
               inventoryTracking: 'product',
               variants: [variant],
             }),
@@ -3945,13 +4059,17 @@ describe('when backorder validation is enabled', () => {
 
     const createCartSimple = vi.fn();
 
+    const optionListItem = buildRecentlyOrderedProductNodeOptionListWith({
+      product_option_id: 111,
+      display_name: 'Color',
+      value: '8',
+    });
+
     const laughCanister = buildRecentlyOrderedProductNodeWith({
       node: {
         productName: 'Laugh Canister',
         basePrice: '122.33',
-        optionList: [
-          buildRecentlyOrderedProductNodeOptionListWith({ product_option_id: 111, value: '8' }),
-        ],
+        optionList: [optionListItem],
         optionSelections: [
           {
             option_id: 111,
@@ -3981,6 +4099,12 @@ describe('when backorder validation is enabled', () => {
               orderQuantityMaximum: 10,
               orderQuantityMinimum: 5,
               inventoryLevel: 100,
+              options: [
+                buildSearchProductOptionsWith({
+                  option_id: 111,
+                  display_name: 'Color',
+                }),
+              ],
               variants: [
                 buildVariantWith({
                   product_id: Number(laughCanister.node.productId),
@@ -4046,7 +4170,7 @@ describe('when backorder validation is enabled', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
 
     await waitFor(() => {
-      expect(screen.getByText('Products were added to cart')).toBeInTheDocument();
+      expect(screen.getByText('1 product was added to cart')).toBeInTheDocument();
     });
 
     expect(Cookies.get('cartId')).toBe('12345');
