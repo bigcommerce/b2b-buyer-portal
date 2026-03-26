@@ -4,9 +4,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import { InformationLabels, StyledRegisterContent, TipContent } from '../styled';
 
-import { Address } from './Address';
-import { BusinessDetails } from './BusinessDetails';
-import { ContactInformation } from './ContactInformation';
+import { RegistrationFieldsSection } from './RegistrationFieldsSection';
 import { SubmitRow } from './SubmitRow';
 import { useRegistrationForm } from './useRegistrationForm';
 
@@ -51,7 +49,7 @@ export default function RegistrationForm({ onRegistrationSuccess }: Registration
         </Alert>
       )}
 
-      <ContactInformation
+      <RegistrationFieldsSection
         formFields={bcTob2bContactInformation || []}
         sectionHeading={
           bcTob2bContactInformation?.length ? (bcTob2bContactInformation[0]?.groupName ?? '') : ''
@@ -62,7 +60,7 @@ export default function RegistrationForm({ onRegistrationSuccess }: Registration
         setValue={setValue}
       />
 
-      <BusinessDetails
+      <RegistrationFieldsSection
         formFields={[...bcTob2bCompanyInformation, ...bcTob2bCompanyExtraFields]}
         sectionHeading={
           bcTob2bCompanyInformation?.length ? (bcTob2bCompanyInformation[0]?.groupName ?? '') : ''
@@ -74,7 +72,7 @@ export default function RegistrationForm({ onRegistrationSuccess }: Registration
         setError={setError}
       />
 
-      <Address
+      <RegistrationFieldsSection
         formFields={bcTob2bAddressBasicFields}
         sectionHeading={
           bcTob2bAddressBasicFields?.length ? (bcTob2bAddressBasicFields[0]?.groupName ?? '') : ''

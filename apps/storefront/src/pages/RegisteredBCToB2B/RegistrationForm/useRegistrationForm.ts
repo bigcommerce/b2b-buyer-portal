@@ -25,6 +25,7 @@ import {
   buildB2bCompanyCreatePayloadForBcToB2b,
   buildCompanyUserExtraFieldsForBcToB2b,
   getRegisterFieldValueForBcToB2bForm,
+  getRegisterFieldValueForBcToB2bFormValidation,
 } from './createCompany';
 
 interface UseRegistrationFormParams {
@@ -136,6 +137,9 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
       }
     });
     return () => subscription.unsubscribe();
+    // Intentionally depend only on `countryList`: re-run when countries load from the server.
+    // Other values (dispatch, address field defs, setValue) are omitted so we do not tear down
+    // and recreate the country `watch` subscription on every context update from this effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryList]);
 
@@ -191,7 +195,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
       );
       const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
         fieldName: deCodeField(field.name),
-        fieldValue: getRegisterFieldValueForBcToB2bForm(field, data),
+        fieldValue: getRegisterFieldValueForBcToB2bFormValidation(field, data),
       }));
 
       const res = await validateBCCompanyExtraFields({
@@ -227,18 +231,18 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
 
   const handleValidateAttachmentFiles = () => {
     const formData = getValues();
-    const attachmentsFilesFiled = bcTob2bCompanyInformation.find(
+    const attachmentsFilesField = bcTob2bCompanyInformation.find(
       (info) => info.fieldId === 'field_attachments',
     );
     if (
-      !isEmpty(attachmentsFilesFiled) &&
-      attachmentsFilesFiled.required &&
-      formData[attachmentsFilesFiled.name].length === 0
+      !isEmpty(attachmentsFilesField) &&
+      attachmentsFilesField.required &&
+      formData[attachmentsFilesField.name].length === 0
     ) {
-      setError(attachmentsFilesFiled.name, {
+      setError(attachmentsFilesField.name, {
         type: 'required',
         message: b3Lang('global.validate.required', {
-          label: attachmentsFilesFiled.label ?? '',
+          label: attachmentsFilesField.label ?? '',
         }),
       });
 
@@ -303,7 +307,8 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
       }
       setErrorMessage('');
       return true;
-    } catch {
+    } catch (error) {
+      b2bLogger.error(error);
       return false;
     }
   };
@@ -321,12 +326,12 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
           return;
         }
 
-        const getFieldValue = (field: RegisterFields) =>
+        const getPayloadFieldValue = (field: RegisterFields) =>
           getRegisterFieldValueForBcToB2bForm(field, data);
 
         const companyUserExtraFields = buildCompanyUserExtraFieldsForBcToB2b(
           bcTob2bContactInformation ?? [],
-          getFieldValue,
+          (field) => getRegisterFieldValueForBcToB2bFormValidation(field, data),
         );
 
         let isCompanyUserValidate = true;
@@ -350,7 +355,8 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
           companyInformation: bcTob2bCompanyInformation,
           addressBasicList: bcTob2bAddressBasicFields,
           contactInformationList: bcTob2bContactInformation ?? [],
-          getValue: getFieldValue,
+          getValue: getPayloadFieldValue,
+          companyUserExtraFields,
         });
         await createB2BCompanyUser(b2bFields);
 

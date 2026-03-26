@@ -2,19 +2,34 @@ import type { RegisterFields } from '@/pages/Registered/types';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
-/**
- * B2B `companyCreate` payload for BC→B2B registration (`createB2BCompanyUser`).
- * Co-located with `RegistrationForm` like `RegisterSteps/steps/CompleteStep/createCompany`.
- */
+// Payload helpers for BC→B2B registration (`createB2BCompanyUser`).
 
 export function getRegisterFieldValueForBcToB2bForm(
   field: RegisterFields,
   data: CustomFieldItems,
 ): string {
   const fromForm = data[field.name];
-  const resolved = fromForm ?? field.default;
+  if (fromForm === undefined || fromForm === null) {
+    return '';
+  }
+  if (Array.isArray(fromForm)) {
+    if (fromForm.length === 0) return '';
+    return fromForm.map((item) => String(item)).join(',');
+  }
+  return String(fromForm || '');
+}
+
+// Uses `data[field.name] || field.default` (pre-refactor `validateBCCompanyExtraFields`, contact user extras).
+export function getRegisterFieldValueForBcToB2bFormValidation(
+  field: RegisterFields,
+  data: CustomFieldItems,
+): string {
+  const resolved = data[field.name] || field.default;
   if (resolved === undefined || resolved === null) return '';
-  if (Array.isArray(resolved)) return resolved.length ? String(resolved[0]) : '';
+  if (Array.isArray(resolved)) {
+    if (resolved.length === 0) return '';
+    return resolved.map((item) => String(item)).join(',');
+  }
   return String(resolved);
 }
 
@@ -38,6 +53,7 @@ export function buildB2bCompanyCreatePayloadForBcToB2b(input: {
   addressBasicList: RegisterFields[];
   contactInformationList: RegisterFields[];
   getValue: (field: RegisterFields) => string;
+  companyUserExtraFields?: CustomFieldItems[];
 }): CustomFieldItems {
   const {
     customerId,
@@ -47,6 +63,7 @@ export function buildB2bCompanyCreatePayloadForBcToB2b(input: {
     addressBasicList,
     contactInformationList,
     getValue,
+    companyUserExtraFields,
   } = input;
 
   const b2bFields: CustomFieldItems = {};
@@ -54,7 +71,9 @@ export function buildB2bCompanyCreatePayloadForBcToB2b(input: {
   b2bFields.customerEmail = customerEmail || '';
   b2bFields.storeHash = storeHash;
 
-  const userExtraFields = buildCompanyUserExtraFieldsForBcToB2b(contactInformationList, getValue);
+  const userExtraFields =
+    companyUserExtraFields ??
+    buildCompanyUserExtraFieldsForBcToB2b(contactInformationList, getValue);
   if (userExtraFields.length) {
     b2bFields.userExtraFields = userExtraFields;
   }
