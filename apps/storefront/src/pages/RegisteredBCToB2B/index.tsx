@@ -1,7 +1,7 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, ImageListItem } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 import isEmpty from 'lodash-es/isEmpty';
 
 import { B3Card } from '@/components/B3Card';
@@ -45,10 +45,11 @@ import {
   InformationFourLabels,
   InformationLabels,
   RegisteredContainer,
-  RegisteredImage,
   StyledRegisterContent,
   TipContent,
 } from './styled';
+
+import { Logo } from './Logo';
 
 interface CustomerInfo {
   [k: string]: string;
@@ -621,18 +622,7 @@ function RegisteredBCToB2B(props: PageProps) {
             }}
           >
             {logo && (
-              <RegisteredImage>
-                <ImageListItem
-                  sx={{
-                    maxWidth: '250px',
-                  }}
-                  onClick={() => {
-                    window.location.href = '/';
-                  }}
-                >
-                  <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
-                </ImageListItem>
-              </RegisteredImage>
+              <Logo logoUrl={logo} logoAlt={b3Lang('global.tips.registerLogo')} />
             )}
 
             {showFinishPage ? (
