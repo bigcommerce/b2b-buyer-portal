@@ -20,7 +20,7 @@ import { platform } from '@/utils/basicConfig';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
-import { loginCheckout, LoginConfig } from '../Login/config';
+import { loginCheckout, LoginConfig } from '../Login/helper';
 import { type PageProps } from '../PageProps';
 
 import { RegisteredContext, RegisteredProvider } from './Context';

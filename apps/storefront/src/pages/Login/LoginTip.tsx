@@ -4,7 +4,7 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { LoginFlagType } from '@/types/login';
 
-import { LoginConfig, loginType } from './config';
+import { LoginConfig, loginType } from './helper';
 
 interface LoginTipProps {
   flag?: LoginFlagType;
