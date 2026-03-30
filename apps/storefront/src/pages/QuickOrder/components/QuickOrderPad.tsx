@@ -6,7 +6,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { B3Upload } from '@/components/upload/B3Upload';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -32,10 +32,10 @@ export default function QuickOrderPad() {
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart');
   const [isLoading, setIsLoading] = useState(false);
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
-  const featureFlags = useFeatureFlags();
   const isBackorderEnabled = useIsBackorderEnabled();
-  const passWithModifiersToProductUpload =
-    featureFlags['B2B-3978.pass_with_modifiers_to_product_upload'] ?? false;
+  const passWithModifiersToProductUpload = useFeatureFlag(
+    'B2B-3978.pass_with_modifiers_to_product_upload',
+  );
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
 

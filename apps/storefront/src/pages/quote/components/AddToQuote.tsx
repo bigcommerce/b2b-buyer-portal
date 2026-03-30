@@ -9,7 +9,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { B3Upload } from '@/components/upload/B3Upload';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -41,9 +41,9 @@ export default function AddToQuote(props: AddToListProps) {
 
   const b3Lang = useB3Lang();
 
-  const featureFlags = useFeatureFlags();
-  const breakProductSearchesIntoChunks =
-    featureFlags['B2B-4231.chunk_product_searches_in_csv_upload'] ?? false;
+  const breakProductSearchesIntoChunks = useFeatureFlag(
+    'B2B-4231.chunk_product_searches_in_csv_upload',
+  );
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) =>
     products.map((product) => {
