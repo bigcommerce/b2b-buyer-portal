@@ -5,7 +5,7 @@ import { Alert, Box, Typography } from '@mui/material';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import { Captcha } from '@/components/captcha/Captcha';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
@@ -39,7 +39,7 @@ type CompleteStepList = Array<RegisterFields> | undefined;
 
 export default function CompleteStep(props: CompleteStepProps) {
   const b3Lang = useB3Lang();
-  const featureFlags = useFeatureFlags();
+  const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
   const { handleBack, handleNext } = props;
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -291,7 +291,7 @@ export default function CompleteStep(props: CompleteStepProps) {
               createCustomerContext,
             );
 
-            if (featureFlags['B2B-4466.use_register_company_flow']) {
+            if (isRegisterCompanyFlowEnabled) {
               await ensureBcStorefrontGraphqlToken();
 
               const customerDetails = await loginAndGetBcCustomer(

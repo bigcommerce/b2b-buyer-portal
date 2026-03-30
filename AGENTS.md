@@ -285,7 +285,7 @@ src/
 │       └── Button.test.tsx
 ├── hooks/                      # Shared hooks (domain-agnostic)
 │   ├── useDebounce.ts
-│   └── useFeatureFlags.ts
+│   └── useFeatureFlag.ts
 ├── utils/                      # Pure utility functions
 │   ├── formatters.ts
 │   └── validators.ts

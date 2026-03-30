@@ -8,6 +8,7 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { ADD_TO_QUOTE_DEFAULT_VALUE, TRANSLATION_ADD_TO_QUOTE_VARIABLE } from '@/constants';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import config from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -23,7 +24,6 @@ import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { setCartPermissions } from '@/utils/b3CheckPermissions/juniorRolePermissions';
 
-import { useFeatureFlags } from '../useFeatureFlags';
 import { useGetButtonText } from '../useGetButtonText';
 import { useIsBackorderEnabled } from '../useIsBackorderEnabled';
 
@@ -58,7 +58,9 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
   const isBackorderEnabled = useIsBackorderEnabled();
-  const featureFlags = useFeatureFlags();
+  const isSkuFromPdpWithTextContentEnabled = useFeatureFlag(
+    'B2B-3474.get_sku_from_pdp_with_text_content',
+  );
 
   const quoteDraftUserId = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
@@ -90,7 +92,7 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
     isEnableProduct,
     b3Lang,
     isBackorderEnabled,
-    featureFlags,
+    isSkuFromPdpWithTextContentEnabled,
   );
 
   const quoteCallBack = useCallback(
