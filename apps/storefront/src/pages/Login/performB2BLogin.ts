@@ -3,7 +3,7 @@ import { channelId, storeHash } from '@/utils/basicConfig';
 
 import { LoginConfig } from './helper';
 
-export default async function performB2BLogin(
+export async function performB2BLogin(
   data: LoginConfig,
 ): Promise<{ token: string; storefrontLoginToken: string; errors?: { message: string }[] }> {
   const {

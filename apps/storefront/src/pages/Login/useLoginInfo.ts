@@ -15,7 +15,7 @@ export const useLoginInfo = () => {
   const b3Lang = useB3Lang();
 
   const { createAccountButtonText, primaryButtonColor, signInButtonText } = loginPageButton;
-  const { displayStoreLogo, pageTitle } = loginPageDisplay;
+  const { displayStoreLogo } = loginPageDisplay;
 
   const {
     bottomHtmlRegionEnabled,
@@ -26,7 +26,6 @@ export const useLoginInfo = () => {
   } = loginPageHtml;
 
   const loginInfo = {
-    loginTitle: pageTitle || b3Lang('login.button.signIn'),
     loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
     createAccountButtonText: createAccountButtonText || b3Lang('login.button.createAccount'),
     btnColor: primaryButtonColor || '',

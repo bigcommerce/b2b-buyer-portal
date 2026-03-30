@@ -6,7 +6,7 @@ import { b2bJumpPath } from '@/utils/b3CheckPermissions/b2bPermissionPath';
 import { loginJump } from '@/utils/b3Login';
 import { CustomerInfo } from '@/utils/loginInfo';
 
-export default function navigateAfterSuccessfulLogin(
+export function navigateAfterSuccessfulLogin(
   navigate: NavigateFunction,
   info: CustomerInfo | undefined,
   quoteDetailToCheckoutUrl: string,
@@ -26,7 +26,6 @@ export default function navigateAfterSuccessfulLogin(
 
   if (info?.userType === UserTypes.B2C) {
     navigate(PATH_ROUTES.ORDERS);
-    return;
   }
 
   const path = b2bJumpPath(Number(info?.role));

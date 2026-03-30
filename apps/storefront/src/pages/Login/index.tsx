@@ -37,9 +37,9 @@ import LoginForm from './LoginForm';
 import LoginImage from './LoginImage';
 import LoginPanel from './LoginPanel';
 import LoginTip from './LoginTip';
-import navigateAfterSuccessfulLogin from './navigateAfterSuccessfulLogin';
-import performB2BLogin from './performB2BLogin';
-import performLoginCheckout from './performLoginCheckout';
+import { navigateAfterSuccessfulLogin } from './navigateAfterSuccessfulLogin';
+import { performB2BLogin } from './performB2BLogin';
+import { performLoginCheckout } from './performLoginCheckout';
 import { LoginContainer } from './styled';
 import { useLoginInfo } from './useLoginInfo';
 import { useLogout } from './useLogout';
@@ -117,6 +117,10 @@ function Login(props: PageProps) {
 
       const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
 
+      storeDispatch(setB2BToken(token));
+      customerLoginAPI(storefrontLoginToken);
+      dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+
       if (
         errors?.[0]?.message ===
         'Operation cannot be performed as the storefront channel is not live'
@@ -130,10 +134,6 @@ function Login(props: PageProps) {
         setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
         return;
       }
-
-      storeDispatch(setB2BToken(token));
-      customerLoginAPI(storefrontLoginToken);
-      dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
 
       const info = await getCurrentCustomerInfo(token);
       navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
@@ -162,7 +162,6 @@ function Login(props: PageProps) {
     }
   };
 
-  // TODO: Check that I didn't miss anything in handleLoginSubmit and it is working properly
   const handleLoginSubmit = async (data: LoginConfig) => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
@@ -201,86 +200,82 @@ function Login(props: PageProps) {
               minWidth: '343px',
             }}
           >
-            {loginInfo && (
-              <>
-                <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
-                {quoteDetailToCheckoutUrl && (
-                  <Alert severity="error" variant="filled">
-                    {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
-                  </Alert>
-                )}
-                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                  <LoginImage
-                    maxWidth={isMobile ? '70%' : '250px'}
-                    src={loginInfo.logo || getAssetUrl(b2bLogo)}
-                    alt={b3Lang('login.registerLogo')}
-                    onClick={() => {
-                      window.location.href = '/';
-                    }}
-                  />
-                </Box>
-                {loginInfo.widgetHeadText && (
-                  <LoginWidget
-                    sx={{
-                      minHeight: '48px',
-                      width: registerEnabled || isMobile ? '100%' : '50%',
-                    }}
-                    html={loginInfo.widgetHeadText}
-                  />
-                )}
+            <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
+            {quoteDetailToCheckoutUrl && (
+              <Alert severity="error" variant="filled">
+                {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
+              </Alert>
+            )}
+            <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+              <LoginImage
+                maxWidth={isMobile ? '70%' : '250px'}
+                src={loginInfo.logo || getAssetUrl(b2bLogo)}
+                alt={b3Lang('login.registerLogo')}
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+              />
+            </Box>
+            {loginInfo.widgetHeadText && (
+              <LoginWidget
+                sx={{
+                  minHeight: '48px',
+                  width: registerEnabled || isMobile ? '100%' : '50%',
+                }}
+                html={loginInfo.widgetHeadText}
+              />
+            )}
+            <Box
+              sx={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '4px',
+                margin: '20px 0',
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'center',
+                width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+              }}
+            >
+              <Box
+                sx={{
+                  width: isMobile ? 'auto' : loginContainerWidth,
+                  paddingRight: isMobile ? 0 : '2%',
+                  ml: '16px',
+                  mr: isMobile ? '16px' : undefined,
+                  pb: registerEnabled ? undefined : '36px',
+                }}
+              >
+                <LoginForm
+                  loginBtn={loginInfo.loginBtn}
+                  handleLoginSubmit={handleLoginSubmit}
+                  backgroundColor={backgroundColor}
+                  isLoading={isLoading}
+                />
+              </Box>
+
+              {registerEnabled && (
                 <Box
                   sx={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '4px',
-                    margin: '20px 0',
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    justifyContent: 'center',
-                    width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+                    flex: '1',
+                    paddingLeft: isMobile ? 0 : '2%',
+                    mb: '20px',
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: isMobile ? 'auto' : loginContainerWidth,
-                      paddingRight: isMobile ? 0 : '2%',
-                      ml: '16px',
-                      mr: isMobile ? '16px' : undefined,
-                      pb: registerEnabled ? undefined : '36px',
-                    }}
-                  >
-                    <LoginForm
-                      loginBtn={loginInfo.loginBtn}
-                      handleLoginSubmit={handleLoginSubmit}
-                      backgroundColor={backgroundColor}
-                      isLoading={isLoading}
-                    />
-                  </Box>
-
-                  {registerEnabled && (
-                    <Box
-                      sx={{
-                        flex: '1',
-                        paddingLeft: isMobile ? 0 : '2%',
-                        mb: '20px',
-                      }}
-                    >
-                      <LoginPanel
-                        createAccountButtonText={loginInfo.createAccountButtonText}
-                        widgetBodyText={loginInfo.widgetBodyText}
-                      />
-                    </Box>
-                  )}
-                </Box>
-                {loginInfo.widgetFooterText && (
-                  <LoginWidget
-                    sx={{
-                      minHeight: '48px',
-                      width: registerEnabled || isMobile ? '100%' : '50%',
-                    }}
-                    html={loginInfo.widgetFooterText}
+                  <LoginPanel
+                    createAccountButtonText={loginInfo.createAccountButtonText}
+                    widgetBodyText={loginInfo.widgetBodyText}
                   />
-                )}
-              </>
+                </Box>
+              )}
+            </Box>
+            {loginInfo.widgetFooterText && (
+              <LoginWidget
+                sx={{
+                  minHeight: '48px',
+                  width: registerEnabled || isMobile ? '100%' : '50%',
+                }}
+                html={loginInfo.widgetFooterText}
+              />
             )}
           </Box>
         </B3Spin>

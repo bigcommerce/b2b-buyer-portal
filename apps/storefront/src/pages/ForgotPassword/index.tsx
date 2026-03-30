@@ -19,6 +19,7 @@ import { getForgotPasswordFields } from '../Login/helper';
 import LoginImage from '../Login/LoginImage';
 import { B3ResetPassWordButton } from '../Login/styled';
 import { type PageProps } from '../PageProps';
+
 import { sendForgotPasswordEmailFor } from './sendForgotPasswordEmailFor';
 
 interface ForgotPasswordProps extends PageProps {
