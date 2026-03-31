@@ -49,6 +49,9 @@ const buildQuoteProductWith = builder<QuoteProduct>(() => ({
   costPrice: faker.commerce.price(),
   inventoryTracking: faker.lorem.word(),
   inventoryLevel: faker.number.int(),
+  backorderMessage: undefined,
+  totalOnHand: undefined,
+  quantityBackordered: undefined,
 }));
 
 export const buildQuoteWith = builder<B2BQuoteDetail>(() => ({

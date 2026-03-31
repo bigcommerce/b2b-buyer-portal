@@ -46,6 +46,11 @@ export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => 
   },
   isOpenCompanyHierarchyDropDown: faker.datatype.boolean(),
   backorderEnabled: faker.datatype.boolean(),
+  backorderDisplaySettings: {
+    showQuantityOnBackorder: faker.datatype.boolean(),
+    showQuantityOnHand: faker.datatype.boolean(),
+    showBackorderMessage: faker.datatype.boolean(),
+  },
   _persist: {
     version: 1,
     rehydrated: true,

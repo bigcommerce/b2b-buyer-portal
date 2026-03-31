@@ -24,6 +24,10 @@ export const featureFlags = [
     name: 'increaseGraphQLLimitsInlineWithPlatformApi',
   },
   {
+    key: 'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
+    name: 'backordersPhase1_1ControlMessagingOnStorefront',
+  },
+  {
     key: 'B2B-4466.use_register_company_flow',
     name: 'useRegisterCompanyFlow',
   },

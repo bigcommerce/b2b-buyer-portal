@@ -266,6 +266,16 @@ const storefrontConfigs = (channelId: number, keys: string[]) => `{
 	}
 }`;
 
+const storefrontSettings = `query GetStorefrontSettings($storeHash: String!) {
+  storefrontSettings(storeHash: $storeHash) {
+    backorderDisplaySettings {
+      showQuantityOnBackorder
+      showQuantityOnHand
+      showBackorderMessage
+    }
+  }
+}`;
+
 const taxZoneRates = () => `
 query TaxZoneRates {
 	taxZoneRates(storeHash: "${storeHash}") {
@@ -550,6 +560,12 @@ export const getCurrencies = (channelId: string | number) =>
 export const getStorefrontConfigs = (channelId: number, keys: string[]) =>
   B3Request.graphqlB2B({
     query: storefrontConfigs(channelId, keys),
+  });
+
+export const getStorefrontSettings = () =>
+  B3Request.graphqlB2B({
+    query: storefrontSettings,
+    variables: { storeHash },
   });
 
 export const getTaxZoneRates = () =>

@@ -82,6 +82,9 @@ interface ProductInfoProps {
   variantId: number;
   variantSku: string;
   productsSearch: CustomFieldItems;
+  backorderMessage?: string;
+  totalOnHand?: number;
+  quantityBackordered?: number;
 }
 
 const validateProducts = (products: ProductInfoProps[]) => {
@@ -908,11 +911,13 @@ function QuoteDetail() {
             >
               <QuoteDetailTable
                 total={productList.length}
+                productList={productList}
                 currency={quoteDetail.currency}
                 quoteReviewedBySalesRep={quoteReviewedBySalesRep}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
+                status={quoteDetail.status}
               />
             </Box>
           </Grid>
