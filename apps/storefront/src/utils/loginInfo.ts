@@ -215,7 +215,7 @@ const loginWithCurrentCustomerJWT = async () => {
   return { B2BToken, newLoginType };
 };
 
-interface CustomerInfo {
+export interface CustomerInfo {
   role: number;
   userType: number;
   companyRoleName: string;

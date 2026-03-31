@@ -5,25 +5,21 @@ import { Alert, Box } from '@mui/material';
 import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
-import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
+import { CHECKOUT_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
 import { GlobalContext } from '@/shared/global';
 import { getBCForcePasswordReset } from '@/shared/service/b2b';
-import { b2bLogin, bcLogin, customerLoginAPI } from '@/shared/service/bc';
+import { bcLogin, customerLoginAPI } from '@/shared/service/bc';
 import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
-import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
-import { b2bJumpPath } from '@/utils/b3CheckPermissions/b2bPermissionPath';
 import b2bLogger from '@/utils/b3Logger';
-import { loginJump } from '@/utils/b3Login';
 import { snackbar } from '@/utils/b3Tip';
-import { channelId, platform, storeHash } from '@/utils/basicConfig';
-import { CompanyStatusKey, isCompanyError } from '@/utils/companyUtils';
+import { platform } from '@/utils/basicConfig';
+import { isCompanyError } from '@/utils/companyUtils';
 import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -31,31 +27,22 @@ import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
 import { CatalystLogin } from './CatalystLogin';
-import { isLoginFlagType, loginCheckout, LoginConfig } from './config';
+import {
+  COMPANY_STATUS_MAPPINGS,
+  isLoginFlagType,
+  LoginConfig,
+  SHOULD_LOGOUT_FLAGS,
+} from './helper';
 import LoginForm from './LoginForm';
 import LoginImage from './LoginImage';
 import LoginPanel from './LoginPanel';
 import LoginTip from './LoginTip';
+import { navigateAfterSuccessfulLogin } from './navigateAfterSuccessfulLogin';
+import { performB2BLogin } from './performB2BLogin';
+import { performLoginCheckout } from './performLoginCheckout';
 import { LoginContainer } from './styled';
+import { useLoginInfo } from './useLoginInfo';
 import { useLogout } from './useLogout';
-
-const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
-  pendingApprovalToViewPrices:
-    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
-  pendingApprovalToOrder:
-    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
-  pendingApprovalToAccessFeatures:
-    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
-  accountInactive: 'global.statusNotifications.businessAccountInactive',
-};
-
-const shouldLogout: LoginFlagType[] = [
-  'loggedOutLogin',
-  'pendingApprovalToViewPrices',
-  'pendingApprovalToOrder',
-  'pendingApprovalToAccessFeatures',
-  'accountInactive',
-];
 
 function Login(props: PageProps) {
   const { setOpenPage } = props;
@@ -83,55 +70,31 @@ function Login(props: PageProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
-    state: { isCheckout, logo, registerEnabled },
+    state: { isCheckout, registerEnabled },
   } = useContext(GlobalContext);
 
   const {
     state: {
-      loginPageButton,
-      loginPageDisplay,
-      loginPageHtml,
       portalStyle: { backgroundColor = 'FEF9F5' },
     },
   } = useContext(CustomStyleContext);
 
-  const { createAccountButtonText, primaryButtonColor, signInButtonText } = loginPageButton;
-  const { displayStoreLogo, pageTitle } = loginPageDisplay;
-
-  const {
-    bottomHtmlRegionEnabled,
-    bottomHtmlRegionHtml,
-    createAccountPanelHtml,
-    topHtmlRegionEnabled,
-    topHtmlRegionHtml,
-  } = loginPageHtml;
-
-  const loginInfo = {
-    loginTitle: pageTitle || b3Lang('login.button.signIn'),
-    loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
-    createAccountButtonText: createAccountButtonText || b3Lang('login.button.createAccount'),
-    btnColor: primaryButtonColor || '',
-    widgetHeadText: topHtmlRegionEnabled ? topHtmlRegionHtml : undefined,
-    widgetBodyText: createAccountPanelHtml || defaultCreateAccountPanel,
-    widgetFooterText: bottomHtmlRegionEnabled ? bottomHtmlRegionHtml : undefined,
-    logo: displayStoreLogo ? logo : undefined,
-  };
+  const loginInfo = useLoginInfo();
 
   useEffect(() => {
     (async () => {
       try {
-        const loginFlag = searchParams.get('loginFlag');
         const showTipInfo = searchParams.get('showTip') !== 'false';
-
         setShowTipInfo(showTipInfo);
 
+        const loginFlag = searchParams.get('loginFlag');
         if (isLoginFlagType(loginFlag)) {
           setLoginFlag(loginFlag);
 
           if (isLoggedIn && loginFlag === 'loggedOutLogin') {
             await logout({ showLogoutBanner: true });
             // All company-related flags have isLoggedIn set to false.
-          } else if (!isLoggedIn && shouldLogout.includes(loginFlag)) {
+          } else if (!isLoggedIn && SHOULD_LOGOUT_FLAGS.includes(loginFlag)) {
             await logout({ showLogoutBanner: false });
           }
         }
@@ -143,29 +106,60 @@ function Login(props: PageProps) {
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
 
-  const getForcePasswordReset = async (email: string) => {
-    const forcePasswordReset = await getBCForcePasswordReset(email);
+  const handleRegularLogin = async (data: LoginConfig) => {
+    try {
+      const { errors: bcErrors } = await bcLogin({ email: data.email, password: data.password });
+      if (bcErrors?.[0]?.message === 'Reset password') {
+        const needsReset = await getBCForcePasswordReset(data.email);
+        setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+        return;
+      }
 
-    if (forcePasswordReset) {
-      setLoginFlag('resetPassword');
-    } else {
-      setLoginFlag('accountIncorrect');
+      const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
+
+      storeDispatch(setB2BToken(token));
+      customerLoginAPI(storefrontLoginToken);
+      dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+
+      if (
+        errors?.[0]?.message ===
+        'Operation cannot be performed as the storefront channel is not live'
+      ) {
+        setLoginFlag('accountPrelaunch');
+        return;
+      }
+
+      if (errors?.[0] || !token) {
+        const needsReset = await getBCForcePasswordReset(data.email);
+        setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+        return;
+      }
+
+      const info = await getCurrentCustomerInfo(token);
+      navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
+    } catch (error: unknown) {
+      if (isCompanyError(error)) {
+        snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
+        await logout({ showLogoutBanner: false });
+      } else if (error instanceof Error) {
+        snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
+      }
     }
   };
 
-  const forcePasswordReset = async (email: string, password: string) => {
-    const { errors: bcErrors } = await bcLogin({ email, password });
-
-    if (bcErrors?.[0]) {
-      const { message } = bcErrors[0];
-
-      if (message === 'Reset password') {
-        getForcePasswordReset(email);
-        return true;
+  const handleLoginCheckout = async (data: LoginConfig) => {
+    try {
+      const result = await performLoginCheckout(data);
+      if (result === 'success') {
+        window.location.href = CHECKOUT_URL;
+      } else {
+        setLoginFlag(result);
       }
+    } catch (error) {
+      b2bLogger.error(error);
+      const needsReset = await getBCForcePasswordReset(data.email);
+      setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
     }
-
-    return false;
   };
 
   const handleLoginSubmit = async (data: LoginConfig) => {
@@ -177,98 +171,15 @@ function Login(props: PageProps) {
       prevURLSearchParams.delete('loginFlag');
       return prevURLSearchParams;
     });
-
-    if (isCheckout) {
-      try {
-        const response = await loginCheckout(data);
-
-        if (response.status === 400 && response.type === 'reset_password_before_login') {
-          setLoginFlag('resetPassword');
-        } else if (response.type === 'invalid_login') {
-          setLoginFlag('accountIncorrect');
-        } else {
-          window.location.href = CHECKOUT_URL;
-        }
-      } catch (error) {
-        b2bLogger.error(error);
-        await getForcePasswordReset(data.email);
-      } finally {
-        isSubmittingRef.current = false;
-        setLoading(false);
+    try {
+      if (isCheckout) {
+        await handleLoginCheckout(data);
+      } else {
+        await handleRegularLogin(data);
       }
-    } else {
-      try {
-        const loginData = {
-          email: data.email,
-          password: data.password,
-          storeHash,
-          channelId,
-        };
-
-        const isForcePasswordReset = await forcePasswordReset(data.email, data.password);
-        if (isForcePasswordReset) {
-          return;
-        }
-
-        const {
-          login: {
-            result: { token, storefrontLoginToken },
-            errors,
-          },
-        } = await b2bLogin({ loginData });
-
-        storeDispatch(setB2BToken(token));
-        customerLoginAPI(storefrontLoginToken);
-
-        dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
-
-        if (errors?.[0] || !token) {
-          if (errors?.[0]) {
-            const { message } = errors[0];
-            if (message === 'Operation cannot be performed as the storefront channel is not live') {
-              setLoginFlag('accountPrelaunch');
-              return;
-            }
-          }
-          getForcePasswordReset(data.email);
-        } else {
-          const info = await getCurrentCustomerInfo(token);
-
-          if (quoteDetailToCheckoutUrl) {
-            navigate(quoteDetailToCheckoutUrl);
-            return;
-          }
-
-          if (
-            info?.userType === UserTypes.MULTIPLE_B2C &&
-            info?.role === CustomerRole.SUPER_ADMIN
-          ) {
-            navigate('/dashboard');
-            return;
-          }
-          const isLoginLandLocation = loginJump(navigate);
-
-          if (!isLoginLandLocation) return;
-
-          if (info?.userType === UserTypes.B2C) {
-            navigate(PATH_ROUTES.ORDERS);
-          }
-
-          const path = b2bJumpPath(Number(info?.role));
-
-          navigate(path);
-        }
-      } catch (error: unknown) {
-        if (isCompanyError(error)) {
-          snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
-          await logout({ showLogoutBanner: false });
-        } else if (error instanceof Error) {
-          snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
-        }
-      } finally {
-        isSubmittingRef.current = false;
-        setLoading(false);
-      }
+    } finally {
+      isSubmittingRef.current = false;
+      setLoading(false);
     }
   };
 
@@ -289,86 +200,82 @@ function Login(props: PageProps) {
               minWidth: '343px',
             }}
           >
-            {loginInfo && (
-              <>
-                <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
-                {quoteDetailToCheckoutUrl && (
-                  <Alert severity="error" variant="filled">
-                    {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
-                  </Alert>
-                )}
-                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                  <LoginImage
-                    maxWidth={isMobile ? '70%' : '250px'}
-                    src={loginInfo.logo || getAssetUrl(b2bLogo)}
-                    alt={b3Lang('login.registerLogo')}
-                    onClick={() => {
-                      window.location.href = '/';
-                    }}
-                  />
-                </Box>
-                {loginInfo.widgetHeadText && (
-                  <LoginWidget
-                    sx={{
-                      minHeight: '48px',
-                      width: registerEnabled || isMobile ? '100%' : '50%',
-                    }}
-                    html={loginInfo.widgetHeadText}
-                  />
-                )}
+            <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
+            {quoteDetailToCheckoutUrl && (
+              <Alert severity="error" variant="filled">
+                {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
+              </Alert>
+            )}
+            <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+              <LoginImage
+                maxWidth={isMobile ? '70%' : '250px'}
+                src={loginInfo.logo || getAssetUrl(b2bLogo)}
+                alt={b3Lang('login.registerLogo')}
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+              />
+            </Box>
+            {loginInfo.widgetHeadText && (
+              <LoginWidget
+                sx={{
+                  minHeight: '48px',
+                  width: registerEnabled || isMobile ? '100%' : '50%',
+                }}
+                html={loginInfo.widgetHeadText}
+              />
+            )}
+            <Box
+              sx={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '4px',
+                margin: '20px 0',
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'center',
+                width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+              }}
+            >
+              <Box
+                sx={{
+                  width: isMobile ? 'auto' : loginContainerWidth,
+                  paddingRight: isMobile ? 0 : '2%',
+                  ml: '16px',
+                  mr: isMobile ? '16px' : undefined,
+                  pb: registerEnabled ? undefined : '36px',
+                }}
+              >
+                <LoginForm
+                  loginBtn={loginInfo.loginBtn}
+                  handleLoginSubmit={handleLoginSubmit}
+                  backgroundColor={backgroundColor}
+                  isLoading={isLoading}
+                />
+              </Box>
+
+              {registerEnabled && (
                 <Box
                   sx={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '4px',
-                    margin: '20px 0',
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    justifyContent: 'center',
-                    width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
+                    flex: '1',
+                    paddingLeft: isMobile ? 0 : '2%',
+                    mb: '20px',
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: isMobile ? 'auto' : loginContainerWidth,
-                      paddingRight: isMobile ? 0 : '2%',
-                      ml: '16px',
-                      mr: isMobile ? '16px' : undefined,
-                      pb: registerEnabled ? undefined : '36px',
-                    }}
-                  >
-                    <LoginForm
-                      loginBtn={loginInfo.loginBtn}
-                      handleLoginSubmit={handleLoginSubmit}
-                      backgroundColor={backgroundColor}
-                      isLoading={isLoading}
-                    />
-                  </Box>
-
-                  {registerEnabled && (
-                    <Box
-                      sx={{
-                        flex: '1',
-                        paddingLeft: isMobile ? 0 : '2%',
-                        mb: '20px',
-                      }}
-                    >
-                      <LoginPanel
-                        createAccountButtonText={loginInfo.createAccountButtonText}
-                        widgetBodyText={loginInfo.widgetBodyText}
-                      />
-                    </Box>
-                  )}
-                </Box>
-                {loginInfo.widgetFooterText && (
-                  <LoginWidget
-                    sx={{
-                      minHeight: '48px',
-                      width: registerEnabled || isMobile ? '100%' : '50%',
-                    }}
-                    html={loginInfo.widgetFooterText}
+                  <LoginPanel
+                    createAccountButtonText={loginInfo.createAccountButtonText}
+                    widgetBodyText={loginInfo.widgetBodyText}
                   />
-                )}
-              </>
+                </Box>
+              )}
+            </Box>
+            {loginInfo.widgetFooterText && (
+              <LoginWidget
+                sx={{
+                  minHeight: '48px',
+                  width: registerEnabled || isMobile ? '100%' : '50%',
+                }}
+                html={loginInfo.widgetFooterText}
+              />
             )}
           </Box>
         </B3Spin>

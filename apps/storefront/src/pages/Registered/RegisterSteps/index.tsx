@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 
 import { useB3Lang } from '@/lib/lang';
+import { LoginConfig } from '@/pages/Login/helper';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
@@ -13,7 +14,6 @@ import {
 } from '@/utils/registerUtils';
 import { getStoreConfigs } from '@/utils/storefrontConfig';
 
-import { LoginConfig } from '../../Login/config';
 import { b2bAddressRequiredFields, companyAttachmentsFields } from '../config';
 import { RegisteredContext } from '../Context';
 import { RegisterFields } from '../types';

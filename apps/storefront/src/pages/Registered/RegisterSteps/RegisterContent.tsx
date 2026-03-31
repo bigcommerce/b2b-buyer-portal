@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { LoginConfig } from '../../Login/config';
+import { LoginConfig } from '../../Login/helper';
 
 import AccountStep from './steps/AccountStep';
 import CompleteStep from './steps/CompleteStep';

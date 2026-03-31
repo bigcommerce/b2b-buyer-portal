@@ -6,7 +6,7 @@ import { B3CustomForm } from '@/components/B3CustomForm';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 
-import { getLoginFields, LoginConfig } from './config';
+import { getLoginFields, LoginConfig } from './helper';
 
 interface LoginFormProps {
   loginBtn: string;

@@ -15,10 +15,12 @@ import { GlobalContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
 import b2bLogger from '@/utils/b3Logger';
 
-import { getForgotPasswordFields, sendForgotPasswordEmailFor } from '../Login/config';
+import { getForgotPasswordFields } from '../Login/helper';
 import LoginImage from '../Login/LoginImage';
 import { B3ResetPassWordButton } from '../Login/styled';
 import { type PageProps } from '../PageProps';
+
+import { sendForgotPasswordEmailFor } from './sendForgotPasswordEmailFor';
 
 interface ForgotPasswordProps extends PageProps {
   logo?: string;

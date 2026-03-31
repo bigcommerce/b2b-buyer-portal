@@ -1,7 +1,7 @@
 import { LangFormatFunction } from '@/lib/lang';
 import { LoginFlagType, LoginTypeConfig } from '@/types/login';
-import b2bLogger from '@/utils/b3Logger';
 import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
+import { CompanyStatusKey } from '@/utils/companyUtils';
 import { validatorRules } from '@/utils/validatorRules';
 
 export type LoginConfig = {
@@ -63,24 +63,6 @@ export const loginCheckout = (data: LoginConfig) => {
   ).then((response) => response.json());
 };
 
-export const sendForgotPasswordEmailFor = (email: string) => {
-  const urlencoded = new URLSearchParams();
-  urlencoded.append('email', email);
-
-  const requestOptions: RequestInit = {
-    method: 'POST',
-    body: urlencoded,
-    redirect: 'follow',
-  };
-
-  return fetch(
-    `${BigCommerceStorefrontAPIBaseURL}/login.php?action=send_password_email`,
-    requestOptions,
-  )
-    .then((response) => response.text())
-    .catch((error) => b2bLogger.error('error', error));
-};
-
 export const loginType: LoginTypeConfig = {
   resetPassword: {
     alertType: 'error',
@@ -135,3 +117,18 @@ export const isLoginFlagType = (value?: unknown): value is LoginFlagType => {
 
   return Object.keys(loginType).includes(value);
 };
+
+export const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
+  pendingApprovalToViewPrices: loginType.pendingApprovalToViewPrices.tip,
+  pendingApprovalToOrder: loginType.pendingApprovalToOrder.tip,
+  pendingApprovalToAccessFeatures: loginType.pendingApprovalToAccessFeatures.tip,
+  accountInactive: loginType.accountInactive.tip,
+};
+
+export const SHOULD_LOGOUT_FLAGS: LoginFlagType[] = [
+  'loggedOutLogin',
+  'pendingApprovalToViewPrices',
+  'pendingApprovalToOrder',
+  'pendingApprovalToAccessFeatures',
+  'accountInactive',
+];
