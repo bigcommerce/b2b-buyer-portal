@@ -1,3 +1,5 @@
+// Delete this file during feature flag removal -> B2B-4466.use_register_company_flow
+
 import type { RegisterFields } from '@/pages/Registered/types';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField, toHump } from '@/utils/registerUtils';

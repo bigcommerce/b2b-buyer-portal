@@ -2,6 +2,7 @@ import { type MouseEvent, useCallback, useContext, useEffect, useState } from 'r
 import { useForm } from 'react-hook-form';
 import isEmpty from 'lodash-es/isEmpty';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { Country, State } from '@/pages/Registered/config';
@@ -15,6 +16,7 @@ import {
   validateBCCompanyExtraFields,
   validateBCCompanyUserExtraFields,
 } from '@/shared/service/b2b';
+import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
@@ -27,6 +29,7 @@ import {
   getRegisterFieldValueForBcToB2bForm,
   getRegisterFieldValueForBcToB2bFormValidation,
 } from './createCompany';
+import { submitBcToB2bRegisterCompany } from './registerCompany';
 
 interface UseRegistrationFormParams {
   onRegistrationSuccess: () => void;
@@ -34,6 +37,7 @@ interface UseRegistrationFormParams {
 
 export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFormParams) {
   const b3Lang = useB3Lang();
+  const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
   const [isMobile] = useMobile();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -54,7 +58,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
   } = useContext(GlobalContext);
 
   const customer = useAppSelector(({ company }) => company.customer);
-  const { id: customerId, emailAddress } = customer;
+  const { id: customerId, emailAddress, firstName, lastName, phoneNumber } = customer;
 
   const { state, dispatch } = useContext(RegisteredContext);
 
@@ -188,9 +192,14 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
     }
   };
 
+  const bcTob2bCompanyFieldsMerged = [
+    ...bcTob2bCompanyInformation,
+    ...bcTob2bCompanyExtraFields,
+  ];
+
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
-      const extraCompanyInformation = bcTob2bCompanyInformation.filter(
+      const extraCompanyInformation = bcTob2bCompanyFieldsMerged.filter(
         (item: RegisterFields) => !!item.custom,
       );
       const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
@@ -231,7 +240,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
 
   const handleValidateAttachmentFiles = () => {
     const formData = getValues();
-    const attachmentsFilesField = bcTob2bCompanyInformation.find(
+    const attachmentsFilesField = bcTob2bCompanyFieldsMerged.find(
       (info) => info.fieldId === 'field_attachments',
     );
     if (
@@ -343,24 +352,41 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
           return;
         }
 
-        const attachmentsList = bcTob2bCompanyInformation.filter(
+        const attachmentsList = bcTob2bCompanyFieldsMerged.filter(
           (list) => list.fieldType === 'files',
         );
         const fileList = await getFileUrl(attachmentsList || [], data);
 
-        const b2bFields = buildB2bCompanyCreatePayloadForBcToB2b({
-          customerId,
-          customerEmail: emailAddress,
-          fileList,
-          companyInformation: bcTob2bCompanyInformation,
-          addressBasicList: bcTob2bAddressBasicFields,
-          contactInformationList: bcTob2bContactInformation ?? [],
-          getValue: getPayloadFieldValue,
-          companyUserExtraFields,
-        });
-        await createB2BCompanyUser(b2bFields);
-
-        const isAuto = companyAutoApproval.enabled ?? false;
+        let isAuto: boolean;
+        if (isRegisterCompanyFlowEnabled) {
+          const registerCompanyStatus = await submitBcToB2bRegisterCompany({
+            data,
+            customerDetails: {
+              firstName: firstName ?? '',
+              lastName: lastName ?? '',
+              phone: phoneNumber,
+            },
+            contactList: bcTob2bContactInformation,
+            companyInformation: bcTob2bCompanyFieldsMerged,
+            addressBasicList: bcTob2bAddressBasicFields,
+            fileList,
+            genericRegistrationErrorMessage: b3Lang('global.error.genericMessage'),
+          });
+          isAuto = registerCompanyStatus === RegisterCompanyStatus.APPROVED;
+        } else {
+          const b2bFields = buildB2bCompanyCreatePayloadForBcToB2b({
+            customerId,
+            customerEmail: emailAddress,
+            fileList,
+            companyInformation: bcTob2bCompanyFieldsMerged,
+            addressBasicList: bcTob2bAddressBasicFields,
+            contactInformationList: bcTob2bContactInformation ?? [],
+            getValue: getPayloadFieldValue,
+            companyUserExtraFields,
+          });
+          await createB2BCompanyUser(b2bFields);
+          isAuto = companyAutoApproval.enabled ?? false;
+        }
 
         if (emailAddress) {
           dispatch({
