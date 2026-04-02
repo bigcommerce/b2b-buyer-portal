@@ -87,12 +87,9 @@ export function Register({ logo, ...props }: RegisterProps) {
       const newAccountFormFields: AccountFormFieldsItems[] = (
         accountFormAllFields?.accountFormFields || []
       ).map((fields: AccountFormFieldsItems) => {
-        const accountFields = fields;
         if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
-          accountFields.isRequired = true;
-          accountFields.visible = true;
+          return { ...fields, isRequired: true, visible: true };
         }
-
         return fields;
       });
 
@@ -101,12 +98,14 @@ export function Register({ logo, ...props }: RegisterProps) {
 
       const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
         (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
-          const fields = addressFields;
           if (addressFields.name === 'country') {
-            fields.options = countries;
-            fields.replaceOptions = {
-              label: 'countryName',
-              value: 'countryName',
+            return {
+              ...addressFields,
+              options: countries,
+              replaceOptions: {
+                label: 'countryName',
+                value: 'countryName',
+              },
             };
           }
           return addressFields;

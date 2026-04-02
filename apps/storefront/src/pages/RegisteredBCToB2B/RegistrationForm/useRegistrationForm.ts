@@ -192,10 +192,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
     }
   };
 
-  const bcTob2bCompanyFieldsMerged = [
-    ...bcTob2bCompanyInformation,
-    ...bcTob2bCompanyExtraFields,
-  ];
+  const bcTob2bCompanyFieldsMerged = [...bcTob2bCompanyInformation, ...bcTob2bCompanyExtraFields];
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {

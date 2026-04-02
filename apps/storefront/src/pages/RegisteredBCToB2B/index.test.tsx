@@ -425,260 +425,243 @@ describe('RegisteredBCToB2B Page', () => {
     });
   });
 
-  it('completes BC to B2B conversion flow successfully', async () => {
-    const { navigation, user } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: { company: loggedInCustomer },
-      },
-    );
-
-    await completeRegistration(user, defaultBcToB2bRegistrationData);
-
-    const finishButton = screen.getByRole('button', { name: /Finish/i });
-    await user.click(finishButton);
-
-    await waitFor(() => {
-      expect(navigation).toHaveBeenCalledWith('/orders');
-    });
-    expect(b2bService.createB2BCompanyUser).toHaveBeenCalled();
-    expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
-  });
-
-  it('completes BC to B2B conversion with registerCompany when feature flag is enabled', async () => {
-    const { navigation, user } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: {
-          company: loggedInCustomer,
-          global: buildGlobalStateWith({
-            featureFlags: { 'B2B-4466.use_register_company_flow': true },
-          }),
+  describe('register company flow disabled (B2B-4466.use_register_company_flow off / default)', () => {
+    it('completes BC to B2B conversion flow successfully', async () => {
+      const { navigation, user } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: { company: loggedInCustomer },
         },
-      },
-    );
+      );
 
-    await completeRegistration(user, defaultBcToB2bRegistrationData);
+      await completeRegistration(user, defaultBcToB2bRegistrationData);
 
-    const finishButton = screen.getByRole('button', { name: /Finish/i });
-    await user.click(finishButton);
+      const finishButton = screen.getByRole('button', { name: /Finish/i });
+      await user.click(finishButton);
 
-    await waitFor(() => {
-      expect(navigation).toHaveBeenCalledWith('/orders');
-    });
-    await waitFor(() => {
-      expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
-    });
-    expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
-  });
-
-  it('calls createB2BCompanyUser and does not call registerCompany when register company flow is disabled', async () => {
-    const companyNameMarker = 'PayloadCoAlpha';
-
-    const { user } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: { company: loggedInCustomer },
-      },
-    );
-
-    await completeRegistration(user, {
-      businessDetails: {
-        'Company Name': companyNameMarker,
-        'Company Email': 'payloadco@example.test',
-        'Company Phone Number': '5550100',
-      },
-      address: {
-        Country: 'United States',
-        'Address 1': '100 Payload St',
-        'Address 2': '',
-        City: 'Austin',
-        State: 'California',
-        'Zip Code': '78701',
-      },
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith('/orders');
+      });
+      expect(b2bService.createB2BCompanyUser).toHaveBeenCalled();
+      expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
     });
 
-    expect(b2bService.createB2BCompanyUser).toHaveBeenCalled();
-    expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
-    expect(b2bService.createB2BCompanyUser).toHaveBeenCalledWith(
-      expect.objectContaining({ companyName: companyNameMarker }),
-    );
-  });
+    it('calls createB2BCompanyUser with company payload and does not call registerCompany', async () => {
+      const companyNameMarker = 'PayloadCoAlpha';
 
-  it('calls registerCompany with expected input and does not call createB2BCompanyUser when register company flow is enabled', async () => {
-    const companyNameMarker = 'RegCoMarkerX';
-    const companyEmailMarker = 'regcomarker@example.test';
-
-    const { user } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: {
-          company: loggedInCustomer,
-          global: buildGlobalStateWith({
-            featureFlags: { 'B2B-4466.use_register_company_flow': true },
-          }),
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: { company: loggedInCustomer },
         },
-      },
-    );
+      );
 
-    await completeRegistration(user, {
-      businessDetails: {
-        'Company Name': companyNameMarker,
-        'Company Email': companyEmailMarker,
-        'Company Phone Number': '5550199',
-      },
-      address: {
-        Country: 'United States',
-        'Address 1': '200 Register Ln',
-        'Address 2': 'Unit B',
-        City: 'Dallas',
-        State: 'California',
-        'Zip Code': '75201',
-      },
+      await completeRegistration(user, {
+        businessDetails: {
+          'Company Name': companyNameMarker,
+          'Company Email': 'payloadco@example.test',
+          'Company Phone Number': '5550100',
+        },
+        address: {
+          Country: 'United States',
+          'Address 1': '100 Payload St',
+          'Address 2': '',
+          City: 'Austin',
+          State: 'California',
+          'Zip Code': '78701',
+        },
+      });
+
+      expect(b2bService.createB2BCompanyUser).toHaveBeenCalled();
+      expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+      expect(b2bService.createB2BCompanyUser).toHaveBeenCalledWith(
+        expect.objectContaining({ companyName: companyNameMarker }),
+      );
     });
 
-    await waitFor(() => {
-      expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+    it('does not redirect guests to login', async () => {
+      const guestCustomer = buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.GUEST,
+        },
+      });
+
+      const { navigation } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: {
+            company: guestCustomer,
+            global: buildGlobalStateWith({
+              featureFlags: {
+                'B2B-4466.use_register_company_flow': false,
+              },
+            }),
+          },
+        },
+      );
+
+      await waitFor(() => {
+        expect(navigation).not.toHaveBeenCalledWith('/login');
+      });
     });
-    expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
-    expect(companyGraphqlModule.registerCompany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: companyNameMarker,
-        email: companyEmailMarker,
-        phone: '5550199',
-        address: expect.objectContaining({
-          firstName: 'John',
-          lastName: 'Doe',
-          phone: '1234567890',
-          address1: '200 Register Ln',
-          address2: 'Unit B',
-          city: 'Dallas',
-          countryCode: 'United States',
-          stateOrProvince: 'California',
-          postalCode: '75201',
+  });
+
+  describe('register company flow enabled (B2B-4466.use_register_company_flow on)', () => {
+    it('completes conversion via registerCompany with expected input and Finish navigates to orders', async () => {
+      const companyNameMarker = 'RegCoMarkerX';
+      const companyEmailMarker = 'regcomarker@example.test';
+
+      const { navigation, user } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: {
+            company: loggedInCustomer,
+            global: buildGlobalStateWith({
+              featureFlags: { 'B2B-4466.use_register_company_flow': true },
+            }),
+          },
+        },
+      );
+
+      await completeRegistration(user, {
+        businessDetails: {
+          'Company Name': companyNameMarker,
+          'Company Email': companyEmailMarker,
+          'Company Phone Number': '5550199',
+        },
+        address: {
+          Country: 'United States',
+          'Address 1': '200 Register Ln',
+          'Address 2': 'Unit B',
+          City: 'Dallas',
+          State: 'California',
+          'Zip Code': '75201',
+        },
+      });
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+      expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+      expect(companyGraphqlModule.registerCompany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: companyNameMarker,
+          email: companyEmailMarker,
+          phone: '5550199',
+          address: expect.objectContaining({
+            firstName: 'John',
+            lastName: 'Doe',
+            phone: '1234567890',
+            address1: '200 Register Ln',
+            address2: 'Unit B',
+            city: 'Dallas',
+            countryCode: 'United States',
+            stateOrProvince: 'California',
+            postalCode: '75201',
+          }),
         }),
-      }),
-    );
-  });
+      );
 
-  it('registerCompany receives company, companyUser, and address extra fields in the input', async () => {
-    vi.mocked(b2bService.getB2BAccountFormFields).mockResolvedValue({
-      accountFormFields: formType3FieldsWithCustomExtras,
+      await user.click(screen.getByRole('button', { name: /Finish/i }));
+
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith('/orders');
+      });
     });
 
-    const { user } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: {
-          company: loggedInCustomer,
-          global: buildGlobalStateWith({
-            featureFlags: { 'B2B-4466.use_register_company_flow': true },
-          }),
+    it('passes company, companyUser, and address extra fields to registerCompany', async () => {
+      vi.mocked(b2bService.getB2BAccountFormFields).mockResolvedValue({
+        accountFormFields: formType3FieldsWithCustomExtras,
+      });
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: {
+            company: loggedInCustomer,
+            global: buildGlobalStateWith({
+              featureFlags: { 'B2B-4466.use_register_company_flow': true },
+            }),
+          },
         },
-      },
-    );
+      );
 
-    await completeRegistration(user, defaultBcToB2bRegistrationData, {
-      userCustomNote: 'UserExtraVal',
-      customCoRef: 'CoExtraVal',
-      suiteNumber: 'Ste-42',
+      await completeRegistration(user, defaultBcToB2bRegistrationData, {
+        userCustomNote: 'UserExtraVal',
+        customCoRef: 'CoExtraVal',
+        suiteNumber: 'Ste-42',
+      });
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+
+      const callInput = vi.mocked(companyGraphqlModule.registerCompany).mock.calls[0][0];
+
+      const companyTexts = callInput.extraFields?.texts;
+      expect(companyTexts?.some((t) => t.text === 'CoExtraVal')).toBe(true);
+
+      const userTexts = callInput.companyUser?.extraFields?.texts;
+      expect(userTexts?.some((t) => t.text === 'UserExtraVal')).toBe(true);
+
+      const addressTexts = callInput.address.extraFields?.texts;
+      expect(addressTexts?.some((t) => t.text === 'Ste-42')).toBe(true);
     });
 
-    await waitFor(() => {
-      expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
-    });
-
-    const callInput = vi.mocked(companyGraphqlModule.registerCompany).mock.calls[0][0];
-
-    const companyTexts = callInput.extraFields?.texts;
-    expect(companyTexts?.some((t) => t.text === 'CoExtraVal')).toBe(true);
-
-    const userTexts = callInput.companyUser?.extraFields?.texts;
-    expect(userTexts?.some((t) => t.text === 'UserExtraVal')).toBe(true);
-
-    const addressTexts = callInput.address.extraFields?.texts;
-    expect(addressTexts?.some((t) => t.text === 'Ste-42')).toBe(true);
-  });
-
-  it('redirects to login when registerEnabled is false', async () => {
-    const { navigation } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: { company: loggedInCustomer },
-        initialGlobalContext: { registerEnabled: false },
-      },
-    );
-
-    await waitFor(() => {
-      expect(navigation).toHaveBeenCalledWith('/login');
-    });
-  });
-
-  it('redirects to login when the user is not logged in and require-login flag is on', async () => {
-    const guestCustomer = buildCompanyStateWith({
-      customer: {
-        role: CustomerRole.GUEST,
-      },
-    });
-
-    const { navigation } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: {
-          company: guestCustomer,
-          global: buildGlobalStateWith({
-            featureFlags: {
-              'B2B-4466.use_register_company_flow': true,
-            },
-          }),
+    it('redirects guests to login', async () => {
+      const guestCustomer = buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.GUEST,
         },
-      },
-    );
+      });
 
-    await waitFor(() => {
-      expect(navigation).toHaveBeenCalledWith('/login');
+      const { navigation } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: {
+            company: guestCustomer,
+            global: buildGlobalStateWith({
+              featureFlags: {
+                'B2B-4466.use_register_company_flow': true,
+              },
+            }),
+          },
+        },
+      );
+
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith('/login');
+      });
     });
   });
 
-  it('does not redirect guests to login when require-login feature flag is off', async () => {
-    const guestCustomer = buildCompanyStateWith({
-      customer: {
-        role: CustomerRole.GUEST,
-      },
-    });
-
-    const { navigation } = renderWithProviders(
-      <RegisteredProvider>
-        <RegisteredBCToB2B setOpenPage={vi.fn()} />
-      </RegisteredProvider>,
-      {
-        preloadedState: {
-          company: guestCustomer,
-          global: buildGlobalStateWith({
-            featureFlags: {
-              'B2B-4466.use_register_company_flow': false,
-            },
-          }),
+  describe('GlobalContext registration gate (not tied to register company flow flag)', () => {
+    it('redirects to login when registerEnabled is false', async () => {
+      const { navigation } = renderWithProviders(
+        <RegisteredProvider>
+          <RegisteredBCToB2B setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: { company: loggedInCustomer },
+          initialGlobalContext: { registerEnabled: false },
         },
-      },
-    );
+      );
 
-    await waitFor(() => {
-      expect(navigation).not.toHaveBeenCalledWith('/login');
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith('/login');
+      });
     });
   });
 });

@@ -71,12 +71,9 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
         const newB2bAccountFormFields: AccountFormFieldsItems[] = (
           accountFormFields[1]?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
-          const formFields = fields;
           if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
-            formFields.isRequired = true;
-            formFields.visible = true;
+            return { ...fields, isRequired: true, visible: true };
           }
-
           return fields;
         });
 
@@ -90,12 +87,14 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
         const newAddressInformationFields =
           b2bAccountFormFields.address?.map(
             (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
-              const fields = addressFields;
               if (addressFields.name === 'country') {
-                fields.options = countries;
-                fields.replaceOptions = {
-                  label: 'countryName',
-                  value: 'countryName',
+                return {
+                  ...addressFields,
+                  options: countries,
+                  replaceOptions: {
+                    label: 'countryName',
+                    value: 'countryName',
+                  },
                 };
               }
               return addressFields;
@@ -105,14 +104,15 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
         const newBCAddressInformationFields =
           bcAccountFormFields.address?.map(
             (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
-              const addressFormFields = addressFields;
               if (addressFields.name === 'country') {
-                addressFormFields.options = countries;
                 const countryDefaultValue = countries.find(
                   (country: CustomFieldItems) => country.countryName === addressFields.default,
                 );
-                addressFormFields.default =
-                  countryDefaultValue?.countryCode || addressFields.default;
+                return {
+                  ...addressFields,
+                  options: countries,
+                  default: countryDefaultValue?.countryCode || addressFields.default,
+                };
               }
               return addressFields;
             },

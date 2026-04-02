@@ -2,19 +2,19 @@ import { registerCompany } from '@/pages/Registered/RegisterSteps/steps/Complete
 import type { RegisterFields } from '@/pages/Registered/types';
 import type { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 
-export interface BcToB2bCustomerDetails {
+interface BcToB2bCustomerDetails {
   firstName: string;
   lastName: string;
   phone?: string;
 }
 
-export function applyBcToB2bFormDataToRegisterFields(
+function applyBcToB2bFormDataToRegisterFields(
   fields: RegisterFields[],
   data: Record<string, unknown>,
 ): RegisterFields[] {
   return fields.map((field) => {
     const fromForm = data[field.name];
-    if (fromForm === undefined) {
+    if (fromForm === undefined || fromForm === null) {
       return { ...field };
     }
     return {
