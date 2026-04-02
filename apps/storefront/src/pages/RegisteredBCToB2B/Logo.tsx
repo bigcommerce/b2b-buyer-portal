@@ -1,6 +1,13 @@
-import { ImageListItem } from '@mui/material';
+import { Box, ImageListItem } from '@mui/material';
 
-import { RegisteredImage } from './styled';
+const LOGO_CONTAINER_SX = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+  height: '100%',
+};
 
 interface LogoProps {
   logoUrl: string;
@@ -9,7 +16,7 @@ interface LogoProps {
 
 export function Logo({ logoUrl, logoAlt }: LogoProps) {
   return (
-    <RegisteredImage>
+    <Box sx={LOGO_CONTAINER_SX}>
       <ImageListItem
         sx={{
           maxWidth: '250px',
@@ -20,6 +27,6 @@ export function Logo({ logoUrl, logoAlt }: LogoProps) {
       >
         <img src={logoUrl} alt={logoAlt} loading="lazy" />
       </ImageListItem>
-    </RegisteredImage>
+    </Box>
   );
 }

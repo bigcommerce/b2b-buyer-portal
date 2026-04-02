@@ -28,7 +28,6 @@ import { RegisterFields } from '../Registered/types';
 
 import { Logo } from './Logo';
 import RegistrationForm from './RegistrationForm';
-import { RegisteredContainer } from './styled';
 
 interface CustomerInfo {
   [k: string]: string;
@@ -186,7 +185,7 @@ export function Register(props: PageProps) {
 
   return (
     <B3Card setOpenPage={setOpenPage}>
-      <RegisteredContainer isMobile={isMobile}>
+      <Box sx={isMobile ? undefined : { padding: '20px 40px' }}>
         <B3Spin isSpinning={isLoading} tip={b3Lang('global.tips.loading')} transparency="0">
           <Box
             sx={{
@@ -214,7 +213,7 @@ export function Register(props: PageProps) {
             )}
           </Box>
         </B3Spin>
-      </RegisteredContainer>
+      </Box>
     </B3Card>
   );
 }
