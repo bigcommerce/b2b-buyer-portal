@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 
@@ -8,7 +8,6 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
@@ -33,17 +32,17 @@ interface CustomerInfo {
   [k: string]: string;
 }
 
-export function Register(props: PageProps) {
+interface RegisterProps extends PageProps {
+  logo: string;
+}
+
+export function Register({ logo, ...props }: RegisterProps) {
   const [showFinishPage, setShowFinishPage] = useState<boolean>(false);
 
   const { setOpenPage } = props;
 
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-
-  const {
-    state: { logo, registerEnabled },
-  } = useContext(GlobalContext);
 
   const navigate = useNavigate();
 
@@ -53,130 +52,125 @@ export function Register(props: PageProps) {
 
   const {
     state: {
-      companyAutoApproval,
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext);
 
   const customColor = getContrastColor(backgroundColor);
 
-  const showLoading = (isShow = false) => {
-    dispatch({
-      type: 'loading',
-      payload: {
-        isLoading: isShow,
-      },
-    });
-  };
+  const showLoading = useCallback(
+    (isShow = false) => {
+      dispatch({
+        type: 'loading',
+        payload: {
+          isLoading: isShow,
+        },
+      });
+    },
+    [dispatch],
+  );
 
-  useEffect(() => {
-    showLoading(false);
-    if (!registerEnabled) {
-      navigate('/login');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registerEnabled]);
+  const getBCAdditionalFields = useCallback(async () => {
+    try {
+      if (dispatch) {
+        showLoading(true);
+        dispatch({
+          type: 'finishInfo',
+          payload: {
+            submitSuccess: false,
+          },
+        });
+      }
 
-  useEffect(() => {
-    const getBCAdditionalFields = async () => {
-      try {
-        if (dispatch) {
-          showLoading(true);
-          dispatch({
-            type: 'finishInfo',
-            payload: {
-              submitSuccess: false,
-            },
-          });
+      const accountFormAllFields = await getB2BAccountFormFields(3);
+
+      const newAccountFormFields: AccountFormFieldsItems[] = (
+        accountFormAllFields?.accountFormFields || []
+      ).map((fields: AccountFormFieldsItems) => {
+        const accountFields = fields;
+        if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
+          accountFields.isRequired = true;
+          accountFields.visible = true;
         }
 
-        const accountFormAllFields = await getB2BAccountFormFields(3);
+        return fields;
+      });
 
-        const newAccountFormFields: AccountFormFieldsItems[] = (
-          accountFormAllFields?.accountFormFields || []
-        ).map((fields: AccountFormFieldsItems) => {
-          const accountFields = fields;
-          if (b2bAddressRequiredFields.includes(fields?.fieldId || '') && fields.groupId === 4) {
-            accountFields.isRequired = true;
-            accountFields.visible = true;
+      const bcToB2BAccountFormFields = getAccountFormFields(newAccountFormFields || []);
+      const { countries } = await getB2BCountries();
+
+      const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
+        (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
+          const fields = addressFields;
+          if (addressFields.name === 'country') {
+            fields.options = countries;
+            fields.replaceOptions = {
+              label: 'countryName',
+              value: 'countryName',
+            };
+          }
+          return addressFields;
+        },
+      );
+
+      const customerInfo: CustomerInfo = {
+        phone: phoneNumber,
+        first_name: firstName,
+        last_name: lastName,
+        email: emailAddress,
+      };
+
+      const newContactInformation = (bcToB2BAccountFormFields.contactInformation ?? []).map(
+        (contactInformationField: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
+          const field = contactInformationField;
+          field.disabled = true;
+
+          field.default =
+            customerInfo[deCodeField(contactInformationField.name as string)] ||
+            contactInformationField.default;
+
+          if (contactInformationField.required && !contactInformationField?.default) {
+            field.disabled = false;
           }
 
-          return fields;
+          return contactInformationField;
+        },
+      );
+
+      if (dispatch) {
+        dispatch({
+          type: 'all',
+          payload: {
+            isLoading: false,
+            bcTob2bContactInformation: [...newContactInformation] as RegisterFields[],
+            bcTob2bCompanyExtraFields: [],
+            bcTob2bCompanyInformation: [
+              ...(bcToB2BAccountFormFields.businessDetails ?? []),
+            ] as RegisterFields[],
+            bcTob2bAddressBasicFields: [...newAddressInformationFields] as RegisterFields[],
+            countryList: [...countries],
+          },
         });
-
-        const bcToB2BAccountFormFields = getAccountFormFields(newAccountFormFields || []);
-        const { countries } = await getB2BCountries();
-
-        const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
-          (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
-            const fields = addressFields;
-            if (addressFields.name === 'country') {
-              fields.options = countries;
-              fields.replaceOptions = {
-                label: 'countryName',
-                value: 'countryName',
-              };
-            }
-            return addressFields;
-          },
-        );
-
-        const customerInfo: CustomerInfo = {
-          phone: phoneNumber,
-          first_name: firstName,
-          last_name: lastName,
-          email: emailAddress,
-        };
-
-        const newContactInformation = (bcToB2BAccountFormFields.contactInformation ?? []).map(
-          (contactInformationField: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
-            const field = contactInformationField;
-            field.disabled = true;
-
-            field.default =
-              customerInfo[deCodeField(contactInformationField.name as string)] ||
-              contactInformationField.default;
-
-            if (contactInformationField.required && !contactInformationField?.default) {
-              field.disabled = false;
-            }
-
-            return contactInformationField;
-          },
-        );
-
-        if (dispatch) {
-          dispatch({
-            type: 'all',
-            payload: {
-              isLoading: false,
-              bcTob2bContactInformation: [...newContactInformation] as RegisterFields[],
-              bcTob2bCompanyExtraFields: [],
-              bcTob2bCompanyInformation: [
-                ...(bcToB2BAccountFormFields.businessDetails ?? []),
-              ] as RegisterFields[],
-              bcTob2bAddressBasicFields: [...newAddressInformationFields] as RegisterFields[],
-              countryList: [...countries],
-            },
-          });
-        }
-      } catch (e) {
-        b2bLogger.error(e);
       }
-    };
+    } catch (e) {
+      b2bLogger.error(e);
+    } finally {
+      showLoading(false);
+    }
+  }, [dispatch, emailAddress, firstName, lastName, phoneNumber, showLoading]);
 
+  useEffect(() => {
     getBCAdditionalFields();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getBCAdditionalFields]);
 
   const { isLoading } = state;
 
-  const handleFinish = () => {
+  const handleFinish = (shouldAutoLogin: boolean) => {
     const isLoginLandLocation = loginJump(navigate, true);
 
     if (!isLoginLandLocation) return;
 
-    if (companyAutoApproval.enabled) {
+    if (shouldAutoLogin) {
       navigate('/orders');
     } else {
       window.location.href = '/';
