@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
 import B3GlobalTip from '@/components/B3GlobalTip';
@@ -22,6 +22,7 @@ import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
 
+import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
@@ -29,6 +30,7 @@ import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
+import { logoutSession } from './utils/logoutSession';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -106,6 +108,8 @@ export default function App() {
 
   const [customStyles, setCustomStyle] = useState<string>(CUSTOM_STYLES);
 
+  const sessionInvalidatedRef = useRef(false);
+
   useDomHooks({ setOpenPage, isOpen });
 
   // open storefront
@@ -162,6 +166,12 @@ export default function App() {
   useEffect(() => {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
+
+    if (sessionInvalidatedRef.current) {
+      sessionInvalidatedRef.current = false;
+      return;
+    }
+
     const init = async () => {
       try {
         // bc graphql token
@@ -173,6 +183,22 @@ export default function App() {
         // load the store config before fetching other data
         // as some fetches depend on the store config or feature flags being present
         await getStoreConfigs(styleDispatch, dispatch);
+
+        if (customerId) {
+          const isBcSessionValid = await b2bVerifyBcLoginStatus().catch((err) => {
+            b2bLogger.error(err);
+            return false;
+          });
+
+          if (!isBcSessionValid) {
+            sessionInvalidatedRef.current = true;
+            logoutSession();
+            gotoPage('/login?loginFlag=loggedOutLogin');
+            showPageMask(false);
+            storeDispatch(setGlobalCommonState({ isPageComplete: true }));
+            return;
+          }
+        }
 
         await Promise.allSettled([
           getGlobalStoreTax(),

@@ -1,5 +1,5 @@
 import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Box, useMediaQuery } from '@mui/material';
 
 import { useMobile } from '@/hooks/useMobile';
@@ -40,14 +40,6 @@ export default function B3Layout({ children }: { children: ReactNode }) {
     state: { globalMessageDialog },
     dispatch,
   } = useContext(DynamicallyVariableContext);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
-      navigate('/login');
-    }
-  }, [emailAddress, customerId, location, navigate]);
 
   useEffect(() => {
     const itemsRoutes = routes.find((item) => item.path === location.pathname);
@@ -99,6 +91,10 @@ export default function B3Layout({ children }: { children: ReactNode }) {
 
     return {};
   }, [location]);
+
+  if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <Box>

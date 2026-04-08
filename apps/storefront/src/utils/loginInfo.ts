@@ -192,7 +192,13 @@ const loginWithCurrentCustomerJWT = async () => {
     return undefined;
   });
 
-  if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
+  if (!currentCustomerJWT) {
+    store.dispatch(setB2BToken(''));
+    store.dispatch(setCurrentCustomerJWT(''));
+    return undefined;
+  }
+
+  if (prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
   const data = await getB2BToken(currentCustomerJWT, channelId).catch((error) => {
     // eslint-disable-next-line no-console
