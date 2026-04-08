@@ -1,5 +1,7 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
+import ShippingExpectationPrompt from '@/components/ShippingExpectationPrompt';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -18,6 +20,7 @@ interface QuoteDetailSummaryProps {
   status: string;
   quoteDetail: CustomFieldItems;
   shouldHidePrice: boolean;
+  hasBackorderedItems: boolean;
 }
 
 export default function QuoteDetailSummary({
@@ -26,12 +29,20 @@ export default function QuoteDetailSummary({
   status,
   quoteDetail,
   shouldHidePrice,
+  hasBackorderedItems,
 }: QuoteDetailSummaryProps) {
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
+  const backorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
+  const isBackorderMessagingEnabled = useFeatureFlag(
+    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
+  );
+  const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
+    ({ global }) => global.backorderDisplaySettings,
+  );
 
   const getCurrentPrice = (price: number, quoteDetailTax: number) => {
     if (enteredInclusiveTax) {
@@ -188,6 +199,14 @@ export default function QuoteDetailSummary({
                   </Typography>
                   <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
                 </Grid>
+                {Number(status) !== 4 && isBackorderMessagingEnabled && (
+                  <ShippingExpectationPrompt
+                    backorderEnabled={backorderEnabled}
+                    hasBackorderedItems={hasBackorderedItems}
+                    showDefaultShippingExpectationPrompt={showDefaultShippingExpectationPrompt}
+                    defaultShippingExpectationPrompt={defaultShippingExpectationPrompt}
+                  />
+                )}
                 <Grid
                   role="row"
                   container

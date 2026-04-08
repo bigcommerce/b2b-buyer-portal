@@ -27,6 +27,8 @@ describe('getStoreSettings', () => {
             showQuantityOnBackorder: true,
             showQuantityOnHand: false,
             showBackorderMessage: true,
+            showDefaultShippingExpectationPrompt: true,
+            defaultShippingExpectationPrompt: 'Backordered items ship separately.',
           },
         },
       });
@@ -38,6 +40,8 @@ describe('getStoreSettings', () => {
         showQuantityOnBackorder: true,
         showQuantityOnHand: false,
         showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: true,
+        defaultShippingExpectationPrompt: 'Backordered items ship separately.',
       }),
     );
   });

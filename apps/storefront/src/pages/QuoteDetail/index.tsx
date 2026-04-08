@@ -286,6 +286,7 @@ function QuoteDetail() {
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
+  const hasBackorderedItems = productList.some((item) => (item.quantityBackordered ?? 0) > 0);
   const [fileList, setFileList] = useState<FileObjects[]>([]);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<
@@ -946,6 +947,7 @@ function QuoteDetail() {
                 quoteDetailTax={quoteDetailTax}
                 status={quoteDetail.status}
                 quoteDetail={quoteDetail}
+                hasBackorderedItems={hasBackorderedItems}
               />
             </Box>
 

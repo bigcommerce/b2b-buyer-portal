@@ -50,6 +50,8 @@ export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => 
     showQuantityOnBackorder: faker.datatype.boolean(),
     showQuantityOnHand: faker.datatype.boolean(),
     showBackorderMessage: faker.datatype.boolean(),
+    showDefaultShippingExpectationPrompt: faker.datatype.boolean(),
+    defaultShippingExpectationPrompt: faker.lorem.sentence(),
   },
   _persist: {
     version: 1,

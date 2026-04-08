@@ -5,6 +5,7 @@ import BackorderMessage from '@/components/BackorderMessage';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -120,12 +121,14 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
   const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
-  const isBackorderMessagingEnabled = useAppSelector(
-    ({ global }) =>
-      global.featureFlags['BACK-134.backorders_phase_1_1_control_messaging_on_storefront'] ?? false,
+  const isBackorderMessagingEnabled = useFeatureFlag(
+    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
   );
-  const backorderDisplaySettings = useAppSelector(({ global }) => global.backorderDisplaySettings);
-  const hasAnyBackorderDisplay = Object.values(backorderDisplaySettings).some(Boolean);
+  const { showQuantityOnBackorder, showQuantityOnHand, showBackorderMessage } = useAppSelector(
+    ({ global }) => global.backorderDisplaySettings,
+  );
+  const hasAnyBackorderDisplay =
+    showQuantityOnBackorder || showQuantityOnHand || showBackorderMessage;
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );

@@ -14,6 +14,9 @@ export const getStoreSettings = async () => {
           showQuantityOnBackorder: settings.showQuantityOnBackorder ?? false,
           showQuantityOnHand: settings.showQuantityOnHand ?? false,
           showBackorderMessage: settings.showBackorderMessage ?? false,
+          showDefaultShippingExpectationPrompt:
+            settings.showDefaultShippingExpectationPrompt ?? false,
+          defaultShippingExpectationPrompt: settings.defaultShippingExpectationPrompt ?? '',
         }),
       );
     }

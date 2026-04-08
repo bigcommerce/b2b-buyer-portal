@@ -64,6 +64,8 @@ export interface BackorderDisplaySettings {
   showQuantityOnBackorder: boolean;
   showQuantityOnHand: boolean;
   showBackorderMessage: boolean;
+  showDefaultShippingExpectationPrompt: boolean;
+  defaultShippingExpectationPrompt: string;
 }
 
 export interface GlobalState {
@@ -127,6 +129,8 @@ export const initialState: GlobalState = {
     showQuantityOnBackorder: false,
     showQuantityOnHand: false,
     showBackorderMessage: false,
+    showDefaultShippingExpectationPrompt: false,
+    defaultShippingExpectationPrompt: '',
   },
   quoteSubmissionResponse: {
     value: '0',

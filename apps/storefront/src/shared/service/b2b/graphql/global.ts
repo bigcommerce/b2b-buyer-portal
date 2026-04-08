@@ -272,6 +272,8 @@ const storefrontSettings = `query GetStorefrontSettings($storeHash: String!) {
       showQuantityOnBackorder
       showQuantityOnHand
       showBackorderMessage
+      showDefaultShippingExpectationPrompt
+      defaultShippingExpectationPrompt
     }
   }
 }`;
