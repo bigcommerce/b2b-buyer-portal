@@ -27,7 +27,8 @@
     "graphql", // used to generate graphql types
     "@mui/styles", // used by react-mui-dropzone
     "@testing-library/dom", // used by @testing-library/react
-    "terser" // Since Vite v3, terser has become an optional dependency. You need to install it.
+    "terser", // Since Vite v3, terser has become an optional dependency. You need to install it.
+    "@vitest/utils" // peer dependency of vitest-fail-on-console
   ],
   "prettier": true,
   "ignore": ["src/types/gql/graphql.ts"]
