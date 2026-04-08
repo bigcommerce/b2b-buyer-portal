@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBackIosNew } from '@mui/icons-material';
-import { Box, Grid, styled, Typography } from '@mui/material';
+import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -27,29 +27,27 @@ const StyledCreateName = styled('div')(() => ({
 interface ShoppingDetailHeaderProps {
   shoppingListInfo: any;
   customerInfo: any;
-  goToShoppingLists: () => void;
   handleUpdateShoppingList: (status: number) => void;
   isB2BUser: boolean;
   setOpenPage: SetOpenPage;
-  isAgenting: boolean;
   openAPPParams: {
     shoppingListBtn: string;
   };
-  customColor: string;
 }
 
 function ShoppingDetailHeader({
   shoppingListInfo,
   customerInfo,
   handleUpdateShoppingList,
-  goToShoppingLists,
   isB2BUser,
   setOpenPage,
   openAPPParams,
-  customColor,
 }: ShoppingDetailHeaderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
+
+  const theme = useTheme();
+  const customColor = theme.palette.primary.main;
 
   const {
     state: {
@@ -133,7 +131,7 @@ function ShoppingDetailHeader({
           }}
           onClick={() => {
             if (openAPPParams.shoppingListBtn !== 'add') {
-              goToShoppingLists();
+              navigate('/shoppingLists');
             } else {
               navigate('/');
               setOpenPage({
