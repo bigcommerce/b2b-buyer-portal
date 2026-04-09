@@ -22,15 +22,15 @@ import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
 
+import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import b2bLogger from './utils/b3Logger';
-import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { isUserGotoLogin } from './utils/b3logout';
-import { logoutSession } from './utils/logoutSession';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
+import { logoutSession } from './utils/logoutSession';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';

@@ -119,7 +119,7 @@ describe('b3logout utilities', () => {
     it('dispatches all three actions', () => {
       logoutSession();
 
-      expect(store.dispatch).toHaveBeenCalledTimes(3);
+      expect(store.dispatch).toHaveBeenCalledTimes(4);
     });
   });
 
