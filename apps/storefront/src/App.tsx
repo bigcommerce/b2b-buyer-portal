@@ -26,7 +26,9 @@ import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import b2bLogger from './utils/b3Logger';
+import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { isUserGotoLogin } from './utils/b3logout';
+import { logoutSession } from './utils/logoutSession';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
@@ -164,6 +166,18 @@ export default function App() {
     loginAndRegister();
     const init = async () => {
       try {
+        // Verify BC session is still valid when we have a rehydrated customerId.
+        // Handles forced logouts (e.g., user logged in from another browser causing
+        // BC to invalidate this session and redirect to the login page).
+        if (customerId) {
+          const isBcLogin = await b2bVerifyBcLoginStatus();
+          if (!isBcLogin) {
+            logoutSession();
+            showPageMask(false);
+            return;
+          }
+        }
+
         // bc graphql token
         if (!bcGraphqlToken) {
           await loginInfo();
