@@ -308,6 +308,17 @@ const storefrontDefaultLanguage = (channelId: number) => `{
 	}
 }`;
 
+const storefrontMultiLanguage = (channelId: number) => `{
+	storefrontMultiLanguage(storeHash: "${storeHash}", channelId: ${channelId}) {
+		defaultLanguage
+		availableLanguages {
+			code
+			status
+			isDefault
+		}
+	}
+}`;
+
 const companyCreditConfig = () => `{
 	companyCreditConfig{
     limitPurchases
@@ -578,6 +589,11 @@ export const getTaxZoneRates = () =>
 export const getStorefrontDefaultLanguages = (channelId: number) =>
   B3Request.graphqlB2B({
     query: storefrontDefaultLanguage(channelId),
+  });
+
+export const getStorefrontMultiLanguage = (channelId: number) =>
+  B3Request.graphqlB2B({
+    query: storefrontMultiLanguage(channelId),
   });
 
 export const getCompanyCreditConfig = () =>

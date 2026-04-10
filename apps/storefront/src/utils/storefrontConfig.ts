@@ -12,6 +12,7 @@ import {
   getStorefrontConfigs,
   getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
+  getStorefrontMultiLanguage,
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
@@ -405,6 +406,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
       storefrontDefaultLanguage: { language },
     } = await getStorefrontDefaultLanguages(channelId);
 
+    getStorefrontMultiLanguage(channelId);
+
     let langCode: string = language || 'en';
 
     if (language && language.includes('-')) {
@@ -443,6 +446,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     const {
       storefrontDefaultLanguage: { language },
     } = await getStorefrontDefaultLanguages(channelId);
+
+    getStorefrontMultiLanguage(channelId);
 
     let langCode: string = language || 'en';
 
