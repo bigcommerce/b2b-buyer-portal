@@ -7,6 +7,7 @@ import { newPermissions } from '@/shared/routes/config';
 import {
   endUserMasqueradingCompany,
   getCurrencies,
+  getSiteLocales,
   getStoreConfigsSwitchStatus,
   getStorefrontConfig,
   getStorefrontConfigs,
@@ -19,6 +20,8 @@ import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
+  AvailableLocale,
+  setAvailableLocales,
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setFeatureFlags,
@@ -342,6 +345,28 @@ export const getAccountHierarchyIsEnabled = async () => {
   return isEnabled === '1';
 };
 
+const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['featureFlags']) => {
+  if (flags['LOCAL-3191.b2b_multi_language']) {
+    const { site } = await getSiteLocales(channelId);
+    const { locales }: { locales: AvailableLocale[] } = site.settings;
+    const defaultLang = locales.find(({ isDefault }) => isDefault)?.code ?? 'en';
+    const storedLang = B3SStorage.get('bcLanguage');
+    const isStoredLangValid = !!storedLang && locales.some(({ code }) => code === storedLang);
+    return {
+      langCode: isStoredLangValid ? storedLang : defaultLang,
+      availableLocales: locales,
+    };
+  }
+
+  const {
+    storefrontDefaultLanguage: { language },
+  } = await getStorefrontDefaultLanguages(channelId);
+  return {
+    langCode: language || 'en',
+    availableLocales: [],
+  };
+};
+
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const { featureFlags } = store.getState().global;
   const useCombinedQuery = featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
@@ -401,16 +426,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
       store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
     }
 
-    const {
-      storefrontDefaultLanguage: { language },
-    } = await getStorefrontDefaultLanguages(channelId);
-
-    let langCode: string = language || 'en';
-
-    if (language && language.includes('-')) {
-      const [lang] = language.split('-');
-      langCode = lang;
-    }
+    const { langCode, availableLocales } = await getLangCode(featureFlags);
+    store.dispatch(setAvailableLocales(availableLocales));
 
     const {
       data: {
@@ -440,16 +457,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     const { currencies } = await getCurrencies(channelId);
     store.dispatch(setCurrencies(currencies));
 
-    const {
-      storefrontDefaultLanguage: { language },
-    } = await getStorefrontDefaultLanguages(channelId);
-
-    let langCode: string = language || 'en';
-
-    if (language && language.includes('-')) {
-      const [lang] = language.split('-');
-      langCode = lang;
-    }
+    const { langCode, availableLocales } = await getLangCode(featureFlags);
+    store.dispatch(setAvailableLocales(availableLocales));
 
     const {
       data: {

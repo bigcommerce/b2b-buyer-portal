@@ -14,6 +14,7 @@ import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3AccountInfo from './B3AccountInfo';
 import B3CompanyHierarchy from './B3CompanyHierarchy';
+import B3LocaleDropdown from './B3LocaleDropdown';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function MainHeader({ title }: { title: string }) {
@@ -96,6 +97,7 @@ export default function MainHeader({ title }: { title: string }) {
             alignItems: 'center',
           }}
         >
+          <B3LocaleDropdown />
           {role !== 100 && <B3AccountInfo />}
           <Box sx={{ marginLeft: '8px' }}>
             {role === 100 && (

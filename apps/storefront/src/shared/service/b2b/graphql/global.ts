@@ -308,6 +308,18 @@ const storefrontDefaultLanguage = (channelId: number) => `{
 	}
 }`;
 
+const getSiteLocalesQuery = `
+query GetSiteLocales($storeHash: String!, $channelId: Int!) {
+	site(storeHash: $storeHash, channelId: $channelId) {
+		settings {
+			locales {
+				code
+				isDefault
+			}
+		}
+	}
+}`;
+
 const companyCreditConfig = () => `{
 	companyCreditConfig{
     limitPurchases
@@ -578,6 +590,12 @@ export const getTaxZoneRates = () =>
 export const getStorefrontDefaultLanguages = (channelId: number) =>
   B3Request.graphqlB2B({
     query: storefrontDefaultLanguage(channelId),
+  });
+
+export const getSiteLocales = (channelId: number) =>
+  B3Request.graphqlB2B({
+    query: getSiteLocalesQuery,
+    variables: { storeHash, channelId },
   });
 
 export const getCompanyCreditConfig = () =>
