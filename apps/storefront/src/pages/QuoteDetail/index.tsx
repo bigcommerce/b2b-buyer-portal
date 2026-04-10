@@ -564,7 +564,26 @@ function QuoteDetail() {
         totalAmount: quote.totalAmount,
       });
 
-      const productListResponse = productsWithMoreInfo ?? [];
+      const isOrdered = Number(quote.status) === 4;
+      const snapshotProducts = quote.orderSnapshot?.products ?? [];
+      const productListResponse = (productsWithMoreInfo ?? []).map((product) => {
+        if (!isOrdered) return product;
+        const snapshot = snapshotProducts.find((s) => s.sku === product.sku);
+        if (!snapshot) {
+          return {
+            ...product,
+            totalOnHand: undefined,
+            quantityBackordered: undefined,
+            backorderMessage: undefined,
+          };
+        }
+        return {
+          ...product,
+          totalOnHand: snapshot.totalOnHand,
+          quantityBackordered: snapshot.quantityBackordered,
+          backorderMessage: snapshot.backorderMessage ?? undefined,
+        };
+      });
       setProductList(productListResponse);
 
       const { salesRep, salesRepEmail } = quote;
@@ -623,7 +642,7 @@ function QuoteDetail() {
 
       setFileList(newFileList);
 
-      return quote;
+      return { ...quote, productsList: productListResponse };
     } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
@@ -918,7 +937,6 @@ function QuoteDetail() {
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
-                status={quoteDetail.status}
               />
             </Box>
           </Grid>
