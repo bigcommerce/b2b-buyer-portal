@@ -50,7 +50,6 @@ interface ShoppingDetailTableProps {
   getTaxRate: (taxClassId: number, variants: any) => number;
   displayDiscount: boolean;
   currency: CurrencyProps;
-  status: string | number;
 }
 
 interface SearchProps {
@@ -113,10 +112,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     quoteReviewedBySalesRep,
     displayDiscount,
     currency,
-    status,
   } = props;
-  const isOrdered = Number(status) === 4;
-
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
@@ -315,7 +311,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row) => (
         <Box>
           <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
-          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
+          {isBackorderEnabled && isBackorderMessagingEnabled && (
             <BackorderMessage
               totalOnHand={row.totalOnHand}
               quantityBackordered={row.quantityBackordered}
@@ -420,7 +416,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         </Typography>
         {isBackorderEnabled &&
           isBackorderMessagingEnabled &&
-          !isOrdered &&
           hasAnyBackorderDisplay &&
           hasBackorderedItems && (
             <FormControlLabel
@@ -459,7 +454,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
             showBackorderDetails={showBackorderDetails}
-            status={status}
           />
         )}
       />

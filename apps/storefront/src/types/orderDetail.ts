@@ -67,6 +67,8 @@ export interface OrderProductItem {
   not_shipping_number?: number;
   variantImageUrl?: string;
   isVisible?: boolean;
+  quantityBackordered?: number;
+  backorderMessage?: string;
 }
 
 export interface EditableProductItem extends OrderProductItem {
@@ -246,6 +248,7 @@ export interface B2BOrderData {
   wrappingCostTax: string;
   wrappingCostTaxClassId: number;
   companyInfo: CompanyInfoTypes;
+  backorderShippingExpectationMessage?: string | null;
 }
 
 export interface OrderSummary {

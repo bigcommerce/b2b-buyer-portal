@@ -343,6 +343,7 @@ query ${fn === 'order' ? 'GetOrder' : 'GetCustomerOrder'} {
       extraFields,
       createdAt,
     },
+    backorderShippingExpectationMessage,
     ${companyInfo}
   }
 }`;

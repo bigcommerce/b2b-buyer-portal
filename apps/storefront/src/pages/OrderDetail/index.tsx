@@ -111,19 +111,17 @@ function OrderDetail() {
         setIsRequestLoading(true);
 
         try {
-          const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
+          const order = await (isB2BUser ? getB2BOrderDetails(id) : getBCOrderDetails(id));
 
           if (order) {
-            const { products, companyInfo } = order;
+            const { products, companyInfo, backorderShippingExpectationMessage } = order;
 
             const newOrder = {
               ...order,
-              products: products.map((item: OrderProductItem) => {
-                return {
-                  ...item,
-                  imageUrl: item?.variantImageUrl || item.imageUrl,
-                };
-              }),
+              products: products.map((item: OrderProductItem) => ({
+                ...item,
+                imageUrl: item?.variantImageUrl || item.imageUrl,
+              })),
             };
 
             setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
@@ -131,7 +129,10 @@ function OrderDetail() {
             const data = convertB2BOrderDetails(newOrder, b3Lang);
             dispatch({
               type: 'all',
-              payload: data,
+              payload: {
+                ...data,
+                backorderShippingExpectationMessage: backorderShippingExpectationMessage ?? null,
+              },
             });
             setPreOrderId(orderId);
           }

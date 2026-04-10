@@ -53,6 +53,8 @@ export interface OrderLineItem {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  backorderedQuantity?: number | null;
+  backorderMessage?: string | null;
 }
 
 export interface OrderShipmentTracking {
@@ -171,6 +173,7 @@ export interface Order {
   // Content
   customerMessage: string | null;
   totalProductQuantity: number;
+  backorderShippingExpectationMessage?: string | null;
   consignments: OrderConsignments | null;
 
   // B2B extensions (null for B2C orders)
@@ -313,159 +316,6 @@ const orderStatusFields = `status {
     label
   }`;
 
-const orderAddressFields = `firstName
-    lastName
-    company
-    address1
-    address2
-    city
-    stateOrProvince
-    postalCode
-    country
-    countryCode
-    phone
-    email`;
-
-const orderLineItemFields = `entityId
-      brand
-      name
-      quantity
-      productOptions {
-        name
-        value
-      }
-      subTotalListPrice {
-        ${moneyFields}
-      }`;
-
-const orderShipmentFields = `entityId
-      shippedAt {
-        utc
-      }
-      shippingMethodName
-      shippingProviderName
-      tracking {
-        ... on OrderShipmentNumberAndUrlTracking {
-          number
-          url
-        }
-        ... on OrderShipmentNumberOnlyTracking {
-          number
-        }
-        ... on OrderShipmentUrlOnlyTracking {
-          url
-        }
-      }`;
-
-const orderConsignmentsFields = `consignments {
-    shipping {
-      edges {
-        cursor
-        node {
-          entityId
-          shippingAddress {
-            ${orderAddressFields}
-          }
-          shippingCost {
-            ${moneyFields}
-          }
-          lineItems {
-            edges {
-              node {
-                ${orderLineItemFields}
-              }
-            }
-          }
-          shipments {
-            edges {
-              node {
-                ${orderShipmentFields}
-              }
-            }
-          }
-        }
-      }
-    }
-  }`;
-
-const orderFinancialFields = `subTotal {
-    ${moneyFields}
-  }
-  discountedSubTotal {
-    ${moneyFields}
-  }
-  shippingCostTotal {
-    ${moneyFields}
-  }
-  handlingCostTotal {
-    ${moneyFields}
-  }
-  wrappingCostTotal {
-    ${moneyFields}
-  }
-  taxTotal {
-    ${moneyFields}
-  }
-  totalIncTax {
-    ${moneyFields}
-  }
-  isTaxIncluded
-  taxes {
-    name
-    amount {
-      ${moneyFields}
-    }
-  }
-  discounts {
-    couponDiscounts {
-      couponCode
-      discountedAmount {
-        ${moneyFields}
-      }
-    }
-    nonCouponDiscountTotal {
-      ${moneyFields}
-    }
-    totalDiscount {
-      ${moneyFields}
-    }
-  }`;
-
-const orderB2BFields = `reference
-  company {
-    entityId
-    name
-  }
-  placedBy {
-    entityId
-    firstName
-    lastName
-    email
-  }
-  history {
-    id
-    eventType
-    status
-    source
-    createdBy {
-      entityId
-      firstName
-      lastName
-      email
-    }
-    details
-    createdAt
-  }
-  quote {
-    id
-  }
-  invoice {
-    id
-  }
-  extraFields {
-    name
-    value
-  }`;
 
 /** Lightweight fields for order list views. */
 const orderListNodeFields = `entityId
@@ -569,26 +419,29 @@ const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   }
 }`;
 
-/** Single order detail. Entry: site.order. */
+/** Single order detail — minimal query used for backorder data only. Entry: site.order. */
 const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
   site {
     order(filter: { entityId: $entityId }) {
       entityId
-      orderedAt {
-        utc
+      backorderShippingExpectationMessage
+      consignments {
+        shipping {
+          edges {
+            node {
+              lineItems {
+                edges {
+                  node {
+                    entityId
+                    backorderedQuantity
+                    backorderMessage
+                  }
+                }
+              }
+            }
+          }
+        }
       }
-      updatedAt {
-        utc
-      }
-      ${orderStatusFields}
-      billingAddress {
-        ${orderAddressFields}
-      }
-      ${orderFinancialFields}
-      customerMessage
-      totalProductQuantity
-      ${orderConsignmentsFields}
-      ${orderB2BFields}
     }
   }
 }`;

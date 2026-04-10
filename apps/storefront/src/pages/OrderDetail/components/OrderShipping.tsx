@@ -4,9 +4,11 @@ import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import { format } from 'date-fns/format';
 import { getTracking } from 'ts-tracking-number';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { B3ProductList } from '@/components/B3ProductList';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { useAppSelector } from '@/store';
 
 import { OrderShippedItem, OrderShippingsItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
@@ -22,8 +24,10 @@ type OrderShippingProps = {
 
 export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
-    state: { shippings = [], addressLabelPermission, money },
+    state: { shippings = [], addressLabelPermission, money, backorderShippingExpectationMessage },
   } = useContext(OrderDetailsContext);
+
+  const backorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
 
   const [isMobile] = useMobile();
 
@@ -193,6 +197,28 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                   canToProduct={isCurrentCompany}
                   textAlign={isMobile ? 'left' : 'right'}
                 />
+
+                {shipping.notShip.itemsInfo.map((product) =>
+                  product.backorderMessage ? (
+                    <BackorderMessage
+                      key={product.id}
+                      backorderMessage={product.backorderMessage}
+                      visible={backorderEnabled}
+                    />
+                  ) : null,
+                )}
+
+                {backorderShippingExpectationMessage && backorderEnabled && (
+                  <Typography
+                    sx={{
+                      fontSize: '0.85rem',
+                      color: '#616161',
+                      marginTop: 1,
+                    }}
+                  >
+                    {backorderShippingExpectationMessage}
+                  </Typography>
+                )}
               </Fragment>
             ) : null}
           </CardContent>

@@ -21,6 +21,7 @@ interface QuoteDetailSummaryProps {
   quoteDetail: CustomFieldItems;
   shouldHidePrice: boolean;
   hasBackorderedItems: boolean;
+  orderShippingExpectationMessage?: string | null;
 }
 
 export default function QuoteDetailSummary({
@@ -30,6 +31,7 @@ export default function QuoteDetailSummary({
   quoteDetail,
   shouldHidePrice,
   hasBackorderedItems,
+  orderShippingExpectationMessage,
 }: QuoteDetailSummaryProps) {
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
@@ -207,6 +209,20 @@ export default function QuoteDetailSummary({
                     defaultShippingExpectationPrompt={defaultShippingExpectationPrompt}
                   />
                 )}
+                {Number(status) === 4 &&
+                  backorderEnabled &&
+                  isBackorderMessagingEnabled &&
+                  orderShippingExpectationMessage && (
+                    <Typography
+                      sx={{
+                        fontSize: '0.85rem',
+                        color: '#616161',
+                        marginTop: 1,
+                      }}
+                    >
+                      {orderShippingExpectationMessage}
+                    </Typography>
+                  )}
                 <Grid
                   role="row"
                   container

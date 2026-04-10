@@ -276,6 +276,18 @@ const getQuoteInfo = `
       allowCheckout,
       displayDiscount,
       uuid,
+      orderSnapshot {
+        bcOrderId,
+        status,
+        backorderShippingExpectationMessage,
+        products {
+          productId,
+          sku,
+          totalOnHand,
+          quantityBackordered,
+          backorderMessage,
+        },
+      },
     }
   }
 `;
@@ -654,6 +666,18 @@ export interface B2BQuoteDetail {
       allowCheckout: boolean;
       displayDiscount: boolean;
       uuid?: string;
+      orderSnapshot?: {
+        bcOrderId: number;
+        status: string;
+        backorderShippingExpectationMessage: string | null;
+        products: {
+          productId: number;
+          sku: string;
+          totalOnHand: number;
+          quantityBackordered: number;
+          backorderMessage: string | null;
+        }[];
+      };
     };
   };
 }

@@ -287,6 +287,9 @@ function QuoteDetail() {
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
   const hasBackorderedItems = productList.some((item) => (item.quantityBackordered ?? 0) > 0);
+  const [orderShippingExpectationMessage, setOrderShippingExpectationMessage] = useState<
+    string | null
+  >(null);
   const [fileList, setFileList] = useState<FileObjects[]>([]);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<
@@ -548,9 +551,17 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch(() => {
-        return undefined;
-      });
+      const isOrdered = Number(quote.status) === 4;
+      const bcOrderId = Number(quote.orderId);
+
+      const [productsWithMoreInfo] = await Promise.all([
+        handleGetProductsById(quote.productsList).catch(() => undefined),
+      ]);
+
+      setOrderShippingExpectationMessage(
+        quote.orderSnapshot?.backorderShippingExpectationMessage ?? null,
+      );
+
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
       setQuoteDetail({
         ...quote,
@@ -564,7 +575,21 @@ function QuoteDetail() {
         totalAmount: quote.totalAmount,
       });
 
-      const productListResponse = productsWithMoreInfo ?? [];
+      const snapshotProducts: Array<{
+        sku: string;
+        quantityBackordered?: number;
+        backorderMessage?: string;
+      }> = quote.orderSnapshot?.products ?? [];
+      const productListResponse = (productsWithMoreInfo ?? []).map((product) => {
+        if (!isOrdered) return product;
+        const snapshot = snapshotProducts.find((s) => s.sku === product.variantSku);
+        if (!snapshot) return product;
+        return {
+          ...product,
+          quantityBackordered: snapshot.quantityBackordered,
+          backorderMessage: snapshot.backorderMessage ?? undefined,
+        };
+      });
       setProductList(productListResponse);
 
       const { salesRep, salesRepEmail } = quote;
@@ -623,7 +648,7 @@ function QuoteDetail() {
 
       setFileList(newFileList);
 
-      return quote;
+      return { ...quote, productsList: productListResponse };
     } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
@@ -918,7 +943,6 @@ function QuoteDetail() {
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
-                status={quoteDetail.status}
               />
             </Box>
           </Grid>
@@ -948,6 +972,7 @@ function QuoteDetail() {
                 status={quoteDetail.status}
                 quoteDetail={quoteDetail}
                 hasBackorderedItems={hasBackorderedItems}
+                orderShippingExpectationMessage={orderShippingExpectationMessage}
               />
             </Box>
 

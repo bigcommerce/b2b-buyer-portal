@@ -35,8 +35,8 @@ function BackorderMessage({
     ({ global }) => global.backorderDisplaySettings,
   );
 
-  if ((quantityBackordered ?? 0) <= 0) return null;
-  if (!visible) return null;
+  const hasBackorderContent = (quantityBackordered ?? 0) > 0 || !!backorderMessage;
+  if (!hasBackorderContent || !visible) return null;
 
   return (
     <Box>
