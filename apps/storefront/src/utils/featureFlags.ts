@@ -31,6 +31,10 @@ export const featureFlags = [
     key: 'B2B-4466.use_register_company_flow',
     name: 'useRegisterCompanyFlow',
   },
+  {
+    key: 'B2B-4481.use_grpc_geo_for_state_required_flag',
+    name: 'useGrpcGeoForStateRequiredFlag',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

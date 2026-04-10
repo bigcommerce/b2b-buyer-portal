@@ -12,6 +12,7 @@ export interface Country {
   countryCode: string;
   countryName: string;
   id?: string;
+  stateRequired?: boolean;
   states: State[];
 }
 

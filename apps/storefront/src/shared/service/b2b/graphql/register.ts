@@ -1,3 +1,4 @@
+import { store } from '@/store';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { convertArrayToGraphql, convertObjectOrArrayKeysToCamel } from '@/utils/graphqlDataConvert';
 
@@ -101,11 +102,12 @@ const getCustomerInfo = () => `{
   }
 }`;
 
-const getCountries = () => `query Countries {
+const getCountries = (includeStateRequired: boolean) => `query Countries {
   countries(storeHash:"${storeHash}") {
     id
     countryName
     countryCode
+    ${includeStateRequired ? 'stateRequired' : ''}
     states {
       stateName
       stateCode
@@ -217,10 +219,15 @@ export const getB2BCompanyUserInfo = () =>
     query: getCustomerInfo(),
   });
 
-export const getB2BCountries = () =>
-  B3Request.graphqlB2B({
-    query: getCountries(),
+export const getB2BCountries = () => {
+  const { featureFlags } = store.getState().global;
+  const includeStateRequired =
+    featureFlags['B2B-4481.use_grpc_geo_for_state_required_flag'] ?? false;
+
+  return B3Request.graphqlB2B({
+    query: getCountries(includeStateRequired),
   });
+};
 
 export const createB2BCompanyUser = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
