@@ -63,7 +63,6 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   return (
     <Box
       sx={{
-        minWidth: '150px',
         display: 'flex',
         justifyContent: isMobile ? 'start' : 'end',
         mr: '-5px',

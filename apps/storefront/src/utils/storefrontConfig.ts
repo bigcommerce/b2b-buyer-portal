@@ -13,7 +13,7 @@ import {
   getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
 } from '@/shared/service/b2b';
-import { getActiveBcCurrency } from '@/shared/service/bc';
+import { getActiveBcCurrency, getLocales } from '@/shared/service/bc';
 import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
@@ -21,6 +21,7 @@ import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setFeatureFlags,
+  setLocales,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
   setShowInclusiveTaxPrice,
@@ -322,6 +323,11 @@ export const getAccountHierarchyIsEnabled = async () => {
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const { featureFlags } = store.getState().global;
   const useCombinedQuery = featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
+
+  if (featureFlags['LOCAL-3191.B2B_multi_language']) {
+    const locales = await getLocales().catch(() => []);
+    store.dispatch(setLocales(locales));
+  }
 
   if (useCombinedQuery) {
     const hasCompanyHierarchyPermission = checkEveryPermissionsCode(
