@@ -136,7 +136,9 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     }
   };
 
-  if (href.includes(CHECKOUT_URL) || !customerId) return null;
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+
+  if (href.includes(CHECKOUT_URL) || !customerId || !isPageComplete) return null;
 
   if (!isAgenting) return null;
 

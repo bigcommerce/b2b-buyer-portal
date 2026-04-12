@@ -45,7 +45,7 @@ describe('when there is a selected company within the company hierarchy', () => 
     });
 
     renderWithProviders(<B3CompanyHierarchyExternalButton isOpen setOpenPage={vi.fn()} />, {
-      preloadedState: { company: companyState },
+      preloadedState: { company: companyState, global: { isPageComplete: true } },
     });
 
     expect(await screen.findByText('You are representing')).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('when the user has "companyHierarchy" permissions and clicks on the com
     const setOpenPage = vi.fn();
 
     renderWithProviders(<B3CompanyHierarchyExternalButton isOpen setOpenPage={setOpenPage} />, {
-      preloadedState: { company: companyState },
+      preloadedState: { company: companyState, global: { isPageComplete: true } },
     });
 
     await userEvent.click(await screen.findByText('ACME'));
@@ -98,7 +98,7 @@ describe('when the user does not have "companyHierarchy" permission, but does ha
 
       renderWithProviders(
         <B3CompanyHierarchyExternalButton isOpen={false} setOpenPage={setOpenPage} />,
-        { preloadedState: { company: companyState } },
+        { preloadedState: { company: companyState, global: { isPageComplete: true } } },
       );
 
       await userEvent.click(await screen.findByText('ACME'));
