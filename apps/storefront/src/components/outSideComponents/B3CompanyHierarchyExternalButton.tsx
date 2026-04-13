@@ -38,6 +38,9 @@ function B3CompanyHierarchyExternalButton({
 
   const dispatch = useAppDispatch();
 
+  const customerId = useAppSelector(({ company }) => company.customer?.id);
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -149,7 +152,7 @@ function B3CompanyHierarchyExternalButton({
 
   return (
     <>
-      {!!companyName && (
+      {!!companyName && !!customerId && isPageComplete && (
         <Snackbar
           sx={{
             zIndex: Z_INDEX.NOTIFICATION,

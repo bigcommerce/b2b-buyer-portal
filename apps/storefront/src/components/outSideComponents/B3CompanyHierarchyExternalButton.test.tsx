@@ -1,3 +1,4 @@
+import { buildGlobalStateWith } from 'tests/storeStateBuilders';
 import {
   buildCompanyStateWith,
   builder,
@@ -37,6 +38,7 @@ describe('when there is a selected company within the company hierarchy', () => 
   it('displays a message explaining which company the user is representing', async () => {
     const acme = buildSubsidiaryWith({ companyName: 'ACME', parentCompanyId: undefined });
     const companyState = buildCompanyStateWith({
+      customer: { id: 1 },
       companyHierarchyInfo: {
         selectCompanyHierarchyId: acme.companyId,
         companyHierarchyList: [{ ...acme, parentCompanyName: undefined }],
@@ -44,7 +46,10 @@ describe('when there is a selected company within the company hierarchy', () => 
     });
 
     renderWithProviders(<B3CompanyHierarchyExternalButton isOpen setOpenPage={vi.fn()} />, {
-      preloadedState: { company: companyState },
+      preloadedState: {
+        company: companyState,
+        global: buildGlobalStateWith({ isPageComplete: true }),
+      },
     });
 
     expect(await screen.findByText('You are representing')).toBeInTheDocument();
@@ -58,6 +63,7 @@ describe('when the user has "companyHierarchy" permissions and clicks on the com
 
     const acme = buildSubsidiaryWith({ companyName: 'ACME', parentCompanyId: undefined });
     const companyState = buildCompanyStateWith({
+      customer: { id: 1 },
       companyHierarchyInfo: {
         selectCompanyHierarchyId: acme.companyId,
         companyHierarchyList: [{ ...acme, parentCompanyName: undefined }],
@@ -68,7 +74,10 @@ describe('when the user has "companyHierarchy" permissions and clicks on the com
     const setOpenPage = vi.fn();
 
     renderWithProviders(<B3CompanyHierarchyExternalButton isOpen setOpenPage={setOpenPage} />, {
-      preloadedState: { company: companyState },
+      preloadedState: {
+        company: companyState,
+        global: buildGlobalStateWith({ isPageComplete: true }),
+      },
     });
 
     await userEvent.click(await screen.findByText('ACME'));
@@ -84,6 +93,7 @@ describe('when the user does not have "companyHierarchy" permission, but does ha
 
       const acme = buildSubsidiaryWith({ companyName: 'ACME', parentCompanyId: undefined });
       const companyState = buildCompanyStateWith({
+        customer: { id: 1 },
         companyHierarchyInfo: {
           selectCompanyHierarchyId: acme.companyId,
           companyHierarchyList: [{ ...acme, parentCompanyName: undefined }],
@@ -95,7 +105,12 @@ describe('when the user does not have "companyHierarchy" permission, but does ha
 
       renderWithProviders(
         <B3CompanyHierarchyExternalButton isOpen={false} setOpenPage={setOpenPage} />,
-        { preloadedState: { company: companyState } },
+        {
+          preloadedState: {
+            company: companyState,
+            global: buildGlobalStateWith({ isPageComplete: true }),
+          },
+        },
       );
 
       await userEvent.click(await screen.findByText('ACME'));

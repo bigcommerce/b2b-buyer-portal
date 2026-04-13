@@ -116,10 +116,10 @@ describe('b3logout utilities', () => {
       expect(store.dispatch).toHaveBeenCalledWith(resetDraftQuoteInfo());
     });
 
-    it('dispatches all three actions', () => {
+    it('dispatches all four actions', () => {
       logoutSession();
 
-      expect(store.dispatch).toHaveBeenCalledTimes(3);
+      expect(store.dispatch).toHaveBeenCalledTimes(4);
     });
   });
 
