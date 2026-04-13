@@ -9,7 +9,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { Country, State, getIsStateRequired, validateExtraFields } from '../../config';
+import { Country, getIsStateRequired, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
 import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
