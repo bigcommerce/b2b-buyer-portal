@@ -47,6 +47,17 @@ export interface State {
   id?: string;
 }
 
+export function getIsStateRequired(
+  country: Country | undefined,
+  stateList: State[],
+  isStateRequiredEnabled: boolean,
+): boolean {
+  if (isStateRequiredEnabled) {
+    return country?.stateRequired ?? stateList.length > 0;
+  }
+  return stateList.length > 0;
+}
+
 type EmailError = {
   [k: number]: string;
 };

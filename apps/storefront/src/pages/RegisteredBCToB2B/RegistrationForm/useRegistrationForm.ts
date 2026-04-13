@@ -5,7 +5,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { Country, State } from '@/pages/Registered/config';
+import { Country, State, getIsStateRequired } from '@/pages/Registered/config';
 import { RegisteredContext } from '@/pages/Registered/Context';
 import type { RegisterFields } from '@/pages/Registered/types';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -93,9 +93,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
       const stateList = country?.states || [];
-      const isStateRequired = isStateRequiredEnabled
-        ? (country?.stateRequired ?? stateList.length > 0)
-        : stateList.length > 0;
+      const isStateRequired = getIsStateRequired(country, stateList, isStateRequiredEnabled);
       const stateFields = bcTob2bAddressBasicFields.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );

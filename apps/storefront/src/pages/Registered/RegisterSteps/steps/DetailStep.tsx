@@ -9,7 +9,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { Country, State, validateExtraFields } from '../../config';
+import { Country, State, getIsStateRequired, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
 import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
@@ -69,9 +69,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
       const stateList = country?.states || [];
-      const isStateRequired = isStateRequiredEnabled
-        ? (country?.stateRequired ?? stateList.length > 0)
-        : stateList.length > 0;
+      const isStateRequired = getIsStateRequired(country, stateList, isStateRequiredEnabled);
       const stateFields = addressBasicList.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );
