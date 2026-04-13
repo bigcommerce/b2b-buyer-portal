@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { LoginConfig } from '@/pages/Login/helper';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -34,6 +35,9 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
   const [activeStep, setActiveStep] = useState(0);
 
   const IframeDocument = useAppSelector(themeFrameSelector);
+  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
 
   const {
     state: { accountLoginRegistration },
@@ -82,7 +86,7 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
         );
         const b2bAccountFormFields = getAccountFormFields(newB2bAccountFormFields || []);
 
-        const { countries } = await getB2BCountries();
+        const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
 
         const newAddressInformationFields =
           b2bAccountFormFields.address?.map(

@@ -38,7 +38,9 @@ interface UseRegistrationFormParams {
 export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFormParams) {
   const b3Lang = useB3Lang();
   const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
-  const isStateRequiredEnabled = useFeatureFlag('B2B-4481.use_grpc_geo_for_state_required_flag');
+  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
   const [isMobile] = useMobile();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -93,7 +95,11 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
       const stateList = country?.states || [];
-      const isStateRequired = getIsStateRequired(country, stateList, isStateRequiredEnabled);
+      const isStateRequired = getIsStateRequired(
+        country,
+        stateList,
+        useGrpcGeoForStateRequiredFlag,
+      );
       const stateFields = bcTob2bAddressBasicFields.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );

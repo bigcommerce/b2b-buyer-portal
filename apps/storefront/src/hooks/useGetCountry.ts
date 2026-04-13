@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { Control, FieldValues, UseFormGetValues, UseFormSetValue, useWatch } from 'react-hook-form';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { GlobalContext } from '@/shared/global';
 import { Country, State } from '@/shared/global/context/config';
 import { getB2BCountries } from '@/shared/service/b2b';
@@ -11,10 +12,14 @@ const useSetCountry = () => {
     dispatch,
   } = useContext(GlobalContext);
 
+  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
+
   useEffect(() => {
     const init = async () => {
       if (countriesList && !countriesList.length) {
-        const { countries } = await getB2BCountries();
+        const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
 
         dispatch({
           type: 'common',

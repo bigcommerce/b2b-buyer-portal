@@ -49,13 +49,10 @@ export interface State {
 
 export function getIsStateRequired(
   country: Country | undefined,
-  stateList: State[],
-  isStateRequiredEnabled: boolean,
+  stateList: State[] | null | undefined,
+  useGrpcGeoForStateRequiredFlag: boolean,
 ): boolean {
-  if (isStateRequiredEnabled) {
-    return country?.stateRequired ?? stateList.length > 0;
-  }
-  return stateList.length > 0;
+  return useGrpcGeoForStateRequiredFlag ? !!country?.stateRequired : (stateList?.length ?? 0) > 0;
 }
 
 type EmailError = {

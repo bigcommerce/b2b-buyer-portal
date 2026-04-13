@@ -5,6 +5,7 @@ import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn } from '@/hooks/useCardListColumn';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useTableRef } from '@/hooks/useTableRef';
 import { useVerifyCreatePermission } from '@/hooks/useVerifyPermission';
 import { useB3Lang } from '@/lib/lang';
@@ -62,6 +63,9 @@ const isConfigEnabled = (configs: Config[] | undefined, key: string) => {
 };
 
 function Address() {
+  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const role = useAppSelector(({ company }) => company.customer.role);
@@ -96,7 +100,7 @@ function Address() {
 
   useEffect(() => {
     const handleGetAddressFields = async () => {
-      const { countries } = await getB2BCountries();
+      const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
 
       setCountries(countries);
       setIsRequestLoading(true);
@@ -111,7 +115,7 @@ function Address() {
     };
 
     handleGetAddressFields();
-  }, [isBCPermission]);
+  }, [isBCPermission, useGrpcGeoForStateRequiredFlag]);
 
   const getAddressList: GetRequestList<FilterSearchProps, AddressItemType> = async (
     params = {},

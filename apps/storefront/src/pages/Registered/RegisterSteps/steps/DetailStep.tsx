@@ -32,7 +32,9 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   } = useContext(CustomStyleContext);
 
   const customColor = getContrastColor(backgroundColor);
-  const isStateRequiredEnabled = useFeatureFlag('B2B-4481.use_grpc_geo_for_state_required_flag');
+  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -65,11 +67,15 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
 
   const handleCountryChange = useCallback(
     (countryCode: string, stateCode = '') => {
-      const country = countryList.find(
+      const selectedCountry = countryList.find(
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
-      const stateList = country?.states || [];
-      const isStateRequired = getIsStateRequired(country, stateList, isStateRequiredEnabled);
+      const stateList = selectedCountry?.states || [];
+      const isStateRequired = getIsStateRequired(
+        selectedCountry,
+        stateList,
+        useGrpcGeoForStateRequiredFlag,
+      );
       const stateFields = addressBasicList.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );
@@ -114,7 +120,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
       addressBasicName,
       bcAddressBasicFields,
       countryList,
-      isStateRequiredEnabled,
+      useGrpcGeoForStateRequiredFlag,
     ],
   );
 
