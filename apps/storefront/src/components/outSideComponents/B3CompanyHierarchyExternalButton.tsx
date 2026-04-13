@@ -38,7 +38,7 @@ function B3CompanyHierarchyExternalButton({
 
   const dispatch = useAppDispatch();
 
-  const customerId = useAppSelector(({ company }) => company.customer.id);
+  const customerId = useAppSelector(({ company }) => company.customer?.id);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
 
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
