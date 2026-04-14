@@ -95,11 +95,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
       const stateList = country?.states || [];
-      const isStateRequired = getIsStateRequired(
-        country,
-        stateList,
-        grpcGeoForStateRequiredFlag,
-      );
+      const isStateRequired = getIsStateRequired(country, stateList, grpcGeoForStateRequiredFlag);
       const stateFields = bcTob2bAddressBasicFields.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );
