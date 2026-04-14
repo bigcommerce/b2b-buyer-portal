@@ -35,6 +35,10 @@ export const featureFlags = [
     key: 'B2B-4481.use_grpc_geo_for_state_required_flag',
     name: 'grpcGeoForStateRequiredFlag',
   },
+  {
+    key: 'PROJECT-7486.b2b_multi_language',
+    name: 'b2bMultiLanguage',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

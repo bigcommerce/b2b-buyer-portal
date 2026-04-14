@@ -20,6 +20,7 @@ import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
+  setAvailableLanguages,
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setFeatureFlags,
@@ -343,6 +344,27 @@ export const getAccountHierarchyIsEnabled = async () => {
   return isEnabled === '1';
 };
 
+const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['featureFlags']) => {
+  if (flags['PROJECT-7486.b2b_multi_language']) {
+    const { storefrontMultiLanguage: { defaultLanguage, availableLanguages } } = await getStorefrontMultiLanguage(channelId);
+    store.dispatch(setAvailableLanguages(availableLanguages || []));
+    const language = defaultLanguage || 'en';
+    if (language.includes('-')) {
+      const [lang] = language.split('-');
+      return lang;
+    }
+    return language;
+  }
+
+  const { storefrontDefaultLanguage: { language } } = await getStorefrontDefaultLanguages(channelId);
+  const lang = language || 'en';
+  if (language && language.includes('-')) {
+    const [code] = language.split('-');
+    return code;
+  }
+  return lang;
+};
+
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const { featureFlags } = store.getState().global;
   const useCombinedQuery = featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
@@ -402,18 +424,7 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
       store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
     }
 
-    const {
-      storefrontDefaultLanguage: { language },
-    } = await getStorefrontDefaultLanguages(channelId);
-
-    getStorefrontMultiLanguage(channelId);
-
-    let langCode: string = language || 'en';
-
-    if (language && language.includes('-')) {
-      const [lang] = language.split('-');
-      langCode = lang;
-    }
+    const langCode = await getLangCode(featureFlags);
 
     const {
       data: {
@@ -443,18 +454,7 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     const { currencies } = await getCurrencies(channelId);
     store.dispatch(setCurrencies(currencies));
 
-    const {
-      storefrontDefaultLanguage: { language },
-    } = await getStorefrontDefaultLanguages(channelId);
-
-    getStorefrontMultiLanguage(channelId);
-
-    let langCode: string = language || 'en';
-
-    if (language && language.includes('-')) {
-      const [lang] = language.split('-');
-      langCode = lang;
-    }
+    const langCode = await getLangCode(featureFlags);
 
     const {
       data: {

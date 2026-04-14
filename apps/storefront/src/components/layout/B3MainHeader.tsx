@@ -14,6 +14,7 @@ import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3AccountInfo from './B3AccountInfo';
 import B3CompanyHierarchy from './B3CompanyHierarchy';
+import B3LanguageDropdown from './B3LanguageDropdown';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function MainHeader({ title }: { title: string }) {
@@ -112,6 +113,7 @@ export default function MainHeader({ title }: { title: string }) {
                 {b3Lang('global.B3MainHeader.signIn')}
               </Button>
             )}
+            <B3LanguageDropdown />
             <Button
               sx={{
                 color: '#333333',

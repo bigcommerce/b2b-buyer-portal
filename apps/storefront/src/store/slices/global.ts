@@ -68,6 +68,12 @@ export interface BackorderDisplaySettings {
   defaultShippingExpectationPrompt: string;
 }
 
+export interface AvailableLanguage {
+  code: string;
+  status: string;
+  isDefault: boolean;
+}
+
 export interface GlobalState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
@@ -86,6 +92,7 @@ export interface GlobalState {
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
   isOpenCompanyHierarchyDropDown: boolean;
   featureFlags: FeatureFlags;
+  availableLanguages: AvailableLanguage[];
   backorderEnabled: boolean;
   backorderDisplaySettings: BackorderDisplaySettings;
 }
@@ -140,6 +147,7 @@ export const initialState: GlobalState = {
   },
   isOpenCompanyHierarchyDropDown: false,
   featureFlags: {},
+  availableLanguages: [],
 };
 
 export const globalSlice = createSlice({
@@ -199,6 +207,9 @@ export const globalSlice = createSlice({
         ...payload,
       };
     },
+    setAvailableLanguages: (state, { payload }: PayloadAction<AvailableLanguage[]>) => {
+      state.availableLanguages = payload;
+    },
     setBackorderEnabled: (state, { payload }: PayloadAction<boolean>) => {
       state.backorderEnabled = payload;
     },
@@ -228,6 +239,7 @@ export const {
   setQuoteSubmissionResponse,
   setOpenCompanyHierarchyDropDown,
   setFeatureFlags,
+  setAvailableLanguages,
   setBackorderEnabled,
   setBackorderDisplaySettings,
 } = globalSlice.actions;
