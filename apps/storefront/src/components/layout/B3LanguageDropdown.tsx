@@ -12,7 +12,10 @@ export default function B3LanguageDropdown() {
   const isMultiLanguageEnabled = useFeatureFlag('PROJECT-7486.b2b_multi_language');
   const availableLanguages = useAppSelector(({ global }) => global.availableLanguages);
 
-  const { state: { bcLanguage }, dispatch } = useContext(GlobalContext);
+  const {
+    state: { bcLanguage },
+    dispatch,
+  } = useContext(GlobalContext);
 
   if (!isMultiLanguageEnabled || availableLanguages.length <= 1) return null;
 

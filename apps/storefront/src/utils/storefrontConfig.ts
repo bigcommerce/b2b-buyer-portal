@@ -346,7 +346,9 @@ export const getAccountHierarchyIsEnabled = async () => {
 
 const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['featureFlags']) => {
   if (flags['PROJECT-7486.b2b_multi_language']) {
-    const { storefrontMultiLanguage: { defaultLanguage, availableLanguages } } = await getStorefrontMultiLanguage(channelId);
+    const {
+      storefrontMultiLanguage: { defaultLanguage, availableLanguages },
+    } = await getStorefrontMultiLanguage(channelId);
     store.dispatch(setAvailableLanguages(availableLanguages || []));
     const language = defaultLanguage || 'en';
     if (language.includes('-')) {
@@ -356,7 +358,9 @@ const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['f
     return language;
   }
 
-  const { storefrontDefaultLanguage: { language } } = await getStorefrontDefaultLanguages(channelId);
+  const {
+    storefrontDefaultLanguage: { language },
+  } = await getStorefrontDefaultLanguages(channelId);
   const lang = language || 'en';
   if (language && language.includes('-')) {
     const [code] = language.split('-');
