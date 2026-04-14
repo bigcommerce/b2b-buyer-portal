@@ -12,14 +12,14 @@ const useSetCountry = () => {
     dispatch,
   } = useContext(GlobalContext);
 
-  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
     'B2B-4481.use_grpc_geo_for_state_required_flag',
   );
 
   useEffect(() => {
     const init = async () => {
       if (countriesList && !countriesList.length) {
-        const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
+        const { countries } = await getB2BCountries(grpcGeoForStateRequiredFlag);
 
         dispatch({
           type: 'common',

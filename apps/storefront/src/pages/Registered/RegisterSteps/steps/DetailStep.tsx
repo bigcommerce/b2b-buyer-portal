@@ -32,7 +32,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   } = useContext(CustomStyleContext);
 
   const customColor = getContrastColor(backgroundColor);
-  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
     'B2B-4481.use_grpc_geo_for_state_required_flag',
   );
 
@@ -74,7 +74,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
       const isStateRequired = getIsStateRequired(
         selectedCountry,
         stateList,
-        useGrpcGeoForStateRequiredFlag,
+        grpcGeoForStateRequiredFlag,
       );
       const stateFields = addressBasicList.find(
         (formFields: RegisterFields) => formFields.name === 'state',
@@ -120,7 +120,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
       addressBasicName,
       bcAddressBasicFields,
       countryList,
-      useGrpcGeoForStateRequiredFlag,
+      grpcGeoForStateRequiredFlag,
     ],
   );
 

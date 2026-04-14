@@ -33,7 +33,7 @@ export const featureFlags = [
   },
   {
     key: 'B2B-4481.use_grpc_geo_for_state_required_flag',
-    name: 'useGrpcGeoForStateRequiredFlag',
+    name: 'grpcGeoForStateRequiredFlag',
   },
 ] as const;
 

@@ -63,7 +63,7 @@ const isConfigEnabled = (configs: Config[] | undefined, key: string) => {
 };
 
 function Address() {
-  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
     'B2B-4481.use_grpc_geo_for_state_required_flag',
   );
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -100,7 +100,7 @@ function Address() {
 
   useEffect(() => {
     const handleGetAddressFields = async () => {
-      const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
+      const { countries } = await getB2BCountries(grpcGeoForStateRequiredFlag);
 
       setCountries(countries);
       setIsRequestLoading(true);
@@ -115,7 +115,7 @@ function Address() {
     };
 
     handleGetAddressFields();
-  }, [isBCPermission, useGrpcGeoForStateRequiredFlag]);
+  }, [isBCPermission, grpcGeoForStateRequiredFlag]);
 
   const getAddressList: GetRequestList<FilterSearchProps, AddressItemType> = async (
     params = {},

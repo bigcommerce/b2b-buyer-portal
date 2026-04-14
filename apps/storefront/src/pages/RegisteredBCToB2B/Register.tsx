@@ -44,7 +44,7 @@ export function Register({ logo, ...props }: RegisterProps) {
 
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-  const useGrpcGeoForStateRequiredFlag = useFeatureFlag(
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
     'B2B-4481.use_grpc_geo_for_state_required_flag',
   );
 
@@ -98,7 +98,7 @@ export function Register({ logo, ...props }: RegisterProps) {
       });
 
       const bcToB2BAccountFormFields = getAccountFormFields(newAccountFormFields || []);
-      const { countries } = await getB2BCountries(useGrpcGeoForStateRequiredFlag);
+      const { countries } = await getB2BCountries(grpcGeoForStateRequiredFlag);
 
       const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
         (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
@@ -164,7 +164,7 @@ export function Register({ logo, ...props }: RegisterProps) {
     dispatch,
     emailAddress,
     firstName,
-    useGrpcGeoForStateRequiredFlag,
+    grpcGeoForStateRequiredFlag,
     lastName,
     phoneNumber,
     showLoading,
