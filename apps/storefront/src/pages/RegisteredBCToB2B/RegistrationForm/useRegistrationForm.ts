@@ -5,7 +5,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { Country, State } from '@/pages/Registered/config';
+import { Country, getIsStateRequired, State } from '@/pages/Registered/config';
 import { RegisteredContext } from '@/pages/Registered/Context';
 import type { RegisterFields } from '@/pages/Registered/types';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -38,6 +38,9 @@ interface UseRegistrationFormParams {
 export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFormParams) {
   const b3Lang = useB3Lang();
   const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
   const [isMobile] = useMobile();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -88,11 +91,11 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
 
   useEffect(() => {
     const handleCountryChange = (countryCode: string, stateCode = '') => {
-      const stateList =
-        countryList.find(
-          (country: Country) =>
-            country.countryCode === countryCode || country.countryName === countryCode,
-        )?.states || [];
+      const country = countryList.find(
+        (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
+      );
+      const stateList = country?.states || [];
+      const isStateRequired = getIsStateRequired(country, stateList, grpcGeoForStateRequiredFlag);
       const stateFields = bcTob2bAddressBasicFields.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );
@@ -101,11 +104,11 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
-          stateFields.required = true;
+          stateFields.required = isStateRequired;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
-          stateFields.required = false;
+          stateFields.required = isStateRequired;
         }
       }
 

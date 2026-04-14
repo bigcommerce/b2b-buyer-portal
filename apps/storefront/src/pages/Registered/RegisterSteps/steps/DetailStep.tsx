@@ -5,10 +5,11 @@ import isEmpty from 'lodash-es/isEmpty';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-import { Country, State, validateExtraFields } from '../../config';
+import { Country, getIsStateRequired, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
 import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
@@ -31,6 +32,9 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   } = useContext(CustomStyleContext);
 
   const customColor = getContrastColor(backgroundColor);
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -63,11 +67,15 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
 
   const handleCountryChange = useCallback(
     (countryCode: string, stateCode = '') => {
-      const stateList =
-        countryList.find(
-          (country: Country) =>
-            country.countryCode === countryCode || country.countryName === countryCode,
-        )?.states || [];
+      const selectedCountry = countryList.find(
+        (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
+      );
+      const stateList = selectedCountry?.states || [];
+      const isStateRequired = getIsStateRequired(
+        selectedCountry,
+        stateList,
+        grpcGeoForStateRequiredFlag,
+      );
       const stateFields = addressBasicList.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );
@@ -76,11 +84,11 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
-          stateFields.required = true;
+          stateFields.required = isStateRequired;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
-          stateFields.required = false;
+          stateFields.required = isStateRequired;
         }
       }
 
@@ -106,7 +114,14 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
     },
     // disabling as we don't need dispatchers here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addressBasicFields, addressBasicList, addressBasicName, bcAddressBasicFields, countryList],
+    [
+      addressBasicFields,
+      addressBasicList,
+      addressBasicName,
+      bcAddressBasicFields,
+      countryList,
+      grpcGeoForStateRequiredFlag,
+    ],
   );
 
   useEffect(() => {

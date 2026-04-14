@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 import { B3Card } from '@/components/B3Card';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -43,6 +44,9 @@ export function Register({ logo, ...props }: RegisterProps) {
 
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
+  const grpcGeoForStateRequiredFlag = useFeatureFlag(
+    'B2B-4481.use_grpc_geo_for_state_required_flag',
+  );
 
   const navigate = useNavigate();
 
@@ -94,7 +98,7 @@ export function Register({ logo, ...props }: RegisterProps) {
       });
 
       const bcToB2BAccountFormFields = getAccountFormFields(newAccountFormFields || []);
-      const { countries } = await getB2BCountries();
+      const { countries } = await getB2BCountries(grpcGeoForStateRequiredFlag);
 
       const newAddressInformationFields = (bcToB2BAccountFormFields.address ?? []).map(
         (addressFields: Partial<RegisterFieldsItems>): Partial<RegisterFieldsItems> => {
@@ -156,7 +160,15 @@ export function Register({ logo, ...props }: RegisterProps) {
     } finally {
       showLoading(false);
     }
-  }, [dispatch, emailAddress, firstName, lastName, phoneNumber, showLoading]);
+  }, [
+    dispatch,
+    emailAddress,
+    firstName,
+    grpcGeoForStateRequiredFlag,
+    lastName,
+    phoneNumber,
+    showLoading,
+  ]);
 
   useEffect(() => {
     getBCAdditionalFields();
