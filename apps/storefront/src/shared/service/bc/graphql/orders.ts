@@ -1,9 +1,9 @@
 /**
- * GraphQL Storefront API: Orders (Unified B2B + BC)
- * https://developer.bigcommerce.com/docs/storefront/graphql/orders
+ * Unified SF GQL Orders API (B2B + BC).
  *
- * Replaces the older B2B-specific orders API (b2b/graphql/orders.ts).
- * Follows the same migration pattern as register.ts → company.ts.
+ * Replaces b2b/graphql/orders.ts. Base SF GQL types live in ./base.ts.
+ * B2B extension types mirror rfc/graphql-schema/additionalTypeDefs/byPage/orders.ts.
+ *
  * @see https://developer.bigcommerce.com/docs/storefront/graphql/orders
  */
 
@@ -11,90 +11,64 @@ import { platform } from '@/utils/basicConfig';
 
 import B3Request from '../../request/b3Fetch';
 
-// ---------------------------------------------------------------------------
-// Shared primitive types
-// ---------------------------------------------------------------------------
+import type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
 
-export interface Money {
-  currencyCode: string;
-  value: number;
-}
+export type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
 
-export interface PageInfo {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: string;
-  endCursor: string;
-}
-
-export interface CollectionInfo {
-  totalItems: number;
-}
-
-/** BC Storefront GraphQL DateTimeExtended type. */
-export interface DateTimeExtended {
-  utc: string;
-}
-
-// ---------------------------------------------------------------------------
-// Order status
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// Order-specific SF GQL type projections
+// ===========================================================================
 
 export interface OrderStatus {
-  value: string;
+  value: string | null;
   label: string;
 }
 
-// ---------------------------------------------------------------------------
-// Address
-// ---------------------------------------------------------------------------
-
+/** Covers both OrderBillingAddress and OrderShippingAddress (same interface fields). */
 export interface OrderAddress {
-  firstName: string;
-  lastName: string;
-  company: string;
-  address1: string;
-  address2: string;
-  city: string;
-  stateOrProvince: string;
+  firstName: string | null;
+  lastName: string | null;
+  company: string | null;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  stateOrProvince: string | null;
   postalCode: string;
   country: string;
   countryCode: string;
-  phone: string;
-  email: string;
+  phone: string | null;
+  email: string | null;
 }
 
-// ---------------------------------------------------------------------------
-// Line items & consignments
-// ---------------------------------------------------------------------------
-
-export interface OrderProductOption {
+export interface OrderLineItemProductOption {
   name: string;
   value: string;
 }
 
+/** Projects OrderPhysicalLineItem; OrderDigitalLineItem has a similar shape. */
 export interface OrderLineItem {
   entityId: number;
-  brand: string;
+  brand: string | null;
   name: string;
   quantity: number;
-  productOptions: OrderProductOption[];
+  productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
 }
 
 export interface OrderShipmentTracking {
-  number: string;
-  url: string;
+  number?: string;
+  url?: string;
 }
 
 export interface OrderShipment {
   entityId: number;
-  shippedAt: string;
+  shippedAt: DateTimeExtended;
   shippingMethodName: string;
   shippingProviderName: string;
   tracking: OrderShipmentTracking | null;
 }
 
+/** Projects OrderShippingConsignment. */
 export interface ShippingConsignment {
   entityId: number;
   shippingAddress: OrderAddress;
@@ -107,13 +81,17 @@ export interface OrderConsignments {
   shipping: { edges: Array<{ cursor: string; node: ShippingConsignment }> };
 }
 
-// ---------------------------------------------------------------------------
-// Financial types
-// ---------------------------------------------------------------------------
-
-export interface OrderDiscount {
+/** Nested inside OrderDiscounts.couponDiscounts. */
+export interface OrderCouponDiscount {
   couponCode: string;
   discountedAmount: Money;
+}
+
+/** What Order.discounts returns (OrderDiscounts in SF GQL). */
+export interface OrderDiscounts {
+  couponDiscounts: OrderCouponDiscount[];
+  nonCouponDiscountTotal: Money;
+  totalDiscount: Money | null;
 }
 
 export interface OrderTax {
@@ -121,15 +99,17 @@ export interface OrderTax {
   amount: Money;
 }
 
-// ---------------------------------------------------------------------------
-// B2B extension types
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// B2B extension types (from additionalTypeDefs/byPage/orders.ts)
+// ===========================================================================
 
+/** Projection of Company — selects entityId and name. */
 export interface OrderCompany {
   entityId: number;
   name: string;
 }
 
+/** Projection of Customer — selects identity fields. */
 export interface OrderPlacedBy {
   entityId: number;
   firstName: string;
@@ -148,6 +128,7 @@ export interface OrderHistoryEvent {
   status: string;
   source: string | null;
   createdBy: OrderPlacedBy | null;
+  details: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -164,9 +145,9 @@ export interface ExtraFieldValue {
   value: string;
 }
 
-// ---------------------------------------------------------------------------
-// Main Order type (BC base + B2B extensions)
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// Order (base SF GQL fields + B2B extensions)
+// ===========================================================================
 
 export interface Order {
   entityId: number;
@@ -177,7 +158,7 @@ export interface Order {
 
   // Financial
   subTotal: Money;
-  discountedSubTotal: Money;
+  discountedSubTotal: Money | null;
   shippingCostTotal: Money;
   handlingCostTotal: Money;
   wrappingCostTotal: Money;
@@ -185,14 +166,14 @@ export interface Order {
   totalIncTax: Money;
   isTaxIncluded: boolean;
   taxes: OrderTax[];
-  discounts: OrderDiscount[];
+  discounts: OrderDiscounts;
 
   // Content
-  customerMessage: string;
+  customerMessage: string | null;
   totalProductQuantity: number;
-  consignments: OrderConsignments;
+  consignments: OrderConsignments | null;
 
-  // B2B extensions
+  // B2B extensions (null for B2C orders)
   reference: string | null;
   company: OrderCompany | null;
   placedBy: OrderPlacedBy | null;
@@ -202,9 +183,9 @@ export interface Order {
   extraFields: ExtraFieldValue[];
 }
 
-// ---------------------------------------------------------------------------
-// Connection types
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// B2B connection types
+// ===========================================================================
 
 export interface CompanyOrdersEdge {
   node: Order;
@@ -214,7 +195,7 @@ export interface CompanyOrdersEdge {
 export interface CompanyOrdersConnection {
   edges: CompanyOrdersEdge[];
   pageInfo: PageInfo;
-  collectionInfo: CollectionInfo;
+  collectionInfo: CollectionInfo | null;
 }
 
 export interface CompanyCustomerEdge {
@@ -227,9 +208,9 @@ export interface CompanyCustomerConnection {
   pageInfo: PageInfo;
 }
 
-// ---------------------------------------------------------------------------
-// Filter & sort types
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// B2B filter & sort types
+// ===========================================================================
 
 export enum OrdersSortInput {
   ID_A_TO_Z = 'ID_A_TO_Z',
@@ -257,7 +238,13 @@ export interface CompanyOrdersFiltersInput {
   companyIds?: string[];
 }
 
-export interface CustomerOrdersFiltersInput {
+/**
+ * SF GQL OrdersFiltersInput (base) + B2B extension fields.
+ * Base: status, dateRange. Extension: search, companyName, companyIds.
+ */
+export interface OrdersFiltersInput {
+  status?: string;
+  dateRange?: OrderDateRangeFilterInput;
   search?: string;
   companyName?: string;
   companyIds?: string[];
@@ -267,9 +254,9 @@ export interface CustomerWithOrdersFiltersInput {
   companyIds?: string[];
 }
 
-// ---------------------------------------------------------------------------
-// Response types
-// ---------------------------------------------------------------------------
+// ===========================================================================
+// Response wrappers (client-side only)
+// ===========================================================================
 
 export interface GetCompanyOrdersResponse {
   data?: {
@@ -286,9 +273,8 @@ export interface GetCustomerOrdersResponse {
   data?: {
     customer?: {
       orders?: {
-        edges: Array<{ node: Order }>;
+        edges: Array<{ node: Order; cursor: string }>;
         pageInfo: PageInfo;
-        collectionInfo: CollectionInfo;
       };
     };
   };
@@ -315,9 +301,9 @@ export interface GetCustomersWithOrdersResponse {
   errors?: Array<{ message: string }>;
 }
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // Fragments
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 const moneyFields = `currencyCode
   value`;
@@ -353,7 +339,9 @@ const orderLineItemFields = `entityId
       }`;
 
 const orderShipmentFields = `entityId
-      shippedAt
+      shippedAt {
+        utc
+      }
       shippingMethodName
       shippingProviderName
       tracking {
@@ -429,8 +417,16 @@ const orderFinancialFields = `subTotal {
     }
   }
   discounts {
-    couponCode
-    discountedAmount {
+    couponDiscounts {
+      couponCode
+      discountedAmount {
+        ${moneyFields}
+      }
+    }
+    nonCouponDiscountTotal {
+      ${moneyFields}
+    }
+    totalDiscount {
       ${moneyFields}
     }
   }`;
@@ -457,6 +453,7 @@ const orderB2BFields = `reference
       lastName
       email
     }
+    details
     createdAt
   }
   quote {
@@ -490,11 +487,11 @@ export const orderListNodeFields = `entityId
     lastName
   }`;
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // Queries
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
-/** Company-scoped order list (B2B). Replaces old `allOrders`. */
+/** Company-scoped order list (B2B). Entry: customer.company.orders. */
 export const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
   $sortBy: OrdersSortInput
@@ -533,7 +530,12 @@ export const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   }
 }`;
 
-/** Personal order list (customer-scoped). Replaces old `customerOrders`. */
+/**
+ * My Orders (customer-scoped, B2B + B2C). Entry: customer.orders.
+ * B2B fields auto-populate for B2B users, null for B2C.
+ *
+ * Note: OrdersConnection lacks collectionInfo; add once SF GQL team ships it.
+ */
 export const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
   $first: Int
@@ -557,14 +559,11 @@ export const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
         startCursor
         endCursor
       }
-      collectionInfo {
-        totalItems
-      }
     }
   }
 }`;
 
-/** Single order detail. Replaces old `order` / `customerOrder`. */
+/** Single order detail. Entry: site.order. */
 export const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
   site {
     order(filter: { entityId: $entityId }) {
@@ -588,7 +587,7 @@ export const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
   }
 }`;
 
-/** Customers who have placed orders within a company. Used for "Placed By" filter dropdown. */
+/** Company customers who have placed orders. For "Placed By" filter dropdown. */
 export const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
   $filters: CustomerWithOrdersFiltersInput
   $first: Int
@@ -621,9 +620,9 @@ export const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
   }
 }`;
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // Service functions
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 function graphqlRequest<T>(data: { query: string; variables?: object }): Promise<T> {
   return platform === 'bigcommerce'
@@ -631,11 +630,7 @@ function graphqlRequest<T>(data: { query: string; variables?: object }): Promise
     : B3Request.graphqlBCProxy<T>(data);
 }
 
-/**
- * Fetch company-scoped orders (B2B).
- * Replaces old `getB2BAllOrders`.
- * @see https://developer.bigcommerce.com/docs/storefront/graphql/orders
- */
+/** Company Orders — all orders from all company members (B2B only). */
 export async function getCompanyOrders(variables: {
   filters?: CompanyOrdersFiltersInput;
   sortBy?: OrdersSortInput;
@@ -650,13 +645,9 @@ export async function getCompanyOrders(variables: {
   });
 }
 
-/**
- * Fetch customer-scoped orders (personal / B2C).
- * Replaces old `getBCAllOrders`.
- * @see https://developer.bigcommerce.com/docs/storefront/graphql/orders
- */
+/** My Orders — customer-scoped, unified for B2B and B2C. */
 export async function getCustomerOrders(variables: {
-  filters?: CustomerOrdersFiltersInput;
+  filters?: OrdersFiltersInput;
   first?: number;
   after?: string;
 }): Promise<GetCustomerOrdersResponse> {
@@ -666,11 +657,7 @@ export async function getCustomerOrders(variables: {
   });
 }
 
-/**
- * Fetch a single order detail by entityId.
- * Replaces old `getB2BOrderDetails` / `getBCOrderDetails`.
- * @see https://developer.bigcommerce.com/docs/storefront/graphql/orders
- */
+/** Single order detail by entityId. */
 export async function getOrderDetail(entityId: number): Promise<GetOrderDetailResponse> {
   return graphqlRequest<GetOrderDetailResponse>({
     query: GET_ORDER_DETAIL,
@@ -678,10 +665,7 @@ export async function getOrderDetail(entityId: number): Promise<GetOrderDetailRe
   });
 }
 
-/**
- * Fetch customers who have placed orders within a company.
- * Used for "Placed By" filter dropdown.
- */
+/** Customers who have placed orders within a company. */
 export async function getCustomersWithOrders(variables: {
   filters?: CustomerWithOrdersFiltersInput;
   first?: number;
