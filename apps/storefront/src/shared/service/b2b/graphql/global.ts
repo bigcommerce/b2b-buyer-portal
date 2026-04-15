@@ -308,6 +308,22 @@ const storefrontDefaultLanguage = (channelId: number) => `{
 	}
 }`;
 
+const storefrontMultiLanguage = (channelId: number) => `{
+	storefrontMultiLanguage(storeHash: "${storeHash}", channelId: ${channelId}) {
+		defaultLanguage
+		availableLanguages {
+			code
+			status
+			isDefault
+		}
+	}
+}`;
+
+export const getStorefrontMultiLanguage = (channelId: number) =>
+  B3Request.graphqlB2B({
+    query: storefrontMultiLanguage(channelId),
+  });
+
 const companyCreditConfig = () => `{
 	companyCreditConfig{
     limitPurchases
