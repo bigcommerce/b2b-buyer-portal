@@ -3,6 +3,7 @@ import {
   QUOTE_VALIDATION_ERROR_CODES,
   validateProduct,
   validateProducts as validateProductsService,
+  type ValidationTarget,
 } from '@/shared/service/b2b/graphql/product';
 
 interface Option {
@@ -181,9 +182,10 @@ function mapToValidateProducts<T extends ValidateProductsInput>(product: T) {
  */
 export const validateProductsLegacy = async <T extends ValidateProductsInput>(
   products: T[],
+  target?: ValidationTarget,
 ): Promise<ValidateProductsLegacyResult<T>> => {
   const results = await Promise.allSettled(
-    products.map(mapToValidateProducts).map(validateProduct),
+    products.map(mapToValidateProducts).map((product) => validateProduct({ ...product, target })),
   );
 
   const validatedProducts = products.map<ValidatedProductLegacy<T>>((product, index) => {
@@ -236,9 +238,11 @@ export const validateProductsLegacy = async <T extends ValidateProductsInput>(
 
 export const validateProducts = async <T extends ValidateProductsInput>(
   products: T[],
+  target?: ValidationTarget,
 ): Promise<ValidateProductsResult<T>> => {
   const { products: results } = await validateProductsService({
     products: products.map(mapToValidateProducts),
+    target,
   });
 
   const validatedProducts = products.map<ValidatedProduct<T>>((product, index) => {

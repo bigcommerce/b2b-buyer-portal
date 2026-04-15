@@ -188,6 +188,7 @@ const partialAddToCart = async (checkedArr: ProductsProps[]) => {
         productOptions: getOptionsList(JSON.parse(item.node.optionList || '[]')),
         item,
       })),
+      'CART',
     );
 
     if (success.length > 0) {

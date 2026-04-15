@@ -1723,6 +1723,7 @@ describe('when a personal customer visits an order', () => {
           variantId: 456,
           quantity: 1,
           productOptions: [{ optionId: 22, optionValue: 'bar' }],
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -1814,6 +1815,7 @@ describe('when a personal customer visits an order', () => {
           variantId: 456,
           quantity: 1,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -1935,6 +1937,7 @@ describe('when a personal customer visits an order', () => {
           variantId: 456,
           quantity: 2,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -2032,6 +2035,7 @@ describe('when a personal customer visits an order', () => {
           variantId: laughCanister.variant_id,
           quantity: 1,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
 
@@ -2041,6 +2045,7 @@ describe('when a personal customer visits an order', () => {
           variantId: screamCanister.variant_id,
           quantity: 2,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
 
@@ -2133,6 +2138,7 @@ describe('when a personal customer visits an order', () => {
           variantId: laughCanister.variant_id,
           quantity: 1,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({ data: { validateProduct: { responseType: 'SUCCESS', message: '' } } });
 
@@ -2142,6 +2148,7 @@ describe('when a personal customer visits an order', () => {
           variantId: productWithWarning.variant_id,
           quantity: 2,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -2158,6 +2165,7 @@ describe('when a personal customer visits an order', () => {
           variantId: productWithError.variant_id,
           quantity: 2,
           productOptions: [],
+          target: 'CART',
         })
         .thenReturn({
           data: {

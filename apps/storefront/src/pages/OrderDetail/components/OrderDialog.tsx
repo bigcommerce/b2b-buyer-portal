@@ -82,6 +82,7 @@ const validateProducts = async (products: EditableProductItem[]) => {
 
       allOptions: product.product_options,
     })),
+    'CART',
   );
 };
 
