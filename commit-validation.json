@@ -23,7 +23,6 @@
     "register",
     "shopping-lists",
     "translation",
-    "user-management",
-    "deps"
+    "user-management"
   ]
 }
