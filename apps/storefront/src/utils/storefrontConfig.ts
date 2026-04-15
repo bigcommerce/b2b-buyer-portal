@@ -12,6 +12,7 @@ import {
   getStorefrontConfigs,
   getStorefrontConfigWithCompanyHierarchy,
   getStorefrontDefaultLanguages,
+  getStorefrontMultiLanguage,
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
@@ -404,6 +405,9 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     const {
       storefrontDefaultLanguage: { language },
     } = await getStorefrontDefaultLanguages(channelId);
+
+    // TODO: remove after testing
+    getStorefrontMultiLanguage(channelId);
 
     let langCode: string = language || 'en';
 
