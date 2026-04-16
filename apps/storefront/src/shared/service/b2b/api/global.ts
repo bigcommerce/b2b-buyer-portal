@@ -30,3 +30,10 @@ export const validateQuoteExtraFields = (data: CustomFieldItems) =>
     ...data,
     storeHash,
   });
+
+export const setStorefrontDefaultLanguage = (language: string) =>
+  B3Request.put('/api/v2/stores/storefront/language', RequestType.B2BRest, {
+    storeHash,
+    channelId,
+    language,
+  });

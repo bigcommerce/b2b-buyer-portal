@@ -2,8 +2,10 @@ import { useContext } from 'react';
 import { Box } from '@mui/material';
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { setStorefrontDefaultLanguage } from '@/shared/service/b2b/api/global';
 import { GlobalContext } from '@/shared/global/context/index';
-import { useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setCurrentLanguage } from '@/store/slices/global';
 import { B3SStorage } from '@/utils/b3Storage';
 
 import B3DropDown from '../B3DropDown';
@@ -11,6 +13,8 @@ import B3DropDown from '../B3DropDown';
 export default function B3LanguageDropdown() {
   const isMultiLanguageEnabled = useFeatureFlag('PROJECT-7486.b2b_multi_language');
   const availableLanguages = useAppSelector(({ global }) => global.availableLanguages);
+
+  const reduxDispatch = useAppDispatch();
 
   const {
     state: { bcLanguage },
@@ -25,6 +29,8 @@ export default function B3LanguageDropdown() {
     const langCode = String(code);
     B3SStorage.set('bcLanguage', langCode);
     dispatch({ type: 'common', payload: { bcLanguage: langCode } });
+    reduxDispatch(setCurrentLanguage(langCode));
+    setStorefrontDefaultLanguage(langCode);
   };
 
   return (

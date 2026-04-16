@@ -21,6 +21,7 @@ import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
   setAvailableLanguages,
+  setCurrentLanguage,
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setFeatureFlags,
@@ -351,11 +352,15 @@ const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['f
     } = await getStorefrontMultiLanguage(channelId);
     store.dispatch(setAvailableLanguages(availableLanguages || []));
     const language = defaultLanguage || 'en';
+    let langCode: string;
     if (language.includes('-')) {
       const [lang] = language.split('-');
-      return lang;
+      langCode = lang;
+    } else {
+      langCode = language;
     }
-    return language;
+    store.dispatch(setCurrentLanguage(langCode));
+    return langCode;
   }
 
   const {

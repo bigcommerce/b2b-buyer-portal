@@ -93,6 +93,7 @@ export interface GlobalState {
   isOpenCompanyHierarchyDropDown: boolean;
   featureFlags: FeatureFlags;
   availableLanguages: AvailableLanguage[];
+  currentLanguage: string;
   backorderEnabled: boolean;
   backorderDisplaySettings: BackorderDisplaySettings;
 }
@@ -148,6 +149,7 @@ export const initialState: GlobalState = {
   isOpenCompanyHierarchyDropDown: false,
   featureFlags: {},
   availableLanguages: [],
+  currentLanguage: 'en',
 };
 
 export const globalSlice = createSlice({
@@ -210,6 +212,9 @@ export const globalSlice = createSlice({
     setAvailableLanguages: (state, { payload }: PayloadAction<AvailableLanguage[]>) => {
       state.availableLanguages = payload;
     },
+    setCurrentLanguage: (state, { payload }: PayloadAction<string>) => {
+      state.currentLanguage = payload;
+    },
     setBackorderEnabled: (state, { payload }: PayloadAction<boolean>) => {
       state.backorderEnabled = payload;
     },
@@ -240,6 +245,7 @@ export const {
   setOpenCompanyHierarchyDropDown,
   setFeatureFlags,
   setAvailableLanguages,
+  setCurrentLanguage,
   setBackorderEnabled,
   setBackorderDisplaySettings,
 } = globalSlice.actions;
