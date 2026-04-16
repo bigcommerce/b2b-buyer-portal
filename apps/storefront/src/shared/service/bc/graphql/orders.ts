@@ -4,7 +4,7 @@
  * Replaces b2b/graphql/orders.ts. Base SF GQL types live in ./base.ts.
  * B2B extension types mirror rfc/graphql-schema/additionalTypeDefs/byPage/orders.ts.
  *
- * @see https://developer.bigcommerce.com/docs/storefront/graphql/orders
+ * @see https://docs.bigcommerce.com/developer/api-reference/graphql/storefront/queries/node#fields.body.Order
  */
 
 import { platform } from '@/utils/basicConfig';
