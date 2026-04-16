@@ -34,6 +34,9 @@ export default function B3LanguageDropdown() {
           paddingLeft: 0,
           paddingRight: 0,
         },
+        '& .MuiListItemText-root': {
+          flex: 'none',
+        },
       }}
     >
       <B3DropDown
@@ -41,7 +44,6 @@ export default function B3LanguageDropdown() {
         list={list}
         value={bcLanguage}
         handleItemClick={handleLanguageChange}
-        width="80px"
       />
     </Box>
   );

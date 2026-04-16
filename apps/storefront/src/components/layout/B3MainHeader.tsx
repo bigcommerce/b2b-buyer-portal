@@ -97,8 +97,9 @@ export default function MainHeader({ title }: { title: string }) {
             alignItems: 'center',
           }}
         >
+          <B3LanguageDropdown />
           {role !== 100 && <B3AccountInfo />}
-          <Box sx={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ marginLeft: '8px' }}>
             {role === 100 && (
               <Button
                 sx={{
@@ -113,7 +114,6 @@ export default function MainHeader({ title }: { title: string }) {
                 {b3Lang('global.B3MainHeader.signIn')}
               </Button>
             )}
-            <B3LanguageDropdown />
             <Button
               sx={{
                 color: '#333333',
