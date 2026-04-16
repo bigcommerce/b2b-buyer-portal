@@ -98,7 +98,7 @@ export default function MainHeader({ title }: { title: string }) {
           }}
         >
           {role !== 100 && <B3AccountInfo />}
-          <Box sx={{ marginLeft: '8px' }}>
+          <Box sx={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
             {role === 100 && (
               <Button
                 sx={{
