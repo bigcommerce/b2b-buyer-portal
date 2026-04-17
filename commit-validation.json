@@ -24,6 +24,7 @@
     "shopping-lists",
     "translation",
     "user-management",
-    "deps"
+    "deps",
+    "deps-dev"
   ]
 }

@@ -15,6 +15,7 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       legacy({
         modernTargets: 'since 2022',
         renderLegacyChunks: false,
+        modernPolyfills: true,
       }),
       react(),
     ],
