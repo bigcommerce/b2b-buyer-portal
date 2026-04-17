@@ -468,7 +468,7 @@ const orderB2BFields = `reference
   }`;
 
 /** Lightweight fields for order list views. */
-export const orderListNodeFields = `entityId
+const orderListNodeFields = `entityId
   orderedAt {
     utc
   }
@@ -492,7 +492,7 @@ export const orderListNodeFields = `entityId
 // ===========================================================================
 
 /** Company-scoped order list (B2B). Entry: customer.company.orders. */
-export const GET_COMPANY_ORDERS = `query GetCompanyOrders(
+const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
   $sortBy: OrdersSortInput
   $first: Int
@@ -536,16 +536,20 @@ export const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  *
  * Note: OrdersConnection lacks collectionInfo; add once SF GQL team ships it.
  */
-export const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
+const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
   $first: Int
   $after: String
+  $last: Int
+  $before: String
 ) {
   customer {
     orders(
       filters: $filters
       first: $first
       after: $after
+      last: $last
+      before: $before
     ) {
       edges {
         node {
@@ -564,7 +568,7 @@ export const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
 }`;
 
 /** Single order detail. Entry: site.order. */
-export const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
+const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
   site {
     order(filter: { entityId: $entityId }) {
       entityId
@@ -588,7 +592,7 @@ export const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
 }`;
 
 /** Company customers who have placed orders. For "Placed By" filter dropdown. */
-export const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
+const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
   $filters: CustomerWithOrdersFiltersInput
   $first: Int
   $after: String
@@ -650,6 +654,8 @@ export async function getCustomerOrders(variables: {
   filters?: OrdersFiltersInput;
   first?: number;
   after?: string;
+  last?: number;
+  before?: string;
 }): Promise<GetCustomerOrdersResponse> {
   return graphqlRequest<GetCustomerOrdersResponse>({
     query: GET_CUSTOMER_ORDERS,
@@ -658,10 +664,12 @@ export async function getCustomerOrders(variables: {
 }
 
 /** Single order detail by entityId. */
-export async function getOrderDetail(entityId: number): Promise<GetOrderDetailResponse> {
+export async function getOrderDetail(variables: {
+  entityId: number;
+}): Promise<GetOrderDetailResponse> {
   return graphqlRequest<GetOrderDetailResponse>({
     query: GET_ORDER_DETAIL,
-    variables: { entityId },
+    variables,
   });
 }
 
