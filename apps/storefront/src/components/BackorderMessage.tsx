@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
@@ -9,6 +10,19 @@ interface BackorderMessageProps {
   backorderMessage?: string;
   visible: boolean;
 }
+
+const quantityLineSx: SxProps<Theme> = {
+  color: '#616161',
+  typography: 'body2',
+  whiteSpace: 'nowrap',
+};
+
+const messageLineSx: SxProps<Theme> = {
+  color: '#616161',
+  typography: 'body2',
+  overflowWrap: 'break-word',
+  wordBreak: 'break-word',
+};
 
 function BackorderMessage({
   totalOnHand,
@@ -22,25 +36,24 @@ function BackorderMessage({
   );
 
   if ((quantityBackordered ?? 0) <= 0) return null;
+  if (!visible) return null;
 
   return (
-    <Box sx={{ visibility: visible ? 'visible' : 'hidden' }}>
+    <Box>
       {showQuantityOnHand && (totalOnHand ?? 0) > 0 && (
-        <Typography variant="body1" color="#616161">
+        <Typography sx={quantityLineSx}>
           {b3Lang('quoteDetail.table.readyToShip', { totalOnHand: totalOnHand ?? 0 })}
         </Typography>
       )}
       {showQuantityOnBackorder && (
-        <Typography variant="body1" color="#616161">
+        <Typography sx={quantityLineSx}>
           {b3Lang('quoteDetail.table.willBeBackordered', {
             quantityBackordered: quantityBackordered ?? 0,
           })}
         </Typography>
       )}
       {showBackorderMessage && backorderMessage && (
-        <Typography variant="body1" color="#616161">
-          {backorderMessage}
-        </Typography>
+        <Typography sx={messageLineSx}>{backorderMessage}</Typography>
       )}
     </Box>
   );

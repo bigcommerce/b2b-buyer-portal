@@ -101,6 +101,8 @@ const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementati
       isPriceHidden,
       availableToSell,
       unlimitedBackorder,
+      totalOnHand,
+      backorderMessage,
     }
   }
 `;
@@ -137,7 +139,9 @@ const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementati
       taxClassId,
       isPriceHidden,
       availableToSell,
-      unlimitedBackorder
+      unlimitedBackorder,
+      totalOnHand,
+      backorderMessage
     }
   }
 `;
@@ -308,6 +312,10 @@ export interface ProductSearch {
   productUrl: string;
   taxClassId: number;
   isPriceHidden: boolean;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
 }
 
 export interface B2BProducts {
@@ -347,6 +355,8 @@ export interface SearchProductsResponse {
         inventory_level: number;
         available_to_sell: number;
         unlimited_backorder: boolean;
+        total_on_hand?: number | null;
+        backorder_message?: string | null;
         bc_calculated_price: {
           as_entered: number;
           tax_inclusive: number;
@@ -385,6 +395,8 @@ export interface SearchProductsResponse {
       isPriceHidden: boolean;
       availableToSell: number;
       unlimitedBackorder: boolean;
+      totalOnHand?: number | null;
+      backorderMessage?: string | null;
     }>;
   };
 }
