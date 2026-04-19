@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Delete, Edit, Warning as WarningIcon } from '@mui/icons-material';
-import { Box, styled, TextField, Typography } from '@mui/material';
+import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@mui/material';
 import ceil from 'lodash-es/ceil';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
-import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
+import {
+  deleteProductFromDraftQuoteList,
+  setDraftProduct,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
@@ -23,6 +30,11 @@ import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 
 import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOptionsDialog';
+import {
+  draftRowQuantityExceedsAvailableToSell,
+  getDraftBackorderDisplayFields,
+  getQuoteItemBackendAvailability,
+} from '../utils/getDraftBackorderDisplayFields';
 
 import QuoteTableCard from './QuoteTableCard';
 
@@ -52,13 +64,6 @@ const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}));
-
-const StyledTextField = styled(TextField)(() => ({
-  '& input': {
-    paddingTop: '12px',
-    paddingRight: '6px',
-  },
 }));
 
 const QUOTE_PRODUCT_QTY_MAX = 1000000;
@@ -122,31 +127,13 @@ function getAvailabilityWarningsBackend(
   row: QuoteItem['node'],
   b3Lang: LangFormatFunction,
 ): AvailabilityWarnings {
-  const product = {
-    ...row.productsSearch,
-    selectOptions: row.optionList,
-  };
+  const quoteItemBackendAvailability = getQuoteItemBackendAvailability(row);
 
-  let warningMessage: string | null = null;
-
-  if (product.inventoryTracking !== 'none') {
-    let hasUnlimitedBackorder = product.unlimitedBackorder;
-    let { availableToSell } = product;
-
-    if (product.inventoryTracking === 'variant' && product.variants) {
-      const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
-      if (currentVariant) {
-        hasUnlimitedBackorder = currentVariant.unlimited_backorder;
-        availableToSell = currentVariant.available_to_sell;
-      }
-    }
-
-    if (!hasUnlimitedBackorder && availableToSell < row.quantity) {
-      warningMessage = b3Lang('quoteDraft.quoteTable.outOfStock.tipWithAvailability', {
-        availableToSell: availableToSell ?? 0,
-      });
-    }
-  }
+  const warningMessage = quoteItemBackendAvailability?.exceedsAvailableToSell
+    ? b3Lang('quoteDraft.quoteTable.outOfStock.tipWithAvailability', {
+        availableToSell: quoteItemBackendAvailability.availableToSell,
+      })
+    : null;
 
   return { warningMessage, warningDetails: null };
 }
@@ -183,6 +170,33 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
   const isBackorderEnabled = useIsBackorderEnabled();
+  const isBackorderMessagingEnabled = useFeatureFlag(
+    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
+  );
+  const { showQuantityOnBackorder, showQuantityOnHand, showBackorderMessage } = useAppSelector(
+    ({ global }) => global.backorderDisplaySettings,
+  );
+  const hasAnyBackorderDisplay =
+    showQuantityOnBackorder || showQuantityOnHand || showBackorderMessage;
+
+  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+
+  const draftQuoteBackorderContextEnabled =
+    isBackorderEnabled && isBackorderMessagingEnabled && hasAnyBackorderDisplay;
+
+  const showBackorderMessageBase = draftQuoteBackorderContextEnabled && showBackorderDetails;
+
+  const hasBackorderedItems = useMemo(
+    () =>
+      items.some((quoteItem) => {
+        const fields = getDraftBackorderDisplayFields(quoteItem.node);
+        if (!fields) return false;
+        return !draftRowQuantityExceedsAvailableToSell(quoteItem.node);
+      }),
+    [items],
+  );
+
+  const showBackorderToggle = draftQuoteBackorderContextEnabled && hasBackorderedItems;
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
@@ -425,27 +439,49 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
     {
       key: 'Qty',
       title: b3Lang('quoteDraft.quoteTable.qty'),
-      render: (row) => (
-        <StyledTextField
-          size="small"
-          type="number"
-          variant="filled"
-          value={row.quantity}
-          inputProps={{
-            inputMode: 'numeric',
-            pattern: '[0-9]*',
-          }}
-          onChange={(e) => {
-            handleUpdateProductQty(row, Number(e.target.value));
-          }}
-          onBlur={(e) => {
-            handleCheckProductQty(row, Number(e.target.value));
-          }}
-          sx={{
-            width: '75%',
-          }}
-        />
-      ),
+      render: (row) => {
+        const backorderFields = getDraftBackorderDisplayFields(row);
+        const hideBackorderForStockError = draftRowQuantityExceedsAvailableToSell(row);
+        const shouldShowBackorder =
+          showBackorderMessageBase && Boolean(backorderFields) && !hideBackorderForStockError;
+        return (
+          <>
+            <TextField
+              size="small"
+              type="number"
+              variant="filled"
+              value={row.quantity}
+              inputProps={{
+                inputMode: 'numeric',
+                pattern: '[0-9]*',
+              }}
+              onChange={(e) => {
+                handleUpdateProductQty(row, Number(e.target.value));
+              }}
+              onBlur={(e) => {
+                handleCheckProductQty(row, Number(e.target.value));
+              }}
+              sx={{
+                width: '75%',
+                '& input': {
+                  paddingTop: '12px',
+                  paddingRight: '6px',
+                },
+              }}
+            />
+            {shouldShowBackorder && backorderFields && (
+              <Box sx={{ mt: 1.5 }}>
+                <BackorderMessage
+                  totalOnHand={backorderFields.totalOnHand}
+                  quantityBackordered={backorderFields.quantityBackordered}
+                  backorderMessage={backorderFields.backorderMessage}
+                  visible
+                />
+              </Box>
+            )}
+          </>
+        );
+      },
       width: '15%',
       style: {
         textAlign: 'right',
@@ -537,6 +573,19 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
         >
           {b3Lang('quoteDraft.quoteTable.totalProducts', { total: total || 0 })}
         </Typography>
+        {showBackorderToggle && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showBackorderDetails}
+                onChange={(e) => setShowBackorderDetails(e.target.checked)}
+              />
+            }
+            label={b3Lang('quoteDetail.table.backorderDetails')}
+            labelPlacement="start"
+            sx={{ mr: 0, gap: '0.5rem' }}
+          />
+        )}
       </Box>
 
       <PaginationTable
@@ -556,6 +605,8 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
             onEdit={handleOpenProductEdit}
             onDelete={handleDeleteClick}
             handleUpdateProductQty={handleUpdateProductQty}
+            draftQuoteBackorderContextEnabled={draftQuoteBackorderContextEnabled}
+            showBackorderDetails={showBackorderDetails}
           />
         )}
       />

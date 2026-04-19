@@ -72,7 +72,7 @@ describe('BackorderMessage', () => {
     expect(screen.getByText('3 will be backordered')).toBeVisible();
   });
 
-  it('is hidden when visible is false', () => {
+  it('renders nothing when visible is false', () => {
     renderWithProviders(
       <BackorderMessage
         quantityBackordered={3}
@@ -82,6 +82,7 @@ describe('BackorderMessage', () => {
       withAllBackorderDisplayEnabled,
     );
 
-    expect(screen.getByText('3 will be backordered').closest('div')).not.toBeVisible();
+    expect(screen.queryByText('3 will be backordered')).toBeNull();
+    expect(screen.queryByText('Lead time 2-4 weeks')).toBeNull();
   });
 });
