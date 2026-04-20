@@ -11,7 +11,14 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
   const isCI = process.env.CIRCLECI === 'true';
 
   return {
-    plugins: [legacy({ targets: ['defaults'] }), react()],
+    plugins: [
+      legacy({
+        modernTargets: 'since 2022',
+        renderLegacyChunks: false,
+        modernPolyfills: true,
+      }),
+      react(),
+    ],
     experimental: {
       renderBuiltUrl(filename: string) {
         const isCustomBuyerPortal = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
