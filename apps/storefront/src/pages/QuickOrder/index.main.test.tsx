@@ -4224,6 +4224,7 @@ describe('when backorder validation is enabled', () => {
               quantity: 2,
             }),
           ]),
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -4388,6 +4389,7 @@ describe('when backorder validation is enabled', () => {
                 quantity: 3,
               }),
             ]),
+            target: 'CART',
           })
           .thenReturn({
             data: {
@@ -4633,6 +4635,7 @@ describe('when backorder validation is enabled', () => {
               quantity: 1,
             }),
           ]),
+          target: 'CART',
         })
         .thenReturn({
           data: {
@@ -4779,6 +4782,7 @@ describe('when backorder validation is enabled', () => {
               quantity: 5,
             }),
           ]),
+          target: 'CART',
         })
         .thenReturn({
           data: {

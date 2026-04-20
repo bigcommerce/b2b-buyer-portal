@@ -269,24 +269,14 @@ export default function QuickOrderPad() {
           })) || [],
       }));
 
-      const validationResult = await validateProducts({ products: productsToValidate });
+      const validationResult = await validateProducts({
+        products: productsToValidate,
+        target: 'CART',
+      });
 
       const outOfStockProducts = validationResult.products.filter(
         (product) => product.errorCode === 'OOS',
       );
-
-      outOfStockProducts.forEach(({ product }) => {
-        snackbar.warning(
-          b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
-            variantSku: product.sku,
-          }),
-          {
-            description: b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
-              availableAmount: product.availableToSell,
-            }),
-          },
-        );
-      });
 
       if (outOfStockProducts.length > 0 && stockErrorFile) {
         snackbar.error(
@@ -302,6 +292,19 @@ export default function QuickOrderPad() {
             },
           },
         );
+      } else {
+        outOfStockProducts.forEach(({ product }) => {
+          snackbar.error(
+            b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
+              variantSku: product.sku,
+            }),
+            {
+              description: b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
+                availableAmount: product.availableToSell,
+              }),
+            },
+          );
+        });
       }
 
       const nonPurchasableProducts = validationResult.products.filter(

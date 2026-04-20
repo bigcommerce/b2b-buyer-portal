@@ -2091,6 +2091,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2198,6 +2199,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2326,6 +2328,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2440,6 +2443,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2553,6 +2557,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2707,6 +2712,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -2910,6 +2916,7 @@ describe('when backend validation is enabled', () => {
             productOptions: [{ optionId: 202, optionValue: 'Large' }],
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -3048,6 +3055,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -3151,6 +3159,7 @@ describe('when backend validation is enabled', () => {
             productOptions: expect.any(Array),
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {
@@ -3251,6 +3260,7 @@ describe('when backend validation is enabled', () => {
             productOptions: [{ optionId: 303, optionValue: 'Blue' }],
           },
         ],
+        target: 'CART',
       })
       .thenReturn({
         data: {

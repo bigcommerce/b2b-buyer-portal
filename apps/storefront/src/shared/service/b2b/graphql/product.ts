@@ -148,7 +148,7 @@ const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementati
 };
 
 const validateProductQuery = `
-  query ValidateProduct ($productId: Int!, $variantId: Int!, $quantity: Int!, $productOptions: [GenericScalar]) {
+  query ValidateProduct ($productId: Int!, $variantId: Int!, $quantity: Int!, $productOptions: [GenericScalar], $target: String) {
     validateProduct(
       productId: $productId
       variantId: $variantId
@@ -156,6 +156,7 @@ const validateProductQuery = `
       productOptions: $productOptions
       storeHash: "${storeHash}"
       channelId: ${channelId}
+      target: $target
     ) {
       responseType
       message
@@ -168,8 +169,8 @@ const validateProductQuery = `
 `;
 
 const validateProductsQuery = `
-  query ValidateProducts ($products: [ValidateProductInputType]!) {
-    validateProducts(products: $products, storeHash: "${storeHash}", channelId: ${channelId}) {
+  query ValidateProducts ($products: [ValidateProductInputType]!, $target: String) {
+    validateProducts(products: $products, storeHash: "${storeHash}", channelId: ${channelId}, target: $target) {
       isValid
       products {
         errorCode
@@ -510,6 +511,8 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
   });
 };
 
+export type ValidationTarget = 'QUOTE' | 'CART';
+
 interface ValidateProductVariables {
   productId: number;
   variantId: number;
@@ -518,9 +521,11 @@ interface ValidateProductVariables {
     optionId: number;
     optionValue: string;
   }[];
+  target?: ValidationTarget;
 }
 interface ValidateProductsVariables {
-  products: ValidateProductVariables[];
+  products: Omit<ValidateProductVariables, 'target'>[];
+  target?: ValidationTarget;
 }
 
 export const validateProduct = (data: ValidateProductVariables) => {

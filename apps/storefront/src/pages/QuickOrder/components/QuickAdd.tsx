@@ -335,7 +335,7 @@ export default function QuickAdd() {
 
     const productsToValidate = mapCatalogToValidationPayload(variantInfoList, skuValue);
 
-    const { success, warning, error } = await validateProductsLegacy(productsToValidate);
+    const { success, warning, error } = await validateProductsLegacy(productsToValidate, 'CART');
 
     const validProducts = success.map((product) => product.product);
 
