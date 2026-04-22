@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Box } from '@mui/material';
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
-import { GlobalContext } from '@/shared/global/context/index';
+import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import { B3SStorage } from '@/utils/b3Storage';
 
