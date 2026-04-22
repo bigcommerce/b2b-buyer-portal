@@ -20,11 +20,11 @@ import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import {
-  AvailableLocale,
-  setAvailableLocales,
+  Locale,
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setFeatureFlags,
+  setLocales,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
   setShowInclusiveTaxPrice,
@@ -345,15 +345,18 @@ export const getAccountHierarchyIsEnabled = async () => {
   return isEnabled === '1';
 };
 
-const getLangCode = async (flags: ReturnType<typeof store.getState>['global']['featureFlags']) => {
+const getLocaleCode = async (
+  flags: ReturnType<typeof store.getState>['global']['featureFlags'],
+) => {
   if (flags['LOCAL-3191.b2b_multi_language']) {
     const { site } = await getSiteLocales(channelId);
-    const { locales }: { locales: AvailableLocale[] } = site.settings;
-    const defaultLang = locales.find(({ isDefault }) => isDefault)?.code ?? 'en';
+    const { locales }: { locales: Locale[] } = site.settings;
+    const defaultLocale =
+      locales.find(({ isDefault }) => isDefault)?.code ?? locales[0]?.code ?? 'en';
     const storedLang = B3SStorage.get('bcLanguage');
     const isStoredLangValid = !!storedLang && locales.some(({ code }) => code === storedLang);
     return {
-      langCode: isStoredLangValid ? storedLang : defaultLang,
+      langCode: isStoredLangValid ? storedLang : defaultLocale,
       availableLocales: locales,
     };
   }
@@ -426,8 +429,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
       store.dispatch(setCompanyHierarchyInfoModules(resetCompanyHierarchyState()));
     }
 
-    const { langCode, availableLocales } = await getLangCode(featureFlags);
-    store.dispatch(setAvailableLocales(availableLocales));
+    const { langCode, availableLocales } = await getLocaleCode(featureFlags);
+    store.dispatch(setLocales(availableLocales));
 
     const {
       data: {
@@ -457,8 +460,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
     const { currencies } = await getCurrencies(channelId);
     store.dispatch(setCurrencies(currencies));
 
-    const { langCode, availableLocales } = await getLangCode(featureFlags);
-    store.dispatch(setAvailableLocales(availableLocales));
+    const { langCode, availableLocales } = await getLocaleCode(featureFlags);
+    store.dispatch(setLocales(availableLocales));
 
     const {
       data: {
