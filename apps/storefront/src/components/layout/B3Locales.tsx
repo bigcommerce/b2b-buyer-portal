@@ -8,7 +8,7 @@ import { B3SStorage } from '@/utils/b3Storage';
 
 import B3DropDown from '../B3DropDown';
 
-export default function Locales() {
+export default function B3Locales() {
   const isMultiLocaleEnabled = useFeatureFlag('LOCAL-3191.b2b_multi_language');
   const availableLocales = useAppSelector(({ global }) => global.availableLocales);
 
