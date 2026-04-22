@@ -36,7 +36,7 @@ export const featureFlags = [
     name: 'grpcGeoForStateRequiredFlag',
   },
   {
-    key: 'LOCAL-3191.b2b_multi_language',
+    key: 'LOCAL-3191.B2B_multi_language',
     name: 'b2bMultiLanguage',
   },
 ] as const;

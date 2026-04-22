@@ -348,7 +348,7 @@ export const getAccountHierarchyIsEnabled = async () => {
 const getLocaleCode = async (
   flags: ReturnType<typeof store.getState>['global']['featureFlags'],
 ) => {
-  if (flags['LOCAL-3191.b2b_multi_language']) {
+  if (flags['LOCAL-3191.B2B_multi_language']) {
     const { site } = await getSiteLocales(channelId);
     const { locales }: { locales: Locale[] } = site.settings;
     const defaultLocale =
