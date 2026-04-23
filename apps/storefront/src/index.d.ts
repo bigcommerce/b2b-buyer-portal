@@ -82,6 +82,7 @@ declare global {
         openPage: (page: HeadlessRoute) => void;
         getRoutes: () => BuyerPortalRoute[];
         setConfig: (key: string, value: string) => void;
+        setLocale: (locale: string) => Promise<void>;
         quote: {
           addProductFromPage: (item: LineItem) => void;
           addProductsFromCart: () => Promise<void>;
