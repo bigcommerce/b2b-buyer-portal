@@ -6,8 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { getCustomerOrders, type Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
@@ -126,9 +128,36 @@ const getOrderBy = ({ key, dir }: OrderBy) => {
   return dir === 'desc' ? `-${sortKeys[key]}` : sortKeys[key];
 };
 
+const mapSfGqlOrderToListItem = (order: SfGqlOrder): ListItem => ({
+  orderId: String(order.entityId),
+  poNumber: order.reference || '',
+  totalIncTax: String(order.totalIncTax.value),
+  status: order.status.label,
+  statusText: order.status.label,
+  createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),
+  firstName: order.placedBy?.firstName || '',
+  lastName: order.placedBy?.lastName || '',
+  companyName: order.company?.name || '',
+  companyInfo: order.company
+    ? {
+        companyName: order.company.name,
+        companyId: String(order.company.entityId),
+        companyAddress: '',
+        companyCountry: '',
+        companyState: '',
+        companyCity: '',
+        companyZipCode: '',
+        phoneNumber: '',
+        bcId: '',
+      }
+    : undefined,
+  money: '',
+});
+
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
+  const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
   const { role, isAgenting, companyId, isB2BUser, isEnabledCompanyHierarchy, selectedCompanyId } =
     useData();
 
@@ -221,6 +250,19 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     createdBy,
     ...params
   }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
+    if (isUnifiedOrders) {
+      const result = await getCustomerOrders({
+        first: params.first as number,
+      });
+
+      const orders = result.data?.customer?.orders;
+      const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
+      const totalCount = edges.length;
+
+      setAllTotal(totalCount);
+      return { edges, totalCount };
+    }
+
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders({
           ...params,
