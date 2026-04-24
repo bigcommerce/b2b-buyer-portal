@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+exit 1
+
 if [[ $ENVIRONMENT =~ "integration" ]]; then
   CDN_BASE_URL="https://microapps.integration.zone"
 elif [[ $ENVIRONMENT =~ "staging" ]]; then
