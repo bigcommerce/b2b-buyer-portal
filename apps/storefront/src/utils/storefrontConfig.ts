@@ -15,6 +15,7 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
+import { getSiteLocales } from '@/shared/service/bc/graphql/currency';
 import { getStorefrontTaxDisplayType } from '@/shared/service/bc/graphql/tax';
 import { store } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
@@ -419,6 +420,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
         },
       },
     } = await getActiveBcCurrency();
+
+    getSiteLocales();
 
     store.dispatch(setActiveCurrency(edges.find((item: CurrencyNodeProps) => item.node.isActive)));
     B3SStorage.set('bcLanguage', langCode);
