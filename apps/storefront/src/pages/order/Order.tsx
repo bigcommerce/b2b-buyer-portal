@@ -199,7 +199,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     createdBy,
     ...params
   }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
-    if (isUnifiedOrders) {
+    if (isUnifiedOrders && !isCompanyOrder) {
       const result = await getCustomerOrders({
         first: params.first as number,
       });
