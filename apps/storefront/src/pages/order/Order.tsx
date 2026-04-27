@@ -27,7 +27,7 @@ import {
   getOrderStatusText,
   sortKeys,
 } from './config';
-import { mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
+import { type ListItem, mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
 import { OrderItemCard } from './OrderItemCard';
 import {
   getB2BAllOrders,
@@ -36,32 +36,6 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from './orders';
-
-interface CompanyInfoProps {
-  companyId: string;
-  companyName: string;
-  companyAddress: string;
-  companyCountry: string;
-  companyState: string;
-  companyCity: string;
-  companyZipCode: string;
-  phoneNumber: string;
-  bcId: string;
-}
-
-interface ListItem {
-  firstName: string;
-  lastName: string;
-  orderId: string;
-  poNumber?: string;
-  money?: string;
-  totalIncTax: string;
-  status: string;
-  statusText?: string;
-  createdAt: string;
-  companyName: string;
-  companyInfo?: CompanyInfoProps;
-}
 
 interface SearchChangeProps {
   startValue?: string;

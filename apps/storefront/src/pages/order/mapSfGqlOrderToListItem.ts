@@ -1,18 +1,7 @@
 import type { Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
+import type { CompanyInfoTypes } from '@/types/invoice';
 
-interface CompanyInfoProps {
-  companyId: string;
-  companyName: string;
-  companyAddress: string;
-  companyCountry: string;
-  companyState: string;
-  companyCity: string;
-  companyZipCode: string;
-  phoneNumber: string;
-  bcId: string;
-}
-
-interface ListItem {
+export interface ListItem {
   firstName: string;
   lastName: string;
   orderId: string;
@@ -23,7 +12,7 @@ interface ListItem {
   statusText?: string;
   createdAt: string;
   companyName: string;
-  companyInfo?: CompanyInfoProps;
+  companyInfo?: CompanyInfoTypes;
 }
 
 export const mapSfGqlOrderToListItem = (order: SfGqlOrder): ListItem => ({
