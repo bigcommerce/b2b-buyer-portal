@@ -31,6 +31,7 @@ import { snackbar } from '@/utils/b3Tip';
 
 import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOptionsDialog';
 import {
+  draftQuoteListHasBackorderedItemsForDisplay,
   draftRowQuantityExceedsAvailableToSell,
   getDraftBackorderDisplayFields,
   getQuoteItemBackendAvailability,
@@ -186,15 +187,12 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
   const showBackorderMessageBase = draftQuoteBackorderContextEnabled && showBackorderDetails;
 
-  const hasBackorderedItems = useMemo(
-    () =>
-      items.some((quoteItem) => {
-        const fields = getDraftBackorderDisplayFields(quoteItem.node);
-        if (!fields) return false;
-        return !draftRowQuantityExceedsAvailableToSell(quoteItem.node);
-      }),
-    [items],
-  );
+  const hasBackorderedItems = useMemo(() => {
+    if (!isBackorderMessagingEnabled) {
+      return false;
+    }
+    return draftQuoteListHasBackorderedItemsForDisplay(items);
+  }, [items, isBackorderMessagingEnabled]);
 
   const showBackorderToggle = draftQuoteBackorderContextEnabled && hasBackorderedItems;
 

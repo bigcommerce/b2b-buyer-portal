@@ -5,16 +5,21 @@ import {
   useEffect,
   useId,
   useImperativeHandle,
+  useMemo,
   useState,
 } from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
+import ShippingExpectationPrompt from '@/components/ShippingExpectationPrompt';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 import getQuoteDraftShowPriceTBD from '../shared/utils';
+import { draftQuoteListHasBackorderedItemsForDisplay } from '../utils/getDraftBackorderDisplayFields';
 
 interface Summary {
   subtotal: number;
@@ -40,6 +45,20 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] = useState<boolean>(false);
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
   const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
+  const backorderEnabled = useIsBackorderEnabled();
+  const isBackorderMessagingEnabled = useFeatureFlag(
+    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
+  );
+  const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
+    ({ global }) => global.backorderDisplaySettings,
+  );
+
+  const hasBackorderedItems = useMemo(() => {
+    if (!isBackorderMessagingEnabled) {
+      return false;
+    }
+    return draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList);
+  }, [draftQuoteList, isBackorderMessagingEnabled]);
 
   const priceCalc = (price: number) => parseFloat(String(price));
 
@@ -140,6 +159,15 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 {b3Lang('quoteDraft.quoteSummary.tbd')}
               </Typography>
             </Grid>
+
+            {isBackorderMessagingEnabled && (
+              <ShippingExpectationPrompt
+                backorderEnabled={backorderEnabled}
+                hasBackorderedItems={hasBackorderedItems}
+                showDefaultShippingExpectationPrompt={showDefaultShippingExpectationPrompt}
+                defaultShippingExpectationPrompt={defaultShippingExpectationPrompt}
+              />
+            )}
 
             <Grid
               container

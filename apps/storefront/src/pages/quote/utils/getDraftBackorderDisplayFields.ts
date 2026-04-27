@@ -107,3 +107,11 @@ export function getDraftBackorderDisplayFields(
     quantityBackordered,
   };
 }
+
+export function draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList: QuoteItem[]): boolean {
+  return draftQuoteList.some((quoteItem) => {
+    const fields = getDraftBackorderDisplayFields(quoteItem.node);
+    if (!fields) return false;
+    return !draftRowQuantityExceedsAvailableToSell(quoteItem.node);
+  });
+}
