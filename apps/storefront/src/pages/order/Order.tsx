@@ -9,7 +9,7 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getCustomerOrders, type Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
+import { getCustomerOrders } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
@@ -27,6 +27,7 @@ import {
   getOrderStatusText,
   sortKeys,
 } from './config';
+import { mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
 import { OrderItemCard } from './OrderItemCard';
 import {
   getB2BAllOrders,
@@ -127,32 +128,6 @@ interface OrderBy {
 const getOrderBy = ({ key, dir }: OrderBy) => {
   return dir === 'desc' ? `-${sortKeys[key]}` : sortKeys[key];
 };
-
-const mapSfGqlOrderToListItem = (order: SfGqlOrder): ListItem => ({
-  orderId: String(order.entityId),
-  poNumber: order.reference || '',
-  totalIncTax: String(order.totalIncTax.value),
-  status: order.status.label,
-  statusText: order.status.label,
-  createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),
-  firstName: order.placedBy?.firstName || '',
-  lastName: order.placedBy?.lastName || '',
-  companyName: order.company?.name || '',
-  companyInfo: order.company
-    ? {
-        companyName: order.company.name,
-        companyId: String(order.company.entityId),
-        companyAddress: '',
-        companyCountry: '',
-        companyState: '',
-        companyCity: '',
-        companyZipCode: '',
-        phoneNumber: '',
-        bcId: '',
-      }
-    : undefined,
-  money: '',
-});
 
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
