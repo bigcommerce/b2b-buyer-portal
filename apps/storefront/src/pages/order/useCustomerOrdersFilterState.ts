@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { OrdersFiltersInput, OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 // Status list still comes from the legacy `orderStatuses` query — the unified
 // schema doesn't expose one yet, so we depend on the legacy type here.
@@ -46,6 +47,7 @@ const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId',
 interface UseCustomerOrdersFilterStateArgs {
   companyId: number;
   orderStatuses: OrderStatusItem[];
+  isCompanyOrder: boolean;
 }
 
 export interface UseCustomerOrdersFilterStateResult {
@@ -61,15 +63,18 @@ export interface UseCustomerOrdersFilterStateResult {
 export const useCustomerOrdersFilterState = ({
   companyId,
   orderStatuses,
+  isCompanyOrder,
 }: UseCustomerOrdersFilterStateArgs): UseCustomerOrdersFilterStateResult => {
   const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
     getCustomerOrdersInitFilter(companyId),
   );
   const [activeSort, setActiveSort] = useState(DEFAULT_SORT);
+  const isUnifiedOrdersNonCompanyOrderPath =
+    useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders') && !isCompanyOrder;
 
   useEffect(() => {
-    setFilters(getCustomerOrdersInitFilter(companyId));
-  }, [companyId]);
+    if (isUnifiedOrdersNonCompanyOrderPath) setFilters(getCustomerOrdersInitFilter(companyId));
+  }, [companyId, isUnifiedOrdersNonCompanyOrderPath]);
 
   const sortBy = useMemo(
     () => COLUMN_KEY_TO_SORT_INPUT[activeSort.key][activeSort.dir],

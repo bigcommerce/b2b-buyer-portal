@@ -109,6 +109,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const customerFilterState = useCustomerOrdersFilterState({
     companyId: selectedCompanyId,
     orderStatuses: getOrderStatuses,
+    isCompanyOrder,
   });
 
   const {
