@@ -1579,19 +1579,19 @@ describe('when a company customer', () => {
 
 describe('when a customer is masquerading as a company customer', () => {
   const preloadedState = {
-  company: buildCompanyStateWith({
-    customer: {
-      role: CustomerRole.SUPER_ADMIN,
-    },
-  }),
-  storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
-  b2bFeatures: buildB2BFeaturesStateWith({
-    masqueradeCompany: {
-      id: 433,
-      isAgenting: true,
-    },
-  }),
-};
+    company: buildCompanyStateWith({
+      customer: {
+        role: CustomerRole.SUPER_ADMIN,
+      },
+    }),
+    storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    b2bFeatures: buildB2BFeaturesStateWith({
+      masqueradeCompany: {
+        id: 433,
+        isAgenting: true,
+      },
+    }),
+  };
 
   beforeEach(() => {
     server.use(
