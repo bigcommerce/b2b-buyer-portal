@@ -9,7 +9,11 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getCustomerOrders } from '@/shared/service/bc/graphql/orders';
+import {
+  getCustomerOrders,
+  OrdersFiltersInput,
+  OrdersSortInput,
+} from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
@@ -161,23 +165,26 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
   }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
 
-  const fetchList = async ({
+  const fetchUnifiedOrders = async ({
+    first,
+    filters,
+    sortBy,
+  }: {
+    first: number;
+    filters: OrdersFiltersInput;
+    sortBy: OrdersSortInput;
+  }): Promise<{ edges: ListItem[]; totalCount: number }> => {
+    const result = await getCustomerOrders({ first, filters, sortBy });
+    const edges = (result.data?.customer?.orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node),
+    );
+    return { edges, totalCount: -1 };
+  };
+
+  const fetchLegacyOrders = async ({
     createdBy,
     ...params
   }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
-    if (isUnifiedOrdersNonCompanyOrderPath) {
-      const result = await getCustomerOrders({
-        first: params.first as number,
-        filters: customerFilterState.filters,
-        sortBy: customerFilterState.sortBy,
-      });
-
-      const orders = result.data?.customer?.orders;
-      const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
-
-      return { edges, totalCount: -1 };
-    }
-
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders({
           ...params,
@@ -288,9 +295,18 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const columnItems = getColumnItems();
 
   const { data, isFetching } = useQuery({
-    queryKey: ['orderList', filterData, pagination, orderBy],
-    enabled: Boolean(filterData),
-    queryFn: () => fetchList({ ...filterData, ...pagination, orderBy }),
+    queryKey: isUnifiedOrdersNonCompanyOrderPath
+      ? ['orderList:unified', customerFilterState.filters, customerFilterState.sortBy, pagination]
+      : ['orderList:legacy', filterData, pagination, orderBy],
+    enabled: isUnifiedOrdersNonCompanyOrderPath ? true : Boolean(filterData),
+    queryFn: () =>
+      isUnifiedOrdersNonCompanyOrderPath
+        ? fetchUnifiedOrders({
+            first: pagination.first,
+            filters: customerFilterState.filters,
+            sortBy: customerFilterState.sortBy,
+          })
+        : fetchLegacyOrders({ ...filterData, ...pagination, orderBy }),
   });
 
   const listItems = useMemo(
