@@ -206,10 +206,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
       const orders = result.data?.customer?.orders;
       const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
-      const totalCount = edges.length;
 
-      setAllTotal(totalCount);
-      return { edges, totalCount };
+      return { edges, totalCount: -1 };
     }
 
     const { edges = [], totalCount } = isB2BUser
