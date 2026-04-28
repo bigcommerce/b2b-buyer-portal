@@ -3,6 +3,7 @@ import {
   buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -18,6 +19,7 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { when } from 'vitest-when';
 
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
@@ -81,7 +83,17 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('when a personal customer', () => {
+// Run each /orders scenario under both FF states. Bridge produces wire-identical
+// GraphQL, so all assertions hold either way; drift on any role cut fails one test.
+const FF_KEY = 'B2B-4613.buyer_portal_unified_sf_gql_orders';
+const ordersFilterFFStates = [
+  { ffOn: false, label: 'legacy b2b api path' },
+  { ffOn: true, label: 'unified storefront api path' },
+];
+const buildFFGlobalState = (ffOn: boolean) =>
+  buildGlobalStateWith({ featureFlags: { [FF_KEY]: ffOn } });
+
+describe.each(ordersFilterFFStates)('when a personal customer ($label)', ({ ffOn }) => {
   const preloadedState = {
     company: buildCompanyStateWith({
       customer: {
@@ -89,6 +101,7 @@ describe('when a personal customer', () => {
       },
     }),
     storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    global: buildFFGlobalState(ffOn),
   };
 
   beforeEach(() => {
@@ -816,7 +829,7 @@ const buildCompanyOrderStatusesWith = builder<CompanyOrderStatuses>(() => ({
   },
 }));
 
-describe('when a company customer', () => {
+describe.each(ordersFilterFFStates)('when a company customer ($label)', ({ ffOn }) => {
   const preloadedState = {
     company: buildCompanyStateWith({
       customer: {
@@ -828,6 +841,7 @@ describe('when a company customer', () => {
       },
     }),
     storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    global: buildFFGlobalState(ffOn),
   };
 
   beforeEach(() => {
@@ -1576,147 +1590,151 @@ describe('when a company customer', () => {
   });
 });
 
-describe('when a customer is masquerading as a company customer', () => {
-  const preloadedState = {
-    company: buildCompanyStateWith({
-      customer: {
-        role: CustomerRole.SUPER_ADMIN,
-      },
-    }),
-    storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
-    b2bFeatures: buildB2BFeaturesStateWith({
-      masqueradeCompany: {
-        id: 433,
-        isAgenting: true,
-      },
-    }),
-  };
+describe.each(ordersFilterFFStates)(
+  'when a customer is masquerading as a company customer ($label)',
+  ({ ffOn }) => {
+    const preloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.SUPER_ADMIN,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+      b2bFeatures: buildB2BFeaturesStateWith({
+        masqueradeCompany: {
+          id: 433,
+          isAgenting: true,
+        },
+      }),
+      global: buildFFGlobalState(ffOn),
+    };
 
-  beforeEach(() => {
-    server.use(
-      graphql.query('GetOrderStatuses', () =>
-        HttpResponse.json(buildCompanyOrderStatusesWith('WHATEVER_VALUES')),
-      ),
-    );
-  });
-
-  describe('has placed orders', () => {
-    it('displays a table with order information', async () => {
+    beforeEach(() => {
       server.use(
-        graphql.query('GetAllOrders', () =>
-          HttpResponse.json(buildCompanyOrdersWith('WHATEVER_VALUES')),
+        graphql.query('GetOrderStatuses', () =>
+          HttpResponse.json(buildCompanyOrderStatusesWith('WHATEVER_VALUES')),
         ),
       );
+    });
+
+    describe('has placed orders', () => {
+      it('displays a table with order information', async () => {
+        server.use(
+          graphql.query('GetAllOrders', () =>
+            HttpResponse.json(buildCompanyOrdersWith('WHATEVER_VALUES')),
+          ),
+        );
+
+        renderWithProviders(<MyOrders />, { preloadedState });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        const table = screen.getByRole('table');
+
+        const columnHeaders = within(table).getAllByRole('columnheader');
+
+        expect(columnHeaders[0]).toHaveTextContent('Order');
+        expect(columnHeaders[1]).toHaveTextContent('Company');
+        expect(columnHeaders[2]).toHaveTextContent('PO / Reference');
+        expect(columnHeaders[3]).toHaveTextContent('Grand total');
+        expect(columnHeaders[4]).toHaveTextContent('Order status');
+        expect(columnHeaders[5]).toHaveTextContent('Created on');
+      });
+    });
+
+    it('displays all the orders associated with the company', async () => {
+      const getAllOrders = vi.fn();
+
+      server.use(
+        graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
+      );
+
+      when(getAllOrders)
+        .calledWith(
+          // isShowMy controls whether to show the orders for the current user, setting it to "1" will filter for currentUser
+          stringContainingAll('companyIds: [433,]', 'isShowMy: "1"', 'orderBy: "-bcOrderId"'),
+        )
+        .thenReturn(
+          buildCompanyOrdersWith({
+            data: {
+              allOrders: {
+                totalCount: 2,
+                edges: [
+                  buildCompanyOrderNodeWith({ node: { orderId: '66996' } }),
+                  buildCompanyOrderNodeWith({ node: { orderId: '66986' } }),
+                ],
+              },
+            },
+          }),
+        );
 
       renderWithProviders(<MyOrders />, { preloadedState });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      const table = screen.getByRole('table');
-
-      const columnHeaders = within(table).getAllByRole('columnheader');
-
-      expect(columnHeaders[0]).toHaveTextContent('Order');
-      expect(columnHeaders[1]).toHaveTextContent('Company');
-      expect(columnHeaders[2]).toHaveTextContent('PO / Reference');
-      expect(columnHeaders[3]).toHaveTextContent('Grand total');
-      expect(columnHeaders[4]).toHaveTextContent('Order status');
-      expect(columnHeaders[5]).toHaveTextContent('Created on');
+      expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+      expect(screen.getByRole('row', { name: /66986/ })).toBeInTheDocument();
     });
-  });
 
-  it('displays all the orders associated with the company', async () => {
-    const getAllOrders = vi.fn();
-
-    server.use(
-      graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
-    );
-
-    when(getAllOrders)
-      .calledWith(
-        // isShowMy controls whether to show the orders for the current user, setting it to "1" will filter for currentUser
-        stringContainingAll('companyIds: [433,]', 'isShowMy: "1"', 'orderBy: "-bcOrderId"'),
-      )
-      .thenReturn(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 2,
-              edges: [
-                buildCompanyOrderNodeWith({ node: { orderId: '66996' } }),
-                buildCompanyOrderNodeWith({ node: { orderId: '66986' } }),
-              ],
-            },
+    it('displays all the information associated with an order', async () => {
+      const order66996 = buildCompanyOrderNodeWith({
+        node: {
+          orderId: '66996',
+          poNumber: '0022',
+          totalIncTax: 100,
+          status: 'Pending',
+          createdAt: getUnixTime(new Date('13 March 2025')),
+          companyInfo: {
+            companyName: 'Monsters Inc.',
           },
+        },
+      });
+
+      const getAllOrders = vi.fn();
+
+      server.use(
+        graphql.query('GetOrderStatuses', () => {
+          return HttpResponse.json(
+            buildCompanyOrderStatusesWith({
+              data: {
+                orderStatuses: [
+                  buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+                  buildOrderStatusWith('WHATEVER_VALUES'),
+                ],
+              },
+            }),
+          );
         }),
+        graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
       );
 
-    renderWithProviders(<MyOrders />, { preloadedState });
-
-    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-    expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
-    expect(screen.getByRole('row', { name: /66986/ })).toBeInTheDocument();
-  });
-
-  it('displays all the information associated with an order', async () => {
-    const order66996 = buildCompanyOrderNodeWith({
-      node: {
-        orderId: '66996',
-        poNumber: '0022',
-        totalIncTax: 100,
-        status: 'Pending',
-        createdAt: getUnixTime(new Date('13 March 2025')),
-        companyInfo: {
-          companyName: 'Monsters Inc.',
-        },
-      },
-    });
-
-    const getAllOrders = vi.fn();
-
-    server.use(
-      graphql.query('GetOrderStatuses', () => {
-        return HttpResponse.json(
-          buildCompanyOrderStatusesWith({
+      when(getAllOrders)
+        .calledWith(stringContainingAll('companyIds: [433,]', 'orderBy: "-bcOrderId"'))
+        .thenReturn(
+          buildCompanyOrdersWith({
             data: {
-              orderStatuses: [
-                buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
-                buildOrderStatusWith('WHATEVER_VALUES'),
-              ],
+              allOrders: {
+                totalCount: 1,
+                edges: [order66996],
+              },
             },
           }),
         );
-      }),
-      graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getAllOrders(query))),
-    );
 
-    when(getAllOrders)
-      .calledWith(stringContainingAll('companyIds: [433,]', 'orderBy: "-bcOrderId"'))
-      .thenReturn(
-        buildCompanyOrdersWith({
-          data: {
-            allOrders: {
-              totalCount: 1,
-              edges: [order66996],
-            },
-          },
-        }),
-      );
+      renderWithProviders(<MyOrders />, { preloadedState });
 
-    renderWithProviders(<MyOrders />, { preloadedState });
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+      const row = screen.getByRole('row', { name: /66996/ });
 
-    const row = screen.getByRole('row', { name: /66996/ });
-
-    expect(within(row).getByRole('cell', { name: '66996' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: 'Monsters Inc.' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '0022' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '$100.00' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: 'Pending' })).toBeInTheDocument();
-    expect(within(row).getByRole('cell', { name: '13 March 2025' })).toBeInTheDocument();
-  });
-});
+      expect(within(row).getByRole('cell', { name: '66996' })).toBeInTheDocument();
+      expect(within(row).getByRole('cell', { name: 'Monsters Inc.' })).toBeInTheDocument();
+      expect(within(row).getByRole('cell', { name: '0022' })).toBeInTheDocument();
+      expect(within(row).getByRole('cell', { name: '$100.00' })).toBeInTheDocument();
+      expect(within(row).getByRole('cell', { name: 'Pending' })).toBeInTheDocument();
+      expect(within(row).getByRole('cell', { name: '13 March 2025' })).toBeInTheDocument();
+    });
+  },
+);
 
 describe.todo('when a customer is part of a company hierarchy');

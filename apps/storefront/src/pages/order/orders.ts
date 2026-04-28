@@ -143,7 +143,7 @@ export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   }).then((res) => res.bcOrderStatuses);
 
-export const getOrdersCreatedByUser = (companyId: number) =>
+export const getCreatedByUserForOrders = (companyId: number) =>
   B3Request.graphqlB2B({
     query: getCreatedByUser(companyId),
   });
