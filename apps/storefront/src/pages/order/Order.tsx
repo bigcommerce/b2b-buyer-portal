@@ -167,6 +167,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (isUnifiedOrdersNonCompanyOrderPath) {
       const result = await getCustomerOrders({
         first: params.first as number,
+        filters: customerFilterState.filters,
+        sortBy: customerFilterState.sortBy,
       });
 
       const orders = result.data?.customer?.orders;
