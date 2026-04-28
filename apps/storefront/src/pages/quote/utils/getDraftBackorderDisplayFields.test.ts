@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { QuoteItem } from '@/types/quotes';
 
 import {
+  draftQuoteListHasBackorderedItemsForDisplay,
   draftRowQuantityExceedsAvailableToSell,
   getDraftBackorderDisplayFields,
   getQuoteItemBackendAvailability,
@@ -184,5 +185,56 @@ describe('draftRowQuantityExceedsAvailableToSell', () => {
     } as QuoteLineNode;
 
     expect(draftRowQuantityExceedsAvailableToSell(row)).toBe(true);
+  });
+});
+
+describe('draftQuoteListHasBackorderedItemsForDisplay', () => {
+  it('returns false for an empty list', () => {
+    expect(draftQuoteListHasBackorderedItemsForDisplay([])).toBe(false);
+  });
+
+  it('returns true when an item has backorder fields and quantity is within available-to-sell', () => {
+    const row = {
+      quantity: 10,
+      variantSku: 'V1',
+      productsSearch: {
+        inventoryTracking: 'product',
+        totalOnHand: 3,
+        availableToSell: 10,
+        unlimitedBackorder: false,
+      },
+    } as QuoteLineNode;
+
+    expect(draftQuoteListHasBackorderedItemsForDisplay([{ node: row }] as QuoteItem[])).toBe(true);
+  });
+
+  it('returns false when ordered quantity is within total on hand (no backordered quantity)', () => {
+    const row = {
+      quantity: 2,
+      variantSku: 'V1',
+      productsSearch: {
+        inventoryTracking: 'product',
+        totalOnHand: 5,
+        availableToSell: 10,
+        unlimitedBackorder: false,
+      },
+    } as QuoteLineNode;
+
+    expect(draftQuoteListHasBackorderedItemsForDisplay([{ node: row }] as QuoteItem[])).toBe(false);
+  });
+
+  it('returns false when quantity exceeds available-to-sell even with on-hand backorder', () => {
+    const row = {
+      quantity: 10,
+      variantSku: 'V1',
+      productsSearch: {
+        inventoryTracking: 'product',
+        totalOnHand: 3,
+        availableToSell: 4,
+        unlimitedBackorder: false,
+      },
+    } as QuoteLineNode;
+
+    expect(draftQuoteListHasBackorderedItemsForDisplay([{ node: row }] as QuoteItem[])).toBe(false);
   });
 });
