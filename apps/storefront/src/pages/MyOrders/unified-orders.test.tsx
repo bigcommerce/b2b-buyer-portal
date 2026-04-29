@@ -10,9 +10,13 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { vi } from 'vitest';
+import { when } from 'vitest-when';
 
 import type {
   GetCustomerOrdersResponse,
@@ -21,7 +25,11 @@ import type {
 } from '@/shared/service/bc/graphql/orders';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
-import { CustomerOrderStatues, OrderStatus as LegacyOrderStatus } from '../order/orders';
+import {
+  CompanyOrderStatuses,
+  CustomerOrderStatues,
+  OrderStatus as LegacyOrderStatus,
+} from '../order/orders';
 
 import MyOrders from '.';
 
@@ -115,6 +123,7 @@ const buildSfGqlCustomerOrdersResponseWith = builder<GetCustomerOrdersResponse>(
   };
 });
 
+// TODO: Needs to be removed when order statuses api gets added to unified graphql api
 const buildLegacyOrderStatusWith = builder<LegacyOrderStatus>(() => ({
   statusCode: faker.number.int().toString(),
   systemLabel: faker.word.noun(),
@@ -124,6 +133,12 @@ const buildLegacyOrderStatusWith = builder<LegacyOrderStatus>(() => ({
 const buildLegacyOrderStatusesResponseWith = builder<CustomerOrderStatues>(() => ({
   data: {
     bcOrderStatuses: bulk(buildLegacyOrderStatusWith, 'WHATEVER_VALUES').times(3),
+  },
+}));
+
+const buildLegacyB2BOrderStatusesResponseWith = builder<CompanyOrderStatuses>(() => ({
+  data: {
+    orderStatuses: bulk(buildLegacyOrderStatusWith, 'WHATEVER_VALUES').times(3),
   },
 }));
 
@@ -161,7 +176,14 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       graphql.query('GetCustomerOrderStatuses', () =>
         HttpResponse.json(buildLegacyOrderStatusesResponseWith('WHATEVER_VALUES')),
       ),
+      graphql.query('GetOrderStatuses', () =>
+        HttpResponse.json(buildLegacyB2BOrderStatusesResponseWith('WHATEVER_VALUES')),
+      ),
     );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('flag OFF — old path unchanged', () => {
@@ -368,6 +390,407 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
       const row = screen.getByRole('row', { name: /88888/ });
       expect(within(row).getByText(/13 March 2025/)).toBeInTheDocument();
+    });
+
+    describe('filter behavior', () => {
+      const filteredOrderResponse = (entityId: number): GetCustomerOrdersResponse => ({
+        data: {
+          customer: {
+            orders: {
+              edges: [
+                {
+                  node: buildSfGqlOrderWith({ entityId }),
+                  cursor: 'filtered',
+                },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startCursor: 'filtered',
+                endCursor: 'filtered',
+              },
+            },
+          },
+        },
+      });
+
+      describe('as a B2C customer', () => {
+        it('filters by search input', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({ search: '66996' }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.type(screen.getByPlaceholderText(/Search/), '66996');
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('filters by status and date together', async () => {
+          vi.setSystemTime(new Date('21 November 2022'));
+
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrderStatuses', () =>
+              HttpResponse.json(
+                buildLegacyOrderStatusesResponseWith({
+                  data: {
+                    bcOrderStatuses: [
+                      buildLegacyOrderStatusWith({
+                        systemLabel: 'Pending',
+                        customLabel: 'Pending',
+                      }),
+                    ],
+                  },
+                }),
+              ),
+            ),
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({
+                  status: 'Pending',
+                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+          await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('filters by date range', async () => {
+          vi.setSystemTime(new Date('21 November 2022'));
+
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({
+                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('resolves custom status label to systemLabel before sending', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrderStatuses', () =>
+              HttpResponse.json(
+                buildLegacyOrderStatusesResponseWith({
+                  data: {
+                    bcOrderStatuses: [
+                      buildLegacyOrderStatusWith({
+                        systemLabel: 'Pending',
+                        customLabel: 'Awaiting',
+                      }),
+                    ],
+                  },
+                }),
+              ),
+            ),
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({ status: 'Pending' }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+          await userEvent.click(screen.getByRole('option', { name: 'Awaiting' }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+      });
+
+      describe('as a B2B customer', () => {
+        it('filters by search input', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({ search: '66996' }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.type(screen.getByPlaceholderText(/Search/), '66996');
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('filters by status and date together', async () => {
+          vi.setSystemTime(new Date('21 November 2022'));
+
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetOrderStatuses', () =>
+              HttpResponse.json(
+                buildLegacyB2BOrderStatusesResponseWith({
+                  data: {
+                    orderStatuses: [
+                      buildLegacyOrderStatusWith({
+                        systemLabel: 'Pending',
+                        customLabel: 'Pending',
+                      }),
+                    ],
+                  },
+                }),
+              ),
+            ),
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({
+                  status: 'Pending',
+                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+          await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('filters by date range', async () => {
+          vi.setSystemTime(new Date('21 November 2022'));
+
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({
+                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+
+          await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+          await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        it('resolves custom status label to systemLabel before sending', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetOrderStatuses', () =>
+              HttpResponse.json(
+                buildLegacyB2BOrderStatusesResponseWith({
+                  data: {
+                    orderStatuses: [
+                      buildLegacyOrderStatusWith({
+                        systemLabel: 'Pending',
+                        customLabel: 'Awaiting',
+                      }),
+                    ],
+                  },
+                }),
+              ),
+            ),
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({ status: 'Pending' }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+          await userEvent.click(screen.getByRole('option', { name: 'Awaiting' }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+      });
     });
   });
 });

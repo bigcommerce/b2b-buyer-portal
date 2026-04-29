@@ -1,6 +1,8 @@
 import { CustomerRole } from '@/types';
 import { OrderStatusType } from '@/types/gql/graphql';
 
+import { orderStatusTranslationVariables } from './shared/getOrderStatus';
+
 export interface FilterSearchProps {
   [key: string]: string | number | number[] | null;
   beginDateAt: string | null;
@@ -140,3 +142,31 @@ export const getCompanyInitFilter = (
 
 export const getOrderStatusText = (status: number | string, getOrderStatuses: any) =>
   getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || '';
+
+type B3LangFn = (key: string) => string;
+
+type FilterMoreItem = ReturnType<typeof getFilterMoreData>[number];
+
+export const translateFilterMoreData = (
+  filterInfo: FilterMoreItem[],
+  b3Lang: B3LangFn,
+): FilterMoreItem[] =>
+  filterInfo.map((element) => {
+    const label = b3Lang(element.idLang);
+
+    if (element.name !== 'orderStatus') {
+      return { ...element, label };
+    }
+
+    const options = (element.options ?? []).map(
+      (option: { customLabel: string; systemLabel: string }) => {
+        const translated = b3Lang(orderStatusTranslationVariables[option.systemLabel]);
+        return {
+          ...option,
+          customLabel: translated === option.systemLabel ? option.customLabel : translated,
+        };
+      },
+    );
+
+    return { ...element, label, options };
+  });

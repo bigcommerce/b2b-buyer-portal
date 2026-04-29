@@ -18,6 +18,7 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { when } from 'vitest-when';
 
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';

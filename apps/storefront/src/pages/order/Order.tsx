@@ -9,23 +9,24 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { getCustomerOrders } from '@/shared/service/bc/graphql/orders';
+import {
+  getCustomerOrders,
+  OrdersFiltersInput,
+  OrdersSortInput,
+} from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import OrderStatus from './components/OrderStatus';
-import { orderStatusTranslationVariables } from './shared/getOrderStatus';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
+import { adaptUnifiedToLegacyFilterParams } from './adaptUnifiedToLegacyFilterParams';
 import {
-  assertSortKey,
   FilterSearchProps,
-  getCompanyInitFilter,
-  getCustomerInitFilter,
   getFilterMoreData,
   getOrderStatusText,
-  sortKeys,
+  translateFilterMoreData,
 } from './config';
 import { type ListItem, mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
 import { OrderItemCard } from './OrderItemCard';
@@ -33,17 +34,11 @@ import {
   getB2BAllOrders,
   getBCAllOrders,
   getBcOrderStatusType,
-  getOrdersCreatedByUser,
+  getCreatedByUserForOrders,
   getOrderStatusType,
 } from './orders';
-
-interface SearchChangeProps {
-  startValue?: string;
-  endValue?: string;
-  PlacedBy?: string;
-  orderStatus?: string | number;
-  company?: string;
-}
+import { useCustomerOrdersFilterState } from './useCustomerOrdersFilterState';
+import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
 
 interface OrderProps {
   isCompanyOrder?: boolean;
@@ -94,15 +89,6 @@ const getName = (haystack: string = '') => {
   return createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : '';
 };
 
-interface OrderBy {
-  key: keyof typeof sortKeys;
-  dir: 'asc' | 'desc';
-}
-
-const getOrderBy = ({ key, dir }: OrderBy) => {
-  return dir === 'desc' ? `-${sortKeys[key]}` : sortKeys[key];
-};
-
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
@@ -113,103 +99,92 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [pagination, setPagination] = useState({ offset: 0, first: 10 });
 
   const [allTotal, setAllTotal] = useState(0);
-  const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>();
-  const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
+  const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
 
-  const [orderBy, setOrderBy] = useState<OrderBy>({
-    key: 'orderId',
-    dir: 'desc',
+  const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
+
+  const legacyFilterState = useLegacyOrdersFilterState({
+    isB2BUser,
+    isCompanyOrder,
+    selectedCompanyId,
+    orderStatuses: getOrderStatuses,
+  });
+  const customerFilterState = useCustomerOrdersFilterState({
+    companyId: selectedCompanyId,
+    orderStatuses: getOrderStatuses,
+    isCompanyOrder,
   });
 
-  const handleSetOrderBy = (key: string) => {
-    setOrderBy((prev) => {
-      assertSortKey(key);
+  const {
+    activeSort,
+    handleSearchChange,
+    handleFilterChange,
+    handleCompanyIdsChange,
+    handleSetOrderBy,
+  } = isUnifiedOrdersNonCompanyOrderPath ? customerFilterState : legacyFilterState;
 
-      if (prev.key === key) {
-        return {
-          key,
-          dir: prev.dir === 'asc' ? 'desc' : 'asc',
-        };
-      }
-
-      return {
-        key,
-        dir: 'desc',
-      };
-    });
-  };
+  const { filterData, orderBy } = isUnifiedOrdersNonCompanyOrderPath
+    ? adaptUnifiedToLegacyFilterParams({
+        filters: customerFilterState.filters,
+        activeSort: customerFilterState.activeSort,
+        isB2BUser,
+      })
+    : { filterData: legacyFilterState.filterData, orderBy: legacyFilterState.orderBy };
 
   useEffect(() => {
-    const search = isB2BUser
-      ? getCompanyInitFilter(isCompanyOrder, selectedCompanyId)
-      : getCustomerInitFilter();
-
-    setFilterData(search);
-
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
       const createdByUsers =
-        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(Number(companyId)) : {};
-
+        isB2BUser && isCompanyOrder ? await getCreatedByUserForOrders(Number(companyId)) : {};
+      //  Caution: This api hasn't yet been ported to unified order api
       const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
-
-      const filterInfo = getFilterMoreData(
-        isB2BUser,
-        role,
-        isCompanyOrder,
-        isAgenting,
-        createdByUsers,
-        orderStatuses,
-      );
-
       setOrderStatuses(orderStatuses);
 
-      const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
-        const translatedElement = element;
-        translatedElement.label = b3Lang(element.idLang);
-
-        if (element.name === 'orderStatus') {
-          translatedElement.options = element.options.map(
-            (option: { customLabel: string; systemLabel: string }) => {
-              const optionLabel = orderStatusTranslationVariables[option.systemLabel];
-              const elementOption = option;
-              elementOption.customLabel =
-                b3Lang(optionLabel) === elementOption.systemLabel
-                  ? elementOption.customLabel
-                  : b3Lang(optionLabel);
-
-              return option;
-            },
-          );
-        }
-
-        return element;
-      });
-
-      setFilterInfo(filterInfoWithTranslatedLabel);
+      /* 
+        returns what all fields to show in more filter (funnel icon)
+        and styles associated to those fields
+      */
+      setFilterMoreInfo(
+        translateFilterMoreData(
+          getFilterMoreData(
+            isB2BUser,
+            role,
+            isCompanyOrder,
+            isAgenting,
+            createdByUsers,
+            orderStatuses,
+          ),
+          b3Lang,
+        ),
+      );
     };
 
     initFilter();
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role, selectedCompanyId]);
+  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
 
-  const fetchList = async ({
+  const fetchUnifiedOrders = async ({
+    first,
+    filters,
+    sortBy,
+  }: {
+    first: number;
+    filters: OrdersFiltersInput;
+    sortBy: OrdersSortInput;
+  }): Promise<{ edges: ListItem[]; totalCount: number }> => {
+    const result = await getCustomerOrders({ first, filters, sortBy });
+    const edges = (result.data?.customer?.orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node),
+    );
+    return { edges, totalCount: -1 };
+  };
+
+  const fetchLegacyOrders = async ({
     createdBy,
     ...params
   }: Partial<FilterSearchProps>): Promise<{ edges: ListItem[]; totalCount: number }> => {
-    if (isUnifiedOrders && !isCompanyOrder) {
-      const result = await getCustomerOrders({
-        first: params.first as number,
-      });
-
-      const orders = result.data?.customer?.orders;
-      const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
-
-      return { edges, totalCount: -1 };
-    }
-
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders({
           ...params,
@@ -234,7 +209,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         currentIndex: index,
         searchParams: {
           ...filterData,
-          orderBy: getOrderBy(orderBy),
+          orderBy,
         },
         totalCount: allTotal,
         isCompanyOrder,
@@ -317,50 +292,21 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return getNewColumnItems;
   };
 
-  const handleChange = (key: string, value: string) => {
-    if (key === 'search') {
-      setFilterData((data) => ({
-        ...data,
-        q: value,
-      }));
-    }
-  };
-
-  const handleFilterChange = (value: SearchChangeProps) => {
-    let currentStatus = value?.orderStatus || '';
-    if (currentStatus) {
-      const originStatus = getOrderStatuses.find(
-        (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
-      );
-
-      currentStatus = originStatus?.systemLabel || currentStatus;
-    }
-
-    setFilterData((data) => ({
-      ...data,
-      beginDateAt: value?.startValue || null,
-      endDateAt: value?.endValue || null,
-      createdBy: value?.PlacedBy || '',
-      statusCode: currentStatus,
-      companyName: value?.company || '',
-    }));
-  };
-
   const columnItems = getColumnItems();
 
-  const handleSelectCompanies = (company: number[]) => {
-    const newCompanyIds = company.includes(-1) ? [] : company;
-
-    setFilterData((data) => ({
-      ...data,
-      companyIds: newCompanyIds,
-    }));
-  };
-
   const { data, isFetching } = useQuery({
-    queryKey: ['orderList', filterData, pagination, orderBy],
-    enabled: Boolean(filterData),
-    queryFn: () => fetchList({ ...filterData, ...pagination, orderBy: getOrderBy(orderBy) }),
+    queryKey: isUnifiedOrdersNonCompanyOrderPath
+      ? ['orderList:unified', customerFilterState.filters, customerFilterState.sortBy, pagination]
+      : ['orderList:legacy', filterData, pagination, orderBy],
+    enabled: isUnifiedOrdersNonCompanyOrderPath ? true : Boolean(filterData),
+    queryFn: () =>
+      isUnifiedOrdersNonCompanyOrderPath
+        ? fetchUnifiedOrders({
+            first: pagination.first,
+            filters: customerFilterState.filters,
+            sortBy: customerFilterState.sortBy,
+          })
+        : fetchLegacyOrders({ ...filterData, ...pagination, orderBy }),
   });
 
   const listItems = useMemo(
@@ -397,7 +343,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         >
           {isEnabledCompanyHierarchy && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
-              <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
+              <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleCompanyIdsChange} />
             </Box>
           )}
           <B3Filter
@@ -413,8 +359,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               defaultValue: filterData?.endDateAt || null,
               pickerKey: 'end',
             }}
-            filterMoreInfo={filterInfo}
-            handleChange={handleChange}
+            filterMoreInfo={filterMoreInfo}
+            handleChange={handleSearchChange}
             handleFilterChange={handleFilterChange}
             pcTotalWidth="100%"
             pcContainerWidth="100%"
@@ -432,9 +378,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
           )}
           onClickRow={goToDetail}
-          sortDirection={orderBy.dir}
+          sortDirection={activeSort.dir}
           sortByFn={handleSetOrderBy}
-          orderBy={orderBy.key}
+          orderBy={activeSort.key}
         />
       </Box>
     </B3Spin>
