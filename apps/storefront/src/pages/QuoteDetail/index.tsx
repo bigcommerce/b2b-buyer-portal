@@ -50,6 +50,7 @@ import {
   QUOTE_VALIDATION_ERROR_CODES,
   QUOTE_VALIDATION_MESSAGE_CONTEXTS,
 } from '../quote/shared/getQuoteValidationErrorMessage';
+import { applyOrderedQuoteBackorderSnapshot } from '../quote/utils/applyOrderedQuoteBackorderSnapshot';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
@@ -81,6 +82,7 @@ interface ProductInfoProps {
   updatedAt: number;
   variantId: number;
   variantSku: string;
+  sku?: string;
   productsSearch: CustomFieldItems;
   backorderMessage?: string;
   totalOnHand?: number;
@@ -564,7 +566,11 @@ function QuoteDetail() {
         totalAmount: quote.totalAmount,
       });
 
-      const productListResponse = productsWithMoreInfo ?? [];
+      const productListResponse = applyOrderedQuoteBackorderSnapshot(
+        productsWithMoreInfo ?? [],
+        quote.orderSnapshot,
+        quote.status,
+      );
       setProductList(productListResponse);
 
       const { salesRep, salesRepEmail } = quote;
@@ -623,7 +629,7 @@ function QuoteDetail() {
 
       setFileList(newFileList);
 
-      return quote;
+      return { quote, mergedProductList: productListResponse };
     } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
@@ -703,8 +709,8 @@ function QuoteDetail() {
     let allProductsList = productList;
 
     if (allProductsList.length === 0) {
-      const quote = await getQuoteDetail();
-      allProductsList = quote?.productsList || [];
+      const { mergedProductList } = await getQuoteDetail();
+      allProductsList = mergedProductList;
     }
 
     const startIndex = Number(params.offset);
@@ -918,7 +924,6 @@ function QuoteDetail() {
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
                 displayDiscount={quoteDetail.displayDiscount}
-                status={quoteDetail.status}
               />
             </Box>
           </Grid>
