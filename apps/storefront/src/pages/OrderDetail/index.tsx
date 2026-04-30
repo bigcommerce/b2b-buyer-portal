@@ -5,6 +5,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -16,6 +17,7 @@ import {
   getBcOrderStatusType,
   getOrderStatusType,
 } from '@/shared/service/b2b';
+import { getOrderDetail } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
@@ -30,6 +32,7 @@ import { OrderHistory } from './components/OrderHistory';
 import { OrderShipping } from './components/OrderShipping';
 import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
 import convertB2BOrderDetails from './shared/B2BOrderData';
+import { convertOrderDetail } from './shared/convertOrderDetail';
 
 interface LocationState {
   isCompanyOrder: boolean;
@@ -56,6 +59,8 @@ function OrderDetail() {
   const navigate = useNavigate();
 
   const b3Lang = useB3Lang();
+
+  const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
 
   const {
     state: { addressConfig },
@@ -111,29 +116,44 @@ function OrderDetail() {
         setIsRequestLoading(true);
 
         try {
-          const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
+          if (isUnifiedOrders) {
+            const response = await getOrderDetail({ entityId: id });
+            const order = response.data?.site?.order;
 
-          if (order) {
-            const { products, companyInfo } = order;
+            if (order) {
+              dispatch({
+                type: 'all',
+                payload: convertOrderDetail(order),
+              });
+              // TODO B2B-4824: need to update about company related logic
+              setIsCurrentCompany(true);
+              setPreOrderId(orderId);
+            }
+          } else {
+            const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
 
-            const newOrder = {
-              ...order,
-              products: products.map((item: OrderProductItem) => {
-                return {
-                  ...item,
-                  imageUrl: item?.variantImageUrl || item.imageUrl,
-                };
-              }),
-            };
+            if (order) {
+              const { products, companyInfo } = order;
 
-            setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
+              const newOrder = {
+                ...order,
+                products: products.map((item: OrderProductItem) => {
+                  return {
+                    ...item,
+                    imageUrl: item?.variantImageUrl || item.imageUrl,
+                  };
+                }),
+              };
 
-            const data = convertB2BOrderDetails(newOrder, b3Lang);
-            dispatch({
-              type: 'all',
-              payload: data,
-            });
-            setPreOrderId(orderId);
+              setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
+
+              const data = convertB2BOrderDetails(newOrder, b3Lang);
+              dispatch({
+                type: 'all',
+                payload: data,
+              });
+              setPreOrderId(orderId);
+            }
           }
         } catch (err) {
           if (err === 'order does not exist') {
@@ -162,7 +182,7 @@ function OrderDetail() {
     }
     // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, orderId, preOrderId, selectCompanyHierarchyId]);
+  }, [isB2BUser, isUnifiedOrders, orderId, preOrderId, selectCompanyHierarchyId]);
 
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString());
