@@ -7,9 +7,15 @@ import {
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
+import {
+  getCustomerOrders,
+  OrdersFiltersInput,
+  OrdersSortInput,
+} from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 
 interface SearchParamsProps {
@@ -18,6 +24,7 @@ interface SearchParamsProps {
   offset: number;
   first: number;
 }
+
 interface DetailPageProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -28,7 +35,11 @@ interface LocationState {
   endDateAt?: string | null;
   currentIndex?: number;
   totalCount?: number;
+  isCompanyOrder?: boolean;
   searchParams?: SearchParamsProps;
+  // Unified SF GQL path — populated by Order.tsx when B2B-4613 is ON and not a company order.
+  unifiedCustomerFilters?: OrdersFiltersInput;
+  unifiedCustomerSortBy?: OrdersSortInput;
 }
 
 interface RightLeftSideProps {
@@ -46,6 +57,8 @@ const defaultSearchParams = {
 export function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
+  const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+
   const [listIndex, setListIndex] = useState<number>(initListIndex);
   const [arrived, setArrived] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,9 +74,12 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   let totalCount = 0;
   let beginDateAt: string | null = null;
   let endDateAt: string | null = null;
+  let isCompanyOrder = false;
   let searchParams = {
     offset: 0,
   };
+  let unifiedCustomerFilters: OrdersFiltersInput | undefined;
+  let unifiedCustomerSortBy: OrdersSortInput | undefined;
 
   const id = useId();
 
@@ -73,56 +89,76 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     totalCount = state?.totalCount || 0;
     beginDateAt = state?.beginDateAt || null;
     endDateAt = state?.endDateAt || null;
-    searchParams = state?.searchParams || {
-      offset: 0,
-    };
+    isCompanyOrder = state?.isCompanyOrder ?? false;
+    searchParams = state?.searchParams || { offset: 0 };
+    unifiedCustomerFilters = state?.unifiedCustomerFilters;
+    unifiedCustomerSortBy = state?.unifiedCustomerSortBy;
   }
+
+  const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
 
   const fetchList = async () => {
     setLoading(true);
 
-    const index = () => {
-      if (listIndex) return listIndex - 1;
-      return 0;
-    };
-
-    const searchDetailParams = {
-      ...defaultSearchParams,
-      ...searchParams,
-      first: 3,
-      offset: index(),
-      beginDateAt: beginDateAt || null,
-      endDateAt: endDateAt || null,
-    };
-
-    const { edges: list, totalCount } = isB2BUser
-      ? await getB2BAllOrders(searchDetailParams)
-      : await getBCAllOrders(searchDetailParams);
-
     let flag = '';
+    let rightId: number | string = '';
+    let leftId: number | string = '';
 
-    let rightId = '';
+    if (isUnifiedOrdersNonCompanyOrderPath) {
+      // Cursor-based: fetch listIndex + 2 items from the start so that
+      // edges[listIndex - 1] (prev) and edges[listIndex + 1] (next) are in the result.
+      const result = await getCustomerOrders({
+        first: listIndex + 2,
+        filters: unifiedCustomerFilters,
+        sortBy: unifiedCustomerSortBy ?? OrdersSortInput.CREATED_AT_NEWEST,
+      });
 
-    let leftId = '';
+      const edges = result.data?.customer?.orders?.edges ?? [];
 
-    if (listIndex === totalCount - 1) {
-      flag = 'toRight';
-      leftId = list[list.length - 2]?.node.orderId || 0;
-    } else if (listIndex === 0) {
-      flag = 'toLeft';
-      rightId = list[1]?.node.orderId || 0;
+      if (listIndex === 0) {
+        flag = 'toLeft';
+        rightId = edges[1]?.node.entityId ?? '';
+      } else if (!edges[listIndex + 1]) {
+        // No item after the current one — reached the end of the list.
+        flag = 'toRight';
+        leftId = edges[listIndex - 1]?.node.entityId ?? '';
+      } else {
+        leftId = edges[listIndex - 1]?.node.entityId ?? '';
+        rightId = edges[listIndex + 1]?.node.entityId ?? '';
+      }
     } else {
-      leftId = list[0]?.node.orderId || 0;
-      rightId = list[2]?.node.orderId || 0;
+      const index = () => {
+        if (listIndex) return listIndex - 1;
+        return 0;
+      };
+
+      const searchDetailParams = {
+        ...defaultSearchParams,
+        ...searchParams,
+        first: 3,
+        offset: index(),
+        beginDateAt: beginDateAt || null,
+        endDateAt: endDateAt || null,
+      };
+
+      const { edges: list, totalCount: listTotal } = isB2BUser
+        ? await getB2BAllOrders(searchDetailParams)
+        : await getBCAllOrders(searchDetailParams);
+
+      if (listIndex === listTotal - 1) {
+        flag = 'toRight';
+        leftId = list[list.length - 2]?.node.orderId || 0;
+      } else if (listIndex === 0) {
+        flag = 'toLeft';
+        rightId = list[1]?.node.orderId || 0;
+      } else {
+        leftId = list[0]?.node.orderId || 0;
+        rightId = list[2]?.node.orderId || 0;
+      }
     }
 
-    setRightLeftSide({
-      leftId,
-      rightId,
-    });
-
+    setRightLeftSide({ leftId, rightId });
     setArrived(flag);
-
     setLoading(false);
   };
 

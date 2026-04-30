@@ -207,14 +207,18 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
-        searchParams: {
-          ...filterData,
-          orderBy,
-        },
         totalCount: allTotal,
         isCompanyOrder,
-        beginDateAt: filterData?.beginDateAt,
-        endDateAt: filterData?.endDateAt,
+        ...(isUnifiedOrdersNonCompanyOrderPath
+          ? {
+              unifiedCustomerFilters: customerFilterState.filters,
+              unifiedCustomerSortBy: customerFilterState.sortBy,
+            }
+          : {
+              searchParams: { ...filterData, orderBy },
+              beginDateAt: filterData?.beginDateAt,
+              endDateAt: filterData?.endDateAt,
+            }),
       },
     });
   };
