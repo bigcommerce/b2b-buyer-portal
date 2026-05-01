@@ -39,7 +39,7 @@ import {
   getOrderStatusType,
 } from './orders';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
-import { useUnifiedOrdersState } from './useUnifiedOrdersState';
+import { useCustomerOrdersFilterState } from './useCustomerOrdersFilterState';
 
 interface OrderProps {
   isCompanyOrder?: boolean;
@@ -111,7 +111,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
   });
-  const customerFilterState = useUnifiedOrdersState({
+  const customerFilterState = useCustomerOrdersFilterState({
     companyId: selectedCompanyId,
     orderStatuses: getOrderStatuses,
     isCompanyOrder,

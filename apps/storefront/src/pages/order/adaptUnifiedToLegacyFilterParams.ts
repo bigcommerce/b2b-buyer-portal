@@ -10,10 +10,10 @@
  */
 
 import { FilterSearchProps, sortKeys } from './config';
-import type { UseUnifiedOrdersStateResult } from './useUnifiedOrdersState';
+import type { UseCustomerOrdersFilterStateResult } from './useCustomerOrdersFilterState';
 
 export type AdaptUnifiedToLegacyFilterParamsArgs = Pick<
-  UseUnifiedOrdersStateResult,
+  UseCustomerOrdersFilterStateResult,
   'filters' | 'activeSort'
 > & {
   isB2BUser: boolean;
