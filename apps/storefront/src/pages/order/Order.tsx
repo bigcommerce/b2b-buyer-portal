@@ -183,8 +183,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
     const pageInfo = orders?.pageInfo ?? null;
 
-    setAllTotal(-1);
-
     return { edges, totalCount: -1, pageInfo };
   };
 
@@ -218,7 +216,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: allTotal,
+        totalCount: isUnifiedOrdersNonCompanyOrderPath ? -1 : allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
