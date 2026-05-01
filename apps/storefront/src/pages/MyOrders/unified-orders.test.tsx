@@ -792,5 +792,204 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
         });
       });
     });
+
+    describe('cursor pagination', () => {
+      const buildPagedResponse = (
+        orders: Array<{ entityId: number }>,
+        pageInfo: {
+          hasNextPage: boolean;
+          hasPreviousPage: boolean;
+          startCursor: string | null;
+          endCursor: string | null;
+        },
+      ): GetCustomerOrdersResponse => ({
+        data: {
+          customer: {
+            orders: {
+              edges: orders.map((o) => ({
+                node: buildSfGqlOrderWith(o),
+                cursor: `cursor-${o.entityId}`,
+              })),
+              pageInfo,
+            },
+          },
+        },
+      });
+
+      it('passes after cursor when navigating to the next page', async () => {
+        const page1Response = buildPagedResponse([{ entityId: 1001 }, { entityId: 1002 }], {
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'cursor-1001',
+          endCursor: 'cursor-1002',
+        });
+
+        const getOrders = vi.fn().mockReturnValue(page1Response);
+
+        // Page 2 when after cursor is sent
+        when(getOrders)
+          .calledWith(expect.objectContaining({ after: 'cursor-1002' }))
+          .thenReturn(
+            buildPagedResponse([{ entityId: 2001 }, { entityId: 2002 }], {
+              hasNextPage: false,
+              hasPreviousPage: true,
+              startCursor: 'cursor-2001',
+              endCursor: 'cursor-2002',
+            }),
+          );
+
+        server.use(
+          graphql.query('GetCustomerOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+        expect(screen.getByRole('row', { name: /1001/ })).toBeInTheDocument();
+
+        // Navigate to page 2
+        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
+
+        await waitFor(() => {
+          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
+        });
+      });
+
+      it('passes before cursor when navigating to the previous page', async () => {
+        const page1Response = buildPagedResponse([{ entityId: 1001 }], {
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'cursor-1001',
+          endCursor: 'cursor-1001',
+        });
+
+        const getOrders = vi.fn().mockReturnValue(page1Response);
+
+        // Page 2
+        when(getOrders)
+          .calledWith(expect.objectContaining({ after: 'cursor-1001' }))
+          .thenReturn(
+            buildPagedResponse([{ entityId: 2001 }], {
+              hasNextPage: false,
+              hasPreviousPage: true,
+              startCursor: 'cursor-2001',
+              endCursor: 'cursor-2001',
+            }),
+          );
+
+        // Back to page 1 via before cursor
+        when(getOrders)
+          .calledWith(expect.objectContaining({ before: 'cursor-2001' }))
+          .thenReturn(page1Response);
+
+        server.use(
+          graphql.query('GetCustomerOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        // Go to page 2
+        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
+        await waitFor(() => {
+          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
+        });
+
+        // Go back to page 1
+        await userEvent.click(screen.getByRole('button', { name: /previous page/ }));
+        await waitFor(() => {
+          expect(screen.getByRole('row', { name: /1001/ })).toBeInTheDocument();
+        });
+      });
+
+      it('resets cursor pagination when search filter changes', async () => {
+        const page1Response = buildPagedResponse([{ entityId: 1001 }], {
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'cursor-1001',
+          endCursor: 'cursor-1001',
+        });
+
+        const getOrders = vi.fn().mockReturnValue(page1Response);
+
+        // Page 2
+        when(getOrders)
+          .calledWith(expect.objectContaining({ after: 'cursor-1001' }))
+          .thenReturn(
+            buildPagedResponse([{ entityId: 2001 }], {
+              hasNextPage: false,
+              hasPreviousPage: true,
+              startCursor: 'cursor-2001',
+              endCursor: 'cursor-2001',
+            }),
+          );
+
+        // After search — cursor reset, search filter applied
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ search: 'test' }),
+            }),
+          )
+          .thenReturn(
+            buildPagedResponse([{ entityId: 3001 }], {
+              hasNextPage: false,
+              hasPreviousPage: false,
+              startCursor: 'cursor-3001',
+              endCursor: 'cursor-3001',
+            }),
+          );
+
+        server.use(
+          graphql.query('GetCustomerOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        // Navigate to page 2
+        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
+        await waitFor(() => {
+          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
+        });
+
+        // Type in search — should reset pagination back to page 1
+        await userEvent.type(screen.getByPlaceholderText(/Search/), 'test');
+
+        await waitFor(() => {
+          expect(screen.getByRole('row', { name: /3001/ })).toBeInTheDocument();
+        });
+      });
+
+      it('hides total count and shows range-only pagination label', async () => {
+        server.use(
+          graphql.query('GetCustomerOrders', () =>
+            HttpResponse.json(
+              buildPagedResponse([{ entityId: 1001 }, { entityId: 1002 }, { entityId: 1003 }], {
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor-1001',
+                endCursor: 'cursor-1003',
+              }),
+            ),
+          ),
+        );
+
+        renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        // With count=-1, pagination should not display "-1" as the total
+        expect(screen.queryByText(/-1/)).not.toBeInTheDocument();
+      });
+    });
   });
 });

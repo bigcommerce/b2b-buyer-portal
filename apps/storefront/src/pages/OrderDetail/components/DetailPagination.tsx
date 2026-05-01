@@ -95,9 +95,12 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     unifiedCustomerSortBy = state?.unifiedCustomerSortBy;
   }
 
+  const isUnifiedPath = totalCount === -1;
+
   const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
 
   const fetchList = async () => {
+    if (isUnifiedPath) return;
     setLoading(true);
 
     let flag = '';
@@ -177,6 +180,13 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   }, [listIndex]);
 
   if (JSON.stringify(searchParams) === '{}') return null;
+
+  // The unified SF GQL path sets totalCount to -1 because collectionInfo is
+  // not available on OrdersConnection. Detail-level prev/next navigation
+  // requires fetching adjacent orders which the cursor-based API doesn't
+  // support in the same way. B2B-4629 (4f) will implement cursor-based
+  // detail navigation. Until then, hide this component in the unified path.
+  if (isUnifiedPath) return null;
 
   const handleBeforePage = () => {
     setListIndex(listIndex - 1);
