@@ -38,8 +38,8 @@ import {
   getCreatedByUserForOrders,
   getOrderStatusType,
 } from './orders';
-import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
 import { useCustomerOrdersFilterState } from './useCustomerOrdersFilterState';
+import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
 
 interface OrderProps {
   isCompanyOrder?: boolean;
