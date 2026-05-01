@@ -203,25 +203,32 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const navigate = useNavigate();
 
+  const legacyGoToDetail = (item: ListItem, index: number) => {
+    navigate(`/orderDetail/${item.orderId}`, {
+      state: {
+        currentIndex: index,
+        totalCount: allTotal,
+        isCompanyOrder,
+        searchParams: { ...filterData, orderBy },
+        beginDateAt: filterData?.beginDateAt,
+        endDateAt: filterData?.endDateAt,
+      },
+    });
+  };
+
   const goToDetail = (item: ListItem, index: number) => {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
         totalCount: allTotal,
         isCompanyOrder,
-        ...(isUnifiedOrdersNonCompanyOrderPath
-          ? {
-              unifiedCustomerFilters: customerFilterState.filters,
-              unifiedCustomerSortBy: customerFilterState.sortBy,
-            }
-          : {
-              searchParams: { ...filterData, orderBy },
-              beginDateAt: filterData?.beginDateAt,
-              endDateAt: filterData?.endDateAt,
-            }),
+        unifiedCustomerFilters: customerFilterState.filters,
+        unifiedCustomerSortBy: customerFilterState.sortBy,
       },
     });
   };
+
+  const navigateToOrderDetail = isUnifiedOrdersNonCompanyOrderPath ? goToDetail : legacyGoToDetail;
 
   const columnAllItems = [
     {
@@ -417,9 +424,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           }
           isInfiniteScroll={isMobile}
           renderItem={(row, index) => (
-            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
+            <OrderItemCard
+              key={row.orderId}
+              goToDetail={() => navigateToOrderDetail(row, index)}
+              item={row}
+            />
           )}
-          onClickRow={goToDetail}
+          onClickRow={navigateToOrderDetail}
           sortDirection={activeSort.dir}
           sortByFn={handleSetOrderBy}
           orderBy={activeSort.key}

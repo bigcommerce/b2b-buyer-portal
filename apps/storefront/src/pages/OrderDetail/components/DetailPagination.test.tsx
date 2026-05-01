@@ -116,7 +116,7 @@ const unifiedLocationState = {
 };
 
 describe('DetailPagination', () => {
-  describe('with B2B-4613 flag ON, non-company order — unified SF GQL path', () => {
+  describe('with unified SF GQL orders flag ON, non-company order (SF GQL path)', () => {
     it('renders the order counter and enables both buttons when in the middle of the list', async () => {
       // currentIndex: 1 → fetches first: 3 → edges[0]=prev, edges[1]=current, edges[2]=next
       server.use(
@@ -217,7 +217,7 @@ describe('DetailPagination', () => {
     });
   });
 
-  describe('with B2B-4613 flag ON, company order — falls back to legacy path', () => {
+  describe('with unified SF GQL orders flag ON, company order, falls back to legacy path', () => {
     it('calls GetAllOrders (B2B legacy) instead of the unified GetCustomerOrders', async () => {
       const getAllOrders = vi.fn().mockReturnValue(buildAllOrdersResponse(['101', '102', '103']));
 
@@ -239,7 +239,7 @@ describe('DetailPagination', () => {
     });
   });
 
-  describe('with B2B-4613 flag OFF — legacy path', () => {
+  describe('with unified SF GQL orders flag OFF (legacy path)', () => {
     it('calls GetAllOrders (B2B legacy) when the unified flag is disabled', async () => {
       const getAllOrders = vi.fn().mockReturnValue(buildAllOrdersResponse(['101', '102', '103']));
 

@@ -106,83 +106,120 @@ function OrderDetail() {
   };
 
   useEffect(() => {
-    if (orderId) {
-      const getOrderDetails = async () => {
-        const id = parseInt(orderId, 10);
-        if (!id) {
-          return;
-        }
-
-        setIsRequestLoading(true);
-
-        try {
-          if (isUnifiedOrders) {
-            const response = await getOrderDetail({ entityId: id });
-            const order = response.data?.site?.order;
-
-            if (order) {
-              dispatch({
-                type: 'all',
-                payload: convertOrderDetail(order),
-              });
-              // TODO B2B-4824: need to update about company related logic
-              setIsCurrentCompany(true);
-              setPreOrderId(orderId);
-            }
-          } else {
-            const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
-
-            if (order) {
-              const { products, companyInfo } = order;
-
-              const newOrder = {
-                ...order,
-                products: products.map((item: OrderProductItem) => {
-                  return {
-                    ...item,
-                    imageUrl: item?.variantImageUrl || item.imageUrl,
-                  };
-                }),
-              };
-
-              setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
-
-              const data = convertB2BOrderDetails(newOrder, b3Lang);
-              dispatch({
-                type: 'all',
-                payload: data,
-              });
-              setPreOrderId(orderId);
-            }
-          }
-        } catch (err) {
-          if (err === 'order does not exist') {
-            setTimeout(() => {
-              window.location.hash = `/orderDetail/${preOrderId}`;
-            }, 1000);
-          }
-        } finally {
-          setIsRequestLoading(false);
-        }
-      };
-
-      const getOrderStatus = async () => {
-        const orderStatus = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
-
-        dispatch({
-          type: 'statusType',
-          payload: {
-            orderStatus,
-          },
-        });
-      };
-
-      getOrderDetails();
-      getOrderStatus();
+    if (isUnifiedOrders || !orderId) {
+      return;
     }
+
+    const fetchLegacyOrderDetails = async () => {
+      const id = parseInt(orderId, 10);
+      if (!id) {
+        return;
+      }
+
+      setIsRequestLoading(true);
+
+      try {
+        const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
+
+        if (order) {
+          const { products, companyInfo } = order;
+
+          const newOrder = {
+            ...order,
+            products: products.map((item: OrderProductItem) => {
+              return {
+                ...item,
+                imageUrl: item?.variantImageUrl || item.imageUrl,
+              };
+            }),
+          };
+
+          setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
+
+          const data = convertB2BOrderDetails(newOrder, b3Lang);
+          dispatch({
+            type: 'all',
+            payload: data,
+          });
+          setPreOrderId(orderId);
+        }
+      } catch (err) {
+        if (err === 'order does not exist') {
+          setTimeout(() => {
+            window.location.hash = `/orderDetail/${preOrderId}`;
+          }, 1000);
+        }
+      } finally {
+        setIsRequestLoading(false);
+      }
+    };
+
+    fetchLegacyOrderDetails();
     // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isUnifiedOrders, orderId, preOrderId, selectCompanyHierarchyId]);
+  }, [isB2BUser, isUnifiedOrders, orderId, preOrderId, selectCompanyHierarchyId, currentCompanyId]);
+
+  useEffect(() => {
+    if (!isUnifiedOrders || !orderId) {
+      return;
+    }
+
+    const fetchUnifiedOrderDetails = async () => {
+      const id = parseInt(orderId, 10);
+      if (!id) {
+        return;
+      }
+
+      setIsRequestLoading(true);
+
+      try {
+        const response = await getOrderDetail({ entityId: id });
+        const order = response.data?.site?.order;
+
+        if (order) {
+          dispatch({
+            type: 'all',
+            payload: convertOrderDetail(order),
+          });
+          // TODO B2B-4824: need to update about company related logic
+          setIsCurrentCompany(true);
+          setPreOrderId(orderId);
+        }
+      } catch (err) {
+        if (err === 'order does not exist') {
+          setTimeout(() => {
+            window.location.hash = `/orderDetail/${preOrderId}`;
+          }, 1000);
+        }
+      } finally {
+        setIsRequestLoading(false);
+      }
+    };
+
+    fetchUnifiedOrderDetails();
+    // Disabling rule since dispatch does not need to be in the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUnifiedOrders, orderId, preOrderId]);
+
+  useEffect(() => {
+    if (!orderId) {
+      return;
+    }
+
+    const fetchOrderStatusTypes = async () => {
+      const orderStatus = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
+
+      dispatch({
+        type: 'statusType',
+        payload: {
+          orderStatus,
+        },
+      });
+    };
+
+    fetchOrderStatusTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isB2BUser, orderId]);
 
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString());
