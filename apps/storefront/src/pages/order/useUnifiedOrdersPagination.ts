@@ -7,7 +7,7 @@ interface CursorPaginationState {
   before?: string;
 }
 
-export interface PaginationVariables {
+interface PaginationVariables {
   first?: number;
   after?: string;
   last?: number;
