@@ -24,10 +24,7 @@ export default function B3LocaleSwitcher() {
     return null;
   }
 
-  const activeLocale =
-    getActiveLocale(locales) ??
-    locales.find((l) => l.isDefault) ??
-    locales[0];
+  const activeLocale = getActiveLocale(locales) ?? locales.find((l) => l.isDefault) ?? locales[0];
 
   const list = locales.map(({ code }) => ({ key: code, name: code.toUpperCase() }));
 

@@ -51,9 +51,7 @@ describe('when there is only 1 available locale', () => {
       preloadedState: {
         global: buildGlobalStateWith({
           featureFlags: { 'LOCAL-3191.B2B_multi_language': true },
-          locales: [
-            { code: 'en', isDefault: true, fullPath: 'https://store.example.com/' },
-          ],
+          locales: [{ code: 'en', isDefault: true, fullPath: 'https://store.example.com/' }],
         }),
       },
     });
