@@ -44,6 +44,7 @@ const normalizeString = (value: string | number | null | undefined): string | un
 };
 
 const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId', dir: 'desc' };
+// Must stay in sync with rowsPerPageOptions in order/table/B3Table.tsx ([10, 20, 30]).
 const DEFAULT_PAGE_SIZE = 10;
 
 interface CursorPaginationState {
@@ -58,13 +59,13 @@ interface PaginationVariables {
   before?: string;
 }
 
-interface UseCustomerOrdersFilterStateArgs {
+interface UseUnifiedOrdersStateArgs {
   companyId: number;
   orderStatuses: OrderStatusItem[];
   isCompanyOrder: boolean;
 }
 
-export interface UseCustomerOrdersFilterStateResult {
+export interface UseUnifiedOrdersStateResult {
   filters: OrdersFiltersInput;
   sortBy: OrdersSortInput;
   activeSort: { key: SortableColumnKey; dir: SortDir };
@@ -72,6 +73,11 @@ export interface UseCustomerOrdersFilterStateResult {
   pageSize: number;
   pageInfo: PageInfo | null;
   currentPage: number;
+  b3TablePaginationProps: {
+    pagination: { offset: number; first: number; count: number };
+    cursorPageInfo: { hasNextPage: boolean; hasPreviousPage: boolean };
+    onPaginationChange: (newPagination: { offset: number; first: number }) => void;
+  };
   handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
@@ -81,11 +87,11 @@ export interface UseCustomerOrdersFilterStateResult {
   updatePageInfo: (info: PageInfo) => void;
 }
 
-export const useCustomerOrdersFilterState = ({
+export const useUnifiedOrdersState = ({
   companyId,
   orderStatuses,
   isCompanyOrder,
-}: UseCustomerOrdersFilterStateArgs): UseCustomerOrdersFilterStateResult => {
+}: UseUnifiedOrdersStateArgs): UseUnifiedOrdersStateResult => {
   const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
     getCustomerOrdersInitFilter(companyId),
   );
@@ -162,26 +168,53 @@ export const useCustomerOrdersFilterState = ({
     );
   };
 
-  const handlePageChange = (direction: 'next' | 'prev') => {
-    if (direction === 'next' && pageInfo?.hasNextPage && pageInfo.endCursor) {
-      if (cursors.after === pageInfo.endCursor) return;
-      setCursors({ after: pageInfo.endCursor });
-      setCurrentPage((prev) => prev + 1);
-    } else if (direction === 'prev' && pageInfo?.hasPreviousPage && pageInfo.startCursor) {
-      if (cursors.before === pageInfo.startCursor) return;
-      setCursors({ before: pageInfo.startCursor });
-      setCurrentPage((prev) => Math.max(0, prev - 1));
-    }
-  };
+  const handlePageChange = useCallback(
+    (direction: 'next' | 'prev') => {
+      if (direction === 'next' && pageInfo?.hasNextPage && pageInfo.endCursor) {
+        if (cursors.after === pageInfo.endCursor) return;
+        setCursors({ after: pageInfo.endCursor });
+        setCurrentPage((prev) => prev + 1);
+      } else if (direction === 'prev' && pageInfo?.hasPreviousPage && pageInfo.startCursor) {
+        if (cursors.before === pageInfo.startCursor) return;
+        setCursors({ before: pageInfo.startCursor });
+        setCurrentPage((prev) => Math.max(0, prev - 1));
+      }
+    },
+    [pageInfo, cursors],
+  );
 
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    resetPagination();
-  };
+  const handlePageSizeChange = useCallback(
+    (size: number) => {
+      setPageSize(size);
+      resetPagination();
+    },
+    [resetPagination],
+  );
 
   const updatePageInfo = useCallback((info: PageInfo) => {
     setPageInfo(info);
   }, []);
+
+  const b3TablePaginationProps = useMemo(
+    () => ({
+      pagination: { offset: currentPage * pageSize, first: pageSize, count: -1 },
+      cursorPageInfo: {
+        hasNextPage: pageInfo?.hasNextPage ?? false,
+        hasPreviousPage: pageInfo?.hasPreviousPage ?? false,
+      },
+      onPaginationChange: (newPagination: { offset: number; first: number }) => {
+        const newPage = newPagination.first === 0 ? 0 : newPagination.offset / newPagination.first;
+        if (newPagination.first !== pageSize) {
+          handlePageSizeChange(newPagination.first);
+        } else if (newPage > currentPage) {
+          handlePageChange('next');
+        } else if (newPage < currentPage) {
+          handlePageChange('prev');
+        }
+      },
+    }),
+    [currentPage, pageSize, pageInfo, handlePageChange, handlePageSizeChange],
+  );
 
   return {
     filters,
@@ -191,6 +224,7 @@ export const useCustomerOrdersFilterState = ({
     pageSize,
     pageInfo,
     currentPage,
+    b3TablePaginationProps,
     handleSearchChange,
     handleFilterChange,
     handleCompanyIdsChange,
