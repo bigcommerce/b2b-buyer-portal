@@ -127,7 +127,7 @@ describe('DetailPagination', () => {
 
       renderDetailPagination({ ...unifiedLocationState, currentIndex: 1 }, flagOnState);
 
-      const nav = await screen.findByRole('navigation', { name: 'Order 2 of 3' });
+      const nav = await screen.findByRole('navigation');
       const [prev, next] = within(nav).getAllByRole('button');
 
       await waitFor(() => {
@@ -146,7 +146,7 @@ describe('DetailPagination', () => {
 
       renderDetailPagination({ ...unifiedLocationState, currentIndex: 0 }, flagOnState);
 
-      const nav = await screen.findByRole('navigation', { name: 'Order 1 of 3' });
+      const nav = await screen.findByRole('navigation');
       const [prev, next] = within(nav).getAllByRole('button');
 
       await waitFor(() => {
@@ -165,7 +165,7 @@ describe('DetailPagination', () => {
 
       renderDetailPagination({ ...unifiedLocationState, currentIndex: 2 }, flagOnState);
 
-      const nav = await screen.findByRole('navigation', { name: 'Order 3 of 3' });
+      const nav = await screen.findByRole('navigation');
       const [prev, next] = within(nav).getAllByRole('button');
 
       await waitFor(() => {
@@ -186,7 +186,7 @@ describe('DetailPagination', () => {
         flagOnState,
       );
 
-      const nav = await screen.findByRole('navigation', { name: 'Order 2 of 3' });
+      const nav = await screen.findByRole('navigation');
       const [, next] = within(nav).getAllByRole('button');
       await waitFor(() => expect(next).toBeEnabled());
 
@@ -207,7 +207,7 @@ describe('DetailPagination', () => {
         flagOnState,
       );
 
-      const nav = await screen.findByRole('navigation', { name: 'Order 2 of 3' });
+      const nav = await screen.findByRole('navigation');
       const [prev] = within(nav).getAllByRole('button');
       await waitFor(() => expect(prev).toBeEnabled());
 

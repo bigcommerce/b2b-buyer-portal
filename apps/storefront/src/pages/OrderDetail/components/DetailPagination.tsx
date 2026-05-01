@@ -197,18 +197,28 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     setListIndex(listIndex + 1);
     onChange(rightLeftSide.rightId);
   };
-
   const index = listIndex + 1;
+
+  const isPrevDisabled = isUnifiedOrdersNonCompanyOrderPath
+    ? arrived === 'toLeft' || loading
+    : totalCount <= 1 || arrived === 'toLeft' || loading;
+
+  const isNextDisabled = isUnifiedOrdersNonCompanyOrderPath
+    ? arrived === 'toRight' || loading
+    : totalCount <= 1 || arrived === 'toRight' || loading;
+
+  const showOrderPositionLabel = !isMobile && !isUnifiedOrdersNonCompanyOrderPath;
+
   return (
     <Box
       role="navigation"
-      aria-labelledby={id}
+      aria-labelledby={showOrderPositionLabel ? id : undefined}
       sx={{
         display: 'flex',
         color,
       }}
     >
-      {!isMobile && (
+      {showOrderPositionLabel && (
         <Box
           id={id}
           sx={{
@@ -235,25 +245,11 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
         </Box>
       )}
 
-      <IconButton
-        onClick={handleBeforePage}
-        disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
-      >
-        <NavigateBeforeIcon
-          sx={{
-            color,
-          }}
-        />
+      <IconButton onClick={handleBeforePage} disabled={isPrevDisabled}>
+        <NavigateBeforeIcon sx={{ color }} />
       </IconButton>
-      <IconButton
-        onClick={handleNextPage}
-        disabled={totalCount <= 1 || arrived === 'toRight' || loading}
-      >
-        <NavigateNextIcon
-          sx={{
-            color,
-          }}
-        />
+      <IconButton onClick={handleNextPage} disabled={isNextDisabled}>
+        <NavigateNextIcon sx={{ color }} />
       </IconButton>
     </Box>
   );
