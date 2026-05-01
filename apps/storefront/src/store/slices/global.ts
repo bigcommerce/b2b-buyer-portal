@@ -54,6 +54,8 @@ export interface Locale {
   fullPath: string;
 }
 
+export type Locales = Locale[];
+
 export interface GlobalState {
   isClickEnterBtn: boolean;
   currentClickedUrl: string;
@@ -71,7 +73,7 @@ export interface GlobalState {
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
   isOpenCompanyHierarchyDropDown: boolean;
   featureFlags: FeatureFlags;
-  locales: Locale[];
+  locales: Locales;
   backorderEnabled: boolean;
   backorderDisplaySettings: BackorderDisplaySettings;
 }
@@ -182,7 +184,7 @@ export const globalSlice = createSlice({
         ...payload,
       };
     },
-    setLocales: (state, { payload }: PayloadAction<Locale[]>) => {
+    setLocales: (state, { payload }: PayloadAction<Locales>) => {
       state.locales = payload;
     },
     setBackorderEnabled: (state, { payload }: PayloadAction<boolean>) => {

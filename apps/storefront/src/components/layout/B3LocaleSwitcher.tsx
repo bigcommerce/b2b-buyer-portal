@@ -1,10 +1,10 @@
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAppSelector } from '@/store';
-import { Locale } from '@/store/slices/global';
+import { Locales } from '@/store/slices/global';
 
 import B3DropDown from '../B3DropDown';
 
-const getActiveLocale = (locales: Locale[]) =>
+const getActiveLocale = (locales: Locales) =>
   [...locales]
     .sort((a, b) => b.fullPath.length - a.fullPath.length)
     .find((l) => {
