@@ -57,5 +57,5 @@ export const buildGlobalStateWith = builder<GlobalState & PersistPartial>(() => 
     rehydrated: true,
   },
   featureFlags: {},
-  availableLocales: [],
+  locales: [],
 }));

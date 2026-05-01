@@ -71,7 +71,7 @@ export interface GlobalState {
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
   isOpenCompanyHierarchyDropDown: boolean;
   featureFlags: FeatureFlags;
-  availableLocales: Locale[];
+  locales: Locale[];
   backorderEnabled: boolean;
   backorderDisplaySettings: BackorderDisplaySettings;
 }
@@ -125,7 +125,7 @@ export const initialState: GlobalState = {
   },
   isOpenCompanyHierarchyDropDown: false,
   featureFlags: {},
-  availableLocales: [],
+  locales: [],
 };
 
 export const globalSlice = createSlice({
@@ -183,7 +183,7 @@ export const globalSlice = createSlice({
       };
     },
     setLocales: (state, { payload }: PayloadAction<Locale[]>) => {
-      state.availableLocales = payload;
+      state.locales = payload;
     },
     setBackorderEnabled: (state, { payload }: PayloadAction<boolean>) => {
       state.backorderEnabled = payload;

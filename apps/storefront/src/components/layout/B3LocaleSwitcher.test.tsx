@@ -11,7 +11,7 @@ const LOCALES = [
 const withFlagEnabled = {
   global: buildGlobalStateWith({
     featureFlags: { 'LOCAL-3191.B2B_multi_language': true },
-    availableLocales: LOCALES,
+    locales: LOCALES,
   }),
 };
 
@@ -21,7 +21,7 @@ describe('when the multi-language feature flag is disabled', () => {
       preloadedState: {
         global: buildGlobalStateWith({
           featureFlags: { 'LOCAL-3191.B2B_multi_language': false },
-          availableLocales: LOCALES,
+          locales: LOCALES,
         }),
       },
     });
@@ -36,7 +36,7 @@ describe('when there are 0 available locales', () => {
       preloadedState: {
         global: buildGlobalStateWith({
           featureFlags: { 'LOCAL-3191.B2B_multi_language': true },
-          availableLocales: [],
+          locales: [],
         }),
       },
     });
@@ -51,7 +51,7 @@ describe('when there is only 1 available locale', () => {
       preloadedState: {
         global: buildGlobalStateWith({
           featureFlags: { 'LOCAL-3191.B2B_multi_language': true },
-          availableLocales: [
+          locales: [
             { code: 'en', isDefault: true, fullPath: 'https://store.example.com/' },
           ],
         }),

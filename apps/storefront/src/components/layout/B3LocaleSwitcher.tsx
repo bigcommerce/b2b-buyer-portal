@@ -18,21 +18,21 @@ const getActiveLocale = (locales: Locale[]) =>
 
 export default function B3LocaleSwitcher() {
   const isMultiLocaleEnabled = useFeatureFlag('LOCAL-3191.B2B_multi_language');
-  const availableLocales = useAppSelector(({ global }) => global.availableLocales);
+  const locales = useAppSelector(({ global }) => global.locales);
 
-  if (!isMultiLocaleEnabled || availableLocales.length <= 1) {
+  if (!isMultiLocaleEnabled || locales.length <= 1) {
     return null;
   }
 
   const activeLocale =
-    getActiveLocale(availableLocales) ??
-    availableLocales.find((l) => l.isDefault) ??
-    availableLocales[0];
+    getActiveLocale(locales) ??
+    locales.find((l) => l.isDefault) ??
+    locales[0];
 
-  const list = availableLocales.map(({ code }) => ({ key: code, name: code.toUpperCase() }));
+  const list = locales.map(({ code }) => ({ key: code, name: code.toUpperCase() }));
 
   const handleLocaleChange = (code: string | number) => {
-    const nextLocale = availableLocales.find((l) => l.code === String(code));
+    const nextLocale = locales.find((l) => l.code === String(code));
     if (nextLocale && nextLocale.fullPath !== activeLocale.fullPath) {
       window.location.href = nextLocale.fullPath + window.location.hash;
     }
