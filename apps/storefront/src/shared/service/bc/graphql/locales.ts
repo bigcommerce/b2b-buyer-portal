@@ -31,11 +31,9 @@ query GetLocales {
   }
 }`;
 
-export const getLocales = (): Promise<Locale[]> => {
-  const request =
-    platform === 'bigcommerce'
-      ? B3Request.graphqlBC<LocalesResponse>({ query: getLocalesQuery })
-      : B3Request.graphqlBCProxy<LocalesResponse>({ query: getLocalesQuery });
+const getLocales = () =>
+  platform === 'bigcommerce'
+    ? B3Request.graphqlBC<LocalesResponse>({ query: getLocalesQuery })
+    : B3Request.graphqlBCProxy<LocalesResponse>({ query: getLocalesQuery });
 
-  return request.then((res) => res.data.site.settings.locales);
-};
+export default getLocales;
