@@ -11,11 +11,6 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
-import {
-  getCustomerOrders,
-  OrdersFiltersInput,
-  OrdersSortInput,
-} from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 
 interface SearchParamsProps {
@@ -37,9 +32,6 @@ interface LocationState {
   totalCount?: number;
   isCompanyOrder?: boolean;
   searchParams?: SearchParamsProps;
-  // Unified SF GQL path — populated by Order.tsx when B2B-4613 is ON and not a company order.
-  unifiedCustomerFilters?: OrdersFiltersInput;
-  unifiedCustomerSortBy?: OrdersSortInput;
 }
 
 interface RightLeftSideProps {
@@ -74,12 +66,9 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   let totalCount = 0;
   let beginDateAt: string | null = null;
   let endDateAt: string | null = null;
-  let isCompanyOrder = false;
   let searchParams = {
     offset: 0,
   };
-  let unifiedCustomerFilters: OrdersFiltersInput | undefined;
-  let unifiedCustomerSortBy: OrdersSortInput | undefined;
 
   const id = useId();
 
@@ -89,79 +78,57 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     totalCount = state?.totalCount || 0;
     beginDateAt = state?.beginDateAt || null;
     endDateAt = state?.endDateAt || null;
-    isCompanyOrder = state?.isCompanyOrder ?? false;
     searchParams = state?.searchParams || { offset: 0 };
-    unifiedCustomerFilters = state?.unifiedCustomerFilters;
-    unifiedCustomerSortBy = state?.unifiedCustomerSortBy;
   }
 
-  const isUnifiedPath = totalCount === -1;
-
-  const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
+  // const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
 
   const fetchList = async () => {
-    if (isUnifiedPath) return;
+    if (isUnifiedOrders) return;
     setLoading(true);
 
+    const index = () => {
+      if (listIndex) return listIndex - 1;
+      return 0;
+    };
+
+    const searchDetailParams = {
+      ...defaultSearchParams,
+      ...searchParams,
+      first: 3,
+      offset: index(),
+      beginDateAt: beginDateAt || null,
+      endDateAt: endDateAt || null,
+    };
+
+    const { edges: list, totalCount } = isB2BUser
+      ? await getB2BAllOrders(searchDetailParams)
+      : await getBCAllOrders(searchDetailParams);
+
     let flag = '';
-    let rightId: number | string = '';
-    let leftId: number | string = '';
 
-    if (isUnifiedOrdersNonCompanyOrderPath) {
-      // Cursor-based: fetch listIndex + 2 items from the start so that
-      // edges[listIndex - 1] (prev) and edges[listIndex + 1] (next) are in the result.
-      const result = await getCustomerOrders({
-        first: listIndex + 2,
-        filters: unifiedCustomerFilters,
-        sortBy: unifiedCustomerSortBy ?? OrdersSortInput.CREATED_AT_NEWEST,
-      });
+    let rightId = '';
 
-      const edges = result.data?.customer?.orders?.edges ?? [];
+    let leftId = '';
 
-      if (listIndex === 0) {
-        flag = 'toLeft';
-        rightId = edges[1]?.node.entityId ?? '';
-      } else if (!edges[listIndex + 1]) {
-        // No item after the current one — reached the end of the list.
-        flag = 'toRight';
-        leftId = edges[listIndex - 1]?.node.entityId ?? '';
-      } else {
-        leftId = edges[listIndex - 1]?.node.entityId ?? '';
-        rightId = edges[listIndex + 1]?.node.entityId ?? '';
-      }
+    if (listIndex === totalCount - 1) {
+      flag = 'toRight';
+      leftId = list[list.length - 2]?.node.orderId || 0;
+    } else if (listIndex === 0) {
+      flag = 'toLeft';
+      rightId = list[1]?.node.orderId || 0;
     } else {
-      const index = () => {
-        if (listIndex) return listIndex - 1;
-        return 0;
-      };
-
-      const searchDetailParams = {
-        ...defaultSearchParams,
-        ...searchParams,
-        first: 3,
-        offset: index(),
-        beginDateAt: beginDateAt || null,
-        endDateAt: endDateAt || null,
-      };
-
-      const { edges: list, totalCount: listTotal } = isB2BUser
-        ? await getB2BAllOrders(searchDetailParams)
-        : await getBCAllOrders(searchDetailParams);
-
-      if (listIndex === listTotal - 1) {
-        flag = 'toRight';
-        leftId = list[list.length - 2]?.node.orderId || 0;
-      } else if (listIndex === 0) {
-        flag = 'toLeft';
-        rightId = list[1]?.node.orderId || 0;
-      } else {
-        leftId = list[0]?.node.orderId || 0;
-        rightId = list[2]?.node.orderId || 0;
-      }
+      leftId = list[0]?.node.orderId || 0;
+      rightId = list[2]?.node.orderId || 0;
     }
 
-    setRightLeftSide({ leftId, rightId });
+    setRightLeftSide({
+      leftId,
+      rightId,
+    });
+
     setArrived(flag);
+
     setLoading(false);
   };
 
@@ -186,7 +153,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   // requires fetching adjacent orders which the cursor-based API doesn't
   // support in the same way. B2B-4629 (4f) will implement cursor-based
   // detail navigation. Until then, hide this component in the unified path.
-  if (isUnifiedPath) return null;
+  if (isUnifiedOrders) return null;
 
   const handleBeforePage = () => {
     setListIndex(listIndex - 1);
@@ -199,15 +166,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   };
   const index = listIndex + 1;
 
-  const isPrevDisabled = isUnifiedOrdersNonCompanyOrderPath
-    ? arrived === 'toLeft' || loading
-    : totalCount <= 1 || arrived === 'toLeft' || loading;
-
-  const isNextDisabled = isUnifiedOrdersNonCompanyOrderPath
-    ? arrived === 'toRight' || loading
-    : totalCount <= 1 || arrived === 'toRight' || loading;
-
-  const showOrderPositionLabel = !isMobile && !isUnifiedOrdersNonCompanyOrderPath;
+  const showOrderPositionLabel = !isMobile && !isUnifiedOrders;
 
   return (
     <Box
@@ -245,11 +204,25 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
         </Box>
       )}
 
-      <IconButton onClick={handleBeforePage} disabled={isPrevDisabled}>
-        <NavigateBeforeIcon sx={{ color }} />
+      <IconButton
+        onClick={handleBeforePage}
+        disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
+      >
+        <NavigateBeforeIcon
+          sx={{
+            color,
+          }}
+        />
       </IconButton>
-      <IconButton onClick={handleNextPage} disabled={isNextDisabled}>
-        <NavigateNextIcon sx={{ color }} />
+      <IconButton
+        onClick={handleNextPage}
+        disabled={totalCount <= 1 || arrived === 'toRight' || loading}
+      >
+        <NavigateNextIcon
+          sx={{
+            color,
+          }}
+        />
       </IconButton>
     </Box>
   );
