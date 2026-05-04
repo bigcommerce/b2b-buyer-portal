@@ -48,13 +48,13 @@ const normalizeString = (value: string | number | null | undefined): string | un
 
 const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId', dir: 'desc' };
 
-interface UseCustomerOrdersFilterStateArgs {
+interface UseCustomerOrdersStateArgs {
   companyId: number;
   orderStatuses: OrderStatusItem[];
   isCompanyOrder: boolean;
 }
 
-export interface UseCustomerOrdersFilterStateResult extends UseUnifiedOrdersPaginationResult {
+export interface UseCustomerOrdersStateResult extends UseUnifiedOrdersPaginationResult {
   filters: OrdersFiltersInput;
   sortBy: OrdersSortInput;
   activeSort: { key: SortableColumnKey; dir: SortDir };
@@ -64,11 +64,11 @@ export interface UseCustomerOrdersFilterStateResult extends UseUnifiedOrdersPagi
   handleSetOrderBy: (key: string) => void;
 }
 
-export const useCustomerOrdersFilterState = ({
+export const useCustomerOrdersState = ({
   companyId,
   orderStatuses,
   isCompanyOrder,
-}: UseCustomerOrdersFilterStateArgs): UseCustomerOrdersFilterStateResult => {
+}: UseCustomerOrdersStateArgs): UseCustomerOrdersStateResult => {
   const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
     getCustomerOrdersInitFilter(companyId),
   );
