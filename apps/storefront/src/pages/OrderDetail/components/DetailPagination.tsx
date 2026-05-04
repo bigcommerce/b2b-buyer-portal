@@ -7,7 +7,6 @@ import {
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b';
@@ -49,7 +48,6 @@ const defaultSearchParams = {
 export function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
 
   const [listIndex, setListIndex] = useState<number>(initListIndex);
   const [arrived, setArrived] = useState<string>('');
@@ -81,10 +79,10 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     searchParams = state?.searchParams || { offset: 0 };
   }
 
-  // const isUnifiedOrdersNonCompanyOrderPath = isUnifiedOrders && !isCompanyOrder;
+  const isUnifiedPath = totalCount === -1;
 
   const fetchList = async () => {
-    if (isUnifiedOrders) return;
+    if (isUnifiedPath) return;
     setLoading(true);
 
     const index = () => {
@@ -153,7 +151,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   // requires fetching adjacent orders which the cursor-based API doesn't
   // support in the same way. B2B-4629 (4f) will implement cursor-based
   // detail navigation. Until then, hide this component in the unified path.
-  if (isUnifiedOrders) return null;
+  if (isUnifiedPath) return null;
 
   const handleBeforePage = () => {
     setListIndex(listIndex - 1);
@@ -166,7 +164,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   };
   const index = listIndex + 1;
 
-  const showOrderPositionLabel = !isMobile && !isUnifiedOrders;
+  const showOrderPositionLabel = !isMobile && !isUnifiedPath;
 
   return (
     <Box
