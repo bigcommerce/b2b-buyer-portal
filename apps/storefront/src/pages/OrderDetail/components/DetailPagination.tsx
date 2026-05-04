@@ -29,7 +29,6 @@ interface LocationState {
   endDateAt?: string | null;
   currentIndex?: number;
   totalCount?: number;
-  isCompanyOrder?: boolean;
   searchParams?: SearchParamsProps;
 }
 

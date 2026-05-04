@@ -216,7 +216,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: isUnifiedOrdersNonCompanyOrderPath ? -1 : allTotal,
+        totalCount: allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
