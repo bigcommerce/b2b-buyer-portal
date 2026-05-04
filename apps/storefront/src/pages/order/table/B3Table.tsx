@@ -80,11 +80,17 @@ function Row<Row extends OrderIdRow>({ columnItems, node, onClickRow }: RowProps
   );
 }
 
+interface CursorPageInfo {
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 interface TableProps<Row extends OrderIdRow> {
   columnItems: TableColumnItem<Row>[];
   listItems: WithRowControls<Row>[];
   onPaginationChange?: (pagination: Pagination) => void;
   pagination?: Pagination;
+  cursorPageInfo?: CursorPageInfo;
   renderItem: (row: Row, index: number) => ReactElement;
   isInfiniteScroll?: boolean;
   onClickRow: (row: Row, index: number) => void;
@@ -101,6 +107,7 @@ export function B3Table<Row extends OrderIdRow>({
     count: 0,
     first: 10,
   },
+  cursorPageInfo,
   onPaginationChange = () => {},
   renderItem,
   isInfiniteScroll = false,
@@ -159,7 +166,9 @@ export function B3Table<Row extends OrderIdRow>({
           </Grid>
           <TablePagination
             labelDisplayedRows={({ from, to, count }) =>
-              b3Lang('global.pagination.pageXOfY', { from, to, count })
+              count === -1
+                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
+                : b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
             rowsPerPageOptions={rowsPerPageOptions}
             labelRowsPerPage={b3Lang('global.pagination.perPage')}
@@ -179,6 +188,14 @@ export function B3Table<Row extends OrderIdRow>({
             page={first === 0 ? 0 : offset / first}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            {...(cursorPageInfo && {
+              slotProps: {
+                actions: {
+                  nextButton: { disabled: !cursorPageInfo.hasNextPage },
+                  previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
+                },
+              },
+            })}
           />
         </>
       )}
@@ -241,7 +258,9 @@ export function B3Table<Row extends OrderIdRow>({
           </TableContainer>
           <TablePagination
             labelDisplayedRows={({ from, to, count }) =>
-              b3Lang('global.pagination.pageXOfY', { from, to, count })
+              count === -1
+                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
+                : b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
             rowsPerPageOptions={rowsPerPageOptions}
             labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
@@ -257,6 +276,14 @@ export function B3Table<Row extends OrderIdRow>({
             page={first === 0 ? 0 : offset / first}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            {...(cursorPageInfo && {
+              slotProps: {
+                actions: {
+                  nextButton: { disabled: !cursorPageInfo.hasNextPage },
+                  previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
+                },
+              },
+            })}
           />
         </Card>
       )}

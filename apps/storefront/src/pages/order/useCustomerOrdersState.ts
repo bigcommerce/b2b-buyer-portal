@@ -7,6 +7,10 @@ import { OrdersFiltersInput, OrdersSortInput } from '@/shared/service/bc/graphql
 import { OrderStatusItem } from '@/types';
 
 import { getCustomerOrdersInitFilter, packDateRange } from './unifiedApiFiltersHelper';
+import {
+  useUnifiedOrdersPagination,
+  UseUnifiedOrdersPaginationResult,
+} from './useUnifiedOrdersPagination';
 
 type SortableColumnKey = 'orderId' | 'poNumber' | 'totalIncTax' | 'status' | 'createdAt';
 type SortDir = 'asc' | 'desc';
@@ -44,13 +48,13 @@ const normalizeString = (value: string | number | null | undefined): string | un
 
 const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId', dir: 'desc' };
 
-interface UseCustomerOrdersFilterStateArgs {
+interface UseCustomerOrdersStateArgs {
   companyId: number;
   orderStatuses: OrderStatusItem[];
   isCompanyOrder: boolean;
 }
 
-export interface UseCustomerOrdersFilterStateResult {
+export interface UseCustomerOrdersStateResult extends UseUnifiedOrdersPaginationResult {
   filters: OrdersFiltersInput;
   sortBy: OrdersSortInput;
   activeSort: { key: SortableColumnKey; dir: SortDir };
@@ -60,15 +64,18 @@ export interface UseCustomerOrdersFilterStateResult {
   handleSetOrderBy: (key: string) => void;
 }
 
-export const useCustomerOrdersFilterState = ({
+export const useCustomerOrdersState = ({
   companyId,
   orderStatuses,
   isCompanyOrder,
-}: UseCustomerOrdersFilterStateArgs): UseCustomerOrdersFilterStateResult => {
+}: UseCustomerOrdersStateArgs): UseCustomerOrdersStateResult => {
   const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
     getCustomerOrdersInitFilter(companyId),
   );
   const [activeSort, setActiveSort] = useState(DEFAULT_SORT);
+
+  const pagination = useUnifiedOrdersPagination();
+
   const isUnifiedOrdersNonCompanyOrderPath =
     useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders') && !isCompanyOrder;
 
@@ -83,6 +90,7 @@ export const useCustomerOrdersFilterState = ({
 
   const handleSearchChange = (key: string, value: string) => {
     if (key !== 'search') return;
+    pagination.resetPagination();
     setFilters((prev) => ({ ...prev, search: value || undefined }));
   };
 
@@ -95,6 +103,7 @@ export const useCustomerOrdersFilterState = ({
       // Drop the filter on miss — never send a display label as the API status code.
       currentStatus = originalStatus?.systemLabel || undefined;
     }
+    pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       companyName: normalizeString(value.company),
@@ -105,6 +114,7 @@ export const useCustomerOrdersFilterState = ({
 
   const handleCompanyIdsChange = (companyIds: number[]) => {
     const isAll = companyIds.length === 0 || companyIds.includes(-1);
+    pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       companyIds: isAll ? undefined : companyIds.map(String),
@@ -113,12 +123,14 @@ export const useCustomerOrdersFilterState = ({
 
   const handleSetOrderBy = (key: string) => {
     if (!isSortableKey(key)) return;
+    pagination.resetPagination();
     setActiveSort((prev) =>
       prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'desc' },
     );
   };
 
   return {
+    ...pagination,
     filters,
     sortBy,
     activeSort,
