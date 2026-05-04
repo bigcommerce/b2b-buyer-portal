@@ -8,7 +8,6 @@ export function convertOrderDetail(
   return {
     orderId: order.entityId,
 
-    // TODO B2B-4824: need to review status related logic
     // status.label matches the format the legacy API returns (e.g. "Pending").
     // getOrderStatusLabel() will look this up against the still-legacy
     // orderStatus list (getOrderStatusType / getBcOrderStatusType) to resolve

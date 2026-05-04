@@ -181,8 +181,12 @@ function OrderDetail() {
             type: 'all',
             payload: convertOrderDetail(order),
           });
-          // TODO B2B-4824: need to update about company related logic
-          setIsCurrentCompany(true);
+
+          // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.
+          // TODO B2B-4825: Double check this logic for cross-company banner
+          setIsCurrentCompany(
+            order.company ? Number(order.company.entityId) === Number(currentCompanyId) : true,
+          );
           setPreOrderId(orderId);
         }
       } catch (err) {
@@ -197,9 +201,8 @@ function OrderDetail() {
     };
 
     fetchUnifiedOrderDetails();
-    // Disabling rule since dispatch does not need to be in the dep array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUnifiedOrders, orderId, preOrderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispatch stable
+  }, [isUnifiedOrders, orderId, preOrderId, currentCompanyId]);
 
   useEffect(() => {
     if (!orderId) {
