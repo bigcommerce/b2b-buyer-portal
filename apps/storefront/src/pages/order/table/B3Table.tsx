@@ -167,7 +167,7 @@ export function B3Table<Row extends OrderIdRow>({
           <TablePagination
             labelDisplayedRows={({ from, to, count }) =>
               count === -1
-                ? `${from}–${to}`
+                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
                 : b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
             rowsPerPageOptions={rowsPerPageOptions}
@@ -259,7 +259,7 @@ export function B3Table<Row extends OrderIdRow>({
           <TablePagination
             labelDisplayedRows={({ from, to, count }) =>
               count === -1
-                ? `${from}–${to}`
+                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
                 : b3Lang('global.pagination.pageXOfY', { from, to, count })
             }
             rowsPerPageOptions={rowsPerPageOptions}

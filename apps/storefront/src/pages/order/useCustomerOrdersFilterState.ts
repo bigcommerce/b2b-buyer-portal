@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
-import { PageInfo } from '@/shared/service/bc/graphql/base';
 import { OrdersFiltersInput, OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 // Status list still comes from the legacy `orderStatuses` query — the unified
 // schema doesn't expose one yet, so we depend on the legacy type here.
 import { OrderStatusItem } from '@/types';
 
 import { getCustomerOrdersInitFilter, packDateRange } from './unifiedApiFiltersHelper';
+import {
+  useUnifiedOrdersPagination,
+  UseUnifiedOrdersPaginationResult,
+} from './useUnifiedOrdersPagination';
 
 type SortableColumnKey = 'orderId' | 'poNumber' | 'totalIncTax' | 'status' | 'createdAt';
 type SortDir = 'asc' | 'desc';
@@ -44,19 +47,6 @@ const normalizeString = (value: string | number | null | undefined): string | un
 };
 
 const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId', dir: 'desc' };
-const DEFAULT_PAGE_SIZE = 10;
-
-interface CursorPaginationState {
-  after?: string;
-  before?: string;
-}
-
-interface PaginationVariables {
-  first?: number;
-  after?: string;
-  last?: number;
-  before?: string;
-}
 
 interface UseCustomerOrdersFilterStateArgs {
   companyId: number;
@@ -64,21 +54,14 @@ interface UseCustomerOrdersFilterStateArgs {
   isCompanyOrder: boolean;
 }
 
-export interface UseCustomerOrdersFilterStateResult {
+export interface UseCustomerOrdersFilterStateResult extends UseUnifiedOrdersPaginationResult {
   filters: OrdersFiltersInput;
   sortBy: OrdersSortInput;
   activeSort: { key: SortableColumnKey; dir: SortDir };
-  paginationVariables: PaginationVariables;
-  pageSize: number;
-  pageInfo: PageInfo | null;
-  currentPage: number;
   handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
   handleSetOrderBy: (key: string) => void;
-  handlePageChange: (direction: 'next' | 'prev') => void;
-  handlePageSizeChange: (size: number) => void;
-  updatePageInfo: (info: PageInfo) => void;
 }
 
 export const useCustomerOrdersFilterState = ({
@@ -90,10 +73,8 @@ export const useCustomerOrdersFilterState = ({
     getCustomerOrdersInitFilter(companyId),
   );
   const [activeSort, setActiveSort] = useState(DEFAULT_SORT);
-  const [cursors, setCursors] = useState<CursorPaginationState>({});
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
+
+  const pagination = useUnifiedOrdersPagination();
 
   const isUnifiedOrdersNonCompanyOrderPath =
     useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders') && !isCompanyOrder;
@@ -107,23 +88,9 @@ export const useCustomerOrdersFilterState = ({
     [activeSort],
   );
 
-  const paginationVariables = useMemo<PaginationVariables>(
-    () =>
-      cursors.before
-        ? { last: pageSize, before: cursors.before }
-        : { first: pageSize, after: cursors.after },
-    [cursors, pageSize],
-  );
-
-  const resetPagination = useCallback(() => {
-    setCursors({});
-    setCurrentPage(0);
-    setPageInfo(null);
-  }, []);
-
   const handleSearchChange = (key: string, value: string) => {
     if (key !== 'search') return;
-    resetPagination();
+    pagination.resetPagination();
     setFilters((prev) => ({ ...prev, search: value || undefined }));
   };
 
@@ -136,7 +103,7 @@ export const useCustomerOrdersFilterState = ({
       // Drop the filter on miss — never send a display label as the API status code.
       currentStatus = originalStatus?.systemLabel || undefined;
     }
-    resetPagination();
+    pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       companyName: normalizeString(value.company),
@@ -147,7 +114,7 @@ export const useCustomerOrdersFilterState = ({
 
   const handleCompanyIdsChange = (companyIds: number[]) => {
     const isAll = companyIds.length === 0 || companyIds.includes(-1);
-    resetPagination();
+    pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       companyIds: isAll ? undefined : companyIds.map(String),
@@ -156,47 +123,20 @@ export const useCustomerOrdersFilterState = ({
 
   const handleSetOrderBy = (key: string) => {
     if (!isSortableKey(key)) return;
-    resetPagination();
+    pagination.resetPagination();
     setActiveSort((prev) =>
       prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'desc' },
     );
   };
 
-  const handlePageChange = (direction: 'next' | 'prev') => {
-    if (direction === 'next' && pageInfo?.hasNextPage && pageInfo.endCursor) {
-      if (cursors.after === pageInfo.endCursor) return;
-      setCursors({ after: pageInfo.endCursor });
-      setCurrentPage((prev) => prev + 1);
-    } else if (direction === 'prev' && pageInfo?.hasPreviousPage && pageInfo.startCursor) {
-      if (cursors.before === pageInfo.startCursor) return;
-      setCursors({ before: pageInfo.startCursor });
-      setCurrentPage((prev) => Math.max(0, prev - 1));
-    }
-  };
-
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    resetPagination();
-  };
-
-  const updatePageInfo = useCallback((info: PageInfo) => {
-    setPageInfo(info);
-  }, []);
-
   return {
+    ...pagination,
     filters,
     sortBy,
     activeSort,
-    paginationVariables,
-    pageSize,
-    pageInfo,
-    currentPage,
     handleSearchChange,
     handleFilterChange,
     handleCompanyIdsChange,
     handleSetOrderBy,
-    handlePageChange,
-    handlePageSizeChange,
-    updatePageInfo,
   };
 };

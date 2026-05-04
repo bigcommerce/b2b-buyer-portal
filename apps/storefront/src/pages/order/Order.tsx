@@ -10,7 +10,11 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { PageInfo } from '@/shared/service/bc/graphql/base';
-import { getCustomerOrders } from '@/shared/service/bc/graphql/orders';
+import {
+  getCustomerOrders,
+  OrdersFiltersInput,
+  OrdersSortInput,
+} from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
@@ -162,21 +166,22 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
   }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
 
-  const fetchUnifiedOrders = async (): Promise<{
+  const fetchUnifiedOrders = async (args: {
+    first?: number;
+    after?: string;
+    last?: number;
+    before?: string;
+    filters: OrdersFiltersInput;
+    sortBy: OrdersSortInput;
+  }): Promise<{
     edges: ListItem[];
     totalCount: number;
     pageInfo: PageInfo | null;
   }> => {
-    const result = await getCustomerOrders({
-      ...customerFilterState.paginationVariables,
-      filters: customerFilterState.filters,
-      sortBy: customerFilterState.sortBy,
-    });
+    const result = await getCustomerOrders(args);
     const orders = result.data?.customer?.orders;
     const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
     const pageInfo = orders?.pageInfo ?? null;
-
-    setAllTotal(-1);
 
     return { edges, totalCount: -1, pageInfo };
   };
@@ -207,20 +212,24 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
+        searchParams: {
+          ...filterData,
+          orderBy,
+        },
         totalCount: allTotal,
         isCompanyOrder,
-        searchParams: { ...filterData, orderBy },
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
       },
     });
   };
 
+  // TODO B2B-4629: Double check if need more params for unified path
   const goToDetail = (item: ListItem, index: number) => {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
-        totalCount: allTotal,
+        totalCount: -1,
         isCompanyOrder,
         unifiedCustomerFilters: customerFilterState.filters,
         unifiedCustomerSortBy: customerFilterState.sortBy,
@@ -305,19 +314,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const columnItems = getColumnItems();
 
-  const handleUnifiedPaginationChange = (newPagination: { offset: number; first: number }) => {
-    const newPage = newPagination.first === 0 ? 0 : newPagination.offset / newPagination.first;
-
-    if (newPagination.first !== customerFilterState.pageSize) {
-      customerFilterState.handlePageSizeChange(newPagination.first);
-    } else if (newPage > customerFilterState.currentPage) {
-      customerFilterState.handlePageChange('next');
-    } else if (newPage < customerFilterState.currentPage) {
-      customerFilterState.handlePageChange('prev');
-    }
-  };
-
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, dataUpdatedAt } = useQuery({
     queryKey: isUnifiedOrdersNonCompanyOrderPath
       ? [
           'orderList:unified',
@@ -329,7 +326,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     enabled: isUnifiedOrdersNonCompanyOrderPath ? true : Boolean(filterData),
     queryFn: () =>
       isUnifiedOrdersNonCompanyOrderPath
-        ? fetchUnifiedOrders()
+        ? fetchUnifiedOrders({
+            ...customerFilterState.paginationVariables,
+            filters: customerFilterState.filters,
+            sortBy: customerFilterState.sortBy,
+          })
         : fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy }),
   });
 
@@ -338,7 +339,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const pageInfo = 'pageInfo' in data ? (data as { pageInfo: PageInfo | null }).pageInfo : null;
     if (pageInfo) customerFilterState.updatePageInfo(pageInfo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, isUnifiedOrdersNonCompanyOrderPath]);
+  }, [dataUpdatedAt, isUnifiedOrdersNonCompanyOrderPath]);
 
   const listItems = useMemo(
     () =>
@@ -404,23 +405,18 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           listItems={listItems}
           pagination={
             isUnifiedOrdersNonCompanyOrderPath
-              ? {
-                  offset: customerFilterState.currentPage * customerFilterState.pageSize,
-                  first: customerFilterState.pageSize,
-                  count: -1,
-                }
+              ? customerFilterState.b3TablePaginationProps.pagination
               : { ...legacyPagination, count: data?.totalCount || 0 }
           }
           cursorPageInfo={
             isUnifiedOrdersNonCompanyOrderPath
-              ? {
-                  hasNextPage: customerFilterState.pageInfo?.hasNextPage ?? false,
-                  hasPreviousPage: customerFilterState.pageInfo?.hasPreviousPage ?? false,
-                }
+              ? customerFilterState.b3TablePaginationProps.cursorPageInfo
               : undefined
           }
           onPaginationChange={
-            isUnifiedOrdersNonCompanyOrderPath ? handleUnifiedPaginationChange : setLegacyPagination
+            isUnifiedOrdersNonCompanyOrderPath
+              ? customerFilterState.b3TablePaginationProps.onPaginationChange
+              : setLegacyPagination
           }
           isInfiniteScroll={isMobile}
           renderItem={(row, index) => (
