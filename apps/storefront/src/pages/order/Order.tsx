@@ -38,7 +38,7 @@ import {
   getCreatedByUserForOrders,
   getOrderStatusType,
 } from './orders';
-import { useCustomerOrdersFilterState } from './useCustomerOrdersFilterState';
+import { useCustomerOrdersState } from './useCustomerOrdersState';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
 
 interface OrderProps {
@@ -111,7 +111,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
   });
-  const customerFilterState = useCustomerOrdersFilterState({
+  const customerFilterState = useCustomerOrdersState({
     companyId: selectedCompanyId,
     orderStatuses: getOrderStatuses,
     isCompanyOrder,
@@ -216,7 +216,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: allTotal,
+        totalCount: isUnifiedOrdersNonCompanyOrderPath ? -1 : allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
