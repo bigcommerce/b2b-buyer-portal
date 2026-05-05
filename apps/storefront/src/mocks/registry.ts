@@ -2,11 +2,11 @@ import { executeGetCustomerOrders } from './resolvers/orders';
 
 export type MockTransport = 'b2b' | 'sf-direct' | 'sf-proxy';
 
-export interface OperationExecutionContext {
+interface OperationExecutionContext {
   variables?: Record<string, unknown>;
 }
 
-export interface OwnedOperation {
+interface OwnedOperation {
   operationName: string;
   owner: 'buyer-portal-orders';
   transport: MockTransport;

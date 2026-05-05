@@ -23,6 +23,9 @@ module.exports = {
           '^src/headless.ts',
           // This should be removed once we get proper gql types
           'src/types/gql/index.ts',
+          'src/types/gql/gql.ts',
+          // Mock schema is intentionally loaded by tests and future dev-only mock flows.
+          '^src/mocks/schema.ts',
         ],
         numberOfDependentsLessThan: 1,
       },

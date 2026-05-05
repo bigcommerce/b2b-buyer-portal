@@ -24,7 +24,6 @@
     "eslint", // Not really sure why this is reported as unused
     "eslint-plugin-jsx-a11y", // peer dependency of airbnb eslint config
     "eslint-plugin-react-hooks", // peer dependency of airbnb eslint config
-    "graphql", // used to generate graphql types
     "@mui/styles", // used by react-mui-dropzone
     "@testing-library/dom", // used by @testing-library/react
     "terser" // Since Vite v3, terser has become an optional dependency. You need to install it.
@@ -32,6 +31,7 @@
   "prettier": true,
   "ignore": [
     "src/types/gql/graphql.ts",
+    "src/types/gql/gql.ts",
     "src/shared/service/bc/graphql/base.ts",
     "src/shared/service/bc/graphql/orders.ts"
   ]
