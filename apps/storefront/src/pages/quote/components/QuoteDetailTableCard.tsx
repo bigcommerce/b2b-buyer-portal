@@ -11,7 +11,7 @@ import { getBCPrice } from '@/utils/b3Product/b3Product';
 interface QuoteTableCardProps {
   item: any;
   len: number;
-  getTaxRate: (taxClassId: number, variants: any) => number;
+  getTaxRate: (variants: any) => number;
   itemIndex?: number;
   showPrice: (price: string, row: CustomFieldItems) => string | number;
   displayDiscount: boolean;
@@ -60,10 +60,10 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     backorderMessage,
     quantityBackordered,
     totalOnHand,
-    productsSearch: { productUrl, variants = [], taxClassId },
+    productsSearch: { productUrl, variants = [] },
   } = quoteTableItem;
 
-  const taxRate = getTaxRate(taxClassId, variants);
+  const taxRate = getTaxRate(variants);
   const taxPrice = enteredInclusiveTax
     ? (Number(basePrice) * taxRate) / (1 + taxRate)
     : Number(basePrice) * taxRate;

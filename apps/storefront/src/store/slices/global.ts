@@ -5,26 +5,6 @@ import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { OpenPageState } from '@/types/hooks';
 import { FeatureFlags } from '@/utils/featureFlags';
 
-export interface TaxZoneRates {
-  rate?: number;
-  taxClassId?: number;
-}
-
-interface Rates {
-  enabled: boolean;
-  id: number;
-  name: string;
-  priority: number;
-  classRates: TaxZoneRates[];
-}
-
-export interface TaxZoneRatesProps {
-  enabled: boolean;
-  id: number;
-  name: string;
-  rates: Rates[];
-}
-
 export interface StoreInfoProps {
   b2bEnabled: boolean;
   b3ChannelId: number;
@@ -69,7 +49,6 @@ export interface BackorderDisplaySettings {
 }
 
 export interface GlobalState {
-  taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
   currentClickedUrl: string;
   isRegisterAndLogin: boolean;
@@ -91,7 +70,6 @@ export interface GlobalState {
 }
 
 export const initialState: GlobalState = {
-  taxZoneRates: [],
   isClickEnterBtn: false,
   currentClickedUrl: '',
   isRegisterAndLogin: false,
@@ -147,9 +125,6 @@ export const globalSlice = createSlice({
   initialState,
   reducers: {
     clearGlobal: () => initialState,
-    setTaxZoneRates: (state, { payload }: PayloadAction<TaxZoneRatesProps[]>) => {
-      state.taxZoneRates = payload;
-    },
     setGlobalCommonState: (state, { payload }: PayloadAction<Partial<GlobalState>>) => ({
       ...state,
       ...payload,
@@ -216,7 +191,6 @@ export const globalSlice = createSlice({
 
 export const {
   clearGlobal,
-  setTaxZoneRates,
   setGlobalCommonState,
   setOpenPageReducer,
   setShowInclusiveTaxPrice,
