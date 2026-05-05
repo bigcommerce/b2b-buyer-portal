@@ -4,17 +4,17 @@ import type { Order, PageInfo } from '@/shared/service/bc/graphql/orders';
 import { orderStore } from '../store';
 
 interface ExecuteGetCustomerOrdersArgs {
-  variables?: {
-    filters?: {
-      search?: string;
-      status?: string;
-    };
-    sortBy?: OrdersSortInput | `${OrdersSortInput}`;
-    first?: number;
-  };
+  variables?: unknown;
 }
 
-type ExecuteGetCustomerOrdersVariables = NonNullable<ExecuteGetCustomerOrdersArgs['variables']>;
+interface NormalizedGetCustomerOrdersVariables {
+  filters: {
+    search?: string;
+    status?: string;
+  };
+  sortBy?: OrdersSortInput | `${OrdersSortInput}`;
+  first?: number;
+}
 
 interface CustomerOrdersConnection {
   edges: Array<{ node: Order; cursor: string }>;
@@ -26,6 +26,27 @@ interface SuccessfulGetCustomerOrdersResponse {
     customer: {
       orders: CustomerOrdersConnection;
     };
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object';
+}
+
+function getStringValue(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function normalizeVariables(variables: unknown): NormalizedGetCustomerOrdersVariables {
+  const filters = isRecord(variables) && isRecord(variables.filters) ? variables.filters : {};
+
+  return {
+    filters: {
+      search: getStringValue(filters.search),
+      status: getStringValue(filters.status),
+    },
+    sortBy: isRecord(variables) ? getStringValue(variables.sortBy) : undefined,
+    first: isRecord(variables) && typeof variables.first === 'number' ? variables.first : undefined,
   };
 }
 
@@ -49,7 +70,7 @@ function matchesStatus(order: Order, status?: string): boolean {
   return order.status.value === status || order.status.label === status;
 }
 
-function sortOrders(orders: Order[], sortBy?: ExecuteGetCustomerOrdersVariables['sortBy']) {
+function sortOrders(orders: Order[], sortBy?: NormalizedGetCustomerOrdersVariables['sortBy']) {
   const sorted = [...orders];
 
   if (sortBy === OrdersSortInput.CREATED_AT_OLDEST) {
@@ -62,13 +83,14 @@ function sortOrders(orders: Order[], sortBy?: ExecuteGetCustomerOrdersVariables[
 export async function executeGetCustomerOrders({
   variables,
 }: ExecuteGetCustomerOrdersArgs = {}): Promise<SuccessfulGetCustomerOrdersResponse> {
+  const normalizedVariables = normalizeVariables(variables);
   const filteredOrders = orderStore.getOrders().filter(
     (order) =>
-      matchesStatus(order, variables?.filters?.status) &&
-      matchesSearch(order, variables?.filters?.search),
+      matchesStatus(order, normalizedVariables.filters.status) &&
+      matchesSearch(order, normalizedVariables.filters.search),
   );
-  const sortedOrders = sortOrders(filteredOrders, variables?.sortBy);
-  const first = variables?.first ?? sortedOrders.length;
+  const sortedOrders = sortOrders(filteredOrders, normalizedVariables.sortBy);
+  const first = normalizedVariables.first ?? sortedOrders.length;
   const pagedOrders = sortedOrders.slice(0, first);
 
   return {

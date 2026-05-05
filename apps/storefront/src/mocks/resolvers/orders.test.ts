@@ -4,6 +4,14 @@ import { orderStore } from '../store';
 
 import { executeGetCustomerOrders } from './orders';
 
+async function executeWithUnknownVariables(variables: unknown) {
+  if (!variables || typeof variables !== 'object') {
+    return executeGetCustomerOrders({});
+  }
+
+  return executeGetCustomerOrders({ variables });
+}
+
 describe('executeGetCustomerOrders', () => {
   beforeEach(() => {
     orderStore.reset();
@@ -53,6 +61,20 @@ describe('executeGetCustomerOrders', () => {
 
     expect(byId.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([1002]);
     expect(byReference.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([1003]);
+  });
+
+
+  it('ignores malformed filter values instead of throwing', async () => {
+    const result = await executeWithUnknownVariables({
+      filters: {
+        search: 1001,
+        status: { value: 'SHIPPED' },
+      },
+    });
+
+    expect(result.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([
+      1004, 1003, 1002, 1001,
+    ]);
   });
 
   it('sorts by created date', async () => {
