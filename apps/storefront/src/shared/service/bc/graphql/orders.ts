@@ -223,6 +223,8 @@ export enum OrdersSortInput {
   STATUS_Z_TO_A = 'STATUS_Z_TO_A',
   CREATED_AT_NEWEST = 'CREATED_AT_NEWEST',
   CREATED_AT_OLDEST = 'CREATED_AT_OLDEST',
+  PLACED_BY_A_TO_Z = 'PLACED_BY_A_TO_Z',
+  PLACED_BY_Z_TO_A = 'PLACED_BY_Z_TO_A',
 }
 
 export interface OrderDateRangeFilterInput {
@@ -261,7 +263,7 @@ export interface CustomerWithOrdersFiltersInput {
 export interface GetCompanyOrdersResponse {
   data?: {
     customer?: {
-      company?: {
+      activeCompany?: {
         orders?: CompanyOrdersConnection;
       };
     };
@@ -293,7 +295,7 @@ export interface GetOrderDetailResponse {
 export interface GetCustomersWithOrdersResponse {
   data?: {
     customer?: {
-      company?: {
+      activeCompany?: {
         customersWithOrders?: CompanyCustomerConnection;
       };
     };
@@ -491,7 +493,7 @@ const orderListNodeFields = `entityId
 // Queries
 // ===========================================================================
 
-/** Company-scoped order list (B2B). Entry: customer.company.orders. */
+/** Company-scoped order list (B2B). Entry: customer.activeCompany.orders. */
 const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
   $sortBy: OrdersSortInput
@@ -501,7 +503,7 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $before: String
 ) {
   customer {
-    company {
+    activeCompany {
       orders(
         filters: $filters
         sortBy: $sortBy
@@ -600,7 +602,7 @@ const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
   $after: String
 ) {
   customer {
-    company {
+    activeCompany {
       customersWithOrders(
         filters: $filters
         first: $first

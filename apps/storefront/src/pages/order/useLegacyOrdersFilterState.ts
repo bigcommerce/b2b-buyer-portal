@@ -53,17 +53,16 @@ export const useLegacyOrdersFilterState = ({
 }: UseLegacyOrdersFilterStateArgs): UseLegacyOrdersFilterStateResult => {
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>();
   const [activeSort, setActiveSort] = useState(DEFAULT_SORT);
-  const isUnifiedOrdersNonCompanyOrderPath =
-    useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders') && !isCompanyOrder;
+  const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
 
   useEffect(() => {
-    if (isUnifiedOrdersNonCompanyOrderPath) return;
+    if (isUnifiedOrders) return;
 
     const initial = isB2BUser
       ? getCompanyInitFilter(isCompanyOrder, selectedCompanyId)
       : getCustomerInitFilter();
     setFilterData(initial);
-  }, [isB2BUser, isCompanyOrder, selectedCompanyId, isUnifiedOrdersNonCompanyOrderPath]);
+  }, [isB2BUser, isCompanyOrder, selectedCompanyId, isUnifiedOrders]);
 
   const orderBy =
     activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key];

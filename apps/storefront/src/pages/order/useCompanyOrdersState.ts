@@ -1,23 +1,28 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { OrdersFiltersInput, OrdersSortInput } from '@/shared/service/bc/graphql/orders';
-// Status list still comes from the legacy `orderStatuses` query — the unified
-// schema doesn't expose one yet, so we depend on the legacy type here.
+import { CompanyOrdersFiltersInput, OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
-import { getCustomerOrdersInitFilter, packDateRange } from './unifiedApiFiltersHelper';
+import { getCompanyOrdersInitFilter, packDateRange } from './unifiedApiFiltersHelper';
 import {
   useUnifiedOrdersPagination,
   UseUnifiedOrdersPaginationResult,
 } from './useUnifiedOrdersPagination';
 
-type SortableColumnKey = 'orderId' | 'poNumber' | 'totalIncTax' | 'status' | 'createdAt';
+type SortableColumnKey =
+  | 'orderId'
+  | 'poNumber'
+  | 'totalIncTax'
+  | 'status'
+  | 'placedBy'
+  | 'createdAt';
 type SortDir = 'asc' | 'desc';
 
 interface AppliedFilters {
   startValue?: string;
   endValue?: string;
   orderStatus?: string | number;
+  PlacedBy?: string;
   company?: string;
 }
 
@@ -29,6 +34,7 @@ const COLUMN_KEY_TO_SORT_INPUT: Record<SortableColumnKey, Record<SortDir, Orders
     desc: OrdersSortInput.HIGHEST_TOTAL_INC_TAX,
   },
   status: { asc: OrdersSortInput.STATUS_A_TO_Z, desc: OrdersSortInput.STATUS_Z_TO_A },
+  placedBy: { asc: OrdersSortInput.PLACED_BY_A_TO_Z, desc: OrdersSortInput.PLACED_BY_Z_TO_A },
   createdAt: { asc: OrdersSortInput.CREATED_AT_OLDEST, desc: OrdersSortInput.CREATED_AT_NEWEST },
 };
 
@@ -47,13 +53,13 @@ const normalizeString = (value: string | number | null | undefined): string | un
 
 const DEFAULT_SORT: { key: SortableColumnKey; dir: SortDir } = { key: 'orderId', dir: 'desc' };
 
-interface UseCustomerOrdersStateArgs {
-  companyId: number;
+interface UseCompanyOrdersStateArgs {
+  selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
 }
 
-export interface UseCustomerOrdersStateResult extends UseUnifiedOrdersPaginationResult {
-  filters: OrdersFiltersInput;
+export interface UseCompanyOrdersStateResult extends UseUnifiedOrdersPaginationResult {
+  filters: CompanyOrdersFiltersInput;
   sortBy: OrdersSortInput;
   activeSort: { key: SortableColumnKey; dir: SortDir };
   handleSearchChange: (key: string, value: string) => void;
@@ -62,20 +68,20 @@ export interface UseCustomerOrdersStateResult extends UseUnifiedOrdersPagination
   handleSetOrderBy: (key: string) => void;
 }
 
-export const useCustomerOrdersState = ({
-  companyId,
+export const useCompanyOrdersState = ({
+  selectedCompanyId,
   orderStatuses,
-}: UseCustomerOrdersStateArgs): UseCustomerOrdersStateResult => {
-  const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
-    getCustomerOrdersInitFilter(companyId),
+}: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
+  const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
+    getCompanyOrdersInitFilter(selectedCompanyId),
   );
   const [activeSort, setActiveSort] = useState(DEFAULT_SORT);
 
   const pagination = useUnifiedOrdersPagination();
 
   useEffect(() => {
-    setFilters(getCustomerOrdersInitFilter(companyId));
-  }, [companyId]);
+    setFilters(getCompanyOrdersInitFilter(selectedCompanyId));
+  }, [selectedCompanyId]);
 
   const sortBy = useMemo(
     () => COLUMN_KEY_TO_SORT_INPUT[activeSort.key][activeSort.dir],
@@ -89,19 +95,19 @@ export const useCustomerOrdersState = ({
   };
 
   const handleFilterChange = (value: AppliedFilters) => {
-    let currentStatus = normalizeString(value.orderStatus);
-    if (currentStatus) {
+    let resolvedStatuses: string[] | undefined;
+    const rawStatus = normalizeString(value.orderStatus);
+    if (rawStatus) {
       const originalStatus = orderStatuses.find(
-        (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
+        (s) => s.customLabel === rawStatus || s.systemLabel === rawStatus,
       );
-      // Drop the filter on miss — never send a display label as the API status code.
-      currentStatus = originalStatus?.systemLabel || undefined;
+      resolvedStatuses = originalStatus?.systemLabel ? [originalStatus.systemLabel] : undefined;
     }
+
     pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
-      companyName: normalizeString(value.company),
-      status: currentStatus,
+      status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
     }));
   };
