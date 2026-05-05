@@ -9,6 +9,11 @@ export default /* GraphQL */ `
     createdAt: DateTime!
   }
 
+  type OrderStatus {
+    value: String
+    label: String!
+  }
+
   # This is a placeholder for Quote, it will be extended/overwritten in a different file.
   type Quote implements Node {
     id: ID!
@@ -37,6 +42,13 @@ export default /* GraphQL */ `
     CREATED_AT_OLDEST
   }
 
+  scalar OrderStatusValue
+
+  input OrderDateRangeFilterInput {
+    from: DateTime
+    to: DateTime
+  }
+
   input CompanyOrdersFiltersInput {
     search: String
     dateRange: OrderDateRangeFilterInput
@@ -53,6 +65,17 @@ export default /* GraphQL */ `
 
   input CustomerWithOrdersFiltersInput {
     companyIds: [ID!] # Used to further filter the orders by company, required for company hierarchy
+  }
+
+  type OrdersEdge {
+    node: Order!
+    cursor: String!
+  }
+
+  type OrdersConnection {
+    edges: [OrdersEdge!]!
+    pageInfo: PageInfo!
+    collectionInfo: CollectionInfo
   }
 
   # For re-order/add to shopping list in the OrderDetails page, we'll rely on 'purchasedProducts' with a filter.

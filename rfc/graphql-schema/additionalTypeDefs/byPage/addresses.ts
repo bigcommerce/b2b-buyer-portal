@@ -1,5 +1,5 @@
 export default /* GraphQL */ `
-  type AddressType {
+  type CompanyAddressType {
     isShipping: Boolean!
     isBilling: Boolean!
     isDefaultShipping: Boolean!
@@ -12,7 +12,7 @@ export default /* GraphQL */ `
     lastName: String!
     address1: String!
     address2: String
-    addressType: AddressType! # This is the B2B address type, which is defined atop. Different from the B2C address type (commercial/residential)
+    addressType: CompanyAddressType! # This is the B2B address type, which is defined atop. Different from the B2C address type (commercial/residential)
     city: String!
     country: String
     countryId: Int

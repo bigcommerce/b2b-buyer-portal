@@ -114,6 +114,11 @@ export default /* GraphQL */ `
     data: RegisterCompanyCustomerDataInput!
   }
 
+  type RegisterCustomerResult {
+    errors: [Error!]!
+    customer: Customer
+  }
+
   type CompanyMutations {
     changeCustomerRole(
       input: ChangeCustomerRoleInput!

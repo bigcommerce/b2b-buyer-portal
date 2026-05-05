@@ -120,10 +120,6 @@ export default /* GraphQL */ `
     ): QuoteAttachmentsConnection!
   }
 
-  extend type Query {
-    quote(id: ID!): Quote
-  }
-
   input QuoteLineItemInput {
     quantity: Int!
     productEntityId: ID!

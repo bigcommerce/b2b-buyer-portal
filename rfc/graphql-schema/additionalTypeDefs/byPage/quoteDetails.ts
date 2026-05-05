@@ -235,7 +235,7 @@ export default /* GraphQL */ `
     checkoutUrl: String!
   }
 
-  type CreateCart {
+  type CreateCartResult {
     errors: [CreateCartError!]!
     cartDetails: CartFromQuoteDetails
   }
