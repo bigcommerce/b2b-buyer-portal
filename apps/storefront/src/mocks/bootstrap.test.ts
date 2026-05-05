@@ -1,6 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { unregisterStaleMockWorkers } from './bootstrap';
+import { enableMocking, unregisterStaleMockWorkers } from './bootstrap';
+
+const startWorker = vi.hoisted(() => vi.fn());
+
+vi.mock('./browser', () => ({
+  worker: {
+    start: startWorker,
+  },
+}));
 
 interface MockWorkerRegistrationParams {
   scriptURL: string;
@@ -19,6 +27,8 @@ const buildServiceWorkerRegistration = ({
 describe('unregisterStaleMockWorkers', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    startWorker.mockReset();
   });
 
   it('unregisters only mock service workers', async () => {
@@ -44,5 +54,18 @@ describe('unregisterStaleMockWorkers', () => {
 
     expect(unregisterMock).toHaveBeenCalledTimes(1);
     expect(unregisterOther).not.toHaveBeenCalled();
+  });
+
+  it('continues when mock worker startup fails', async () => {
+    vi.stubEnv('DEV', true);
+    vi.stubEnv('VITE_USE_MOCK_API', 'true');
+    startWorker.mockRejectedValue(new Error('Worker startup failed'));
+
+    await expect(enableMocking()).resolves.toBeUndefined();
+
+    expect(startWorker).toHaveBeenCalledWith({
+      onUnhandledRequest: 'bypass',
+      serviceWorker: { url: '/mockServiceWorker.js' },
+    });
   });
 });
