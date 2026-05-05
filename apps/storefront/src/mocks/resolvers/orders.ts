@@ -37,6 +37,24 @@ function getStringValue(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
+function getSortByValue(value: unknown): NormalizedGetCustomerOrdersVariables['sortBy'] {
+  switch (value) {
+    case OrdersSortInput.ID_A_TO_Z:
+    case OrdersSortInput.ID_Z_TO_A:
+    case OrdersSortInput.REFERENCE_A_TO_Z:
+    case OrdersSortInput.REFERENCE_Z_TO_A:
+    case OrdersSortInput.HIGHEST_TOTAL_INC_TAX:
+    case OrdersSortInput.LOWEST_TOTAL_INC_TAX:
+    case OrdersSortInput.STATUS_A_TO_Z:
+    case OrdersSortInput.STATUS_Z_TO_A:
+    case OrdersSortInput.CREATED_AT_NEWEST:
+    case OrdersSortInput.CREATED_AT_OLDEST:
+      return value;
+    default:
+      return undefined;
+  }
+}
+
 function normalizeVariables(variables: unknown): NormalizedGetCustomerOrdersVariables {
   const filters = isRecord(variables) && isRecord(variables.filters) ? variables.filters : {};
 
@@ -45,7 +63,7 @@ function normalizeVariables(variables: unknown): NormalizedGetCustomerOrdersVari
       search: getStringValue(filters.search),
       status: getStringValue(filters.status),
     },
-    sortBy: isRecord(variables) ? getStringValue(variables.sortBy) : undefined,
+    sortBy: isRecord(variables) ? getSortByValue(variables.sortBy) : undefined,
     first: isRecord(variables) && typeof variables.first === 'number' ? variables.first : undefined,
   };
 }
