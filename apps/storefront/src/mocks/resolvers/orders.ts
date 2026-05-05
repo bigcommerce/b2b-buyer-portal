@@ -1,5 +1,5 @@
-import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 import type { Order, PageInfo } from '@/shared/service/bc/graphql/orders';
+import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 
 import { orderStore } from '../store';
 
@@ -102,11 +102,13 @@ export async function executeGetCustomerOrders({
   variables,
 }: ExecuteGetCustomerOrdersArgs = {}): Promise<SuccessfulGetCustomerOrdersResponse> {
   const normalizedVariables = normalizeVariables(variables);
-  const filteredOrders = orderStore.getOrders().filter(
-    (order) =>
-      matchesStatus(order, normalizedVariables.filters.status) &&
-      matchesSearch(order, normalizedVariables.filters.search),
-  );
+  const filteredOrders = orderStore
+    .getOrders()
+    .filter(
+      (order) =>
+        matchesStatus(order, normalizedVariables.filters.status) &&
+        matchesSearch(order, normalizedVariables.filters.search),
+    );
   const sortedOrders = sortOrders(filteredOrders, normalizedVariables.sortBy);
   const first = normalizedVariables.first ?? sortedOrders.length;
   const pagedOrders = sortedOrders.slice(0, first);

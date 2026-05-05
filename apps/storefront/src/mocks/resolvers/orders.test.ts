@@ -60,9 +60,10 @@ describe('executeGetCustomerOrders', () => {
     });
 
     expect(byId.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([1002]);
-    expect(byReference.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([1003]);
+    expect(byReference.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([
+      1003,
+    ]);
   });
-
 
   it('ignores malformed filter values instead of throwing', async () => {
     const result = await executeWithUnknownVariables({

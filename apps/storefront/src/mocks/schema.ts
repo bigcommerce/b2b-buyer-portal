@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { addMocksToSchema } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+// eslint-disable-next-line import/no-extraneous-dependencies -- @rfc is a local monorepo alias, not an npm package.
 import additionalTypeDefs from '@rfc/graphql-schema/additionalTypeDefs';
+// eslint-disable-next-line import/no-extraneous-dependencies -- @rfc is a local monorepo alias, not an npm package.
 import canonicalSchema from '@rfc/graphql-schema/b2b-full-schema.graphql?raw';
 
 const scalarMocks = {

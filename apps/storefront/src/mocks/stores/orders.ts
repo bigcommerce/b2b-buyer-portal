@@ -36,7 +36,8 @@ export function mockOrderFactory(overrides: OrderOverride): Order {
       email: 'avery@example.com',
     },
     subTotal: overrides.subTotal ?? money(100),
-    discountedSubTotal: overrides.discountedSubTotal === undefined ? money(95) : overrides.discountedSubTotal,
+    discountedSubTotal:
+      overrides.discountedSubTotal === undefined ? money(95) : overrides.discountedSubTotal,
     shippingCostTotal: overrides.shippingCostTotal ?? money(10),
     handlingCostTotal: overrides.handlingCostTotal ?? money(0),
     wrappingCostTotal: overrides.wrappingCostTotal ?? money(0),
@@ -53,15 +54,19 @@ export function mockOrderFactory(overrides: OrderOverride): Order {
     totalProductQuantity: overrides.totalProductQuantity ?? 2,
     consignments: overrides.consignments === undefined ? null : overrides.consignments,
     reference: overrides.reference === undefined ? `PO-${entityId}` : overrides.reference,
-    company: overrides.company === undefined ? { entityId: 501, name: 'Acme Manufacturing' } : overrides.company,
-    placedBy: overrides.placedBy === undefined
-      ? {
-          entityId: 701,
-          firstName: 'Avery',
-          lastName: 'Buyer',
-          email: 'avery@example.com',
-        }
-      : overrides.placedBy,
+    company:
+      overrides.company === undefined
+        ? { entityId: 501, name: 'Acme Manufacturing' }
+        : overrides.company,
+    placedBy:
+      overrides.placedBy === undefined
+        ? {
+            entityId: 701,
+            firstName: 'Avery',
+            lastName: 'Buyer',
+            email: 'avery@example.com',
+          }
+        : overrides.placedBy,
     history: overrides.history ?? [],
     quote: overrides.quote === undefined ? null : overrides.quote,
     invoice: overrides.invoice === undefined ? null : overrides.invoice,
