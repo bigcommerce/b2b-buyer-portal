@@ -47,7 +47,7 @@ interface ShoppingDetailTableProps {
   productList: ProductInfoProps[];
   getQuoteTableDetails: GetRequestList<SearchProps, ProductInfoProps>;
   quoteReviewedBySalesRep: boolean;
-  getTaxRate: (taxClassId: number, variants: any) => number;
+  getTaxRate: (variants: any) => number;
   displayDiscount: boolean;
   currency: CurrencyProps;
   status: string | number;
@@ -251,10 +251,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const {
           basePrice,
           offeredPrice,
-          productsSearch: { variants = [], taxClassId },
+          productsSearch: { variants = [] },
         } = row;
 
-        const taxRate = getTaxRate(taxClassId, variants);
+        const taxRate = getTaxRate(variants);
         const taxPrice = enteredInclusiveTax
           ? (Number(basePrice) * taxRate) / (1 + taxRate)
           : Number(basePrice) * taxRate;
@@ -339,10 +339,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           basePrice,
           quantity,
           offeredPrice,
-          productsSearch: { variants = [], taxClassId },
+          productsSearch: { variants = [] },
         } = row;
 
-        const taxRate = getTaxRate(taxClassId, variants);
+        const taxRate = getTaxRate(variants);
         const taxPrice = enteredInclusiveTax
           ? (Number(basePrice) * taxRate) / (1 + taxRate)
           : Number(basePrice) * taxRate;

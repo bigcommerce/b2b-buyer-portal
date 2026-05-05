@@ -494,7 +494,7 @@ function QuoteDetail() {
     ? hasQuoteValidationErrorsBackendFlow
     : hasQuoteValidationErrorsFrontendFlow;
 
-  const getTaxRate = (_taxClassId: number, variants: any) => {
+  const getTaxRate = (variants: any) => {
     if (variants.length) {
       const taxExclusive = get(variants, '[0].bc_calculated_price.tax_exclusive', 0);
       const taxInclusive = get(variants, '[0].bc_calculated_price.tax_inclusive', 0);
@@ -563,10 +563,10 @@ function QuoteDetail() {
           const {
             quantity,
             offeredPrice,
-            productsSearch: { variants = [], taxClassId },
+            productsSearch: { variants = [] },
           } = product;
 
-          const taxRate = getTaxRate(taxClassId, variants);
+          const taxRate = getTaxRate(variants);
           taxPrice += enteredInclusiveTax
             ? ((Number(offeredPrice) * taxRate) / (1 + taxRate)) * Number(quantity)
             : Number(offeredPrice) * taxRate * Number(quantity);
