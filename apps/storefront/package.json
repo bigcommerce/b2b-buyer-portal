@@ -20,7 +20,7 @@
     "coverage": "vitest --coverage",
     "generate": "graphql-codegen",
     "generate:local": "CODEGEN_ENV=local graphql-codegen",
-    "generate:mock": "CODEGEN_ENV=mock graphql-codegen",
+    "generate:mock": "CODEGEN_ENV=mock graphql-codegen && node -e \"const fs=require('fs');const p='src/types/gql/gql.ts';if(fs.existsSync(p)){fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(\\\"import * as types from './graphql';\\\\n\\\",''));}\"",
     "start": "http-server ./dist --cors"
   },
   "dependencies": {

@@ -28,6 +28,10 @@ if (!selectedEnv) {
 const config: CodegenConfig = {
   schema: selectedEnv.schema,
   documents: ['src/shared/service/**/*.ts'],
+  config: {
+    schemaExtensions: { schemaExtensions: {}, types: {} },
+  },
+  allowPartialOutputs: true,
   generates: {
     './src/types/gql/': {
       preset: 'client',
