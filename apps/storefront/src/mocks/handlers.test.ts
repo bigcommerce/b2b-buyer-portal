@@ -41,6 +41,24 @@ describe('resolveGraphQLMock', () => {
     expect(result).toEqual({ kind: 'passthrough' });
   });
 
+  it('wraps plain resolver objects in a GraphQL data envelope', async () => {
+    if (!customerOrdersOperation) {
+      throw new Error('Expected GetCustomerOrders to be registered for sf-proxy');
+    }
+
+    const plainResolverBody = { customer: { id: 'customer-1' } };
+
+    customerOrdersOperation.execute = async () => plainResolverBody;
+
+    const result = await resolveGraphQLMock({
+      operationName: 'GetCustomerOrders',
+      transport: 'sf-proxy',
+      variables: { first: 1 },
+    });
+
+    expect(result).toEqual({ kind: 'mocked', body: { data: plainResolverBody } });
+  });
+
   it('converts resolver exceptions into GraphQL errors', async () => {
     if (!customerOrdersOperation) {
       throw new Error('Expected GetCustomerOrders to be registered for sf-proxy');
