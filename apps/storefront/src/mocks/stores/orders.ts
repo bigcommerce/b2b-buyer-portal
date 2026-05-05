@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import type { DateTimeExtended, Money, Order } from '@/shared/service/bc/graphql/orders';
 
 type OrderOverride = Partial<Order> & Pick<Order, 'entityId'>;
@@ -77,8 +75,6 @@ function setOrders(orders: Order[]): void {
 }
 
 export function seed(): void {
-  faker.seed(4613);
-
   setOrders([
     mockOrderFactory({
       entityId: 1004,
