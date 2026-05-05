@@ -1,3 +1,4 @@
+import common from './common'
 import dashboard from './byPage/dashboard'
 import userManagement from './byPage/userManagement'
 import orderList from './byPage/orders'
@@ -15,6 +16,7 @@ import addToShoppingList from './byPage/addToShoppingList'
 import draftQuote from './byPage/draftQuote'
 
 export default [
+  common,
   userManagement,
   orderList,
   dashboard,
