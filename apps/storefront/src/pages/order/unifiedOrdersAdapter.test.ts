@@ -105,6 +105,42 @@ describe('unifiedOrdersAdapter', () => {
     });
   });
 
+  it('uses page info to avoid under-reporting the unified result count', () => {
+    const result = mapUnifiedOrdersResponseToLegacyList(
+      {
+        data: {
+          customer: {
+            orders: {
+              edges: [
+                {
+                  cursor: '1011',
+                  node: {
+                    entityId: 1011,
+                    orderedAt: { utc: '2026-05-01T14:00:00.000Z' },
+                    totalIncTax: { currencyCode: 'USD', value: 35.5 },
+                    status: { value: 'COMPLETED', label: 'Completed' },
+                    reference: null,
+                    company: null,
+                    placedBy: null,
+                  },
+                },
+              ],
+              pageInfo: {
+                hasNextPage: true,
+                hasPreviousPage: true,
+                startCursor: '1011',
+                endCursor: '1011',
+              },
+            },
+          },
+        },
+      },
+      { offset: 10, first: 10 },
+    );
+
+    expect(result.totalCount).toBe(21);
+  });
+
   it('maps supported legacy sort keys to unified sort enum values', () => {
     expect(mapLegacyOrderByToUnifiedSort('-createdAt')).toBe(OrdersSortInput.CREATED_AT_NEWEST);
     expect(mapLegacyOrderByToUnifiedSort('createdAt')).toBe(OrdersSortInput.CREATED_AT_OLDEST);
@@ -125,6 +161,25 @@ describe('unifiedOrdersAdapter', () => {
       filters: { search: 'PO-1004', status: 'Shipped' },
       sortBy: OrdersSortInput.CREATED_AT_NEWEST,
       first: 10,
+    });
+  });
+
+  it('maps legacy date range and cursor pagination to unified variables', () => {
+    expect(
+      mapFilterDataToUnifiedVariables(
+        {
+          beginDateAt: '2026-05-01',
+          endDateAt: '2026-05-04',
+          first: 10,
+          offset: 10,
+        },
+        'cursor-10',
+      ),
+    ).toEqual({
+      filters: { dateRange: { from: '2026-05-01', to: '2026-05-04' } },
+      sortBy: OrdersSortInput.CREATED_AT_NEWEST,
+      first: 10,
+      after: 'cursor-10',
     });
   });
 

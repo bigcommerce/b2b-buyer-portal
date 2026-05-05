@@ -1,38 +1,11 @@
-import { Money, OrdersSortInput } from '@/shared/service/bc/graphql/orders';
+import type {
+  GetCustomerOrdersResponse,
+  Money,
+  OrdersFiltersInput,
+} from '@/shared/service/bc/graphql/orders';
+import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 
 import { FilterSearchProps } from './config';
-
-interface UnifiedOrdersListResponse {
-  data?: {
-    customer?: {
-      orders?: {
-        edges: Array<{
-          cursor?: string;
-          node: {
-            entityId: number;
-            orderedAt: { utc: string };
-            totalIncTax: Money;
-            status: { value?: string | null; label: string };
-            reference: string | null;
-            company: { entityId?: number; name: string } | null;
-            placedBy: {
-              entityId?: number;
-              firstName: string;
-              lastName: string;
-              email?: string;
-            } | null;
-          };
-        }>;
-        pageInfo?: {
-          hasNextPage: boolean;
-          hasPreviousPage: boolean;
-          startCursor?: string | null;
-          endCursor?: string | null;
-        };
-      };
-    };
-  };
-}
 
 interface LegacyOrderListResponse {
   totalCount: number;
@@ -47,6 +20,18 @@ interface LegacyOrderListResponse {
     lastName: string;
     companyName: string;
   }>;
+}
+
+interface UnifiedPaginationContext {
+  offset?: number;
+  first?: number;
+}
+
+interface UnifiedOrderVariables {
+  filters: OrdersFiltersInput;
+  sortBy: OrdersSortInput;
+  first?: number;
+  after?: string;
 }
 
 function unixSeconds(utc: string): string {
@@ -67,13 +52,24 @@ function moneyFormatFor({ currencyCode }: Money): string {
   });
 }
 
+function getLowerBoundTotalCount(
+  response: GetCustomerOrdersResponse,
+  edgeCount: number,
+  { offset = 0, first = edgeCount }: UnifiedPaginationContext = {},
+): number {
+  const hasNextPage = response.data?.customer?.orders?.pageInfo.hasNextPage === true;
+
+  return hasNextPage ? offset + first + 1 : offset + edgeCount;
+}
+
 export function mapUnifiedOrdersResponseToLegacyList(
-  response: UnifiedOrdersListResponse,
+  response: GetCustomerOrdersResponse,
+  pagination?: UnifiedPaginationContext,
 ): LegacyOrderListResponse {
   const edges = response.data?.customer?.orders?.edges ?? [];
 
   return {
-    totalCount: edges.length,
+    totalCount: getLowerBoundTotalCount(response, edges.length, pagination),
     edges: edges.map(({ node }) => ({
       orderId: String(node.entityId),
       poNumber: node.reference ?? '',
@@ -103,15 +99,32 @@ export function mapLegacyOrderByToUnifiedSort(orderBy?: string): OrdersSortInput
     : OrdersSortInput.CREATED_AT_NEWEST;
 }
 
-export function mapFilterDataToUnifiedVariables(params: Partial<FilterSearchProps>) {
+export function mapFilterDataToUnifiedVariables(
+  params: Partial<FilterSearchProps>,
+  after?: string,
+): UnifiedOrderVariables {
   const status = params.orderStatus ?? params.statusCode;
+  const filters: OrdersFiltersInput = {};
+
+  if (params.q) {
+    filters.search = String(params.q);
+  }
+
+  if (status) {
+    filters.status = String(status);
+  }
+
+  if (params.beginDateAt) {
+    filters.dateRange = {
+      from: String(params.beginDateAt),
+      ...(params.endDateAt ? { to: String(params.endDateAt) } : {}),
+    };
+  }
 
   return {
-    filters: {
-      search: params.q ? String(params.q) : undefined,
-      status: status ? String(status) : undefined,
-    },
+    filters,
     sortBy: mapLegacyOrderByToUnifiedSort(params.orderBy),
     first: typeof params.first === 'number' ? params.first : undefined,
+    ...(after ? { after } : {}),
   };
 }
