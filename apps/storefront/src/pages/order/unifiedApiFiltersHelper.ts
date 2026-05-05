@@ -1,4 +1,16 @@
-import { OrderDateRangeFilterInput, OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
+import {
+  CompanyOrdersFiltersInput,
+  OrderDateRangeFilterInput,
+  OrdersFiltersInput,
+} from '@/shared/service/bc/graphql/orders';
+
+export const getCompanyOrdersInitFilter = (companyId: number): CompanyOrdersFiltersInput => ({
+  search: undefined,
+  dateRange: undefined,
+  status: undefined,
+  customerId: undefined,
+  companyIds: companyId ? [String(companyId)] : undefined,
+});
 
 export const getCustomerOrdersInitFilter = (companyId: number): OrdersFiltersInput => {
   return {
