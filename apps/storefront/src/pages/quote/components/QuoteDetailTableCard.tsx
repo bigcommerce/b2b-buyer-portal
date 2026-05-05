@@ -17,7 +17,6 @@ interface QuoteTableCardProps {
   displayDiscount: boolean;
   currency: CurrencyProps;
   showBackorderDetails?: boolean;
-  status?: string | number;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -36,9 +35,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     currency,
     displayDiscount,
     showBackorderDetails = false,
-    status,
   } = props;
-  const isOrdered = Number(status) === 4;
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
@@ -149,7 +146,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
+          {isBackorderEnabled && isBackorderMessagingEnabled && (
             <BackorderMessage
               totalOnHand={totalOnHand}
               quantityBackordered={quantityBackordered}

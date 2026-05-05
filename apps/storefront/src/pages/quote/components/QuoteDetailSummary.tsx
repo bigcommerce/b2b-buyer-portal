@@ -199,7 +199,7 @@ export default function QuoteDetailSummary({
                   </Typography>
                   <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
                 </Grid>
-                {Number(status) !== 4 && isBackorderMessagingEnabled && (
+                {isBackorderMessagingEnabled && (
                   <ShippingExpectationPrompt
                     backorderEnabled={backorderEnabled}
                     hasBackorderedItems={hasBackorderedItems}
