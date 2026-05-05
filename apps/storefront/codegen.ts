@@ -31,7 +31,7 @@ const config: CodegenConfig = {
   config: {
     schemaExtensions: { schemaExtensions: {}, types: {} },
   },
-  allowPartialOutputs: true,
+  allowPartialOutputs: CODEGEN_ENV === 'mock',
   generates: {
     './src/types/gql/': {
       preset: 'client',
