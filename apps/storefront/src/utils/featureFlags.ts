@@ -35,6 +35,10 @@ export const featureFlags = [
     key: 'B2B-4613.buyer_portal_unified_sf_gql_orders',
     name: 'unifiedStorefrontGraphqlOrders',
   },
+  {
+    key: 'LOCAL-3191.B2B_multi_language',
+    name: 'b2bMultiLanguage',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
