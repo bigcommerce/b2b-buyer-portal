@@ -38,3 +38,10 @@ slack-message.json
 
 # generated graphql POC schema
 supergraph.graphql
+
+# Claude Code setup
+docs/**
+!docs/headless.md
+!docs/stencil.md
+.claude/settings.local.json
+.claude/**/personal-*.md
