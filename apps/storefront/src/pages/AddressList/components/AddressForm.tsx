@@ -6,6 +6,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
+import { Country, getIsStateRequired } from '@/pages/Registered/config';
 import {
   createB2BAddress,
   createBcAddress,
@@ -476,9 +477,9 @@ function AddressForm(
 
   useEffect(() => {
     const handleCountryChange = (countryCode: string) => {
-      const stateList =
-        countries.find((country: CountryProps) => country.countryCode === countryCode)?.states ||
-        [];
+      const selectedCountry = countries.find((country) => country.countryCode === countryCode);
+      const stateList = selectedCountry?.states || [];
+      const isStateRequired = getIsStateRequired(selectedCountry as Country, stateList);
       const stateFields = allAddressFields.find(
         (formFields: CustomFieldItems) => formFields.name === 'state',
       );
@@ -487,11 +488,11 @@ function AddressForm(
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
-          stateFields.required = true;
+          stateFields.required = isStateRequired;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
-          stateFields.required = false;
+          stateFields.required = isStateRequired;
         }
       }
 
