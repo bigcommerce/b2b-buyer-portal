@@ -49,6 +49,10 @@ export interface TableColumnItem<Row extends OrderIdRow> {
   width?: string;
   render: (row: Row) => ReactNode;
   isSortable?: boolean;
+  /**
+   * If true, the column will not be displayed in the table
+   */
+  hidden?: boolean;
 }
 
 interface RowProps<Row extends OrderIdRow> {
@@ -151,6 +155,8 @@ export function B3Table<Row extends OrderIdRow>({
     });
   };
 
+  const visibleColumnItems = columnItems.filter((column) => column.hidden !== true);
+
   return listItems.length > 0 ? (
     <>
       {isInfiniteScroll && (
@@ -215,7 +221,7 @@ export function B3Table<Row extends OrderIdRow>({
             >
               <TableHead>
                 <TableRow data-testid="tableHead-Row">
-                  {columnItems.map((column) => (
+                  {visibleColumnItems.map((column) => (
                     <TableCell
                       key={column.title}
                       width={column.width}
@@ -247,7 +253,7 @@ export function B3Table<Row extends OrderIdRow>({
                   return (
                     <Row
                       key={`row-${node.orderId}`}
-                      columnItems={columnItems}
+                      columnItems={visibleColumnItems}
                       node={node}
                       onClickRow={() => onClickRow(node, index)}
                     />

@@ -224,7 +224,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     });
   };
 
-  const columnAllItems = [
+  const isSuperAdminNotAgenting = role === CustomerRole.SUPER_ADMIN && !isAgenting;
+
+  const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'orderId',
       title: b3Lang('orders.order'),
@@ -240,6 +242,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       render: ({ companyInfo }) => {
         return <Box>{companyInfo?.companyName || '–'}</Box>;
       },
+      hidden: !isB2BUser,
     },
     {
       key: 'poNumber',
@@ -272,6 +275,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
       width: '10%',
       isSortable: true,
+      /**
+       * If the user is not a B2B user, or the user is a super admin who is not agenting,
+       * or the user is a super admin who is agenting but not on a company order, then the placed by column should be hidden.
+       */
+      hidden:
+        !isB2BUser || isSuperAdminNotAgenting || (!isSuperAdminNotAgenting && !isCompanyOrder),
     },
     {
       key: 'createdAt',
@@ -280,24 +289,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       width: '10%',
       isSortable: true,
     },
-  ] as const satisfies TableColumnItem<ListItem>[];
-
-  const getColumnItems = (): TableColumnItem<ListItem>[] => {
-    const getNewColumnItems = columnAllItems.filter((item) => {
-      const { key } = item;
-      if (!isB2BUser && key === 'companyName') return false;
-      if ((!isB2BUser || (Number(role) === 3 && !isAgenting)) && key === 'placedBy') return false;
-
-      if (key === 'placedBy' && !(Number(role) === 3 && !isAgenting) && !isCompanyOrder) {
-        return false;
-      }
-      return true;
-    });
-
-    return getNewColumnItems;
-  };
-
-  const columnItems = getColumnItems();
+  ];
 
   const { data, isFetching, dataUpdatedAt } = useQuery({
     queryKey: isUnifiedOrdersNonCompanyOrderPath
