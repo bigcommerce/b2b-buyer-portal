@@ -49,6 +49,10 @@ export interface TableColumnItem<Row extends OrderIdRow> {
   width?: string;
   render: (row: Row) => ReactNode;
   isSortable?: boolean;
+  /**
+   * If true, the column will not be displayed in the table
+   */
+  hidden?: boolean;
 }
 
 interface RowProps<Row extends OrderIdRow> {
@@ -151,144 +155,145 @@ export function B3Table<Row extends OrderIdRow>({
     });
   };
 
-  return listItems.length > 0 ? (
-    <>
-      {isInfiniteScroll && (
-        <>
-          <Grid container spacing={2}>
-            {listItems.map((row, index) => {
-              return (
-                <Grid item xs={12} key={row.orderId}>
-                  {renderItem(row, index)}
-                </Grid>
-              );
-            })}
-          </Grid>
-          <TablePagination
-            labelDisplayedRows={({ from, to, count }) =>
-              count === -1
-                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
-                : b3Lang('global.pagination.pageXOfY', { from, to, count })
-            }
-            rowsPerPageOptions={rowsPerPageOptions}
-            labelRowsPerPage={b3Lang('global.pagination.perPage')}
-            component="div"
-            sx={{
-              color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
-              marginTop: '1.5rem',
-              '::-webkit-scrollbar': {
-                display: 'none',
-              },
-              '& svg': {
-                color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
-              },
-            }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            {...(cursorPageInfo && {
-              slotProps: {
-                actions: {
-                  nextButton: { disabled: !cursorPageInfo.hasNextPage },
-                  previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
-                },
-              },
-            })}
-          />
-        </>
-      )}
-      {!isInfiniteScroll && (
-        <Card
+  if (listItems.length === 0) return <B3NoData />;
+
+  if (isInfiniteScroll) {
+    return (
+      <>
+        <Grid container spacing={2}>
+          {listItems.map((row, index) => {
+            return (
+              <Grid item xs={12} key={row.orderId}>
+                {renderItem(row, index)}
+              </Grid>
+            );
+          })}
+        </Grid>
+        <TablePagination
+          labelDisplayedRows={({ from, to, count }) =>
+            count === -1
+              ? `${from}–${Math.min(to, from + listItems.length - 1)}`
+              : b3Lang('global.pagination.pageXOfY', { from, to, count })
+          }
+          rowsPerPageOptions={rowsPerPageOptions}
+          labelRowsPerPage={b3Lang('global.pagination.perPage')}
+          component="div"
           sx={{
-            height: '100%',
-            boxShadow:
-              '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+            color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
+            marginTop: '1.5rem',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+            '& svg': {
+              color: isMobile ? b3HexToRgb(customColor, 0.87) : 'rgba(0, 0, 0, 0.87)',
+            },
+          }}
+          count={count}
+          rowsPerPage={first}
+          page={first === 0 ? 0 : offset / first}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          {...(cursorPageInfo && {
+            slotProps: {
+              actions: {
+                nextButton: { disabled: !cursorPageInfo.hasNextPage },
+                previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
+              },
+            },
+          })}
+        />
+      </>
+    );
+  }
+
+  const visibleColumnItems = columnItems.filter((column) => !column.hidden);
+
+  return (
+    <Card
+      sx={{
+        height: '100%',
+        boxShadow:
+          '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+      }}
+    >
+      <TableContainer>
+        <Table
+          sx={{
+            tableLayout: 'initial',
           }}
         >
-          <TableContainer>
-            <Table
-              sx={{
-                tableLayout: 'initial',
-              }}
-            >
-              <TableHead>
-                <TableRow data-testid="tableHead-Row">
-                  {columnItems.map((column) => (
-                    <TableCell
-                      key={column.title}
-                      width={column.width}
-                      align={column.align ?? 'left'}
-                      sortDirection={column.key === orderBy ? sortDirection : false}
-                      data-testid={column.key ? `tableHead-${column.key}` : ''}
+          <TableHead>
+            <TableRow data-testid="tableHead-Row">
+              {visibleColumnItems.map((column) => (
+                <TableCell
+                  key={column.title}
+                  width={column.width}
+                  align={column.align ?? 'left'}
+                  sortDirection={column.key === orderBy ? sortDirection : false}
+                  data-testid={column.key ? `tableHead-${column.key}` : ''}
+                >
+                  {column.isSortable ? (
+                    <TableSortLabel
+                      active={column.key === orderBy}
+                      direction={column.key === orderBy ? sortDirection : 'desc'}
+                      hideSortIcon={column.key !== orderBy}
+                      onClick={() => sortByFn?.(column.key)}
                     >
-                      {column.isSortable ? (
-                        <TableSortLabel
-                          active={column.key === orderBy}
-                          direction={column.key === orderBy ? sortDirection : 'desc'}
-                          hideSortIcon={column.key !== orderBy}
-                          onClick={() => sortByFn?.(column.key)}
-                        >
-                          {column.title}
-                        </TableSortLabel>
-                      ) : (
-                        column.title
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
+                      {column.title}
+                    </TableSortLabel>
+                  ) : (
+                    column.title
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
 
-              <TableBody>
-                {listItems.map((row, index) => {
-                  const node = isNodeWrapper(row) ? row.node : row;
+          <TableBody>
+            {listItems.map((row, index) => {
+              const node = isNodeWrapper(row) ? row.node : row;
 
-                  return (
-                    <Row
-                      key={`row-${node.orderId}`}
-                      columnItems={columnItems}
-                      node={node}
-                      onClickRow={() => onClickRow(node, index)}
-                    />
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            labelDisplayedRows={({ from, to, count }) =>
-              count === -1
-                ? `${from}–${Math.min(to, from + listItems.length - 1)}`
-                : b3Lang('global.pagination.pageXOfY', { from, to, count })
-            }
-            rowsPerPageOptions={rowsPerPageOptions}
-            labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
-            component="div"
-            sx={{
-              marginTop: '1.5rem',
-              '::-webkit-scrollbar': {
-                display: 'none',
-              },
-            }}
-            count={count}
-            rowsPerPage={first}
-            page={first === 0 ? 0 : offset / first}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            {...(cursorPageInfo && {
-              slotProps: {
-                actions: {
-                  nextButton: { disabled: !cursorPageInfo.hasNextPage },
-                  previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
-                },
-              },
+              return (
+                <Row
+                  key={`row-${node.orderId}`}
+                  columnItems={visibleColumnItems}
+                  node={node}
+                  onClickRow={() => onClickRow(node, index)}
+                />
+              );
             })}
-          />
-        </Card>
-      )}
-    </>
-  ) : (
-    <B3NoData />
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        labelDisplayedRows={({ from, to, count }) =>
+          count === -1
+            ? `${from}–${Math.min(to, from + listItems.length - 1)}`
+            : b3Lang('global.pagination.pageXOfY', { from, to, count })
+        }
+        rowsPerPageOptions={rowsPerPageOptions}
+        labelRowsPerPage={b3Lang('global.pagination.rowsPerPage')}
+        component="div"
+        sx={{
+          marginTop: '1.5rem',
+          '::-webkit-scrollbar': {
+            display: 'none',
+          },
+        }}
+        count={count}
+        rowsPerPage={first}
+        page={first === 0 ? 0 : offset / first}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        {...(cursorPageInfo && {
+          slotProps: {
+            actions: {
+              nextButton: { disabled: !cursorPageInfo.hasNextPage },
+              previousButton: { disabled: !cursorPageInfo.hasPreviousPage },
+            },
+          },
+        })}
+      />
+    </Card>
   );
 }
