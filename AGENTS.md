@@ -24,6 +24,19 @@
 
 ---
 
+## 🤖 AI Coding Agent Setup (BigCommerce Team)
+
+For full architecture context, testing patterns, and engineering workflow guidelines, install the internal Claude Code plugin:
+
+```bash
+/plugin marketplace add bigcommerce/cc-plugins-marketplace  # one-time, if not already done
+/plugin install b2b-buyer-portal@cc-plugins-marketplace
+```
+
+Once installed, Claude Code automatically loads project-specific context when you work in this repo.
+
+---
+
 ## 🎯 Project Overview
 
 **B2B Buyer Portal** is a React-based frontend application for BigCommerce's B2B Edition buyer experience.
