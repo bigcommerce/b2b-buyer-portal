@@ -22,7 +22,7 @@ function getMessage(error: unknown): string {
 
 function isGraphQLMockBody(value: unknown): value is GraphQLMockBody {
   return (
-    Boolean(value) &&
+    value !== null &&
     typeof value === 'object' &&
     !Array.isArray(value) &&
     ('data' in value || 'errors' in value || 'extensions' in value)
