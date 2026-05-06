@@ -101,12 +101,12 @@ const getCustomerInfo = () => `{
   }
 }`;
 
-const getCountries = (grpcGeoForStateRequiredFlag: boolean) => `query Countries {
+const getCountries = () => `query Countries {
   countries(storeHash:"${storeHash}") {
     id
     countryName
     countryCode
-    ${grpcGeoForStateRequiredFlag ? 'stateRequired' : ''}
+    stateRequired
     states {
       stateName
       stateCode
@@ -218,9 +218,9 @@ export const getB2BCompanyUserInfo = () =>
     query: getCustomerInfo(),
   });
 
-export const getB2BCountries = (grpcGeoForStateRequiredFlag = false) =>
+export const getB2BCountries = () =>
   B3Request.graphqlB2B({
-    query: getCountries(grpcGeoForStateRequiredFlag),
+    query: getCountries(),
   });
 
 export const createB2BCompanyUser = (data: CustomFieldItems) =>

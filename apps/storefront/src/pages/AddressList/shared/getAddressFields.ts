@@ -18,6 +18,7 @@ export interface CountryProps {
   countryName: string;
   id: string | number;
   states: StateProps[];
+  stateRequired?: boolean;
 }
 interface B2bExtraFieldsProps {
   defaultValue: string;
