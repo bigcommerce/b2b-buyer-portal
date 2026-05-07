@@ -121,8 +121,8 @@ Pass data through component props whenever possible. This makes data flow explic
 ```typescript
 // ✅ GOOD: Explicit props
 interface Props {
-  orderId: string
-  customerId: string
+  orderId: string;
+  customerId: string;
 }
 
 function OrderDetails({ orderId, customerId }: Props) {
@@ -131,8 +131,8 @@ function OrderDetails({ orderId, customerId }: Props) {
 
 // ❌ BAD: Hidden dependencies
 function OrderDetails() {
-  const orderId = useAppSelector((state) => state.order.id)
-  const customerId = useContext(CustomerContext)
+  const orderId = useAppSelector((state) => state.order.id);
+  const customerId = useContext(CustomerContext);
   // ...
 }
 ```
@@ -181,8 +181,8 @@ Use React hooks (`useState`, `useReducer`) for component-specific state.
 
 ```typescript
 function InvoiceForm() {
-  const [formData, setFormData] = useState({ amount: '', note: '' })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({ amount: '', note: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // ...
 }
 ```
@@ -197,13 +197,13 @@ export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
-  }).format(amount)
+  }).format(amount);
 }
 
 // ❌ BAD: Business logic in utility
 export function getInvoiceTotal(invoice: Invoice): number {
   // This belongs in the Invoice domain, not shared utils
-  return invoice.items.reduce((sum, item) => sum + item.price, 0)
+  return invoice.items.reduce((sum, item) => sum + item.price, 0);
 }
 ```
 
@@ -349,13 +349,13 @@ import {
   HttpResponse, // Create mock responses
   startMockServer, // Start MSW server
   stringContainingAll, // Assert multiple substrings
-} from 'tests/test-utils'
+} from 'tests/test-utils';
 ```
 
 For hook testing: (hooks should rarely be tested in isolation)
 
 ```typescript
-import { renderHookWithProviders } from 'tests/utils/hook-test-utils'
+import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 ```
 
 ---
@@ -367,7 +367,7 @@ import { renderHookWithProviders } from 'tests/utils/hook-test-utils'
 #### Basic Builder Pattern
 
 ```typescript
-import { builder, bulk, faker } from 'tests/test-utils'
+import { builder, bulk, faker } from 'tests/test-utils';
 
 // Define a builder
 const buildInvoiceWith = builder(() => ({
@@ -376,12 +376,12 @@ const buildInvoiceWith = builder(() => ({
   amount: faker.commerce.price(),
   status: faker.helpers.enumValue(InvoiceStatus),
   dueDate: faker.date.future(),
-}))
+}));
 
 // Use it in tests
-const invoice = buildInvoiceWith({ status: 'PAID' })
+const invoice = buildInvoiceWith({ status: 'PAID' });
 // Use 'WHATEVER_VALUES' to explicitly indicate "any values will do"
-const invoices = bulk(buildInvoiceWith, 'WHATEVER_VALUES').times(5)
+const invoices = bulk(buildInvoiceWith, 'WHATEVER_VALUES').times(5);
 ```
 
 **Key Points:**
@@ -419,9 +419,9 @@ renderWithProviders(<Invoice />, {
 Use Mock Service Worker (MSW) for API mocking:
 
 ```typescript
-import { graphql, http, HttpResponse, startMockServer } from 'tests/test-utils'
+import { graphql, http, HttpResponse, startMockServer } from 'tests/test-utils';
 
-const { server } = startMockServer()
+const { server } = startMockServer();
 
 // Mock GraphQL queries
 server.use(
@@ -432,7 +432,7 @@ server.use(
       },
     })
   }),
-)
+);
 
 // Mock REST endpoints
 server.use(
@@ -442,7 +442,7 @@ server.use(
       amount: '100.00',
     })
   }),
-)
+);
 ```
 
 ---
@@ -452,20 +452,20 @@ server.use(
 Use `vitest-when` for argument-based mock behavior:
 
 ```typescript
-import { when } from 'vitest-when'
+import { when } from 'vitest-when';
 
 // Mock different returns based on arguments
 when(vi.mocked(fetchInvoice))
   .calledWith('invoice-123')
-  .thenReturn({ id: 'invoice-123', status: 'PAID' })
+  .thenReturn({ id: 'invoice-123', status: 'PAID' });
 
 when(vi.mocked(fetchInvoice))
   .calledWith('invoice-456')
-  .thenReturn({ id: 'invoice-456', status: 'PENDING' })
+  .thenReturn({ id: 'invoice-456', status: 'PENDING' });
 
 // Calls return different values
-await fetchInvoice('invoice-123') // { status: 'PAID' }
-await fetchInvoice('invoice-456') // { status: 'PENDING' }
+await fetchInvoice('invoice-123'); // { status: 'PAID' }
+await fetchInvoice('invoice-456'); // { status: 'PENDING' }
 ```
 
 **Benefits:**
@@ -479,7 +479,7 @@ await fetchInvoice('invoice-456') // { status: 'PENDING' }
 ### Assertion Helpers
 
 ```typescript
-import { stringContainingAll } from 'tests/test-utils'
+import { stringContainingAll } from 'tests/test-utils';
 
 when(getOrders)
   // Assert GraphQL queries contain specific strings
@@ -637,15 +637,15 @@ Enforced by ESLint - these will cause build failures if violated:
 
 ```typescript
 // ✅ CORRECT
-import { debounce, groupBy } from 'lodash-es'
-import { Add, Delete } from '@mui/icons-material'
-import { renderWithProviders } from 'tests/test-utils'
-import { formatCurrency } from '@/utils/formatters'
+import { debounce, groupBy } from 'lodash-es';
+import { Add, Delete } from '@mui/icons-material';
+import { renderWithProviders } from 'tests/test-utils';
+import { formatCurrency } from '@/utils/formatters';
 
 // ❌ WRONG - Will fail linting
-import debounce from 'lodash/debounce' // Use lodash-es
-import Add from '@mui/icons-material/Add' // Use named imports
-import { formatCurrency } from '../utils/formatters' // Use path alias
+import debounce from 'lodash/debounce'; // Use lodash-es
+import Add from '@mui/icons-material/Add'; // Use named imports
+import { formatCurrency } from '../utils/formatters'; // Use path alias
 ```
 
 ### Path Aliases
@@ -659,12 +659,12 @@ Configured in `tsconfig.json` and `vite.config.ts`:
 
 ```typescript
 // ✅ Use path aliases
-import { Invoice } from '@/types/invoice'
-import { useInvoiceData } from '@/pages/Invoice/hooks/useInvoiceData'
-import { buildInvoiceWith } from 'tests/builders/invoiceBuilder'
+import { Invoice } from '@/types/invoice';
+import { useInvoiceData } from '@/pages/Invoice/hooks/useInvoiceData';
+import { buildInvoiceWith } from 'tests/builders/invoiceBuilder';
 
 // ❌ Don't use relative paths for cross-directory imports
-import { Invoice } from '../../../types/invoice'
+import { Invoice } from '../../../types/invoice';
 ```
 
 ---
@@ -718,15 +718,15 @@ function Invoice({ invoice, className, onClose }: InvoiceProps) {
 ```typescript
 // ✅ PRIORITY 1: URL state
 function ProductList() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const page = Number(searchParams.get('page')) || 1
-  const sort = searchParams.get('sort') || 'name'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get('page')) || 1;
+  const sort = searchParams.get('sort') || 'name';
 }
 
 // ✅ PRIORITY 2: Local state
 function InvoiceForm() {
-  const [formData, setFormData] = useState({ amount: '', note: '' })
-  const [errors, setErrors] = useState<ValidationErrors>({})
+  const [formData, setFormData] = useState({ amount: '', note: '' });
+  const [errors, setErrors] = useState<ValidationErrors>({});
 }
 
 // ✅ PRIORITY 3: Props
@@ -761,14 +761,14 @@ The store contains these slices (avoid adding to them):
 ### Accessing Redux State (If You Must)
 
 ```typescript
-import { useAppSelector, useAppDispatch } from '@/store'
+import { useAppSelector, useAppDispatch } from '@/store';
 
 function Component() {
-  const dispatch = useAppDispatch()
-  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const dispatch = useAppDispatch();
+  const customerId = useAppSelector(({ company }) => company.customer.id);
   const isAdmin = useAppSelector(
     ({ company }) => company.customer.role === 'ADMIN',
-  )
+  );
 
   // Avoid dispatching actions - use local state instead
   // dispatch(updateInvoice(invoice)); // ❌
@@ -934,7 +934,7 @@ Browser APIs are mocked in `tests/setup-test-environment.ts`:
 
 ```typescript
 // These are set up automatically for all tests
-window.URL.createObjectURL = vi.fn()
+window.URL.createObjectURL = vi.fn();
 window.matchMedia = vi.fn().mockImplementation((query) => ({
   matches: false,
   media: query,
@@ -944,7 +944,7 @@ window.matchMedia = vi.fn().mockImplementation((query) => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   dispatchEvent: vi.fn(),
-}))
+}));
 ```
 
 **If you need additional global mocks**, add them to `tests/setup-test-environment.ts`.
