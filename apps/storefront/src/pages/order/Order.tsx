@@ -133,15 +133,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return legacyFilterState;
   };
 
-  const activeFilterState = getActiveFilterState();
-
   const {
     activeSort,
     handleSearchChange,
     handleFilterChange,
     handleCompanyIdsChange,
     handleSetOrderBy,
-  } = activeFilterState;
+  } = getActiveFilterState();
 
   const getFilterDataAndOrderBy = () => {
     if (isUnifiedCompanyPath) {

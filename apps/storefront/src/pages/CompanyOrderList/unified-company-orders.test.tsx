@@ -132,8 +132,8 @@ const buildLegacyB2BOrderStatusesResponseWith = builder<CompanyOrderStatuses>(()
 // Preloaded states
 // ---------------------------------------------------------------------------
 
-const flagOn = { 'B2B-4613.buyer_portal_unified_sf_gql_orders': true } as const;
-const flagOff = { 'B2B-4613.buyer_portal_unified_sf_gql_orders': false } as const;
+const flagOn = { 'B2B-4613.buyer_portal_unified_sf_gql_orders': true };
+const flagOff = { 'B2B-4613.buyer_portal_unified_sf_gql_orders': false };
 
 const b2bStateWithFlag = (featureFlags: Record<string, boolean>) => ({
   company: buildCompanyStateWith({
@@ -261,9 +261,9 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       const row = screen.getByRole('row', { name: /12345/ });
       expect(row).toBeInTheDocument();
       expect(within(row).getByText('PO-9876')).toBeInTheDocument();
-      expect(within(row).getByText(/Acme Corp/)).toBeInTheDocument();
-      expect(within(row).getByText(/Completed/)).toBeInTheDocument();
-      expect(within(row).getByText(/Jane Doe/)).toBeInTheDocument();
+      expect(within(row).getByText('Acme Corp')).toBeInTheDocument();
+      expect(within(row).getByText('Completed')).toBeInTheDocument();
+      expect(within(row).getByText('Jane Doe')).toBeInTheDocument();
     });
 
     it('shows company and placed-by columns for company orders', async () => {
@@ -339,7 +339,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       const row = screen.getByRole('row', { name: /77777/ });
-      expect(within(row).getByText(/1,234\.56/)).toBeInTheDocument();
+      expect(within(row).getByText('$1,234.56')).toBeInTheDocument();
     });
 
     describe('filter behavior', () => {
@@ -390,7 +390,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           )
           .thenReturn(filteredResponse);
 
-        await userEvent.type(screen.getByPlaceholderText(/Search/), '66996');
+        await userEvent.type(screen.getByPlaceholderText('Search'), '66996');
 
         await waitFor(() => {
           expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
