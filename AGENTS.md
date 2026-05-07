@@ -24,6 +24,12 @@
 
 ---
 
+## 🤖 AI Coding Agent Setup (BigCommerce Team)
+
+Install the internal `b2b-buyer-portal` plugin from the internal plugin repository to get the full context.
+
+---
+
 ## 🎯 Project Overview
 
 **B2B Buyer Portal** is a React-based frontend application for BigCommerce's B2B Edition buyer experience.
