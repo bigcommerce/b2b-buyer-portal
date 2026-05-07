@@ -258,7 +258,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      const row = screen.getByRole('row', { name: /12345/ });
+      const row = screen.getByText('12345').closest('tr')!;
       expect(row).toBeInTheDocument();
       expect(within(row).getByText('PO-9876')).toBeInTheDocument();
       expect(within(row).getByText('Acme Corp')).toBeInTheDocument();
@@ -338,7 +338,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-      const row = screen.getByRole('row', { name: /77777/ });
+      const row = screen.getByText('77777').closest('tr')!;
       expect(within(row).getByText('$1,234.56')).toBeInTheDocument();
     });
 
@@ -393,7 +393,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.type(screen.getByPlaceholderText('Search'), '66996');
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeInTheDocument();
         });
       });
     });
@@ -463,12 +463,12 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
         await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-        expect(screen.getByRole('row', { name: /1001/ })).toBeInTheDocument();
+        expect(screen.getByText('1001').closest('tr')!).toBeInTheDocument();
 
-        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
+          expect(screen.getByText('2001').closest('tr')!).toBeInTheDocument();
         });
       });
 
@@ -515,14 +515,14 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
         await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
+          expect(screen.getByText('2001').closest('tr')!).toBeInTheDocument();
         });
 
-        await userEvent.click(screen.getByRole('button', { name: /previous page/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'Go to previous page' }));
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /1001/ })).toBeInTheDocument();
+          expect(screen.getByText('1001').closest('tr')!).toBeInTheDocument();
         });
       });
     });
