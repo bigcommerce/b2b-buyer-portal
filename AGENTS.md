@@ -84,7 +84,6 @@ yarn build
 This project uses Turborepo as a monorepo structure, even though it currently contains only one package (`storefront`). All package dependencies, scripts, and configurations are defined at the `apps/storefront/` level, not at the root.
 
 **Running commands from the wrong directory will cause:**
-
 - ❌ Commands not found
 - ❌ Wrong dependencies loaded
 - ❌ Incorrect build outputs
@@ -99,7 +98,6 @@ This project uses Turborepo as a monorepo structure, even though it currently co
 When writing new code, follow these principles:
 
 #### 1. **Matroska-Style Structure**
-
 Each component/page owns its domain-specific dependencies. Group related files together.
 
 ```
@@ -115,7 +113,6 @@ src/pages/Invoice/
 ```
 
 #### 2. **Prefer Props Over Context/Redux**
-
 Pass data through component props whenever possible. This makes data flow explicit and components more testable.
 
 ```typescript
@@ -131,14 +128,13 @@ function OrderDetails({ orderId, customerId }: Props) {
 
 // ❌ BAD: Hidden dependencies
 function OrderDetails() {
-  const orderId = useAppSelector((state) => state.order.id);
+  const orderId = useAppSelector(state => state.order.id);
   const customerId = useContext(CustomerContext);
   // ...
 }
 ```
 
 #### 3. **Co-located Files**
-
 Keep related files together. Tests live next to the code they test.
 
 ```
@@ -150,7 +146,6 @@ InvoiceList/
 ```
 
 #### 4. **URL-Driven State**
-
 Use route parameters and query strings for state that should persist across page loads.
 
 ```typescript
@@ -159,7 +154,7 @@ function ProductList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
   const category = searchParams.get('category') || 'all';
-
+  
   return (
     <button onClick={() => setSearchParams({ page: page + 1, category })}>
       Next Page
@@ -176,7 +171,6 @@ function ProductList() {
 ```
 
 #### 5. **Local Component State**
-
 Use React hooks (`useState`, `useReducer`) for component-specific state.
 
 ```typescript
@@ -188,15 +182,14 @@ function InvoiceForm() {
 ```
 
 #### 6. **Domain-Agnostic Helpers Only**
-
 Shared utilities (`src/utils/`, `src/hooks/`) should contain pure functions with no business logic.
 
 ```typescript
 // ✅ GOOD: Pure utility
 export function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency 
   }).format(amount);
 }
 
@@ -213,13 +206,12 @@ export function getInvoiceTotal(invoice: Invoice): number {
 
 The codebase contains these patterns, but **do not add more**:
 
-❌ **DO NOT** add new React Context providers
-❌ **DO NOT** store state in Redux unless absolutely necessary
-❌ **DO NOT** use `localStorage` or `sessionStorage` for state
+❌ **DO NOT** add new React Context providers  
+❌ **DO NOT** store state in Redux unless absolutely necessary  
+❌ **DO NOT** use `localStorage` or `sessionStorage` for state  
 ❌ **DO NOT** create global contexts like `GlobalContext`, `DynamicallyVariableContext`, or `CustomStyleContext`
 
 **Why avoid these?**
-
 - Hidden dependencies make code harder to understand
 - Difficult to test in isolation
 - Unclear data flow
@@ -335,20 +327,20 @@ Import from `tests/test-utils.tsx`:
 
 ```typescript
 import {
-  renderWithProviders, // Render components with Redux/Router
-  screen, // Query rendered elements
-  userEvent, // Simulate user interactions
-  waitFor, // Async assertions
+  renderWithProviders,      // Render components with Redux/Router
+  screen,                    // Query rendered elements
+  userEvent,                 // Simulate user interactions
+  waitFor,                   // Async assertions
   waitForElementToBeRemoved, // Wait for loading states
-  within, // Scope queries to a container
-  faker, // Generate fake data
-  builder, // Build test objects
-  bulk, // Build multiple test objects
-  graphql, // Mock GraphQL requests
-  http, // Mock HTTP requests
-  HttpResponse, // Create mock responses
-  startMockServer, // Start MSW server
-  stringContainingAll, // Assert multiple substrings
+  within,                    // Scope queries to a container
+  faker,                     // Generate fake data
+  builder,                   // Build test objects
+  bulk,                      // Build multiple test objects
+  graphql,                   // Mock GraphQL requests
+  http,                      // Mock HTTP requests
+  HttpResponse,              // Create mock responses
+  startMockServer,           // Start MSW server
+  stringContainingAll,       // Assert multiple substrings
 } from 'tests/test-utils';
 ```
 
@@ -385,7 +377,6 @@ const invoices = bulk(buildInvoiceWith, 'WHATEVER_VALUES').times(5);
 ```
 
 **Key Points:**
-
 - `builder()` creates a factory function that generates random test data
 - Override specific properties by passing an object: `buildInvoiceWith({ status: 'PAID' })`
 - `bulk()` generates multiple items: `bulk(buildInvoiceWith, 'WHATEVER_VALUES').times(5)`
@@ -402,7 +393,7 @@ import {
   buildB2BFeaturesStateWith,
 } from 'tests/test-utils';
 
-const loggedInUser = buildCompanyStateWith({
+const loggedInUser = buildCompanyStateWith({ 
   tokens: { B2BToken: faker.string.uuid() },
   customer: { role: CustomerRole.ADMIN }
 });
@@ -426,22 +417,22 @@ const { server } = startMockServer();
 // Mock GraphQL queries
 server.use(
   graphql.query('GetInvoice', () => {
-    return HttpResponse.json({
-      data: {
-        invoice: buildInvoiceWith({ id: '123' }),
-      },
-    })
-  }),
+    return HttpResponse.json({ 
+      data: { 
+        invoice: buildInvoiceWith({ id: '123' })
+      } 
+    });
+  })
 );
 
 // Mock REST endpoints
 server.use(
   http.get('/api/invoices/:id', ({ params }) => {
-    return HttpResponse.json({
+    return HttpResponse.json({ 
       id: params.id,
-      amount: '100.00',
-    })
-  }),
+      amount: '100.00'
+    });
+  })
 );
 ```
 
@@ -469,7 +460,6 @@ await fetchInvoice('invoice-456'); // { status: 'PENDING' }
 ```
 
 **Benefits:**
-
 - Clearer test intentions than `mockImplementation`
 - Multiple test scenarios with one mock
 - Type-safe conditional behavior
@@ -482,13 +472,11 @@ await fetchInvoice('invoice-456'); // { status: 'PENDING' }
 import { stringContainingAll } from 'tests/test-utils';
 
 when(getOrders)
-  // Assert GraphQL queries contain specific strings
-  .calledWith(
-    stringContainingAll(['query', 'GetInvoice', 'invoiceNumber', 'dueDate']),
-  )
+    // Assert GraphQL queries contain specific strings
+  .calledWith(stringContainingAll(['query', 'GetInvoice', 'invoiceNumber', 'dueDate']))
   .thenReturn({
     orders: [],
-  })
+  })  
 ```
 
 ---
@@ -517,7 +505,7 @@ describe('Invoice Page', () => {
     // Arrange
     const invoice = buildInvoiceWith({ status: 'PAID' });
     server.use(
-      graphql.query('GetInvoice', () =>
+      graphql.query('GetInvoice', () => 
         HttpResponse.json({ data: { invoice } })
       )
     );
@@ -552,10 +540,10 @@ it('calls handleSubmit when form is submitted', () => {
 it('submits invoice payment when user clicks Pay button', async () => {
   const user = userEvent.setup();
   renderWithProviders(<InvoicePayment />);
-
+  
   await user.type(screen.getByLabelText('Amount'), '100');
   await user.click(screen.getByRole('button', { name: 'Pay' }));
-
+  
   await waitFor(() => {
     expect(screen.getByText('Payment successful')).toBeInTheDocument();
   });
@@ -597,8 +585,8 @@ const buildInvoiceWith = builder(() => ({
 }));
 
 describe('Invoice Page', () => {
-  const loggedInUser = buildCompanyStateWith({
-    tokens: { B2BToken: faker.string.uuid() }
+  const loggedInUser = buildCompanyStateWith({ 
+    tokens: { B2BToken: faker.string.uuid() } 
   });
 
   beforeEach(() => {
@@ -607,7 +595,7 @@ describe('Invoice Page', () => {
 
   it('displays invoice details after loading', async () => {
     const invoice = buildInvoiceWith({ status: 'PAID' });
-
+    
     server.use(
       graphql.query('GetInvoice', () => {
         return HttpResponse.json({ data: { invoice } });
@@ -620,7 +608,7 @@ describe('Invoice Page', () => {
     });
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'));
-
+    
     expect(screen.getByText(invoice.invoiceNumber)).toBeInTheDocument();
     expect(screen.getByText('PAID')).toBeInTheDocument();
   });
@@ -643,8 +631,8 @@ import { renderWithProviders } from 'tests/test-utils';
 import { formatCurrency } from '@/utils/formatters';
 
 // ❌ WRONG - Will fail linting
-import debounce from 'lodash/debounce'; // Use lodash-es
-import Add from '@mui/icons-material/Add'; // Use named imports
+import debounce from 'lodash/debounce';           // Use lodash-es
+import Add from '@mui/icons-material/Add';         // Use named imports
 import { formatCurrency } from '../utils/formatters'; // Use path alias
 ```
 
@@ -736,8 +724,8 @@ function InvoiceList({ customerId, filters }: Props) {
 
 // ❌ AVOID: Redux (use only when absolutely necessary)
 function InvoiceList() {
-  const invoices = useAppSelector((state) => state.invoices.list)
-  const dispatch = useAppDispatch()
+  const invoices = useAppSelector(state => state.invoices.list);
+  const dispatch = useAppDispatch();
 }
 ```
 
@@ -766,10 +754,8 @@ import { useAppSelector, useAppDispatch } from '@/store';
 function Component() {
   const dispatch = useAppDispatch();
   const customerId = useAppSelector(({ company }) => company.customer.id);
-  const isAdmin = useAppSelector(
-    ({ company }) => company.customer.role === 'ADMIN',
-  );
-
+  const isAdmin = useAppSelector(({ company }) => company.customer.role === 'ADMIN');
+  
   // Avoid dispatching actions - use local state instead
   // dispatch(updateInvoice(invoice)); // ❌
 }
@@ -781,14 +767,14 @@ function Component() {
 // ✅ Pass data via props from a parent that has access to Redux
 function InvoicePage() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
-
+  
   return <InvoiceList customerId={customerId} />;
 }
 
 function InvoiceList({ customerId }: { customerId: number }) {
   // No Redux dependency here!
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-
+  
   useEffect(() => {
     fetchInvoices(customerId).then(setInvoices);
   }, [customerId]);
@@ -864,11 +850,11 @@ function InvoiceList() {
   const dispatch = useContext(SomeContext);
   const invoices = useAppSelector(state => state.invoices.list);
   const filters = useContext(FilterContext);
-
+  
   useEffect(() => {
     dispatch(fetchInvoices());
   }, []);
-
+  
   return (
     <div>
       {invoices.map(invoice => (
@@ -880,7 +866,6 @@ function InvoiceList() {
 ```
 
 **Problems:**
-
 - Hidden dependencies (Context, Redux)
 - Side effects in wrong place
 - Hard to test
@@ -897,14 +882,14 @@ function InvoiceList({ companyId }: { companyId: number }) {
   const [searchParams] = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
   const status = searchParams.get('status') || 'all';
-
+  
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ['invoices', companyId, page, status],
     queryFn: () => fetchInvoices(companyId, { page, status }),
   });
-
+  
   if (isLoading) return <Loading />;
-
+  
   return (
     <div>
       <InvoiceFilters status={status} />
@@ -918,7 +903,6 @@ function InvoiceList({ companyId }: { companyId: number }) {
 ```
 
 **Benefits:**
-
 - Explicit dependencies via props
 - State in URL (survives refresh)
 - Local component state
@@ -970,17 +954,15 @@ Use this checklist when writing tests:
 ## 🎓 Learning Resources
 
 - **Testing Library Docs**: https://testing-library.com/docs/react-testing-library/intro
-  - **Common mistakes**: https://kentcdodds.com/blog/common-mistakes-with-react-testing-library
+    - **Common mistakes**: https://kentcdodds.com/blog/common-mistakes-with-react-testing-library
 - **Vitest Docs**: https://vitest.dev/
 - **MSW Docs**: https://mswjs.io/docs/
 - **vitest-when**: https://github.com/mcous/vitest-when
-
 ---
 
 ## 📞 Questions?
 
 For questions or clarifications:
-
 - Review `CONTRIBUTING.md` for detailed contribution guidelines
 - Check existing tests for patterns (`src/pages/Invoice/index.mobile.test.tsx`)
 - Create an issue or ask in any of the b2b channels
