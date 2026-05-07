@@ -6,7 +6,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
-import { Country, getIsStateRequired } from '@/pages/Registered/config';
+import { getIsStateRequired } from '@/pages/Registered/config';
 import {
   createB2BAddress,
   createBcAddress,
@@ -447,16 +447,16 @@ function AddressForm(
           setValue(field.name, stateCode || state);
           if (currentCountry[0]) {
             const { states } = currentCountry[0];
+            const isStateRequired = getIsStateRequired(currentCountry[0], states);
 
             if (states.length > 0) {
               field.options = states;
               field.fieldType = 'dropdown';
-              field.required = true;
             } else {
               field.options = [];
               field.fieldType = 'text';
-              field.required = false;
             }
+            field.required = isStateRequired;
           }
         } else {
           setValue(
@@ -479,7 +479,7 @@ function AddressForm(
     const handleCountryChange = (countryCode: string) => {
       const selectedCountry = countries.find((country) => country.countryCode === countryCode);
       const stateList = selectedCountry?.states || [];
-      const isStateRequired = getIsStateRequired(selectedCountry as Country, stateList);
+      const isStateRequired = getIsStateRequired(selectedCountry, stateList);
       const stateFields = allAddressFields.find(
         (formFields: CustomFieldItems) => formFields.name === 'state',
       );
