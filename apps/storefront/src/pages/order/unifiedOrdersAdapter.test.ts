@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import type { Order } from '@/shared/service/bc/graphql/orders';
 import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 
 import {
@@ -7,6 +8,54 @@ import {
   mapLegacyOrderByToUnifiedSort,
   mapUnifiedOrdersResponseToLegacyList,
 } from './unifiedOrdersAdapter';
+
+const usdMoney = { currencyCode: 'USD', value: 0 };
+
+const buildOrderWith = (overrides: Partial<Order>): Order => ({
+  entityId: 1000,
+  orderedAt: { utc: '2026-05-01T14:00:00.000Z' },
+  updatedAt: { utc: '2026-05-01T14:00:00.000Z' },
+  status: { value: 'COMPLETED', label: 'Completed' },
+  billingAddress: {
+    firstName: null,
+    lastName: null,
+    company: null,
+    address1: null,
+    address2: null,
+    city: null,
+    stateOrProvince: null,
+    postalCode: '00000',
+    country: 'United States',
+    countryCode: 'US',
+    phone: null,
+    email: null,
+  },
+  subTotal: usdMoney,
+  discountedSubTotal: null,
+  shippingCostTotal: usdMoney,
+  handlingCostTotal: usdMoney,
+  wrappingCostTotal: usdMoney,
+  taxTotal: usdMoney,
+  totalIncTax: usdMoney,
+  isTaxIncluded: true,
+  taxes: [],
+  discounts: {
+    couponDiscounts: [],
+    nonCouponDiscountTotal: usdMoney,
+    totalDiscount: null,
+  },
+  customerMessage: null,
+  totalProductQuantity: 0,
+  consignments: null,
+  reference: null,
+  company: null,
+  placedBy: null,
+  history: [],
+  quote: null,
+  invoice: null,
+  extraFields: [],
+  ...overrides,
+});
 
 describe('unifiedOrdersAdapter', () => {
   it('maps unified response rows into existing My Orders list item shape', () => {
@@ -17,7 +66,7 @@ describe('unifiedOrdersAdapter', () => {
             edges: [
               {
                 cursor: '1004',
-                node: {
+                node: buildOrderWith({
                   entityId: 1004,
                   orderedAt: { utc: '2026-05-04T14:00:00.000Z' },
                   totalIncTax: { currencyCode: 'USD', value: 410.25 },
@@ -30,7 +79,7 @@ describe('unifiedOrdersAdapter', () => {
                     lastName: 'Buyer',
                     email: 'avery@example.com',
                   },
-                },
+                }),
               },
             ],
             pageInfo: {
@@ -74,7 +123,7 @@ describe('unifiedOrdersAdapter', () => {
             edges: [
               {
                 cursor: '1001',
-                node: {
+                node: buildOrderWith({
                   entityId: 1001,
                   orderedAt: { utc: '2026-05-01T14:00:00.000Z' },
                   totalIncTax: { currencyCode: 'USD', value: 35.5 },
@@ -82,7 +131,7 @@ describe('unifiedOrdersAdapter', () => {
                   reference: null,
                   company: null,
                   placedBy: null,
-                },
+                }),
               },
             ],
             pageInfo: {
@@ -114,7 +163,7 @@ describe('unifiedOrdersAdapter', () => {
               edges: [
                 {
                   cursor: '1011',
-                  node: {
+                  node: buildOrderWith({
                     entityId: 1011,
                     orderedAt: { utc: '2026-05-01T14:00:00.000Z' },
                     totalIncTax: { currencyCode: 'USD', value: 35.5 },
@@ -122,7 +171,7 @@ describe('unifiedOrdersAdapter', () => {
                     reference: null,
                     company: null,
                     placedBy: null,
-                  },
+                  }),
                 },
               ],
               pageInfo: {
