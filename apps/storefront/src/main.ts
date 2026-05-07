@@ -1,4 +1,3 @@
-import { enableMocking } from './mocks/bootstrap';
 import { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } from './load-functions';
 
 export enum Environment {
@@ -36,8 +35,18 @@ window.b2b = {
   },
 };
 
-async function bootstrap(): Promise<void> {
+async function enableDevelopmentMocking(): Promise<void> {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  const { enableMocking } = await import('./mocks/bootstrap');
+
   await enableMocking();
+}
+
+async function bootstrap(): Promise<void> {
+  await enableDevelopmentMocking();
 
   // check if the accessed url contains a hashtag
   if (window.location.hash.startsWith('#/')) {
