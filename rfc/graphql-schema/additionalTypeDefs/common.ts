@@ -73,6 +73,15 @@ export default /* GraphQL */ `
     value: String!
   }
 
+  type QuoteExtraFieldsConfigType implements Node {
+    id: ID!
+    fieldName: String
+    fieldType: String
+    isRequired: Boolean
+    isUnique: Boolean
+    valueConfigs: GenericScalar
+  }
+
   type CustomerAddress {
     firstName: String
     lastName: String
