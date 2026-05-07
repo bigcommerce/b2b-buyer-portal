@@ -31,7 +31,6 @@
   "prettier": true,
   "ignore": [
     "src/types/gql/graphql.ts",
-    "src/types/gql/gql.ts",
     "src/shared/service/bc/graphql/base.ts",
     "src/shared/service/bc/graphql/orders.ts"
   ]

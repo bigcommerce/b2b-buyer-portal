@@ -23,9 +23,10 @@ module.exports = {
           '^src/headless.ts',
           // This should be removed once we get proper gql types
           'src/types/gql/index.ts',
-          'src/types/gql/gql.ts',
           // Mock schema is intentionally loaded by tests and future dev-only mock flows.
           '^src/mocks/schema.ts',
+          // Unified Orders adapter is test-covered and ready for the GraphQL-backed order list rollout.
+          '^src/pages/order/unifiedOrdersAdapter.ts',
         ],
         numberOfDependentsLessThan: 1,
       },
