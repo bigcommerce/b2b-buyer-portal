@@ -388,7 +388,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.type(screen.getByPlaceholderText('Search'), '66996');
 
         await waitFor(() => {
-          expect(screen.getByText('66996').closest('tr')!).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
 
@@ -429,7 +429,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           )
           .thenReturn(filteredCompanyOrdersResponse(66996));
 
-        await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
 
         const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
@@ -439,7 +439,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
 
@@ -480,7 +480,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           )
           .thenReturn(filteredCompanyOrdersResponse(66996));
 
-        await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
 
         const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
@@ -490,7 +490,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
 
@@ -521,20 +521,20 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           )
           .thenReturn(filteredCompanyOrdersResponse(66996));
 
-        await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
 
         const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
         await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
-        await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
 
         await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
-        await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
 
         await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
 
@@ -580,7 +580,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           )
           .thenReturn(filteredCompanyOrdersResponse(66996));
 
-        await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
 
         const dialog = await screen.findByRole('dialog', { name: 'Filters' });
 
@@ -588,15 +588,15 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
 
         await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
-        await userEvent.click(screen.getByRole('gridcell', { name: /15/ }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
 
         await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
-        await userEvent.click(screen.getByRole('gridcell', { name: /26/ }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
 
         await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => {
-          expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
     });
