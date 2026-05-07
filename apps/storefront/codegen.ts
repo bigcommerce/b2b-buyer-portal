@@ -12,32 +12,6 @@ const schemaExtensionsCompatibilityConfig = {
   schemaExtensions: { schemaExtensions: {}, types: {} },
 };
 
-const gqlShim = `/* eslint-disable */
-import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
-
-const documents: Record<string, unknown> = {};
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- *
- *
- * @example
- * \`\`\`ts
- * const query = gql(\`query GetUser($id: ID!) { user(id: $id) { name } }\`);
- * \`\`\`
- *
- * The query argument is unknown!
- * Please regenerate the types.
- */
-export function gql(source: string): unknown;
-
-export function gql(source: string) {
-  return documents[source] ?? {};
-}
-
-export type DocumentType<TDocumentNode extends DocumentNode<unknown, unknown>> =
-  TDocumentNode extends DocumentNode<infer TType, unknown> ? TType : never;
-`;
-
 const envs: Record<string, { schema: string | string[] }> = {
   local: {
     schema: 'http://localhost:9000/graphql',
@@ -68,12 +42,6 @@ const config: CodegenConfig = {
         'typescript-operations',
         'typed-document-node',
       ],
-      config: {
-        ...schemaExtensionsCompatibilityConfig,
-      },
-    },
-    './src/types/gql/gql.ts': {
-      plugins: [{ add: { content: gqlShim } }],
       config: {
         ...schemaExtensionsCompatibilityConfig,
       },

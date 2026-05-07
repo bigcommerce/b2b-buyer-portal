@@ -21,7 +21,7 @@
     "coverage": "vitest --coverage",
     "generate": "graphql-codegen",
     "generate:local": "CODEGEN_ENV=local graphql-codegen",
-    "generate:mock": "CODEGEN_ENV=mock graphql-codegen && node -e \"const fs=require('fs');const p='src/types/gql/gql.ts';if(!fs.existsSync(p)){throw new Error('Expected mock codegen output at '+p);}fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(\\\"import * as types from './graphql';\\\\n\\\",''));\"",
+    "generate:mock": "CODEGEN_ENV=mock graphql-codegen",
     "start": "http-server ./dist --cors"
   },
   "dependencies": {
@@ -64,8 +64,11 @@
   "devDependencies": {
     "@bigcommerce/eslint-config": "^2.11.0",
     "@bigcommerce/eslint-plugin": "^1.4.0",
+    "@graphql-codegen/add": "^6.0.0",
     "@graphql-codegen/cli": "^6.1.1",
-    "@graphql-codegen/client-preset": "^5.2.3",
+    "@graphql-codegen/typed-document-node": "^6.1.6",
+    "@graphql-codegen/typescript": "^5.0.8",
+    "@graphql-codegen/typescript-operations": "^5.0.8",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
