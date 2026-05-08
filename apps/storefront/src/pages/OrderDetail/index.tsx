@@ -179,7 +179,7 @@ function OrderDetail() {
         if (order) {
           dispatch({
             type: 'all',
-            payload: convertOrderDetail(order),
+            payload: convertOrderDetail(order, b3Lang),
           });
 
           // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.

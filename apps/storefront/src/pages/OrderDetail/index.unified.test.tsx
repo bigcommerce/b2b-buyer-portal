@@ -13,10 +13,12 @@ import {
   startMockServer,
   userEvent,
   waitForElementToBeRemoved,
+  within,
 } from 'tests/test-utils';
 
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
+import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type { GetOrderDetailResponse, Order } from '@/shared/service/bc/graphql/orders';
 import { CustomerRole } from '@/types';
 
@@ -185,5 +187,96 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     await userEvent.click(screen.getByText('Back to orders'));
 
     expect(view.navigation).toHaveBeenCalledWith('/orders');
+  });
+
+  it('renders the order summary', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  entityId: 6696,
+                  orderedAt: { utc: '2025-05-04T00:00:00.000Z' },
+                  placedBy: {
+                    entityId: 1,
+                    firstName: 'Mike',
+                    lastName: 'Wazowski',
+                    email: 'mike@monstersinc.com',
+                  },
+                  subTotal: { currencyCode: 'USD', value: 102 },
+                  shippingCostTotal: { currencyCode: 'USD', value: 332 },
+                  handlingCostTotal: { currencyCode: 'USD', value: 22.2 },
+                  taxTotal: { currencyCode: 'USD', value: 13.5 },
+                  totalIncTax: { currencyCode: 'USD', value: 100 },
+                  discounts: {
+                    couponDiscounts: [],
+                    nonCouponDiscountTotal: { currencyCode: 'USD', value: 37.93 },
+                    totalDiscount: null,
+                  },
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(screen.getByRole('heading', { name: 'Summary' })).toBeVisible();
+    expect(screen.getByText(/Purchased by Mike Wazowski on/)).toBeVisible();
+
+    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('102.00');
+    expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('332.00');
+    expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('22.20');
+    expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('13.50');
+    expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('37.93');
+    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('100.00');
+  });
+
+  it('omits the handling fee row when cost is zero', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  handlingCostTotal: { currencyCode: 'USD', value: 0 },
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(screen.queryByRole('group', { name: 'Handling Fee' })).not.toBeInTheDocument();
   });
 });
