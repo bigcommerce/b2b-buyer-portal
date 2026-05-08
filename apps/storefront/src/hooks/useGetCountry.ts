@@ -1,10 +1,10 @@
 import { useContext, useEffect } from 'react';
 import { Control, FieldValues, UseFormGetValues, UseFormSetValue, useWatch } from 'react-hook-form';
 
-import { getIsStateRequired } from '@/pages/Registered/config';
 import { GlobalContext } from '@/shared/global';
 import { Country, State } from '@/shared/global/context/config';
 import { getB2BCountries } from '@/shared/service/b2b';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 
 const useSetCountry = () => {
   const {

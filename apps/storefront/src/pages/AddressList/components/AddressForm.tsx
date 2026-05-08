@@ -6,7 +6,6 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { useB3Lang } from '@/lib/lang';
-import { getIsStateRequired } from '@/pages/Registered/config';
 import {
   createB2BAddress,
   createBcAddress,
@@ -14,6 +13,7 @@ import {
   updateBcAddress,
   validateAddressExtraFields,
 } from '@/shared/service/b2b';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 import { snackbar } from '@/utils/b3Tip';
 import { deCodeField } from '@/utils/registerUtils';
 

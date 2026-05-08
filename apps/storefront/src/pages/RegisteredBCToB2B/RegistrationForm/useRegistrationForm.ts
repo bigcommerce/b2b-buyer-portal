@@ -5,7 +5,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { Country, getIsStateRequired, State } from '@/pages/Registered/config';
+import { Country, State } from '@/pages/Registered/config';
 import { RegisteredContext } from '@/pages/Registered/Context';
 import type { RegisterFields } from '@/pages/Registered/types';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -18,6 +18,7 @@ import {
 } from '@/shared/service/b2b';
 import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import { useAppSelector } from '@/store';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';

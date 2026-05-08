@@ -7,8 +7,9 @@ import { B3CustomForm } from '@/components/B3CustomForm';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 
-import { Country, getIsStateRequired, State, validateExtraFields } from '../../config';
+import { Country, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
 import { RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
