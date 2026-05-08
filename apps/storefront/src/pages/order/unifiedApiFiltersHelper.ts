@@ -22,6 +22,12 @@ export const getCustomerOrdersInitFilter = (companyId: number): OrdersFiltersInp
   };
 };
 
+export const normalizeString = (value: string | number | null | undefined): string | undefined => {
+  if (value === null || value === undefined) return undefined;
+  const str = String(value);
+  return str === '' ? undefined : str;
+};
+
 export const packDateRange = (
   start: string | null | undefined,
   end: string | null | undefined,
