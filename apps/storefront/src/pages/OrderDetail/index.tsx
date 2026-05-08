@@ -95,7 +95,7 @@ function OrderDetail() {
   const [preOrderId, setPreOrderId] = useState('');
   const [orderId, setOrderId] = useState('');
   const [isRequestLoading, setIsRequestLoading] = useState(false);
-  const [isCurrentCompany, setIsCurrentCompany] = useState(false);
+  const [isCurrentCompany, setIsCurrentCompany] = useState(true);
 
   useEffect(() => {
     setOrderId(params.id || '');
