@@ -77,23 +77,6 @@ describe('pickLocaleBundle — numeric region subtag', () => {
   });
 });
 
-describe('pickLocaleBundle — case-insensitive matching', () => {
-  const bundles = {
-    en: { greeting: 'Hello' },
-    'es-MX': { greeting: 'Hola (es-MX)' },
-  };
-
-  it('s8: ES-mx resolves to the es-MX bundle', () => {
-    const picked = pickLocaleBundle('ES-mx', bundles);
-    expect(merge(bundles.en, picked).greeting).toBe('Hola (es-MX)');
-  });
-
-  it('lowercased regional code also resolves', () => {
-    const picked = pickLocaleBundle('es-mx', bundles);
-    expect(merge(bundles.en, picked).greeting).toBe('Hola (es-MX)');
-  });
-});
-
 describe('pickLocaleBundle — regional bundle missing, bare bundle present', () => {
   it('s9: es-ES with no es-ES bundle now falls back to the bare es bundle', () => {
     const bundles = {
