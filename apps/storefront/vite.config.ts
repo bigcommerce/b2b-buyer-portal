@@ -1,21 +1,10 @@
 // cspell:ignore onwarn, pdfobject
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
-import { rmSync } from 'node:fs';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig, loadEnv, Plugin, UserConfig } from 'vite';
+import { defineConfig, loadEnv, UserConfig } from 'vite';
 import { ViteUserConfig } from 'vitest/config';
-
-function removeMockServiceWorkerFromBuild(): Plugin {
-  return {
-    name: 'remove-mock-service-worker-from-build',
-    apply: 'build',
-    closeBundle() {
-      rmSync(path.resolve(__dirname, 'dist/mockServiceWorker.js'), { force: true });
-    },
-  };
-}
 
 export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'> => {
   const env = loadEnv(mode, process.cwd());
@@ -29,7 +18,6 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
         modernPolyfills: true,
       }),
       react(),
-      removeMockServiceWorkerFromBuild(),
     ],
     experimental: {
       renderBuiltUrl(filename: string) {

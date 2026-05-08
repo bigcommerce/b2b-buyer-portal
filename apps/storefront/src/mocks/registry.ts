@@ -1,35 +1,9 @@
-import { executeGetCustomerOrders } from './resolvers/orders';
+import { ordersMockOperations } from './domains/orders/registration';
+import type { MockTransport, OwnedOperation } from './types';
 
-export type MockTransport = 'b2b' | 'sf-direct' | 'sf-proxy';
+export type { MockTransport } from './types';
 
-interface OperationExecutionContext {
-  variables?: Record<string, unknown>;
-}
-
-interface OwnedOperation {
-  operationName: string;
-  owner: 'buyer-portal-orders';
-  transport: MockTransport;
-  flow: 'my-orders-unified-orders-poc';
-  execute: (context: OperationExecutionContext) => Promise<unknown>;
-}
-
-export const ownedOperations: OwnedOperation[] = [
-  {
-    operationName: 'GetCustomerOrders',
-    owner: 'buyer-portal-orders',
-    transport: 'sf-proxy',
-    flow: 'my-orders-unified-orders-poc',
-    execute: executeGetCustomerOrders,
-  },
-  {
-    operationName: 'GetCustomerOrders',
-    owner: 'buyer-portal-orders',
-    transport: 'sf-direct',
-    flow: 'my-orders-unified-orders-poc',
-    execute: executeGetCustomerOrders,
-  },
-];
+export const ownedOperations: readonly OwnedOperation[] = [...ordersMockOperations];
 
 export function getOwnedOperation({
   operationName,

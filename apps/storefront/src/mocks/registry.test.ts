@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getOwnedOperation, ownedOperations } from './registry';
 
 describe('owned operation registry', () => {
-  it('registers GetCustomerOrders for the narrow unified-orders Storefront proxy flow', () => {
+  it('registers GetCustomerOrders from the Orders mock domain', () => {
     const operation = getOwnedOperation({
       operationName: 'GetCustomerOrders',
       transport: 'sf-proxy',
@@ -17,7 +17,10 @@ describe('owned operation registry', () => {
     });
   });
 
-  it('also registers local direct dev proxy transport for My Orders only', () => {
+  it('registers the same Storefront operation for proxy and direct local transports', () => {
+    expect(
+      getOwnedOperation({ operationName: 'GetCustomerOrders', transport: 'sf-proxy' }),
+    ).toBeDefined();
     expect(
       getOwnedOperation({ operationName: 'GetCustomerOrders', transport: 'sf-direct' }),
     ).toBeDefined();

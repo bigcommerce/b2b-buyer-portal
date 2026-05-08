@@ -35,19 +35,7 @@ window.b2b = {
   },
 };
 
-async function enableDevelopmentMocking(): Promise<void> {
-  if (!import.meta.env.DEV) {
-    return;
-  }
-
-  const { enableMocking } = await import('./mocks/bootstrap');
-
-  await enableMocking();
-}
-
-async function bootstrap(): Promise<void> {
-  await enableDevelopmentMocking();
-
+function bootstrap(): void {
   // check if the accessed url contains a hashtag
   if (window.location.hash.startsWith('#/')) {
     initApp();

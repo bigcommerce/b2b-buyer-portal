@@ -1,11 +1,7 @@
-import type { Order, PageInfo } from '@/shared/service/bc/graphql/orders';
-import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
-
+import type { Order, PageInfo } from '../domains/orders/types';
+import { OrdersSortInput } from '../domains/orders/types';
 import { orderStore } from '../store';
-
-interface ExecuteGetCustomerOrdersArgs {
-  variables?: unknown;
-}
+import type { OperationExecutionContext } from '../types';
 
 interface NormalizedGetCustomerOrdersVariables {
   filters: {
@@ -100,7 +96,7 @@ function sortOrders(orders: Order[], sortBy?: NormalizedGetCustomerOrdersVariabl
 
 export async function executeGetCustomerOrders({
   variables,
-}: ExecuteGetCustomerOrdersArgs = {}): Promise<SuccessfulGetCustomerOrdersResponse> {
+}: OperationExecutionContext = {}): Promise<SuccessfulGetCustomerOrdersResponse> {
   const normalizedVariables = normalizeVariables(variables);
   const filteredOrders = orderStore
     .getOrders()

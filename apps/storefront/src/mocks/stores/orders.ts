@@ -1,4 +1,4 @@
-import type { DateTimeExtended, Money, Order } from '@/shared/service/bc/graphql/orders';
+import type { DateTimeExtended, Money, Order } from '../domains/orders/types';
 
 type OrderOverride = Partial<Order> & Pick<Order, 'entityId'>;
 

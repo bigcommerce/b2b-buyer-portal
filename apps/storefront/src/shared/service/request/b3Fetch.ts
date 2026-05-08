@@ -8,6 +8,14 @@ import { logoutSession } from '@/utils/logoutSession';
 import { getAPIBaseURL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';
 
+type MockTransport = 'b2b' | 'sf-direct' | 'sf-proxy';
+
+const graphqlMockTransportByRequestType: Partial<Record<RequestTypeKeys, MockTransport>> = {
+  B2BGraphql: 'b2b',
+  BCGraphql: 'sf-direct',
+  BCProxyGraphql: 'sf-proxy',
+};
+
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${getAPIBaseURL()}/graphql`,
@@ -46,7 +54,11 @@ function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
   return b3Fetch(url, init);
 }
 
-function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+async function graphqlRequest<T extends GQLRequest, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   const init = {
     method: 'POST',
     headers: {
@@ -57,6 +69,25 @@ function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   };
 
   const url = GraphqlEndpointsFn(type);
+
+  const transport = graphqlMockTransportByRequestType[type];
+  const shouldUseMockApi = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_API === 'true';
+
+  if (transport && shouldUseMockApi) {
+    const { resolveB3GraphQLMockRequest } = await import('@/mocks/requestRouter');
+    const result = await resolveB3GraphQLMockRequest({
+      transport,
+      request: {
+        query: data.query,
+        variables: isRecord(data.variables) ? data.variables : undefined,
+      },
+    });
+
+    if (result.kind === 'mocked') {
+      return result.body;
+    }
+  }
+
   return b3Fetch(url, init);
 }
 
@@ -82,7 +113,7 @@ interface B2bGQLResponse {
 
 interface GQLRequest {
   query: string;
-  variables?: any;
+  variables?: unknown;
 }
 
 interface DataWrapper {
