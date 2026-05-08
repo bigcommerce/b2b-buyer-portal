@@ -1,20 +1,8 @@
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { getActiveLocale } from '@/lib/lang/getActiveLocaleCode';
 import { useAppSelector } from '@/store';
-import { Locales } from '@/store/slices/global';
 
 import B3DropDown from '../B3DropDown';
-
-const getActiveLocale = (locales: Locales) =>
-  [...locales]
-    .sort((a, b) => b.fullPath.length - a.fullPath.length)
-    .find((l) => {
-      const { href } = window.location;
-      if (!href.startsWith(l.fullPath)) {
-        return false;
-      }
-      const next = href[l.fullPath.length];
-      return next === undefined || next === '/' || next === '#' || next === '?';
-    });
 
 export default function B3LocaleSwitcher() {
   const isMultiLocaleEnabled = useFeatureFlag('LOCAL-3191.B2B_multi_language');

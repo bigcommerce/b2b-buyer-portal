@@ -1,7 +1,10 @@
 import { ReactNode } from 'react';
 import { IntlProvider } from 'react-intl';
-import { useSelector } from 'react-redux';
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useAppSelector } from '@/store';
+
+import { getActiveLocaleCode } from './getActiveLocaleCode';
 import locales from './locales';
 
 interface LangProviderProps {
@@ -9,22 +12,22 @@ interface LangProviderProps {
   readonly customText?: Record<string, string>;
 }
 
-type Translations = Record<string, string>;
-
-interface RootState {
-  lang: {
-    translations: Translations;
-  };
-}
+const localeBundles = locales as Record<string, Record<string, string> | undefined>;
 
 function LangProvider({ children, customText = {} }: LangProviderProps) {
-  const translations = useSelector<RootState, Translations>(({ lang }) => lang.translations);
+  const translations = useAppSelector(({ lang }) => lang.translations);
+  const isMultiLang = useFeatureFlag('LOCAL-3191.B2B_multi_language');
+  const localesList = useAppSelector(({ global }) => global.locales);
+
+  const code = isMultiLang ? getActiveLocaleCode(localesList) : 'en';
+  const language = code.split('-')[0];
+  const localeMessages = localeBundles[code] ?? localeBundles[language] ?? {};
 
   return (
     <IntlProvider
       defaultLocale="en"
-      locale="en"
-      messages={{ ...locales.en, ...customText, ...translations }}
+      locale={code}
+      messages={{ ...locales.en, ...localeMessages, ...customText, ...translations }}
     >
       {children}
     </IntlProvider>
