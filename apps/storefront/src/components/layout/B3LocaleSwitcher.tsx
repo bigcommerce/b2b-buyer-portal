@@ -1,5 +1,5 @@
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
-import { getActiveLocale } from '@/lib/lang/getActiveLocaleCode';
+import { getActiveLocale } from '@/lib/lang/getActiveLocale';
 import { useAppSelector } from '@/store';
 
 import B3DropDown from '../B3DropDown';

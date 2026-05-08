@@ -5,10 +5,6 @@ export function pickLocaleBundle(
   bundles: LocaleBundles,
 ): Record<string, string> {
   const target = activeCode.toLowerCase();
-  for (const key of Object.keys(bundles)) {
-    if (key.toLowerCase() === target) {
-      return bundles[key] ?? {};
-    }
-  }
-  return {};
+  const matchedKey = Object.keys(bundles).find((key) => key.toLowerCase() === target);
+  return (matchedKey && bundles[matchedKey]) || {};
 }

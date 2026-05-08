@@ -23,6 +23,8 @@ module.exports = {
           '^src/headless.ts',
           // This should be removed once we get proper gql types
           'src/types/gql/index.ts',
+          // Loaded dynamically via import.meta.glob in src/lib/lang/locales/index.ts
+          '^src/lib/lang/locales/.*\\.json$',
         ],
         numberOfDependentsLessThan: 1,
       },

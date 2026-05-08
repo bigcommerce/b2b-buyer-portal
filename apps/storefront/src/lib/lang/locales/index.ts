@@ -1,4 +1,18 @@
-import en from './en.json';
-import frFR from './fr_FR.json';
+type Messages = Record<string, string>;
 
-export default { en, 'fr-FR': frFR, custom: undefined };
+const modules = import.meta.glob<Messages>('./*.json', {
+  eager: true,
+  import: 'default',
+});
+
+const filenameToCode = (path: string): string =>
+  path
+    .replace(/^\.\//, '')
+    .replace(/\.json$/, '')
+    .replace(/_/g, '-');
+
+const locales: Record<string, Messages> = Object.fromEntries(
+  Object.entries(modules).map(([path, messages]) => [filenameToCode(path), messages]),
+);
+
+export default locales;
