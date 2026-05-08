@@ -74,7 +74,6 @@ function OrderDetail() {
       customStatus,
       orderSummary,
       orderStatus = [],
-      products,
       digitalProducts,
     },
     state: detailsData,

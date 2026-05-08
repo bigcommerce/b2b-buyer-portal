@@ -378,7 +378,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     const crossCompanyState = {
       ...preloadedState,
       company: buildCompanyStateWith({
-        customer: { role: CustomerRole.B2B },
+        customer: { role: CustomerRole.ADMIN },
         companyInfo: { id: '100' },
       }),
       global: buildGlobalStateWith({
