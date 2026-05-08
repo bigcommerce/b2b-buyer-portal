@@ -6,6 +6,7 @@ import { useAppSelector } from '@/store';
 
 import { getActiveLocaleCode } from './getActiveLocaleCode';
 import locales from './locales';
+import { pickLocaleBundle } from './pickLocaleBundle';
 
 interface LangProviderProps {
   readonly children: ReactNode;
@@ -20,8 +21,7 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   const localesList = useAppSelector(({ global }) => global.locales);
 
   const code = isMultiLang ? getActiveLocaleCode(localesList) : 'en';
-  const language = code.split('-')[0];
-  const localeMessages = localeBundles[code] ?? localeBundles[language] ?? {};
+  const localeMessages = pickLocaleBundle(code, localeBundles);
 
   return (
     <IntlProvider
