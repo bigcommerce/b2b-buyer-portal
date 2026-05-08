@@ -1,8 +1,6 @@
 import { ordersMockOperations } from './domains/orders/registration';
 import type { MockTransport, OwnedOperation } from './types';
 
-export type { MockTransport } from './types';
-
 export const ownedOperations: readonly OwnedOperation[] = [...ordersMockOperations];
 
 export function getOwnedOperation({

@@ -5,7 +5,7 @@ import * as orderStore from '../stores/orders';
 import { executeGetCustomerOrders } from './orders';
 
 async function executeWithUnknownVariables(variables: unknown) {
-  if (!variables || typeof variables !== 'object') {
+  if (!variables || typeof variables !== 'object' || Array.isArray(variables)) {
     return executeGetCustomerOrders({});
   }
 
@@ -72,6 +72,14 @@ describe('executeGetCustomerOrders', () => {
         status: { value: 'SHIPPED' },
       },
     });
+
+    expect(result.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([
+      1004, 1003, 1002, 1001,
+    ]);
+  });
+
+  it('treats array-shaped variables as malformed', async () => {
+    const result = await executeWithUnknownVariables([{ filters: { search: '1001' } }]);
 
     expect(result.data.customer.orders.edges.map((edge) => edge.node.entityId)).toEqual([
       1004, 1003, 1002, 1001,

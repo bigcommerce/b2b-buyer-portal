@@ -19,3 +19,7 @@ export interface OwnedOperation<TResult = unknown> {
 export type GraphQLMockBody = Record<string, unknown>;
 
 export type ResolveResult = { kind: 'mocked'; body: GraphQLMockBody } | { kind: 'passthrough' };
+
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}

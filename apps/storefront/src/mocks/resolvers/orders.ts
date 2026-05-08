@@ -1,7 +1,7 @@
 import type { Order, PageInfo } from '../domains/orders/types';
 import { OrdersSortInput } from '../domains/orders/types';
 import * as orderStore from '../stores/orders';
-import type { OperationExecutionContext } from '../types';
+import { isRecord, type OperationExecutionContext } from '../types';
 
 interface NormalizedGetCustomerOrdersVariables {
   filters: {
@@ -23,10 +23,6 @@ interface SuccessfulGetCustomerOrdersResponse {
       orders: CustomerOrdersConnection;
     };
   };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object';
 }
 
 function getStringValue(value: unknown): string | undefined {
