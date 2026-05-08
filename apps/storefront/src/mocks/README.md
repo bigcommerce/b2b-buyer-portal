@@ -69,6 +69,38 @@ Use these responsibilities:
 
 Add new domains by creating a domain registration file, adding any resolver and store files it needs, then adding the domain operations to `ownedOperations` in `registry.ts`.
 
+## Creating a new mock
+
+Use this order when adding a mock operation. The mock router matches by GraphQL operation name and transport, so start from the production caller and work back toward the registry.
+
+1. **Find the production request.** Locate the `B3Request.graphqlB2B`, `B3Request.graphqlBC`, or `B3Request.graphqlBCProxy` call and copy the named GraphQL operation exactly. For example, `getOrderDetail` sends `query GetOrderDetail($entityId: Int!)`.
+2. **Choose transports.** Use the table in [Scope](#scope): `graphqlB2B` maps to `b2b`, `graphqlBC` maps to `sf-direct`, and `graphqlBCProxy` maps to `sf-proxy`. Register every transport the feature can use locally.
+3. **Create or extend domain types.** Put request/response data shapes in `domains/<domain>/types.ts` when the mock store needs local types. Keep these types narrow and avoid importing service-layer modules from `src/shared/service/**`.
+4. **Create or extend the store.** Add deterministic seed data in `stores/<domain>.ts`, seed it when the module loads, and expose lookup helpers for resolvers. Store helpers should return stable data and expose reset/seed helpers when tests need clean state.
+5. **Write the resolver.** Add `execute<OperationName>` in `resolvers/<domain>.ts`. Treat `variables` as `unknown`, narrow them before use, and return the GraphQL envelope the production caller expects.
+6. **Register the operation.** Add a `defineGraphQLMock` entry in `domains/<domain>/registration.ts` with the exact `operationName`, a stable `owner`, a short `flow`, the chosen `transports`, and the resolver function.
+7. **Wire new domains into the registry.** If this is a new domain, import its `<domain>MockOperations` in `registry.ts` and append it to `ownedOperations`. Existing domains only need the registration file update.
+8. **Cover the behavior with tests.** Add or update store/resolver tests for response shape and variable handling, registry tests for operation + transport registration, and request-router tests proving the operation returns a mocked response instead of passing through.
+9. **Run the focused suite.** From `apps/storefront`, run `yarn test src/mocks --run`. Use `yarn dev:mock` or set `VITE_USE_MOCK_API=true` when manually exercising the mock in local dev.
+
+For an existing domain, the usual edit set is:
+
+```text
+src/mocks/domains/<domain>/registration.ts
+src/mocks/resolvers/<domain>.ts
+src/mocks/stores/<domain>.ts
+src/mocks/**/<domain>.test.ts
+```
+
+For a new domain, also update:
+
+```text
+src/mocks/registry.ts
+src/mocks/registry.test.ts
+```
+
+Use `owner` to identify the product area that owns the mock, such as `buyer-portal-orders`. Use `flow` to identify the local feature or proof-of-concept path that needs it, such as `my-orders-unified-orders-poc`.
+
 ## Type ownership
 
 Mock domain types should stay local to the mock domain unless there is a dependency-clean shared contract. Do not import handwritten service-layer GraphQL types from `src/shared/service/**` into mock stores or resolvers when those service modules import `B3Request`; that creates a cycle back through the request router.
@@ -187,5 +219,5 @@ Before adding or changing a mock operation, cover the behavior at the narrowest 
 Run focused tests from `apps/storefront` when changing mocks:
 
 ```sh
-yarn test src/mocks
+yarn test src/mocks --run
 ```
