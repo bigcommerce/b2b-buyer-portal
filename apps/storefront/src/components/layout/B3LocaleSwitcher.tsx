@@ -19,6 +19,9 @@ export default function B3LocaleSwitcher() {
   const handleLocaleChange = (code: string | number) => {
     const nextLocale = locales.find((l) => l.code === String(code));
     if (nextLocale && nextLocale.fullPath !== activeLocale.fullPath) {
+      // Cached translations are locale-specific; drop the persisted `lang` slice
+      // so the new locale refetches instead of rehydrating the previous one.
+      localStorage.removeItem('persist:lang');
       window.location.href = nextLocale.fullPath + window.location.hash;
     }
   };

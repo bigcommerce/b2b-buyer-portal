@@ -126,4 +126,19 @@ describe('when the flag is enabled and multiple locales are available', () => {
 
     expect(location.href).toBe('https://store.example.com/fr#/orders');
   });
+
+  it('clears the persisted lang slice when switching locales', async () => {
+    const location = { href: 'https://store.example.com/', hash: '' };
+    vi.stubGlobal('location', location);
+    localStorage.setItem('persist:lang', '{"translations":{}}');
+
+    const { user } = renderWithProviders(<B3LocaleSwitcher />, {
+      preloadedState: withFlagEnabled,
+    });
+
+    await user.click(screen.getByRole('button', { name: /EN/i }));
+    await user.click(screen.getByRole('menuitem', { name: 'FR' }));
+
+    expect(localStorage.getItem('persist:lang')).toBeNull();
+  });
 });
