@@ -160,6 +160,25 @@ const superAdminMasqueradingState = (featureFlags: Record<string, boolean>) => (
 // Tests
 // ---------------------------------------------------------------------------
 
+const filteredCompanyOrdersResponse = (entityId: number): GetCompanyOrdersResponse => ({
+  data: {
+    customer: {
+      activeCompany: {
+        orders: {
+          edges: [{ node: buildSfGqlOrderWith({ entityId }), cursor: 'filtered' }],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: 'filtered',
+            endCursor: 'filtered',
+          },
+          collectionInfo: { totalItems: 1 },
+        },
+      },
+    },
+  },
+});
+
 describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
   beforeEach(() => {
     server.use(
@@ -358,42 +377,226 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
         await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-        const filteredResponse: GetCompanyOrdersResponse = {
-          data: {
-            customer: {
-              activeCompany: {
-                orders: {
-                  edges: [
-                    {
-                      node: buildSfGqlOrderWith({ entityId: 66996 }),
-                      cursor: 'filtered',
-                    },
-                  ],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: 'filtered',
-                    endCursor: 'filtered',
-                  },
-                  collectionInfo: { totalItems: 1 },
-                },
-              },
-            },
-          },
-        };
-
         when(getOrders)
           .calledWith(
             expect.objectContaining({
               filters: expect.objectContaining({ search: '66996' }),
             }),
           )
-          .thenReturn(filteredResponse);
+          .thenReturn(filteredCompanyOrdersResponse(66996));
 
         await userEvent.type(screen.getByPlaceholderText('Search'), '66996');
 
         await waitFor(() => {
-          expect(screen.getByText('66996').closest('tr')!).toBeInTheDocument();
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('filters by status', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetOrderStatuses', () =>
+            HttpResponse.json(
+              buildLegacyB2BOrderStatusesResponseWith({
+                data: {
+                  orderStatuses: [
+                    buildLegacyOrderStatusWith({
+                      systemLabel: 'Completed',
+                      customLabel: 'Completed',
+                    }),
+                  ],
+                },
+              }),
+            ),
+          ),
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ status: ['Completed'] }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+        await userEvent.click(screen.getByRole('option', { name: 'Completed' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('resolves custom status label to systemLabel before sending', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetOrderStatuses', () =>
+            HttpResponse.json(
+              buildLegacyB2BOrderStatusesResponseWith({
+                data: {
+                  orderStatuses: [
+                    buildLegacyOrderStatusWith({
+                      systemLabel: 'Completed',
+                      customLabel: 'All Done',
+                    }),
+                  ],
+                },
+              }),
+            ),
+          ),
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ status: ['Completed'] }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+        await userEvent.click(screen.getByRole('option', { name: 'All Done' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('filters by date range', async () => {
+        vi.setSystemTime(new Date('21 November 2022'));
+
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                dateRange: { from: '2022-11-15', to: '2022-11-26' },
+              }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('filters by status and date range together', async () => {
+        vi.setSystemTime(new Date('21 November 2022'));
+
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetOrderStatuses', () =>
+            HttpResponse.json(
+              buildLegacyB2BOrderStatusesResponseWith({
+                data: {
+                  orderStatuses: [
+                    buildLegacyOrderStatusWith({
+                      systemLabel: 'Pending',
+                      customLabel: 'Pending',
+                    }),
+                  ],
+                },
+              }),
+            ),
+          ),
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                status: ['Pending'],
+                dateRange: { from: '2022-11-15', to: '2022-11-26' },
+              }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+        await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
         });
       });
     });
