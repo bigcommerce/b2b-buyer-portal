@@ -351,6 +351,57 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     });
   });
 
+  it('shows the cross-company banner when the order belongs to a different company', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  // Active company in Redux state is 100; order belongs to company 200
+                  company: { entityId: 200, name: 'Other Company' },
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+
+    const crossCompanyState = {
+      ...preloadedState,
+      company: buildCompanyStateWith({
+        customer: { role: CustomerRole.B2B },
+        companyInfo: { id: '100' },
+      }),
+      global: buildGlobalStateWith({
+        featureFlags: {
+          'B2B-4613.buyer_portal_unified_sf_gql_orders': true,
+        },
+      }),
+    };
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState: crossCompanyState,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(
+      screen.getByText(
+        'This order is related to another company. To reorder, add to a shopping list, or perform other actions, you need to switch to that company.',
+      ),
+    ).toBeVisible();
+  });
+
   describe('when there are order history events', () => {
     it('renders the order history section', async () => {
       server.use(

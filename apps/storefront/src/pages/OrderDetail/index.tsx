@@ -359,7 +359,7 @@ function OrderDetail() {
             )}
           </Grid>
         </Grid>
-        {products?.length && !isCurrentCompany ? (
+        {orderId && !isCurrentCompany ? (
           <Box
             sx={{
               marginTop: '24px',
