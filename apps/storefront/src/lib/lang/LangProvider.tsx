@@ -4,7 +4,7 @@ import { IntlProvider } from 'react-intl';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAppSelector } from '@/store';
 
-import { getActiveLocaleCode } from './getActiveLocaleCode';
+import { getActiveLocale } from './getActiveLocale';
 import locales from './locales';
 import { pickLocaleBundle } from './pickLocaleBundle';
 
@@ -20,14 +20,26 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   const isMultiLang = useFeatureFlag('LOCAL-3191.B2B_multi_language');
   const localesList = useAppSelector(({ global }) => global.locales);
 
-  const code = isMultiLang ? getActiveLocaleCode(localesList) : 'en';
-  const localeMessages = pickLocaleBundle(code, localeBundles);
+  if (isMultiLang) {
+    const code = getActiveLocale(localesList)?.code ?? 'en';
+    const localeMessages = pickLocaleBundle(code, localeBundles);
+
+    return (
+      <IntlProvider
+        defaultLocale="en"
+        locale={code}
+        messages={{ ...locales.en, ...localeMessages, ...customText, ...translations }}
+      >
+        {children}
+      </IntlProvider>
+    );
+  }
 
   return (
     <IntlProvider
       defaultLocale="en"
-      locale={code}
-      messages={{ ...locales.en, ...localeMessages, ...customText, ...translations }}
+      locale="en"
+      messages={{ ...locales.en, ...customText, ...translations }}
     >
       {children}
     </IntlProvider>

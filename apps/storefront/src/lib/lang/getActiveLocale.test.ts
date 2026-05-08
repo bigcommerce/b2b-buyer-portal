@@ -6,28 +6,42 @@ const LOCALES = [
   { code: 'en', isDefault: false, fullPath: 'https://store.example.com/en' },
 ];
 
+const setHref = (href: string) => {
+  Object.defineProperty(window, 'location', {
+    value: { href },
+    writable: true,
+  });
+};
+
 describe('getActiveLocale', () => {
+  const originalLocation = window.location;
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+  });
+
   it('matches the longest fullPath prefix', () => {
-    expect(getActiveLocale(LOCALES, 'https://store.example.com/fr-ca/orders')?.code).toBe('fr-CA');
+    setHref('https://store.example.com/fr-ca/orders');
+    expect(getActiveLocale(LOCALES)?.code).toBe('fr-CA');
   });
 
-  it('matches when fullPath ends exactly at the URL', () => {
-    expect(getActiveLocale(LOCALES, 'https://store.example.com/en')?.code).toBe('en');
+  it('matches the root locale at the bare default root', () => {
+    setHref('https://store.example.com/');
+    expect(getActiveLocale(LOCALES)?.code).toBe('fr');
   });
 
-  it('does not match a partial-segment prefix (e.g. /english should not match /en)', () => {
-    expect(getActiveLocale(LOCALES, 'https://store.example.com/english')?.code).toBe('fr');
+  it('does not match a partial-segment prefix (/english should not match /en); falls through to the default', () => {
+    setHref('https://store.example.com/english');
+    expect(getActiveLocale(LOCALES)?.code).toBe('fr');
   });
 
-  it('matches the root-prefix default for any path under the default root', () => {
-    expect(getActiveLocale(LOCALES, 'https://store.example.com/my-page')?.code).toBe('fr');
+  it('matches the default language for arbitrary sub-paths under the default root', () => {
+    setHref('https://store.example.com/my-page');
+    expect(getActiveLocale(LOCALES)?.code).toBe('fr');
   });
 
-  it('matches the root-prefix default at the bare default root', () => {
-    expect(getActiveLocale(LOCALES, 'https://store.example.com/')?.code).toBe('fr');
-  });
-
-  it('returns undefined when no fullPath matches the URL', () => {
-    expect(getActiveLocale(LOCALES, 'https://other-store.example.com/')).toBeUndefined();
+  it('returns undefined when the URL host does not match any fullPath', () => {
+    setHref('https://other-store.example.com/');
+    expect(getActiveLocale(LOCALES)).toBeUndefined();
   });
 });

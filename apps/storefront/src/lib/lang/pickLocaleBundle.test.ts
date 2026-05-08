@@ -2,16 +2,16 @@ import { pickLocaleBundle } from './pickLocaleBundle';
 
 // LangProvider merges English first, then the picked bundle on top:
 //   { ...locales.en, ...pickLocaleBundle(active, locales), ...customText, ...translations }
-// So missing keys in the picked bundle naturally fall through to en. The contract
-// of pickLocaleBundle is therefore: return the *exact* match for the active locale
-// (case-insensitive) or an empty object — never the bare-language file as a
-// fallback for an unmatched regional locale.
+// pickLocaleBundle returns the most specific available bundle: the exact
+// regional match if present, otherwise the bare-language bundle, otherwise {}.
+// Per-key gaps within the picked bundle fall through to en via the merge —
+// they do NOT cascade through the regional → bare chain at key level.
 const merge = (en: Record<string, string>, picked: Record<string, string>) => ({
   ...en,
   ...picked,
 });
 
-describe('pickLocaleBundle — regional locale, regional bundle present', () => {
+describe('pickLocaleBundle — regional bundle present', () => {
   const bundles = {
     en: { greeting: 'Hello', farewell: 'Goodbye' },
     es: { greeting: 'Hola (es)', farewell: 'Adiós (es)' },
@@ -23,12 +23,12 @@ describe('pickLocaleBundle — regional locale, regional bundle present', () => 
     expect(merge(bundles.en, picked).greeting).toBe('Hola (es-MX)');
   });
 
-  it('s2: missing phrase falls through to en, never to es', () => {
+  it('s2: missing key in the regional bundle falls through to en, not to the bare-language bundle', () => {
     const picked = pickLocaleBundle('es-MX', bundles);
     expect(merge(bundles.en, picked).farewell).toBe('Goodbye');
   });
 
-  it('s3: phrase missing from both regional and bare still resolves to en', () => {
+  it('s3: phrase missing from both regional and bare resolves to en', () => {
     const onlyEn = {
       en: { onlyEnKey: 'only-en' },
       es: {},
@@ -71,7 +71,7 @@ describe('pickLocaleBundle — numeric region subtag', () => {
     expect(merge(bundles.en, picked).greeting).toBe('Hola (es-419)');
   });
 
-  it('s7: missing key in es-419 still skips bare es', () => {
+  it('s7: missing key in es-419 falls to en (per-key bare-language fallback is not applied when the regional bundle exists)', () => {
     const picked = pickLocaleBundle('es-419', bundles);
     expect(merge(bundles.en, picked).farewell).toBe('Goodbye');
   });
@@ -94,20 +94,37 @@ describe('pickLocaleBundle — case-insensitive matching', () => {
   });
 });
 
-describe('pickLocaleBundle — unsupported regional locale', () => {
-  it('s9: es-ES with no es-ES bundle resolves to en (never reads es)', () => {
+describe('pickLocaleBundle — regional bundle missing, bare bundle present', () => {
+  it('s9: es-ES with no es-ES bundle now falls back to the bare es bundle', () => {
     const bundles = {
       en: { greeting: 'Hello' },
       es: { greeting: 'Hola (es)' },
     };
     const picked = pickLocaleBundle('es-ES', bundles);
-    expect(picked).toEqual({});
-    expect(merge(bundles.en, picked).greeting).toBe('Hello');
+    expect(merge(bundles.en, picked).greeting).toBe('Hola (es)');
+  });
+
+  it('fr-CA with no fr-CA bundle uses the shipped fr bundle', () => {
+    const bundles = {
+      en: { greeting: 'Hello' },
+      fr: { greeting: 'Bonjour (fr)' },
+    };
+    const picked = pickLocaleBundle('fr-CA', bundles);
+    expect(merge(bundles.en, picked).greeting).toBe('Bonjour (fr)');
+  });
+
+  it('fr-FR with no fr-FR bundle uses the shipped fr bundle', () => {
+    const bundles = {
+      en: { greeting: 'Hello' },
+      fr: { greeting: 'Bonjour (fr)' },
+    };
+    const picked = pickLocaleBundle('fr-FR', bundles);
+    expect(merge(bundles.en, picked).greeting).toBe('Bonjour (fr)');
   });
 });
 
-describe('pickLocaleBundle — admin-forced default', () => {
-  it('s10: admin-forced es-MX with missing phrase still falls back to en, not es', () => {
+describe('pickLocaleBundle — admin-forced regional default', () => {
+  it('s10: admin-forced es-MX with empty regional bundle still falls back to en, not bare es', () => {
     const bundles = {
       en: { greeting: 'Hello' },
       es: { greeting: 'Hola (es)' },
@@ -119,16 +136,21 @@ describe('pickLocaleBundle — admin-forced default', () => {
 });
 
 describe('pickLocaleBundle — edge cases', () => {
-  it('returns {} when no bundle matches and no en bundle is present', () => {
+  it('returns {} when the active locale has no bundle and no bare-language bundle exists', () => {
+    expect(pickLocaleBundle('zh-CN', { en: {} })).toEqual({});
+  });
+
+  it('returns {} when bundles is empty', () => {
     expect(pickLocaleBundle('zh-CN', {})).toEqual({});
   });
 
-  it('returns {} when the matching key is registered but undefined', () => {
+  it('skips a key registered with undefined and falls through to the next candidate', () => {
     const bundles: Record<string, Record<string, string> | undefined> = {
       en: { greeting: 'Hello' },
-      'es-MX': undefined,
+      fr: { greeting: 'Bonjour' },
+      'fr-CA': undefined,
     };
-    expect(pickLocaleBundle('es-MX', bundles)).toEqual({});
+    expect(pickLocaleBundle('fr-CA', bundles)).toBe(bundles.fr);
   });
 
   it('returns the en bundle when active locale is en', () => {

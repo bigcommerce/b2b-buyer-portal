@@ -1,18 +1,14 @@
 import type { Locale, Locales } from '@/store/slices/global';
 
-export const getActiveLocale = (
-  locales: Locales,
-  href: string = window.location.href,
-): Locale | undefined =>
-  [...locales]
+export const getActiveLocale = (locales: Locales): Locale | undefined =>
+  locales
+    .map((locale) => ({ locale, fullPath: locale.fullPath.replace(/\/$/, '') }))
     .sort((a, b) => b.fullPath.length - a.fullPath.length)
-    .find((l) => {
-      if (!href.startsWith(l.fullPath)) {
+    .find(({ fullPath }) => {
+      const { href } = window.location;
+      if (!href.startsWith(fullPath)) {
         return false;
       }
-      if (l.fullPath.endsWith('/')) {
-        return true;
-      }
-      const next = href[l.fullPath.length];
+      const next = href[fullPath.length];
       return next === undefined || next === '/' || next === '#' || next === '?';
-    });
+    })?.locale;
