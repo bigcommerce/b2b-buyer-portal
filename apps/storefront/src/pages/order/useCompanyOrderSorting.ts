@@ -18,5 +18,5 @@ const COMPANY_SORT_MAP: SortMap<CompanySortableColumnKey> = {
 export const useCompanyOrderSorting = (
   resetPagination: () => void,
 ): UseUnifiedOrderSortingResult<CompanySortableColumnKey> => {
-  return useUnifiedOrderSorting(COMPANY_SORT_MAP, resetPagination);
+  return useUnifiedOrderSorting(COMPANY_SORT_MAP, resetPagination, 'orderId');
 };

@@ -51,7 +51,7 @@ export const useCustomerOrdersState = ({
   );
 
   const pagination = useUnifiedOrdersPagination();
-  const sorting = useUnifiedOrderSorting(BASE_SORT_MAP, pagination.resetPagination);
+  const sorting = useUnifiedOrderSorting(BASE_SORT_MAP, pagination.resetPagination, 'orderId');
 
   useEffect(() => {
     setFilters(getCustomerOrdersInitFilter(companyId));

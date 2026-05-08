@@ -28,6 +28,7 @@ export const BASE_SORT_MAP: SortMap<BaseSortableColumnKey> = {
 export const useUnifiedOrderSorting = <K extends string>(
   columnKeyToSortInput: SortMap<K>,
   resetPagination: () => void,
+  defaultSortKey: K,
 ): UseUnifiedOrderSortingResult<K> => {
   const sortableKeys = useMemo(
     () => new Set(Object.keys(columnKeyToSortInput) as K[]),
@@ -35,7 +36,7 @@ export const useUnifiedOrderSorting = <K extends string>(
   );
 
   const [activeSort, setActiveSort] = useState<{ key: K; dir: SortDir }>({
-    key: 'orderId' as K,
+    key: defaultSortKey,
     dir: 'desc',
   });
 
