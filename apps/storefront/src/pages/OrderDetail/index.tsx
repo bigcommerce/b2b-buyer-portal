@@ -183,7 +183,6 @@ function OrderDetail() {
           });
 
           // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.
-          // TODO B2B-4825: Double check this logic for cross-company banner
           setIsCurrentCompany(
             order.company ? Number(order.company.entityId) === Number(currentCompanyId) : true,
           );
