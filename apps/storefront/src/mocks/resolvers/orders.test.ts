@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { orderStore } from '../store';
+import * as orderStore from '../stores/orders';
 
 import { executeGetCustomerOrders } from './orders';
 

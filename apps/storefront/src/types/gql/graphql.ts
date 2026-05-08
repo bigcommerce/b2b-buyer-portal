@@ -1,6 +1,6 @@
 /* eslint-disable */
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = T | null | undefined;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -20,7 +20,6 @@ export type Scalars = {
    * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
    */
   Date: { input: any; output: any; }
-  DateTime: { input: any; output: any; }
   /** The `Decimal` scalar type represents a python Decimal. */
   Decimal: { input: any; output: any; }
   /**
@@ -36,7 +35,6 @@ export type Scalars = {
    * schema (one of the key benefits of GraphQL).
    */
   JSONString: { input: any; output: any; }
-  OrderStatusValue: { input: any; output: any; }
   ProductQuantity: { input: any; output: any; }
 };
 
@@ -98,185 +96,6 @@ export type AccountSettingType = {
   phoneNumber?: Maybe<Scalars['String']['output']>;
   /** User role. Required. 0 - Admin, 1 - Senior Buyer, 2 - Junior Buyer */
   role?: Maybe<Scalars['Int']['output']>;
-};
-
-export type ActiveCompanyMutations = {
-  __typename?: 'ActiveCompanyMutations';
-  clear?: Maybe<ClearActiveCompanyResult>;
-  set?: Maybe<SetActiveCompanyResult>;
-};
-
-
-export type ActiveCompanyMutationsSetArgs = {
-  input: SetActiveCompanyInput;
-};
-
-export type AddAttachmentInput = {
-  attachmentId: Scalars['ID']['input'];
-  id: Scalars['ID']['input'];
-};
-
-export type AddAttachmentResult = {
-  __typename?: 'AddAttachmentResult';
-  attachment?: Maybe<QuoteAttachment>;
-  errors: Array<AddAttachmentResultError>;
-};
-
-export type AddAttachmentResultError = AnotherAddAttachmentResultError | SomeAddAttachmentResultError;
-
-export type AddCompanyAddressInput = {
-  address1: Scalars['String']['input'];
-  address2?: InputMaybe<Scalars['String']['input']>;
-  city: Scalars['String']['input'];
-  countryCode: Scalars['String']['input'];
-  extraFields?: InputMaybe<CompanyExtraFieldsInput>;
-  firstName: Scalars['String']['input'];
-  lastName: Scalars['String']['input'];
-  phone?: InputMaybe<Scalars['String']['input']>;
-  postalCode?: InputMaybe<Scalars['String']['input']>;
-  stateOrProvince?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type AddCompanyFileInput = {
-  id: Scalars['ID']['input'];
-};
-
-export type AddCompanyUsersInput = {
-  extraFields?: InputMaybe<CompanyExtraFieldsInput>;
-};
-
-export type AddConfiguredProductToShoppingListDataInput = {
-  configuredProducts: Array<ConfiguredProduct>;
-};
-
-export type AddConfiguredProductToShoppingListInput = {
-  data: AddConfiguredProductToShoppingListDataInput;
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type AddConfiguredProductsDataInput = {
-  configuredProducts: Array<ConfiguredProductInput>;
-};
-
-export type AddConfiguredProductsToCartError = Error & {
-  __typename?: 'AddConfiguredProductsToCartError';
-  message: Scalars['String']['output'];
-};
-
-export type AddConfiguredProductsToCartInput = {
-  cartId: Scalars['ID']['input'];
-  data: AddConfiguredProductsDataInput;
-};
-
-export type AddConfiguredProductsToCartResult = {
-  __typename?: 'AddConfiguredProductsToCartResult';
-  cart?: Maybe<Cart>;
-  errors: Array<AddConfiguredProductsToCartError>;
-};
-
-export type AddConfiguredProductsToQuoteError = Error & {
-  __typename?: 'AddConfiguredProductsToQuoteError';
-  message: Scalars['String']['output'];
-};
-
-export type AddConfiguredProductsToQuoteInput = {
-  data: AddConfiguredProductsDataInput;
-};
-
-export type AddConfiguredProductsToQuoteResult = {
-  __typename?: 'AddConfiguredProductsToQuoteResult';
-  errors: Array<AddConfiguredProductsToQuoteError>;
-  quote?: Maybe<Quote>;
-};
-
-export type AddConfiguredProductsToShoppingListError = Error & {
-  __typename?: 'AddConfiguredProductsToShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type AddConfiguredProductsToShoppingListInput = {
-  data: AddConfiguredProductsDataInput;
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type AddConfiguredProductsToShoppingListResult = {
-  __typename?: 'AddConfiguredProductsToShoppingListResult';
-  errors: Array<AddConfiguredProductsToShoppingListError>;
-  shoppingList?: Maybe<ShoppingList>;
-};
-
-export type AddLineItemToShoppingListData = {
-  lineItems: Array<CartLineItemInput>;
-};
-
-export type AddLineItemToShoppingListInput = {
-  data: AddLineItemToShoppingListData;
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type AddMessageInput = {
-  id: Scalars['ID']['input'];
-  message: Scalars['String']['input'];
-};
-
-export type AddMessageResult = {
-  __typename?: 'AddMessageResult';
-  errors: Array<AddMessageResultError>;
-  message?: Maybe<QuoteMessage>;
-};
-
-export type AddMessageResultError = AnotherAddMessageResultError | SomeAddMessageResultError;
-
-export type AddQuoteAttachmentInput = {
-  attachmentId: Scalars['ID']['input'];
-  quoteId: Scalars['ID']['input'];
-};
-
-export type AddQuoteLineItemsDataInput = {
-  lineItems: Array<CartLineItemInput>;
-};
-
-export type AddQuoteLineItemsError = Error & {
-  __typename?: 'AddQuoteLineItemsError';
-  message: Scalars['String']['output'];
-};
-
-export type AddQuoteLineItemsInput = {
-  data: AddQuoteLineItemsDataInput;
-  lineItems: Array<QuoteLineItemInput>;
-  quoteId: Scalars['ID']['input'];
-};
-
-export type AddQuoteLineItemsResult = {
-  __typename?: 'AddQuoteLineItemsResult';
-  errors: Array<AddQuoteLineItemsError>;
-  quote?: Maybe<Quote>;
-};
-
-export type AddQuoteMessageInput = {
-  message: Scalars['String']['input'];
-  quoteId: Scalars['ID']['input'];
-};
-
-export type AddToShoppingListDataInput = {
-  lineItems: Array<ShoppingListLineItemInput>;
-};
-
-export type AddToShoppingListError = Error & {
-  __typename?: 'AddToShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type AddToShoppingListInput = {
-  data: AddToShoppingListDataInput;
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type AddToShoppingListResult = {
-  __typename?: 'AddToShoppingListResult';
-  errors: Array<Error>;
-  shoppingList?: Maybe<ShoppingListResult>;
-  success: Scalars['Boolean']['output'];
 };
 
 /**
@@ -362,8 +181,8 @@ export type AddressInputType = {
   lastName: Scalars['String']['input'];
   /** The phone number */
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The full state name, required when the country has states in the bigcommerce country data. */
-  state?: InputMaybe<Scalars['String']['input']>;
+  /** The full state name. Required */
+  state: Scalars['String']['input'];
   /** The iso2 code of state */
   stateCode?: InputMaybe<Scalars['String']['input']>;
   /** The uuid of address */
@@ -388,8 +207,6 @@ export type AddressType = Node & {
   city: Scalars['String']['output'];
   /** The company of address */
   company?: Maybe<Scalars['String']['output']>;
-  /** Company information of address */
-  companyInfo?: Maybe<CompanyInfoType>;
   country: Scalars['String']['output'];
   countryCode?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Int']['output'];
@@ -432,13 +249,6 @@ export type AddressTypeCountableEdge = {
   cursor: Scalars['String']['output'];
   /** The item at the end of the edge. */
   node: AddressType;
-};
-
-export type AddressTypeInput = {
-  isBilling: Scalars['Boolean']['input'];
-  isDefaultBilling: Scalars['Boolean']['input'];
-  isDefaultShipping: Scalars['Boolean']['input'];
-  isShipping: Scalars['Boolean']['input'];
 };
 
 /**
@@ -485,8 +295,8 @@ export type AddressUpdateType = {
   lastName: Scalars['String']['input'];
   /** The phone number */
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The full state name, required when the country has states in the bigcommerce country data. */
-  state?: InputMaybe<Scalars['String']['input']>;
+  /** The full state name. Required */
+  state: Scalars['String']['input'];
   /** The iso2 code of state */
   stateCode?: InputMaybe<Scalars['String']['input']>;
   /** The uuid of address */
@@ -494,80 +304,6 @@ export type AddressUpdateType = {
   /** The zip code. Required */
   zipCode: Scalars['String']['input'];
 };
-
-export type AnotherAddAttachmentResultError = Error & {
-  __typename?: 'AnotherAddAttachmentResultError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherAddMessageResultError = Error & {
-  __typename?: 'AnotherAddMessageResultError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherAddQuoteLineItemsError = Error & {
-  __typename?: 'AnotherAddQuoteLineItemsError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherArchiveShoppingListError = Error & {
-  __typename?: 'AnotherArchiveShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherChangeCustomerRoleError = Error & {
-  __typename?: 'AnotherChangeCustomerRoleError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherCopyShoppingListError = Error & {
-  __typename?: 'AnotherCopyShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherCreateCartError = Error & {
-  __typename?: 'AnotherCreateCartError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherCreatePdfResultError = Error & {
-  __typename?: 'AnotherCreatePDFResultError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherCreateShoppingListError = Error & {
-  __typename?: 'AnotherCreateShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherDeregistrationError = Error & {
-  __typename?: 'AnotherDeregistrationError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherRemoveAttachmentResultError = Error & {
-  __typename?: 'AnotherRemoveAttachmentResultError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherUpdateQuoteLineItemError = Error & {
-  __typename?: 'AnotherUpdateQuoteLineItemError';
-  message: Scalars['String']['output'];
-};
-
-export type AnotherUpdateShoppingListDetailsError = Error & {
-  __typename?: 'AnotherUpdateShoppingListDetailsError';
-  message: Scalars['String']['output'];
-};
-
-export type ArchiveShoppingListError = AnotherArchiveShoppingListError | SomeArchiveShoppingListError;
-
-export type ArchiveShoppingListResult = {
-  __typename?: 'ArchiveShoppingListResult';
-  errors: Array<ArchiveShoppingListError>;
-};
-
-export type AttachmentAuthor = Customer | SalesRep;
 
 export type AuthRolePermissionType = {
   __typename?: 'AuthRolePermissionType';
@@ -585,7 +321,7 @@ export type BcInfomation = {
   bcId?: Maybe<Scalars['Int']['output']>;
   /** BC customer group site url */
   bcUrl?: Maybe<Scalars['String']['output']>;
-  /** BundleB2b company name */
+  /** B2B Edition company name */
   customerName?: Maybe<Scalars['String']['output']>;
 };
 
@@ -667,8 +403,6 @@ export type BcOrderType = {
   cartId?: Maybe<Scalars['String']['output']>;
   /** Shows where the order originated. The channel_id will default to 1. */
   channelId?: Maybe<Scalars['String']['output']>;
-  /** Company information of order */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** The order's company name */
   companyName?: Maybe<Scalars['String']['output']>;
   /** coupon discount value */
@@ -703,7 +437,7 @@ export type BcOrderType = {
   defaultCurrencyCode?: Maybe<Scalars['String']['output']>;
   /** The transactional currency ID */
   defaultCurrencyId?: Maybe<Scalars['Int']['output']>;
-  /** Amount of discount for this transaction. */
+  /** Amount of discount for this transaction.  */
   discountAmount?: Maybe<Scalars['String']['output']>;
   /** If the order was placed through eBay, the eBay order number will be included. Otherwise, the value will be 0. */
   ebayOrderId?: Maybe<Scalars['String']['output']>;
@@ -845,9 +579,9 @@ export type BcOrderType = {
   totalTax?: Maybe<Scalars['String']['output']>;
   /** update time */
   updatedAt?: Maybe<Scalars['String']['output']>;
-  /** The value of the wrapping cost, excluding tax. */
+  /** The value of the wrapping cost, excluding tax.  */
   wrappingCostExTax?: Maybe<Scalars['String']['output']>;
-  /** The value of the wrapping cost, including tax. */
+  /** The value of the wrapping cost, including tax.  */
   wrappingCostIncTax?: Maybe<Scalars['String']['output']>;
   /** wrapping cost tax */
   wrappingCostTax?: Maybe<Scalars['String']['output']>;
@@ -885,75 +619,6 @@ export type BulkPricingType = {
   minimum?: Maybe<Scalars['Int']['output']>;
   /** Formats the bulk_pricing.discount_amount into the tax price amounts. */
   taxDiscountAmount?: Maybe<Array<Maybe<PriceType>>>;
-};
-
-export type BulkProductValidationInput = {
-  products: Array<ProductValidationInput>;
-};
-
-export type BulkProductValidationResult = {
-  __typename?: 'BulkProductValidationResult';
-  errors: Array<ProductValidationErrorType>;
-  success: Scalars['Boolean']['output'];
-};
-
-export type Cart = {
-  __typename?: 'Cart';
-  entityId: Scalars['ID']['output'];
-};
-
-export type CartCreateResult = {
-  __typename?: 'CartCreateResult';
-  cart?: Maybe<Cart>;
-  errors: Array<CreateCartFromInvoiceError>;
-};
-
-export type CartFromQuoteDetails = {
-  cartId: Scalars['ID']['output'];
-  cartUrl: Scalars['String']['output'];
-  checkoutUrl: Scalars['String']['output'];
-};
-
-export type CartLineItemInput = {
-  productEntityId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
-  selectedOptions?: InputMaybe<CartSelectedOptionsInput>;
-  variantEntityId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type CartMutations = {
-  __typename?: 'CartMutations';
-  _placeholder?: Maybe<Scalars['Boolean']['output']>;
-  addConfiguredProducts: AddConfiguredProductsToCartResult;
-};
-
-
-export type CartMutationsAddConfiguredProductsArgs = {
-  input: AddConfiguredProductsToCartInput;
-};
-
-export type CartSelectedOption = {
-  __typename?: 'CartSelectedOption';
-  entityId: Scalars['ID']['output'];
-  value?: Maybe<Scalars['String']['output']>;
-  valueEntityId?: Maybe<Scalars['ID']['output']>;
-};
-
-export type CartSelectedOptionsInput = {
-  entityId: Scalars['ID']['input'];
-  value?: InputMaybe<Scalars['String']['input']>;
-  valueEntityId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type CatalogMutations = {
-  __typename?: 'CatalogMutations';
-  _placeholder?: Maybe<Scalars['Boolean']['output']>;
-  bulkProductValidation: BulkProductValidationResult;
-};
-
-
-export type CatalogMutationsBulkProductValidationArgs = {
-  input: BulkProductValidationInput;
 };
 
 export type CatalogQuickProductType = {
@@ -1000,23 +665,6 @@ export type CatalogsVariantType = {
   variantId?: Maybe<Scalars['Int']['output']>;
 };
 
-export type ChangeCustomerRoleDataInput = {
-  roleId: Scalars['ID']['input'];
-};
-
-export type ChangeCustomerRoleError = AnotherChangeCustomerRoleError | SomeChangeCustomerRoleError;
-
-export type ChangeCustomerRoleInput = {
-  customerId: Scalars['ID']['input'];
-  data: ChangeCustomerRoleDataInput;
-};
-
-export type ChangeCustomerRoleResult = {
-  __typename?: 'ChangeCustomerRoleResult';
-  customer?: Maybe<Customer>;
-  errors: Array<ChangeCustomerRoleError>;
-};
-
 export type CheckoutConfigType = {
   __typename?: 'CheckoutConfigType';
   /** The name of store config.Required */
@@ -1040,236 +688,9 @@ export type CheckoutResultLoginType = {
   redirectUrl?: Maybe<Scalars['String']['output']>;
 };
 
-export type ClearActiveCompanyError = Error & {
-  __typename?: 'ClearActiveCompanyError';
-  message: Scalars['String']['output'];
-};
-
-export type ClearActiveCompanyResult = {
-  __typename?: 'ClearActiveCompanyResult';
-  errors: Array<ClearActiveCompanyError>;
-};
-
-export type CollectionInfo = {
-  __typename?: 'CollectionInfo';
-  totalItems: Scalars['Int']['output'];
-};
-
-export type Company = Node & {
-  __typename?: 'Company';
-  addresses: CompanyAddressConnection;
-  customers: CustomerConnection;
-  customersWithOrders?: Maybe<CustomerConnection>;
-  email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  invoiceTotals: InvoiceTotals;
-  invoices: InvoiceConnection;
-  invoicesByIds: Array<Invoice>;
-  name: Scalars['String']['output'];
-  orders: OrdersConnection;
-  quotes: QuotesConnection;
-  salesRep: SalesRepsConnection;
-  shoppingLists: ShoppingListConnection;
-  status: CompanyStatus;
-  subsidiaries: CompanyConnection;
-};
-
-
-export type CompanyAddressesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CompanyAddressFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type CompanyCustomersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CustomerFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type CompanyCustomersWithOrdersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CustomerWithOrdersFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<OrdersSortInput>;
-};
-
-
-export type CompanyInvoicesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<InvoiceFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<InvoicesSortInput>;
-};
-
-
-export type CompanyInvoicesByIdsArgs = {
-  invoiceIds: Array<Scalars['ID']['input']>;
-};
-
-
-export type CompanyOrdersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CompanyOrdersFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<OrdersSortInput>;
-};
-
-
-export type CompanyQuotesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CompanyQuotesFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<QuotesSortInput>;
-};
-
-
-export type CompanySalesRepArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type CompanyShoppingListsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CompanyShoppingListsFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type CompanyAddress = {
-  address1: Scalars['String']['output'];
-  address2?: Maybe<Scalars['String']['output']>;
-  addressType: CompanyAddressType;
-  city: Scalars['String']['output'];
-  company: Company;
-  country?: Maybe<Scalars['String']['output']>;
-  countryCode: Scalars['String']['output'];
-  countryId?: Maybe<Scalars['Int']['output']>;
-  entityId: Scalars['Int']['output'];
-  firstName: Scalars['String']['output'];
-  formFields: Array<CustomerFormFieldValue>;
-  label: Scalars['String']['output'];
-  lastName: Scalars['String']['output'];
-  phone?: Maybe<Scalars['String']['output']>;
-  postalCode?: Maybe<Scalars['String']['output']>;
-  stateId?: Maybe<Scalars['Int']['output']>;
-  stateOrProvince?: Maybe<Scalars['String']['output']>;
-};
-
-export type CompanyAddressConnection = {
-  __typename?: 'CompanyAddressConnection';
-  collectionInfo?: Maybe<CollectionInfo>;
-  edges: Array<CompanyAddressEdge>;
-  pageInfo: PageInfo;
-};
-
-export type CompanyAddressCreateDataInput = {
-  address1: Scalars['String']['input'];
-  address2?: InputMaybe<Scalars['String']['input']>;
-  addressType: AddressTypeInput;
-  city: Scalars['String']['input'];
-  countryCode: Scalars['String']['input'];
-  extraFields?: InputMaybe<CustomerFormFieldsInput>;
-  firstName: Scalars['String']['input'];
-  label: Scalars['String']['input'];
-  lastName: Scalars['String']['input'];
-  phone?: InputMaybe<Scalars['String']['input']>;
-  postalCode?: InputMaybe<Scalars['String']['input']>;
-  stateOrProvince?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CompanyAddressCreateInput = {
-  companyId: Scalars['ID']['input'];
-  data: CompanyAddressCreateDataInput;
-};
-
-export type CompanyAddressDeleteError = Error & {
-  __typename?: 'CompanyAddressDeleteError';
-  message: Scalars['String']['output'];
-};
-
-export type CompanyAddressDeleteInput = {
-  addressId: Scalars['ID']['input'];
-};
-
-export type CompanyAddressDeleteResult = {
-  __typename?: 'CompanyAddressDeleteResult';
-  errors: Array<CompanyAddressDeleteError>;
-};
-
-export type CompanyAddressEdge = {
-  __typename?: 'CompanyAddressEdge';
-  cursor: Scalars['String']['output'];
-  node: CompanyAddress;
-};
-
-export type CompanyAddressError = Error & {
-  __typename?: 'CompanyAddressError';
-  message: Scalars['String']['output'];
-};
-
 export type CompanyAddressExtraField = {
   fieldName: Scalars['String']['input'];
   fieldValue: Scalars['String']['input'];
-};
-
-export type CompanyAddressFiltersInput = {
-  city?: InputMaybe<Scalars['String']['input']>;
-  country?: InputMaybe<Scalars['String']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
-  state?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CompanyAddressResult = {
-  __typename?: 'CompanyAddressResult';
-  address?: Maybe<CompanyAddress>;
-  errors: Array<CompanyAddressError>;
-};
-
-export type CompanyAddressType = {
-  __typename?: 'CompanyAddressType';
-  isBilling: Scalars['Boolean']['output'];
-  isDefaultBilling: Scalars['Boolean']['output'];
-  isDefaultShipping: Scalars['Boolean']['output'];
-  isShipping: Scalars['Boolean']['output'];
-};
-
-export type CompanyAddressUpdateDataInput = {
-  address1?: InputMaybe<Scalars['String']['input']>;
-  address2?: InputMaybe<Scalars['String']['input']>;
-  addressType: AddressTypeInput;
-  city?: InputMaybe<Scalars['String']['input']>;
-  countryCode?: InputMaybe<Scalars['String']['input']>;
-  extraFields?: InputMaybe<CustomerFormFieldsInput>;
-  firstName?: InputMaybe<Scalars['String']['input']>;
-  label: Scalars['String']['input'];
-  lastName?: InputMaybe<Scalars['String']['input']>;
-  phone?: InputMaybe<Scalars['String']['input']>;
-  postalCode?: InputMaybe<Scalars['String']['input']>;
-  stateOrProvince?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CompanyAddressUpdateInput = {
-  addressId: Scalars['ID']['input'];
-  data: CompanyAddressUpdateDataInput;
 };
 
 export type CompanyAttachedFile = {
@@ -1281,13 +702,6 @@ export type CompanyAttachedFile = {
   fileType: Scalars['String']['input'];
   /** file url of this attached */
   fileUrl: Scalars['String']['input'];
-};
-
-export type CompanyConnection = {
-  __typename?: 'CompanyConnection';
-  collectionInfo: CollectionInfo;
-  edges: Array<CompanyEdge>;
-  pageInfo: PageInfo;
 };
 
 /** Create a company using a customer id. */
@@ -1310,12 +724,6 @@ export type CompanyCreditConfigType = {
   currency?: Maybe<Scalars['GenericScalar']['output']>;
   /** Disable via PO Payment when credit value is exceed */
   limitPurchases?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type CompanyEdge = {
-  __typename?: 'CompanyEdge';
-  cursor: Scalars['String']['output'];
-  node: Company;
 };
 
 export type CompanyEmailUserInfoType = {
@@ -1350,17 +758,6 @@ export type CompanyEmailValidateType = {
 export type CompanyExtraField = {
   fieldName: Scalars['String']['input'];
   fieldValue: Scalars['String']['input'];
-};
-
-export type CompanyExtraFieldsInput = {
-  multilineTexts?: InputMaybe<Array<MultilineTextFormFieldInput>>;
-  multipleChoices?: InputMaybe<Array<MultipleChoiceFormFieldInput>>;
-  numbers?: InputMaybe<Array<NumberFormFieldInput>>;
-  texts?: InputMaybe<Array<TextFormFieldInput>>;
-};
-
-export type CompanyFiltersInput = {
-  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CompanyInfoType = {
@@ -1435,91 +832,6 @@ export type CompanyInputType = {
   zipCode: Scalars['String']['input'];
 };
 
-export type CompanyMutations = {
-  __typename?: 'CompanyMutations';
-  addAddress: CompanyAddressResult;
-  archiveShoppingList?: Maybe<ArchiveShoppingListResult>;
-  changeCustomerRole: ChangeCustomerRoleResult;
-  copyShoppingList?: Maybe<CopyShoppingListResult>;
-  createShoppingList?: Maybe<CreateShoppingListResult>;
-  deleteAddress: CompanyAddressDeleteResult;
-  deregisterCustomer: DeregistrationResult;
-  registerCompany: RegisterCompanyResult;
-  registerCustomer: RegisterCustomerResult;
-  setAddressAsDefault: CompanyAddressResult;
-  updateAddress: CompanyAddressResult;
-  updateShoppingListDetails?: Maybe<UpdateShoppingListDetailsResult>;
-};
-
-
-export type CompanyMutationsAddAddressArgs = {
-  input?: InputMaybe<CompanyAddressCreateInput>;
-};
-
-
-export type CompanyMutationsArchiveShoppingListArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type CompanyMutationsChangeCustomerRoleArgs = {
-  input: ChangeCustomerRoleInput;
-};
-
-
-export type CompanyMutationsCopyShoppingListArgs = {
-  id: Scalars['ID']['input'];
-  input?: InputMaybe<CopyShoppingListInput>;
-};
-
-
-export type CompanyMutationsCreateShoppingListArgs = {
-  input?: InputMaybe<CreateShoppingListInput>;
-};
-
-
-export type CompanyMutationsDeleteAddressArgs = {
-  input: CompanyAddressDeleteInput;
-};
-
-
-export type CompanyMutationsDeregisterCustomerArgs = {
-  input: DeregisterCustomerInput;
-};
-
-
-export type CompanyMutationsRegisterCompanyArgs = {
-  input: RegisterCompanyInput;
-};
-
-
-export type CompanyMutationsRegisterCustomerArgs = {
-  input: RegisterCompanyCustomerInput;
-};
-
-
-export type CompanyMutationsSetAddressAsDefaultArgs = {
-  input: SetAsDefaultInput;
-};
-
-
-export type CompanyMutationsUpdateAddressArgs = {
-  input: CompanyAddressUpdateInput;
-};
-
-
-export type CompanyMutationsUpdateShoppingListDetailsArgs = {
-  input?: InputMaybe<UpdateShoppingListDetailsInput>;
-};
-
-export type CompanyOrdersFiltersInput = {
-  companyIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  customerId?: InputMaybe<Array<Scalars['Int']['input']>>;
-  dateRange?: InputMaybe<OrderDateRangeFilterInput>;
-  search?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['OrderStatusValue']['input']>;
-};
-
 export type CompanyPaymentTermsType = {
   __typename?: 'CompanyPaymentTermsType';
   /** The company payment terms is enabled. */
@@ -1542,21 +854,6 @@ export type CompanyPermissionsType = Node & {
   moduleName?: Maybe<Scalars['String']['output']>;
   /** Permissions name */
   name?: Maybe<Scalars['String']['output']>;
-};
-
-export type CompanyQuotesFiltersInput = {
-  companyId?: InputMaybe<Array<Scalars['ID']['input']>>;
-  companyUserId?: InputMaybe<Scalars['ID']['input']>;
-  dateRange?: InputMaybe<QuotesDateRangeFilterInput>;
-  salesRepId?: InputMaybe<Scalars['ID']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Array<InputMaybe<QuoteStatus>>>;
-};
-
-export type CompanyRelationship = {
-  __typename?: 'CompanyRelationship';
-  company: Company;
-  role: Role;
 };
 
 export type CompanyRolePermissionsType = Node & {
@@ -1631,41 +928,6 @@ export type CompanyRolesTypeCountableEdge = {
   node: CompanyRolesType;
 };
 
-export type CompanyShoppingListsFiltersInput = {
-  createdBy?: InputMaybe<Scalars['ID']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Array<InputMaybe<ShoppingListStatus>>>;
-};
-
-export enum CompanySortInput {
-  AZ = 'A_Z',
-  EmailAZ = 'EMAIL_A_Z',
-  EmailZA = 'EMAIL_Z_A',
-  ZA = 'Z_A'
-}
-
-export enum CompanyStatus {
-  Approved = 'APPROVED',
-  Deleted = 'DELETED',
-  Inactive = 'INACTIVE',
-  Pending = 'PENDING',
-  Rejected = 'REJECTED'
-}
-
-export type CompanySubsidiariesType = {
-  __typename?: 'CompanySubsidiariesType';
-  /** Is this company user has this channels */
-  channelFlag?: Maybe<Scalars['Boolean']['output']>;
-  /** Company ID */
-  companyId?: Maybe<Scalars['Int']['output']>;
-  /** Company name */
-  companyName?: Maybe<Scalars['String']['output']>;
-  /** Parent company ID */
-  parentCompanyId?: Maybe<Scalars['Int']['output']>;
-  /** Parent company name */
-  parentCompanyName?: Maybe<Scalars['String']['output']>;
-};
-
 export type CompanyType = Node & {
   __typename?: 'CompanyType';
   /** Company address line 1 */
@@ -1706,21 +968,11 @@ export type CompanyUserExtraField = {
 export type CompanyUserInfoType = {
   __typename?: 'CompanyUserInfoType';
   userInfo?: Maybe<CompanyEmailUserInfoType>;
-  /**
-   * The user type of current email. 1 means user does't exist.             2 means
-   * the user exists in BigCommerce.             3 means the user exists in BundleB2B.
-   */
+  /** The user type of current email.
+   * 1 means user does't exist.
+   * 2 means the user exists in BigCommerce.
+   * 3 means the user exists in B2B Edition. */
   userType?: Maybe<Scalars['Int']['output']>;
-};
-
-export type ConfiguredProduct = {
-  id: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
-};
-
-export type ConfiguredProductInput = {
-  configuredProductId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
 };
 
 export type ContactInfoInputType = {
@@ -1728,19 +980,6 @@ export type ContactInfoInputType = {
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CopyShoppingListError = AnotherCopyShoppingListError | SomeCopyShoppingListError;
-
-export type CopyShoppingListInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CopyShoppingListResult = {
-  __typename?: 'CopyShoppingListResult';
-  errors: Array<CopyShoppingListError>;
-  shoppingList?: Maybe<ShoppingList>;
 };
 
 export type CountryType = {
@@ -1768,69 +1007,6 @@ export type CreateBcCartMutation = {
 export type CreateByType = {
   __typename?: 'CreateByType';
   results?: Maybe<Scalars['GenericScalar']['output']>;
-};
-
-export type CreateCartError = AnotherCreateCartError | SomeCreateCartError;
-
-export type CreateCartFromInvoiceError = Error & {
-  __typename?: 'CreateCartFromInvoiceError';
-  message: Scalars['String']['output'];
-};
-
-export type CreateCartFromInvoiceInput = {
-  invoices: Array<InvoicePaymentInput>;
-};
-
-export type CreateCartInput = {
-  quoteId: Scalars['ID']['input'];
-};
-
-export type CreateCartResult = {
-  __typename?: 'CreateCartResult';
-  cartDetails?: Maybe<CartFromQuoteDetails>;
-  errors: Array<CreateCartError>;
-};
-
-export type CreatePdfInput = {
-  quoteId: Scalars['ID']['input'];
-};
-
-export type CreatePdfResult = {
-  __typename?: 'CreatePDFResult';
-  errors: Array<CreatePdfResultError>;
-  pdf?: Maybe<QuotePdf>;
-};
-
-export type CreatePdfResultError = AnotherCreatePdfResultError | SomeCreatePdfResultError;
-
-export type CreateQuoteError = Error & {
-  __typename?: 'CreateQuoteError';
-  message: Scalars['String']['output'];
-};
-
-export type CreateQuoteInput = {
-  currencyCode?: InputMaybe<Scalars['String']['input']>;
-  lineItems?: InputMaybe<Array<QuoteLineItemInput>>;
-  title?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CreateQuoteResult = {
-  __typename?: 'CreateQuoteResult';
-  errors: Array<CreateQuoteError>;
-  quote?: Maybe<Quote>;
-};
-
-export type CreateShoppingListError = AnotherCreateShoppingListError | SomeCreateShoppingListError;
-
-export type CreateShoppingListInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-};
-
-export type CreateShoppingListResult = {
-  __typename?: 'CreateShoppingListResult';
-  errors: Array<CreateShoppingListError>;
-  shoppingList?: Maybe<ShoppingList>;
 };
 
 export type Currencies = {
@@ -1886,55 +1062,6 @@ export type CurrencyInputType = {
   token?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Customer = Node & {
-  __typename?: 'Customer';
-  activeCompany?: Maybe<Company>;
-  companies: CompanyConnection;
-  company: Scalars['String']['output'];
-  companyRelationship?: Maybe<CompanyRelationship>;
-  id: Scalars['ID']['output'];
-  quotes: QuotesConnection;
-  salesRep: SalesRepsConnection;
-  shoppingLists: ShoppingListConnection;
-};
-
-
-export type CustomerCompaniesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CompanyFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<CompanySortInput>;
-};
-
-
-export type CustomerQuotesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<QuotesFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<QuotesSortInput>;
-};
-
-
-export type CustomerSalesRepArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type CustomerShoppingListsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<CustomerShoppingListsFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
 export type CustomerAccountSettingsType = {
   __typename?: 'CustomerAccountSettingsType';
   /** Company for user */
@@ -1949,20 +1076,6 @@ export type CustomerAccountSettingsType = {
   lastName?: Maybe<Scalars['String']['output']>;
   /** User phone number */
   phoneNumber?: Maybe<Scalars['String']['output']>;
-};
-
-export type CustomerAddress = {
-  __typename?: 'CustomerAddress';
-  address1?: Maybe<Scalars['String']['output']>;
-  address2?: Maybe<Scalars['String']['output']>;
-  city?: Maybe<Scalars['String']['output']>;
-  country?: Maybe<Scalars['String']['output']>;
-  countryCode?: Maybe<Scalars['String']['output']>;
-  firstName?: Maybe<Scalars['String']['output']>;
-  lastName?: Maybe<Scalars['String']['output']>;
-  phone?: Maybe<Scalars['String']['output']>;
-  postalCode?: Maybe<Scalars['String']['output']>;
-  stateOrProvince?: Maybe<Scalars['String']['output']>;
 };
 
 /**
@@ -2006,8 +1119,8 @@ export type CustomerAddressInputType = {
   phone?: InputMaybe<Scalars['String']['input']>;
   /** The postal code of address. Required */
   postalCode: Scalars['String']['input'];
-  /** The state or province name spelled out in full. Required when the country has states in the bigcommerce country data. */
-  stateOrProvince?: InputMaybe<Scalars['String']['input']>;
+  /** The city name. Required */
+  stateOrProvince: Scalars['String']['input'];
 };
 
 export type CustomerAddressType = Node & {
@@ -2083,8 +1196,8 @@ export type CustomerAddressUpdateType = {
   phone?: InputMaybe<Scalars['String']['input']>;
   /** The postal code of address. Required */
   postalCode: Scalars['String']['input'];
-  /** The state or province name spelled out in full. Required when the country has states in the bigcommerce country data. */
-  stateOrProvince?: InputMaybe<Scalars['String']['input']>;
+  /** The city name. Required */
+  stateOrProvince: Scalars['String']['input'];
 };
 
 export type CustomerAddressesType = {
@@ -2121,6 +1234,19 @@ export type CustomerAddressesType = {
   stateOrProvince?: Maybe<Scalars['String']['output']>;
 };
 
+export type CustomerAttributeInputType = {
+  /**
+   * The attribute id.
+   * This field is required
+   */
+  attributeId: Scalars['Int']['input'];
+  /**
+   * The attribute value.
+   * This field is required
+   */
+  attributeValue: Scalars['String']['input'];
+};
+
 export type CustomerAttributeType = {
   __typename?: 'CustomerAttributeType';
   /** The attribute id. */
@@ -2150,66 +1276,16 @@ export type CustomerAuthenticationType = {
   forcePasswordReset?: Maybe<Scalars['Boolean']['output']>;
 };
 
-export type CustomerConnection = {
-  __typename?: 'CustomerConnection';
-  edges?: Maybe<Array<CustomerEdge>>;
-  pageInfo: PageInfo;
-};
-
 /** Create a new Bigcommerce customer */
 export type CustomerCreate = {
   __typename?: 'CustomerCreate';
   customer?: Maybe<CustomerType>;
 };
 
-export type CustomerEdge = {
-  __typename?: 'CustomerEdge';
-  cursor: Scalars['String']['output'];
-  node: Customer;
-};
-
 export type CustomerEmailCheckType = {
   __typename?: 'CustomerEmailCheckType';
-  /** 1: not exist; 2: exist in BC; 3: exist in BC other channel; */
+  /** 1: not exist; 2: exist in BC; 3: exist in BC other channel;  */
   userType?: Maybe<Scalars['Int']['output']>;
-};
-
-export type CustomerFiltersInput = {
-  companyRoleId?: InputMaybe<Scalars['ID']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CustomerFormFieldMultilineTextInput = {
-  multilineText: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-};
-
-export type CustomerFormFieldMultipleChoiceInput = {
-  fieldValue: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-};
-
-export type CustomerFormFieldNumberInput = {
-  name: Scalars['String']['input'];
-  number: Scalars['String']['input'];
-};
-
-export type CustomerFormFieldTextInput = {
-  name: Scalars['String']['input'];
-  text: Scalars['String']['input'];
-};
-
-export type CustomerFormFieldValue = {
-  __typename?: 'CustomerFormFieldValue';
-  name: Scalars['String']['output'];
-  value: Scalars['String']['output'];
-};
-
-export type CustomerFormFieldsInput = {
-  multilineTexts?: InputMaybe<Array<CustomerFormFieldMultilineTextInput>>;
-  multipleChoices?: InputMaybe<Array<CustomerFormFieldMultipleChoiceInput>>;
-  numbers?: InputMaybe<Array<CustomerFormFieldNumberInput>>;
-  texts?: InputMaybe<Array<CustomerFormFieldTextInput>>;
 };
 
 export type CustomerInfo = {
@@ -2227,27 +1303,28 @@ export type CustomerInfoType = {
   /** User permissions */
   permissions?: Maybe<Array<Maybe<AuthRolePermissionType>>>;
   userInfo?: Maybe<CompanyEmailUserInfoType>;
-  /**
-   * The user type of current email. 1 means user doesn't exist.             2
-   * means the user exists in BigCommerce.             3 means the user exists in BundleB2B.
-   */
+  /** The user type of current email.
+   * 1 - user doesn't exist (guest user).
+   * 2 - b2c user (not connected to company).
+   * 3 - b2b user - customer is connected to a company */
   userType?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CustomerInputType = {
-  /**
-   * It determines if the customer is signed up to receive either product review or
-   * abandoned cart emails or receive both emails.
-   */
+  /** It determines if the customer is signed up to receive either product review or abandoned cart emails or receive both emails. */
   acceptsProductReviewAbandonedCartEmails?: InputMaybe<Scalars['Boolean']['input']>;
   /** Array of customer addresses. Limited to 10. */
   addresses?: InputMaybe<Array<InputMaybe<CustomerAddressInputType>>>;
+  /** Array of customer attributes. Limited to 10 */
+  attributes?: InputMaybe<Array<InputMaybe<CustomerAttributeInputType>>>;
   /** Customer authentication information. */
   authentication?: InputMaybe<CustomerAuthenticationInputType>;
   /** Array of channels the customer can access. */
   channelIds?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   /** The company of the customer. */
   company?: InputMaybe<Scalars['String']['input']>;
+  /** ID of the group which this customer belongs to. */
+  customerGroupId?: InputMaybe<Scalars['Int']['input']>;
   /**
    * The email of the customer.
    * This field is required
@@ -2271,43 +1348,17 @@ export type CustomerInputType = {
   originChannelId?: InputMaybe<Scalars['Int']['input']>;
   /** The phone number of the customer. */
   phone?: InputMaybe<Scalars['String']['input']>;
+  /** Store credit. */
+  storeCreditAmounts?: InputMaybe<Array<InputMaybe<CustomerStoreCreditAmountsInputType>>>;
   /**
    * The store hash.
    * This field is required
    */
   storeHash: Scalars['String']['input'];
+  /** The tax exempt category of the customer. */
+  taxExemptCategory?: InputMaybe<Scalars['String']['input']>;
   /** If true, this customer will be triggered to receive account created notification. */
   triggerAccountCreatedNotification?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type CustomerMutations = {
-  __typename?: 'CustomerMutations';
-  _placeholder?: Maybe<Scalars['Boolean']['output']>;
-  archiveShoppingList?: Maybe<ArchiveShoppingListResult>;
-  copyShoppingList?: Maybe<CopyShoppingListResult>;
-  createShoppingList?: Maybe<CreateShoppingListResult>;
-  updateShoppingListDetails?: Maybe<UpdateShoppingListDetailsResult>;
-};
-
-
-export type CustomerMutationsArchiveShoppingListArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type CustomerMutationsCopyShoppingListArgs = {
-  id: Scalars['ID']['input'];
-  input?: InputMaybe<CopyShoppingListInput>;
-};
-
-
-export type CustomerMutationsCreateShoppingListArgs = {
-  input?: InputMaybe<CreateShoppingListInput>;
-};
-
-
-export type CustomerMutationsUpdateShoppingListDetailsArgs = {
-  input?: InputMaybe<UpdateShoppingListDetailsInput>;
 };
 
 export type CustomerShoppingListIdNameType = Node & {
@@ -2432,11 +1483,6 @@ export type CustomerShoppingListsDuplicate = {
   shoppingList?: Maybe<CustomerShoppingListType>;
 };
 
-export type CustomerShoppingListsFiltersInput = {
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Array<InputMaybe<ShoppingListStatus>>>;
-};
-
 export type CustomerShoppingListsInputType = {
   /** Filter by BC channel id. Supported in MSF stores */
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -2486,6 +1532,14 @@ export type CustomerShoppingListsItemsUpdate = {
 export type CustomerShoppingListsUpdate = {
   __typename?: 'CustomerShoppingListsUpdate';
   shoppingList?: Maybe<CustomerShoppingListType>;
+};
+
+export type CustomerStoreCreditAmountsInputType = {
+  /**
+   * The amount of the store credit.
+   * This field is required
+   */
+  amount: Scalars['Float']['input'];
 };
 
 export type CustomerStoreCreditAmountsType = {
@@ -2547,11 +1601,7 @@ export type CustomerSubscribersType = {
   __typename?: 'CustomerSubscribersType';
   /** The channel ID where the subscriber was created. */
   channelId?: Maybe<Scalars['Int']['output']>;
-  /**
-   * Shows what active subscriptions a shopper may have. If the consents array is
-   * empty, the user has unsubscribed or didn’t enable the newsletter subscription
-   * checkbox during checkout.
-   */
+  /** Shows what active subscriptions a shopper may have. If the consents array is empty, the user has unsubscribed or didn’t enable the newsletter subscription checkbox during checkout. */
   consents?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The date the subscriber was created. */
   dateCreated?: Maybe<Scalars['String']['output']>;
@@ -2619,85 +1669,6 @@ export type CustomerType = {
   taxExemptCategory?: Maybe<Scalars['String']['output']>;
 };
 
-export type CustomerWithOrdersFiltersInput = {
-  companyIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-};
-
-export type CustomersSettings = {
-  __typename?: 'CustomersSettings';
-  _placeholder?: Maybe<Scalars['Boolean']['output']>;
-  registrationMode?: Maybe<UserRegistrationModes>;
-};
-
-export type DateTimeExtended = {
-  __typename?: 'DateTimeExtended';
-  utc: Scalars['DateTime']['output'];
-};
-
-export type DeleteQuoteLineItemInput = {
-  lineItemId: Scalars['ID']['input'];
-  quoteId: Scalars['ID']['input'];
-};
-
-export type DeleteQuoteLineItemResult = {
-  __typename?: 'DeleteQuoteLineItemResult';
-  deletedLineItemEntityId?: Maybe<Scalars['ID']['output']>;
-  quote?: Maybe<Quote>;
-};
-
-export type DeleteShoppingListItemInput = {
-  itemId: Scalars['ID']['input'];
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type DeregisterCustomerError = AnotherDeregistrationError | SomeDeregistrationError;
-
-export type DeregisterCustomerInput = {
-  companyId: Scalars['ID']['input'];
-  customerId: Scalars['Int']['input'];
-};
-
-export type DeregistrationResult = {
-  __typename?: 'DeregistrationResult';
-  errors: Array<DeregisterCustomerError>;
-};
-
-export type Error = {
-  message: Scalars['String']['output'];
-};
-
-export type ExportInvoicesAsCsvByIdInput = {
-  invoicesIds: Array<Scalars['ID']['input']>;
-};
-
-export type ExportInvoicesAsCsvResult = {
-  __typename?: 'ExportInvoicesAsCSVResult';
-  errors: Array<Error>;
-  url?: Maybe<Scalars['String']['output']>;
-};
-
-export type ExportInvoicesAsCsvSearchInput = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  filters?: InputMaybe<InvoiceFiltersInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<InvoicesSortInput>;
-};
-
-export type ExtraFieldValue = {
-  __typename?: 'ExtraFieldValue';
-  name: Scalars['String']['output'];
-  value: Scalars['String']['output'];
-};
-
-export type ExtraFields = {
-  __typename?: 'ExtraFields';
-  companyAddress: Array<FormField>;
-  companyRegistration: Array<FormField>;
-  companyUser: Array<FormField>;
-};
-
 export type ExtraFieldsConfigType = {
   __typename?: 'ExtraFieldsConfigType';
   /** Default value of this field. */
@@ -2741,14 +1712,6 @@ export type FinishBcPayMutation = {
   result?: Maybe<Scalars['GenericScalar']['output']>;
 };
 
-export type FormField = {
-  __typename?: 'FormField';
-  label?: Maybe<Scalars['String']['output']>;
-  name: Scalars['String']['output'];
-  required?: Maybe<Scalars['Boolean']['output']>;
-  value?: Maybe<Scalars['String']['output']>;
-};
-
 export type FormFieldsInputType = {
   /** The name of address form fields. Required */
   name: Scalars['String']['input'];
@@ -2762,27 +1725,6 @@ export type FormFieldsType = {
   name: Scalars['String']['output'];
   /** The value of address form fields. Required */
   value: Scalars['GenericScalar']['output'];
-};
-
-export type GenerateInvoicePdfError = Error & {
-  __typename?: 'GenerateInvoicePdfError';
-  message: Scalars['String']['output'];
-};
-
-export type GenerateInvoicePdfInput = {
-  invoiceId: Scalars['ID']['input'];
-};
-
-export type GenerateInvoicePdfResult = {
-  __typename?: 'GenerateInvoicePdfResult';
-  errors: Array<GenerateInvoicePdfError>;
-  url?: Maybe<Scalars['String']['output']>;
-};
-
-export type Image = {
-  __typename?: 'Image';
-  altText?: Maybe<Scalars['String']['output']>;
-  url: Scalars['String']['output'];
 };
 
 export type InputAccountType = {
@@ -2838,37 +1780,12 @@ export type InputCustomerAccountType = {
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Invoice = {
-  __typename?: 'Invoice';
-  balance: InvoiceBalances;
-  company: Company;
-  createdAt: Scalars['DateTime']['output'];
-  dueDate: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  invoiceNumber: Scalars['String']['output'];
-  order?: Maybe<Order>;
-  status: InvoiceStatus;
-};
-
 export type InvoiceBalanceType = {
   __typename?: 'InvoiceBalanceType';
   /** The code of balance */
   code?: Maybe<Scalars['String']['output']>;
   /** The value of balance */
   value?: Maybe<Scalars['String']['output']>;
-};
-
-export type InvoiceBalances = {
-  __typename?: 'InvoiceBalances';
-  open: Money;
-  original: Money;
-};
-
-export type InvoiceConnection = {
-  __typename?: 'InvoiceConnection';
-  collectionInfo: CollectionInfo;
-  edges: Array<InvoiceEdge>;
-  pageInfo: PageInfo;
 };
 
 export type InvoiceCustomerInformationType = {
@@ -2883,17 +1800,6 @@ export type InvoiceCustomerInformationType = {
   payerName?: Maybe<Scalars['String']['output']>;
 };
 
-export type InvoiceDateRangeFilterInput = {
-  from?: InputMaybe<Scalars['DateTime']['input']>;
-  to?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-export type InvoiceEdge = {
-  __typename?: 'InvoiceEdge';
-  cursor: Scalars['String']['output'];
-  node: Invoice;
-};
-
 export type InvoiceExtraFieldsType = {
   __typename?: 'InvoiceExtraFieldsType';
   /** The field name of extra field */
@@ -2905,8 +1811,6 @@ export type InvoiceExtraFieldsType = {
 export type InvoiceFilterDataType = {
   /** Create date timestamp begin at */
   beginDateAt?: InputMaybe<Scalars['Int']['input']>;
-  /** The company id list */
-  companyIds?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   /** Create date timestamp end at */
   endDateAt?: InputMaybe<Scalars['Int']['input']>;
   /** The invoice id list */
@@ -2923,12 +1827,6 @@ export type InvoiceFilterDataType = {
   status?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
 };
 
-export type InvoiceFiltersInput = {
-  dateRange?: InputMaybe<InvoiceDateRangeFilterInput>;
-  search?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<InvoiceStatus>;
-};
-
 export type InvoiceLineItemsInputType = {
   /**
    * The amount of invoice you want to pay.
@@ -2942,37 +1840,69 @@ export type InvoiceLineItemsInputType = {
   invoiceId: Scalars['Int']['input'];
 };
 
-export type InvoiceMutations = {
-  __typename?: 'InvoiceMutations';
-  createCartFromInvoices: CartCreateResult;
-  exportAsCSVByIds: ExportInvoicesAsCsvResult;
-  exportAsCSVFromSearch: ExportInvoicesAsCsvResult;
-  generateInvoicePdf: GenerateInvoicePdfResult;
+export type InvoicePaymentType = Node & {
+  __typename?: 'InvoicePaymentType';
+  appliedStatus: Scalars['Int']['output'];
+  /** The B2B Edition channel id */
+  channelId?: Maybe<Scalars['Int']['output']>;
+  /** The channel name */
+  channelName?: Maybe<Scalars['String']['output']>;
+  /** The id of company */
+  companyId?: Maybe<Scalars['String']['output']>;
+  /** The name of company */
+  companyName?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Int']['output'];
+  customerBcGroupName?: Maybe<Scalars['String']['output']>;
+  customerBcId?: Maybe<Scalars['Int']['output']>;
+  /** The BC customer group id */
+  customerGroupId?: Maybe<Scalars['String']['output']>;
+  customerName?: Maybe<Scalars['String']['output']>;
+  /** The invoice payment details */
+  details?: Maybe<Scalars['GenericScalar']['output']>;
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  externalId?: Maybe<Scalars['String']['output']>;
+  /** The invoice payment fees */
+  fees?: Maybe<Scalars['GenericScalar']['output']>;
+  fundingStatus: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  /** The invoice payment module data */
+  moduleData?: Maybe<Scalars['GenericScalar']['output']>;
+  moduleName: Scalars['String']['output'];
+  payerCustomerId?: Maybe<Scalars['String']['output']>;
+  payerName?: Maybe<Scalars['String']['output']>;
+  paymentReceiptSet: ReceiptTypeCountableConnection;
+  processingStatus: Scalars['Int']['output'];
+  totalAmount?: Maybe<Scalars['Decimal']['output']>;
+  totalCode?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Int']['output'];
 };
 
 
-export type InvoiceMutationsCreateCartFromInvoicesArgs = {
-  input: CreateCartFromInvoiceInput;
+export type InvoicePaymentTypePaymentReceiptSetArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
-
-export type InvoiceMutationsExportAsCsvByIdsArgs = {
-  input: ExportInvoicesAsCsvByIdInput;
+export type InvoicePaymentTypeCountableConnection = {
+  __typename?: 'InvoicePaymentTypeCountableConnection';
+  edges: Array<InvoicePaymentTypeCountableEdge>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  /** A total count of items in the collection. */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-
-export type InvoiceMutationsExportAsCsvFromSearchArgs = {
-  input: ExportInvoicesAsCsvSearchInput;
-};
-
-
-export type InvoiceMutationsGenerateInvoicePdfArgs = {
-  input: GenerateInvoicePdfInput;
-};
-
-export type InvoicePaymentInput = {
-  amountToPay?: InputMaybe<Scalars['Float']['input']>;
-  id: Scalars['ID']['input'];
+export type InvoicePaymentTypeCountableEdge = {
+  __typename?: 'InvoicePaymentTypeCountableEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of the edge. */
+  node: InvoicePaymentType;
 };
 
 export type InvoiceStatsType = {
@@ -2986,13 +1916,6 @@ export type InvoiceStatsType = {
   /** The total balance of invoice. */
   totalBalance?: Maybe<Scalars['Float']['output']>;
 };
-
-export enum InvoiceStatus {
-  Cancelled = 'CANCELLED',
-  Open = 'OPEN',
-  Overdue = 'OVERDUE',
-  Paid = 'PAID'
-}
 
 export type InvoiceStoreInfoType = {
   __typename?: 'InvoiceStoreInfoType';
@@ -3014,12 +1937,6 @@ export type InvoiceStoreInfoType = {
   phone?: Maybe<Scalars['String']['output']>;
 };
 
-export type InvoiceTotals = {
-  __typename?: 'InvoiceTotals';
-  open: Money;
-  overdue: Money;
-};
-
 export type InvoiceType = Node & {
   __typename?: 'InvoiceType';
   /** The information of the invoice */
@@ -3028,8 +1945,6 @@ export type InvoiceType = Node & {
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name of the invoice */
   channelName?: Maybe<Scalars['String']['output']>;
-  /** Company information of invoice */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** The created timestamp of the invoice */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** The customer id of the invoice */
@@ -3053,8 +1968,6 @@ export type InvoiceType = Node & {
   openBalance?: Maybe<InvoiceBalanceType>;
   /** The order number of the invoice */
   orderNumber?: Maybe<Scalars['String']['output']>;
-  /** The order user id */
-  orderUserId?: Maybe<Scalars['Int']['output']>;
   /** The original balance of the invoice */
   originalBalance?: Maybe<InvoiceBalanceType>;
   /** The pending payment count of the invoice */
@@ -3094,42 +2007,8 @@ export type InvoiceTypeCountableEdge = {
   node: InvoiceType;
 };
 
-export enum InvoicesSortInput {
-  CreatedAtNewest = 'CREATED_AT_NEWEST',
-  CreatedAtOldest = 'CREATED_AT_OLDEST',
-  DueDateNewest = 'DUE_DATE_NEWEST',
-  DueDateOldest = 'DUE_DATE_OLDEST',
-  InvoiceNumberAToZ = 'INVOICE_NUMBER_A_TO_Z',
-  InvoiceNumberZToA = 'INVOICE_NUMBER_Z_TO_A',
-  OpenBalanceHighest = 'OPEN_BALANCE_HIGHEST',
-  OpenBalanceLowest = 'OPEN_BALANCE_LOWEST',
-  OrderIdAToZ = 'ORDER_ID_A_TO_Z',
-  OrderIdZToA = 'ORDER_ID_Z_TO_A',
-  OriginalBalanceHighest = 'ORIGINAL_BALANCE_HIGHEST',
-  OriginalBalanceLowest = 'ORIGINAL_BALANCE_LOWEST'
-}
-
-export type MessageAuthor = Customer | SalesRep;
-
-export type Money = {
-  __typename?: 'Money';
-  currencyCode: Scalars['String']['output'];
-  value: Scalars['Decimal']['output'];
-};
-
-export type MultilineTextFormFieldInput = {
-  multilineText: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-};
-
-export type MultipleChoiceFormFieldInput = {
-  fieldValue: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  activeCompany: ActiveCompanyMutations;
   /**
    * Create a company address.
    * Requires a B2B Token.
@@ -3147,14 +2026,11 @@ export type Mutation = {
   addressUpdate?: Maybe<AddressUpdate>;
   /** Authorize using a Bigcommerce token. */
   authorization?: Maybe<UserAuthorization>;
-  cart?: Maybe<CartMutations>;
-  catalog?: Maybe<CatalogMutations>;
   /**
    * Login to checkout for a given cart.
    * Requires a B2B token.
    */
   checkoutLogin?: Maybe<UserCheckoutLogin>;
-  company: CompanyMutations;
   /** Create a company using a customer id. */
   companyCreate?: Maybe<CompanyCreate>;
   /**
@@ -3162,7 +2038,6 @@ export type Mutation = {
    * Requires a B2B Token.
    */
   createOrder?: Maybe<OrderCreate>;
-  customer?: Maybe<CustomerMutations>;
   /**
    * Create a customer address.
    * Requires a BC Token.
@@ -3217,7 +2092,6 @@ export type Mutation = {
   customerShoppingListsUpdate?: Maybe<CustomerShoppingListsUpdate>;
   /** Create a new Bigcommerce customer subscriber */
   customerSubscribersCreate?: Maybe<CustomerSubscribersCreate>;
-  invoice: InvoiceMutations;
   /**
    * Create a BC cart for invoice payment.
    * Only Admin and Super Admin can create cart.
@@ -3255,7 +2129,6 @@ export type Mutation = {
    * Requires either a B2B or BC Token.
    */
   productUpload?: Maybe<ProductsUpload>;
-  quote: QuoteMutations;
   /**
    * Create attachment for a quote.
    * Requires either B2B or BC Token.
@@ -3268,8 +2141,7 @@ export type Mutation = {
   quoteAttachFileDelete?: Maybe<QuoteAttachmentDelete>;
   /**
    * Get the checkout information for a quote.
-   * Requires a B2B token for B2B and B2C users
-   * Token is not required for guest users, but store must allow guest quotes.
+   * Doesn't require a Token.
    */
   quoteCheckout?: Maybe<QuoteCheckout>;
   /**
@@ -3299,7 +2171,6 @@ export type Mutation = {
    * Requires either B2B or BC Token.
    */
   quoteUpdate?: Maybe<QuoteUpdate>;
-  shoppingList?: Maybe<ShoppingListMutations>;
   /**
    * Create a shopping list.
    * Requires a B2B Token.
@@ -3370,10 +2241,6 @@ export type Mutation = {
    * Requires a B2B Token.
    */
   userDelete?: Maybe<UserDelete>;
-  /** Begin masquerading a company */
-  userMasqueradingCompanyBegin?: Maybe<UserMasqueradingCompanyBegin>;
-  /** End masquerading a company */
-  userMasqueradingCompanyEnd?: Maybe<UserMasqueradingCompanyEnd>;
   /**
    * Update a company user.
    * Requires a B2B Token.
@@ -3626,13 +2493,11 @@ export type MutationStoreFrontTokenArgs = {
 
 export type MutationSuperAdminBeginMasqueradeArgs = {
   companyId: Scalars['Int']['input'];
-  userId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type MutationSuperAdminEndMasqueradeArgs = {
   companyId: Scalars['Int']['input'];
-  userId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -3657,11 +2522,6 @@ export type MutationUserDeleteArgs = {
 };
 
 
-export type MutationUserMasqueradingCompanyBeginArgs = {
-  companyId: Scalars['Int']['input'];
-};
-
-
 export type MutationUserUpdateArgs = {
   userData: UserUpdateInputType;
 };
@@ -3670,22 +2530,6 @@ export type MutationUserUpdateArgs = {
 export type Node = {
   /** The ID of the object */
   id: Scalars['ID']['output'];
-};
-
-export type NumberFormFieldInput = {
-  name: Scalars['String']['input'];
-  number: Scalars['String']['input'];
-};
-
-export type Order = Node & {
-  __typename?: 'Order';
-  company?: Maybe<Company>;
-  extraFields: Array<ExtraFieldValue>;
-  history: Array<OrderHistory>;
-  id: Scalars['ID']['output'];
-  invoice?: Maybe<Invoice>;
-  quote?: Maybe<Quote>;
-  reference?: Maybe<Scalars['String']['output']>;
 };
 
 /**
@@ -3734,17 +2578,6 @@ export type OrderCreateInputType = {
   referenceNumber?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type OrderDateRangeFilterInput = {
-  from?: InputMaybe<Scalars['DateTime']['input']>;
-  to?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-export type OrderHistory = {
-  __typename?: 'OrderHistory';
-  createdAt: Scalars['DateTime']['output'];
-  status: OrderStatus;
-};
-
 export type OrderHistoryEventType = {
   __typename?: 'OrderHistoryEventType';
   /** The creation timestamp of this event */
@@ -3759,10 +2592,12 @@ export type OrderHistoryEventType = {
   status?: Maybe<Scalars['String']['output']>;
 };
 
-export type OrderLineItemProductOption = {
-  __typename?: 'OrderLineItemProductOption';
-  name: Scalars['String']['output'];
-  value: Scalars['String']['output'];
+export type OrderImageType = {
+  __typename?: 'OrderImageType';
+  /** Image url address */
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  /** BC Order id */
+  orderId?: Maybe<Scalars['String']['output']>;
 };
 
 export type OrderProductType = {
@@ -3777,12 +2612,6 @@ export type OrderProductType = {
   quantity?: Maybe<Scalars['String']['output']>;
   /** Unique variant ID */
   variantId?: Maybe<Scalars['String']['output']>;
-};
-
-export type OrderStatus = {
-  __typename?: 'OrderStatus';
-  label: Scalars['String']['output'];
-  value?: Maybe<Scalars['String']['output']>;
 };
 
 export type OrderStatusType = {
@@ -3802,13 +2631,11 @@ export type OrderType = Node & {
   bcOrderInfos: Scalars['JSONString']['output'];
   billingName?: Maybe<Scalars['String']['output']>;
   cartId?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B channel id */
+  /** The B2B Edition channel id */
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name */
   channelName?: Maybe<Scalars['String']['output']>;
   companyId?: Maybe<CompanyType>;
-  /** Company information of order */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** order's company name */
   companyName?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Int']['output'];
@@ -3884,7 +2711,7 @@ export type OrderedProductType = Node & {
   basePrice?: Maybe<Scalars['String']['output']>;
   /** Product base SKU */
   baseSku?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B channel id */
+  /** The B2B Edition channel id */
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name */
   channelName?: Maybe<Scalars['String']['output']>;
@@ -3949,26 +2776,6 @@ export type OrderedProductTypeCountableEdge = {
   node: OrderedProductType;
 };
 
-export type OrdersConnection = {
-  __typename?: 'OrdersConnection';
-  collectionInfo?: Maybe<CollectionInfo>;
-  edges: Array<OrdersEdge>;
-  pageInfo: PageInfo;
-};
-
-export type OrdersEdge = {
-  __typename?: 'OrdersEdge';
-  cursor: Scalars['String']['output'];
-  node: Order;
-};
-
-export type OrdersFiltersInput = {
-  _placeholder?: InputMaybe<Scalars['String']['input']>;
-  companyIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  companyName?: InputMaybe<Scalars['String']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
-};
-
 /** An enumeration. */
 export enum OrdersOrdersCreatedFromChoices {
   /** B2B */
@@ -4011,19 +2818,6 @@ export enum OrdersOrdersIsInvoiceOrderChoices {
   A_0 = 'A_0',
   /** Y */
   A_1 = 'A_1'
-}
-
-export enum OrdersSortInput {
-  CreatedAtNewest = 'CREATED_AT_NEWEST',
-  CreatedAtOldest = 'CREATED_AT_OLDEST',
-  HighestTotalIncTax = 'HIGHEST_TOTAL_INC_TAX',
-  IdAToZ = 'ID_A_TO_Z',
-  IdZToA = 'ID_Z_TO_A',
-  LowestTotalIncTax = 'LOWEST_TOTAL_INC_TAX',
-  ReferenceAToZ = 'REFERENCE_A_TO_Z',
-  ReferenceZToA = 'REFERENCE_Z_TO_A',
-  StatusAToZ = 'STATUS_A_TO_Z',
-  StatusZToA = 'STATUS_Z_TO_A'
 }
 
 /** The Relay compliant `PageInfo` type, containing data necessary to paginate this connection. */
@@ -4127,27 +2921,15 @@ export type PricingProductType = {
   __typename?: 'PricingProductType';
   /** The bulk pricing rules that apply to this product. */
   bulkPricing?: Maybe<Array<Maybe<BulkPricingType>>>;
-  /**
-   * The shopper price for a product, which includes modifier, option, and option
-   * set rules. The calculated_price may include or exclude estimates for tax.
-   */
+  /** The shopper price for a product, which includes modifier, option, and option set rules. The calculated_price may include or exclude estimates for tax. */
   calculatedPrice?: Maybe<PriceType>;
-  /**
-   * The minimum advertised price (MAP) you can display on a storefront. A value
-   * supplied by the merchant and used for display purposes.
-   */
+  /** The minimum advertised price (MAP) you can display on a storefront. A value supplied by the merchant and used for display purposes. */
   minimumAdvertisedPrice?: Maybe<PriceType>;
   /** The optional product option configuration for this generated price. */
   options?: Maybe<Array<Maybe<PricingProductItemOptionsType>>>;
-  /**
-   * The merchant-entered price for a product, which could include or exclude tax.
-   * When creating a product, you must define the price, which serves as the default price.
-   */
+  /** The merchant-entered price for a product, which could include or exclude tax. When creating a product, you must define the price, which serves as the default price. */
   price?: Maybe<PriceType>;
-  /**
-   * The minimum and maximum price that will typically apply to this product. Only
-   * used for complex products (products with variants).
-   */
+  /** The minimum and maximum price that will typically apply to this product. Only used for complex products (products with variants). */
   priceRange?: Maybe<PriceRangeType>;
   /** The product ID of the item. */
   productId?: Maybe<Scalars['Int']['output']>;
@@ -4384,18 +3166,6 @@ export type ProductUploadType = {
   validProduct?: Maybe<Scalars['GenericScalar']['output']>;
 };
 
-export type ProductValidationErrorType = {
-  __typename?: 'ProductValidationErrorType';
-  field: Scalars['String']['output'];
-  lineNumber: Scalars['Int']['output'];
-  message: Scalars['String']['output'];
-  sku: Scalars['String']['output'];
-};
-
-export type ProductValidationInput = {
-  sku: Scalars['String']['input'];
-};
-
 export type ProductVariantInfoType = {
   __typename?: 'ProductVariantInfoType';
   /** Availability of the product */
@@ -4461,46 +3231,6 @@ export type ProductsAnonUpload = {
 export type ProductsUpload = {
   __typename?: 'ProductsUpload';
   result?: Maybe<ProductUploadType>;
-};
-
-export type PurchasedProductConnection = {
-  __typename?: 'PurchasedProductConnection';
-  collectionInfo?: Maybe<CollectionInfo>;
-  edges: Array<PurchasedProductEdge>;
-  pageInfo: PageInfo;
-};
-
-export type PurchasedProductDateRangeFilterInput = {
-  from?: InputMaybe<Scalars['DateTime']['input']>;
-  to?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-export type PurchasedProductEdge = {
-  __typename?: 'PurchasedProductEdge';
-  cursor: Scalars['String']['output'];
-  node: PurchasedProductType;
-};
-
-export type PurchasedProductType = Node & {
-  __typename?: 'PurchasedProductType';
-  configuredProductId: Scalars['ID']['output'];
-  id: Scalars['ID']['output'];
-  imageUrl: Scalars['String']['output'];
-  lastOrderedAt: Scalars['DateTime']['output'];
-  name: Scalars['String']['output'];
-  price: Money;
-  productOptions: Array<OrderLineItemProductOption>;
-  sku: Scalars['String']['output'];
-};
-
-export type PurchasedProductsSearchInput = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  dateRange?: InputMaybe<PurchasedProductDateRangeFilterInput>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  orderId?: InputMaybe<Scalars['ID']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Query = {
@@ -4585,11 +3315,6 @@ export type Query = {
    * Requires a B2B Token.
    */
   companyRoles?: Maybe<CompanyRolesTypeCountableConnection>;
-  /**
-   * Get all subsidiaries of your company.
-   * Requires a B2B Token.
-   */
-  companySubsidiaries?: Maybe<Array<Maybe<CompanySubsidiariesType>>>;
   /**
    * This API is deprecated, use 'userEmailCheck' instead.
    * Get the information of a user.
@@ -4702,6 +3427,11 @@ export type Query = {
    */
   invoiceCustomerInformation?: Maybe<InvoiceCustomerInformationType>;
   /**
+   * The Details of an invoice payment.
+   * Requires a B2B Token.
+   */
+  invoicePayment?: Maybe<InvoicePaymentType>;
+  /**
    * Information of an invoice payment related BC cart.
    * Requires a B2B Token.
    */
@@ -4717,6 +3447,11 @@ export type Query = {
    */
   invoicePaymentModules?: Maybe<Array<Maybe<PaymentModuleType>>>;
   /**
+   * The list of invoice payments.
+   * Requires a B2B Token.
+   */
+  invoicePayments?: Maybe<InvoicePaymentTypeCountableConnection>;
+  /**
    * Get the stats of an invoice.
    * Requires IP authentication.
    */
@@ -4731,6 +3466,11 @@ export type Query = {
    * Requires a B2B Token.
    */
   order?: Maybe<BcOrderType>;
+  /**
+   * Get the image url for a list of orders.
+   * Requires a B2B Token.
+   */
+  orderImages?: Maybe<Array<Maybe<OrderImageType>>>;
   /**
    * Get a list of the products in an order.
    * Requires a B2B Token.
@@ -4770,10 +3510,9 @@ export type Query = {
    * Doesn't require a Token.
    */
   productsSearch?: Maybe<Array<Maybe<ProductInfoType>>>;
-  purchasedProducts: PurchasedProductConnection;
   /**
    * Get the details of a quote.
-   * Requires a B2B token for B2B and B2C users
+   * Doesn't require a Token.
    */
   quote?: Maybe<QuoteType>;
   /**
@@ -4781,8 +3520,11 @@ export type Query = {
    * Doesn't require a Token.
    */
   quoteConfig?: Maybe<QuoteConfigType>;
-  /** Get the extra fields configurations for a quote. */
-  quoteExtraFieldsConfig?: Maybe<Array<Maybe<QuoteExtraFieldsType>>>;
+  /**
+   * Get the extra fields configurations for a quote.
+   * Requires a B2B Token.
+   */
+  quoteExtraFieldsConfig?: Maybe<Array<Maybe<QuoteExtraFieldsConfigType>>>;
   /**
    * Get the store information of a quote.
    * Requires a B2B Token.
@@ -4904,16 +3646,6 @@ export type Query = {
    */
   userExtraFields?: Maybe<Array<Maybe<ExtraFieldsConfigType>>>;
   /**
-   * Retrives force password reset state for the user.
-   * Doesn't require a Token.
-   */
-  userLoginState?: Maybe<UserLoginState>;
-  /**
-   * Get the masquerading company info of a user.
-   * Requires a B2B Token.
-   */
-  userMasqueradingCompany?: Maybe<CompanyInfoType>;
-  /**
    * List of company users.
    * Requires a B2B Token.
    */
@@ -4981,7 +3713,6 @@ export type QueryAllOrdersArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   beginDateAt?: InputMaybe<Scalars['Date']['input']>;
   companyId?: InputMaybe<Scalars['Decimal']['input']>;
-  companyIds?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   companyName?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -5024,11 +3755,6 @@ export type QueryAllReceiptLinesArgs = {
 
 export type QueryAutoLoaderArgs = {
   storeHash: Scalars['String']['input'];
-};
-
-
-export type QueryCompanyCreditConfigArgs = {
-  isMasqueradingCompany?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -5220,13 +3946,29 @@ export type QueryInvoiceArgs = {
 };
 
 
+export type QueryInvoicePaymentArgs = {
+  paymentId: Scalars['Int']['input'];
+};
+
+
 export type QueryInvoicePaymentBcCartArgs = {
   paymentId: Scalars['Int']['input'];
 };
 
 
+export type QueryInvoicePaymentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  dateCreatedBeginAt?: InputMaybe<Scalars['Date']['input']>;
+  dateCreatedEndAt?: InputMaybe<Scalars['Date']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  invoiceId?: InputMaybe<Scalars['Decimal']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryInvoiceStatsArgs = {
-  companyIds?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   decimalPlaces?: InputMaybe<Scalars['Int']['input']>;
   status: Scalars['Int']['input'];
 };
@@ -5237,7 +3979,6 @@ export type QueryInvoicesArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   beginDateAt?: InputMaybe<Scalars['Decimal']['input']>;
   beginDueDateAt?: InputMaybe<Scalars['Decimal']['input']>;
-  companyIds?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   endDateAt?: InputMaybe<Scalars['Decimal']['input']>;
   endDueDateAt?: InputMaybe<Scalars['Decimal']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -5259,6 +4000,11 @@ export type QueryInvoicesArgs = {
 
 export type QueryOrderArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type QueryOrderImagesArgs = {
+  orderIds: Array<InputMaybe<Scalars['Int']['input']>>;
 };
 
 
@@ -5333,11 +4079,6 @@ export type QueryProductsSearchArgs = {
 };
 
 
-export type QueryPurchasedProductsArgs = {
-  input: PurchasedProductsSearchInput;
-};
-
-
 export type QueryQuoteArgs = {
   date: Scalars['String']['input'];
   id: Scalars['Int']['input'];
@@ -5347,12 +4088,6 @@ export type QueryQuoteArgs = {
 
 export type QueryQuoteConfigArgs = {
   storeHash: Scalars['String']['input'];
-};
-
-
-export type QueryQuoteExtraFieldsConfigArgs = {
-  channelId?: InputMaybe<Scalars['Int']['input']>;
-  storeHash?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -5532,12 +4267,6 @@ export type QueryUserEmailCheckArgs = {
 };
 
 
-export type QueryUserLoginStateArgs = {
-  email: Scalars['String']['input'];
-  storeHash: Scalars['String']['input'];
-};
-
-
 export type QueryUsersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -5561,55 +4290,6 @@ export type QueryVariantSkuArgs = {
   variantSkus: Array<InputMaybe<Scalars['String']['input']>>;
 };
 
-export type Quote = Node & {
-  __typename?: 'Quote';
-  attachments: QuoteAttachmentsConnection;
-  billingAddress?: Maybe<CompanyAddress>;
-  ccEmails?: Maybe<Array<Scalars['String']['output']>>;
-  createdAt: Scalars['DateTime']['output'];
-  createdBy: Customer;
-  expirationDate?: Maybe<Scalars['DateTime']['output']>;
-  id: Scalars['ID']['output'];
-  lastUpdated: Scalars['DateTime']['output'];
-  lineItems: QuoteLineItemsConnection;
-  messages: QuoteMessagesConnection;
-  reference?: Maybe<Scalars['String']['output']>;
-  salesRep?: Maybe<SalesRep>;
-  shippingAddress?: Maybe<CustomerAddress>;
-  shippingCost: Money;
-  status: QuoteStatus;
-  subTotal: Money;
-  subtotal: Money;
-  taxEstimate: Money;
-  title?: Maybe<Scalars['String']['output']>;
-  totalIncTax: Money;
-  updatedAt: Scalars['DateTime']['output'];
-};
-
-
-export type QuoteAttachmentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QuoteLineItemsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QuoteMessagesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
 export type QuoteAddressExtraFieldsInputType = {
   fieldName?: InputMaybe<Scalars['String']['input']>;
   fieldValue?: InputMaybe<Scalars['String']['input']>;
@@ -5622,14 +4302,6 @@ export type QuoteAttachFiles = {
   fileType?: Maybe<Scalars['String']['output']>;
   fileUrl?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
-};
-
-export type QuoteAttachment = Node & {
-  __typename?: 'QuoteAttachment';
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  uploadedBy: AttachmentAuthor;
-  url: Scalars['String']['output'];
 };
 
 /**
@@ -5650,22 +4322,9 @@ export type QuoteAttachmentDelete = {
   message?: Maybe<Scalars['String']['output']>;
 };
 
-export type QuoteAttachmentEdge = {
-  __typename?: 'QuoteAttachmentEdge';
-  cursor: Scalars['String']['output'];
-  node: QuoteAttachment;
-};
-
-export type QuoteAttachmentsConnection = {
-  __typename?: 'QuoteAttachmentsConnection';
-  edges?: Maybe<Array<QuoteAttachmentEdge>>;
-  pageInfo: PageInfo;
-};
-
 /**
  * Get the checkout information for a quote.
- * Requires a B2B token for B2B and B2C users
- * Token is not required for guest users, but store must allow guest quotes.
+ * Doesn't require a Token.
  */
 export type QuoteCheckout = {
   __typename?: 'QuoteCheckout';
@@ -5731,34 +4390,6 @@ export type QuoteExtraFieldsInputType = {
   fieldName?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
   value?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type QuoteExtraFieldsType = {
-  __typename?: 'QuoteExtraFieldsType';
-  /** Default value of this field. */
-  defaultValue?: Maybe<Scalars['String']['output']>;
-  fieldCategory?: Maybe<Scalars['String']['output']>;
-  /** Field name that config in you store */
-  fieldName?: Maybe<Scalars['String']['output']>;
-  /** Field type of the extra field.0 means text type. 1 means textarea type. 2 means number type. 3 means dropdown type. */
-  fieldType?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  /** Is this field is required */
-  isRequired?: Maybe<Scalars['Boolean']['output']>;
-  isUnique?: Maybe<Scalars['Boolean']['output']>;
-  /** The label name of the field. */
-  labelName?: Maybe<Scalars['String']['output']>;
-  /** List of all optional values for the field value. fieldType == 3 */
-  listOfValue?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The maximum length of the value of this field. fieldType == 0 */
-  maximumLength?: Maybe<Scalars['String']['output']>;
-  /** Maximum value of the field value. fieldType == 2 */
-  maximumValue?: Maybe<Scalars['String']['output']>;
-  /** The maximum number of rows of the value of this field. fieldType == 1 */
-  numberOfRows?: Maybe<Scalars['String']['output']>;
-  valueConfigs?: Maybe<Scalars['GenericScalar']['output']>;
-  /** Is this field visible to end user */
-  visibleToEnduser?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type QuoteExtraFieldsValueType = {
@@ -5866,122 +4497,6 @@ export type QuoteInputType = {
   userEmail?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type QuoteLineItem = Node & {
-  __typename?: 'QuoteLineItem';
-  configuredProductId: Scalars['ID']['output'];
-  id: Scalars['ID']['output'];
-  image?: Maybe<Image>;
-  name: Scalars['String']['output'];
-  price: Money;
-  quantity: Scalars['Int']['output'];
-  selectedOptions: Array<CartSelectedOption>;
-  sku?: Maybe<Scalars['String']['output']>;
-  total: Money;
-};
-
-export type QuoteLineItemEdge = {
-  __typename?: 'QuoteLineItemEdge';
-  cursor: Scalars['String']['output'];
-  node: QuoteLineItem;
-};
-
-export type QuoteLineItemInput = {
-  productEntityId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
-  selectedOptions?: InputMaybe<CartSelectedOptionsInput>;
-  variantEntityId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type QuoteLineItemsConnection = {
-  __typename?: 'QuoteLineItemsConnection';
-  edges?: Maybe<Array<QuoteLineItemEdge>>;
-  pageInfo: PageInfo;
-};
-
-export type QuoteMessage = {
-  __typename?: 'QuoteMessage';
-  author: MessageAuthor;
-  content: Scalars['String']['output'];
-  sentAt: Scalars['DateTime']['output'];
-};
-
-export type QuoteMessageEdge = {
-  __typename?: 'QuoteMessageEdge';
-  cursor: Scalars['String']['output'];
-  node: QuoteMessage;
-};
-
-export type QuoteMessagesConnection = {
-  __typename?: 'QuoteMessagesConnection';
-  edges?: Maybe<Array<QuoteMessageEdge>>;
-  pageInfo: PageInfo;
-};
-
-export type QuoteMutations = {
-  __typename?: 'QuoteMutations';
-  addAttachment: AddAttachmentResult;
-  addConfiguredProducts: AddConfiguredProductsToQuoteResult;
-  addLineItems: AddQuoteLineItemsResult;
-  addMessage: AddMessageResult;
-  create: CreateQuoteResult;
-  createCart: CreateCartResult;
-  createPDF: CreatePdfResult;
-  deleteLineItem?: Maybe<DeleteQuoteLineItemResult>;
-  removeAttachment: RemoveAttachmentResult;
-  updateLineItem?: Maybe<UpdateQuoteLineItemResult>;
-};
-
-
-export type QuoteMutationsAddAttachmentArgs = {
-  input: AddAttachmentInput;
-};
-
-
-export type QuoteMutationsAddConfiguredProductsArgs = {
-  input: AddConfiguredProductsToQuoteInput;
-};
-
-
-export type QuoteMutationsAddLineItemsArgs = {
-  input: AddQuoteLineItemsInput;
-};
-
-
-export type QuoteMutationsAddMessageArgs = {
-  input: AddMessageInput;
-  message: AddQuoteMessageInput;
-};
-
-
-export type QuoteMutationsCreateArgs = {
-  input: CreateQuoteInput;
-};
-
-
-export type QuoteMutationsCreateCartArgs = {
-  input: CreateCartInput;
-};
-
-
-export type QuoteMutationsCreatePdfArgs = {
-  input: CreatePdfInput;
-};
-
-
-export type QuoteMutationsDeleteLineItemArgs = {
-  input?: InputMaybe<DeleteQuoteLineItemInput>;
-};
-
-
-export type QuoteMutationsRemoveAttachmentArgs = {
-  input: RemoveAttachmentInput;
-};
-
-
-export type QuoteMutationsUpdateLineItemArgs = {
-  input: UpdateQuoteLineItemInput;
-};
-
 /**
  * Ordered a quote.
  * Requires either B2B or BC Token.
@@ -6011,10 +4526,6 @@ export type QuoteOtherConfigType = {
   value?: Maybe<Scalars['String']['output']>;
 };
 
-export type QuotePdf = {
-  url: Scalars['String']['output'];
-};
-
 /**
  * This API is deprecated, please use QuoteFrontendPdf. Export a quote to PDF.
  * Requires either B2B or BC Token.
@@ -6023,13 +4534,6 @@ export type QuotePdfExport = {
   __typename?: 'QuotePdfExport';
   url?: Maybe<Scalars['String']['output']>;
 };
-
-export enum QuoteStatus {
-  Draft = 'DRAFT',
-  Expired = 'EXPIRED',
-  Open = 'OPEN',
-  Ordered = 'ORDERED'
-}
 
 export type QuoteSwitchConfigType = {
   __typename?: 'QuoteSwitchConfigType';
@@ -6175,75 +4679,11 @@ export type QuoteUpdateInputType = {
   userEmail: Scalars['String']['input'];
 };
 
-export type QuotesConnection = {
-  __typename?: 'QuotesConnection';
-  collectionInfo: CollectionInfo;
-  edges: Array<QuotesEdge>;
-  pageInfo: PageInfo;
-};
-
-export type QuotesDateRangeFilterInput = {
-  from?: InputMaybe<Scalars['DateTime']['input']>;
-  to?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-export type QuotesEdge = {
-  __typename?: 'QuotesEdge';
-  cursor: Scalars['String']['output'];
-  node: Quote;
-};
-
-export type QuotesFiltersInput = {
-  dateRange?: InputMaybe<QuotesDateRangeFilterInput>;
-  salesRepId?: InputMaybe<Scalars['ID']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Array<InputMaybe<QuoteStatus>>>;
-};
-
-export enum QuotesSortInput {
-  CompanyAToZ = 'COMPANY_A_TO_Z',
-  CompanyUserAToZ = 'COMPANY_USER_A_TO_Z',
-  CompanyUserZToA = 'COMPANY_USER_Z_TO_A',
-  CompanyZToA = 'COMPANY_Z_TO_A',
-  CreatedAtNewest = 'CREATED_AT_NEWEST',
-  CreatedAtOldest = 'CREATED_AT_OLDEST',
-  ExpirationDateNewest = 'EXPIRATION_DATE_NEWEST',
-  ExpirationDateOldest = 'EXPIRATION_DATE_OLDEST',
-  LastUpdateNewest = 'LAST_UPDATE_NEWEST',
-  LastUpdateOldest = 'LAST_UPDATE_OLDEST',
-  SalesRepAToZ = 'SALES_REP_A_TO_Z',
-  SalesRepZToA = 'SALES_REP_Z_TO_A',
-  StatusAToZ = 'STATUS_A_TO_Z',
-  StatusZToA = 'STATUS_Z_TO_A',
-  TitleAToZ = 'TITLE_A_TO_Z',
-  TitleZToA = 'TITLE_Z_TO_A'
-}
-
-export type Receipt = {
-  __typename?: 'Receipt';
-  createdAt: Scalars['DateTime']['output'];
-  paymentId: Scalars['ID']['output'];
-  paymentType?: Maybe<Scalars['String']['output']>;
-  receiptLineSet: Array<ReceiptLineSet>;
-  referenceNumber?: Maybe<Scalars['String']['output']>;
-  totalAmount: Money;
-  transactionType?: Maybe<Scalars['String']['output']>;
-};
-
-export type ReceiptLineSet = {
-  __typename?: 'ReceiptLineSet';
-  amount: Money;
-  id: Scalars['ID']['output'];
-  invoiceNumber: Scalars['ID']['output'];
-};
-
 export type ReceiptLinesType = Node & {
   __typename?: 'ReceiptLinesType';
   /** The amount of receipt lines.Required */
   amount?: Maybe<Scalars['GenericScalar']['output']>;
   amountCode?: Maybe<Scalars['String']['output']>;
-  /** Company information of receipt lines */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** The create at of receipt lines.Required */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** The customer id of receipt lines.Required */
@@ -6366,113 +4806,6 @@ export type ReferenceRequestType = {
   variantId?: Maybe<Scalars['Int']['output']>;
 };
 
-export type RegisterCompanyCustomerDataInput = {
-  email: Scalars['String']['input'];
-  firstName: Scalars['String']['input'];
-  formFields?: InputMaybe<CustomerFormFieldsInput>;
-  lastName: Scalars['String']['input'];
-  phone?: InputMaybe<Scalars['String']['input']>;
-  roleId: Scalars['ID']['input'];
-};
-
-export type RegisterCompanyCustomerInput = {
-  data: RegisterCompanyCustomerDataInput;
-};
-
-export type RegisterCompanyError = Error & {
-  __typename?: 'RegisterCompanyError';
-  message: Scalars['String']['output'];
-};
-
-export type RegisterCompanyInput = {
-  address: AddCompanyAddressInput;
-  companyUser?: InputMaybe<AddCompanyUsersInput>;
-  email: Scalars['String']['input'];
-  extraFields?: InputMaybe<CompanyExtraFieldsInput>;
-  fileList?: InputMaybe<Array<AddCompanyFileInput>>;
-  name: Scalars['String']['input'];
-  phone: Scalars['String']['input'];
-};
-
-export type RegisterCompanyResult = {
-  __typename?: 'RegisterCompanyResult';
-  company?: Maybe<Company>;
-  errors: Array<RegisterCompanyError>;
-};
-
-export type RegisterCustomerResult = {
-  __typename?: 'RegisterCustomerResult';
-  customer?: Maybe<Customer>;
-  errors: Array<Error>;
-};
-
-export type RemoveAttachmentInput = {
-  attachmentId: Scalars['ID']['input'];
-  id: Scalars['ID']['input'];
-};
-
-export type RemoveAttachmentResult = {
-  __typename?: 'RemoveAttachmentResult';
-  errors: Array<RemoveAttachmentResultError>;
-};
-
-export type RemoveAttachmentResultError = AnotherRemoveAttachmentResultError | SomeRemoveAttachmentResultError;
-
-export type RemoveQuoteAttachmentInput = {
-  attachmentId: Scalars['ID']['input'];
-  quoteId: Scalars['ID']['input'];
-};
-
-export type Role = {
-  __typename?: 'Role';
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-};
-
-export type SalesRep = Node & {
-  __typename?: 'SalesRep';
-  email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-};
-
-export type SalesRepsConnection = {
-  __typename?: 'SalesRepsConnection';
-  collectionInfo: CollectionInfo;
-  edges: Array<SalesRep>;
-  pageInfo: PageInfo;
-};
-
-export type SetActiveCompanyError = Error & {
-  __typename?: 'SetActiveCompanyError';
-  message: Scalars['String']['output'];
-};
-
-export type SetActiveCompanyInput = {
-  companyId: Scalars['ID']['input'];
-};
-
-export type SetActiveCompanyResult = {
-  __typename?: 'SetActiveCompanyResult';
-  activeCompany?: Maybe<Company>;
-  errors: Array<SetActiveCompanyError>;
-};
-
-export type SetAsDefaultDataInput = {
-  isDefaultBilling?: InputMaybe<Scalars['Boolean']['input']>;
-  isDefaultShipping?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type SetAsDefaultInput = {
-  addressId: Scalars['ID']['input'];
-  data: SetAsDefaultDataInput;
-};
-
-export type Settings = {
-  __typename?: 'Settings';
-  customers?: Maybe<CustomersSettings>;
-  extraFields: ExtraFields;
-};
-
 export type ShippingAddressInputType = {
   address?: InputMaybe<Scalars['String']['input']>;
   addressId?: InputMaybe<Scalars['Int']['input']>;
@@ -6503,34 +4836,6 @@ export type ShippingMethodInputType = {
   type: Scalars['String']['input'];
 };
 
-export type ShoppingList = Node & {
-  __typename?: 'ShoppingList';
-  createdBy: Customer;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  items: ShoppingListItemConnection;
-  name: Scalars['String']['output'];
-  status: ShoppingListStatus;
-  updatedAt: DateTimeExtended;
-};
-
-export type ShoppingListApproveInput = {
-  id: Scalars['ID']['input'];
-};
-
-export type ShoppingListConnection = {
-  __typename?: 'ShoppingListConnection';
-  collectionInfo?: Maybe<CollectionInfo>;
-  edges: Array<ShoppingListEdge>;
-  pageInfo: PageInfo;
-};
-
-export type ShoppingListEdge = {
-  __typename?: 'ShoppingListEdge';
-  cursor: Scalars['String']['output'];
-  node: ShoppingList;
-};
-
 export type ShoppingListIdNameType = Node & {
   __typename?: 'ShoppingListIdNameType';
   id: Scalars['ID']['output'];
@@ -6544,7 +4849,6 @@ export type ShoppingListItem = Node & {
   basePrice?: Maybe<Scalars['String']['output']>;
   /** Product base SKU */
   baseSku?: Maybe<Scalars['String']['output']>;
-  configuredProductId: Scalars['ID']['output'];
   /** The created timestamp of the shopping list */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** Product discount */
@@ -6552,14 +4856,10 @@ export type ShoppingListItem = Node & {
   /** Product entered inclusive */
   enteredInclusive?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
-  imageUrl: Scalars['String']['output'];
   /** Shopping list item ID */
   itemId?: Maybe<Scalars['Int']['output']>;
-  name: Scalars['String']['output'];
-  note: Scalars['String']['output'];
   /** Product option list */
   optionList?: Maybe<Scalars['GenericScalar']['output']>;
-  price: Money;
   /** Product primary image url */
   primaryImage?: Maybe<Scalars['String']['output']>;
   /** Product ID */
@@ -6571,9 +4871,7 @@ export type ShoppingListItem = Node & {
   /** Product url */
   productUrl?: Maybe<Scalars['String']['output']>;
   /** Quantity */
-  quantity: Scalars['Int']['output'];
-  selectedOptions: Array<CartSelectedOption>;
-  sku: Scalars['String']['output'];
+  quantity?: Maybe<Scalars['Int']['output']>;
   sortOrder?: Maybe<Scalars['Int']['output']>;
   /** Product tax */
   tax?: Maybe<Scalars['String']['output']>;
@@ -6583,13 +4881,6 @@ export type ShoppingListItem = Node & {
   variantId?: Maybe<Scalars['Int']['output']>;
   /** SKU name */
   variantSku?: Maybe<Scalars['String']['output']>;
-};
-
-export type ShoppingListItemConnection = {
-  __typename?: 'ShoppingListItemConnection';
-  collectionInfo?: Maybe<CollectionInfo>;
-  edges: Array<ShoppingListItemEdge>;
-  pageInfo: PageInfo;
 };
 
 export type ShoppingListItemCountableConnection = {
@@ -6609,83 +4900,6 @@ export type ShoppingListItemCountableEdge = {
   node: ShoppingListItem;
 };
 
-export type ShoppingListItemEdge = {
-  __typename?: 'ShoppingListItemEdge';
-  cursor: Scalars['String']['output'];
-  node: ShoppingListItem;
-};
-
-export type ShoppingListLineItemInput = {
-  options?: InputMaybe<Array<CartSelectedOptionsInput>>;
-  productEntityId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
-  variantEntityId: Scalars['ID']['input'];
-};
-
-export type ShoppingListMutations = {
-  __typename?: 'ShoppingListMutations';
-  addConfiguredProduct: AddToShoppingListResult;
-  addConfiguredProducts: AddConfiguredProductsToShoppingListResult;
-  addLineItem: AddToShoppingListResult;
-  approveShoppingList: ShoppingListResult;
-  deleteItem: ShoppingListResult;
-  rejectShoppingList: ShoppingListResult;
-  submitForApproval: ShoppingListResult;
-  updateItemNote: ShoppingListResult;
-  updateItemQuantity: ShoppingListResult;
-  updateLineItem: ShoppingListResult;
-};
-
-
-export type ShoppingListMutationsAddConfiguredProductArgs = {
-  input: AddConfiguredProductToShoppingListInput;
-};
-
-
-export type ShoppingListMutationsAddConfiguredProductsArgs = {
-  input: AddConfiguredProductsToShoppingListInput;
-};
-
-
-export type ShoppingListMutationsAddLineItemArgs = {
-  input: AddToShoppingListInput;
-};
-
-
-export type ShoppingListMutationsApproveShoppingListArgs = {
-  id: ShoppingListApproveInput;
-};
-
-
-export type ShoppingListMutationsDeleteItemArgs = {
-  input: DeleteShoppingListItemInput;
-};
-
-
-export type ShoppingListMutationsRejectShoppingListArgs = {
-  id: ShoppingListRejectInput;
-};
-
-
-export type ShoppingListMutationsSubmitForApprovalArgs = {
-  id: ShoppingListSubmitForApprovalInput;
-};
-
-
-export type ShoppingListMutationsUpdateItemNoteArgs = {
-  input: UpdateShoppingListItemNoteInput;
-};
-
-
-export type ShoppingListMutationsUpdateItemQuantityArgs = {
-  input?: InputMaybe<UpdateShoppingListItemQuantityInput>;
-};
-
-
-export type ShoppingListMutationsUpdateLineItemArgs = {
-  input: UpdateShoppingListItemInput;
-};
-
 export type ShoppingListPageType = Node & {
   __typename?: 'ShoppingListPageType';
   /** Has the shopping list been submitted for approval */
@@ -6694,8 +4908,6 @@ export type ShoppingListPageType = Node & {
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name of the shopping list */
   channelName?: Maybe<Scalars['String']['output']>;
-  /** Company information of shopping list */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** The created timestamp of the shopping list */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** Shopping list customer information */
@@ -6745,33 +4957,6 @@ export type ShoppingListPageTypeCountableEdge = {
   node: ShoppingListPageType;
 };
 
-export type ShoppingListRejectInput = {
-  id: Scalars['ID']['input'];
-};
-
-export type ShoppingListResult = Node & {
-  __typename?: 'ShoppingListResult';
-  createdBy: Customer;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  items: ShoppingListItemConnection;
-  name: Scalars['String']['output'];
-  status: ShoppingListStatus;
-  updatedAt: DateTimeExtended;
-};
-
-export enum ShoppingListStatus {
-  Approved = 'APPROVED',
-  Archived = 'ARCHIVED',
-  AwaitingApproval = 'AWAITING_APPROVAL',
-  Draft = 'DRAFT',
-  Rejected = 'REJECTED'
-}
-
-export type ShoppingListSubmitForApprovalInput = {
-  id: Scalars['ID']['input'];
-};
-
 export type ShoppingListType = Node & {
   __typename?: 'ShoppingListType';
   /** Has the shopping list been submitted for approval */
@@ -6780,8 +4965,6 @@ export type ShoppingListType = Node & {
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name of the shopping list */
   channelName?: Maybe<Scalars['String']['output']>;
-  /** Company information of shopping list */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** The created timestamp of the shopping list */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** Shopping list customer information */
@@ -6855,8 +5038,6 @@ export type ShoppingListsDuplicateInputType = {
 };
 
 export type ShoppingListsInputType = {
-  /** Shopping list company id */
-  companyId?: InputMaybe<Scalars['Int']['input']>;
   /** Shopping list description */
   description: Scalars['String']['input'];
   /** Shopping list name */
@@ -6932,106 +5113,6 @@ export type ShoppingListsItemsUpdateInputType = {
 export type ShoppingListsUpdate = {
   __typename?: 'ShoppingListsUpdate';
   shoppingList?: Maybe<ShoppingListType>;
-};
-
-export type Site = {
-  __typename?: 'Site';
-  _placeholder?: Maybe<Scalars['Boolean']['output']>;
-  company: Company;
-  invoice: Invoice;
-  quote?: Maybe<Quote>;
-  receipt: Receipt;
-  shoppingList: ShoppingListResult;
-};
-
-
-export type SiteCompanyArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type SiteInvoiceArgs = {
-  invoiceId: Scalars['ID']['input'];
-};
-
-
-export type SiteQuoteArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type SiteReceiptArgs = {
-  receiptId: Scalars['ID']['input'];
-};
-
-
-export type SiteShoppingListArgs = {
-  id: Scalars['ID']['input'];
-};
-
-export type SomeAddAttachmentResultError = Error & {
-  __typename?: 'SomeAddAttachmentResultError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeAddMessageResultError = Error & {
-  __typename?: 'SomeAddMessageResultError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeAddQuoteLineItemsError = Error & {
-  __typename?: 'SomeAddQuoteLineItemsError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeArchiveShoppingListError = Error & {
-  __typename?: 'SomeArchiveShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeChangeCustomerRoleError = Error & {
-  __typename?: 'SomeChangeCustomerRoleError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeCopyShoppingListError = Error & {
-  __typename?: 'SomeCopyShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeCreateCartError = Error & {
-  __typename?: 'SomeCreateCartError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeCreatePdfResultError = Error & {
-  __typename?: 'SomeCreatePDFResultError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeCreateShoppingListError = Error & {
-  __typename?: 'SomeCreateShoppingListError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeDeregistrationError = Error & {
-  __typename?: 'SomeDeregistrationError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeRemoveAttachmentResultError = Error & {
-  __typename?: 'SomeRemoveAttachmentResultError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeUpdateQuoteLineItemError = Error & {
-  __typename?: 'SomeUpdateQuoteLineItemError';
-  message: Scalars['String']['output'];
-};
-
-export type SomeUpdateShoppingListDetailsError = Error & {
-  __typename?: 'SomeUpdateShoppingListDetailsError';
-  message: Scalars['String']['output'];
 };
 
 export type StatesType = {
@@ -7159,13 +5240,13 @@ export type StoreLimitationsType = {
 
 export type StoreSitesType = {
   __typename?: 'StoreSitesType';
-  /** The channel is enabled in BundleB2B or not */
+  /** The channel is enabled in B2B Edition or not */
   b2bEnabled?: Maybe<Scalars['Boolean']['output']>;
-  /** The id of store channel in BundleB2B */
+  /** The id of store channel in B2B Edition */
   b3ChannelId?: Maybe<Scalars['Int']['output']>;
   /** The id of store channel in BC */
   channelId?: Maybe<Scalars['Int']['output']>;
-  /** The logo of channel configured in BundleB2B */
+  /** The logo of channel configured in B2B Edition */
   channelLogo?: Maybe<Scalars['String']['output']>;
   /** The icon of store channel */
   iconUrl?: Maybe<Scalars['String']['output']>;
@@ -7347,11 +5428,6 @@ export type TaxZoneShopperTargetType = {
   locations?: Maybe<Array<Maybe<TaxZoneShopperTargetLocationType>>>;
 };
 
-export type TextFormFieldInput = {
-  name: Scalars['String']['input'];
-  text: Scalars['String']['input'];
-};
-
 /**
  * Update Account Settings.
  * Requires a B2B Token.
@@ -7370,75 +5446,15 @@ export type UpdateCustomerAccount = {
   result?: Maybe<CustomerAccountSettingsType>;
 };
 
-export type UpdateCustomerInput = {
-  _placeholder?: InputMaybe<Scalars['String']['input']>;
-  extraFields?: InputMaybe<CustomerFormFieldsInput>;
-};
-
-export type UpdateQuoteLineItemError = AnotherUpdateQuoteLineItemError | SomeUpdateQuoteLineItemError;
-
-export type UpdateQuoteLineItemInput = {
-  lineItem: QuoteLineItemInput;
-  lineItemId: Scalars['ID']['input'];
-  quoteId: Scalars['ID']['input'];
-};
-
-export type UpdateQuoteLineItemResult = {
-  __typename?: 'UpdateQuoteLineItemResult';
-  errors: Array<UpdateQuoteLineItemError>;
-  quote?: Maybe<Quote>;
-};
-
-export type UpdateShoppingListDetailsDataInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateShoppingListDetailsError = AnotherUpdateShoppingListDetailsError | SomeUpdateShoppingListDetailsError;
-
-export type UpdateShoppingListDetailsInput = {
-  data: UpdateShoppingListDetailsDataInput;
-  id: Scalars['ID']['input'];
-};
-
-export type UpdateShoppingListDetailsResult = {
-  __typename?: 'UpdateShoppingListDetailsResult';
-  errors: Array<UpdateShoppingListDetailsError>;
-  shoppingList?: Maybe<ShoppingList>;
-};
-
-export type UpdateShoppingListItemDataInput = {
-  lineItem: CartLineItemInput;
-  quantity: Scalars['Int']['input'];
-};
-
-export type UpdateShoppingListItemInput = {
-  data: UpdateShoppingListItemDataInput;
-  itemId: Scalars['ID']['input'];
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type UpdateShoppingListItemNoteInput = {
-  itemId: Scalars['ID']['input'];
-  note: Scalars['String']['input'];
-  shoppingListId: Scalars['ID']['input'];
-};
-
-export type UpdateShoppingListItemQuantityInput = {
-  itemId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
-  shoppingListId: Scalars['ID']['input'];
-};
-
 export type UserAuthResultType = {
   __typename?: 'UserAuthResultType';
   /** The user's login type */
   loginType?: Maybe<Scalars['Int']['output']>;
   /** The user's permissions */
   permissions?: Maybe<Array<Maybe<AuthRolePermissionType>>>;
-  /** Storefront login token for Headless API */
+  /** BigCommerce Storefront login token */
   storefrontLoginToken?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B token */
+  /** The B2B Edition token */
   token?: Maybe<Scalars['String']['output']>;
   /** The user info */
   user?: Maybe<UserType>;
@@ -7509,11 +5525,7 @@ export type UserEmailCheckInfoType = {
 export type UserEmailCheckType = {
   __typename?: 'UserEmailCheckType';
   userInfo?: Maybe<UserEmailCheckInfoType>;
-  /**
-   * 1: not exist; 2: exist in BC; 3: exist more than one in BC; 4: exist in B3
-   * other company; 5: exist in B3 current company; 6: exist in B3 as super admin;
-   * 7: exist in B3 current company other channel;
-   */
+  /** 1: not exist; 2: exist in BC; 3: exist more than one in BC; 4: exist in B3 other company; 5: exist in B3 current company; 6: exist in B3 as super admin; 7: exist in B3 current company other channel; */
   userType?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -7593,12 +5605,6 @@ export type UserLogin = {
   result?: Maybe<UserAuthResultType>;
 };
 
-export type UserLoginState = {
-  __typename?: 'UserLoginState';
-  /** Force password reset state for the user. */
-  forcePasswordReset?: Maybe<Scalars['Boolean']['output']>;
-};
-
 export type UserLoginType = {
   /** The Bigcommerce channel id */
   channelId?: InputMaybe<Scalars['Int']['input']>;
@@ -7612,24 +5618,6 @@ export type UserLoginType = {
   storeHash: Scalars['String']['input'];
 };
 
-/** Begin masquerading a company */
-export type UserMasqueradingCompanyBegin = {
-  __typename?: 'UserMasqueradingCompanyBegin';
-  userMasqueradingCompanyBegin?: Maybe<CompanyInfoType>;
-};
-
-/** End masquerading a company */
-export type UserMasqueradingCompanyEnd = {
-  __typename?: 'UserMasqueradingCompanyEnd';
-  message?: Maybe<Scalars['String']['output']>;
-};
-
-export enum UserRegistrationModes {
-  CompaniesOnly = 'COMPANIES_ONLY',
-  CustomersAndCompanies = 'CUSTOMERS_AND_COMPANIES',
-  CustomersOnly = 'CUSTOMERS_ONLY'
-}
-
 /**
  * Creates a Storefront API token.
  * Doesn't require a Token.
@@ -7642,8 +5630,6 @@ export type UserStoreFrontToken = {
 export type UserType = Node & {
   __typename?: 'UserType';
   bcId: Scalars['Int']['output'];
-  /** Company information of user */
-  companyInfo?: Maybe<CompanyInfoType>;
   /** User company role */
   companyRoleId?: Maybe<Scalars['Int']['output']>;
   /** User company role name */
@@ -7655,7 +5641,6 @@ export type UserType = Node & {
   firstName: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastName: Scalars['String']['output'];
-  masqueradingCompanyId?: Maybe<Scalars['Int']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
   role: Scalars['Int']['output'];
   updatedAt: Scalars['Int']['output'];

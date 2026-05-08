@@ -35,7 +35,7 @@ window.b2b = {
   },
 };
 
-function bootstrap(): void {
+(async function bootstrap() {
   // check if the accessed url contains a hashtag
   if (window.location.hash.startsWith('#/')) {
     initApp();
@@ -51,6 +51,4 @@ function bootstrap(): void {
       setTimeout(() => window.b2b.initializationEnvironment.clickedLinkElement?.click(), 0);
     };
   }
-}
-
-bootstrap();
+})();

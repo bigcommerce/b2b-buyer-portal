@@ -132,7 +132,7 @@ extend type CartMutations {
 
 input CreateQuoteInput {
     title: String
-    lineItems: [QuoteLineItemInput!]
+    lineItems: [CartLineItemInput!]
     currencyCode: String
 }
 
@@ -146,7 +146,7 @@ type CreateQuoteResult {
 }
 
 type QuoteMutations {
-    create(input: CreateQuoteInput!): CreateQuoteResult!
+    create: (input: CreateQuoteInput!): CreateQuoteResult!
     addLineItems(input: AddQuoteLineItemsInput!): AddQuoteLineItemsResult!
     addConfiguredProducts(input: AddConfiguredProductsToQuoteInput!): AddConfiguredProductsToQuoteResult!
 }

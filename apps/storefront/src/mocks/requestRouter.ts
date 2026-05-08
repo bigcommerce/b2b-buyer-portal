@@ -44,7 +44,7 @@ export function extractOperationName(query: string): string | undefined {
   }
 }
 
-export async function resolveRegisteredGraphQLMock({
+async function resolveRegisteredGraphQLMock({
   operationName,
   transport,
   variables,

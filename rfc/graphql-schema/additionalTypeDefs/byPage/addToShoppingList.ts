@@ -1,4 +1,11 @@
 export default /* GraphQL */ `
+  input ShoppingListLineItemInput {
+    productEntityId: ID!
+    variantEntityId: ID!
+    quantity: Int!
+    options: [CartSelectedOptionsInput!]
+  }
+
   input AddToShoppingListDataInput {
     lineItems: [ShoppingListLineItemInput!]!
   }
@@ -14,7 +21,7 @@ export default /* GraphQL */ `
 
   type AddToShoppingListResult {
     success: Boolean!
-    errors: [Error!]!
+    errors: [AddToShoppingListError!]!
   }
 
   extend type ShoppingListMutations {

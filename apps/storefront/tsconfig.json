@@ -30,9 +30,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/lib/*": ["./src/lib/*"],
-      "@rfc/*": ["../../rfc/*"],
     },
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "../../rfc/graphql-schema/additionalTypeDefs/**/*.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js"],
   "exclude": ["node_modules", "dist", ".turbo", "coverage"]
 }

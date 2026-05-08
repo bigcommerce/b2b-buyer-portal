@@ -1,6 +1,6 @@
 import type { Order, PageInfo } from '../domains/orders/types';
 import { OrdersSortInput } from '../domains/orders/types';
-import { orderStore } from '../store';
+import * as orderStore from '../stores/orders';
 import type { OperationExecutionContext } from '../types';
 
 interface NormalizedGetCustomerOrdersVariables {

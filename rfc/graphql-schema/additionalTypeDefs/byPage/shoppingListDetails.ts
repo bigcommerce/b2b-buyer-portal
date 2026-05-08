@@ -59,8 +59,9 @@ export default /* GraphQL */ `
     data: AddLineItemToShoppingListData!
   }
 
-  extend type AddToShoppingListResult {
+  type AddToShoppingListResult {
     shoppingList: ShoppingListResult
+    errors: [Error!]!
   }
 
   input DeleteShoppingListItemInput {
@@ -107,6 +108,9 @@ export default /* GraphQL */ `
   type ShoppingListMutations {
     addConfiguredProduct(
       input: AddConfiguredProductToShoppingListInput!
+    ): AddToShoppingListResult!
+    addLineItem(
+      input: AddLineItemToShoppingListInput!
     ): AddToShoppingListResult!
     deleteItem(input: DeleteShoppingListItemInput!): ShoppingListResult!
     updateItemNote(input: UpdateShoppingListItemNoteInput!): ShoppingListResult!
