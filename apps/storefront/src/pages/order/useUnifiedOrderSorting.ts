@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 
-export type SortDir = 'asc' | 'desc';
+type SortDir = 'asc' | 'desc';
 
 export type SortMap<K extends string> = Record<K, Record<SortDir, OrdersSortInput>>;
 
