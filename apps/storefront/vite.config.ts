@@ -80,7 +80,6 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
       alias: {
         '@': path.resolve(__dirname, './src'),
         tests: path.resolve(__dirname, './tests'),
-        '@rfc': path.resolve(__dirname, '../../rfc'),
       },
     },
     build: {
