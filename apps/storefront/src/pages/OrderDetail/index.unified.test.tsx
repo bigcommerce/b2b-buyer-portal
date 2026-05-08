@@ -304,7 +304,10 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         ),
       );
 
-      renderWithProviders(<OrderDetails />, { preloadedState });
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
@@ -364,19 +367,26 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         ),
       );
 
-      renderWithProviders(<OrderDetails />, { preloadedState });
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
 
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       expect(screen.getByRole('heading', { name: 'History' })).toBeVisible();
 
       const table = screen.getByRole('table');
-      const columnHeaders = within(table).getAllByRole('columnheader');
-      expect(columnHeaders[0]).toHaveTextContent('Date');
-      expect(columnHeaders[1]).toHaveTextContent('Status');
+      expect(within(table).getByRole('columnheader', { name: 'Date' })).toBeVisible();
+      expect(within(table).getByRole('columnheader', { name: 'Status' })).toBeVisible();
 
-      expect(within(table).getByRole('cell', { name: 'Pending' })).toBeVisible();
-      expect(within(table).getByRole('cell', { name: 'Shipped' })).toBeVisible();
+      const pendingRow = within(within(table).getByRole('row', { name: /Pending/ }));
+      expect(pendingRow.getByRole('cell', { name: 'Pending' })).toBeVisible();
+      expect(pendingRow.getByRole('cell', { name: 'May 1 2025 @ 3:44 AM' })).toBeVisible();
+
+      const shippedRow = within(within(table).getByRole('row', { name: /Shipped/ }));
+      expect(shippedRow.getByRole('cell', { name: 'Shipped' })).toBeVisible();
+      expect(shippedRow.getByRole('cell', { name: 'May 4 2025 @ 7:22 AM' })).toBeVisible();
     });
   });
 });
