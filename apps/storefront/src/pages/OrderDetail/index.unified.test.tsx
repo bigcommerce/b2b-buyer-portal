@@ -13,6 +13,7 @@ import {
   startMockServer,
   userEvent,
   waitForElementToBeRemoved,
+  within,
 } from 'tests/test-utils';
 
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
@@ -277,5 +278,105 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
     expect(screen.queryByRole('group', { name: 'Handling Fee' })).not.toBeInTheDocument();
+  });
+
+  describe('when there is no order history', () => {
+    it('does not render the order history section', async () => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    history: [],
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when there are order history events', () => {
+    it('renders the order history section', async () => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    history: [
+                      {
+                        id: '1',
+                        eventType: OrderHistoryEventType.ORDER_CREATED,
+                        status: 'Pending',
+                        source: null,
+                        createdBy: null,
+                        details: null,
+                        createdAt: '2025-05-01T03:44:00.000Z',
+                      },
+                      {
+                        id: '2',
+                        eventType: OrderHistoryEventType.ORDER_UPDATED,
+                        status: 'Shipped',
+                        source: null,
+                        createdBy: null,
+                        details: null,
+                        createdAt: '2025-05-04T07:22:00.000Z',
+                      },
+                    ],
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(
+            buildCustomerOrderStatusesWith({
+              data: {
+                bcOrderStatuses: [
+                  buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+                  buildOrderStatusWith({ systemLabel: 'Shipped', customLabel: 'Shipped' }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByRole('heading', { name: 'History' })).toBeVisible();
+
+      const table = screen.getByRole('table');
+      const columnHeaders = within(table).getAllByRole('columnheader');
+      expect(columnHeaders[0]).toHaveTextContent('Date');
+      expect(columnHeaders[1]).toHaveTextContent('Status');
+
+      expect(within(table).getByRole('cell', { name: 'Pending' })).toBeVisible();
+      expect(within(table).getByRole('cell', { name: 'Shipped' })).toBeVisible();
+    });
   });
 });
