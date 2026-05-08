@@ -315,6 +315,42 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     });
   });
 
+  describe('when it is a Purchase Order (includes reference/poNumber)', () => {
+    it('renders the poNumber in the header', async () => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    entityId: 6696,
+                    reference: '3405',
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByRole('heading', { name: 'Order #6696, 3405' })).toBeVisible();
+    });
+  });
+
   describe('when there are order history events', () => {
     it('renders the order history section', async () => {
       server.use(
