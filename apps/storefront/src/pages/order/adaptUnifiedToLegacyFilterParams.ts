@@ -10,6 +10,7 @@
  */
 
 import { FilterSearchProps, sortKeys } from './config';
+import type { UseCompanyOrdersStateResult } from './useCompanyOrdersState';
 import type { UseCustomerOrdersStateResult } from './useCustomerOrdersState';
 
 export type AdaptUnifiedToLegacyFilterParamsArgs = Pick<
@@ -36,6 +37,30 @@ export const adaptUnifiedToLegacyFilterParams = ({
     // Legacy emits `companyIds: []` for "All"; restore that for B2B users.
     companyIds: filters.companyIds?.map(Number) ?? (isB2BUser ? [] : undefined),
     isShowMy: isB2BUser ? 1 : undefined,
+  },
+  orderBy: activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key],
+});
+
+type AdaptCompanyUnifiedToLegacyFilterParamsArgs = Pick<
+  UseCompanyOrdersStateResult,
+  'filters' | 'activeSort'
+>;
+
+export const adaptCompanyUnifiedToLegacyFilterParams = ({
+  filters,
+  activeSort,
+}: AdaptCompanyUnifiedToLegacyFilterParamsArgs): {
+  filterData: Partial<FilterSearchProps>;
+  orderBy: string;
+} => ({
+  filterData: {
+    q: filters.search ?? '',
+    statusCode: filters.status?.[0] ?? '',
+    beginDateAt: filters.dateRange?.from ?? null,
+    endDateAt: filters.dateRange?.to ?? null,
+    companyName: '',
+    companyIds: filters.companyIds?.map(Number) ?? [],
+    isShowMy: 0,
   },
   orderBy: activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key],
 });

@@ -1,21 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import { OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
-// Status list still comes from the legacy `orderStatuses` query — the unified
-// schema doesn't expose one yet, so we depend on the legacy type here.
+import { CompanyOrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
 import {
-  getCustomerOrdersInitFilter,
+  getCompanyOrdersInitFilter,
   normalizeString,
   packDateRange,
 } from './unifiedApiFiltersHelper';
-import {
-  BASE_SORT_MAP,
-  BaseSortableColumnKey,
-  useUnifiedOrderSorting,
-  UseUnifiedOrderSortingResult,
-} from './useUnifiedOrderSorting';
+import { CompanySortableColumnKey, useCompanyOrderSorting } from './useCompanyOrderSorting';
+import { UseUnifiedOrderSortingResult } from './useUnifiedOrderSorting';
 import {
   useUnifiedOrdersPagination,
   UseUnifiedOrdersPaginationResult,
@@ -25,37 +19,38 @@ interface AppliedFilters {
   startValue?: string;
   endValue?: string;
   orderStatus?: string | number;
+  PlacedBy?: string;
   company?: string;
 }
 
-interface UseCustomerOrdersStateArgs {
-  companyId: number;
+interface UseCompanyOrdersStateArgs {
+  selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
 }
 
-export interface UseCustomerOrdersStateResult
+export interface UseCompanyOrdersStateResult
   extends UseUnifiedOrdersPaginationResult,
-    UseUnifiedOrderSortingResult<BaseSortableColumnKey> {
-  filters: OrdersFiltersInput;
+    UseUnifiedOrderSortingResult<CompanySortableColumnKey> {
+  filters: CompanyOrdersFiltersInput;
   handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
 }
 
-export const useCustomerOrdersState = ({
-  companyId,
+export const useCompanyOrdersState = ({
+  selectedCompanyId,
   orderStatuses,
-}: UseCustomerOrdersStateArgs): UseCustomerOrdersStateResult => {
-  const [filters, setFilters] = useState<OrdersFiltersInput>(() =>
-    getCustomerOrdersInitFilter(companyId),
+}: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
+  const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
+    getCompanyOrdersInitFilter(selectedCompanyId),
   );
 
   const pagination = useUnifiedOrdersPagination();
-  const sorting = useUnifiedOrderSorting(BASE_SORT_MAP, pagination.resetPagination, 'orderId');
+  const sorting = useCompanyOrderSorting(pagination.resetPagination);
 
   useEffect(() => {
-    setFilters(getCustomerOrdersInitFilter(companyId));
-  }, [companyId]);
+    setFilters(getCompanyOrdersInitFilter(selectedCompanyId));
+  }, [selectedCompanyId]);
 
   const handleSearchChange = (key: string, value: string) => {
     if (key !== 'search') return;
@@ -64,19 +59,19 @@ export const useCustomerOrdersState = ({
   };
 
   const handleFilterChange = (value: AppliedFilters) => {
-    let currentStatus = normalizeString(value.orderStatus);
-    if (currentStatus) {
+    let resolvedStatuses: string[] | undefined;
+    const rawStatus = normalizeString(value.orderStatus);
+    if (rawStatus) {
       const originalStatus = orderStatuses.find(
-        (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
+        (s) => s.customLabel === rawStatus || s.systemLabel === rawStatus,
       );
-      // Drop the filter on miss — never send a display label as the API status code.
-      currentStatus = originalStatus?.systemLabel || undefined;
+      resolvedStatuses = originalStatus?.systemLabel ? [originalStatus.systemLabel] : undefined;
     }
+
     pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
-      companyName: normalizeString(value.company),
-      status: currentStatus,
+      status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
     }));
   };

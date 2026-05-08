@@ -1,4 +1,16 @@
-import { OrderDateRangeFilterInput, OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
+import {
+  CompanyOrdersFiltersInput,
+  OrderDateRangeFilterInput,
+  OrdersFiltersInput,
+} from '@/shared/service/bc/graphql/orders';
+
+export const getCompanyOrdersInitFilter = (companyId: number): CompanyOrdersFiltersInput => ({
+  search: undefined,
+  dateRange: undefined,
+  status: undefined,
+  customerId: undefined,
+  companyIds: companyId ? [String(companyId)] : undefined,
+});
 
 export const getCustomerOrdersInitFilter = (companyId: number): OrdersFiltersInput => {
   return {
@@ -8,6 +20,12 @@ export const getCustomerOrdersInitFilter = (companyId: number): OrdersFiltersInp
     companyName: undefined,
     companyIds: companyId ? [String(companyId)] : undefined,
   };
+};
+
+export const normalizeString = (value: string | number | null | undefined): string | undefined => {
+  if (value === null || value === undefined) return undefined;
+  const str = String(value);
+  return str === '' ? undefined : str;
 };
 
 export const packDateRange = (
