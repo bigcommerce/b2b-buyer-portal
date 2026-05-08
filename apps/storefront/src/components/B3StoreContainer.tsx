@@ -3,9 +3,11 @@ import { ReactNode, useContext, useLayoutEffect } from 'react';
 import { Z_INDEX } from '@/constants';
 import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
+import { getLocales } from '@/shared/service/bc';
 import {
   getGlobalTranslations,
   setBackorderEnabled,
+  setLocales,
   setStoreInfo,
   setTimeFormat,
   useAppDispatch,
@@ -73,6 +75,13 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
         if (!isEnabled) {
           showPageMask(false);
+        }
+
+        try {
+          const localesRes = await getLocales();
+          storeDispatch(setLocales(localesRes.data.site.settings.locales));
+        } catch {
+          // locales are optional — translations will fall back to default
         }
 
         storeDispatch(
