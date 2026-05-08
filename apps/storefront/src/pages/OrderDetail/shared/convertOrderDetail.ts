@@ -48,7 +48,6 @@ function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSumma
 
   const hasHandlingFee = order.handlingCostTotal.value > 0;
 
-  const couponLabels: Record<string, string> = {};
   const couponPrices: Record<string, string> = {};
   const couponSymbols: Record<string, string> = {};
 
@@ -56,7 +55,6 @@ function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSumma
     const key = b3Lang('orderDetail.summary.coupon', {
       couponCode: coupon.couponCode ? `(${coupon.couponCode})` : '',
     });
-    couponLabels[key] = key;
     couponPrices[key] = formatPrice(coupon.discountedAmount.value);
     couponSymbols[key] = 'coupon';
   });
@@ -101,7 +99,7 @@ function mapHistoryEvents(history: Order['history']): OrderHistoryItem[] {
 function buildPayment(order: Order): OrderPayment {
   const dateCreateAt = Math.floor(new Date(order.orderedAt.utc).getTime() / 1000);
   return {
-    dateCreateAt: JSON.stringify(dateCreateAt),
+    dateCreateAt: String(dateCreateAt),
   };
 }
 
