@@ -117,7 +117,7 @@ const preloadedState = {
   storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
 };
 
-describe('Order detail path with B2B-4613 unified SF GQL flag ON', () => {
+describe('Order detail path with unified SF GQL flag ON', () => {
   beforeEach(() => {
     vi.mocked(useParams).mockReturnValue({ id: '6696' });
 
