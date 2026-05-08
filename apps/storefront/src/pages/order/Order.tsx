@@ -208,7 +208,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const navigate = useNavigate();
 
-  const goToDetail = (item: ListItem, index: number) => {
+  const legacyGoToDetail = (item: ListItem, index: number) => {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
@@ -216,13 +216,28 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: isUnifiedOrdersNonCompanyOrderPath ? -1 : allTotal,
+        totalCount: allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
       },
     });
   };
+
+  // TODO B2B-4629: Double check if need more params for unified path
+  const goToDetail = (item: ListItem, index: number) => {
+    navigate(`/orderDetail/${item.orderId}`, {
+      state: {
+        currentIndex: index,
+        totalCount: -1,
+        isCompanyOrder,
+        unifiedCustomerFilters: customerFilterState.filters,
+        unifiedCustomerSortBy: customerFilterState.sortBy,
+      },
+    });
+  };
+
+  const navigateToOrderDetail = isUnifiedOrdersNonCompanyOrderPath ? goToDetail : legacyGoToDetail;
 
   const columnAllItems = [
     {
@@ -405,9 +420,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           }
           isInfiniteScroll={isMobile}
           renderItem={(row, index) => (
-            <OrderItemCard key={row.orderId} goToDetail={() => goToDetail(row, index)} item={row} />
+            <OrderItemCard
+              key={row.orderId}
+              goToDetail={() => navigateToOrderDetail(row, index)}
+              item={row}
+            />
           )}
-          onClickRow={goToDetail}
+          onClickRow={navigateToOrderDetail}
           sortDirection={activeSort.dir}
           sortByFn={handleSetOrderBy}
           orderBy={activeSort.key}

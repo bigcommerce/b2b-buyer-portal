@@ -18,6 +18,7 @@ interface SearchParamsProps {
   offset: number;
   first: number;
 }
+
 interface DetailPageProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -46,6 +47,7 @@ const defaultSearchParams = {
 export function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
+
   const [listIndex, setListIndex] = useState<number>(initListIndex);
   const [arrived, setArrived] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -73,9 +75,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     totalCount = state?.totalCount || 0;
     beginDateAt = state?.beginDateAt || null;
     endDateAt = state?.endDateAt || null;
-    searchParams = state?.searchParams || {
-      offset: 0,
-    };
+    searchParams = state?.searchParams || { offset: 0 };
   }
 
   const isUnifiedPath = totalCount === -1;
@@ -161,18 +161,20 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     setListIndex(listIndex + 1);
     onChange(rightLeftSide.rightId);
   };
-
   const index = listIndex + 1;
+
+  const showOrderPositionLabel = !isMobile && !isUnifiedPath;
+
   return (
     <Box
       role="navigation"
-      aria-labelledby={id}
+      aria-labelledby={showOrderPositionLabel ? id : undefined}
       sx={{
         display: 'flex',
         color,
       }}
     >
-      {!isMobile && (
+      {showOrderPositionLabel && (
         <Box
           id={id}
           sx={{
