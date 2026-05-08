@@ -1,6 +1,5 @@
 import type { LangFormatFunction } from '@/lib/lang';
 import { store } from '@/store';
-import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 
 import type { Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
@@ -31,12 +30,15 @@ function buildMoneyFormat(currencyCode: string): MoneyFormat {
   };
 }
 
-function formatPrice(value: number): string {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
+function formatPrice(value: number, decimalPlaces: number): string {
   return value.toFixed(decimalPlaces);
 }
 
-function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSummary {
+function buildOrderSummary(
+  order: Order,
+  b3Lang: LangFormatFunction,
+  decimalPlaces: number,
+): OrderSummary {
   const labels = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
     shipping: b3Lang('orderDetail.summary.shipping'),
@@ -55,7 +57,7 @@ function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSumma
     const key = b3Lang('orderDetail.summary.coupon', {
       couponCode: coupon.couponCode ? `(${coupon.couponCode})` : '',
     });
-    couponPrices[key] = formatPrice(coupon.discountedAmount.value);
+    couponPrices[key] = formatPrice(coupon.discountedAmount.value, decimalPlaces);
     couponSymbols[key] = 'coupon';
   });
 
@@ -67,13 +69,18 @@ function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSumma
     createAt: order.orderedAt.utc,
     name: placedByName,
     priceData: {
-      [labels.subTotal]: formatPrice(order.subTotal.value),
-      [labels.shipping]: formatPrice(order.shippingCostTotal.value),
-      ...(hasHandlingFee && { [labels.handlingFee]: formatPrice(order.handlingCostTotal.value) }),
-      [labels.discountAmount]: formatPrice(order.discounts.nonCouponDiscountTotal.value),
+      [labels.subTotal]: formatPrice(order.subTotal.value, decimalPlaces),
+      [labels.shipping]: formatPrice(order.shippingCostTotal.value, decimalPlaces),
+      ...(hasHandlingFee && {
+        [labels.handlingFee]: formatPrice(order.handlingCostTotal.value, decimalPlaces),
+      }),
+      [labels.discountAmount]: formatPrice(
+        order.discounts.nonCouponDiscountTotal.value,
+        decimalPlaces,
+      ),
       ...couponPrices,
-      [labels.tax]: formatPrice(order.taxTotal.value),
-      [labels.grandTotal]: formatPrice(order.totalIncTax.value),
+      [labels.tax]: formatPrice(order.taxTotal.value, decimalPlaces),
+      [labels.grandTotal]: formatPrice(order.totalIncTax.value, decimalPlaces),
     },
     priceSymbol: {
       [labels.subTotal]: 'subTotal',
@@ -87,10 +94,21 @@ function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSumma
   };
 }
 
+function toNumericEventType(type: OrderHistoryEventType): number {
+  switch (type) {
+    case OrderHistoryEventType.ORDER_CREATED:
+      return 1;
+    case OrderHistoryEventType.ORDER_UPDATED:
+      return 2;
+    default:
+      return 2;
+  }
+}
+
 function mapHistoryEvents(history: Order['history']): OrderHistoryItem[] {
   return history.map((e) => ({
     id: Number(e.id),
-    eventType: e.eventType === OrderHistoryEventType.ORDER_CREATED ? 1 : 2,
+    eventType: toNumericEventType(e.eventType),
     status: e.status,
     createdAt: Math.floor(new Date(e.createdAt).getTime() / 1000),
   }));
@@ -119,6 +137,8 @@ export function convertOrderDetail(
   | 'orderComments'
   | 'payment'
 > {
+  const moneyFormat = buildMoneyFormat(order.totalIncTax.currencyCode);
+
   return {
     orderId: order.entityId,
 
@@ -133,8 +153,8 @@ export function convertOrderDetail(
 
     poNumber: order.reference ?? '',
     currencyCode: order.totalIncTax.currencyCode,
-    money: buildMoneyFormat(order.totalIncTax.currencyCode),
-    orderSummary: buildOrderSummary(order, b3Lang),
+    money: moneyFormat,
+    orderSummary: buildOrderSummary(order, b3Lang, moneyFormat.decimal_places),
     payment: buildPayment(order),
     history: mapHistoryEvents(order.history),
     orderComments: order.customerMessage ?? '',
