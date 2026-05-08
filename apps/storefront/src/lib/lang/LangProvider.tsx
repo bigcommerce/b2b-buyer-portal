@@ -5,41 +5,34 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAppSelector } from '@/store';
 
 import { getActiveLocale } from './getActiveLocale';
-import locales from './locales';
+import { en } from './locales';
 import { pickLocaleBundle } from './pickLocaleBundle';
+import { useLocaleBundle } from './useLocaleBundle';
 
 interface LangProviderProps {
   readonly children: ReactNode;
   readonly customText?: Record<string, string>;
 }
 
-const localeBundles = locales as Record<string, Record<string, string> | undefined>;
-
 function LangProvider({ children, customText = {} }: LangProviderProps) {
   const translations = useAppSelector(({ lang }) => lang.translations);
   const isMultiLang = useFeatureFlag('LOCAL-3191.B2B_multi_language');
   const localesList = useAppSelector(({ global }) => global.locales);
 
-  if (isMultiLang) {
-    const code = getActiveLocale(localesList)?.code ?? 'en';
-    const localeMessages = pickLocaleBundle(code, localeBundles);
+  const code = isMultiLang ? (getActiveLocale(localesList)?.code ?? 'en') : 'en';
+  const { ready, bundles } = useLocaleBundle(code);
 
-    return (
-      <IntlProvider
-        defaultLocale="en"
-        locale={code}
-        messages={{ ...locales.en, ...localeMessages, ...customText, ...translations }}
-      >
-        {children}
-      </IntlProvider>
-    );
+  if (!ready) {
+    return null;
   }
+
+  const localeMessages = isMultiLang ? pickLocaleBundle(code, bundles) : {};
 
   return (
     <IntlProvider
       defaultLocale="en"
-      locale="en"
-      messages={{ ...locales.en, ...customText, ...translations }}
+      locale={code}
+      messages={{ ...en, ...localeMessages, ...customText, ...translations }}
     >
       {children}
     </IntlProvider>
