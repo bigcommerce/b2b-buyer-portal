@@ -59,7 +59,11 @@ export const getGlobalTranslations = createAppAsyncThunk<
   },
   {
     condition: ({ newVersion }, { getState }) => {
-      const { translationVersion } = getState().lang;
+      const state = getState();
+      if (state.global.featureFlags['LOCAL-3191.B2B_multi_language']) {
+        return true;
+      }
+      const { translationVersion } = state.lang;
 
       // cancel request if new version it's 0 or similar to previous value
       if (newVersion === 0 || translationVersion === newVersion) {
@@ -88,8 +92,12 @@ export const getPageTranslations = createAppAsyncThunk<
   },
   {
     condition: ({ page: pageKey }, { getState }) => {
+      const state = getState();
+      if (state.global.featureFlags['LOCAL-3191.B2B_multi_language']) {
+        return true;
+      }
       const page = REPEATED_PAGES[pageKey] ?? pageKey;
-      const { fetchedPages, translationVersion } = getState().lang;
+      const { fetchedPages, translationVersion } = state.lang;
 
       // cancel request if page it's already fetched or translation version it's 0
       if (fetchedPages.includes(page) || translationVersion === 0) {
