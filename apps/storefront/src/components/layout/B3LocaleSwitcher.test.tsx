@@ -73,11 +73,7 @@ describe('when the flag is enabled and multiple locales are available', () => {
     expect(screen.getByRole('button', { name: /EN/i })).toBeInTheDocument();
   });
 
-  // TODO(LOCAL-3266): re-enable once non-English locale bundles can be primed
-  // synchronously in tests. LangProvider now blocks render until the active
-  // bundle resolves via dynamic import, which these synchronous assertions
-  // can't observe.
-  it.skip('shows the active locale derived from the current URL', () => {
+  it('shows the active locale derived from the current URL', () => {
     vi.stubGlobal('location', { href: 'https://store.example.com/fr/some-page' });
 
     renderWithProviders(<B3LocaleSwitcher />, {
@@ -97,8 +93,7 @@ describe('when the flag is enabled and multiple locales are available', () => {
     expect(screen.getByRole('button', { name: /EN/i })).toBeInTheDocument();
   });
 
-  // TODO(LOCAL-3266): see note above.
-  it.skip('matches locale when URL ends exactly at the fullPath', () => {
+  it('matches locale when URL ends exactly at the fullPath', () => {
     vi.stubGlobal('location', { href: 'https://store.example.com/fr' });
 
     renderWithProviders(<B3LocaleSwitcher />, {
@@ -108,8 +103,7 @@ describe('when the flag is enabled and multiple locales are available', () => {
     expect(screen.getByRole('button', { name: /FR/i })).toBeInTheDocument();
   });
 
-  // TODO(LOCAL-3266): see note above.
-  it.skip('matches locale when URL has a query string after the fullPath', () => {
+  it('matches locale when URL has a query string after the fullPath', () => {
     vi.stubGlobal('location', { href: 'https://store.example.com/fr?ref=email' });
 
     renderWithProviders(<B3LocaleSwitcher />, {

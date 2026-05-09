@@ -18,22 +18,21 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   const translations = useAppSelector(({ lang }) => lang.translations);
   const isMultiLang = useFeatureFlag('LOCAL-3191.B2B_multi_language');
   const localesList = useAppSelector(({ global }) => global.locales);
-
-  const code = isMultiLang ? (getActiveLocale(localesList)?.code ?? 'en') : 'en';
+  const activeLocale = isMultiLang ? getActiveLocale(localesList) : undefined;
+  const code = isMultiLang ? (activeLocale?.code ?? 'en') : 'en';
   const { ready, bundles } = useLocaleBundle(code);
 
   // Render unconditionally so children (notably B3PageMask) stay mounted while
   // the locale bundle is loading. Until the bundle resolves we fall back to
   // English; once it lands react-intl swaps the messages in place.
   const localeMessages = isMultiLang && ready ? pickLocaleBundle(code, bundles) : {};
-  const activeLocale = ready ? code : 'en';
-
+  const activeLocaleCode = ready ? code : 'en';
+  let messages = { ...en, ...localeMessages, ...customText, ...translations };
+  if (isMultiLang && activeLocale?.isDefault === false) {
+    messages = { ...en, ...localeMessages, ...customText };
+  }
   return (
-    <IntlProvider
-      defaultLocale="en"
-      locale={activeLocale}
-      messages={{ ...en, ...localeMessages, ...customText, ...translations }}
-    >
+    <IntlProvider defaultLocale="en" locale={activeLocaleCode} messages={messages}>
       {children}
     </IntlProvider>
   );
