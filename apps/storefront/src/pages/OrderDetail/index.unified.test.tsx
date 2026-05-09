@@ -18,9 +18,9 @@ import {
 
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
-import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type { GetOrderDetailResponse, Order } from '@/shared/service/bc/graphql/orders';
-import { CustomerRole } from '@/types';
+import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
+import { Currency, CustomerRole } from '@/types';
 
 import OrderDetails from '.';
 
@@ -53,6 +53,25 @@ const buildAddressConfigResponseWith = builder(() => {
     },
   };
 });
+
+const buildCurrencyWith = builder<Currency>(() => ({
+  id: faker.string.uuid(),
+  is_default: true,
+  last_updated: faker.date.past().toUTCString(),
+  country_iso2: 'US',
+  default_for_country_codes: ['USD'],
+  currency_code: 'USD',
+  currency_exchange_rate: '1.0000000000',
+  name: 'United States Dollar',
+  token: '$',
+  auto_update: false,
+  decimal_token: '.',
+  decimal_places: 2,
+  enabled: true,
+  is_transactional: true,
+  token_location: 'left',
+  thousands_token: ',',
+}));
 
 const buildUnifiedOrderWith = builder<Order>(() => ({
   entityId: faker.number.int({ min: 1000, max: 99999 }),
@@ -190,6 +209,17 @@ describe('Order detail path with unified SF GQL flag ON', () => {
   });
 
   it('renders the order summary', async () => {
+    const euro = buildCurrencyWith({
+      country_iso2: 'DE',
+      default_for_country_codes: ['EUR'],
+      currency_code: 'EUR',
+      currency_exchange_rate: '0.85',
+      name: 'Euro',
+      token: '€',
+      decimal_token: ',',
+      thousands_token: '.',
+    });
+
     server.use(
       graphql.query('GetOrderDetail', () =>
         HttpResponse.json(
@@ -205,14 +235,14 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     lastName: 'Wazowski',
                     email: 'mike@monstersinc.com',
                   },
-                  subTotal: { currencyCode: 'USD', value: 102 },
-                  shippingCostTotal: { currencyCode: 'USD', value: 332 },
-                  handlingCostTotal: { currencyCode: 'USD', value: 22.2 },
-                  taxTotal: { currencyCode: 'USD', value: 13.5 },
-                  totalIncTax: { currencyCode: 'USD', value: 100 },
+                  subTotal: { currencyCode: 'EUR', value: 102 },
+                  shippingCostTotal: { currencyCode: 'EUR', value: 332 },
+                  handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
+                  taxTotal: { currencyCode: 'EUR', value: 13.5 },
+                  totalIncTax: { currencyCode: 'EUR', value: 100 },
                   discounts: {
                     couponDiscounts: [],
-                    nonCouponDiscountTotal: { currencyCode: 'USD', value: 37.93 },
+                    nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
                     totalDiscount: null,
                   },
                 }),
@@ -230,7 +260,20 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     );
 
     renderWithProviders(<OrderDetails />, {
-      preloadedState,
+      preloadedState: {
+        ...preloadedState,
+        storeConfigs: {
+          currencies: {
+            currencies: [euro],
+            channelCurrencies: {
+              channel_id: 1,
+              enabled_currencies: ['EUR'],
+              default_currency: 'EUR',
+            },
+            enteredInclusiveTax: false,
+          },
+        },
+      },
       initialEntries: [{ state: { isCompanyOrder: false } }],
     });
 
@@ -239,12 +282,12 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByRole('heading', { name: 'Summary' })).toBeVisible();
     expect(screen.getByText(/Purchased by Mike Wazowski on/)).toBeVisible();
 
-    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('102.00');
-    expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('332.00');
-    expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('22.20');
-    expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('13.50');
-    expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('37.93');
-    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('100.00');
+    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
+    expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('€332,00');
+    expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('€22,20');
+    expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13,50');
+    expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37,93');
+    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€100,00');
   });
 
   it('omits the handling fee row when cost is zero', async () => {
@@ -400,6 +443,41 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         'This order is related to another company. To reorder, add to a shopping list, or perform other actions, you need to switch to that company.',
       ),
     ).toBeVisible();
+  });
+
+  it('renders customer message comments', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  customerMessage: 'Customer note: leave at reception\nPlease call before delivery',
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(screen.getByRole('heading', { name: 'Comments' })).toBeVisible();
+    expect(screen.getByText('Customer note: leave at reception')).toBeVisible();
+    expect(screen.getByText('Comments: Please call before delivery')).toBeVisible();
   });
 
   describe('when there are order history events', () => {

@@ -44,6 +44,7 @@ function OrderDetail() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies);
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -68,14 +69,7 @@ function OrderDetail() {
   } = useContext(GlobalContext);
 
   const {
-    state: {
-      poNumber,
-      status = '',
-      customStatus,
-      orderSummary,
-      orderStatus = [],
-      digitalProducts,
-    },
+    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [], digitalProducts },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext);
@@ -178,7 +172,7 @@ function OrderDetail() {
         if (order) {
           dispatch({
             type: 'all',
-            payload: convertOrderDetail(order, b3Lang),
+            payload: convertOrderDetail(order, b3Lang, currencies),
           });
 
           // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.
@@ -200,7 +194,7 @@ function OrderDetail() {
 
     fetchUnifiedOrderDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- dispatch stable
-  }, [isUnifiedOrders, orderId, preOrderId, currentCompanyId]);
+  }, [isUnifiedOrders, orderId, preOrderId, currentCompanyId, currencies]);
 
   useEffect(() => {
     if (!orderId) {
