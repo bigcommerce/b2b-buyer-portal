@@ -412,6 +412,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (!data || !isUnifiedOrders) return;
     const pageInfo = 'pageInfo' in data ? (data as { pageInfo: PageInfo | null }).pageInfo : null;
     if (pageInfo) unifiedState.updatePageInfo(pageInfo);
+    if (isUnifiedCompanyPath && 'totalCount' in data && typeof data.totalCount === 'number') {
+      unifiedState.updateTotalCount(data.totalCount);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataUpdatedAt, isUnifiedOrders]);
 
