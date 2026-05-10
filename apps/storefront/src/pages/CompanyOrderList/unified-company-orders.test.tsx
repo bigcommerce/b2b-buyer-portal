@@ -425,7 +425,8 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.clear(searchInput);
 
         await waitFor(() => {
-          const lastCall = getOrders.mock.calls.at(-1)?.[0];
+          const calls = getOrders.mock.calls;
+          const lastCall = calls[calls.length - 1]?.[0];
           expect(lastCall?.filters).not.toHaveProperty('search');
         });
       });
