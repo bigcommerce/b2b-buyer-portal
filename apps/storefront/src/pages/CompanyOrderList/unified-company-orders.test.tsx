@@ -392,6 +392,109 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         });
       });
 
+      it('clears search and removes the filter from the query', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ search: 'temp' }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(11111));
+
+        const searchInput = screen.getByPlaceholderText('Search');
+        await userEvent.type(searchInput, 'temp');
+
+        await waitFor(() => {
+          expect(screen.getByText('11111').closest('tr')!).toBeVisible();
+        });
+
+        await userEvent.clear(searchInput);
+
+        await waitFor(() => {
+          const lastCall = getOrders.mock.calls.at(-1)?.[0];
+          expect(lastCall?.filters).not.toHaveProperty('search');
+        });
+      });
+
+      it('composes search with status and date range filters', async () => {
+        vi.setSystemTime(new Date('21 November 2022'));
+
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetOrderStatuses', () =>
+            HttpResponse.json(
+              buildLegacyB2BOrderStatusesResponseWith({
+                data: {
+                  orderStatuses: [
+                    buildLegacyOrderStatusWith({
+                      systemLabel: 'Completed',
+                      customLabel: 'Completed',
+                    }),
+                  ],
+                },
+              }),
+            ),
+          ),
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                search: 'PO-42',
+                status: ['Completed'],
+                dateRange: { from: '2022-11-15', to: '2022-11-26' },
+              }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(99999));
+
+        await userEvent.type(screen.getByPlaceholderText('Search'), 'PO-42');
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+        await userEvent.click(screen.getByRole('option', { name: 'Completed' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('99999').closest('tr')!).toBeVisible();
+        });
+      });
+
       it('filters by status', async () => {
         const getOrders = vi
           .fn()
