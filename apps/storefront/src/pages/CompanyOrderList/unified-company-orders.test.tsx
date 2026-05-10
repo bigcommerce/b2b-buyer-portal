@@ -637,7 +637,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             startCursor: 'cursor-1001',
             endCursor: 'cursor-1002',
           },
-          4,
+          20,
         );
 
         const getOrders = vi.fn().mockReturnValue(page1Response);
@@ -653,7 +653,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
                 startCursor: 'cursor-2001',
                 endCursor: 'cursor-2002',
               },
-              4,
+              20,
             ),
           );
 
@@ -707,7 +707,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             startCursor: 'cursor-1001',
             endCursor: 'cursor-1001',
           },
-          2,
+          20,
         );
 
         const getOrders = vi.fn().mockReturnValue(page1Response);
@@ -723,7 +723,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
                 startCursor: 'cursor-2001',
                 endCursor: 'cursor-2001',
               },
-              2,
+              20,
             ),
           );
 
