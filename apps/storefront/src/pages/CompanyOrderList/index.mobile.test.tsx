@@ -1,4 +1,5 @@
 import {
+  act,
   buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
@@ -95,6 +96,10 @@ beforeEach(() => {
       HttpResponse.json(buildCompanyOrderStatusesWith('WHATEVER_VALUES')),
     ),
   );
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('has placed orders', () => {
@@ -363,6 +368,8 @@ describe('has placed orders', () => {
   });
 
   it('can search for orders', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
     const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
 
     server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
@@ -387,6 +394,8 @@ describe('has placed orders', () => {
     const searchBox = screen.getByPlaceholderText(/Search/);
 
     await userEvent.type(searchBox, '66996');
+
+    await act(() => vi.advanceTimersByTimeAsync(500));
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /66996/ })).toBeInTheDocument();
