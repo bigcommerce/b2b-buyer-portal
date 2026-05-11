@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   buildCompanyStateWith,
@@ -12,6 +13,7 @@ import {
   screen,
   startMockServer,
   userEvent,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
@@ -20,6 +22,8 @@ import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
 import type { GetOrderDetailResponse, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
+import { useAppDispatch } from '@/store';
+import { setCurrencies } from '@/store/slices/storeConfigs';
 import { Currency, CustomerRole } from '@/types';
 
 import OrderDetails from '.';
@@ -125,6 +129,30 @@ const buildOrderDetailResponseWith = builder<GetOrderDetailResponse>(() => ({
     },
   },
 }));
+
+function OrderDetailsWithCurrencyHydration({ currencies }: { currencies?: Currency[] }) {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!currencies) {
+      return;
+    }
+
+    dispatch(
+      setCurrencies({
+        currencies,
+        channelCurrencies: {
+          channel_id: 1,
+          enabled_currencies: currencies.map((currency) => currency.currency_code),
+          default_currency: currencies[0]?.currency_code ?? 'USD',
+        },
+        enteredInclusiveTax: false,
+      }),
+    );
+  }, [currencies, dispatch]);
+
+  return <OrderDetails />;
+}
 
 const preloadedState = {
   company: buildCompanyStateWith({
@@ -293,6 +321,71 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13,50');
     expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37,93');
     expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€431,77');
+  });
+
+  it('updates currency formatting without refetching the order detail', async () => {
+    const euro = buildCurrencyWith({
+      country_iso2: 'DE',
+      default_for_country_codes: ['EUR'],
+      currency_code: 'EUR',
+      currency_exchange_rate: '0.85',
+      name: 'Euro',
+      token: '€',
+      decimal_token: ',',
+      thousands_token: '.',
+    });
+
+    const euroOrder = buildUnifiedOrderWith({
+      entityId: 6696,
+      subTotal: { currencyCode: 'EUR', value: 102 },
+      shippingCostTotal: { currencyCode: 'EUR', value: 332 },
+      handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
+      taxTotal: { currencyCode: 'EUR', value: 13.5 },
+      totalIncTax: { currencyCode: 'EUR', value: 431.77 },
+      discounts: {
+        couponDiscounts: [],
+        nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
+        totalDiscount: null,
+      },
+    });
+
+    let orderDetailRequestCount = 0;
+
+    server.use(
+      graphql.query('GetOrderDetail', () => {
+        orderDetailRequestCount += 1;
+
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: { site: { order: euroOrder } },
+          }),
+        );
+      }),
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+
+    const { result } = renderWithProviders(<OrderDetailsWithCurrencyHydration />, {
+      preloadedState,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('$102.00');
+    expect(orderDetailRequestCount).toBe(1);
+
+    result.rerender(<OrderDetailsWithCurrencyHydration currencies={[euro]} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
+    });
+
+    expect(orderDetailRequestCount).toBe(1);
   });
 
   it('omits the handling fee row when cost is zero', async () => {

@@ -17,6 +17,7 @@ import {
   getBcOrderStatusType,
   getOrderStatusType,
 } from '@/shared/service/b2b';
+import type { Order as UnifiedOrder } from '@/shared/service/bc/graphql/orders';
 import { getOrderDetail } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
@@ -89,6 +90,7 @@ function OrderDetail() {
   const [orderId, setOrderId] = useState('');
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [isCurrentCompany, setIsCurrentCompany] = useState(true);
+  const [unifiedOrder, setUnifiedOrder] = useState<UnifiedOrder | null>(null);
 
   useEffect(() => {
     setOrderId(params.id || '');
@@ -154,47 +156,69 @@ function OrderDetail() {
 
   useEffect(() => {
     if (!isUnifiedOrders || !orderId) {
-      return;
+      setUnifiedOrder(null);
+      return undefined;
     }
+
+    let isCurrentRequest = true;
 
     const fetchUnifiedOrderDetails = async () => {
       const id = parseInt(orderId, 10);
       if (!id) {
+        setUnifiedOrder(null);
         return;
       }
 
+      setUnifiedOrder(null);
       setIsRequestLoading(true);
 
       try {
         const response = await getOrderDetail({ entityId: id });
         const order = response.data?.site?.order;
 
-        if (order) {
-          dispatch({
-            type: 'all',
-            payload: convertOrderDetail(order, b3Lang, currencies),
-          });
-
-          // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.
-          setIsCurrentCompany(
-            order.company ? Number(order.company.entityId) === Number(currentCompanyId) : true,
-          );
+        if (order && isCurrentRequest) {
+          setUnifiedOrder(order);
           setPreOrderId(orderId);
         }
       } catch (err) {
-        if (err === 'order does not exist') {
+        if (err === 'order does not exist' && isCurrentRequest) {
           setTimeout(() => {
             window.location.hash = `/orderDetail/${preOrderId}`;
           }, 1000);
         }
       } finally {
-        setIsRequestLoading(false);
+        if (isCurrentRequest) {
+          setIsRequestLoading(false);
+        }
       }
     };
 
     fetchUnifiedOrderDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispatch stable
-  }, [isUnifiedOrders, orderId, preOrderId, currentCompanyId, currencies]);
+
+    return () => {
+      isCurrentRequest = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- preOrderId is only used for failed navigation fallback
+  }, [isUnifiedOrders, orderId]);
+
+  useEffect(() => {
+    if (!isUnifiedOrders || !unifiedOrder) {
+      return;
+    }
+
+    dispatch({
+      type: 'all',
+      payload: convertOrderDetail(unifiedOrder, b3Lang, currencies),
+    });
+
+    // BC omits `company` on Order — no cross-company check. B2B: compare order company to viewer context.
+    setIsCurrentCompany(
+      unifiedOrder.company
+        ? Number(unifiedOrder.company.entityId) === Number(currentCompanyId)
+        : true,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispatch stable and b3Lang has rendering errors
+  }, [isUnifiedOrders, unifiedOrder, currentCompanyId, currencies]);
 
   useEffect(() => {
     if (!orderId) {
