@@ -19,10 +19,11 @@ import {
 import { vi } from 'vitest';
 import { when } from 'vitest-when';
 
-import type {
-  GetCompanyOrdersResponse,
-  Order,
-  OrderPlacedBy,
+import {
+  type GetCompanyOrdersResponse,
+  type Order,
+  type OrderPlacedBy,
+  OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
@@ -173,6 +174,32 @@ const filteredCompanyOrdersResponse = (entityId: number): GetCompanyOrdersRespon
             endCursor: 'filtered',
           },
           collectionInfo: { totalItems: 1 },
+        },
+      },
+    },
+  },
+});
+
+const buildPagedCompanyOrdersResponse = (
+  orders: Array<{ entityId: number }>,
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor: string | null;
+    endCursor: string | null;
+  },
+  totalItems: number,
+): GetCompanyOrdersResponse => ({
+  data: {
+    customer: {
+      activeCompany: {
+        orders: {
+          edges: orders.map((o) => ({
+            node: buildSfGqlOrderWith(o),
+            cursor: `cursor-${o.entityId}`,
+          })),
+          pageInfo,
+          collectionInfo: { totalItems },
         },
       },
     },
@@ -359,6 +386,294 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
       const row = screen.getByText('77777').closest('tr')!;
       expect(within(row).getByText('$1,234.56')).toBeInTheDocument();
+    });
+
+    describe('sorting', () => {
+      describe('default Order ID sort', () => {
+        it('requests ID_Z_TO_A initially', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCompanyOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({ sortBy: OrdersSortInput.ID_Z_TO_A }),
+          );
+        });
+
+        it('toggles to ID_A_TO_Z when the active Order column is clicked', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCompanyOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          const orderHeader = screen.getByRole('columnheader', { name: 'Order' });
+          expect(orderHeader).toHaveAttribute('aria-sort', 'descending');
+
+          when(getOrders)
+            .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.ID_A_TO_Z }))
+            .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+          await userEvent.click(within(orderHeader).getByRole('button'));
+
+          await waitFor(() => {
+            expect(getOrders).toHaveBeenCalledWith(
+              expect.objectContaining({ sortBy: OrdersSortInput.ID_A_TO_Z }),
+            );
+          });
+
+          expect(screen.getByRole('columnheader', { name: 'Order' })).toHaveAttribute(
+            'aria-sort',
+            'ascending',
+          );
+        });
+      });
+
+      it('uses CREATED_AT_NEWEST when first activating the Created on column', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.CREATED_AT_NEWEST }))
+          .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        await userEvent.click(
+          within(screen.getByRole('columnheader', { name: 'Created on' })).getByRole('button'),
+        );
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({ sortBy: OrdersSortInput.CREATED_AT_NEWEST }),
+          );
+        });
+
+        expect(screen.getByRole('columnheader', { name: 'Created on' })).toHaveAttribute(
+          'aria-sort',
+          'descending',
+        );
+      });
+
+      it('uses REFERENCE_Z_TO_A when first activating the PO/Reference column', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.REFERENCE_Z_TO_A }))
+          .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        await userEvent.click(
+          within(screen.getByRole('columnheader', { name: 'PO / Reference' })).getByRole('button'),
+        );
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({ sortBy: OrdersSortInput.REFERENCE_Z_TO_A }),
+          );
+        });
+      });
+
+      it('uses HIGHEST_TOTAL_INC_TAX when first activating the Grand Total column', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.HIGHEST_TOTAL_INC_TAX }))
+          .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        await userEvent.click(
+          within(screen.getByRole('columnheader', { name: 'Grand total' })).getByRole('button'),
+        );
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({ sortBy: OrdersSortInput.HIGHEST_TOTAL_INC_TAX }),
+          );
+        });
+
+        expect(screen.getByRole('columnheader', { name: 'Grand total' })).toHaveAttribute(
+          'aria-sort',
+          'descending',
+        );
+      });
+
+      it('uses PLACED_BY_Z_TO_A when first activating the Placed by column', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.PLACED_BY_Z_TO_A }))
+          .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        await userEvent.click(
+          within(screen.getByRole('columnheader', { name: 'Placed by' })).getByRole('button'),
+        );
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({ sortBy: OrdersSortInput.PLACED_BY_Z_TO_A }),
+          );
+        });
+      });
+
+      it('clears cursor variables when sort changes after paging forward', async () => {
+        const page1Response = buildPagedCompanyOrdersResponse(
+          [{ entityId: 1001 }, { entityId: 1002 }],
+          {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor-1001',
+            endCursor: 'cursor-1002',
+          },
+          4,
+        );
+
+        const getOrders = vi.fn().mockReturnValue(page1Response);
+
+        when(getOrders)
+          .calledWith(expect.objectContaining({ after: 'cursor-1002' }))
+          .thenReturn(
+            buildPagedCompanyOrdersResponse(
+              [{ entityId: 2001 }, { entityId: 2002 }],
+              {
+                hasNextPage: false,
+                hasPreviousPage: true,
+                startCursor: 'cursor-2001',
+                endCursor: 'cursor-2002',
+              },
+              4,
+            ),
+          );
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('2001').closest('tr')!).toBeInTheDocument();
+        });
+
+        await userEvent.click(
+          within(screen.getByRole('columnheader', { name: 'Created on' })).getByRole('button'),
+        );
+
+        await waitFor(() => {
+          const { calls } = getOrders.mock;
+          const lastVars = calls[calls.length - 1]?.[0] as {
+            sortBy?: string;
+            after?: string;
+            before?: string;
+          };
+          expect(lastVars?.sortBy).toBe(OrdersSortInput.CREATED_AT_NEWEST);
+          expect(lastVars?.after).toBeUndefined();
+          expect(lastVars?.before).toBeUndefined();
+        });
+      });
+
+      it('includes sortBy with applied search filters', async () => {
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ search: 'findme' }),
+              sortBy: OrdersSortInput.ID_Z_TO_A,
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.type(screen.getByPlaceholderText('Search'), 'findme');
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({ search: 'findme' }),
+              sortBy: OrdersSortInput.ID_Z_TO_A,
+            }),
+          );
+        });
+      });
     });
 
     describe('filter behavior', () => {
@@ -706,34 +1021,8 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
     });
 
     describe('cursor pagination', () => {
-      const buildPagedResponse = (
-        orders: Array<{ entityId: number }>,
-        pageInfo: {
-          hasNextPage: boolean;
-          hasPreviousPage: boolean;
-          startCursor: string | null;
-          endCursor: string | null;
-        },
-        totalItems: number,
-      ): GetCompanyOrdersResponse => ({
-        data: {
-          customer: {
-            activeCompany: {
-              orders: {
-                edges: orders.map((o) => ({
-                  node: buildSfGqlOrderWith(o),
-                  cursor: `cursor-${o.entityId}`,
-                })),
-                pageInfo,
-                collectionInfo: { totalItems },
-              },
-            },
-          },
-        },
-      });
-
       it('passes after cursor when navigating to the next page', async () => {
-        const page1Response = buildPagedResponse(
+        const page1Response = buildPagedCompanyOrdersResponse(
           [{ entityId: 1001 }, { entityId: 1002 }],
           {
             hasNextPage: true,
@@ -749,7 +1038,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         when(getOrders)
           .calledWith(expect.objectContaining({ after: 'cursor-1002' }))
           .thenReturn(
-            buildPagedResponse(
+            buildPagedCompanyOrdersResponse(
               [{ entityId: 2001 }, { entityId: 2002 }],
               {
                 hasNextPage: false,
@@ -780,7 +1069,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       });
 
       it('passes before cursor when navigating to the previous page', async () => {
-        const page1Response = buildPagedResponse(
+        const page1Response = buildPagedCompanyOrdersResponse(
           [{ entityId: 1001 }],
           {
             hasNextPage: true,
@@ -796,7 +1085,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         when(getOrders)
           .calledWith(expect.objectContaining({ after: 'cursor-1001' }))
           .thenReturn(
-            buildPagedResponse(
+            buildPagedCompanyOrdersResponse(
               [{ entityId: 2001 }],
               {
                 hasNextPage: false,
