@@ -1,13 +1,7 @@
 import type { LangFormatFunction } from '@/lib/lang';
 import type { Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
-import type {
-  Currency,
-  MoneyFormat,
-  OrderHistoryItem,
-  OrderPayment,
-  OrderSummary,
-} from '@/types';
+import type { Currency, MoneyFormat, OrderHistoryItem, OrderPayment, OrderSummary } from '@/types';
 
 import type { OrderDetailsState } from '../context/OrderDetailsContext';
 
