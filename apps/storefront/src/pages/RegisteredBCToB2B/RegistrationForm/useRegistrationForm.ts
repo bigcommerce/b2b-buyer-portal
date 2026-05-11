@@ -5,7 +5,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import { Country, getIsStateRequired, State } from '@/pages/Registered/config';
+import { Country, State } from '@/pages/Registered/config';
 import { RegisteredContext } from '@/pages/Registered/Context';
 import type { RegisterFields } from '@/pages/Registered/types';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -18,6 +18,7 @@ import {
 } from '@/shared/service/b2b';
 import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import { useAppSelector } from '@/store';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 import b2bLogger from '@/utils/b3Logger';
 import { Base64 } from '@/utils/base64';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -38,9 +39,6 @@ interface UseRegistrationFormParams {
 export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFormParams) {
   const b3Lang = useB3Lang();
   const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
-  const grpcGeoForStateRequiredFlag = useFeatureFlag(
-    'B2B-4481.use_grpc_geo_for_state_required_flag',
-  );
   const [isMobile] = useMobile();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -95,7 +93,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
         (c: Country) => c.countryCode === countryCode || c.countryName === countryCode,
       );
       const stateList = country?.states || [];
-      const isStateRequired = getIsStateRequired(country, stateList, grpcGeoForStateRequiredFlag);
+      const isStateRequired = getIsStateRequired(country, stateList);
       const stateFields = bcTob2bAddressBasicFields.find(
         (formFields: RegisterFields) => formFields.name === 'state',
       );

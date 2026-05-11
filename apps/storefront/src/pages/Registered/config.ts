@@ -47,14 +47,6 @@ export interface State {
   id?: string;
 }
 
-export function getIsStateRequired(
-  country: Country | undefined,
-  stateList: State[] | null | undefined,
-  grpcGeoForStateRequiredFlag: boolean,
-): boolean {
-  return grpcGeoForStateRequiredFlag ? !!country?.stateRequired : (stateList?.length ?? 0) > 0;
-}
-
 type EmailError = {
   [k: number]: string;
 };

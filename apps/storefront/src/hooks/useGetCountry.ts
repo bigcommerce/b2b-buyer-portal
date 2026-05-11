@@ -1,10 +1,10 @@
 import { useContext, useEffect } from 'react';
 import { Control, FieldValues, UseFormGetValues, UseFormSetValue, useWatch } from 'react-hook-form';
 
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { GlobalContext } from '@/shared/global';
 import { Country, State } from '@/shared/global/context/config';
 import { getB2BCountries } from '@/shared/service/b2b';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 
 const useSetCountry = () => {
   const {
@@ -12,14 +12,10 @@ const useSetCountry = () => {
     dispatch,
   } = useContext(GlobalContext);
 
-  const grpcGeoForStateRequiredFlag = useFeatureFlag(
-    'B2B-4481.use_grpc_geo_for_state_required_flag',
-  );
-
   useEffect(() => {
     const init = async () => {
       if (countriesList && !countriesList.length) {
-        const { countries } = await getB2BCountries(grpcGeoForStateRequiredFlag);
+        const { countries } = await getB2BCountries();
 
         dispatch({
           type: 'common',
@@ -94,8 +90,11 @@ const useGetCountry = ({
   // Populate state array when the user change selected country
   useEffect(() => {
     if (!countryCode || !countriesList?.length) return;
-    const stateList =
-      countriesList.find((country: Country) => country.countryCode === countryCode)?.states || [];
+    const selectedCountry = countriesList.find(
+      (country: Country) => country.countryCode === countryCode,
+    );
+    const stateList = selectedCountry?.states || [];
+    const isStateRequired = getIsStateRequired(selectedCountry, stateList);
     const stateFieldIndex = addresses.findIndex(
       (formFields: FormFieldsProps) => formFields.name === 'state',
     );
@@ -108,10 +107,10 @@ const useGetCountry = ({
                 ...addressField,
                 fieldType: 'dropdown',
                 options: stateList,
-                required: true,
+                required: isStateRequired,
               };
             }
-            return { ...addressField, fieldType: 'text', options: [], required: false };
+            return { ...addressField, fieldType: 'text', options: [], required: isStateRequired };
           }
           return addressField;
         }),

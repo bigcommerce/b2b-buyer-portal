@@ -13,6 +13,7 @@ import {
   updateBcAddress,
   validateAddressExtraFields,
 } from '@/shared/service/b2b';
+import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 import { snackbar } from '@/utils/b3Tip';
 import { deCodeField } from '@/utils/registerUtils';
 
@@ -446,16 +447,16 @@ function AddressForm(
           setValue(field.name, stateCode || state);
           if (currentCountry[0]) {
             const { states } = currentCountry[0];
+            const isStateRequired = getIsStateRequired(currentCountry[0], states);
 
             if (states.length > 0) {
               field.options = states;
               field.fieldType = 'dropdown';
-              field.required = true;
             } else {
               field.options = [];
               field.fieldType = 'text';
-              field.required = false;
             }
+            field.required = isStateRequired;
           }
         } else {
           setValue(
@@ -476,9 +477,9 @@ function AddressForm(
 
   useEffect(() => {
     const handleCountryChange = (countryCode: string) => {
-      const stateList =
-        countries.find((country: CountryProps) => country.countryCode === countryCode)?.states ||
-        [];
+      const selectedCountry = countries.find((country) => country.countryCode === countryCode);
+      const stateList = selectedCountry?.states || [];
+      const isStateRequired = getIsStateRequired(selectedCountry, stateList);
       const stateFields = allAddressFields.find(
         (formFields: CustomFieldItems) => formFields.name === 'state',
       );
@@ -487,11 +488,11 @@ function AddressForm(
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
-          stateFields.required = true;
+          stateFields.required = isStateRequired;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
-          stateFields.required = false;
+          stateFields.required = isStateRequired;
         }
       }
 
