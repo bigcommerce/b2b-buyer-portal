@@ -1,8 +1,17 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import getTranslation from '@/shared/service/b2b/api/translation';
+import { getActiveLocale } from '@/utils/locale';
 
 import type { AppDispatch, RootState } from '.';
+
+const resolveActiveLocaleCode = (state: RootState) => {
+  const { featureFlags, locales } = state.global;
+  if (!featureFlags['LOCAL-3191.B2B_multi_language']) {
+    return undefined;
+  }
+  return getActiveLocale(locales)?.code;
+};
 
 const createAppAsyncThunk = createAsyncThunk.withTypes<{
   state: RootState;
@@ -38,8 +47,9 @@ export const getGlobalTranslations = createAppAsyncThunk<
   GetGlobalTranslationsParams
 >(
   'lang/getGlobalTranslations',
-  async ({ channelId, newVersion }, { rejectWithValue }) => {
-    const { message } = await getTranslation({ channelId, page: 'global' });
+  async ({ channelId, newVersion }, { rejectWithValue, getState }) => {
+    const locale = resolveActiveLocaleCode(getState());
+    const { message } = await getTranslation({ channelId, page: 'global', locale });
 
     if (typeof message === 'string') {
       return rejectWithValue(message);
@@ -49,7 +59,11 @@ export const getGlobalTranslations = createAppAsyncThunk<
   },
   {
     condition: ({ newVersion }, { getState }) => {
-      const { translationVersion } = getState().lang;
+      const state = getState();
+      if (state.global.featureFlags['LOCAL-3191.B2B_multi_language']) {
+        return true;
+      }
+      const { translationVersion } = state.lang;
 
       // cancel request if new version it's 0 or similar to previous value
       if (newVersion === 0 || translationVersion === newVersion) {
@@ -65,9 +79,10 @@ export const getPageTranslations = createAppAsyncThunk<
   GetPageTranslationsParams
 >(
   'lang/getPageTranslations',
-  async ({ channelId, page: pageKey }, { rejectWithValue }) => {
+  async ({ channelId, page: pageKey }, { rejectWithValue, getState }) => {
     const page = REPEATED_PAGES[pageKey] ?? pageKey;
-    const { message } = await getTranslation({ channelId, page });
+    const locale = resolveActiveLocaleCode(getState());
+    const { message } = await getTranslation({ channelId, page, locale });
 
     if (typeof message === 'string') {
       return rejectWithValue(message);
@@ -77,8 +92,12 @@ export const getPageTranslations = createAppAsyncThunk<
   },
   {
     condition: ({ page: pageKey }, { getState }) => {
+      const state = getState();
+      if (state.global.featureFlags['LOCAL-3191.B2B_multi_language']) {
+        return true;
+      }
       const page = REPEATED_PAGES[pageKey] ?? pageKey;
-      const { fetchedPages, translationVersion } = getState().lang;
+      const { fetchedPages, translationVersion } = state.lang;
 
       // cancel request if page it's already fetched or translation version it's 0
       if (fetchedPages.includes(page) || translationVersion === 0) {
