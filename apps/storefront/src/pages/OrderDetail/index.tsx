@@ -44,7 +44,7 @@ function OrderDetail() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
-  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies);
+  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies.currencies);
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );

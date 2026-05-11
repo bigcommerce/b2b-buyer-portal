@@ -2,7 +2,7 @@ import type { LangFormatFunction } from '@/lib/lang';
 import type { Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type {
-  Currencies,
+  Currency,
   MoneyFormat,
   OrderHistoryItem,
   OrderPayment,
@@ -11,8 +11,7 @@ import type {
 
 import type { OrderDetailsState } from '../context/OrderDetailsContext';
 
-function buildMoneyFormat(storeCurrencies: Currencies, currencyCode: string): MoneyFormat {
-  const { currencies } = storeCurrencies;
+function buildMoneyFormat(currencies: Currency[], currencyCode: string): MoneyFormat {
   const currency = currencies.find((c) => c.currency_code === currencyCode);
   if (!currency) {
     return {
@@ -128,7 +127,7 @@ function buildPayment(order: Order): OrderPayment {
 export function convertOrderDetail(
   order: Order,
   b3Lang: LangFormatFunction,
-  currencies: Currencies,
+  currencies: Currency[],
 ): Pick<
   OrderDetailsState,
   | 'orderId'
