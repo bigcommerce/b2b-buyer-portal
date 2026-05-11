@@ -220,34 +220,33 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       thousands_token: '.',
     });
 
+    const euroOrder = buildUnifiedOrderWith({
+      entityId: 6696,
+      orderedAt: { utc: '2025-05-04T00:00:00.000Z' },
+      placedBy: {
+        entityId: 1,
+        firstName: 'Mike',
+        lastName: 'Wazowski',
+        email: 'mike@monstersinc.com',
+      },
+      subTotal: { currencyCode: 'EUR', value: 102 },
+      shippingCostTotal: { currencyCode: 'EUR', value: 332 },
+      handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
+      taxTotal: { currencyCode: 'EUR', value: 13.5 },
+      // 102 + 332 + 22.2 − 37.93 + 13.5
+      totalIncTax: { currencyCode: 'EUR', value: 431.77 },
+      discounts: {
+        couponDiscounts: [],
+        nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
+        totalDiscount: null,
+      },
+    });
+
     server.use(
       graphql.query('GetOrderDetail', () =>
         HttpResponse.json(
           buildOrderDetailResponseWith({
-            data: {
-              site: {
-                order: buildUnifiedOrderWith({
-                  entityId: 6696,
-                  orderedAt: { utc: '2025-05-04T00:00:00.000Z' },
-                  placedBy: {
-                    entityId: 1,
-                    firstName: 'Mike',
-                    lastName: 'Wazowski',
-                    email: 'mike@monstersinc.com',
-                  },
-                  subTotal: { currencyCode: 'EUR', value: 102 },
-                  shippingCostTotal: { currencyCode: 'EUR', value: 332 },
-                  handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
-                  taxTotal: { currencyCode: 'EUR', value: 13.5 },
-                  totalIncTax: { currencyCode: 'EUR', value: 100 },
-                  discounts: {
-                    couponDiscounts: [],
-                    nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
-                    totalDiscount: null,
-                  },
-                }),
-              },
-            },
+            data: { site: { order: euroOrder } },
           }),
         ),
       ),
@@ -280,14 +279,20 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
     expect(screen.getByRole('heading', { name: 'Summary' })).toBeVisible();
-    expect(screen.getByText(/Purchased by Mike Wazowski on/)).toBeVisible();
+    expect(
+      screen.getByText(
+        new RegExp(
+          `Purchased by ${euroOrder.placedBy!.firstName} ${euroOrder.placedBy!.lastName} on`,
+        ),
+      ),
+    ).toBeVisible();
 
     expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
     expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('€332,00');
     expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('€22,20');
     expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13,50');
     expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37,93');
-    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€100,00');
+    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€431,77');
   });
 
   it('omits the handling fee row when cost is zero', async () => {
