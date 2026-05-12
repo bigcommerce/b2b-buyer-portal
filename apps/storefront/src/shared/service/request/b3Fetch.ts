@@ -142,11 +142,8 @@ const B3Request = {
    * Request used in stencil store to call bigcommerce graphql storefront api
    */
   graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
-    const { bcGraphqlToken } = store.getState().company.tokens;
-    const config = {
-      Authorization: `Bearer  ${bcGraphqlToken}`,
-    };
-    return graphqlRequest(RequestType.BCGraphql, data, config);
+    // POC B2B-4822: removed bcGraphqlToken bearer — testing same-origin requests without it
+    return graphqlRequest(RequestType.BCGraphql, data, {});
   },
   /**
    * Request used in headless context to talk to the bigcommerce graphql storefront api via proxy
