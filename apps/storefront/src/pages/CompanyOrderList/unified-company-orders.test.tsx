@@ -1030,7 +1030,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             startCursor: 'cursor-1001',
             endCursor: 'cursor-1002',
           },
-          4,
+          20,
         );
 
         const getOrders = vi.fn().mockReturnValue(page1Response);
@@ -1046,7 +1046,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
                 startCursor: 'cursor-2001',
                 endCursor: 'cursor-2002',
               },
-              4,
+              20,
             ),
           );
 
@@ -1068,6 +1068,29 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         });
       });
 
+      it('displays total count from collectionInfo.totalItems', async () => {
+        const response = buildPagedResponse(
+          [{ entityId: 3001 }, { entityId: 3002 }],
+          {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor-3001',
+            endCursor: 'cursor-3002',
+          },
+          42,
+        );
+
+        server.use(graphql.query('GetCompanyOrders', () => HttpResponse.json(response)));
+
+        renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        await waitFor(() => {
+          expect(screen.getByText(/of 42/)).toBeInTheDocument();
+        });
+      });
+
       it('passes before cursor when navigating to the previous page', async () => {
         const page1Response = buildPagedCompanyOrdersResponse(
           [{ entityId: 1001 }],
@@ -1077,7 +1100,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             startCursor: 'cursor-1001',
             endCursor: 'cursor-1001',
           },
-          2,
+          20,
         );
 
         const getOrders = vi.fn().mockReturnValue(page1Response);
@@ -1093,7 +1116,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
                 startCursor: 'cursor-2001',
                 endCursor: 'cursor-2001',
               },
-              2,
+              20,
             ),
           );
 

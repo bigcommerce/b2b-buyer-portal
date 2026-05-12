@@ -31,6 +31,7 @@ export interface UseUnifiedOrdersPaginationResult {
   handlePageChange: (direction: 'next' | 'prev') => void;
   handlePageSizeChange: (size: number) => void;
   updatePageInfo: (info: PageInfo) => void;
+  updateTotalCount: (count: number) => void;
 }
 
 export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult => {
@@ -38,6 +39,7 @@ export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult =
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [pageInfo, setPageInfo] = useState<PageInfo | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(-1);
 
   const paginationVariables = useMemo<PaginationVariables>(
     () =>
@@ -51,6 +53,7 @@ export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult =
     setCursors({});
     setCurrentPage(0);
     setPageInfo(null);
+    setTotalCount(-1);
   }, []);
 
   const handlePageChange = useCallback(
@@ -80,9 +83,13 @@ export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult =
     setPageInfo(info);
   }, []);
 
+  const updateTotalCount = useCallback((count: number) => {
+    setTotalCount(count);
+  }, []);
+
   const b3TablePaginationProps = useMemo(
     () => ({
-      pagination: { offset: currentPage * pageSize, first: pageSize, count: -1 },
+      pagination: { offset: currentPage * pageSize, first: pageSize, count: totalCount },
       cursorPageInfo: {
         hasNextPage: pageInfo?.hasNextPage ?? false,
         hasPreviousPage: pageInfo?.hasPreviousPage ?? false,
@@ -98,7 +105,7 @@ export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult =
         }
       },
     }),
-    [currentPage, pageSize, pageInfo, handlePageChange, handlePageSizeChange],
+    [currentPage, pageSize, pageInfo, totalCount, handlePageChange, handlePageSizeChange],
   );
 
   return {
@@ -111,5 +118,6 @@ export const useUnifiedOrdersPagination = (): UseUnifiedOrdersPaginationResult =
     handlePageChange,
     handlePageSizeChange,
     updatePageInfo,
+    updateTotalCount,
   };
 };
