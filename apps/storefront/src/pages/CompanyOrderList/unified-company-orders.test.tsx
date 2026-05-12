@@ -586,7 +586,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             startCursor: 'cursor-1001',
             endCursor: 'cursor-1002',
           },
-          4,
+          20,
         );
 
         const getOrders = vi.fn().mockReturnValue(page1Response);
@@ -602,7 +602,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
                 startCursor: 'cursor-2001',
                 endCursor: 'cursor-2002',
               },
-              4,
+              20,
             ),
           );
 
@@ -1069,7 +1069,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       });
 
       it('displays total count from collectionInfo.totalItems', async () => {
-        const response = buildPagedResponse(
+        const response = buildPagedCompanyOrdersResponse(
           [{ entityId: 3001 }, { entityId: 3002 }],
           {
             hasNextPage: true,
