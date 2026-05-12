@@ -67,7 +67,7 @@ function useData() {
   );
 
   const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting
+    Number(role) === CustomerRole.SUPER_ADMIN && isAgenting
       ? Number(salesRepCompanyId)
       : Number(companyB2BId);
 
@@ -287,80 +287,70 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const navigateToOrderDetail = isUnifiedCustomerPath ? goToDetail : legacyGoToDetail;
 
-  const columnAllItems = [
-    {
-      key: 'orderId',
-      title: b3Lang('orders.order'),
-      width: '10%',
-      isSortable: true,
-      render: ({ orderId }) => orderId,
-    },
-    {
-      key: 'companyName',
-      title: b3Lang('orders.company'),
-      width: '10%',
-      isSortable: false,
-      render: ({ companyInfo }) => {
-        return <Box>{companyInfo?.companyName || '–'}</Box>;
+  const isSuperAdminNotAgenting = Number(role) === CustomerRole.SUPER_ADMIN && !isAgenting;
+
+  const columnItems: TableColumnItem<ListItem>[] = useMemo(
+    () => [
+      {
+        key: 'orderId',
+        title: b3Lang('orders.order'),
+        width: '10%',
+        isSortable: true,
+        render: ({ orderId }) => orderId,
       },
-    },
-    {
-      key: 'poNumber',
-      title: b3Lang('orders.poReference'),
-      render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
-      width: '10%',
-      isSortable: true,
-    },
-    {
-      key: 'totalIncTax',
-      title: b3Lang('orders.grandTotal'),
-      render: ({ money, totalIncTax }) =>
-        money
-          ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
-          : currencyFormat(totalIncTax),
-      align: 'right',
-      width: '8%',
-      isSortable: true,
-    },
-    {
-      key: 'status',
-      title: b3Lang('orders.orderStatus'),
-      render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
-      width: '10%',
-      isSortable: true,
-    },
-    {
-      key: 'placedBy',
-      title: b3Lang('orders.placedBy'),
-      render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
-      width: '10%',
-      isSortable: true,
-    },
-    {
-      key: 'createdAt',
-      title: b3Lang('orders.createdOn'),
-      render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
-      width: '10%',
-      isSortable: true,
-    },
-  ] as const satisfies TableColumnItem<ListItem>[];
-
-  const getColumnItems = (): TableColumnItem<ListItem>[] => {
-    const getNewColumnItems = columnAllItems.filter((item) => {
-      const { key } = item;
-      if (!isB2BUser && key === 'companyName') return false;
-      if ((!isB2BUser || (Number(role) === 3 && !isAgenting)) && key === 'placedBy') return false;
-
-      if (key === 'placedBy' && !(Number(role) === 3 && !isAgenting) && !isCompanyOrder) {
-        return false;
-      }
-      return true;
-    });
-
-    return getNewColumnItems;
-  };
-
-  const columnItems = getColumnItems();
+      {
+        key: 'companyName',
+        title: b3Lang('orders.company'),
+        width: '10%',
+        isSortable: false,
+        render: ({ companyInfo }) => {
+          return <Box>{companyInfo?.companyName || '–'}</Box>;
+        },
+        hidden: !isB2BUser,
+      },
+      {
+        key: 'poNumber',
+        title: b3Lang('orders.poReference'),
+        render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
+        width: '10%',
+        isSortable: true,
+      },
+      {
+        key: 'totalIncTax',
+        title: b3Lang('orders.grandTotal'),
+        render: ({ money, totalIncTax }) =>
+          money
+            ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
+            : currencyFormat(totalIncTax),
+        align: 'right',
+        width: '8%',
+        isSortable: true,
+      },
+      {
+        key: 'status',
+        title: b3Lang('orders.orderStatus'),
+        render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
+        width: '10%',
+        isSortable: true,
+      },
+      {
+        key: 'placedBy',
+        title: b3Lang('orders.placedBy'),
+        render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
+        width: '10%',
+        isSortable: true,
+        hidden: !isB2BUser || isSuperAdminNotAgenting || !isCompanyOrder,
+      },
+      {
+        key: 'createdAt',
+        title: b3Lang('orders.createdOn'),
+        render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
+        width: '10%',
+        isSortable: true,
+      },
+    ],
+    [b3Lang, isB2BUser, isSuperAdminNotAgenting, isCompanyOrder],
+  );
 
   const unifiedState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
 
