@@ -1,7 +1,9 @@
 import { useAppSelector } from '@/store';
 import type { FeatureFlagKey } from '@/utils/featureFlags';
 
-function isFeatureFlagOverrideMap(value: unknown): value is Partial<Record<FeatureFlagKey, boolean>> {
+function isFeatureFlagOverrideMap(
+  value: unknown,
+): value is Partial<Record<FeatureFlagKey, boolean>> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
@@ -33,4 +35,6 @@ function getLocalFeatureFlagOverride(flagKey: FeatureFlagKey): boolean | undefin
  * Returns whether a single storefront feature flag is enabled (true / false).
  */
 export const useFeatureFlag = (flagKey: FeatureFlagKey): boolean =>
-  useAppSelector(({ global }) => getLocalFeatureFlagOverride(flagKey) ?? global.featureFlags[flagKey] ?? false);
+  useAppSelector(
+    ({ global }) => getLocalFeatureFlagOverride(flagKey) ?? global.featureFlags[flagKey] ?? false,
+  );
