@@ -9,10 +9,10 @@ const ENVIRONMENT_B2B_API_URL: EnvSpecificConfig<string> = {
 
 // cspell:disable
 const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
-  local: import.meta.env.VITE_LOCAL_APP_CLIENT_ID ?? 'qxvapwlk4fbb9dyogdcxk9o50d9jqjo',
+  local: import.meta.env.VITE_LOCAL_APP_CLIENT_ID ?? 'dl7c39mdpul6hyc489yk0vzxl6jesyx',
   integration: 'leg40ozqqvl0r08spvs0viatax4egbz',
   staging: 't2tu7i9ap01r4o7cpocngz3xose8dvp',
-  production: 'qxvapwlk4fbb9dyogdcxk9o50d9jqjo',
+  production: 'dl7c39mdpul6hyc489yk0vzxl6jesyx',
 };
 // cspell:enable
 
