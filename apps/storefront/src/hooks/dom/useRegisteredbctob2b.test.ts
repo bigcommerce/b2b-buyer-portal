@@ -40,19 +40,19 @@ describe('useRegisteredbctob2b', () => {
     mockedB2bVerifyBcLoginStatus.mockResolvedValue(true);
   });
 
-  it('renders a "Business Account Application" button in the nav', async () => {
+  it('renders a "Business Account Application" link in the nav', async () => {
     setupNavDOM();
 
     renderHookWithProviders(() => useRegisteredbctob2b(vi.fn()), {
       preloadedState: { company: b2cCustomerState },
     });
 
-    expect(
-      await screen.findByRole('button', { name: 'Business Account Application' }),
-    ).toBeVisible();
+    const link = await screen.findByRole('link', { name: 'Business Account Application' });
+    expect(link).toBeVisible();
+    expect(link).toHaveAttribute('href', '/registeredbctob2b');
   });
 
-  it('does not render the button when bc login check returns false', async () => {
+  it('does not render the link when bc login check returns false', async () => {
     mockedB2bVerifyBcLoginStatus.mockResolvedValue(false);
     setupNavDOM();
 
@@ -62,12 +62,12 @@ describe('useRegisteredbctob2b', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByRole('button', { name: 'Business Account Application' }),
+        screen.queryByRole('link', { name: 'Business Account Application' }),
       ).not.toBeInTheDocument();
     });
   });
 
-  it('does not render the button when registration is disabled', async () => {
+  it('does not render the link when registration is disabled', async () => {
     setupNavDOM();
 
     renderHookWithProviders(() => useRegisteredbctob2b(vi.fn()), {
@@ -77,12 +77,12 @@ describe('useRegisteredbctob2b', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByRole('button', { name: 'Business Account Application' }),
+        screen.queryByRole('link', { name: 'Business Account Application' }),
       ).not.toBeInTheDocument();
     });
   });
 
-  it('does not render the button when company status is not DEFAULT', async () => {
+  it('does not render the link when company status is not DEFAULT', async () => {
     setupNavDOM();
 
     renderHookWithProviders(() => useRegisteredbctob2b(vi.fn()), {
@@ -96,12 +96,12 @@ describe('useRegisteredbctob2b', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByRole('button', { name: 'Business Account Application' }),
+        screen.queryByRole('link', { name: 'Business Account Application' }),
       ).not.toBeInTheDocument();
     });
   });
 
-  it('opens the Business Account Application page when the button is clicked', async () => {
+  it('opens the Business Account Application page when the link is clicked', async () => {
     setupNavDOM();
     const setOpenPage = vi.fn();
 
@@ -110,7 +110,7 @@ describe('useRegisteredbctob2b', () => {
     });
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Business Account Application' }),
+      await screen.findByRole('link', { name: 'Business Account Application' }),
     );
 
     expect(setOpenPage).toHaveBeenCalledWith({

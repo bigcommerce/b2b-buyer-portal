@@ -53,12 +53,9 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
       const convertB2BNavNode = document.createElement('li');
       convertB2BNavNode.className = 'navUser-item navUser-convert-b2b';
       convertB2BNavNode.innerHTML = `
-        <button
-          class="navUser-action"
-          type="button"
-        >
+        <a class="navUser-action" href="/registeredbctob2b">
           ${b3Lang('global.registerB2B.linkText')}
-        </button>
+        </a>
       `;
       return convertB2BNavNode;
     };
@@ -86,9 +83,10 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
 
       accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode);
 
-      const linkNode = convertB2BNavNode.querySelector('button');
+      const linkNode = convertB2BNavNode.querySelector('a');
       if (linkNode) {
-        linkNode.onclick = () => {
+        linkNode.onclick = (e) => {
+          e.preventDefault();
           setOpenPage({
             isOpen: true,
             openUrl: '/registeredbctob2b',
