@@ -132,7 +132,9 @@ const B3Request = {
           snackbar.error(message);
         }
 
-        throw new Error(message);
+        const err = new Error(message);
+        (err as Error & { extensions?: typeof extensions }).extensions = extensions;
+        throw err;
       }
 
       return value.data;
