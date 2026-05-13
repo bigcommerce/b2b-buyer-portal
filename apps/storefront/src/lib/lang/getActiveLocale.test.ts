@@ -44,4 +44,12 @@ describe('getActiveLocale', () => {
     setHref('https://other-store.example.com/');
     expect(getActiveLocale(LOCALES)).toBeUndefined();
   });
+
+  it('does not mutate the input locales array', () => {
+    setHref('https://store.example.com/fr-ca/orders');
+    const input = [...LOCALES];
+    const snapshot = [...input];
+    getActiveLocale(input);
+    expect(input).toEqual(snapshot);
+  });
 });

@@ -1,7 +1,7 @@
 import type { Locale, Locales } from '@/store/slices/global';
 
 export const getActiveLocale = (locales: Locales): Locale | undefined =>
-  locales
+  [...locales]
     .sort((a, b) => b.fullPath.length - a.fullPath.length)
     .find(({ fullPath }) => {
       const { href } = window.location;
