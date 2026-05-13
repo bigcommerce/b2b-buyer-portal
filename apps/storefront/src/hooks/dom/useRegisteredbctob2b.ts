@@ -53,7 +53,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
       const convertB2BNavNode = document.createElement('li');
       convertB2BNavNode.className = 'navUser-item navUser-convert-b2b';
       convertB2BNavNode.innerHTML = `
-        <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
+        <a class="navUser-action" href="/registeredbctob2b">
           ${b3Lang('global.registerB2B.linkText')}
         </a>
       `;
@@ -85,7 +85,8 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
 
       const linkNode = convertB2BNavNode.querySelector('a');
       if (linkNode) {
-        linkNode.onclick = () => {
+        linkNode.onclick = (e) => {
+          e.preventDefault();
           setOpenPage({
             isOpen: true,
             openUrl: '/registeredbctob2b',
