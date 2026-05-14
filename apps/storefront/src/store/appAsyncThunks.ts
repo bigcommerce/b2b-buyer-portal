@@ -33,6 +33,14 @@ const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
 };
 
+/**
+ * Pages that render shared components whose translation keys belong to another page.
+ * When a page is visited, translations for its dependencies are also fetched.
+ */
+const PAGE_DEPENDENCIES: Partial<Record<string, string[]>> = {
+  quoteDetail: ['quoteDraft'],
+};
+
 export const getGlobalTranslations = createAppAsyncThunk<
   GetGlobalTranslationResponse,
   GetGlobalTranslationsParams
@@ -67,13 +75,24 @@ export const getPageTranslations = createAppAsyncThunk<
   'lang/getPageTranslations',
   async ({ channelId, page: pageKey }, { rejectWithValue }) => {
     const page = REPEATED_PAGES[pageKey] ?? pageKey;
-    const { message } = await getTranslation({ channelId, page });
+    const pagesToFetch = [page, ...(PAGE_DEPENDENCIES[pageKey] ?? [])];
 
-    if (typeof message === 'string') {
-      return rejectWithValue(message);
+    const results = await Promise.all(
+      pagesToFetch.map((p) => getTranslation({ channelId, page: p })),
+    );
+
+    const errorResult = results.find((r) => typeof r.message === 'string');
+
+    if (errorResult) {
+      return rejectWithValue(errorResult.message as string);
     }
 
-    return { pageTranslations: message, page };
+    const pageTranslations = Object.assign(
+      {},
+      ...results.map((r) => r.message as Record<string, string>),
+    );
+
+    return { pageTranslations, page };
   },
   {
     condition: ({ page: pageKey }, { getState }) => {
