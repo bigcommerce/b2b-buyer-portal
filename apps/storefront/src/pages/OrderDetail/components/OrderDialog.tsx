@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import { CART_URL } from '@/constants';
-import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
@@ -15,6 +15,7 @@ import {
   addProductToShoppingList,
   getVariantInfoBySkus,
 } from '@/shared/service/b2b';
+import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
@@ -96,12 +97,13 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const isBackorderEnabled = useIsBackorderEnabled();
+  const { isBackorderEnabled, isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([]);
-  const [variantInfoList, setVariantInfoList] = useState<CustomFieldItems[]>([]);
+  const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [checkedArr, setCheckedArr] = useState<number[]>([]);
   const [returnArr, setReturnArr] = useState<ReturnListProps[]>([]);
@@ -461,8 +463,22 @@ export default function OrderDialog({
     setOpenShoppingList(true);
   };
 
+  const reorderInventoryBySku = useMemo(() => {
+    const map: Record<string, CatalogQuickVariantSku> = {};
+    variantInfoList.forEach((row) => {
+      if (row.variantSku) {
+        map[row.variantSku.toUpperCase()] = row;
+      }
+    });
+    return map;
+  }, [variantInfoList]);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setVariantInfoList([]);
+      return () => {};
+    }
+
     setEditableProducts(
       products.map((item: OrderProductItem) => ({
         ...item,
@@ -470,6 +486,9 @@ export default function OrderDialog({
       })),
     );
     setCheckedArr([]);
+    setVariantInfoList([]);
+
+    let cancelled = false;
 
     const getVariantInfoByList = async () => {
       const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
@@ -478,12 +497,18 @@ export default function OrderDialog({
 
       if (visibleSkus.length === 0) return;
 
-      const { variantSku: variantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
+      const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
 
-      setVariantInfoList(variantInfoList);
+      if (!cancelled) {
+        setVariantInfoList(nextVariantInfoList);
+      }
     };
 
     getVariantInfoByList();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isB2BUser, open, products]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
@@ -524,6 +549,10 @@ export default function OrderDialog({
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
             type={type}
+            reorderInventoryBySku={reorderInventoryBySku}
+            reorderBackorderUiEnabled={
+              isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && type === 'reOrder'
+            }
           />
 
           {type === 'return' && (

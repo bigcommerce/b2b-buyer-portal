@@ -1,5 +1,6 @@
 import type { Variant } from '@/types/products';
 import { QuoteItem } from '@/types/quotes';
+import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
 
 type QuoteItemBackendAvailability = {
   exceedsAvailableToSell: boolean;
@@ -32,12 +33,6 @@ export function getQuoteItemBackendAvailability(
 
 export function draftRowQuantityExceedsAvailableToSell(row: QuoteItem['node']): boolean {
   return getQuoteItemBackendAvailability(row)?.exceedsAvailableToSell ?? false;
-}
-
-interface DraftBackorderDisplayFields {
-  totalOnHand: number;
-  backorderMessage?: string;
-  quantityBackordered: number;
 }
 
 type DraftBackorderTracking = 'product' | 'variant';
@@ -79,16 +74,7 @@ function getDraftBackorderBackorderMessage(
   return variant.backorder_message ?? undefined;
 }
 
-function getDraftBackorderQuantityBackordered(
-  orderedQuantity: number,
-  totalOnHand: number,
-): number {
-  return Math.max(0, orderedQuantity - totalOnHand);
-}
-
-export function getDraftBackorderDisplayFields(
-  row: QuoteItem['node'],
-): DraftBackorderDisplayFields | null {
+export function getDraftBackorderDisplayFields(row: QuoteItem['node']) {
   const tracking = getDraftBackorderTracking(row);
   if (!tracking) return null;
 
@@ -97,15 +83,7 @@ export function getDraftBackorderDisplayFields(
 
   const backorderMessage = getDraftBackorderBackorderMessage(row, tracking);
   const qty = Number(row.quantity ?? 0);
-  const quantityBackordered = getDraftBackorderQuantityBackordered(qty, totalOnHand);
-
-  if (quantityBackordered <= 0) return null;
-
-  return {
-    totalOnHand,
-    backorderMessage,
-    quantityBackordered,
-  };
+  return getBackorderDisplayFieldsFromOnHand(qty, totalOnHand, backorderMessage);
 }
 
 export function draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList: QuoteItem[]): boolean {
