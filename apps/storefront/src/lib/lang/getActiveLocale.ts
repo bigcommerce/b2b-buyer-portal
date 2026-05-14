@@ -8,6 +8,9 @@ export const getActiveLocale = (locales: Locales): Locale | undefined =>
       if (!href.startsWith(fullPath)) {
         return false;
       }
+      if (fullPath.endsWith('/')) {
+        return true;
+      }
       const next = href[fullPath.length];
       return next === undefined || next === '/' || next === '#' || next === '?';
     });
