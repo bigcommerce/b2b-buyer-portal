@@ -164,12 +164,12 @@ function OrderDetail() {
 
     const fetchUnifiedOrderDetails = async () => {
       const id = parseInt(orderId, 10);
+      setUnifiedOrder(null);
+
       if (!id) {
-        setUnifiedOrder(null);
         return;
       }
 
-      setUnifiedOrder(null);
       setIsRequestLoading(true);
 
       try {
