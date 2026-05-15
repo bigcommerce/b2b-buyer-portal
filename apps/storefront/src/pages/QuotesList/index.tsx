@@ -6,6 +6,7 @@ import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
@@ -16,9 +17,11 @@ import {
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
+import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 import { channelId } from '@/utils/basicConfig';
+import { buildCurrenciesMap } from '@/utils/currencyUtils';
 
 import QuoteStatus from '../quote/components/QuoteStatus';
 import { addPrice } from '../quote/shared/config';
@@ -26,9 +29,10 @@ import { addPrice } from '../quote/shared/config';
 import { QuoteItemCard } from './QuoteItemCard';
 
 interface ListItem {
-  [key: string]: string | Object;
+  [key: string]: string | Object | undefined;
   status: string;
   quoteNumber: string;
+  currency?: CurrencyProps | DisplayCurrency;
 }
 
 interface FilterSearchProps {
@@ -79,6 +83,7 @@ function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const draftQuoteListLength = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList.length);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies.currencies);
   const b3Lang = useB3Lang();
 
   const companyId = companyB2BId || salesRepCompanyId;
@@ -168,8 +173,11 @@ function useData() {
     return getFilters();
   };
 
+  const currenciesMap = useMemo(() => buildCurrenciesMap(currencies), [currencies]);
+
   return {
     companyId,
+    currenciesMap,
     isB2BUser,
     draftQuoteListLength,
     customer,
@@ -178,8 +186,27 @@ function useData() {
   };
 }
 
-const useColumnList = (): Array<TableColumnItem<ListItem>> => {
+const useColumnList = (
+  currenciesMap: Record<string, DisplayCurrency>,
+  isCurrencySymbolPlacementFixEnabled: boolean,
+): Array<TableColumnItem<ListItem>> => {
   const b3Lang = useB3Lang();
+
+  const getTotalAmount = useMemo(
+    () => (item: ListItem) => {
+      const { totalAmount, currency } = item;
+      const currencyCode = currency?.currencyCode;
+      const effectiveCurrency =
+        (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
+        currency;
+      return currencyFormatConvert(Number(totalAmount), {
+        currency: effectiveCurrency,
+        isConversionRate: false,
+        useCurrentCurrency: !!effectiveCurrency,
+      });
+    },
+    [isCurrencySymbolPlacementFixEnabled, currenciesMap],
+  );
 
   return useMemo(
     () => [
@@ -230,15 +257,7 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
       {
         key: 'totalAmount',
         title: b3Lang('quotes.subtotal'),
-        render: (item: ListItem) => {
-          const { totalAmount, currency } = item;
-          const newCurrency = currency as CurrencyProps;
-          return currencyFormatConvert(Number(totalAmount), {
-            currency: newCurrency,
-            isConversionRate: false,
-            useCurrentCurrency: !!currency,
-          });
-        },
+        render: getTotalAmount,
         style: {
           textAlign: 'right',
         },
@@ -250,13 +269,17 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         isSortable: true,
       },
     ],
-    [b3Lang],
+    [b3Lang, getTotalAmount],
   );
 };
 
 function QuotesList() {
-  const { getAvailableFilters, draftQuoteListLength, customer, getQuotesList } = useData();
-  const columns = useColumnList();
+  const { getAvailableFilters, draftQuoteListLength, customer, getQuotesList, currenciesMap } =
+    useData();
+  const fixQuoteCurrencySymbolPlacement = useFeatureFlag(
+    'B2B-3876.fix_quote_currency_symbol_placement',
+  );
+  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement);
 
   const initSearch = {
     q: '',
@@ -427,7 +450,14 @@ function QuotesList() {
           labelRowsPerPage={
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
           }
-          renderItem={(row) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
+          renderItem={(row) => (
+            <QuoteItemCard
+              item={row}
+              goToDetail={goToDetail}
+              currenciesMap={currenciesMap}
+              isCurrencySymbolPlacementFixEnabled={fixQuoteCurrencySymbolPlacement}
+            />
+          )}
           onClickRow={(row) => {
             goToDetail(row, Number(row.status));
           }}

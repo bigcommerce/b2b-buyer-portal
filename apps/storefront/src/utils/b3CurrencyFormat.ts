@@ -1,4 +1,5 @@
 import { store } from '@/store';
+import { DisplayCurrency } from '@/types/currency';
 
 import b2bLogger from './b3Logger';
 import { getActiveCurrencyInfo } from './currencyUtils';
@@ -63,7 +64,7 @@ export const ordersCurrencyFormat = (
 };
 
 interface CurrencyOption {
-  currency: CurrencyProps;
+  currency?: CurrencyProps | DisplayCurrency;
   showCurrencyToken?: boolean;
   isConversionRate?: boolean;
   useCurrentCurrency?: boolean;

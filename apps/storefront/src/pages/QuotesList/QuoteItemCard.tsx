@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -7,20 +8,24 @@ import Typography from '@mui/material/Typography';
 
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
-import { currencyFormat } from '@/utils/b3CurrencyFormat';
+import { DisplayCurrency } from '@/types/currency';
+import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import QuoteStatus from '../quote/components/QuoteStatus';
 
 interface ListItem {
-  [key: string]: string | Object;
+  [key: string]: string | Object | undefined;
   status: string;
   quoteNumber: string;
+  currency?: CurrencyProps | DisplayCurrency;
 }
 
 interface QuoteItemCardProps {
   goToDetail: (val: ListItem, status: number) => void;
   item: ListItem;
+  currenciesMap: Record<string, DisplayCurrency>;
+  isCurrencySymbolPlacementFixEnabled: boolean;
 }
 
 const Flex = styled('div')({
@@ -31,11 +36,24 @@ const Flex = styled('div')({
 });
 
 export function QuoteItemCard(props: QuoteItemCardProps) {
-  const { item, goToDetail } = props;
+  const { item, goToDetail, currenciesMap, isCurrencySymbolPlacementFixEnabled } = props;
   const theme = useTheme();
   const b3Lang = useB3Lang();
 
   const primaryColor = theme.palette.primary.main;
+
+  const getTotalAmount = useMemo(() => {
+    const { totalAmount, currency } = item;
+    const currencyCode = currency?.currencyCode;
+    const effectiveCurrency =
+      (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
+      currency;
+    return currencyFormatConvert(Number(totalAmount), {
+      currency: effectiveCurrency,
+      isConversionRate: false,
+      useCurrentCurrency: !!effectiveCurrency,
+    });
+  }, [item, isCurrencySymbolPlacementFixEnabled, currenciesMap]);
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
@@ -71,11 +89,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     {
       key: 'totalAmount',
       title: b3Lang('quotes.quoteItemCard.subtotal'),
-      render: () => {
-        const { totalAmount } = item;
-
-        return currencyFormat(Number(totalAmount));
-      },
+      render: () => getTotalAmount,
     },
   ];
 
