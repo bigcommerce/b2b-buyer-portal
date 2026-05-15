@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
+import { DisplayCurrency } from '@/types/currency';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
@@ -16,6 +17,7 @@ interface ListItem {
   [key: string]: string | Object;
   status: string;
   quoteNumber: string;
+  currency: CurrencyProps | DisplayCurrency;
 }
 
 interface QuoteItemCardProps {

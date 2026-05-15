@@ -35,6 +35,10 @@ export const featureFlags = [
     key: 'LOCAL-3191.B2B_multi_language',
     name: 'b2bMultiLanguage',
   },
+  {
+    key: 'B2B-3876.fix_quote_currency_symbol_placement',
+    name: 'fixQuoteCurrencySymbolPlacement',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

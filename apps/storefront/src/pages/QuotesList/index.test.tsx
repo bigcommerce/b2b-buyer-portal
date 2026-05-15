@@ -2,6 +2,7 @@ import { PersistPartial } from 'redux-persist/es/persistReducer';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -1342,5 +1343,96 @@ describe('when the user is a B2C customer', () => {
       expect(await screen.findByText('No data')).toBeInTheDocument();
       expect(screen.queryByRole('table')).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('fix_quote_currency_symbol_placement feature flag', () => {
+  const nonCompany = buildCompanyStateWith({ customer: { b2bId: undefined } });
+  const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } });
+
+  const eurOnRightInQuote = {
+    token: '€',
+    location: 'right',
+    currencyCode: 'EUR',
+    decimalToken: '.',
+    decimalPlaces: 2,
+    thousandsToken: ',',
+    currencyExchangeRate: '1.0000000000',
+  };
+
+  const eurOnLeftInBcConfig = {
+    id: '2',
+    is_default: false,
+    last_updated: '2024-01-01',
+    country_iso2: 'DE',
+    default_for_country_codes: [],
+    currency_code: 'EUR',
+    currency_exchange_rate: '1.0000000000',
+    name: 'Euro',
+    token: '€',
+    auto_update: false,
+    decimal_token: '.',
+    decimal_places: 2,
+    enabled: true,
+    is_transactional: true,
+    token_location: 'left' as const,
+    thousands_token: ',',
+  };
+
+  const quoteWithEurOnRight = buildQuotesListBCWith({
+    data: {
+      customerQuotes: {
+        totalCount: 1,
+        edges: [
+          buildQuoteEdgeWith({
+            node: { totalAmount: '100.00', currency: eurOnRightInQuote },
+          }),
+        ],
+      },
+    },
+  });
+
+  const storeConfigsWithUpdatedEurPlacement = {
+    currencies: {
+      currencies: [eurOnLeftInBcConfig],
+      channelCurrencies: { channel_id: 1, enabled_currencies: ['EUR'], default_currency: 'EUR' },
+      enteredInclusiveTax: false,
+    },
+  };
+
+  beforeEach(() => {
+    server.use(graphql.query('GetQuotesList', () => HttpResponse.json(quoteWithEurOnRight)));
+  });
+
+  it('uses the saved quote currency placement when the flag is disabled', async () => {
+    renderWithProviders(<QuotesList />, {
+      preloadedState: {
+        company: nonCompany,
+        storeInfo: storeInfoWithDateFormat,
+        storeConfigs: storeConfigsWithUpdatedEurPlacement,
+        global: buildGlobalStateWith({
+          featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': false },
+        }),
+      },
+    });
+
+    const table = await screen.findByRole('table');
+    expect(within(table).getByRole('cell', { name: '100.00€' })).toBeInTheDocument();
+  });
+
+  it('uses the current BC currency placement when the flag is enabled', async () => {
+    renderWithProviders(<QuotesList />, {
+      preloadedState: {
+        company: nonCompany,
+        storeInfo: storeInfoWithDateFormat,
+        storeConfigs: storeConfigsWithUpdatedEurPlacement,
+        global: buildGlobalStateWith({
+          featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
+        }),
+      },
+    });
+
+    const table = await screen.findByRole('table');
+    expect(within(table).getByRole('cell', { name: '€100.00' })).toBeInTheDocument();
   });
 });
