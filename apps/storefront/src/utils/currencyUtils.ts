@@ -1,18 +1,7 @@
-import { store } from '@/store';
-import { defaultCurrenciesState } from '@/store/slices/storeConfigs';
-import { Currency } from '@/types';
+import { activeCurrencyInfoSelector, store } from '@/store';
+import { Currency, DisplayCurrency } from '@/types';
 
-const defaultCurrency: Currency = defaultCurrenciesState.currencies[0];
-
-const getActiveCurrencyInfo = () => {
-  const { currencies } = store.getState().storeConfigs.currencies;
-  const activeCurrencyObj = store.getState().storeConfigs.activeCurrency?.node;
-  const activeCurrency = currencies.find(
-    (currency) => Number(currency.id) === activeCurrencyObj?.entityId,
-  );
-
-  return activeCurrency || defaultCurrency;
-};
+const getActiveCurrencyInfo = () => activeCurrencyInfoSelector(store.getState());
 
 const handleGetCorrespondingCurrencyToken = (code: string) => {
   const correspondingCurrency = store
@@ -27,4 +16,20 @@ const handleGetCorrespondingCurrencyToken = (code: string) => {
   return token;
 };
 
-export { getActiveCurrencyInfo, handleGetCorrespondingCurrencyToken };
+const formatBcCurrencyToDisplayCurrency = (bcCurrency: Currency): DisplayCurrency => ({
+  token: bcCurrency.token,
+  location: bcCurrency.token_location,
+  currencyCode: bcCurrency.currency_code,
+  decimalToken: bcCurrency.decimal_token,
+  decimalPlaces: bcCurrency.decimal_places,
+  thousandsToken: bcCurrency.thousands_token,
+  currencyExchangeRate: bcCurrency.currency_exchange_rate,
+});
+
+const buildCurrenciesMap = (currencies: Currency[]): Record<string, DisplayCurrency> =>
+  currencies.reduce<Record<string, DisplayCurrency>>((acc, currency) => {
+    acc[currency.currency_code] = formatBcCurrencyToDisplayCurrency(currency);
+    return acc;
+  }, {});
+
+export { getActiveCurrencyInfo, handleGetCorrespondingCurrencyToken, buildCurrenciesMap };
