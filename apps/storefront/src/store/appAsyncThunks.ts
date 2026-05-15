@@ -37,7 +37,7 @@ const REPEATED_PAGES: Partial<Record<string, string>> = {
  * Pages that render shared components whose translation keys belong to another page.
  * When a page is visited, translations for its dependencies are also fetched.
  */
-const PAGE_DEPENDENCIES: Partial<Record<string, string[]>> = {
+const TRANSLATION_DEPENDENCIES: Partial<Record<string, string[]>> = {
   quoteDetail: ['quoteDraft'],
 };
 
@@ -75,7 +75,7 @@ export const getPageTranslations = createAppAsyncThunk<
   'lang/getPageTranslations',
   async ({ channelId, page: pageKey }, { rejectWithValue }) => {
     const page = REPEATED_PAGES[pageKey] ?? pageKey;
-    const pagesToFetch = [page, ...(PAGE_DEPENDENCIES[pageKey] ?? [])];
+    const pagesToFetch = [page, ...(TRANSLATION_DEPENDENCIES[pageKey] ?? [])];
 
     const results = await Promise.all(
       pagesToFetch.map((p) => getTranslation({ channelId, page: p })),
