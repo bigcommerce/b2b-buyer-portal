@@ -75,21 +75,22 @@ export const getPageTranslations = createAppAsyncThunk<
   'lang/getPageTranslations',
   async ({ channelId, page: pageKey }, { rejectWithValue }) => {
     const page = REPEATED_PAGES[pageKey] ?? pageKey;
-    const pagesToFetch = [page, ...(TRANSLATION_DEPENDENCIES[pageKey] ?? [])];
+    const dependencyPages = TRANSLATION_DEPENDENCIES[page] ?? [];
 
-    const results = await Promise.all(
-      pagesToFetch.map((p) => getTranslation({ channelId, page: p })),
+    const [primaryResult, ...dependencyResults] = await Promise.all(
+      [page, ...dependencyPages].map((p) => getTranslation({ channelId, page: p })),
     );
 
-    const errorResult = results.find((r) => typeof r.message === 'string');
-
-    if (errorResult) {
-      return rejectWithValue(errorResult.message as string);
+    if (typeof primaryResult.message === 'string') {
+      return rejectWithValue(primaryResult.message);
     }
 
     const pageTranslations = Object.assign(
       {},
-      ...results.map((r) => r.message as Record<string, string>),
+      primaryResult.message as Record<string, string>,
+      ...dependencyResults
+        .filter((r) => typeof r.message !== 'string')
+        .map((r) => r.message as Record<string, string>),
     );
 
     return { pageTranslations, page };
