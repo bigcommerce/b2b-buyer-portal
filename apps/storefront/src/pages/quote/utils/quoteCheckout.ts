@@ -4,6 +4,7 @@ import { LangFormatFunction } from '@/lib/lang';
 import { getBCStorefrontProductSettings, quoteCheckout } from '@/shared/service/b2b';
 import type { ProductValidationError } from '@/shared/service/request/b3Fetch';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
+import { isLoggedInSelector } from '@/store/selectors';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
@@ -26,6 +27,8 @@ type CheckoutResponse = {
     };
   };
 };
+
+type ErrorWithExtensions = Error & { extensions?: { code?: number } };
 
 interface QuoteCheckout {
   role: string | number;
@@ -102,6 +105,19 @@ export const handleQuoteCheckout = async ({
     b2bLogger.error(err);
     // 40101 auth-expiry: graphqlB2B already shows a snackbar and rejects with a string; skip our message to avoid a second, incorrect snackbar
     if (typeof err === 'string') return;
+
+    const code = (err as ErrorWithExtensions)?.extensions?.code;
+    const isUserLoggedIn = isLoggedInSelector(store.getState());
+    if (code === 401 || code === 403) {
+      if (!isUserLoggedIn) {
+        store.dispatch(setQuoteDetailToCheckoutUrl(location.pathname + location.search));
+        if (navigate) navigate('/login');
+        return;
+      }
+      snackbar.error(b3Lang('quoteDetail.error.unauthorized'));
+      return;
+    }
+
     // TODO(BACK-543): Remove err.message branch when experiment is cleaned up.
     const message =
       err instanceof Error ? err.message : b3Lang('quotes.productValidationFailedForQuote');
