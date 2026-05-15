@@ -8,6 +8,7 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
+import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 
@@ -49,7 +50,7 @@ interface ShoppingDetailTableProps {
   quoteReviewedBySalesRep: boolean;
   getTaxRate: (variants: any) => number;
   displayDiscount: boolean;
-  currency: CurrencyProps;
+  currency: DisplayCurrency;
   status: string | number;
 }
 

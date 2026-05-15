@@ -29,6 +29,16 @@ export interface Currency {
   thousands_token: string;
 }
 
+export interface DisplayCurrency {
+  token: string;
+  location: 'left' | 'right';
+  currencyCode: string;
+  decimalToken: string;
+  decimalPlaces: number;
+  thousandsToken: string;
+  currencyExchangeRate: string;
+}
+
 interface Node {
   isActive: boolean;
   entityId: number;
