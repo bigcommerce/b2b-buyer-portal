@@ -4,6 +4,7 @@ import ShippingExpectationPrompt from '@/components/ShippingExpectationPrompt';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
+import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 
 interface Summary {
@@ -19,6 +20,7 @@ interface QuoteDetailSummaryProps {
   quoteDetailTax: number;
   status: string;
   quoteDetail: CustomFieldItems;
+  currency?: DisplayCurrency | CurrencyProps;
   shouldHidePrice: boolean;
   hasBackorderedItems: boolean;
 }
@@ -28,6 +30,7 @@ export default function QuoteDetailSummary({
   quoteDetailTax = 0,
   status,
   quoteDetail,
+  currency,
   shouldHidePrice,
   hasBackorderedItems,
 }: QuoteDetailSummaryProps) {
@@ -40,6 +43,9 @@ export default function QuoteDetailSummary({
   const isBackorderMessagingEnabled = useFeatureFlag(
     'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
   );
+  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
+    'B2B-3876.fix_quote_currency_symbol_placement',
+  );
   const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
@@ -51,11 +57,15 @@ export default function QuoteDetailSummary({
     return showInclusiveTaxPrice ? price + quoteDetailTax : price;
   };
 
+  const effectiveCurrency = isCurrencySymbolPlacementFixEnabled
+    ? (currency ?? quoteDetail.currency)
+    : quoteDetail.currency;
+
   const priceFormat = (price: number) =>
     currencyFormatConvert(price, {
-      currency: quoteDetail.currency,
+      currency: effectiveCurrency,
       isConversionRate: false,
-      useCurrentCurrency: !!quoteDetail.currency,
+      useCurrentCurrency: !!effectiveCurrency,
     });
 
   const getShippingAndTax = () => {

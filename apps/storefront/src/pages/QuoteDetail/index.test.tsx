@@ -1510,4 +1510,113 @@ describe('when the user is a B2B customer', () => {
       expect(screen.queryByText(/backorder details/i)).not.toBeInTheDocument();
     });
   });
+
+  describe('fix_quote_currency_symbol_placement feature flag', () => {
+    const woolSock = buildQuoteProductWith({
+      productName: 'Wool Socks',
+      quantity: 3,
+      basePrice: '49.00',
+      offeredPrice: '49.00',
+    });
+
+    const eurOnRightInQuote = {
+      token: '€',
+      location: 'right',
+      currencyCode: 'EUR',
+      decimalToken: '.',
+      decimalPlaces: 2,
+      thousandsToken: ',',
+      currencyExchangeRate: '1.0000000000',
+    };
+
+    const eurOnLeftInBcConfig = {
+      id: '2',
+      is_default: false,
+      last_updated: '2024-01-01',
+      country_iso2: 'DE',
+      default_for_country_codes: [],
+      currency_code: 'EUR',
+      currency_exchange_rate: '1.0000000000',
+      name: 'Euro',
+      token: '€',
+      auto_update: false,
+      decimal_token: '.',
+      decimal_places: 2,
+      enabled: true,
+      is_transactional: true,
+      token_location: 'left' as const,
+      thousands_token: ',',
+    };
+
+    const storeConfigsWithUpdatedEurPlacement = {
+      currencies: {
+        currencies: [eurOnLeftInBcConfig],
+        channelCurrencies: { channel_id: 1, enabled_currencies: ['EUR'], default_currency: 'EUR' },
+        enteredInclusiveTax: false,
+      },
+    };
+
+    beforeEach(() => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [woolSock],
+            currency: eurOnRightInQuote,
+            totalAmount: '200.00',
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    });
+
+    it('uses the saved quote currency placement when the flag is disabled', async () => {
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          storeConfigs: storeConfigsWithUpdatedEurPlacement,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': false },
+          }),
+        },
+      });
+
+      const row = (await screen.findByText('Wool Socks')).closest('tr')!;
+      expect(within(row).getByRole('cell', { name: '49.00€' })).toBeInTheDocument();
+
+      const summary = screen.getByTestId('quote-summary');
+      expect(within(summary).getByText('200.00€')).toBeInTheDocument();
+    });
+
+    it('uses the current BC currency placement when the flag is enabled', async () => {
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          storeConfigs: storeConfigsWithUpdatedEurPlacement,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
+          }),
+        },
+      });
+
+      const row = (await screen.findByText('Wool Socks')).closest('tr')!;
+      expect(within(row).getByRole('cell', { name: '€49.00' })).toBeInTheDocument();
+
+      const summary = screen.getByTestId('quote-summary');
+      expect(within(summary).getByText('€200.00')).toBeInTheDocument();
+    });
+  });
 });
