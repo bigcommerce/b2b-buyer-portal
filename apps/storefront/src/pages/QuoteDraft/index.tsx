@@ -47,6 +47,7 @@ import { B3LStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deleteCartData } from '@/utils/cartUtils';
+import { formatBcCurrencyToDisplayCurrency } from '@/utils/currencyUtils';
 import validateObject from '@/utils/quoteUtils';
 import {
   convertStockAndThresholdValidationErrorToWarning,
@@ -159,6 +160,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   );
   const quoteInfoOrigin = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
+  const displayCurrency = useMemo(() => formatBcCurrencyToDisplayCurrency(currency), [currency]);
   const quoteSubmissionResponseInfo = useAppSelector(
     ({ global }) => global.quoteSubmissionResponse,
   );
@@ -562,6 +564,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
     try {
       const info = cloneDeep(quoteInfoOrigin);
+      const { decimalPlaces } = displayCurrency;
       if (isEdit && contactInfoRef?.current) {
         const data = await handleCollectingData(info);
         if (!data) return;
@@ -674,9 +677,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         const items = {
           productId: node?.productsSearch?.id,
           sku: node.variantSku,
-          basePrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
+          basePrice: Number(node?.basePrice || 0).toFixed(decimalPlaces),
           discount: '0.00',
-          offeredPrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
+          offeredPrice: Number(node?.basePrice || 0).toFixed(decimalPlaces),
           quantity: node.quantity,
           variantId: variantsItem?.variant_id,
           imageUrl: node.primaryImage,
@@ -694,10 +697,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         message: newNote,
         legalTerms: '',
         totalAmount: enteredInclusiveTax
-          ? allPrice.toFixed(currency.decimal_places)
-          : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
-        grandTotal: allPrice.toFixed(currency.decimal_places),
-        subtotal: allPrice.toFixed(currency.decimal_places),
+          ? allPrice.toFixed(decimalPlaces)
+          : (allPrice + allTaxPrice).toFixed(decimalPlaces),
+        grandTotal: allPrice.toFixed(decimalPlaces),
+        subtotal: allPrice.toFixed(decimalPlaces),
         companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
         storeHash,
         quoteTitle,
@@ -709,16 +712,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         contactInfo,
         productList,
         fileList,
-        taxTotal: allTaxPrice.toFixed(currency.decimal_places),
-        currency: {
-          currencyExchangeRate: currency.currency_exchange_rate,
-          token: currency.token,
-          location: currency.token_location,
-          decimalToken: currency.decimal_token,
-          decimalPlaces: currency.decimal_places,
-          thousandsToken: currency.thousands_token,
-          currencyCode: currency.currency_code,
-        },
+        taxTotal: allTaxPrice.toFixed(decimalPlaces),
+        currency: displayCurrency,
         referenceNumber: `${info.referenceNumber}` || '',
         extraFields: info.extraFields || [],
         recipients: info.recipients || [],
