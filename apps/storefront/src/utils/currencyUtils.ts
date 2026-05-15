@@ -32,4 +32,9 @@ const buildCurrenciesMap = (currencies: Currency[]): Record<string, DisplayCurre
     return acc;
   }, {});
 
-export { getActiveCurrencyInfo, handleGetCorrespondingCurrencyToken, buildCurrenciesMap };
+export {
+  getActiveCurrencyInfo,
+  handleGetCorrespondingCurrencyToken,
+  buildCurrenciesMap,
+  formatBcCurrencyToDisplayCurrency,
+};
