@@ -43,8 +43,17 @@ describe('QuoteDetailSummary shipping expectation prompt', () => {
     expect(screen.getByText(expectationMessage)).toBeVisible();
   });
 
-  it('hides the prompt when the quote has been converted to an order', () => {
+  it('shows the prompt for ordered quotes when there are backordered items', () => {
     renderWithProviders(<QuoteDetailSummary {...defaultProps} status="4" />, withPromptEnabled);
+
+    expect(screen.getByText(expectationMessage)).toBeVisible();
+  });
+
+  it('hides the prompt for ordered quotes when there are no backordered items', () => {
+    renderWithProviders(
+      <QuoteDetailSummary {...defaultProps} status="4" hasBackorderedItems={false} />,
+      withPromptEnabled,
+    );
 
     expect(screen.queryByText(expectationMessage)).toBeNull();
   });
