@@ -5,6 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
@@ -29,6 +30,7 @@ import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
+import { buildCurrenciesMap } from '@/utils/currencyUtils';
 import { getSearchVal } from '@/utils/loginInfo';
 import {
   ValidatedProductError,
@@ -121,6 +123,8 @@ function useData() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
+  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies.currencies);
+  const currenciesMap = useMemo(() => buildCurrenciesMap(currencies), [currencies]);
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -192,6 +196,7 @@ function useData() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
+    currenciesMap,
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
@@ -269,6 +274,7 @@ function QuoteDetail() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
+    currenciesMap,
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
@@ -279,6 +285,10 @@ function QuoteDetail() {
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
+
+  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
+    'B2B-3876.fix_quote_currency_symbol_placement',
+  );
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
@@ -812,6 +822,14 @@ function QuoteDetail() {
     };
   }, [quoteDetail]);
 
+  const displayCurrency = useMemo(() => {
+    if (isCurrencySymbolPlacementFixEnabled && quoteDetail.currency?.currencyCode) {
+      const currencySnapshot = currenciesMap[quoteDetail.currency.currencyCode];
+      if (currencySnapshot) return currencySnapshot;
+    }
+    return quoteDetail.currency;
+  }, [isCurrencySymbolPlacementFixEnabled, quoteDetail.currency, currenciesMap]);
+
   useScrollBar(false);
 
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
@@ -894,7 +912,7 @@ function QuoteDetail() {
               <QuoteDetailTable
                 total={productList.length}
                 productList={productList}
-                currency={quoteDetail.currency}
+                currency={displayCurrency}
                 quoteReviewedBySalesRep={quoteReviewedBySalesRep}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
@@ -928,6 +946,7 @@ function QuoteDetail() {
                 quoteDetailTax={quoteDetailTax}
                 status={quoteDetail.status}
                 quoteDetail={quoteDetail}
+                currency={displayCurrency}
                 hasBackorderedItems={hasBackorderedItems}
               />
             </Box>

@@ -3,8 +3,10 @@ import { Box, CardContent, styled, Typography } from '@mui/material';
 import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
+import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
@@ -15,7 +17,7 @@ interface QuoteTableCardProps {
   itemIndex?: number;
   showPrice: (price: string, row: CustomFieldItems) => string | number;
   displayDiscount: boolean;
-  currency: CurrencyProps;
+  currency: CurrencyProps | DisplayCurrency;
   showBackorderDetails?: boolean;
   status?: string | number;
 }
@@ -40,6 +42,9 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = props;
   const isOrdered = Number(status) === 4;
   const b3Lang = useB3Lang();
+  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
+    'B2B-3876.fix_quote_currency_symbol_placement',
+  );
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -171,6 +176,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 {`${showPrice(
                   currencyFormatConvert(price, {
                     currency,
+                    useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
                   }),
                   quoteTableItem,
                 )}`}
@@ -185,6 +191,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               {`${showPrice(
                 currencyFormatConvert(offeredPrice, {
                   currency,
+                  useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
                 }),
                 quoteTableItem,
               )}`}
@@ -215,6 +222,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 {`${showPrice(
                   currencyFormatConvert(total, {
                     currency,
+                    useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
                   }),
                   quoteTableItem,
                 )}`}
@@ -229,6 +237,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               {`${showPrice(
                 currencyFormatConvert(totalWithDiscount, {
                   currency,
+                  useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
                 }),
                 quoteTableItem,
               )}`}
