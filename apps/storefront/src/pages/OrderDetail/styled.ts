@@ -9,7 +9,7 @@ interface FlexItemProps {
   width?: string;
   padding?: string;
   flexBasis?: string;
-  minHeight?: string;
+  minWidth?: string;
   textAlignLocation?: string;
 }
 
@@ -48,7 +48,7 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
 });
 
 const FlexItem = styled('div')(
-  ({ width, padding = '0', flexBasis, textAlignLocation }: FlexItemProps) => ({
+  ({ width, padding = '0', flexBasis, textAlignLocation, minWidth }: FlexItemProps) => ({
     display: 'flex',
     flexGrow: width ? 0 : 1,
     flexShrink: width ? 0 : 1,
@@ -56,6 +56,7 @@ const FlexItem = styled('div')(
     justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
     flexBasis,
     width,
+    minWidth,
     padding,
   }),
 );

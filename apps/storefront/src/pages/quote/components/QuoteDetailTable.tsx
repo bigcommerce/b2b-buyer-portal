@@ -5,7 +5,7 @@ import BackorderMessage from '@/components/BackorderMessage';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -120,15 +120,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
-  const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
-  const { showQuantityOnBackorder, showQuantityOnHand, showBackorderMessage } = useAppSelector(
-    ({ global }) => global.backorderDisplaySettings,
-  );
-  const hasAnyBackorderDisplay =
-    showQuantityOnBackorder || showQuantityOnHand || showBackorderMessage;
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -315,7 +308,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row) => (
         <Box>
           <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
-          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
+          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && !isOrdered && (
             <BackorderMessage
               totalOnHand={row.totalOnHand}
               quantityBackordered={row.quantityBackordered}
@@ -418,10 +411,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         >
           {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
-        {isBackorderEnabled &&
-          isBackorderMessagingEnabled &&
-          !isOrdered &&
+        {isBackorderMessagingContextEnabled &&
           hasAnyBackorderDisplay &&
+          !isOrdered &&
           hasBackorderedItems && (
             <FormControlLabel
               control={

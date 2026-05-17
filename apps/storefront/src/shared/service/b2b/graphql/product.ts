@@ -11,6 +11,15 @@ interface ProductPurchasable {
   sku: string;
 }
 
+export type CatalogQuickVariantSku = CustomFieldItems & {
+  variantSku?: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
+};
+
 const getVariantInfoBySkusQuery = (skuList: string[]) => `
 query GetVariantInfoBySkus {
   variantSku (
@@ -34,6 +43,11 @@ query GetVariantInfoBySkus {
     purchasingDisabled,
     variantSku,
     imageUrl,
+    inventoryTracking,
+    availableToSell,
+    unlimitedBackorder,
+    totalOnHand,
+    backorderMessage,
   }
 }`;
 
@@ -68,7 +82,7 @@ const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementati
     $storeHash: String,
     $channelId: Int,
     $customerGroupId: Int,
-    ${data?.categoryFilter ? `$categoryFilter: Boolean,` : ''}    
+    ${data?.categoryFilter ? `$categoryFilter: Boolean,` : ''}
   ) {
     productsSearch (
       search: $search,

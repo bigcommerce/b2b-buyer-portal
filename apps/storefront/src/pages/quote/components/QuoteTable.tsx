@@ -7,15 +7,9 @@ import BackorderMessage from '@/components/BackorderMessage';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
-import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
-import {
-  deleteProductFromDraftQuoteList,
-  setDraftProduct,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
+import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
@@ -170,20 +164,17 @@ interface QuoteTableProps {
 function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
-  const isBackorderEnabled = useIsBackorderEnabled();
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
-  const { showQuantityOnBackorder, showQuantityOnHand, showBackorderMessage } = useAppSelector(
-    ({ global }) => global.backorderDisplaySettings,
-  );
-  const hasAnyBackorderDisplay =
-    showQuantityOnBackorder || showQuantityOnHand || showBackorderMessage;
+  const {
+    isBackorderEnabled,
+    isBackorderMessagingEnabled,
+    isBackorderMessagingContextEnabled,
+    hasAnyBackorderDisplay,
+  } = useBackorderStorefrontMessaging();
 
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
 
   const draftQuoteBackorderContextEnabled =
-    isBackorderEnabled && isBackorderMessagingEnabled && hasAnyBackorderDisplay;
+    isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
 
   const showBackorderMessageBase = draftQuoteBackorderContextEnabled && showBackorderDetails;
 

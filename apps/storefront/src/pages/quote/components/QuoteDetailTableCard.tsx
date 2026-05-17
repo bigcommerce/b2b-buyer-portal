@@ -2,7 +2,7 @@ import { Box, CardContent, styled, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -43,10 +43,8 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
-  const isBackorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
 
   const {
     basePrice,
@@ -149,7 +147,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderEnabled && isBackorderMessagingEnabled && !isOrdered && (
+          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && !isOrdered && (
             <BackorderMessage
               totalOnHand={totalOnHand}
               quantityBackordered={quantityBackordered}
