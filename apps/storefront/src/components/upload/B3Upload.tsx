@@ -65,7 +65,7 @@ export function B3Upload(props: B3UploadProps) {
   const {
     isOpen,
     setIsOpen,
-    bulkUploadTitle = 'Bulk upload',
+    bulkUploadTitle,
     addBtnText = 'add to list',
     handleAddToList = async () => {},
     setProductData = () => {},
@@ -343,7 +343,7 @@ export function B3Upload(props: B3UploadProps) {
   return (
     <B3Dialog
       isOpen={isOpen}
-      title={bulkUploadTitle}
+      title={bulkUploadTitle || b3Lang('global.B3Upload.title')}
       maxWidth="lg"
       rightSizeBtn={addBtnText}
       handleLeftClick={() => {

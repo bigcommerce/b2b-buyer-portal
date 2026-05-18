@@ -42,8 +42,8 @@ const REPEATED_PAGES: Partial<Record<string, string>> = {
  */
 const TRANSLATION_DEPENDENCIES: Partial<Record<string, string[]>> = {
   shoppingList: ['purchasedProducts'],
-  quoteDraft: ['purchasedProducts'],
-  quoteDetail: ['quoteDraft', 'purchasedProducts'],
+  quoteDraft: ['purchasedProducts', 'shoppingList'],
+  quoteDetail: ['quoteDraft', 'purchasedProducts', 'shoppingList'],
 };
 
 export const getGlobalTranslations = createAppAsyncThunk<
