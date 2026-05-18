@@ -244,13 +244,21 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             {errorProduct.length > 0 && (
               <Tab
                 value="error"
-                label={errorProduct.length ? `${b3Lang('global.bulkUpload.tabErrors')} (${errorProduct.length})` : b3Lang('global.bulkUpload.tabErrors')}
+                label={
+                  errorProduct.length
+                    ? `${b3Lang('global.bulkUpload.tabErrors')} (${errorProduct.length})`
+                    : b3Lang('global.bulkUpload.tabErrors')
+                }
               />
             )}
             {validProduct.length > 0 && (
               <Tab
                 value="valid"
-                label={validProduct.length ? `${b3Lang('global.bulkUpload.tabValid')} (${validProduct.length})` : b3Lang('global.bulkUpload.tabValid')}
+                label={
+                  validProduct.length
+                    ? `${b3Lang('global.bulkUpload.tabValid')} (${validProduct.length})`
+                    : b3Lang('global.bulkUpload.tabValid')
+                }
               />
             )}
           </Tabs>
