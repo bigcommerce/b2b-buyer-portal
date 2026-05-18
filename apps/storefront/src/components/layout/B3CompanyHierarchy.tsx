@@ -5,8 +5,15 @@ import { Box, Chip, Grid } from '@mui/material';
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
+import { GlobalContext } from '@/shared/global';
+import {
+  getPageTranslations,
+  setOpenCompanyHierarchyDropDown,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store';
 import { CompanyHierarchyProps, PagesSubsidiariesPermissionProps } from '@/types';
+import { channelId } from '@/utils/basicConfig';
 
 import B3DropDown, { DropDownHandle, ListItemProps } from '../B3DropDown';
 
@@ -23,6 +30,16 @@ function B3CompanyHierarchy() {
   const b3Lang = useB3Lang();
 
   const dispatch = useAppDispatch();
+  const { state: globalState } = useContext(GlobalContext);
+
+  useEffect(() => {
+    dispatch(
+      getPageTranslations({
+        channelId: globalState.multiStorefrontEnabled ? channelId : 0,
+        page: 'companyHierarchy',
+      }),
+    );
+  }, [dispatch, globalState.multiStorefrontEnabled]);
 
   const [open, setOpen] = useState<boolean>(false);
 
