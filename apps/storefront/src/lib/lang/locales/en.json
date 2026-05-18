@@ -117,6 +117,7 @@
   "global.companyHierarchy.externalBtn": "You are representing",
   "global.companyCredit.alert": "Your account does not currently allow purchasing due to a credit hold. Please contact us to reconcile.",
   "global.B3Upload.downloadErrorResults": "Download error results",
+  "global.searchProduct.noProductsFound": "No products found",
   "global.B3Upload.title": "Bulk upload",
   "global.B3Upload.dragAndDrop": "Drag & drop file here",
   "global.B3Upload.fileTypesInfo": "File types: CSV, maximum size: 50MB.",

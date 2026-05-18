@@ -41,9 +41,10 @@ const REPEATED_PAGES: Partial<Record<string, string>> = {
  * When a page is visited, translations for its dependencies are also fetched.
  */
 const TRANSLATION_DEPENDENCIES: Partial<Record<string, string[]>> = {
+  purchasedProducts: ['shoppingLists'],
   shoppingList: ['purchasedProducts'],
-  quoteDraft: ['purchasedProducts', 'shoppingList'],
-  quoteDetail: ['quoteDraft', 'purchasedProducts', 'shoppingList'],
+  quoteDraft: ['purchasedProducts', 'shoppingList', 'shoppingLists'],
+  quoteDetail: ['quoteDraft', 'purchasedProducts', 'shoppingList', 'shoppingLists'],
 };
 
 export const getGlobalTranslations = createAppAsyncThunk<
