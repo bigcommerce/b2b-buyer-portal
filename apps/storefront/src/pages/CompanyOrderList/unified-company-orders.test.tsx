@@ -1146,4 +1146,393 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       });
     });
   });
+
+  describe('subsidiary hierarchy filter', () => {
+    const hierarchyState = (featureFlags: Record<string, boolean>) => ({
+      company: buildCompanyStateWith({
+        customer: { role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: {
+          id: '100',
+          companyName: 'Parent Corp',
+          status: CompanyStatus.APPROVED,
+        },
+        companyHierarchyInfo: {
+          isEnabledCompanyHierarchy: true,
+          isHasCurrentPagePermission: true,
+          selectCompanyHierarchyId: '',
+          companyHierarchyList: [
+            {
+              companyId: 100,
+              companyName: 'Parent Corp',
+              parentCompanyId: null,
+              channelFlag: true,
+            },
+            {
+              companyId: 200,
+              companyName: 'Sub Corp Alpha',
+              parentCompanyId: 100,
+              parentCompanyName: 'Parent Corp',
+              channelFlag: true,
+            },
+            {
+              companyId: 300,
+              companyName: 'Sub Corp Beta',
+              parentCompanyId: 100,
+              parentCompanyName: 'Parent Corp',
+              channelFlag: true,
+            },
+          ],
+          companyHierarchyAllList: [],
+          companyHierarchySelectSubsidiariesList: [],
+        },
+        pagesSubsidiariesPermission: { order: true },
+      }),
+      global: buildGlobalStateWith({ featureFlags }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    });
+
+    const noHierarchyState = (featureFlags: Record<string, boolean>) => ({
+      company: buildCompanyStateWith({
+        customer: { role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: {
+          id: '100',
+          companyName: 'Parent Corp',
+          status: CompanyStatus.APPROVED,
+        },
+        companyHierarchyInfo: {
+          isEnabledCompanyHierarchy: false,
+          isHasCurrentPagePermission: true,
+          selectCompanyHierarchyId: '',
+          companyHierarchyList: [],
+          companyHierarchyAllList: [],
+          companyHierarchySelectSubsidiariesList: [],
+        },
+        pagesSubsidiariesPermission: { order: false },
+      }),
+      global: buildGlobalStateWith({ featureFlags }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    });
+
+    const noOrderPermissionState = (featureFlags: Record<string, boolean>) => ({
+      company: buildCompanyStateWith({
+        customer: { role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: {
+          id: '100',
+          companyName: 'Parent Corp',
+          status: CompanyStatus.APPROVED,
+        },
+        companyHierarchyInfo: {
+          isEnabledCompanyHierarchy: true,
+          isHasCurrentPagePermission: true,
+          selectCompanyHierarchyId: '',
+          companyHierarchyList: [
+            {
+              companyId: 100,
+              companyName: 'Parent Corp',
+              parentCompanyId: null,
+              channelFlag: true,
+            },
+          ],
+          companyHierarchyAllList: [],
+          companyHierarchySelectSubsidiariesList: [],
+        },
+        pagesSubsidiariesPermission: { order: false },
+      }),
+      global: buildGlobalStateWith({ featureFlags }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    });
+
+    it('renders subsidiary selector when hierarchy is enabled and order permission is granted', async () => {
+      server.use(
+        graphql.query('GetCompanyOrders', () =>
+          HttpResponse.json(buildCompanyOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByLabelText('Company')).toBeInTheDocument();
+    });
+
+    it('does NOT render subsidiary selector when hierarchy is disabled', async () => {
+      server.use(
+        graphql.query('GetCompanyOrders', () =>
+          HttpResponse.json(buildCompanyOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: noHierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.queryByLabelText('Company')).not.toBeInTheDocument();
+    });
+
+    it('does NOT render subsidiary selector when order subsidiary permission is denied', async () => {
+      server.use(
+        graphql.query('GetCompanyOrders', () =>
+          HttpResponse.json(buildCompanyOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, {
+        preloadedState: noOrderPermissionState(flagOn),
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.queryByLabelText('Company')).not.toBeInTheDocument();
+    });
+
+    it('sends companyIds in the initial query scoped to the current company', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(getOrders).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({ companyIds: ['100'] }),
+        }),
+      );
+    });
+
+    it('sends selected subsidiary companyId when a subsidiary is chosen', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const companySelect = screen.getByLabelText('Company');
+      await userEvent.click(companySelect);
+      await userEvent.click(screen.getByRole('option', { name: /Sub Corp Alpha/ }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { companyIds?: string[] };
+        };
+        expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['200']));
+      });
+    });
+
+    it('removes companyIds from filters when "All" is selected', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const companySelect = screen.getByLabelText('Company');
+      await userEvent.click(companySelect);
+      await userEvent.click(screen.getByRole('option', { name: /All/ }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { companyIds?: string[] };
+        };
+        expect(lastVars?.filters?.companyIds).toBeUndefined();
+      });
+    });
+
+    it('resets pagination when subsidiary filter changes', async () => {
+      const page1Response = buildPagedCompanyOrdersResponse(
+        [{ entityId: 4001 }, { entityId: 4002 }],
+        {
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'cursor-4001',
+          endCursor: 'cursor-4002',
+        },
+        20,
+      );
+
+      const getOrders = vi.fn().mockReturnValue(page1Response);
+
+      when(getOrders)
+        .calledWith(expect.objectContaining({ after: 'cursor-4002' }))
+        .thenReturn(
+          buildPagedCompanyOrdersResponse(
+            [{ entityId: 5001 }, { entityId: 5002 }],
+            {
+              hasNextPage: false,
+              hasPreviousPage: true,
+              startCursor: 'cursor-5001',
+              endCursor: 'cursor-5002',
+            },
+            20,
+          ),
+        );
+
+      server.use(
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('5001').closest('tr')!).toBeInTheDocument();
+      });
+
+      const companySelect = screen.getByLabelText('Company');
+      await userEvent.click(companySelect);
+      await userEvent.click(screen.getByRole('option', { name: /Sub Corp Alpha/ }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          after?: string;
+          before?: string;
+        };
+        expect(lastVars?.after).toBeUndefined();
+        expect(lastVars?.before).toBeUndefined();
+      });
+    });
+
+    it('composes companyIds with search filter', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const companySelect = screen.getByLabelText('Company');
+      await userEvent.click(companySelect);
+      await userEvent.click(screen.getByRole('option', { name: /Sub Corp Beta/ }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { companyIds?: string[] };
+        };
+        expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['300']));
+      });
+
+      // Close the dropdown before interacting with the search input
+      await userEvent.keyboard('{Escape}');
+
+      await userEvent.type(screen.getByPlaceholderText('Search'), 'widget');
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { companyIds?: string[]; search?: string };
+        };
+        expect(lastVars?.filters?.search).toBe('widget');
+        expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['300']));
+      });
+    });
+
+    it('composes companyIds with status and date range filters', async () => {
+      vi.setSystemTime(new Date('21 November 2022'));
+
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetOrderStatuses', () =>
+          HttpResponse.json(
+            buildLegacyB2BOrderStatusesResponseWith({
+              data: {
+                orderStatuses: [
+                  buildLegacyOrderStatusWith({
+                    systemLabel: 'Shipped',
+                    customLabel: 'Shipped',
+                  }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: hierarchyState(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const companySelect = screen.getByLabelText('Company');
+      await userEvent.click(companySelect);
+      await userEvent.click(screen.getByRole('option', { name: /Sub Corp Alpha/ }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { companyIds?: string[] };
+        };
+        expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['200']));
+      });
+
+      // Close the dropdown before opening the filters dialog
+      await userEvent.keyboard('{Escape}');
+
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+      await userEvent.click(screen.getByRole('option', { name: 'Shipped' }));
+
+      await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+      await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+      await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+      await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: {
+            companyIds?: string[];
+            status?: string[];
+            dateRange?: { from: string; to: string };
+          };
+        };
+        expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['200']));
+        expect(lastVars?.filters?.status).toEqual(['Shipped']);
+        expect(lastVars?.filters?.dateRange).toEqual({
+          from: '2022-11-15',
+          to: '2022-11-26',
+        });
+      });
+    });
+  });
 });
