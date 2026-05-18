@@ -31,6 +31,7 @@ interface GetPageTranslationResponse {
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
+  'company-hierarchy': 'companyHierarchy',
 };
 
 export const getGlobalTranslations = createAppAsyncThunk<
