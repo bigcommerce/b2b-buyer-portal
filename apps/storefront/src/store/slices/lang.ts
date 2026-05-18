@@ -32,7 +32,7 @@ export const langSlice = createSlice({
       Object.entries(payload.pageTranslations).forEach(([key, translation]) => {
         state.translations[key] = translation;
       });
-      state.fetchedPages.push(payload.page);
+      state.fetchedPages.push(payload.page, ...payload.fetchedDependencyPages);
     });
   },
 });
