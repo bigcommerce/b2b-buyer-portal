@@ -27,6 +27,7 @@ interface GetPageTranslationsParams {
 interface GetPageTranslationResponse {
   pageTranslations: Record<string, string>;
   page: string;
+  fetchedDependencyPages: string[];
 }
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
@@ -73,27 +74,38 @@ export const getPageTranslations = createAppAsyncThunk<
   GetPageTranslationsParams
 >(
   'lang/getPageTranslations',
-  async ({ channelId, page: pageKey }, { rejectWithValue }) => {
+  async ({ channelId, page: pageKey }, { rejectWithValue, getState }) => {
     const page = REPEATED_PAGES[pageKey] ?? pageKey;
-    const dependencyPages = TRANSLATION_DEPENDENCIES[page] ?? [];
-
-    const [primaryResult, ...dependencyResults] = await Promise.all(
-      [page, ...dependencyPages].map((p) => getTranslation({ channelId, page: p })),
+    const { fetchedPages } = getState().lang;
+    const dependencyPages = (TRANSLATION_DEPENDENCIES[page] ?? []).filter(
+      (dep) => !fetchedPages.includes(dep),
     );
+
+    const primaryResult = await getTranslation({ channelId, page });
 
     if (typeof primaryResult.message === 'string') {
       return rejectWithValue(primaryResult.message);
     }
 
+    const dependencyResults = await Promise.allSettled(
+      dependencyPages.map((p) => getTranslation({ channelId, page: p })),
+    );
+
+    const successfulDeps = dependencyResults
+      .map((r, i) =>
+        r.status === 'fulfilled' && typeof r.value.message !== 'string'
+          ? { page: dependencyPages[i], translations: r.value.message as Record<string, string> }
+          : null,
+      )
+      .filter(Boolean) as { page: string; translations: Record<string, string> }[];
+
     const pageTranslations = Object.assign(
       {},
       primaryResult.message as Record<string, string>,
-      ...dependencyResults
-        .filter((r) => typeof r.message !== 'string')
-        .map((r) => r.message as Record<string, string>),
+      ...successfulDeps.map((d) => d.translations),
     );
 
-    return { pageTranslations, page };
+    return { pageTranslations, page, fetchedDependencyPages: successfulDeps.map((d) => d.page) };
   },
   {
     condition: ({ page: pageKey }, { getState }) => {
