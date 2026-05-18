@@ -32,6 +32,8 @@ interface GetPageTranslationResponse {
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
+  'purchased-products': 'purchasedProducts',
+  'user-management': 'userManagement',
 };
 
 /**
@@ -39,7 +41,9 @@ const REPEATED_PAGES: Partial<Record<string, string>> = {
  * When a page is visited, translations for its dependencies are also fetched.
  */
 const TRANSLATION_DEPENDENCIES: Partial<Record<string, string[]>> = {
-  quoteDetail: ['quoteDraft'],
+  shoppingList: ['purchasedProducts'],
+  quoteDraft: ['purchasedProducts'],
+  quoteDetail: ['quoteDraft', 'purchasedProducts'],
 };
 
 export const getGlobalTranslations = createAppAsyncThunk<
