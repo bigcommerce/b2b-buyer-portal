@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
@@ -15,14 +15,20 @@ import {
   addProductToShoppingList,
   getVariantInfoBySkus,
 } from '@/shared/service/b2b';
-import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import {
+  type CatalogQuickVariantSku,
+  QUOTE_VALIDATION_ERROR_CODES,
+} from '@/shared/service/b2b/graphql/product';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { validateProductsLegacy as rawValidateProducts } from '@/utils/validateProducts';
+import {
+  VALIDATED_PRODUCT_ERROR_TYPES,
+  validateProductsLegacy as rawValidateProducts,
+} from '@/utils/validateProducts';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
 import getReturnFormFields from '../shared/config';
@@ -107,6 +113,7 @@ export default function OrderDialog({
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [checkedArr, setCheckedArr] = useState<number[]>([]);
   const [returnArr, setReturnArr] = useState<ReturnListProps[]>([]);
+  const [reorderValidationBanner, setReorderValidationBanner] = useState(false);
 
   const [returnFormFields] = useState(getReturnFormFields());
 
@@ -287,6 +294,8 @@ export default function OrderDialog({
       return;
     }
 
+    setReorderValidationBanner(false);
+
     const validationResult = await validateProducts(items);
 
     const helperTextMap = new Map<number, string>();
@@ -296,12 +305,32 @@ export default function OrderDialog({
     });
 
     validationResult.error.forEach(({ product, error }) => {
-      if (error.type === 'network') {
+      if (error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK) {
         helperTextMap.set(product.variantId, b3Lang('orderDetail.reorder.failedToAdd.helperText'));
-      } else {
-        helperTextMap.set(product.variantId, error.message || '');
+      } else if (error.type === VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION) {
+        helperTextMap.set(
+          product.variantId,
+          error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OOS
+            ? b3Lang('orderDetail.reorder.onlyAvailable', { count: error.availableToSell })
+            : error.message || '',
+        );
       }
     });
+
+    const hasValidationErrors = validationResult.error.some(
+      ({ error }) => error.type === VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
+    );
+    const hasNetworkErrors = validationResult.error.some(
+      ({ error }) => error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK,
+    );
+
+    if (hasValidationErrors && !hasNetworkErrors) {
+      setReorderValidationBanner(true);
+    }
+
+    if (hasNetworkErrors) {
+      snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
+    }
 
     const successVariantIds = validationResult.success.map(({ product }) => product.variantId);
 
@@ -323,7 +352,9 @@ export default function OrderDialog({
     );
 
     if (validationResult.success.length === 0) {
-      snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
+      if (!hasValidationErrors && !hasNetworkErrors) {
+        snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
+      }
       return;
     }
 
@@ -339,9 +370,9 @@ export default function OrderDialog({
 
     if (successfulVariantIds.length === checkedArr.length) {
       setOpen(false);
+      setReorderValidationBanner(false);
       showSuccessSnackbarWithCartLink(b3Lang('orderDetail.reorder.productsAdded'));
     } else {
-      snackbar.error(b3Lang('orderDetail.reorder.addToCartError'));
       showSuccessSnackbarWithCartLink(
         b3Lang('orderDetail.reorder.partialSuccess', { count: validItems.length }),
       );
@@ -490,6 +521,8 @@ export default function OrderDialog({
 
     let cancelled = false;
 
+    setReorderValidationBanner(false);
+
     const getVariantInfoByList = async () => {
       const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
 
@@ -512,6 +545,9 @@ export default function OrderDialog({
   }, [isB2BUser, open, products]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
+    if (type === 'reOrder') {
+      setReorderValidationBanner(false);
+    }
     setEditableProducts(products);
   };
 
@@ -541,6 +577,11 @@ export default function OrderDialog({
           >
             {currentDialogData?.description || ''}
           </Typography>
+          {reorderValidationBanner && type === 'reOrder' && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {b3Lang('orderDetail.reorder.adjustQuantitiesBanner')}
+            </Alert>
+          )}
           <OrderCheckboxProduct
             products={editableProducts}
             onProductChange={handleProductChange}

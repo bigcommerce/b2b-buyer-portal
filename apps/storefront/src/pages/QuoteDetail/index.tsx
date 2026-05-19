@@ -33,6 +33,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { buildCurrenciesMap } from '@/utils/currencyUtils';
 import { getSearchVal } from '@/utils/loginInfo';
 import {
+  VALIDATED_PRODUCT_ERROR_TYPES,
   ValidatedProductError,
   validateProductsLegacy as validateProductsApi,
 } from '@/utils/validateProducts';
@@ -387,7 +388,7 @@ function QuoteDetail() {
 
     error.forEach((err) => {
       const errorCode =
-        err.error.type === 'network'
+        err.error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK
           ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
           : err.error.errorCode;
       snackbar.error(
@@ -460,7 +461,7 @@ function QuoteDetail() {
     if (quoteValidationErrors.length) {
       quoteValidationErrors.forEach((err) => {
         const errorCode =
-          err.error.type === 'network'
+          err.error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK
             ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
             : err.error.errorCode;
         snackbar.error(

@@ -1823,7 +1823,7 @@ describe('when a personal customer visits an order', () => {
               errorCode: 'OOS',
               responseType: 'ERROR',
               message: 'A message from the backend',
-              product: { availableToSell: faker.number.int() },
+              product: { availableToSell: 7 },
             },
           },
         });
@@ -1861,15 +1861,198 @@ describe('when a personal customer visits an order', () => {
 
       await waitFor(() => {
         expect(
+          screen.getByText('Some items were not added to the cart. Please adjust quantities.'),
+        ).toBeVisible();
+      });
+
+      expect(within(dialog).getByText('Only 7 available')).toBeVisible();
+
+      expect(window.b2b.callbacks.dispatchEvent).not.toHaveBeenCalled();
+    });
+
+    it('shows a snackbar when all selected products return validation warnings', async () => {
+      const laughCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const validateProducts = when(vi.fn())
+        .calledWith({
+          productId: 123,
+          variantId: 456,
+          quantity: 1,
+          productOptions: [],
+          target: 'CART',
+        })
+        .thenReturn({
+          data: {
+            validateProduct: {
+              responseType: 'WARNING',
+              message: 'A warning message from the backend',
+            },
+          },
+        });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) =>
+          HttpResponse.json(validateProducts(variables)),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      await userEvent.click(within(dialog).getAllByRole('checkbox')[0]);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(
           screen.getByText(
             'There was an issue with adding products to the cart. Please check the errors below.',
           ),
         ).toBeVisible();
       });
 
-      expect(within(dialog).getByText('A message from the backend')).toBeVisible();
+      expect(
+        screen.queryByText('Some items were not added to the cart. Please adjust quantities.'),
+      ).not.toBeInTheDocument();
+
+      expect(within(dialog).getByText('A warning message from the backend')).toBeVisible();
 
       expect(window.b2b.callbacks.dispatchEvent).not.toHaveBeenCalled();
+    });
+
+    it('shows banner and only-available line when one product fails validation and another succeeds', async () => {
+      const screamCanister = buildProductWith({
+        name: 'Scream Canister',
+        quantity: 2,
+        product_id: 999,
+        variant_id: 100,
+        product_options: [],
+      });
+      const laughCanister = buildProductWith({
+        product_id: 123,
+        variant_id: 456,
+        name: 'Laugh Canister',
+        quantity: 1,
+        product_options: [],
+      });
+
+      const createCartSimple = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [screamCanister, laughCanister] } },
+            }),
+          ),
+        ),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', ({ variables }) => {
+          const v = variables as { variantId: number };
+          if (v.variantId === 456) {
+            return HttpResponse.json({
+              data: {
+                validateProduct: {
+                  errorCode: 'OOS',
+                  responseType: 'ERROR',
+                  message: '',
+                  product: { availableToSell: 2 },
+                },
+              },
+            });
+          }
+          return HttpResponse.json({
+            data: {
+              validateProduct: {
+                responseType: 'SUCCESS',
+                message: '',
+              },
+            },
+          });
+        }),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 2,
+                productEntityId: 999,
+                variantEntityId: 100,
+                selectedOptions: {
+                  multipleChoices: [],
+                  textFields: [],
+                },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'partial-cart' } } } } });
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      await userEvent.click(within(dialog).getAllByRole('checkbox')[0]);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Some items were not added to the cart. Please adjust quantities.'),
+        ).toBeVisible();
+      });
+
+      const laughGroup = within(dialog).getByRole('group', { name: 'Laugh Canister' });
+      expect(within(laughGroup).getByText('Only 2 available')).toBeVisible();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('1 Product was added to the cart.', { exact: false }),
+        ).toBeVisible();
+      });
+
+      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
+        cartId: 'partial-cart',
+      });
     });
 
     it('displays an error when a network error occurs', async () => {
@@ -1917,6 +2100,10 @@ describe('when a personal customer visits an order', () => {
           ),
         ).toBeVisible();
       });
+
+      expect(
+        screen.queryByText('Some items were not added to the cart. Please adjust quantities.'),
+      ).not.toBeInTheDocument();
 
       expect(within(dialog).getByText('Add failed, try again.')).toBeVisible();
     });
@@ -2173,7 +2360,7 @@ describe('when a personal customer visits an order', () => {
               responseType: 'ERROR',
               message: 'An error message from the backend',
               errorCode: 'OOS',
-              product: { availableToSell: faker.number.int() },
+              product: { availableToSell: 5 },
             },
           },
         });
@@ -2236,13 +2423,9 @@ describe('when a personal customer visits an order', () => {
         expect(screen.getByText('1 Product was added to the cart.')).toBeVisible();
       });
 
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            'There was an issue with adding products to the cart. Please check the errors below.',
-          ),
-        ).toBeVisible();
-      });
+      expect(
+        screen.getByText('Some items were not added to the cart. Please adjust quantities.'),
+      ).toBeVisible();
 
       expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
         cartId: 'foo-bar',
@@ -2253,7 +2436,7 @@ describe('when a personal customer visits an order', () => {
       const groupWithError = within(dialog).getByRole('group', { name: 'Product with Error' });
 
       expect(within(groupWithError).getByRole('checkbox')).toBeChecked();
-      expect(within(groupWithError).getByText('An error message from the backend')).toBeVisible();
+      expect(within(groupWithError).getByText('Only 5 available')).toBeVisible();
 
       const groupWithWarning = within(dialog).getByRole('group', { name: 'Product with Warning' });
       expect(within(groupWithWarning).getByRole('checkbox')).toBeChecked();

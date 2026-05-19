@@ -345,6 +345,8 @@
   "orderDetail.reorder.partialSuccess": "{count, plural, one {# Product was added to the cart.} other {# Products were added to the cart.}}",
   "orderDetail.reorder.failedToAdd.helperText": "Add failed, try again.",
   "orderDetail.reorder.addToCartError": "There was an issue with adding products to the cart. Please check the errors below.",
+  "orderDetail.reorder.adjustQuantitiesBanner": "Some items were not added to the cart. Please adjust quantities.",
+  "orderDetail.reorder.onlyAvailable": "{count, plural, one {Only # available} other {Only # available}}",
   "orderDetail.reorder.product": "Product",
   "orderDetail.reorder.price": "Price",
   "orderDetail.reorder.qty": "Qty",
