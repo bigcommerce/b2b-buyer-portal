@@ -50,6 +50,7 @@ import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 import {
   convertStockAndThresholdValidationErrorToWarning,
+  VALIDATED_PRODUCT_ERROR_TYPES,
   validateProductsLegacy,
 } from '@/utils/validateProducts';
 
@@ -473,7 +474,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
     error.forEach((err) => {
       const errorCode =
-        err.error.type === 'network'
+        err.error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK
           ? QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR
           : err.error.errorCode;
 

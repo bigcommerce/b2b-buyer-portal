@@ -19,7 +19,7 @@ import {
   ProductImage,
   ProductOptionText,
 } from '../styled';
-import { getReorderBackorderDisplayFields } from '../utils/reorderBackorderDisplay';
+import { getReorderProductRowDisplayState } from '../utils/reorderBackorderDisplay';
 
 interface ReturnListProps {
   returnId: number;
@@ -118,6 +118,9 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
       const valueNum = e.target.value;
       if (Number(valueNum) >= 0 && Number(valueNum) <= 1000000) {
         element.editQuantity = valueNum;
+        if (type === 'reOrder') {
+          element.helperText = '';
+        }
         if (type === 'return') {
           if (Number(valueNum) > Number(product.quantity)) {
             element.editQuantity = product.quantity;
@@ -198,9 +201,15 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
       {products.map((product: EditableProductItem) => {
         const qty = Number(getProductQuantity(product)) || 0;
-        const invRow = reorderInventoryBySku?.[product.sku.toUpperCase()];
-        const backorderFields = getReorderBackorderDisplayFields(qty, invRow);
-        const showReorderBackorder = reorderBackorderUiEnabled && Boolean(backorderFields);
+        const { qtyHelperText, backorderFields } = getReorderProductRowDisplayState({
+          qty,
+          productHelperText: product.helperText,
+          isReorder: type === 'reOrder',
+          inventoryRow:
+            type === 'reOrder' ? reorderInventoryBySku?.[product.sku.toUpperCase()] : undefined,
+          backorderUiEnabled: reorderBackorderUiEnabled,
+          formatOnlyAvailable: (count) => b3Lang('orderDetail.reorder.onlyAvailable', { count }),
+        });
 
         return (
           <Flex
@@ -271,10 +280,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                       marginRight: '0',
                     },
                   }}
-                  error={!!product.helperText}
-                  helperText={product.helperText}
+                  error={Boolean(qtyHelperText)}
+                  helperText={qtyHelperText}
                 />
-                {showReorderBackorder && backorderFields && (
+                {backorderFields && (
                   <Box
                     sx={{
                       mt: 1,

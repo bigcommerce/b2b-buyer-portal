@@ -4,6 +4,7 @@ import { when } from 'vitest-when';
 
 import {
   convertStockAndThresholdValidationErrorToWarning,
+  VALIDATED_PRODUCT_ERROR_TYPES,
   validateProductsLegacy,
 } from './validateProducts';
 
@@ -42,7 +43,7 @@ const buildValidatedProductsFixture = () => {
       {
         status: 'error',
         error: {
-          type: 'validation',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
           message: minimumThresholdMessage,
           errorCode: 'OTHER',
           availableToSell: 4,
@@ -52,7 +53,7 @@ const buildValidatedProductsFixture = () => {
       {
         status: 'error',
         error: {
-          type: 'validation',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
           message: maximumThresholdMessage,
           errorCode: 'OTHER',
           availableToSell: 10,
@@ -62,7 +63,7 @@ const buildValidatedProductsFixture = () => {
       {
         status: 'error',
         error: {
-          type: 'validation',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
           message: 'Not purchasable for this account.',
           errorCode: 'NON_PURCHASABLE',
           availableToSell: 0,
@@ -72,7 +73,7 @@ const buildValidatedProductsFixture = () => {
       {
         status: 'error',
         error: {
-          type: 'validation',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
           message: 'Out of stock.',
           errorCode: 'OOS',
           availableToSell: 0,
@@ -81,7 +82,7 @@ const buildValidatedProductsFixture = () => {
       },
       {
         status: 'error',
-        error: { type: 'network', errorCode: 'NETWORK_ERROR' },
+        error: { type: VALIDATED_PRODUCT_ERROR_TYPES.NETWORK, errorCode: 'NETWORK_ERROR' },
         product: products.network,
       },
     ],
@@ -220,12 +221,17 @@ it('groups products by their validation status', async () => {
     error: [
       {
         status: 'error',
-        error: { type: 'validation', message: 'foo bar', errorCode: 'OTHER', availableToSell: 12 },
+        error: {
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
+          message: 'foo bar',
+          errorCode: 'OTHER',
+          availableToSell: 12,
+        },
         product: products[2],
       },
       {
         status: 'error',
-        error: { type: 'network', errorCode: 'NETWORK_ERROR' },
+        error: { type: VALIDATED_PRODUCT_ERROR_TYPES.NETWORK, errorCode: 'NETWORK_ERROR' },
         product: products[3],
       },
     ],
@@ -277,7 +283,7 @@ describe('convertStockAndThresholdValidationErrorToWarning', () => {
       {
         status: 'error',
         error: {
-          type: 'validation',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
           message: 'Not purchasable for this account.',
           errorCode: 'NON_PURCHASABLE',
           availableToSell: 0,
@@ -286,7 +292,7 @@ describe('convertStockAndThresholdValidationErrorToWarning', () => {
       },
       {
         status: 'error',
-        error: { type: 'network', errorCode: 'NETWORK_ERROR' },
+        error: { type: VALIDATED_PRODUCT_ERROR_TYPES.NETWORK, errorCode: 'NETWORK_ERROR' },
         product: products.network,
       },
     ]);

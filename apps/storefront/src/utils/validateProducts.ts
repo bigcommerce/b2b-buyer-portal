@@ -6,6 +6,11 @@ import {
   type ValidationTarget,
 } from '@/shared/service/b2b/graphql/product';
 
+export const VALIDATED_PRODUCT_ERROR_TYPES = {
+  VALIDATION: 'validation',
+  NETWORK: 'network',
+} as const;
+
 interface Option {
   optionId: number | `attribute[${number}]`;
   optionValue: string;
@@ -32,7 +37,7 @@ interface ValidatedProductWarning<T> {
 interface ValidatedProductServerError<T> {
   status: 'error';
   error: {
-    type: 'validation';
+    type: typeof VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION;
     errorCode: ProductValidationErrorCode;
     message: string;
     availableToSell: number;
@@ -43,7 +48,7 @@ interface ValidatedProductServerError<T> {
 interface ValidatedProductNetworkError<T> {
   status: 'error';
   error: {
-    type: 'network';
+    type: typeof VALIDATED_PRODUCT_ERROR_TYPES.NETWORK;
     errorCode: typeof QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR;
   };
   product: T;
@@ -195,7 +200,7 @@ export const validateProductsLegacy = async <T extends ValidateProductsInput>(
       return {
         status: 'error',
         error: {
-          type: 'network',
+          type: VALIDATED_PRODUCT_ERROR_TYPES.NETWORK,
           errorCode: QUOTE_VALIDATION_ERROR_CODES.NETWORK_ERROR,
         },
         product,
@@ -207,7 +212,7 @@ export const validateProductsLegacy = async <T extends ValidateProductsInput>(
         return {
           status: 'error',
           error: {
-            type: 'validation',
+            type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
             message: res.value.message,
             errorCode: res.value.errorCode,
             availableToSell: res.value.product.availableToSell,
@@ -253,7 +258,7 @@ export const validateProducts = async <T extends ValidateProductsInput>(
         return {
           status: 'error',
           error: {
-            type: 'validation',
+            type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
             message: res.message,
             errorCode: res.errorCode,
             availableToSell: res.product.availableToSell,
@@ -296,7 +301,7 @@ export function convertStockAndThresholdValidationErrorToWarning<T extends Valid
   validatedProducts: ValidateProductsLegacyResult<T> | ValidateProductsResult<T>,
 ): ValidateProductsLegacyResult<T> | ValidateProductsResult<T> {
   const isThresholdError = (error: ValidatedProductError<T>['error']) =>
-    error.type === 'validation' &&
+    error.type === VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION &&
     error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OTHER &&
     /purchase a (minimum|maximum) of/im.test(error.message);
 

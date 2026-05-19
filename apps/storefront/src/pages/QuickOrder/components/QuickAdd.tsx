@@ -14,7 +14,11 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { createOrUpdateExistingCart } from '@/utils/cartUtils';
-import { ValidatedProductError, validateProductsLegacy } from '@/utils/validateProducts';
+import {
+  VALIDATED_PRODUCT_ERROR_TYPES,
+  ValidatedProductError,
+  validateProductsLegacy,
+} from '@/utils/validateProducts';
 
 import { SimpleObject } from '../../../types';
 import { getCartProductInfo } from '../utils';
@@ -371,7 +375,7 @@ export default function QuickAdd() {
   ) => {
     const sku = error.product.node?.sku || '';
 
-    if (error.error.type === 'network') {
+    if (error.error.type === VALIDATED_PRODUCT_ERROR_TYPES.NETWORK) {
       const productName = error.product.node?.productName || '';
       snackbar.error(b3Lang('quotes.productValidationFailed', { productName }));
       if (sku) {
