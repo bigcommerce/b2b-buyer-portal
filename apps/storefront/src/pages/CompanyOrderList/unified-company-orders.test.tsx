@@ -1207,7 +1207,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           companyHierarchyAllList: [],
           companyHierarchySelectSubsidiariesList: [],
         },
-        pagesSubsidiariesPermission: { order: false },
+        pagesSubsidiariesPermission: { order: true },
       }),
       global: buildGlobalStateWith({ featureFlags }),
       storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
