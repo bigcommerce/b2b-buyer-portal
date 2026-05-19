@@ -299,6 +299,7 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
     type: 'common',
     payload: {
       logo,
+      isLogoLoaded: true,
       quoteConfig: storefrontConfigs,
       blockPendingAccountOrderCreation,
     },

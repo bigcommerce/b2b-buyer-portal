@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, Box } from '@mui/material';
 
-import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL } from '@/constants';
@@ -20,7 +19,6 @@ import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import { platform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
-import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { type PageProps } from '../PageProps';
@@ -70,7 +68,7 @@ function Login(props: PageProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
-    state: { isCheckout, registerEnabled },
+    state: { isCheckout, registerEnabled, isLogoLoaded },
   } = useContext(GlobalContext);
 
   const {
@@ -207,14 +205,16 @@ function Login(props: PageProps) {
               </Alert>
             )}
             <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-              <LoginImage
-                maxWidth={isMobile ? '70%' : '250px'}
-                src={loginInfo.logo || getAssetUrl(b2bLogo)}
-                alt={b3Lang('login.registerLogo')}
-                onClick={() => {
-                  window.location.href = '/';
-                }}
-              />
+              {isLogoLoaded && loginInfo.logo && (
+                <LoginImage
+                  maxWidth={isMobile ? '70%' : '250px'}
+                  src={loginInfo.logo}
+                  alt={b3Lang('login.registerLogo')}
+                  onClick={() => {
+                    window.location.href = '/';
+                  }}
+                />
+              )}
             </Box>
             {loginInfo.widgetHeadText && (
               <LoginWidget

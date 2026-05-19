@@ -2,7 +2,6 @@ import { useContext, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, ImageListItem } from '@mui/material';
 
-import b2bLogo from '@/assets/b2bLogo.png';
 import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
@@ -17,7 +16,6 @@ import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
 import { B3SStorage } from '@/utils/b3Storage';
 import { platform } from '@/utils/basicConfig';
-import { getAssetUrl } from '@/utils/getAssetUrl';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { loginCheckout, LoginConfig } from '../Login/helper';
@@ -39,7 +37,7 @@ function Registered(props: PageProps) {
   const [params] = useSearchParams();
 
   const {
-    state: { isCheckout, isCloseGotoBCHome, logo, registerEnabled },
+    state: { isCheckout, isCloseGotoBCHome, logo, isLogoLoaded, registerEnabled },
   } = useContext(GlobalContext);
 
   const {
@@ -168,20 +166,18 @@ function Registered(props: PageProps) {
             }}
           >
             <RegisteredImage>
-              <ImageListItem
-                sx={{
-                  maxWidth: '250px',
-                }}
-                onClick={() => {
-                  window.location.href = '/';
-                }}
-              >
-                <img
-                  src={logo || getAssetUrl(b2bLogo)}
-                  alt={b3Lang('global.tips.registerLogo')}
-                  loading="lazy"
-                />
-              </ImageListItem>
+              {isLogoLoaded && logo && (
+                <ImageListItem
+                  sx={{
+                    maxWidth: '250px',
+                  }}
+                  onClick={() => {
+                    window.location.href = '/';
+                  }}
+                >
+                  <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
+                </ImageListItem>
+              )}
             </RegisteredImage>
             <RegisterSteps backgroundColor={backgroundColor} handleFinish={handleFinish} />
           </Box>

@@ -427,4 +427,21 @@ describe('LoginPage', () => {
       expect(logoutMock).not.toHaveBeenCalled();
     });
   });
+
+  describe('logo rendering', () => {
+    it('renders the merchant logo when isLogoLoaded is true and logo is set', async () => {
+      const merchantLogoUrl = 'https://cdn.example.com/b2bLogo.png';
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: {
+          isLogoLoaded: true,
+          logo: merchantLogoUrl,
+        },
+      });
+
+      const logoImage = await screen.findByAltText('register Logo');
+      expect(logoImage).toBeVisible();
+      expect(logoImage).toHaveAttribute('src', merchantLogoUrl);
+    });
+  });
 });
