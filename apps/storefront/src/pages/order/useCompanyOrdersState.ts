@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { CompanyOrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
+import { CompanyOrdersFiltersInput, OrderPlacedBy } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
 import {
@@ -26,6 +26,7 @@ interface AppliedFilters {
 interface UseCompanyOrdersStateArgs {
   selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
+  placedByUsers: OrderPlacedBy[];
 }
 
 export interface UseCompanyOrdersStateResult
@@ -40,6 +41,7 @@ export interface UseCompanyOrdersStateResult
 export const useCompanyOrdersState = ({
   selectedCompanyId,
   orderStatuses,
+  placedByUsers,
 }: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
   const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
     getCompanyOrdersInitFilter(selectedCompanyId),
@@ -68,11 +70,21 @@ export const useCompanyOrdersState = ({
       resolvedStatuses = originalStatus?.systemLabel ? [originalStatus.systemLabel] : undefined;
     }
 
+    let resolvedCustomerId: number[] | undefined;
+    const rawPlacedBy = normalizeString(value.PlacedBy);
+    if (rawPlacedBy) {
+      const match = placedByUsers.find(
+        (u) => `${u.firstName} ${u.lastName} (${u.email})` === rawPlacedBy,
+      );
+      resolvedCustomerId = match ? [match.entityId] : undefined;
+    }
+
     pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
+      customerId: resolvedCustomerId,
     }));
   };
 

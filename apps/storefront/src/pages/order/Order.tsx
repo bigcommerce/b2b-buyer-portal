@@ -14,6 +14,8 @@ import {
   CompanyOrdersFiltersInput,
   getCompanyOrders,
   getCustomerOrders,
+  getCustomersWithOrders,
+  type OrderPlacedBy,
   OrdersFiltersInput,
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
@@ -108,6 +110,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  const [placedByUsers, setPlacedByUsers] = useState<OrderPlacedBy[]>([]);
 
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
@@ -125,6 +128,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
+    placedByUsers,
   });
 
   const getActiveFilterState = () => {
@@ -160,21 +164,72 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { filterData, orderBy } = getFilterDataAndOrderBy();
 
+  const activeCompanyIds = companyFilterState.filters.companyIds;
+
+  useEffect(() => {
+    if (role === CustomerRole.GUEST || !isUnifiedOrders || !isB2BUser || !isCompanyOrder) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const fetchPlacedByUsers = async () => {
+      const response = await getCustomersWithOrders({
+        filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
+        first: 100,
+      });
+      if (cancelled) return;
+
+      const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
+      const users = edges.map((e) => e.node);
+      setPlacedByUsers(users);
+
+      setFilterMoreInfo((prev) => {
+        const placedByItem = prev.find((item: { name: string }) => item.name === 'PlacedBy');
+        if (!placedByItem) return prev;
+
+        const newOptions = users.map((u: OrderPlacedBy) => ({
+          createdBy: `${u.firstName} ${u.lastName} (${u.email})`,
+        }));
+        return prev.map((item: { name: string }) =>
+          item.name === 'PlacedBy' ? { ...item, options: newOptions } : item,
+        );
+      });
+    };
+
+    fetchPlacedByUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCompanyIds, isB2BUser, isCompanyOrder, isUnifiedOrders, role]);
+
   useEffect(() => {
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
-      const createdByUsers =
-        isB2BUser && isCompanyOrder ? await getCreatedByUserForOrders(Number(companyId)) : {};
-      //  Caution: This api hasn't yet been ported to unified order api
+      let createdByUsers: Record<string, unknown> = {};
+
+      if (isB2BUser && isCompanyOrder) {
+        if (isUnifiedOrders) {
+          const response = await getCustomersWithOrders({
+            filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
+            first: 100,
+          });
+          const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
+          const users = edges.map((e) => e.node);
+          setPlacedByUsers(users);
+          createdByUsers = {
+            createdByUser: { results: users },
+          };
+        } else {
+          createdByUsers = await getCreatedByUserForOrders(Number(companyId));
+        }
+      }
+
       const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
       setOrderStatuses(orderStatuses);
 
-      /* 
-        returns what all fields to show in more filter (funnel icon)
-        and styles associated to those fields
-      */
       setFilterMoreInfo(
         translateFilterMoreData(
           getFilterMoreData(
@@ -191,7 +246,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, isUnifiedOrders, role]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;
