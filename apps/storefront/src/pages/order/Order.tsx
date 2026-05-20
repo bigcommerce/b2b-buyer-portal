@@ -207,7 +207,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }> => {
     const result = await getCustomerOrders(args);
     const orders = result.data?.customer?.orders;
-    const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
+    const edges = (orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+    );
     const pageInfo = orders?.pageInfo ?? null;
 
     return { edges, totalCount: -1, pageInfo };
@@ -227,7 +229,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }> => {
     const result = await getCompanyOrders(args);
     const orders = result.data?.customer?.activeCompany?.orders;
-    const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
+    const edges = (orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+    );
     const pageInfo = orders?.pageInfo ?? null;
     const totalCount = orders?.collectionInfo?.totalItems ?? -1;
 
@@ -272,20 +276,34 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     });
   };
 
-  // TODO B2B-4629: Double check if need more params for unified path
-  const goToDetail = (item: ListItem, index: number) => {
+  // Unified (cursor-based) navigation — used for both My Orders and Company Orders when
+  // the unified SF GQL flag is on. Passes the clicked item's cursor plus its in-page
+  // neighbours' cursors so DetailPagination can navigate instantly without a network
+  // round-trip for the common case.
+  const goToDetail = (item: ListItem, index: number, items: ListItem[]) => {
+    const prevItem = items[index - 1];
+    const nextItem = items[index + 1];
+    const activeFilterState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
+
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
-        currentIndex: index,
-        totalCount: -1,
         isCompanyOrder,
-        unifiedCustomerFilters: customerFilterState.filters,
-        unifiedCustomerSortBy: customerFilterState.sortBy,
+        totalCount: -1,
+        currentOrderId: item.orderId,
+        currentCursor: item.cursor ?? '',
+        prevOrderId: prevItem?.orderId ?? null,
+        prevCursor: prevItem?.cursor ?? null,
+        nextOrderId: nextItem?.orderId ?? null,
+        nextCursor: nextItem?.cursor ?? null,
+        pageInfo: {
+          hasNextPage: activeFilterState.pageInfo?.hasNextPage ?? false,
+          hasPreviousPage: activeFilterState.pageInfo?.hasPreviousPage ?? false,
+        },
+        filters: activeFilterState.filters,
+        sortBy: activeFilterState.sortBy,
       },
     });
   };
-
-  const navigateToOrderDetail = isUnifiedCustomerPath ? goToDetail : legacyGoToDetail;
 
   const isSuperAdminNotAgenting = Number(role) === CustomerRole.SUPER_ADMIN && !isAgenting;
 
@@ -416,6 +434,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       })),
     [data?.edges, getOrderStatuses],
   );
+
+  const navigateToOrderDetail = isUnifiedOrders
+    ? (item: ListItem, index: number) => goToDetail(item, index, listItems)
+    : legacyGoToDetail;
 
   return (
     <B3Spin isSpinning={isFetching}>

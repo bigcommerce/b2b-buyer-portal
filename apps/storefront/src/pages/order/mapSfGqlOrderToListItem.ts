@@ -13,9 +13,11 @@ export interface ListItem {
   createdAt: string;
   companyName: string;
   companyInfo?: CompanyInfoTypes;
+  /** Cursor from the SF GQL edge — populated for unified order paths only. */
+  cursor?: string;
 }
 
-export const mapSfGqlOrderToListItem = (order: SfGqlOrder): ListItem => ({
+export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): ListItem => ({
   orderId: String(order.entityId),
   poNumber: order.reference || '',
   totalIncTax: String(order.totalIncTax.value),
@@ -39,4 +41,5 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder): ListItem => ({
       }
     : undefined,
   money: '',
+  cursor,
 });

@@ -26,6 +26,7 @@ import b2bLogger from '@/utils/b3Logger';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
+import { CursorDetailPagination } from './components/CursorDetailPagination';
 import { DetailPagination } from './components/DetailPagination';
 import { OrderAction } from './components/OrderAction';
 import { OrderBilling } from './components/OrderBilling';
@@ -367,12 +368,12 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            {location?.state && (
-              <DetailPagination
-                onChange={(orderId) => handlePageChange(orderId)}
-                color={customColor}
-              />
-            )}
+            {location?.state &&
+              (isUnifiedOrders ? (
+                <CursorDetailPagination onChange={handlePageChange} color={customColor} />
+              ) : (
+                <DetailPagination onChange={handlePageChange} color={customColor} />
+              ))}
           </Grid>
         </Grid>
         {orderId && !isCurrentCompany ? (
