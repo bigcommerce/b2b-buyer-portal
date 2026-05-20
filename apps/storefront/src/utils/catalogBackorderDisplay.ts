@@ -2,7 +2,7 @@ import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/produc
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
 
-export function reorderQuantityExceedsAvailableToSell(
+export function quantityExceedsAvailableToSell(
   quantity: number,
   row: CatalogQuickVariantSku | undefined,
 ): boolean {
@@ -15,18 +15,18 @@ export function reorderQuantityExceedsAvailableToSell(
   return quantity > availableToSell;
 }
 
-export function getReorderBackorderDisplayQuantity(
-  orderQty: number,
+export function getCatalogBackorderDisplayQuantity(
+  quantity: number,
   row: CatalogQuickVariantSku | undefined,
 ): number {
-  if (!row) return orderQty;
-  if (orderQty <= 0) return orderQty;
-  if (!reorderQuantityExceedsAvailableToSell(orderQty, row)) return orderQty;
+  if (!row) return quantity;
+  if (quantity <= 0) return quantity;
+  if (!quantityExceedsAvailableToSell(quantity, row)) return quantity;
 
-  return Math.min(orderQty, row.availableToSell ?? 0);
+  return Math.min(quantity, row.availableToSell ?? 0);
 }
 
-export function getReorderBackorderDisplayFields(
+export function getCatalogBackorderDisplayFields(
   quantity: number,
   row: CatalogQuickVariantSku | undefined,
 ): BackorderDisplayFields | null {
@@ -44,38 +44,59 @@ export function getReorderBackorderDisplayFields(
   );
 }
 
-interface ReorderProductRowDisplayState {
+export function getCatalogBackorderFieldsForVariantSku({
+  quantity,
+  variantSku,
+  inventoryBySku,
+}: {
+  quantity: number;
+  variantSku?: string | null;
+  inventoryBySku: Record<string, CatalogQuickVariantSku>;
+}): BackorderDisplayFields | null {
+  if (!variantSku) return null;
+
+  const catalogVariant = inventoryBySku[variantSku.toUpperCase()];
+
+  return getCatalogBackorderDisplayFields(
+    getCatalogBackorderDisplayQuantity(quantity, catalogVariant),
+    catalogVariant,
+  );
+}
+
+interface CatalogProductRowDisplayState {
   qtyHelperText: string;
   backorderFields: BackorderDisplayFields | null;
 }
 
-export function getReorderProductRowDisplayState({
+export function getCatalogProductRowDisplayState({
   qty,
   productHelperText,
-  isReorder,
+  showAvailableToSellHelper,
   inventoryRow,
   backorderUiEnabled,
   formatOnlyAvailable,
 }: {
   qty: number;
   productHelperText?: string;
-  isReorder: boolean;
+  showAvailableToSellHelper: boolean;
   inventoryRow?: CatalogQuickVariantSku;
   backorderUiEnabled: boolean;
   formatOnlyAvailable: (availableToSell: number) => string;
-}): ReorderProductRowDisplayState {
-  const quantityExceedsAvailableToSell =
-    isReorder && Boolean(inventoryRow) && reorderQuantityExceedsAvailableToSell(qty, inventoryRow);
+}): CatalogProductRowDisplayState {
+  const exceedsAvailableToSell =
+    showAvailableToSellHelper &&
+    Boolean(inventoryRow) &&
+    quantityExceedsAvailableToSell(qty, inventoryRow);
 
-  const availableToSellHelperText = quantityExceedsAvailableToSell
+  const availableToSellHelperText = exceedsAvailableToSell
     ? formatOnlyAvailable(inventoryRow?.availableToSell ?? 0)
     : '';
 
   const qtyHelperText = productHelperText?.trim() ? productHelperText : availableToSellHelperText;
 
   const backorderFields = backorderUiEnabled
-    ? getReorderBackorderDisplayFields(
-        getReorderBackorderDisplayQuantity(qty, inventoryRow),
+    ? getCatalogBackorderDisplayFields(
+        getCatalogBackorderDisplayQuantity(qty, inventoryRow),
         inventoryRow,
       )
     : null;
