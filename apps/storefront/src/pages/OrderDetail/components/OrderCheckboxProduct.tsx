@@ -8,6 +8,7 @@ import { useB3Lang } from '@/lib/lang';
 import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { snackbar } from '@/utils/b3Tip';
+import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';
 import {
@@ -19,7 +20,6 @@ import {
   ProductImage,
   ProductOptionText,
 } from '../styled';
-import { getReorderProductRowDisplayState } from '../utils/reorderBackorderDisplay';
 
 interface ReturnListProps {
   returnId: number;
@@ -201,10 +201,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
       {products.map((product: EditableProductItem) => {
         const qty = Number(getProductQuantity(product)) || 0;
-        const { qtyHelperText, backorderFields } = getReorderProductRowDisplayState({
+        const { qtyHelperText, backorderFields } = getCatalogProductRowDisplayState({
           qty,
           productHelperText: product.helperText,
-          isReorder: type === 'reOrder',
+          showAvailableToSellHelper: type === 'reOrder',
           inventoryRow:
             type === 'reOrder' ? reorderInventoryBySku?.[product.sku.toUpperCase()] : undefined,
           backorderUiEnabled: reorderBackorderUiEnabled,
