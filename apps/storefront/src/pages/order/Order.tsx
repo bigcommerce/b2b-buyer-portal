@@ -111,7 +111,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
   const [placedByUsers, setPlacedByUsers] = useState<OrderPlacedBy[]>([]);
-  const placedByUsersRef = useRef<OrderPlacedBy[]>([]);
 
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
@@ -182,9 +181,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       if (cancelled) return;
 
       const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
-      const users = edges.map((e) => e.node);
-      placedByUsersRef.current = users;
-      setPlacedByUsers(users);
+      setPlacedByUsers(edges.map((e) => e.node));
     };
 
     fetchPlacedByUsers();
