@@ -53,7 +53,7 @@ export const ordersCurrencyFormat = (
       decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''
     }`;
     const priceStr =
-      moneyFormat.currency_location === 'left'
+      moneyFormat.currency_location?.toLowerCase() === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
     return priceStr;
@@ -105,7 +105,7 @@ export const currencyFormatConvert = (
         moneyFormat.thousands_token,
       )}${decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''}`;
       const priceStr =
-        moneyFormat.currency_location === 'left'
+        moneyFormat.currency_location?.toLowerCase() === 'left'
           ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
           : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
       return priceStr;
@@ -115,7 +115,7 @@ export const currencyFormatConvert = (
       decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''
     }`;
     const priceStr =
-      moneyFormat.currency_location === 'left'
+      moneyFormat.currency_location?.toLowerCase() === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
     return priceStr;
@@ -141,7 +141,7 @@ export const currencyFormat = (
       decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''
     }`;
     const priceStr =
-      moneyFormat.currency_location === 'left'
+      moneyFormat.currency_location?.toLowerCase() === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`;
     return priceStr;

@@ -5158,3 +5158,69 @@ describe('when the user is a B2B customer', () => {
     });
   });
 });
+
+describe('currency token placement', () => {
+  beforeEach(() => {
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+    );
+  });
+
+  it('places the token on the right when the active currency has uppercase token_location RIGHT', async () => {
+    const eurOnRight = JSON.parse(
+      JSON.stringify({
+        id: '2',
+        is_default: false,
+        last_updated: '2024-01-01',
+        country_iso2: 'DE',
+        default_for_country_codes: [],
+        currency_code: 'EUR',
+        currency_exchange_rate: '1.0000000000',
+        name: 'Euro',
+        token: '€',
+        auto_update: false,
+        decimal_token: '.',
+        decimal_places: 2,
+        enabled: true,
+        is_transactional: true,
+        token_location: 'RIGHT',
+        thousands_token: ',',
+      }),
+    );
+
+    const woolSocks = buildDraftQuoteItemWith({
+      node: { productName: 'Wool Socks', basePrice: 49, quantity: 3 },
+    });
+
+    const quoteInfo = buildQuoteInfoStateWith({ draftQuoteList: [woolSocks] });
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        storeConfigs: {
+          currencies: {
+            currencies: [eurOnRight],
+            channelCurrencies: {
+              channel_id: 1,
+              enabled_currencies: ['EUR'],
+              default_currency: 'EUR',
+            },
+            enteredInclusiveTax: false,
+          },
+          activeCurrency: { node: { isActive: true, entityId: 2 } },
+        },
+      },
+    });
+
+    const row = await screen.findByRole('row', { name: /Wool Socks/ });
+    expect(within(row).getByRole('cell', { name: '49.00€' })).toBeInTheDocument();
+    expect(within(row).getByRole('cell', { name: '147.00€' })).toBeInTheDocument();
+  });
+});

@@ -1435,4 +1435,34 @@ describe('fix_quote_currency_symbol_placement feature flag', () => {
     const table = await screen.findByRole('table');
     expect(within(table).getByRole('cell', { name: '€100.00' })).toBeInTheDocument();
   });
+
+  it('places the token on the left when BC config has uppercase token_location LEFT and flag is enabled', async () => {
+    const eurWithUppercaseLeft = JSON.parse(
+      JSON.stringify({ ...eurOnLeftInBcConfig, token_location: 'LEFT' }),
+    );
+
+    renderWithProviders(<QuotesList />, {
+      preloadedState: {
+        company: nonCompany,
+        storeInfo: storeInfoWithDateFormat,
+        storeConfigs: {
+          currencies: {
+            currencies: [eurWithUppercaseLeft],
+            channelCurrencies: {
+              channel_id: 1,
+              enabled_currencies: ['EUR'],
+              default_currency: 'EUR',
+            },
+            enteredInclusiveTax: false,
+          },
+        },
+        global: buildGlobalStateWith({
+          featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
+        }),
+      },
+    });
+
+    const table = await screen.findByRole('table');
+    expect(within(table).getByRole('cell', { name: '€100.00' })).toBeInTheDocument();
+  });
 });
