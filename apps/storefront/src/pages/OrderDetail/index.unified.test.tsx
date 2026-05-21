@@ -120,6 +120,7 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   quote: null,
   invoice: null,
   extraFields: [],
+  canReturn: true,
 }));
 
 const buildOrderDetailResponseWith = builder<GetOrderDetailResponse>(() => ({
@@ -576,6 +577,476 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByRole('heading', { name: 'Comments' })).toBeVisible();
     expect(screen.getByText('Customer note: leave at reception')).toBeVisible();
     expect(screen.getByText('Comments: Please call before delivery')).toBeVisible();
+  });
+
+  describe('B2B-4826: shipments', () => {
+    function buildShippedOrder(overrides: Partial<Order> = {}) {
+      return buildUnifiedOrderWith({
+        entityId: 6696,
+        status: { value: 'SHIPPED', label: 'Shipped' },
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: 'Acme Corp',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: 4001,
+                          sku: 'WIDGET-A',
+                          brand: 'WidgetCo',
+                          name: 'Premium Widget',
+                          quantity: 3,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 75 },
+                          image: { url: 'https://example.com/widget.jpg' },
+                          baseCatalogProduct: { path: '/widget/' },
+                        },
+                      },
+                    ],
+                  },
+                  shipments: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 5001,
+                          shippedAt: { utc: '2026-05-15T10:00:00Z' },
+                          shippingMethodName: 'Standard Shipping',
+                          shippingProviderName: 'FedEx',
+                          tracking: {
+                            number: '1Z999AA10123456784',
+                            url: 'https://fedex.com/track/1Z999AA10123456784',
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+        payments: [{ description: 'Credit Card' }],
+        ...overrides,
+      });
+    }
+
+    function setupServerWithOrder(order: Order) {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(buildOrderDetailResponseWith({ data: { site: { order } } })),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(
+            buildCustomerOrderStatusesWith({
+              data: {
+                bcOrderStatuses: [
+                  buildOrderStatusWith({ systemLabel: 'Shipped', customLabel: 'Shipped' }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+    }
+
+    async function renderAndWait() {
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+    }
+
+    it('renders a shipped products section with tracking', async () => {
+      setupServerWithOrder(buildShippedOrder());
+      await renderAndWait();
+
+      expect(await screen.findByText(/Shipment/)).toBeVisible();
+      expect(screen.getByText(/FedEx/)).toBeVisible();
+      expect(screen.getByText('1Z999AA10123456784')).toBeVisible();
+      expect(screen.getByText('Premium Widget')).toBeVisible();
+    });
+
+    it('renders the shipping address', async () => {
+      setupServerWithOrder(buildShippedOrder());
+      await renderAndWait();
+
+      expect(await screen.findByText(/Jane Doe/)).toBeVisible();
+      expect(screen.getByText(/123 Main St/)).toBeVisible();
+    });
+
+    it('renders a not-shipped products section when no shipments exist', async () => {
+      const unshippedOrder = buildShippedOrder({
+        status: { value: 'PENDING', label: 'Pending' },
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: 'Acme Corp',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: 4001,
+                          sku: 'WIDGET-A',
+                          brand: 'WidgetCo',
+                          name: 'Unshipped Widget',
+                          quantity: 2,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 50 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: { edges: [] },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+      });
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({ data: { site: { order: unshippedOrder } } }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(
+            buildCustomerOrderStatusesWith({
+              data: {
+                bcOrderStatuses: [
+                  buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      await renderAndWait();
+
+      expect(await screen.findByText('Not shipped yet')).toBeVisible();
+      expect(screen.getByText('Unshipped Widget')).toBeVisible();
+    });
+
+    it('renders multiple shipping addresses', async () => {
+      const multiAddressOrder = buildShippedOrder({
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: 'Acme Corp',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 10 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: 4001,
+                          sku: 'W-A',
+                          brand: null,
+                          name: 'Widget A',
+                          quantity: 1,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 25 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: { edges: [] },
+                },
+              },
+              {
+                cursor: 'sc2',
+                node: {
+                  entityId: 1002,
+                  shippingAddress: {
+                    firstName: 'Bob',
+                    lastName: 'Smith',
+                    company: 'Acme Corp',
+                    address1: '456 Oak Ave',
+                    address2: 'Suite 200',
+                    city: 'Dallas',
+                    stateOrProvince: 'TX',
+                    postalCode: '75201',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 12 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2002,
+                          productEntityId: 3002,
+                          variantEntityId: 4002,
+                          sku: 'W-B',
+                          brand: null,
+                          name: 'Widget B',
+                          quantity: 2,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 50 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: { edges: [] },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+      });
+
+      setupServerWithOrder(multiAddressOrder);
+      await renderAndWait();
+
+      expect(await screen.findByText(/Jane Doe/)).toBeVisible();
+      expect(screen.getByText(/Bob Smith/)).toBeVisible();
+      expect(screen.getByText(/123 Main St/)).toBeVisible();
+      expect(screen.getByText(/456 Oak Ave/)).toBeVisible();
+    });
+  });
+
+  describe('B2B-4826: payment details', () => {
+    it('renders payment details for a paid-in-full order', async () => {
+      const paidOrder = buildUnifiedOrderWith({
+        entityId: 6696,
+        reference: null,
+        orderedAt: { utc: '2026-05-01T12:00:00Z' },
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: '',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: null,
+                          sku: 'SKU1',
+                          brand: null,
+                          name: 'Test Product',
+                          quantity: 1,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: { edges: [] },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+        payments: [{ description: 'Visa ending in 1234' }],
+      });
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({ data: { site: { order: paidOrder } } }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
+      expect(screen.getByText(/Paid in full/)).toBeVisible();
+      expect(screen.getByText(/Visa ending in 1234/)).toBeVisible();
+    });
+
+    it('renders payment details for a Purchase Order', async () => {
+      const poOrder = buildUnifiedOrderWith({
+        entityId: 6696,
+        reference: 'PO-2026-001',
+        orderedAt: { utc: '2026-05-01T12:00:00Z' },
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: '',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: null,
+                          sku: 'SKU1',
+                          brand: null,
+                          name: 'Test Product',
+                          quantity: 1,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: { edges: [] },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+        payments: [{ description: 'Purchase Order' }],
+      });
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({ data: { site: { order: poOrder } } }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
+      expect(screen.getByText(/PO Submitted/)).toBeVisible();
+    });
   });
 
   describe('when there are order history events', () => {
