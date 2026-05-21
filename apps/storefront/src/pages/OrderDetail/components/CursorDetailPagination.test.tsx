@@ -91,6 +91,11 @@ describe('CursorDetailPagination', () => {
       const { result } = renderComponent(null);
       expect(result.container).toBeEmptyDOMElement();
     });
+
+    it('renders nothing when orders is an empty array', () => {
+      const { result } = renderComponent({ ...BASE_STATE, orders: [], currentIndex: 0 });
+      expect(result.container).toBeEmptyDOMElement();
+    });
   });
 
   describe('when cursor state is present', () => {
@@ -248,6 +253,46 @@ describe('CursorDetailPagination', () => {
             first: BASE_ORDERS.length,
             after: 'cursor-102',
           });
+        });
+      });
+
+      it('disables prev when the boundary fetch returns no orders', async () => {
+        server.use(
+          graphql.query('GetCustomerOrders', () => HttpResponse.json(makeCustomerPage([]))),
+        );
+        const onChange = vi.fn();
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 0,
+            pageInfo: { hasNextPage: false, hasPreviousPage: true },
+          },
+          onChange,
+        );
+        await user.click(getPrevButton());
+        await waitFor(() => {
+          expect(onChange).not.toHaveBeenCalled();
+          expect(getPrevButton()).toBeDisabled();
+        });
+      });
+
+      it('disables next when the boundary fetch returns no orders', async () => {
+        server.use(
+          graphql.query('GetCustomerOrders', () => HttpResponse.json(makeCustomerPage([]))),
+        );
+        const onChange = vi.fn();
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 2,
+            pageInfo: { hasNextPage: true, hasPreviousPage: false },
+          },
+          onChange,
+        );
+        await user.click(getNextButton());
+        await waitFor(() => {
+          expect(onChange).not.toHaveBeenCalled();
+          expect(getNextButton()).toBeDisabled();
         });
       });
     });

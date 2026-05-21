@@ -16,7 +16,7 @@ import {
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
 
-export interface OrderPageItem {
+interface OrderPageItem {
   orderId: string;
   cursor: string;
 }
@@ -150,6 +150,19 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
     [init, navigate],
   );
 
+  /** No adjacent page found, then stop offering that direction and persist in history. */
+  const exhaustBoundary = useCallback(
+    (direction: 'prev' | 'next') => {
+      const newPageInfo =
+        direction === 'prev'
+          ? { ...pageInfo, hasPreviousPage: false }
+          : { ...pageInfo, hasNextPage: false };
+      setPageInfo(newPageInfo);
+      syncHistory(orders, currentIndex, newPageInfo);
+    },
+    [pageInfo, orders, currentIndex, syncHistory],
+  );
+
   const handlePrev = useCallback(async () => {
     if (!hasPrev || loading || !init) return;
     setLoading(true);
@@ -177,12 +190,28 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
           setPageInfo(page.pageInfo);
           onChange(page.orders[newIndex].orderId);
           syncHistory(page.orders, newIndex, page.pageInfo);
+        } else {
+          exhaustBoundary('prev');
         }
+      }
+    } catch {
+      if (currentIndex === 0) {
+        exhaustBoundary('prev');
       }
     } finally {
       setLoading(false);
     }
-  }, [hasPrev, loading, init, currentIndex, orders, pageInfo, onChange, syncHistory]);
+  }, [
+    hasPrev,
+    loading,
+    init,
+    currentIndex,
+    orders,
+    pageInfo,
+    onChange,
+    syncHistory,
+    exhaustBoundary,
+  ]);
 
   const handleNext = useCallback(async () => {
     if (!hasNext || loading || !init) return;
@@ -210,16 +239,32 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
           setPageInfo(page.pageInfo);
           onChange(page.orders[0].orderId);
           syncHistory(page.orders, 0, page.pageInfo);
+        } else {
+          exhaustBoundary('next');
         }
+      }
+    } catch {
+      if (currentIndex === orders.length - 1) {
+        exhaustBoundary('next');
       }
     } finally {
       setLoading(false);
     }
-  }, [hasNext, loading, init, currentIndex, orders, pageInfo, onChange, syncHistory]);
+  }, [
+    hasNext,
+    loading,
+    init,
+    currentIndex,
+    orders,
+    pageInfo,
+    onChange,
+    syncHistory,
+    exhaustBoundary,
+  ]);
 
   // Graceful degradation: hide when there is no cached page context
-  // (e.g. the user landed directly on the detail URL without coming from the list).
-  if (!init?.orders) return null;
+  // (e.g. direct URL access, missing cursors, or an empty list page).
+  if (!init?.orders?.length) return null;
 
   return (
     <Box role="navigation" sx={{ display: 'flex', color }}>

@@ -278,14 +278,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     });
   };
 
-  const goToDetail = (item: ListItem, index: number, items: ListItem[]) => {
+  const goToDetail = (item: ListItem, items: ListItem[]) => {
     const activeFilterState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
+    const orders = items.flatMap(({ orderId, cursor }) => (cursor ? [{ orderId, cursor }] : []));
+    const currentIndex = orders.findIndex((o) => o.orderId === item.orderId);
 
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         isCompanyOrder,
-        currentIndex: index,
-        orders: items.map(({ orderId, cursor }) => ({ orderId, cursor: cursor ?? '' })),
+        currentIndex: currentIndex >= 0 ? currentIndex : 0,
+        orders: currentIndex >= 0 ? orders : [],
         pageInfo: {
           hasNextPage: activeFilterState.pageInfo?.hasNextPage ?? false,
           hasPreviousPage: activeFilterState.pageInfo?.hasPreviousPage ?? false,
@@ -427,7 +429,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   );
 
   const navigateToOrderDetail = isUnifiedOrders
-    ? (item: ListItem, index: number) => goToDetail(item, index, listItems)
+    ? (item: ListItem) => goToDetail(item, listItems)
     : legacyGoToDetail;
 
   return (
