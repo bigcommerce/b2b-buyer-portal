@@ -1618,5 +1618,38 @@ describe('when the user is a B2B customer', () => {
       const summary = screen.getByTestId('quote-summary');
       expect(within(summary).getByText('€200.00')).toBeInTheDocument();
     });
+
+    it('places the token on the left when BC config has uppercase token_location LEFT and flag is enabled', async () => {
+      const eurWithUppercaseLeft = JSON.parse(
+        JSON.stringify({ ...eurOnLeftInBcConfig, token_location: 'LEFT' }),
+      );
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          storeConfigs: {
+            currencies: {
+              currencies: [eurWithUppercaseLeft],
+              channelCurrencies: {
+                channel_id: 1,
+                enabled_currencies: ['EUR'],
+                default_currency: 'EUR',
+              },
+              enteredInclusiveTax: false,
+            },
+          },
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
+          }),
+        },
+      });
+
+      const row = (await screen.findByText('Wool Socks')).closest('tr')!;
+      expect(within(row).getByRole('cell', { name: '€49.00' })).toBeInTheDocument();
+
+      const summary = screen.getByTestId('quote-summary');
+      expect(within(summary).getByText('€200.00')).toBeInTheDocument();
+    });
   });
 });

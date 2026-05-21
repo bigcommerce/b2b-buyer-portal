@@ -47,7 +47,13 @@ const storeConfigSlice = createSlice({
   reducers: {
     clearState: () => initialState,
     setCurrencies: (state, { payload }: PayloadAction<Currencies>) => {
-      state.currencies = payload;
+      state.currencies = {
+        ...payload,
+        currencies: payload.currencies.map((currency) => ({
+          ...currency,
+          token_location: currency.token_location?.toLowerCase() === 'right' ? 'right' : 'left',
+        })),
+      };
     },
     setActiveCurrency: (state, { payload }: PayloadAction<ActiveCurrency>) => {
       state.activeCurrency = payload;
