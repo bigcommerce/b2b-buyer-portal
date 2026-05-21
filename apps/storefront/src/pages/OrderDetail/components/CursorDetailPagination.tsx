@@ -16,22 +16,11 @@ import {
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
 
-// ===========================================================================
-// Types
-// ===========================================================================
-
 export interface OrderPageItem {
   orderId: string;
   cursor: string;
 }
 
-/**
- * Navigation state written by `Order.tsx#goToDetail` and consumed here.
- * The presence of `orders` distinguishes this shape from the legacy
- * offset-based state checked in `DetailPagination`.
- *
- * Export so callers (Order.tsx) can type their navigate() state arg.
- */
 export interface CursorLocationState {
   isCompanyOrder: boolean;
   /** Index of the current order within `orders`. */
@@ -48,10 +37,6 @@ export interface CursorLocationState {
   sortBy: OrdersSortInput;
 }
 
-// ===========================================================================
-// Module-level helper
-// ===========================================================================
-
 /**
  * Fetches a full adjacent page in the given direction relative to `cursor`.
  * `mode: 'before'` → the previous page; `mode: 'after'` → the next page.
@@ -66,9 +51,7 @@ async function fetchAdjacentPage(
   sortBy: OrdersSortInput,
 ): Promise<{ orders: OrderPageItem[]; pageInfo: CursorLocationState['pageInfo'] } | null> {
   const paginationArgs =
-    mode === 'before'
-      ? { last: pageSize, before: cursor }
-      : { first: pageSize, after: cursor };
+    mode === 'before' ? { last: pageSize, before: cursor } : { first: pageSize, after: cursor };
 
   if (isCompanyOrder) {
     const result = await getCompanyOrders({
@@ -119,7 +102,7 @@ interface CursorDetailPaginationProps {
 }
 
 /**
- * Prev/Next order navigation for the unified SF GQL path (B2B-4629).
+ * Prev/Next order navigation for the unified SF GQL path.
  *
  * Caches the full list page passed from the list view. Within-page navigation
  * is instant (zero API calls). Page-boundary navigation fetches one new page
@@ -134,7 +117,6 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   const navigate = useNavigate();
   const init = location.state as CursorLocationState | null;
 
-  // All hooks must run unconditionally before the null guard at the bottom.
   const [orders, setOrders] = useState<OrderPageItem[]>(init?.orders ?? []);
   const [currentIndex, setCurrentIndex] = useState(init?.currentIndex ?? 0);
   const [pageInfo, setPageInfo] = useState(
@@ -147,7 +129,11 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
 
   /** Writes the current navigation state into the history entry. */
   const syncHistory = useCallback(
-    (newOrders: OrderPageItem[], newIndex: number, newPageInfo: CursorLocationState['pageInfo']) => {
+    (
+      newOrders: OrderPageItem[],
+      newIndex: number,
+      newPageInfo: CursorLocationState['pageInfo'],
+    ) => {
       if (!init) return;
       navigate(`/orderDetail/${newOrders[newIndex].orderId}`, {
         replace: true,

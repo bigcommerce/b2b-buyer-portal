@@ -7,15 +7,11 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
-import { CursorDetailPagination } from '@/pages/OrderDetail/components/CursorDetailPagination';
 import type { CursorLocationState } from '@/pages/OrderDetail/components/CursorDetailPagination';
+import { CursorDetailPagination } from '@/pages/OrderDetail/components/CursorDetailPagination';
 import { OrdersSortInput } from '@/shared/service/bc/graphql/orders';
 
 const { server } = startMockServer();
-
-// ---------------------------------------------------------------------------
-// MSW response builders
-// ---------------------------------------------------------------------------
 
 function makeCustomerPage(
   orders: Array<{ orderId: number; cursor: string }>,
@@ -64,10 +60,7 @@ function makeCompanyPage(
   };
 }
 
-// ---------------------------------------------------------------------------
 // Base state: 3 orders on the page, current is the middle one (index 1)
-// ---------------------------------------------------------------------------
-
 const BASE_ORDERS = [
   { orderId: '100', cursor: 'cursor-100' },
   { orderId: '101', cursor: 'cursor-101' },
@@ -91,10 +84,6 @@ function renderComponent(state: CursorLocationState | null, onChange = vi.fn()) 
 
 const getPrevButton = () => screen.getByRole('button', { name: /previous order/i });
 const getNextButton = () => screen.getByRole('button', { name: /next order/i });
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 describe('CursorDetailPagination', () => {
   describe('when there is no cursor state (e.g. direct URL navigation)', () => {
@@ -187,100 +176,79 @@ describe('CursorDetailPagination', () => {
       it('disables next after navigating forward to the last item with no next page', async () => {
         const { user } = renderComponent({
           ...BASE_STATE,
-          currentIndex: 1,
+          currentIndex: 0,
           orders: BASE_ORDERS.slice(1, 3),
           pageInfo: { hasNextPage: false, hasPreviousPage: false },
         });
+        expect(getNextButton()).not.toBeDisabled();
         await user.click(getNextButton());
         expect(getNextButton()).toBeDisabled();
       });
     });
 
     describe('page boundary navigation', () => {
-      it('lands on the last item of the fetched previous page', async () => {
+      it('fetches the previous page with correct variables and lands on its last item', async () => {
+        let capturedVariables: Record<string, unknown> = {};
         server.use(
-          graphql.query('GetCustomerOrders', () =>
-            HttpResponse.json(
+          graphql.query('GetCustomerOrders', ({ variables }) => {
+            capturedVariables = variables;
+            return HttpResponse.json(
               makeCustomerPage([
                 { orderId: 98, cursor: 'cursor-98' },
                 { orderId: 99, cursor: 'cursor-99' },
               ]),
-            ),
-          ),
+            );
+          }),
         );
         const onChange = vi.fn();
-        const { user } = renderComponent({
-          ...BASE_STATE,
-          currentIndex: 0,
-          pageInfo: { hasNextPage: false, hasPreviousPage: true },
-        }, onChange);
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 0,
+            pageInfo: { hasNextPage: false, hasPreviousPage: true },
+          },
+          onChange,
+        );
         await user.click(getPrevButton());
-        await waitFor(() => expect(onChange).toHaveBeenCalledExactlyOnceWith('99'));
+        await waitFor(() => {
+          expect(onChange).toHaveBeenCalledExactlyOnceWith('99');
+          expect(capturedVariables).toMatchObject({
+            last: BASE_ORDERS.length,
+            before: 'cursor-100',
+          });
+        });
       });
 
-      it('lands on the first item of the fetched next page', async () => {
+      it('fetches the next page with correct variables and lands on its first item', async () => {
+        let capturedVariables: Record<string, unknown> = {};
         server.use(
-          graphql.query('GetCustomerOrders', () =>
-            HttpResponse.json(
+          graphql.query('GetCustomerOrders', ({ variables }) => {
+            capturedVariables = variables;
+            return HttpResponse.json(
               makeCustomerPage([
                 { orderId: 103, cursor: 'cursor-103' },
                 { orderId: 104, cursor: 'cursor-104' },
               ]),
-            ),
-          ),
+            );
+          }),
         );
         const onChange = vi.fn();
-        const { user } = renderComponent({
-          ...BASE_STATE,
-          currentIndex: 2,
-          pageInfo: { hasNextPage: true, hasPreviousPage: false },
-        }, onChange);
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 2,
+            pageInfo: { hasNextPage: true, hasPreviousPage: false },
+          },
+          onChange,
+        );
         await user.click(getNextButton());
-        await waitFor(() => expect(onChange).toHaveBeenCalledExactlyOnceWith('103'));
-      });
-
-      it('passes last:pageSize before:firstCursor when fetching the previous page', async () => {
-        let capturedVariables: Record<string, unknown> = {};
-        server.use(
-          graphql.query('GetCustomerOrders', ({ variables }) => {
-            capturedVariables = variables;
-            return HttpResponse.json(makeCustomerPage([{ orderId: 99, cursor: 'cursor-99' }]));
-          }),
-        );
-        const { user } = renderComponent({
-          ...BASE_STATE,
-          currentIndex: 0,
-          pageInfo: { hasNextPage: false, hasPreviousPage: true },
-        });
-        await user.click(getPrevButton());
-        await waitFor(() =>
-          expect(capturedVariables).toMatchObject({
-            last: BASE_ORDERS.length,
-            before: 'cursor-100',
-          }),
-        );
-      });
-
-      it('passes first:pageSize after:lastCursor when fetching the next page', async () => {
-        let capturedVariables: Record<string, unknown> = {};
-        server.use(
-          graphql.query('GetCustomerOrders', ({ variables }) => {
-            capturedVariables = variables;
-            return HttpResponse.json(makeCustomerPage([{ orderId: 103, cursor: 'cursor-103' }]));
-          }),
-        );
-        const { user } = renderComponent({
-          ...BASE_STATE,
-          currentIndex: 2,
-          pageInfo: { hasNextPage: true, hasPreviousPage: false },
-        });
-        await user.click(getNextButton());
-        await waitFor(() =>
+        await waitFor(() => {
+          expect(onChange).toHaveBeenCalledExactlyOnceWith('103');
           expect(capturedVariables).toMatchObject({
             first: BASE_ORDERS.length,
             after: 'cursor-102',
-          }),
-        );
+          });
+        });
       });
     });
 
@@ -290,11 +258,11 @@ describe('CursorDetailPagination', () => {
         let companyCalls = 0;
         server.use(
           graphql.query('GetCompanyOrders', () => {
-            companyCalls++;
+            companyCalls += 1;
             return HttpResponse.json(makeCompanyPage([{ orderId: 103, cursor: 'cursor-103' }]));
           }),
           graphql.query('GetCustomerOrders', () => {
-            customerCalls++;
+            customerCalls += 1;
             return HttpResponse.json(makeCustomerPage([{ orderId: 103, cursor: 'cursor-103' }]));
           }),
         );
