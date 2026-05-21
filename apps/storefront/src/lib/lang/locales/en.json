@@ -336,6 +336,8 @@
   "orderDetail.backToOrders": "Back to orders",
   "orderDetail.pagination.order": "Order",
   "orderDetail.pagination.of": "of",
+  "orderDetail.pagination.previousOrder": "Previous order",
+  "orderDetail.pagination.nextOrder": "Next order",
   "orderDetail.paymentMethod": "Payment by {paymentMethod}",
   "orderDetail.customerName": "{firstName} {lastName}",
   "orderDetail.customerAddress": "{city}, {state} {zip}, {country}",

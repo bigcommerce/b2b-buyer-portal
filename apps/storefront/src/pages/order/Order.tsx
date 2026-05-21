@@ -22,6 +22,8 @@ import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
+import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
+
 import OrderStatus from './components/OrderStatus';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
@@ -207,7 +209,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }> => {
     const result = await getCustomerOrders(args);
     const orders = result.data?.customer?.orders;
-    const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
+    const edges = (orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+    );
     const pageInfo = orders?.pageInfo ?? null;
 
     return { edges, totalCount: -1, pageInfo };
@@ -227,7 +231,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }> => {
     const result = await getCompanyOrders(args);
     const orders = result.data?.customer?.activeCompany?.orders;
-    const edges = (orders?.edges || []).map((edge) => mapSfGqlOrderToListItem(edge.node));
+    const edges = (orders?.edges || []).map((edge) =>
+      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+    );
     const pageInfo = orders?.pageInfo ?? null;
     const totalCount = orders?.collectionInfo?.totalItems ?? -1;
 
@@ -264,7 +270,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: isUnifiedOrders ? -1 : allTotal,
+        totalCount: allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
@@ -272,20 +278,23 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     });
   };
 
-  // TODO B2B-4629: Double check if need more params for unified path
-  const goToDetail = (item: ListItem, index: number) => {
+  const goToDetail = (item: ListItem, index: number, items: ListItem[]) => {
+    const activeFilterState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
+
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
-        currentIndex: index,
-        totalCount: -1,
         isCompanyOrder,
-        unifiedCustomerFilters: customerFilterState.filters,
-        unifiedCustomerSortBy: customerFilterState.sortBy,
-      },
+        currentIndex: index,
+        orders: items.map(({ orderId, cursor }) => ({ orderId, cursor: cursor ?? '' })),
+        pageInfo: {
+          hasNextPage: activeFilterState.pageInfo?.hasNextPage ?? false,
+          hasPreviousPage: activeFilterState.pageInfo?.hasPreviousPage ?? false,
+        },
+        filters: activeFilterState.filters,
+        sortBy: activeFilterState.sortBy,
+      } satisfies CursorLocationState,
     });
   };
-
-  const navigateToOrderDetail = isUnifiedCustomerPath ? goToDetail : legacyGoToDetail;
 
   const isSuperAdminNotAgenting = Number(role) === CustomerRole.SUPER_ADMIN && !isAgenting;
 
@@ -416,6 +425,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       })),
     [data?.edges, getOrderStatuses],
   );
+
+  const navigateToOrderDetail = isUnifiedOrders
+    ? (item: ListItem, index: number) => goToDetail(item, index, listItems)
+    : legacyGoToDetail;
 
   return (
     <B3Spin isSpinning={isFetching}>

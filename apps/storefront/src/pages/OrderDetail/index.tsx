@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowBackIosNew, InfoOutlined } from '@mui/icons-material';
 import { Box, Grid, Stack, Typography } from '@mui/material';
@@ -26,6 +26,7 @@ import b2bLogger from '@/utils/b3Logger';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
+import { CursorDetailPagination } from './components/CursorDetailPagination';
 import { DetailPagination } from './components/DetailPagination';
 import { OrderAction } from './components/OrderAction';
 import { OrderBilling } from './components/OrderBilling';
@@ -240,9 +241,9 @@ function OrderDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isB2BUser, orderId]);
 
-  const handlePageChange = (orderId: string | number) => {
-    setOrderId(orderId.toString());
-  };
+  const handlePageChange = useCallback((nextOrderId: string | number) => {
+    setOrderId(nextOrderId.toString());
+  }, []);
 
   useEffect(() => {
     const getAddressLabelPermission = async () => {
@@ -367,12 +368,12 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            {location?.state && (
-              <DetailPagination
-                onChange={(orderId) => handlePageChange(orderId)}
-                color={customColor}
-              />
-            )}
+            {location?.state &&
+              (isUnifiedOrders ? (
+                <CursorDetailPagination onChange={handlePageChange} color={customColor} />
+              ) : (
+                <DetailPagination onChange={handlePageChange} color={customColor} />
+              ))}
           </Grid>
         </Grid>
         {orderId && !isCurrentCompany ? (
