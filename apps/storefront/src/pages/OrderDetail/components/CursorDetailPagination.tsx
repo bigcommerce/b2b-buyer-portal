@@ -193,9 +193,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
         }
       }
     } catch {
-      if (currentIndex === 0) {
-        exhaustBoundary('prev');
-      }
+      // Boundary fetch failed (e.g. network) - leave pageInfo unchanged so the user can retry.
     } finally {
       setLoading(false);
     }
@@ -242,9 +240,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
         }
       }
     } catch {
-      if (currentIndex === orders.length - 1) {
-        exhaustBoundary('next');
-      }
+      // Boundary fetch failed (e.g. network) — leave pageInfo unchanged so the user can retry.
     } finally {
       setLoading(false);
     }

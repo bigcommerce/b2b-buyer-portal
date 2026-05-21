@@ -60,15 +60,15 @@ function makeCompanyPage(
   };
 }
 
-// Base state: 3 orders on the page, current is the middle one (index 1)
+const LIST_PAGE_SIZE = 10;
+
 const BASE_ORDERS = [
   { orderId: '100', cursor: 'cursor-100' },
   { orderId: '101', cursor: 'cursor-101' },
   { orderId: '102', cursor: 'cursor-102' },
 ];
 
-const LIST_PAGE_SIZE = 10;
-
+// Base state: 3 orders on the page, current is the middle one (index 1)
 const BASE_STATE: CursorLocationState = {
   isCompanyOrder: false,
   currentIndex: 1,
@@ -296,6 +296,68 @@ describe('CursorDetailPagination', () => {
         await waitFor(() => {
           expect(onChange).not.toHaveBeenCalled();
           expect(getNextButton()).toBeDisabled();
+        });
+      });
+
+      it('keeps prev enabled when a boundary fetch fails so the user can retry', async () => {
+        let callCount = 0;
+        server.use(
+          graphql.query('GetCustomerOrders', () => {
+            callCount += 1;
+            if (callCount === 1) {
+              return HttpResponse.error();
+            }
+            return HttpResponse.json(makeCustomerPage([{ orderId: 99, cursor: 'cursor-99' }]));
+          }),
+        );
+        const onChange = vi.fn();
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 0,
+            pageInfo: { hasNextPage: false, hasPreviousPage: true },
+          },
+          onChange,
+        );
+        await user.click(getPrevButton());
+        await waitFor(() => {
+          expect(onChange).not.toHaveBeenCalled();
+          expect(getPrevButton()).not.toBeDisabled();
+        });
+        await user.click(getPrevButton());
+        await waitFor(() => {
+          expect(onChange).toHaveBeenCalledExactlyOnceWith('99');
+        });
+      });
+
+      it('keeps next enabled when a boundary fetch fails so the user can retry', async () => {
+        let callCount = 0;
+        server.use(
+          graphql.query('GetCustomerOrders', () => {
+            callCount += 1;
+            if (callCount === 1) {
+              return HttpResponse.error();
+            }
+            return HttpResponse.json(makeCustomerPage([{ orderId: 103, cursor: 'cursor-103' }]));
+          }),
+        );
+        const onChange = vi.fn();
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 2,
+            pageInfo: { hasNextPage: true, hasPreviousPage: false },
+          },
+          onChange,
+        );
+        await user.click(getNextButton());
+        await waitFor(() => {
+          expect(onChange).not.toHaveBeenCalled();
+          expect(getNextButton()).not.toBeDisabled();
+        });
+        await user.click(getNextButton());
+        await waitFor(() => {
+          expect(onChange).toHaveBeenCalledExactlyOnceWith('103');
         });
       });
     });
