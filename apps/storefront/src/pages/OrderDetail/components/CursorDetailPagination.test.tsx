@@ -67,6 +67,8 @@ const BASE_ORDERS = [
   { orderId: '102', cursor: 'cursor-102' },
 ];
 
+const LIST_PAGE_SIZE = 10;
+
 const BASE_STATE: CursorLocationState = {
   isCompanyOrder: false,
   currentIndex: 1,
@@ -74,6 +76,7 @@ const BASE_STATE: CursorLocationState = {
   pageInfo: { hasNextPage: true, hasPreviousPage: true },
   filters: {},
   sortBy: OrdersSortInput.CREATED_AT_NEWEST,
+  pageSize: LIST_PAGE_SIZE,
 };
 
 function renderComponent(state: CursorLocationState | null, onChange = vi.fn()) {
@@ -218,7 +221,7 @@ describe('CursorDetailPagination', () => {
         await waitFor(() => {
           expect(onChange).toHaveBeenCalledExactlyOnceWith('99');
           expect(capturedVariables).toMatchObject({
-            last: BASE_ORDERS.length,
+            last: LIST_PAGE_SIZE,
             before: 'cursor-100',
           });
         });
@@ -250,7 +253,7 @@ describe('CursorDetailPagination', () => {
         await waitFor(() => {
           expect(onChange).toHaveBeenCalledExactlyOnceWith('103');
           expect(capturedVariables).toMatchObject({
-            first: BASE_ORDERS.length,
+            first: LIST_PAGE_SIZE,
             after: 'cursor-102',
           });
         });

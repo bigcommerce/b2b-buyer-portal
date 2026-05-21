@@ -35,6 +35,8 @@ export interface CursorLocationState {
   /** Filter/sort state forwarded from the list view so we query the same result set. */
   filters: OrdersFiltersInput | CompanyOrdersFiltersInput;
   sortBy: OrdersSortInput;
+  /** List view page size from `useUnifiedOrdersPagination` */
+  pageSize: number;
 }
 
 /**
@@ -91,11 +93,6 @@ async function fetchAdjacentPage(
     },
   };
 }
-
-// ===========================================================================
-// Component
-// ===========================================================================
-
 interface CursorDetailPaginationProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -144,6 +141,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
           pageInfo: newPageInfo,
           filters: init.filters,
           sortBy: init.sortBy,
+          pageSize: init.pageSize,
         } satisfies CursorLocationState,
       });
     },
@@ -178,7 +176,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
         const page = await fetchAdjacentPage(
           'before',
           orders[0].cursor,
-          orders.length,
+          init.pageSize,
           init.isCompanyOrder,
           init.filters,
           init.sortBy,
@@ -228,7 +226,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
         const page = await fetchAdjacentPage(
           'after',
           orders[orders.length - 1].cursor,
-          orders.length,
+          init.pageSize,
           init.isCompanyOrder,
           init.filters,
           init.sortBy,

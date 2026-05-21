@@ -294,6 +294,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         },
         filters: activeFilterState.filters,
         sortBy: activeFilterState.sortBy,
+        pageSize: activeFilterState.pageSize,
       } satisfies CursorLocationState,
     });
   };
