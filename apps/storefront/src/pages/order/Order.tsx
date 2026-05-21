@@ -22,6 +22,8 @@ import { CustomerRole } from '@/types';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
+import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
+
 import OrderStatus from './components/OrderStatus';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
@@ -268,7 +270,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           ...filterData,
           orderBy,
         },
-        totalCount: isUnifiedOrders ? -1 : allTotal,
+        totalCount: allTotal,
         isCompanyOrder,
         beginDateAt: filterData?.beginDateAt,
         endDateAt: filterData?.endDateAt,
@@ -288,7 +290,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         isCompanyOrder,
-        totalCount: -1,
         currentOrderId: item.orderId,
         currentCursor: item.cursor ?? '',
         prevOrderId: prevItem?.orderId ?? null,
@@ -301,7 +302,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         },
         filters: activeFilterState.filters,
         sortBy: activeFilterState.sortBy,
-      },
+      } satisfies CursorLocationState,
     });
   };
 
