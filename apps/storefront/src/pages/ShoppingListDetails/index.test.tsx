@@ -48,6 +48,11 @@ interface VariantInfo {
   purchasingDisabled: '1' | '0';
   variantSku: string;
   imageUrl: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
 }
 
 interface VariantInfoResponse {
@@ -2033,13 +2038,30 @@ describe('when backend validation is enabled', () => {
     company: b2bCompanyWithShoppingListPermissions,
     global: buildGlobalStateWith({
       backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
     }),
   };
 
   it('errors on exceed product inventory', async () => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
-    const variantInfo = buildVariantInfoWith({ variantSku: 'LVLY-SK-123' });
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'LVLY-SK-123',
+      inventoryTracking: 'product',
+      availableToSell: 4,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Lead time: 2-4 weeks',
+    });
 
     const getVariantInfoBySkus = when(vi.fn())
       .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
@@ -2148,6 +2170,9 @@ describe('when backend validation is enabled', () => {
     ).toBeVisible();
 
     expect(within(dialog).getByText('1 available')).toBeVisible();
+    expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+    expect(within(dialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(dialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
   });
 
   it('respects unlimited backorder stock', async () => {
@@ -2615,20 +2640,23 @@ describe('when backend validation is enabled', () => {
   it('shows only the most recent error for the product added to the cart', async () => {
     vi.mocked(useParams).mockReturnValue({ id: '272989' });
 
+    const outOfStockVariantSku = 'OOS-SK-123';
+
     const variantInfo = buildVariantInfoWith({
-      variantSku: 'LVLY-SK-123',
+      variantSku: outOfStockVariantSku,
       minQuantity: 0,
     });
 
-    const getVariantInfoBySkus = when(vi.fn())
-      .calledWith(expect.stringContaining('variantSkus: ["LVLY-SK-123"]'))
-      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+    const getVariantInfoBySkus = vi.fn(() =>
+      buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+    );
 
     const outOfStockProduct = buildShoppingListProductEdgeWith({
       node: {
         productName: 'Out of stock socks',
         productId: 73737,
         variantId: 737,
+        variantSku: outOfStockVariantSku,
         quantity: 2,
       },
     });
@@ -2734,9 +2762,7 @@ describe('when backend validation is enabled', () => {
       graphql.query('SearchProducts', ({ query }) =>
         HttpResponse.json(searchProductsQuerySpy(query)),
       ),
-      graphql.query('GetVariantInfoBySkus', ({ query }) =>
-        HttpResponse.json(getVariantInfoBySkus(query)),
-      ),
+      graphql.query('GetVariantInfoBySkus', () => HttpResponse.json(getVariantInfoBySkus())),
       graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart } } })),
       graphql.mutation('addCartLineItemsTwo', ({ variables }) =>
         addCartLineItemsMutation(variables),
