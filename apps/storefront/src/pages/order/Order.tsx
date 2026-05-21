@@ -181,20 +181,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       if (cancelled) return;
 
       const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
-      const users = edges.map((e) => e.node);
-      setPlacedByUsers(users);
-
-      setFilterMoreInfo((prev) => {
-        const placedByItem = prev.find((item: { name: string }) => item.name === 'PlacedBy');
-        if (!placedByItem) return prev;
-
-        const newOptions = users.map((u: OrderPlacedBy) => ({
-          createdBy: `${u.firstName} ${u.lastName} (${u.email})`,
-        }));
-        return prev.map((item: { name: string }) =>
-          item.name === 'PlacedBy' ? { ...item, options: newOptions } : item,
-        );
-      });
+      setPlacedByUsers(edges.map((e) => e.node));
     };
 
     fetchPlacedByUsers();
@@ -212,16 +199,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
       if (isB2BUser && isCompanyOrder) {
         if (isUnifiedOrders) {
-          const response = await getCustomersWithOrders({
-            filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
-            first: 100,
-          });
-          const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
-          const users = edges.map((e) => e.node);
-          setPlacedByUsers(users);
-          createdByUsers = {
-            createdByUser: { results: users },
-          };
+          createdByUsers = { createdByUser: { results: placedByUsers } };
         } else {
           createdByUsers = await getCreatedByUserForOrders(Number(companyId));
         }
@@ -246,8 +224,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, isUnifiedOrders, role]);
+  }, [
+    b3Lang,
+    companyId,
+    isAgenting,
+    isB2BUser,
+    isCompanyOrder,
+    isUnifiedOrders,
+    placedByUsers,
+    role,
+  ]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;

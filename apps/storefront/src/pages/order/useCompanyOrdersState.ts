@@ -94,6 +94,7 @@ export const useCompanyOrdersState = ({
     setFilters((prev) => ({
       ...prev,
       companyIds: isAll ? undefined : companyIds.map(String),
+      customerId: undefined,
     }));
   };
 
