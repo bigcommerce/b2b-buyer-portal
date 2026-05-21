@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -111,6 +111,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
   const [placedByUsers, setPlacedByUsers] = useState<OrderPlacedBy[]>([]);
+  const placedByUsersRef = useRef<OrderPlacedBy[]>([]);
 
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
@@ -181,7 +182,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       if (cancelled) return;
 
       const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
-      setPlacedByUsers(edges.map((e) => e.node));
+      const users = edges.map((e) => e.node);
+      placedByUsersRef.current = users;
+      setPlacedByUsers(users);
     };
 
     fetchPlacedByUsers();
@@ -190,13 +193,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
   }, [activeCompanyIds, isB2BUser, isCompanyOrder, isUnifiedOrders, role]);
 
+  const orderStatusesRef = useRef<Array<any>>([]);
+
   useEffect(() => {
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
       let createdByUsers: Record<string, unknown> = {};
-
       if (isB2BUser && isCompanyOrder) {
         if (isUnifiedOrders) {
           createdByUsers = { createdByUser: { results: placedByUsers } };
@@ -205,8 +209,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         }
       }
 
-      const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
-      setOrderStatuses(orderStatuses);
+      if (!orderStatusesRef.current.length) {
+        const statuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
+        orderStatusesRef.current = statuses;
+        setOrderStatuses(statuses);
+      }
 
       setFilterMoreInfo(
         translateFilterMoreData(
@@ -216,7 +223,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             isCompanyOrder,
             isAgenting,
             createdByUsers,
-            orderStatuses,
+            orderStatusesRef.current,
           ),
           b3Lang,
         ),
