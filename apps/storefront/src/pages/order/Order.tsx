@@ -31,6 +31,7 @@ import {
   adaptUnifiedToLegacyFilterParams,
 } from './adaptUnifiedToLegacyFilterParams';
 import {
+  type CreatedByUsersData,
   FilterSearchProps,
   getFilterMoreData,
   getOrderStatusText,
@@ -174,14 +175,28 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     let cancelled = false;
 
     const fetchPlacedByUsers = async () => {
-      const response = await getCustomersWithOrders({
-        filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
-        first: 100,
-      });
-      if (cancelled) return;
+      const allUsers: OrderPlacedBy[] = [];
+      let after: string | undefined;
 
-      const edges = response.data?.customer?.activeCompany?.customersWithOrders?.edges || [];
-      setPlacedByUsers(edges.map((e) => e.node));
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        // eslint-disable-next-line no-await-in-loop
+        const response = await getCustomersWithOrders({
+          filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
+          first: 100,
+          after,
+        });
+        if (cancelled) return;
+
+        const connection = response.data?.customer?.activeCompany?.customersWithOrders;
+        const edges = connection?.edges || [];
+        allUsers.push(...edges.map((e) => e.node));
+
+        if (!connection?.pageInfo?.hasNextPage || !connection.pageInfo.endCursor) break;
+        after = connection.pageInfo.endCursor;
+      }
+
+      setPlacedByUsers(allUsers);
     };
 
     fetchPlacedByUsers();
@@ -197,7 +212,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
-      let createdByUsers: Record<string, unknown> = {};
+      let createdByUsers: CreatedByUsersData = {};
       if (isB2BUser && isCompanyOrder) {
         if (isUnifiedOrders) {
           createdByUsers = { createdByUser: { results: placedByUsers } };

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { CompanyOrdersFiltersInput, OrderPlacedBy } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
+import { formatPlacedByLabel } from './config';
 import {
   getCompanyOrdersInitFilter,
   normalizeString,
@@ -73,9 +74,7 @@ export const useCompanyOrdersState = ({
     let resolvedCustomerId: number[] | undefined;
     const rawPlacedBy = normalizeString(value.PlacedBy);
     if (rawPlacedBy) {
-      const match = placedByUsers.find(
-        (u) => `${u.firstName} ${u.lastName} (${u.email})` === rawPlacedBy,
-      );
+      const match = placedByUsers.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
       resolvedCustomerId = match ? [match.entityId] : undefined;
     }
 

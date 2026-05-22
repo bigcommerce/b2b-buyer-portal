@@ -1,7 +1,12 @@
+import { OrderPlacedBy } from '@/shared/service/bc/graphql/orders';
 import { CustomerRole } from '@/types';
 import { OrderStatusType } from '@/types/gql/graphql';
 
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
+
+export interface CreatedByUsersData {
+  createdByUser?: { results: OrderPlacedBy[] };
+}
 
 export interface FilterSearchProps {
   [key: string]: string | number | number[] | null;
@@ -25,6 +30,9 @@ export const sortKeys = {
   createdAt: 'createdAt',
 };
 
+export const formatPlacedByLabel = (user: { firstName: string; lastName: string; email: string }) =>
+  `${user.firstName} ${user.lastName} (${user.email})`;
+
 export function assertSortKey(key: string): asserts key is keyof typeof sortKeys {
   if (!Object.keys(sortKeys).includes(key)) {
     throw new Error(`Invalid sort key: ${key}`);
@@ -44,7 +52,7 @@ export const getFilterMoreData = (
   );
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({
-      createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+      createdBy: formatPlacedByLabel(item),
     })) || [];
   const filterMoreList = [
     {
