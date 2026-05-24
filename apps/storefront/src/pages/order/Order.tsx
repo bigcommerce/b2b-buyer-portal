@@ -14,8 +14,6 @@ import {
   CompanyOrdersFiltersInput,
   getCompanyOrders,
   getCustomerOrders,
-  getCustomersWithOrders,
-  type OrderPlacedBy,
   OrdersFiltersInput,
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
@@ -111,8 +109,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
-  const [placedByUsers, setPlacedByUsers] = useState<OrderPlacedBy[]>([]);
-
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -129,7 +125,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
-    placedByUsers,
+    isEnabled: isUnifiedCompanyPath && role !== CustomerRole.GUEST,
   });
 
   const getActiveFilterState = () => {
@@ -165,46 +161,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { filterData, orderBy } = getFilterDataAndOrderBy();
 
-  const activeCompanyIds = companyFilterState.filters.companyIds;
-
-  useEffect(() => {
-    if (role === CustomerRole.GUEST || !isUnifiedOrders || !isB2BUser || !isCompanyOrder) {
-      return undefined;
-    }
-
-    let cancelled = false;
-
-    const fetchPlacedByUsers = async () => {
-      const allUsers: OrderPlacedBy[] = [];
-      let after: string | undefined;
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        // eslint-disable-next-line no-await-in-loop
-        const response = await getCustomersWithOrders({
-          filters: activeCompanyIds ? { companyIds: activeCompanyIds } : undefined,
-          first: 100,
-          after,
-        });
-        if (cancelled) return;
-
-        const connection = response.data?.customer?.activeCompany?.customersWithOrders;
-        const edges = connection?.edges || [];
-        allUsers.push(...edges.map((e) => e.node));
-
-        if (!connection?.pageInfo?.hasNextPage || !connection.pageInfo.endCursor) break;
-        after = connection.pageInfo.endCursor;
-      }
-
-      setPlacedByUsers(allUsers);
-    };
-
-    fetchPlacedByUsers();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeCompanyIds, isB2BUser, isCompanyOrder, isUnifiedOrders, role]);
-
   const orderStatusesRef = useRef<Array<any>>([]);
 
   useEffect(() => {
@@ -215,7 +171,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       let createdByUsers: CreatedByUsersData = {};
       if (isB2BUser && isCompanyOrder) {
         if (isUnifiedOrders) {
-          createdByUsers = { createdByUser: { results: placedByUsers } };
+          createdByUsers = { createdByUser: { results: companyFilterState.placedByUsers } };
         } else {
           createdByUsers = await getCreatedByUserForOrders(Number(companyId));
         }
@@ -250,7 +206,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     isB2BUser,
     isCompanyOrder,
     isUnifiedOrders,
-    placedByUsers,
+    companyFilterState.placedByUsers,
     role,
   ]);
 

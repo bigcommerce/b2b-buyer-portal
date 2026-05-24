@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { CompanyOrdersFiltersInput, OrderPlacedBy } from '@/shared/service/bc/graphql/orders';
+import { CompanyOrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
 import { formatPlacedByLabel } from './config';
@@ -10,6 +10,7 @@ import {
   packDateRange,
 } from './unifiedApiFiltersHelper';
 import { CompanySortableColumnKey, useCompanyOrderSorting } from './useCompanyOrderSorting';
+import { usePlacedByUsers } from './usePlacedByUsers';
 import { UseUnifiedOrderSortingResult } from './useUnifiedOrderSorting';
 import {
   useUnifiedOrdersPagination,
@@ -27,13 +28,14 @@ interface AppliedFilters {
 interface UseCompanyOrdersStateArgs {
   selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
-  placedByUsers: OrderPlacedBy[];
+  isEnabled: boolean;
 }
 
 export interface UseCompanyOrdersStateResult
   extends UseUnifiedOrdersPaginationResult,
     UseUnifiedOrderSortingResult<CompanySortableColumnKey> {
   filters: CompanyOrdersFiltersInput;
+  placedByUsers: ReturnType<typeof usePlacedByUsers>;
   handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
@@ -42,7 +44,7 @@ export interface UseCompanyOrdersStateResult
 export const useCompanyOrdersState = ({
   selectedCompanyId,
   orderStatuses,
-  placedByUsers,
+  isEnabled,
 }: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
   const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
     getCompanyOrdersInitFilter(selectedCompanyId),
@@ -50,6 +52,11 @@ export const useCompanyOrdersState = ({
 
   const pagination = useUnifiedOrdersPagination();
   const sorting = useCompanyOrderSorting(pagination.resetPagination);
+
+  const placedByUsers = usePlacedByUsers({
+    enabled: isEnabled,
+    companyIds: filters.companyIds,
+  });
 
   useEffect(() => {
     setFilters(getCompanyOrdersInitFilter(selectedCompanyId));
@@ -101,6 +108,7 @@ export const useCompanyOrdersState = ({
     ...pagination,
     ...sorting,
     filters,
+    placedByUsers,
     handleSearchChange,
     handleFilterChange,
     handleCompanyIdsChange,
