@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 
@@ -13,24 +13,22 @@ import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { snackbar } from '@/utils/b3Tip';
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config';
-import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';
 
 import QuickAdd from './QuickAdd';
 import SearchProduct from './SearchProduct';
 
 interface AddToListProps {
   updateList: () => void;
+  shoppingListId: number;
   isB2BUser: boolean;
-  type?: string;
 }
 
-export default function AddToShoppingList(props: AddToListProps) {
-  const {
-    state: { id },
-  } = useContext(ShoppingListDetailsContext);
-
+export default function AddToShoppingList({
+  updateList,
+  isB2BUser,
+  shoppingListId,
+}: AddToListProps) {
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
-  const { updateList, isB2BUser, type: pageType = '' } = props;
   const b3Lang = useB3Lang();
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false);
@@ -57,7 +55,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       });
 
       await addItemsToShoppingList({
-        shoppingListId: id,
+        shoppingListId,
         items,
       });
 
@@ -84,7 +82,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     });
 
     await addItemsToShoppingList({
-      shoppingListId: id,
+      shoppingListId,
       items,
     });
 
@@ -92,27 +90,15 @@ export default function AddToShoppingList(props: AddToListProps) {
   };
 
   const getValidProducts = (products: CustomFieldItems) => {
-    const notPurchaseSku: string[] = [];
     const productItems: CustomFieldItems[] = [];
-    const notAddAble: string[] = [];
 
     products.forEach((item: CustomFieldItems) => {
       const { products: currentProduct, qty } = item;
-      const { option, purchasingDisabled, variantSku, variantId, productId, modifiers } =
-        currentProduct;
+      const { option, variantId, productId, modifiers } = currentProduct;
 
       const defaultModifiers = getAllModifierDefaultValue(modifiers);
-      if (purchasingDisabled && pageType !== 'shoppingList') {
-        notPurchaseSku.push(variantSku);
-        return;
-      }
 
-      const notPassedModifier = defaultModifiers.filter(
-        (modifier: CustomFieldItems) => !modifier.isVerified,
-      );
-      if (notPassedModifier.length > 0) {
-        notAddAble.push(variantSku);
-
+      if (defaultModifiers.some((modifier) => !modifier.isVerified)) {
         return;
       }
 
@@ -121,15 +107,12 @@ export default function AddToShoppingList(props: AddToListProps) {
         optionValue: item.id.toString(),
       }));
 
-      defaultModifiers.forEach((modifier: CustomFieldItems) => {
-        const { type } = modifier;
-
-        if (type === 'date') {
-          const { defaultValue } = modifier;
-          Object.keys(defaultValue).forEach((key) => {
+      defaultModifiers.forEach((modifier) => {
+        if (modifier.type === 'date') {
+          Object.entries(modifier.defaultValue).forEach(([key, value]) => {
             optionsList.push({
               optionId: `attribute[${modifier.option_id}][${key}]`,
-              optionValue: `${modifier.defaultValue[key]}`,
+              optionValue: `${value}`,
             });
           });
         } else {
@@ -149,11 +132,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       });
     });
 
-    return {
-      notPurchaseSku,
-      productItems,
-      notAddAble,
-    };
+    return productItems;
   };
 
   const handleCSVAddToList = async (productsData: CustomFieldItems) => {
@@ -161,28 +140,12 @@ export default function AddToShoppingList(props: AddToListProps) {
     try {
       const { validProduct } = productsData;
 
-      const { notPurchaseSku, productItems, notAddAble } = getValidProducts(validProduct);
+      const productItems = getValidProducts(validProduct);
 
       if (productItems.length > 0) {
         await quickAddToList(productItems);
 
         updateList();
-      }
-
-      if (notAddAble.length > 0 && pageType !== 'shoppingList') {
-        snackbar.error(
-          b3Lang('shoppingList.addToShoppingList.skuNotAddable', {
-            notAddAble: notAddAble.join(', '),
-          }),
-        );
-      }
-
-      if (notPurchaseSku.length > 0 && pageType !== 'shoppingList') {
-        snackbar.error(
-          b3Lang('shoppingList.addToShoppingList.skuNotPurchasable', {
-            notPurchaseSku: notPurchaseSku.join(', '),
-          }),
-        );
       }
 
       setIsOpenBulkLoadCSV(false);
