@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -29,6 +29,7 @@ import {
   adaptUnifiedToLegacyFilterParams,
 } from './adaptUnifiedToLegacyFilterParams';
 import {
+  type CreatedByUsersData,
   FilterSearchProps,
   getFilterMoreData,
   getOrderStatusText,
@@ -108,7 +109,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
-
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -125,6 +125,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
+    isEnabled: isUnifiedCompanyPath && role !== CustomerRole.GUEST,
   });
 
   const getActiveFilterState = () => {
@@ -160,21 +161,28 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { filterData, orderBy } = getFilterDataAndOrderBy();
 
+  const orderStatusesRef = useRef<Array<any>>([]);
+
   useEffect(() => {
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
 
     const initFilter = async () => {
-      const createdByUsers =
-        isB2BUser && isCompanyOrder ? await getCreatedByUserForOrders(Number(companyId)) : {};
-      //  Caution: This api hasn't yet been ported to unified order api
-      const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
-      setOrderStatuses(orderStatuses);
+      let createdByUsers: CreatedByUsersData = {};
+      if (isB2BUser && isCompanyOrder) {
+        if (isUnifiedOrders) {
+          createdByUsers = { createdByUser: { results: companyFilterState.placedByUsers } };
+        } else {
+          createdByUsers = await getCreatedByUserForOrders(Number(companyId));
+        }
+      }
 
-      /* 
-        returns what all fields to show in more filter (funnel icon)
-        and styles associated to those fields
-      */
+      if (!orderStatusesRef.current.length) {
+        const statuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
+        orderStatusesRef.current = statuses;
+        setOrderStatuses(statuses);
+      }
+
       setFilterMoreInfo(
         translateFilterMoreData(
           getFilterMoreData(
@@ -183,7 +191,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             isCompanyOrder,
             isAgenting,
             createdByUsers,
-            orderStatuses,
+            orderStatusesRef.current,
           ),
           b3Lang,
         ),
@@ -191,7 +199,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
+  }, [
+    b3Lang,
+    companyId,
+    isAgenting,
+    isB2BUser,
+    isCompanyOrder,
+    isUnifiedOrders,
+    companyFilterState.placedByUsers,
+    role,
+  ]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;

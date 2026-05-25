@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { CompanyOrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
+import { formatPlacedByLabel } from './config';
 import {
   getCompanyOrdersInitFilter,
   normalizeString,
   packDateRange,
 } from './unifiedApiFiltersHelper';
 import { CompanySortableColumnKey, useCompanyOrderSorting } from './useCompanyOrderSorting';
+import { usePlacedByUsers } from './usePlacedByUsers';
 import { UseUnifiedOrderSortingResult } from './useUnifiedOrderSorting';
 import {
   useUnifiedOrdersPagination,
@@ -26,12 +28,14 @@ interface AppliedFilters {
 interface UseCompanyOrdersStateArgs {
   selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
+  isEnabled: boolean;
 }
 
 export interface UseCompanyOrdersStateResult
   extends UseUnifiedOrdersPaginationResult,
     UseUnifiedOrderSortingResult<CompanySortableColumnKey> {
   filters: CompanyOrdersFiltersInput;
+  placedByUsers: ReturnType<typeof usePlacedByUsers>;
   handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
@@ -40,6 +44,7 @@ export interface UseCompanyOrdersStateResult
 export const useCompanyOrdersState = ({
   selectedCompanyId,
   orderStatuses,
+  isEnabled,
 }: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
   const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
     getCompanyOrdersInitFilter(selectedCompanyId),
@@ -47,6 +52,11 @@ export const useCompanyOrdersState = ({
 
   const pagination = useUnifiedOrdersPagination();
   const sorting = useCompanyOrderSorting(pagination.resetPagination);
+
+  const placedByUsers = usePlacedByUsers({
+    enabled: isEnabled,
+    companyIds: filters.companyIds,
+  });
 
   useEffect(() => {
     setFilters(getCompanyOrdersInitFilter(selectedCompanyId));
@@ -68,11 +78,19 @@ export const useCompanyOrdersState = ({
       resolvedStatuses = originalStatus?.systemLabel ? [originalStatus.systemLabel] : undefined;
     }
 
+    let resolvedCustomerId: number[] | undefined;
+    const rawPlacedBy = normalizeString(value.PlacedBy);
+    if (rawPlacedBy) {
+      const match = placedByUsers.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
+      resolvedCustomerId = match ? [match.entityId] : undefined;
+    }
+
     pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
       status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
+      customerId: resolvedCustomerId,
     }));
   };
 
@@ -82,6 +100,7 @@ export const useCompanyOrdersState = ({
     setFilters((prev) => ({
       ...prev,
       companyIds: isAll ? undefined : companyIds.map(String),
+      customerId: undefined,
     }));
   };
 
@@ -89,6 +108,7 @@ export const useCompanyOrdersState = ({
     ...pagination,
     ...sorting,
     filters,
+    placedByUsers,
     handleSearchChange,
     handleFilterChange,
     handleCompanyIdsChange,

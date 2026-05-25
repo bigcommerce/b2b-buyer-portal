@@ -21,6 +21,7 @@ import { when } from 'vitest-when';
 
 import {
   type GetCompanyOrdersResponse,
+  type GetCustomersWithOrdersResponse,
   type Order,
   type OrderPlacedBy,
   OrdersSortInput,
@@ -214,6 +215,25 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       ),
       graphql.query('GetOrdersCreatedByUser', () =>
         HttpResponse.json({ data: { createdByUser: { results: [] } } }),
+      ),
+      graphql.query('GetCustomersWithOrders', () =>
+        HttpResponse.json({
+          data: {
+            customer: {
+              activeCompany: {
+                customersWithOrders: {
+                  edges: [],
+                  pageInfo: {
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                    startCursor: null,
+                    endCursor: null,
+                  },
+                },
+              },
+            },
+          },
+        } satisfies GetCustomersWithOrdersResponse),
       ),
     );
   });
@@ -1533,6 +1553,240 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           to: '2022-11-26',
         });
       });
+    });
+  });
+
+  describe('placed-by filter', () => {
+    const jane: OrderPlacedBy = {
+      entityId: 501,
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@acme.com',
+    };
+    const bob: OrderPlacedBy = {
+      entityId: 502,
+      firstName: 'Bob',
+      lastName: 'Smith',
+      email: 'bob@acme.com',
+    };
+
+    const customersWithOrdersResponse: GetCustomersWithOrdersResponse = {
+      data: {
+        customer: {
+          activeCompany: {
+            customersWithOrders: {
+              edges: [
+                { node: jane, cursor: 'c1' },
+                { node: bob, cursor: 'c2' },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startCursor: 'c1',
+                endCursor: 'c2',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    it('populates the Placed By dropdown from GetCustomersWithOrders (not legacy query)', async () => {
+      const sfGqlUsersHandler = vi.fn();
+      const legacyUsersHandler = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomersWithOrders', () => {
+          sfGqlUsersHandler();
+          return HttpResponse.json(customersWithOrdersResponse);
+        }),
+        graphql.query('GetOrdersCreatedByUser', () => {
+          legacyUsersHandler();
+          return HttpResponse.json({ data: { createdByUser: { results: [] } } });
+        }),
+        graphql.query('GetCompanyOrders', () =>
+          HttpResponse.json(buildCompanyOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(sfGqlUsersHandler).toHaveBeenCalled();
+      expect(legacyUsersHandler).not.toHaveBeenCalled();
+
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Placed by' }));
+      expect(screen.getByRole('option', { name: /Jane Doe/ })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Bob Smith/ })).toBeInTheDocument();
+    });
+
+    it('sends customerId when a placed-by user is selected', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCustomersWithOrders', () =>
+          HttpResponse.json(customersWithOrdersResponse),
+        ),
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Placed by' }));
+      await userEvent.click(screen.getByRole('option', { name: /Jane Doe \(jane@acme\.com\)/ }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { customerId?: number[] };
+        };
+        expect(lastVars?.filters?.customerId).toEqual([501]);
+      });
+    });
+
+    it('removes customerId when placed-by filter is cleared', async () => {
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCustomersWithOrders', () =>
+          HttpResponse.json(customersWithOrdersResponse),
+        ),
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      // Apply a placed-by filter first
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Placed by' }));
+      await userEvent.click(screen.getByRole('option', { name: /Bob Smith \(bob@acme\.com\)/ }));
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { customerId?: number[] };
+        };
+        expect(lastVars?.filters?.customerId).toEqual([502]);
+      });
+
+      // Clear via the "Clear Filters" button
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+      await screen.findByRole('dialog', { name: 'Filters' });
+      await userEvent.click(screen.getByRole('button', { name: /Clear Filters/i }));
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { customerId?: number[] };
+        };
+        expect(lastVars?.filters?.customerId).toBeUndefined();
+      });
+    });
+
+    it('composes customerId with search and status filters', async () => {
+      vi.setSystemTime(new Date('21 November 2022'));
+
+      const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+      server.use(
+        graphql.query('GetCustomersWithOrders', () =>
+          HttpResponse.json(customersWithOrdersResponse),
+        ),
+        graphql.query('GetOrderStatuses', () =>
+          HttpResponse.json(
+            buildLegacyB2BOrderStatusesResponseWith({
+              data: {
+                orderStatuses: [
+                  buildLegacyOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+                ],
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCompanyOrders', ({ variables }) =>
+          HttpResponse.json(getOrders(variables)),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      // Apply placed-by + status via filter dialog
+      await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Placed by' }));
+      await userEvent.click(screen.getByRole('option', { name: /Jane Doe \(jane@acme\.com\)/ }));
+
+      await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+      await userEvent.click(screen.getByRole('option', { name: 'Pending' }));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      await waitFor(() => {
+        const { calls } = getOrders.mock;
+        const lastVars = calls[calls.length - 1]?.[0] as {
+          filters?: { customerId?: number[]; status?: string[] };
+        };
+        expect(lastVars?.filters?.customerId).toEqual([501]);
+        expect(lastVars?.filters?.status).toEqual(['Pending']);
+      });
+    });
+
+    it('uses legacy GetOrdersCreatedByUser when flag is off', async () => {
+      const sfGqlUsersHandler = vi.fn();
+      const legacyUsersHandler = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomersWithOrders', () => {
+          sfGqlUsersHandler();
+          return HttpResponse.json(customersWithOrdersResponse);
+        }),
+        graphql.query('GetOrdersCreatedByUser', () => {
+          legacyUsersHandler();
+          return HttpResponse.json({ data: { createdByUser: { results: [] } } });
+        }),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json({
+            data: {
+              allOrders: {
+                totalCount: 0,
+                pageInfo: { hasNextPage: false, hasPreviousPage: false },
+                edges: [],
+              },
+            },
+          }),
+        ),
+      );
+
+      renderWithProviders(<CompanyOrders />, { preloadedState: b2bStateWithFlag(flagOff) });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(legacyUsersHandler).toHaveBeenCalled();
+      expect(sfGqlUsersHandler).not.toHaveBeenCalled();
     });
   });
 });
