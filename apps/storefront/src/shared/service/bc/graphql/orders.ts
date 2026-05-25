@@ -210,7 +210,7 @@ export interface Order {
   quote: OrderQuote | null;
   invoice: OrderInvoice | null;
   extraFields: ExtraFieldValue[];
-  canReturn: boolean;
+  canReturn?: boolean;
 }
 
 // ===========================================================================

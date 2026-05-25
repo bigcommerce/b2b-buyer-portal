@@ -1,5 +1,6 @@
 import type { LangFormatFunction } from '@/lib/lang';
 import type {
+  Money,
   Order,
   OrderAddress,
   OrderDigitalLineItem,
@@ -164,10 +165,26 @@ function convertAddress(sfAddr: OrderAddress): Address {
 // Product conversion (B2B-4826)
 // ===========================================================================
 
-function convertLineItemToProduct(
-  item: OrderLineItem,
+interface LineItemBase {
+  entityId: number;
+  productEntityId: number;
+  name: string;
+  quantity: number;
+  productOptions: Array<{ name: string; value: string }>;
+  subTotalListPrice: Money;
+}
+
+function buildOrderProduct(
+  item: LineItemBase,
+  productType: 'physical' | 'digital',
   decimalPlaces: number,
   consignmentEntityId: number,
+  physicalFields?: {
+    variantEntityId: number | null;
+    sku: string;
+    brand: string | null;
+    imageUrl: string;
+  },
 ): OrderProductItem {
   const unitPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
   const formattedUnitPrice = formatPrice(unitPrice, decimalPlaces);
@@ -176,13 +193,17 @@ function convertLineItemToProduct(
   return {
     id: item.entityId,
     product_id: item.productEntityId,
-    variant_id: item.variantEntityId ?? 0,
-    sku: item.sku ?? '',
+    // Fallback to 0 when variantEntityId is null (gist: "null for legacy
+    // orders or products without variants"). BE is adding variantEntityId
+    // to OrderPhysicalLineItem — until deployed, reorder sends 0 (honest
+    // "no variant") rather than an unrelated ID. Behind FF, tracked in B2B-4787.
+    variant_id: physicalFields?.variantEntityId ?? 0,
+    sku: physicalFields?.sku ?? '',
     name: item.name,
-    brand: item.brand ?? '',
+    brand: physicalFields?.brand ?? '',
     quantity: item.quantity,
-    imageUrl: item.image?.url ?? '',
-    type: 'physical',
+    imageUrl: physicalFields?.imageUrl ?? '',
+    type: productType,
     price_inc_tax: formattedUnitPrice,
     price_ex_tax: formattedUnitPrice,
     price_tax: '0',
@@ -200,7 +221,22 @@ function convertLineItemToProduct(
       optionValue: o.value,
       type: o.name,
     })),
-    product_options: [],
+    product_options: item.productOptions.map((o) => ({
+      id: 0,
+      option_id: 0,
+      order_product_id: item.entityId,
+      product_option_id: 0,
+      name: o.name,
+      value: o.value,
+      display_name: o.name,
+      display_name_customer: o.name,
+      display_name_merchant: o.name,
+      display_style: '',
+      display_value: o.value,
+      display_value_customer: o.value,
+      display_value_merchant: o.value,
+      type: '',
+    })),
     order_address_id: consignmentEntityId,
     order_id: 0,
     parent_order_product_id: 0,
@@ -222,62 +258,25 @@ function convertLineItemToProduct(
   };
 }
 
+function convertLineItemToProduct(
+  item: OrderLineItem,
+  decimalPlaces: number,
+  consignmentEntityId: number,
+): OrderProductItem {
+  return buildOrderProduct(item, 'physical', decimalPlaces, consignmentEntityId, {
+    variantEntityId: item.variantEntityId,
+    sku: item.sku ?? '',
+    brand: item.brand ?? '',
+    imageUrl: item.image?.url ?? '',
+  });
+}
+
 function convertDigitalLineItemToProduct(
   item: OrderDigitalLineItem,
   decimalPlaces: number,
   consignmentEntityId: number,
 ): OrderProductItem {
-  const unitPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
-  const formattedUnitPrice = formatPrice(unitPrice, decimalPlaces);
-  const formattedTotal = formatPrice(item.subTotalListPrice.value, decimalPlaces);
-
-  return {
-    id: item.entityId,
-    product_id: item.productEntityId,
-    variant_id: 0,
-    sku: '',
-    name: item.name,
-    brand: '',
-    quantity: item.quantity,
-    imageUrl: '',
-    type: 'digital',
-    price_inc_tax: formattedUnitPrice,
-    price_ex_tax: formattedUnitPrice,
-    price_tax: '0',
-    total_inc_tax: formattedTotal,
-    total_ex_tax: formattedTotal,
-    total_tax: '0',
-    base_price: formattedUnitPrice,
-    base_total: formattedTotal,
-    quantity_shipped: 0,
-    quantity_refunded: 0,
-    refund_amount: '0',
-    return_id: 0,
-    optionList: item.productOptions.map((o) => ({
-      optionId: 0,
-      optionValue: o.value,
-      type: o.name,
-    })),
-    product_options: [],
-    order_address_id: consignmentEntityId,
-    order_id: 0,
-    parent_order_product_id: 0,
-    option_set_id: 0,
-    is_bundled_product: false,
-    is_refunded: false,
-    name_customer: item.name,
-    name_merchant: item.name,
-    configurable_fields: '',
-    cost_price_ex_tax: '0',
-    cost_price_inc_tax: '0',
-    cost_price_tax: '0',
-    wrapping_cost_ex_tax: '0',
-    wrapping_cost_inc_tax: '0',
-    wrapping_cost_tax: '0',
-    wrapping_id: 0,
-    wrapping_message: '',
-    wrapping_name: '',
-  };
+  return buildOrderProduct(item, 'digital', decimalPlaces, consignmentEntityId);
 }
 
 function gatherAllProducts(order: Order, decimalPlaces: number): OrderProductItem[] {
@@ -298,7 +297,12 @@ function gatherAllProducts(order: Order, decimalPlaces: number): OrderProductIte
 
 function deduplicateProducts(products: OrderProductItem[]): OrderProductItem[] {
   return products.reduce<OrderProductItem[]>((seen, product) => {
-    const idx = seen.findIndex((item) => Number(item.variant_id) === Number(product.variant_id));
+    // Skip dedup for variant_id 0 — these are distinct products that lack
+    // variant IDs (variantEntityId null from SF GQL). Legacy path never has
+    // variant_id 0 so this doesn't affect legacy parity.
+    const idx = product.variant_id
+      ? seen.findIndex((item) => Number(item.variant_id) === Number(product.variant_id))
+      : -1;
     if (idx === -1) {
       seen.push(product);
     } else {
@@ -494,7 +498,7 @@ export function convertOrderDetail(
     history: mapHistoryEvents(order.history),
     orderComments: order.customerMessage ?? '',
     shippings: convertShippings(order, decimalPlaces),
-    billings: convertBillings(order, allProducts),
+    billings: convertBillings(order, products),
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
