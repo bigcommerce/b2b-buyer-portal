@@ -3,6 +3,7 @@ import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -13,6 +14,7 @@ import {
   startMockServer,
   stringContainingAll,
   userEvent,
+  waitFor,
   within,
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
@@ -206,6 +208,81 @@ const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display:
 
 const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
 
+interface VariantInfo {
+  isStock: '1' | '0';
+  stock: number;
+  calculatedPrice: string;
+  productId: string;
+  variantId: string;
+  baseSku: string;
+  productName: string;
+  categories: string[];
+  option: unknown[];
+  isVisible: '1' | '0';
+  minQuantity: number;
+  maxQuantity: number;
+  modifiers: unknown[];
+  purchasingDisabled: '1' | '0';
+  variantSku: string;
+  imageUrl: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
+}
+
+interface VariantInfoResponse {
+  data: {
+    variantSku: VariantInfo[];
+  };
+}
+
+const buildVariantInfoWith = builder<VariantInfo>(() => ({
+  isStock: faker.helpers.arrayElement(['0', '1']),
+  stock: faker.number.int(),
+  calculatedPrice: faker.commerce.price(),
+  productId: faker.number.int().toString(),
+  variantId: faker.number.int().toString(),
+  baseSku: faker.string.uuid(),
+  productName: faker.commerce.productName(),
+  categories: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () =>
+    faker.number.int().toString(),
+  ),
+  imageUrl: faker.image.url(),
+  option: [],
+  isVisible: faker.helpers.arrayElement(['0', '1']),
+  minQuantity: faker.number.int(),
+  maxQuantity: faker.number.int(),
+  modifiers: [],
+  purchasingDisabled: faker.helpers.arrayElement(['0', '1']),
+  variantSku: faker.string.uuid(),
+}));
+
+const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
+  data: {
+    variantSku: [],
+  },
+}));
+
+const backorderPreloadedState = {
+  company: approvedB2BCompany,
+  storeInfo: storeInfoWithDateFormat,
+  global: buildGlobalStateWith({
+    backorderEnabled: true,
+    backorderDisplaySettings: {
+      showQuantityOnBackorder: true,
+      showQuantityOnHand: true,
+      showBackorderMessage: true,
+      showDefaultShippingExpectationPrompt: false,
+      defaultShippingExpectationPrompt: '',
+    },
+    featureFlags: {
+      'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+    },
+  }),
+};
+
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 });
@@ -385,6 +462,11 @@ describe('when search returns results', () => {
       initialSelectionEnd: Infinity,
     });
 
+    expect(within(dialog).queryByText('ready to ship', { exact: false })).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+
     expect(within(dialog).getByText('Laugh Canister')).toBeInTheDocument();
     expect(within(dialog).getByText('$123.00')).toBeInTheDocument();
     expect(within(dialog).getByText('$246.00')).toBeInTheDocument();
@@ -399,5 +481,94 @@ describe('when search returns results', () => {
     expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-cart-created', {
       cartId: '12345',
     });
+  });
+});
+
+describe('when backorder messaging is enabled', () => {
+  it('shows backorder prompts and available helper that updates when qty changes', async () => {
+    renderWithProviders(<QuickOrderPad />, { preloadedState: backorderPreloadedState });
+
+    const variantSku = 'LC-123';
+
+    const variant = buildVariantWith({
+      sku: variantSku,
+      purchasing_disabled: false,
+      bc_calculated_price: {
+        tax_exclusive: 123,
+      },
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: variant.product_id,
+              name: 'Laugh Canister',
+              sku: variantSku,
+              optionsV3: [],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [variant],
+            }),
+          ],
+        },
+      });
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku,
+      inventoryTracking: 'variant',
+      availableToSell: 4,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Lead time: 2-4 weeks',
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining(`variantSkus: ["${variantSku}"]`))
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    server.use(
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+    );
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, 'Laugh Canister');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Quick order pad' });
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText('4 available')).toBeVisible();
+    });
+    expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+    expect(within(dialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(dialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).queryByText('2 ready to ship')).not.toBeInTheDocument();
+    });
+    expect(within(dialog).queryByText('2 will be backordered')).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('4 available')).not.toBeInTheDocument();
   });
 });
