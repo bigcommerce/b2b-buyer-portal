@@ -45,14 +45,19 @@ export interface OrderLineItemProductOption {
   value: string;
 }
 
-/** Projects OrderPhysicalLineItem; OrderDigitalLineItem has a similar shape. */
+/** Projects OrderPhysicalLineItem. */
 export interface OrderLineItem {
   entityId: number;
+  productEntityId: number;
+  variantEntityId: number | null;
+  sku: string;
   brand: string | null;
   name: string;
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  image: { url: string } | null;
+  baseCatalogProduct: { path: string } | null;
 }
 
 export interface OrderShipmentTracking {
@@ -77,8 +82,25 @@ export interface ShippingConsignment {
   shipments: { edges: Array<{ node: OrderShipment }> };
 }
 
+/** Projects OrderDigitalLineItem within download consignments. */
+export interface OrderDigitalLineItem {
+  entityId: number;
+  productEntityId: number;
+  name: string;
+  quantity: number;
+  productOptions: OrderLineItemProductOption[];
+  subTotalListPrice: Money;
+}
+
+/** Projects OrderDownloadConsignment. */
+export interface DownloadConsignment {
+  entityId: number;
+  lineItems: { edges: Array<{ node: OrderDigitalLineItem }> };
+}
+
 export interface OrderConsignments {
   shipping: { edges: Array<{ cursor: string; node: ShippingConsignment }> };
+  downloads: { edges: Array<{ cursor: string; node: DownloadConsignment }> } | null;
 }
 
 /** Nested inside OrderDiscounts.couponDiscounts. */
@@ -145,6 +167,10 @@ export interface ExtraFieldValue {
   value: string;
 }
 
+export interface OrderPaymentInfo {
+  description: string;
+}
+
 // ===========================================================================
 // Order (base SF GQL fields + B2B extensions)
 // ===========================================================================
@@ -173,6 +199,9 @@ export interface Order {
   totalProductQuantity: number;
   consignments: OrderConsignments | null;
 
+  // Payments (only on OrderWithPayments via site.order detail query)
+  payments?: OrderPaymentInfo[];
+
   // B2B extensions (null for B2C orders)
   reference: string | null;
   company: OrderCompany | null;
@@ -181,6 +210,7 @@ export interface Order {
   quote: OrderQuote | null;
   invoice: OrderInvoice | null;
   extraFields: ExtraFieldValue[];
+  canReturn?: boolean;
 }
 
 // ===========================================================================
@@ -329,6 +359,9 @@ const orderAddressFields = `firstName
     email`;
 
 const orderLineItemFields = `entityId
+      productEntityId
+      variantEntityId
+      sku
       brand
       name
       quantity
@@ -338,6 +371,12 @@ const orderLineItemFields = `entityId
       }
       subTotalListPrice {
         ${moneyFields}
+      }
+      image {
+        url
+      }
+      baseCatalogProduct {
+        path
       }`;
 
 const orderShipmentFields = `entityId
@@ -382,6 +421,31 @@ const orderConsignmentsFields = `consignments {
             edges {
               node {
                 ${orderShipmentFields}
+              }
+            }
+          }
+        }
+      }
+    }
+    downloads {
+      edges {
+        cursor
+        node {
+          entityId
+          lineItems {
+            edges {
+              node {
+                entityId
+                productEntityId
+                name
+                quantity
+                productOptions {
+                  name
+                  value
+                }
+                subTotalListPrice {
+                  ${moneyFields}
+                }
               }
             }
           }
@@ -467,7 +531,8 @@ const orderB2BFields = `reference
   extraFields {
     name
     value
-  }`;
+  }
+  canReturn`;
 
 /** Lightweight fields for order list views. */
 const orderListNodeFields = `entityId
@@ -591,6 +656,9 @@ const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
       totalProductQuantity
       ${orderConsignmentsFields}
       ${orderB2BFields}
+      payments {
+        description
+      }
     }
   }
 }`;
