@@ -1,4 +1,12 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react';
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 
@@ -6,9 +14,14 @@ import B3Dialog from '@/components/B3Dialog';
 import { B3ProductList } from '@/components/B3ProductList';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { ShoppingListDetailsContext } from '@/pages/ShoppingListDetails/context/ShoppingListDetailsContext';
+import {
+  type CatalogQuickVariantSku,
+  getVariantInfoBySkus,
+} from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { ShoppingListProductItem } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
@@ -97,6 +110,67 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   );
 
   const [isMobile] = useMobile();
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
+
+  const variantSkuDependencyKey = useMemo(() => {
+    return [
+      ...new Set(
+        productList
+          .map((product) => product.variants?.[0]?.sku ?? product.sku)
+          .filter((sku): sku is string => Boolean(sku)),
+      ),
+    ]
+      .sort()
+      .join('|');
+  }, [productList]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setVariantInfoList([]);
+
+      return () => {};
+    }
+
+    if (!backorderUiEnabled || !variantSkuDependencyKey) {
+      return () => {};
+    }
+
+    let cancelled = false;
+    const skus = variantSkuDependencyKey.split('|');
+
+    const fetchVariantInfo = async () => {
+      try {
+        const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(skus);
+
+        if (!cancelled) {
+          setVariantInfoList(nextVariantInfoList);
+        }
+      } catch {
+        if (!cancelled) {
+          setVariantInfoList([]);
+        }
+      }
+    };
+
+    fetchVariantInfo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, backorderUiEnabled, variantSkuDependencyKey]);
+
+  const inventoryBySku = useMemo(() => {
+    const map: Record<string, CatalogQuickVariantSku> = {};
+    variantInfoList.forEach((row) => {
+      if (row.variantSku) {
+        map[row.variantSku.toUpperCase()] = row;
+      }
+    });
+    return map;
+  }, [variantInfoList]);
 
   const handleCancelClicked = () => {
     onCancel();
@@ -121,6 +195,12 @@ export default function ProductListDialog(props: ProductListDialogProps) {
       return true;
     },
     [b3Lang, isEnableProduct],
+  );
+
+  const formatOnlyAvailable = useCallback(
+    (count: number) =>
+      b3Lang('purchasedProducts.quickAdd.inlineErrors.insufficientStockSku', { count }),
+    [b3Lang],
   );
 
   const handleAddToList = (id: number) => {
@@ -191,6 +271,10 @@ export default function ProductListDialog(props: ProductListDialogProps) {
               type="quickOrder"
               textAlign={isMobile ? 'left' : 'right'}
               canToProduct
+              catalogBackorderUiEnabled={backorderUiEnabled}
+              catalogInventoryBySku={inventoryBySku}
+              showAvailableToSellHelper
+              formatOnlyAvailable={formatOnlyAvailable}
               onProductQuantityChange={onProductQuantityChange}
               renderAction={(product) => (
                 <ProductTableAction
