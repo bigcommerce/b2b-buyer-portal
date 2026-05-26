@@ -282,6 +282,29 @@ describe('useCursorDetailPagination', () => {
 
       expect(view.result.current.hasNext).toBe(false);
     });
+
+    it('exhausts next using pageInfo from a prior boundary fetch, not mount-time pageInfo', async () => {
+      const fetchedPageInfo: CursorPageInfo = { hasNextPage: true, hasPreviousPage: false };
+      const onSyncHistory = vi.fn();
+      const fetchPage = vi
+        .fn()
+        .mockResolvedValueOnce({ items: PAGE_B, pageInfo: fetchedPageInfo })
+        .mockResolvedValueOnce(null);
+      const { view } = renderPagination({
+        initialIndex: 0,
+        initialPageInfo: { hasNextPage: false, hasPreviousPage: true },
+        fetchPage,
+        onSyncHistory,
+      });
+
+      await act(() => view.result.current.handlePrev());
+      await act(() => view.result.current.handleNext());
+
+      expect(onSyncHistory).toHaveBeenLastCalledWith(2, PAGE_B, {
+        hasNextPage: false,
+        hasPreviousPage: false,
+      });
+    });
   });
 
   describe('page-boundary navigation — fetch throws (network error)', () => {
@@ -366,15 +389,15 @@ describe('useCursorDetailPagination', () => {
         fetchPage,
       });
 
-      // Kick off but don't await yet
-      act(() => {
-        view.result.current.handlePrev();
+      let inFlight!: Promise<void>;
+      await act(async () => {
+        inFlight = view.result.current.handlePrev();
       });
       expect(view.result.current.loading).toBe(true);
 
-      // Resolve the fetch and wait for state to settle
-      await act(() => {
+      await act(async () => {
         resolveFetch(null);
+        await inFlight;
       });
       expect(view.result.current.loading).toBe(false);
     });
@@ -393,19 +416,21 @@ describe('useCursorDetailPagination', () => {
         fetchPage,
       });
 
-      act(() => {
-        view.result.current.handlePrev();
+      let inFlight!: Promise<void>;
+      await act(async () => {
+        inFlight = view.result.current.handlePrev();
       });
       expect(view.result.current.loading).toBe(true);
 
-      await act(() => {
-        view.result.current.handlePrev();
+      await act(async () => {
+        await view.result.current.handlePrev();
       });
 
       expect(fetchPage).toHaveBeenCalledTimes(1);
 
-      await act(() => {
+      await act(async () => {
         resolveFetch({ items: PAGE_B, pageInfo: { hasNextPage: true, hasPreviousPage: false } });
+        await inFlight;
       });
     });
 
@@ -424,19 +449,21 @@ describe('useCursorDetailPagination', () => {
         fetchPage,
       });
 
-      act(() => {
-        view.result.current.handleNext();
+      let inFlight!: Promise<void>;
+      await act(async () => {
+        inFlight = view.result.current.handleNext();
       });
       expect(view.result.current.loading).toBe(true);
 
-      await act(() => {
-        view.result.current.handleNext();
+      await act(async () => {
+        await view.result.current.handleNext();
       });
 
       expect(fetchPage).toHaveBeenCalledTimes(1);
 
-      await act(() => {
+      await act(async () => {
         resolveFetch({ items: PAGE_C, pageInfo: { hasNextPage: false, hasPreviousPage: true } });
+        await inFlight;
       });
     });
   });

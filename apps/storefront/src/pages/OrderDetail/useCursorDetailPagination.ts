@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 /** Minimum shape every paginated item must satisfy. */
 export interface CursorItem {
@@ -41,7 +41,7 @@ export interface CursorDetailPaginationOptions<TItem extends CursorItem> {
   onSyncHistory: (index: number, items: TItem[], pageInfo: CursorPageInfo) => void;
 }
 
-export interface CursorDetailPaginationResult {
+interface CursorDetailPaginationResult {
   hasPrev: boolean;
   hasNext: boolean;
   loading: boolean;
@@ -69,27 +69,28 @@ export function useCursorDetailPagination<TItem extends CursorItem>({
   const [pageInfo, setPageInfo] = useState<CursorPageInfo>(initialPageInfo);
   const [loading, setLoading] = useState(false);
 
+  const loadingRef = useRef(false);
+  const pageInfoRef = useRef(pageInfo);
+  pageInfoRef.current = pageInfo;
+
   const hasPrev = currentIndex > 0 || pageInfo.hasPreviousPage;
   const hasNext = currentIndex < items.length - 1 || pageInfo.hasNextPage;
 
-  /**
-   * Clamps one boundary flag to false when the adjacent page is exhausted.
-   * Does NOT call onNavigate — the current item hasn't changed.
-   */
   const exhaustBoundary = useCallback(
     (direction: 'prev' | 'next') => {
-      const newPageInfo =
+      const updatedPageInfo =
         direction === 'prev'
-          ? { ...pageInfo, hasPreviousPage: false }
-          : { ...pageInfo, hasNextPage: false };
-      setPageInfo(newPageInfo);
-      onSyncHistory(currentIndex, items, newPageInfo);
+          ? { ...pageInfoRef.current, hasPreviousPage: false }
+          : { ...pageInfoRef.current, hasNextPage: false };
+      setPageInfo(updatedPageInfo);
+      onSyncHistory(currentIndex, items, updatedPageInfo);
     },
-    [pageInfo, items, currentIndex, onSyncHistory],
+    [currentIndex, items, onSyncHistory],
   );
 
   const handlePrev = useCallback(async () => {
-    if (!hasPrev || loading) return;
+    if (!hasPrev || loadingRef.current) return;
+    loadingRef.current = true;
     setLoading(true);
     try {
       if (currentIndex > 0) {
@@ -113,12 +114,14 @@ export function useCursorDetailPagination<TItem extends CursorItem>({
     } catch {
       // Boundary fetch failed (e.g. network) — leave pageInfo unchanged so the user can retry.
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
-  }, [hasPrev, loading, currentIndex, items, pageInfo, fetchPage, onNavigate, exhaustBoundary]);
+  }, [hasPrev, currentIndex, items, pageInfo, fetchPage, onNavigate, exhaustBoundary]);
 
   const handleNext = useCallback(async () => {
-    if (!hasNext || loading) return;
+    if (!hasNext || loadingRef.current) return;
+    loadingRef.current = true;
     setLoading(true);
     try {
       if (currentIndex < items.length - 1) {
@@ -141,9 +144,10 @@ export function useCursorDetailPagination<TItem extends CursorItem>({
     } catch {
       // Boundary fetch failed (e.g. network) — leave pageInfo unchanged so the user can retry.
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
-  }, [hasNext, loading, currentIndex, items, pageInfo, fetchPage, onNavigate, exhaustBoundary]);
+  }, [hasNext, currentIndex, items, pageInfo, fetchPage, onNavigate, exhaustBoundary]);
 
   return { hasPrev, hasNext, loading, handlePrev, handleNext };
 }

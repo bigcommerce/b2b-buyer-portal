@@ -154,16 +154,17 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   );
 
   const buildHistoryState = useCallback(
-    (index: number, items: CursorItem[], pageInfo: CursorPageInfo): CursorLocationState => {
+    (index: number, items: CursorItem[], pageInfo: CursorPageInfo): CursorLocationState | null => {
+      if (!init) return null;
       const orderItems = items as OrderCursorItem[];
       return {
-        isCompanyOrder: init!.isCompanyOrder,
+        isCompanyOrder: init.isCompanyOrder,
         currentIndex: index,
         orders: orderItems.map(({ orderId, cursor }) => ({ orderId, cursor })),
         pageInfo,
-        filters: init!.filters,
-        sortBy: init!.sortBy,
-        pageSize: init!.pageSize,
+        filters: init.filters,
+        sortBy: init.sortBy,
+        pageSize: init.pageSize,
       };
     },
     [init],
@@ -171,26 +172,28 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
 
   const onNavigate = useCallback(
     (item: CursorItem, index: number, items: CursorItem[], pageInfo: CursorPageInfo) => {
-      if (!init) return;
+      const nextState = buildHistoryState(index, items, pageInfo);
+      if (!nextState) return;
       onChange(item.id);
       navigate(`/orderDetail/${item.id}`, {
         replace: true,
-        state: buildHistoryState(index, items, pageInfo),
+        state: nextState,
       });
     },
-    [init, navigate, onChange, buildHistoryState],
+    [navigate, onChange, buildHistoryState],
   );
 
   const onSyncHistory = useCallback(
     (index: number, items: CursorItem[], pageInfo: CursorPageInfo) => {
-      if (!init) return;
+      const nextState = buildHistoryState(index, items, pageInfo);
+      if (!nextState) return;
       // Boundary exhausted — current item unchanged, only pageInfo needs persisting.
       navigate(location.pathname, {
         replace: true,
-        state: buildHistoryState(index, items, pageInfo),
+        state: nextState,
       });
     },
-    [init, navigate, location.pathname, buildHistoryState],
+    [navigate, location.pathname, buildHistoryState],
   );
 
   const { hasPrev, hasNext, loading, handlePrev, handleNext } = useCursorDetailPagination({
