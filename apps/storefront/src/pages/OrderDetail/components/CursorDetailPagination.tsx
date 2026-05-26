@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   NavigateBefore as NavigateBeforeIcon,
@@ -16,9 +16,21 @@ import {
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
 
+import {
+  type CursorItem,
+  type CursorPageInfo,
+  useCursorDetailPagination,
+} from '../useCursorDetailPagination';
+
+/** Shape stored in router history state (no `id` field required from callers). */
 interface OrderPageItem {
   orderId: string;
   cursor: string;
+}
+
+/** Internal shape used with the generic hook (adds the required `id` field). */
+interface OrderCursorItem extends CursorItem {
+  orderId: string;
 }
 
 export interface CursorLocationState {
@@ -42,7 +54,6 @@ export interface CursorLocationState {
 /**
  * Fetches a full adjacent page in the given direction relative to `cursor`.
  * `mode: 'before'` → the previous page; `mode: 'after'` → the next page.
- * Returns the new orders array and updated pageInfo.
  */
 async function fetchAdjacentPage(
   mode: 'before' | 'after',
@@ -51,9 +62,16 @@ async function fetchAdjacentPage(
   isCompanyOrder: boolean,
   filters: OrdersFiltersInput | CompanyOrdersFiltersInput,
   sortBy: OrdersSortInput,
-): Promise<{ orders: OrderPageItem[]; pageInfo: CursorLocationState['pageInfo'] } | null> {
+): Promise<{ items: OrderCursorItem[]; pageInfo: CursorLocationState['pageInfo'] } | null> {
   const paginationArgs =
     mode === 'before' ? { last: pageSize, before: cursor } : { first: pageSize, after: cursor };
+
+  const toItems = (edges: { cursor: string; node: { entityId: number } }[]): OrderCursorItem[] =>
+    edges.map((e) => ({
+      id: String(e.node.entityId),
+      orderId: String(e.node.entityId),
+      cursor: e.cursor,
+    }));
 
   if (isCompanyOrder) {
     const result = await getCompanyOrders({
@@ -64,10 +82,7 @@ async function fetchAdjacentPage(
     const connection = result.data?.customer?.activeCompany?.orders;
     if (!connection) return null;
     return {
-      orders: connection.edges.map((e) => ({
-        orderId: String(e.node.entityId),
-        cursor: e.cursor,
-      })),
+      items: toItems(connection.edges),
       pageInfo: {
         hasNextPage: connection.pageInfo.hasNextPage,
         hasPreviousPage: connection.pageInfo.hasPreviousPage,
@@ -83,16 +98,14 @@ async function fetchAdjacentPage(
   const connection = result.data?.customer?.orders;
   if (!connection) return null;
   return {
-    orders: connection.edges.map((e) => ({
-      orderId: String(e.node.entityId),
-      cursor: e.cursor,
-    })),
+    items: toItems(connection.edges),
     pageInfo: {
       hasNextPage: connection.pageInfo.hasNextPage,
       hasPreviousPage: connection.pageInfo.hasPreviousPage,
     },
   };
 }
+
 interface CursorDetailPaginationProps {
   onChange: (id: number | string) => void;
   color: string;
@@ -114,147 +127,75 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   const navigate = useNavigate();
   const init = location.state as CursorLocationState | null;
 
-  const [orders, setOrders] = useState<OrderPageItem[]>(init?.orders ?? []);
-  const [currentIndex, setCurrentIndex] = useState(init?.currentIndex ?? 0);
-  const [pageInfo, setPageInfo] = useState(
-    init?.pageInfo ?? { hasNextPage: false, hasPreviousPage: false },
+  // Convert OrderPageItem[] → OrderCursorItem[] for the generic hook.
+  const initialItems: OrderCursorItem[] = (init?.orders ?? []).map((o) => ({
+    ...o,
+    id: o.orderId,
+  }));
+
+  const fetchPage = useCallback(
+    (mode: 'before' | 'after', cursor: string) => {
+      if (!init) return Promise.resolve(null);
+      return fetchAdjacentPage(
+        mode,
+        cursor,
+        init.pageSize,
+        init.isCompanyOrder,
+        init.filters,
+        init.sortBy,
+      );
+    },
+    [init],
   );
-  const [loading, setLoading] = useState(false);
 
-  const hasPrev = currentIndex > 0 || pageInfo.hasPreviousPage;
-  const hasNext = currentIndex < orders.length - 1 || pageInfo.hasNextPage;
+  const buildHistoryState = useCallback(
+    (index: number, items: CursorItem[], pageInfo: CursorPageInfo): CursorLocationState => {
+      const orderItems = items as OrderCursorItem[];
+      return {
+        isCompanyOrder: init!.isCompanyOrder,
+        currentIndex: index,
+        orders: orderItems.map(({ orderId, cursor }) => ({ orderId, cursor })),
+        pageInfo,
+        filters: init!.filters,
+        sortBy: init!.sortBy,
+        pageSize: init!.pageSize,
+      };
+    },
+    [init],
+  );
 
-  /** Writes the current navigation state into the history entry. */
-  const syncHistory = useCallback(
-    (
-      newOrders: OrderPageItem[],
-      newIndex: number,
-      newPageInfo: CursorLocationState['pageInfo'],
-    ) => {
+  const onNavigate = useCallback(
+    (item: CursorItem, index: number, items: CursorItem[], pageInfo: CursorPageInfo) => {
       if (!init) return;
-      navigate(`/orderDetail/${newOrders[newIndex].orderId}`, {
+      onChange(item.id);
+      navigate(`/orderDetail/${item.id}`, {
         replace: true,
-        state: {
-          isCompanyOrder: init.isCompanyOrder,
-          currentIndex: newIndex,
-          orders: newOrders,
-          pageInfo: newPageInfo,
-          filters: init.filters,
-          sortBy: init.sortBy,
-          pageSize: init.pageSize,
-        } satisfies CursorLocationState,
+        state: buildHistoryState(index, items, pageInfo),
       });
     },
-    [init, navigate],
+    [init, navigate, onChange, buildHistoryState],
   );
 
-  /** No adjacent page found, then stop offering that direction and persist in history. */
-  const exhaustBoundary = useCallback(
-    (direction: 'prev' | 'next') => {
-      const newPageInfo =
-        direction === 'prev'
-          ? { ...pageInfo, hasPreviousPage: false }
-          : { ...pageInfo, hasNextPage: false };
-      setPageInfo(newPageInfo);
-      syncHistory(orders, currentIndex, newPageInfo);
+  const onSyncHistory = useCallback(
+    (index: number, items: CursorItem[], pageInfo: CursorPageInfo) => {
+      if (!init) return;
+      // Boundary exhausted — current item unchanged, only pageInfo needs persisting.
+      navigate(location.pathname, {
+        replace: true,
+        state: buildHistoryState(index, items, pageInfo),
+      });
     },
-    [pageInfo, orders, currentIndex, syncHistory],
+    [init, navigate, location.pathname, buildHistoryState],
   );
 
-  const handlePrev = useCallback(async () => {
-    if (!hasPrev || loading || !init) return;
-    setLoading(true);
-    try {
-      if (currentIndex > 0) {
-        // In-page: instant, zero API calls.
-        const newIndex = currentIndex - 1;
-        setCurrentIndex(newIndex);
-        onChange(orders[newIndex].orderId);
-        syncHistory(orders, newIndex, pageInfo);
-      } else {
-        // Page boundary: fetch the previous page and land on its last item.
-        const page = await fetchAdjacentPage(
-          'before',
-          orders[0].cursor,
-          init.pageSize,
-          init.isCompanyOrder,
-          init.filters,
-          init.sortBy,
-        );
-        if (page && page.orders.length > 0) {
-          const newIndex = page.orders.length - 1;
-          setOrders(page.orders);
-          setCurrentIndex(newIndex);
-          setPageInfo(page.pageInfo);
-          onChange(page.orders[newIndex].orderId);
-          syncHistory(page.orders, newIndex, page.pageInfo);
-        } else {
-          exhaustBoundary('prev');
-        }
-      }
-    } catch {
-      // Boundary fetch failed (e.g. network) - leave pageInfo unchanged so the user can retry.
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    hasPrev,
-    loading,
-    init,
-    currentIndex,
-    orders,
-    pageInfo,
-    onChange,
-    syncHistory,
-    exhaustBoundary,
-  ]);
-
-  const handleNext = useCallback(async () => {
-    if (!hasNext || loading || !init) return;
-    setLoading(true);
-    try {
-      if (currentIndex < orders.length - 1) {
-        // In-page: instant, zero API calls.
-        const newIndex = currentIndex + 1;
-        setCurrentIndex(newIndex);
-        onChange(orders[newIndex].orderId);
-        syncHistory(orders, newIndex, pageInfo);
-      } else {
-        // Page boundary: fetch the next page and land on its first item.
-        const page = await fetchAdjacentPage(
-          'after',
-          orders[orders.length - 1].cursor,
-          init.pageSize,
-          init.isCompanyOrder,
-          init.filters,
-          init.sortBy,
-        );
-        if (page && page.orders.length > 0) {
-          setOrders(page.orders);
-          setCurrentIndex(0);
-          setPageInfo(page.pageInfo);
-          onChange(page.orders[0].orderId);
-          syncHistory(page.orders, 0, page.pageInfo);
-        } else {
-          exhaustBoundary('next');
-        }
-      }
-    } catch {
-      // Boundary fetch failed (e.g. network) — leave pageInfo unchanged so the user can retry.
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    hasNext,
-    loading,
-    init,
-    currentIndex,
-    orders,
-    pageInfo,
-    onChange,
-    syncHistory,
-    exhaustBoundary,
-  ]);
+  const { hasPrev, hasNext, loading, handlePrev, handleNext } = useCursorDetailPagination({
+    initialItems,
+    initialIndex: init?.currentIndex ?? 0,
+    initialPageInfo: init?.pageInfo ?? { hasNextPage: false, hasPreviousPage: false },
+    fetchPage,
+    onNavigate,
+    onSyncHistory,
+  });
 
   // Graceful degradation: hide when there is no cached page context
   // (e.g. direct URL access, missing cursors, or an empty list page).
