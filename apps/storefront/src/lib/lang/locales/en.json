@@ -338,6 +338,7 @@
   "orderDetail.pagination.of": "of",
   "orderDetail.pagination.previousOrder": "Previous order",
   "orderDetail.pagination.nextOrder": "Next order",
+  "orderDetail.pagination.fetchError": "Failed to load orders. Please try again.",
   "orderDetail.paymentMethod": "Payment by {paymentMethod}",
   "orderDetail.customerName": "{firstName} {lastName}",
   "orderDetail.customerAddress": "{city}, {state} {zip}, {country}",

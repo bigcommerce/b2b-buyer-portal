@@ -15,6 +15,7 @@ import {
   OrdersFiltersInput,
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
+import { snackbar } from '@/utils/b3Tip';
 
 import {
   type CursorItem,
@@ -62,7 +63,7 @@ async function fetchAdjacentPage(
   isCompanyOrder: boolean,
   filters: OrdersFiltersInput | CompanyOrdersFiltersInput,
   sortBy: OrdersSortInput,
-): Promise<{ items: OrderCursorItem[]; pageInfo: CursorLocationState['pageInfo'] } | null> {
+): Promise<{ items: OrderCursorItem[]; pageInfo: CursorLocationState['pageInfo'] }> {
   const paginationArgs =
     mode === 'before' ? { last: pageSize, before: cursor } : { first: pageSize, after: cursor };
 
@@ -73,21 +74,26 @@ async function fetchAdjacentPage(
       cursor: e.cursor,
     }));
 
+  const toPage = (orders: {
+    edges: { cursor: string; node: { entityId: number } }[];
+    pageInfo: CursorLocationState['pageInfo'];
+  }) => ({
+    items: toItems(orders.edges),
+    pageInfo: {
+      hasNextPage: orders.pageInfo.hasNextPage,
+      hasPreviousPage: orders.pageInfo.hasPreviousPage,
+    },
+  });
+
   if (isCompanyOrder) {
     const result = await getCompanyOrders({
       ...paginationArgs,
       filters: filters as CompanyOrdersFiltersInput,
       sortBy,
     });
-    const connection = result.data?.customer?.activeCompany?.orders;
-    if (!connection) return null;
-    return {
-      items: toItems(connection.edges),
-      pageInfo: {
-        hasNextPage: connection.pageInfo.hasNextPage,
-        hasPreviousPage: connection.pageInfo.hasPreviousPage,
-      },
-    };
+    const orders = result.data?.customer?.activeCompany?.orders;
+    if (!orders) throw new Error('Unexpected API response: orders missing');
+    return toPage(orders);
   }
 
   const result = await getCustomerOrders({
@@ -95,15 +101,9 @@ async function fetchAdjacentPage(
     filters: filters as OrdersFiltersInput,
     sortBy,
   });
-  const connection = result.data?.customer?.orders;
-  if (!connection) return null;
-  return {
-    items: toItems(connection.edges),
-    pageInfo: {
-      hasNextPage: connection.pageInfo.hasNextPage,
-      hasPreviousPage: connection.pageInfo.hasPreviousPage,
-    },
-  };
+  const orders = result.data?.customer?.orders;
+  if (!orders) throw new Error('Unexpected API response: orders missing');
+  return toPage(orders);
 }
 
 interface CursorDetailPaginationProps {
@@ -134,18 +134,23 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   }));
 
   const fetchPage = useCallback(
-    (mode: 'before' | 'after', cursor: string) => {
-      if (!init) return Promise.resolve(null);
-      return fetchAdjacentPage(
-        mode,
-        cursor,
-        init.pageSize,
-        init.isCompanyOrder,
-        init.filters,
-        init.sortBy,
-      );
+    async (mode: 'before' | 'after', cursor: string) => {
+      if (!init) return null;
+      try {
+        return await fetchAdjacentPage(
+          mode,
+          cursor,
+          init.pageSize,
+          init.isCompanyOrder,
+          init.filters,
+          init.sortBy,
+        );
+      } catch (error) {
+        snackbar.error(b3Lang('orderDetail.pagination.fetchError'));
+        throw error; // re-throw so the hook leaves pageInfo unchanged and the user can retry
+      }
     },
-    [init],
+    [init, b3Lang],
   );
 
   const buildHistoryState = useCallback(

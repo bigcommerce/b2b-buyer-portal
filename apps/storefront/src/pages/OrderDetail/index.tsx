@@ -370,7 +370,11 @@ function OrderDetail() {
           >
             {location?.state &&
               (isUnifiedOrders ? (
-                <CursorDetailPagination key={location.key} onChange={handlePageChange} color={customColor} />
+                <CursorDetailPagination
+                  key={location.key}
+                  onChange={handlePageChange}
+                  color={customColor}
+                />
               ) : (
                 <DetailPagination onChange={handlePageChange} color={customColor} />
               ))}
