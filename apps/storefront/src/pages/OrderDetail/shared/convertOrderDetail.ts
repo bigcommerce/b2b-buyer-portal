@@ -53,7 +53,7 @@ function formatPrice(value: number, decimalPlaces: number): string {
 }
 
 // ===========================================================================
-// Order summary (from B2B-4825)
+// Order summary
 // ===========================================================================
 
 function buildOrderSummary(
@@ -117,7 +117,7 @@ function buildOrderSummary(
 }
 
 // ===========================================================================
-// History (from B2B-4825)
+// History
 // ===========================================================================
 
 function toNumericEventType(type: OrderHistoryEventType): number {
@@ -141,7 +141,7 @@ function mapHistoryEvents(history: Order['history']): OrderHistoryItem[] {
 }
 
 // ===========================================================================
-// Address conversion (B2B-4826)
+// Address conversion
 // ===========================================================================
 
 function convertAddress(sfAddr: OrderAddress): Address {
@@ -316,7 +316,7 @@ function deduplicateProducts(products: OrderProductItem[]): OrderProductItem[] {
 }
 
 // ===========================================================================
-// Shipments conversion (B2B-4826)
+// Shipments conversion
 // ===========================================================================
 
 function convertShippings(order: Order, decimalPlaces: number): OrderShippingsItem[] {
@@ -408,7 +408,7 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
 }
 
 // ===========================================================================
-// Billing conversion (B2B-4826)
+// Billing conversion
 // ===========================================================================
 
 function convertBillings(order: Order, allProducts: OrderProductItem[]): OrderBillings[] {
@@ -421,7 +421,7 @@ function convertBillings(order: Order, allProducts: OrderProductItem[]): OrderBi
 }
 
 // ===========================================================================
-// Payment (expanded for B2B-4826)
+// Payment
 // ===========================================================================
 
 function buildPayment(order: Order): OrderPayment {
