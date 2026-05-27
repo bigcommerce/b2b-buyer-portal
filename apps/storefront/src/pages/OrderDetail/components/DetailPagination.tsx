@@ -78,10 +78,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
     searchParams = state?.searchParams || { offset: 0 };
   }
 
-  const isUnifiedPath = totalCount === -1;
-
   const fetchList = async () => {
-    if (isUnifiedPath) return;
     setLoading(true);
 
     const index = () => {
@@ -145,13 +142,6 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
 
   if (JSON.stringify(searchParams) === '{}') return null;
 
-  // The unified SF GQL path sets totalCount to -1 because collectionInfo is
-  // not available on OrdersConnection. Detail-level prev/next navigation
-  // requires fetching adjacent orders which the cursor-based API doesn't
-  // support in the same way. B2B-4629 (4f) will implement cursor-based
-  // detail navigation. Until then, hide this component in the unified path.
-  if (isUnifiedPath) return null;
-
   const handleBeforePage = () => {
     setListIndex(listIndex - 1);
     onChange(rightLeftSide.leftId);
@@ -163,18 +153,16 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   };
   const index = listIndex + 1;
 
-  const showOrderPositionLabel = !isMobile && !isUnifiedPath;
-
   return (
     <Box
       role="navigation"
-      aria-labelledby={showOrderPositionLabel ? id : undefined}
+      aria-labelledby={!isMobile ? id : undefined}
       sx={{
         display: 'flex',
         color,
       }}
     >
-      {showOrderPositionLabel && (
+      {!isMobile && (
         <Box
           id={id}
           sx={{
