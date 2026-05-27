@@ -370,6 +370,8 @@ function OrderDetail() {
           >
             {location?.state &&
               (isUnifiedOrders ? (
+                // key={location.key} remounts when history changes
+                // so useCursorDetailPagination re-seeds from location.state on mount.
                 <CursorDetailPagination
                   key={location.key}
                   onChange={handlePageChange}

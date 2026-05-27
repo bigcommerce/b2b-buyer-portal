@@ -336,6 +336,7 @@
   "orderDetail.backToOrders": "Back to orders",
   "orderDetail.pagination.order": "Order",
   "orderDetail.pagination.of": "of",
+  "orderDetail.pagination.orderNavigation": "Order navigation",
   "orderDetail.pagination.previousOrder": "Previous order",
   "orderDetail.pagination.nextOrder": "Next order",
   "orderDetail.pagination.fetchError": "Failed to load orders. Please try again.",

@@ -210,7 +210,11 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   if (!init?.orders?.length) return null;
 
   return (
-    <Box role="navigation" sx={{ display: 'flex', color }}>
+    <Box
+      role="navigation"
+      aria-label={b3Lang('orderDetail.pagination.orderNavigation')}
+      sx={{ display: 'flex', color }}
+    >
       <IconButton
         aria-label={b3Lang('orderDetail.pagination.previousOrder')}
         onClick={handlePrev}

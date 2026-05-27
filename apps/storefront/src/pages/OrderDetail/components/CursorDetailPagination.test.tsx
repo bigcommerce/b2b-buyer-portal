@@ -104,7 +104,7 @@ describe('CursorDetailPagination', () => {
   describe('when cursor state is present', () => {
     it('renders a navigation landmark with two buttons', () => {
       renderComponent(BASE_STATE);
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: /order navigation/i })).toBeInTheDocument();
       expect(getPrevButton()).toBeInTheDocument();
       expect(getNextButton()).toBeInTheDocument();
     });
