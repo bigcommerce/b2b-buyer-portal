@@ -571,4 +571,183 @@ describe('when backorder messaging is enabled', () => {
     expect(within(dialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
     expect(within(dialog).queryByText('4 available')).not.toBeInTheDocument();
   });
+
+  it('shows backorder prompts in choose options when a variant is selected', async () => {
+    renderWithProviders(<QuickOrderPad />, { preloadedState: backorderPreloadedState });
+
+    const productId = 9001;
+    const optionId = 50;
+    const sizeM = 102;
+    const variantSku = 'TOWEL-M';
+
+    const variantM = buildVariantWith({
+      product_id: productId,
+      sku: variantSku,
+      purchasing_disabled: false,
+      option_values: [
+        {
+          id: sizeM,
+          label: 'M',
+          option_id: optionId,
+          option_display_name: 'Size',
+        },
+      ],
+      available_to_sell: 10,
+      unlimited_backorder: false,
+      total_on_hand: 2,
+      backorder_message: 'Lead time: 2-4 weeks',
+      bc_calculated_price: {
+        tax_exclusive: 50,
+        tax_inclusive: 55,
+        as_entered: 50,
+        entered_inclusive: false,
+      },
+    });
+
+    const variantS = buildVariantWith({
+      product_id: productId,
+      sku: 'TOWEL-S',
+      purchasing_disabled: false,
+      option_values: [
+        {
+          id: 101,
+          label: 'S',
+          option_id: optionId,
+          option_display_name: 'Size',
+        },
+      ],
+      available_to_sell: 5,
+      unlimited_backorder: false,
+      total_on_hand: 5,
+      bc_calculated_price: {
+        tax_exclusive: 45,
+        tax_inclusive: 50,
+        as_entered: 45,
+        entered_inclusive: false,
+      },
+    });
+
+    const sizeOption = buildSearchProductV3OptionWith({
+      id: optionId,
+      product_id: productId,
+      type: 'rectangles',
+      display_name: 'Size',
+      option_values: [
+        buildSearchProductV3OptionValueWith({
+          id: 101,
+          label: 'S',
+          is_default: false,
+        }),
+        buildSearchProductV3OptionValueWith({
+          id: sizeM,
+          label: 'M',
+          is_default: true,
+        }),
+      ],
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Fog Towel"', 'currencyCode: "USD"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: 'Fog Towel',
+              sku: 'TOWEL-BASE',
+              inventoryTracking: 'variant',
+              optionsV3: [sizeOption],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [variantS, variantM],
+            }),
+          ],
+        },
+      });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+    when(getPriceProducts)
+      .calledWith(
+        expect.objectContaining({
+          items: [
+            expect.objectContaining({
+              productId,
+              variantId: variantM.variant_id,
+            }),
+          ],
+        }),
+      )
+      .thenReturn({
+        data: {
+          priceProducts: [
+            buildProductPriceWith({
+              productId,
+              variantId: variantM.variant_id,
+            }),
+          ],
+        },
+      });
+
+    server.use(
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('priceProducts', ({ variables }) =>
+        HttpResponse.json(getPriceProducts(variables)),
+      ),
+    );
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, 'Fog Towel');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+    const listDialog = await screen.findByRole('dialog', { name: 'Quick order pad' });
+    await userEvent.click(within(listDialog).getByRole('button', { name: 'Choose options' }));
+
+    const chooseOptionsDialog = await screen.findByRole('dialog', { name: 'Choose options' });
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText(variantSku)).toBeInTheDocument();
+    });
+
+    await userEvent.type(quantityInput, '4', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+    await userEvent.type(quantityInput, '15', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('10 available')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('8 will be backordered')).toBeVisible();
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).queryByText('2 ready to ship')).not.toBeInTheDocument();
+    });
+    expect(
+      within(chooseOptionsDialog).queryByText('2 will be backordered'),
+    ).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('10 available')).not.toBeInTheDocument();
+  });
 });

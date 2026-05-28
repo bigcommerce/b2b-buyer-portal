@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { Variant } from '@/types/products';
+import type { ShoppingListProductItem } from '@/types/shoppingList';
 
 import {
   getCatalogBackorderDisplayFields,
   getCatalogBackorderDisplayQuantity,
   getCatalogBackorderFieldsForVariantSku,
+  getCatalogInventoryRowFromSearchProduct,
   getCatalogProductRowDisplayState,
   quantityExceedsAvailableToSell,
 } from './catalogBackorderDisplay';
@@ -153,6 +156,85 @@ describe('catalogBackorderDisplay', () => {
       totalOnHand: -3,
       quantityBackordered: 13,
       backorderMessage: undefined,
+    });
+  });
+
+  describe('getCatalogInventoryRowFromSearchProduct', () => {
+    const productBase = {
+      inventoryTracking: 'variant',
+      availableToSell: 0,
+      unlimitedBackorder: false,
+      totalOnHand: null,
+      backorderMessage: null,
+    } as Pick<
+      ShoppingListProductItem,
+      | 'inventoryTracking'
+      | 'availableToSell'
+      | 'unlimitedBackorder'
+      | 'totalOnHand'
+      | 'backorderMessage'
+    >;
+
+    const variant = {
+      available_to_sell: 10,
+      unlimited_backorder: false,
+      total_on_hand: 3,
+      backorder_message: 'Lead time: 2 weeks',
+    } as Variant;
+
+    it('returns undefined when inventory tracking is none', () => {
+      expect(
+        getCatalogInventoryRowFromSearchProduct(
+          { ...productBase, inventoryTracking: 'none' },
+          variant,
+        ),
+      ).toBeUndefined();
+    });
+
+    it('maps product-level fields when tracking is product', () => {
+      expect(
+        getCatalogInventoryRowFromSearchProduct(
+          {
+            ...productBase,
+            inventoryTracking: 'product',
+            availableToSell: 8,
+            unlimitedBackorder: true,
+            totalOnHand: 5,
+            backorderMessage: 'Ships soon',
+          },
+          variant,
+        ),
+      ).toEqual({
+        inventoryTracking: 'product',
+        availableToSell: 8,
+        unlimitedBackorder: true,
+        totalOnHand: 5,
+        backorderMessage: 'Ships soon',
+      });
+    });
+
+    it('maps variant-level fields when tracking is variant', () => {
+      expect(
+        getCatalogInventoryRowFromSearchProduct(
+          { ...productBase, inventoryTracking: 'variant' },
+          variant,
+        ),
+      ).toEqual({
+        inventoryTracking: 'variant',
+        availableToSell: 10,
+        unlimitedBackorder: false,
+        totalOnHand: 3,
+        backorderMessage: 'Lead time: 2 weeks',
+      });
+    });
+
+    it('returns undefined for variant tracking when variant is not resolved', () => {
+      expect(
+        getCatalogInventoryRowFromSearchProduct(
+          { ...productBase, inventoryTracking: 'variant' },
+          null,
+        ),
+      ).toBeUndefined();
     });
   });
 

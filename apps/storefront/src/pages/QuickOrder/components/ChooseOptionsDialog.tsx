@@ -5,6 +5,7 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -15,8 +16,10 @@ import isEqual from 'lodash-es/isEqual';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
+import BackorderMessage from '@/components/BackorderMessage';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -27,6 +30,10 @@ import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Produ
 import { getOptionRequestData, getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import { Base64 } from '@/utils/base64';
+import {
+  getCatalogInventoryRowFromSearchProduct,
+  getCatalogProductRowDisplayState,
+} from '@/utils/catalogBackorderDisplay';
 
 const Flex = styled('div')({
   display: 'flex',
@@ -117,7 +124,34 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+
   const isShowPrice = Boolean(product?.isPriceHidden);
+
+  const formatOnlyAvailable = useCallback(
+    (count: number) =>
+      b3Lang('purchasedProducts.quickAdd.inlineErrors.insufficientStockSku', { count }),
+    [b3Lang],
+  );
+
+  const inventoryRow = useMemo(
+    () => (product ? getCatalogInventoryRowFromSearchProduct(product, variantInfo) : undefined),
+    [product, variantInfo],
+  );
+
+  const { qtyHelperText, backorderFields } = useMemo(
+    () =>
+      getCatalogProductRowDisplayState({
+        qty: Number(quantity) || 0,
+        showAvailableToSellHelper: backorderUiEnabled,
+        inventoryRow,
+        backorderUiEnabled,
+        formatOnlyAvailable,
+      }),
+    [quantity, inventoryRow, backorderUiEnabled, formatOnlyAvailable],
+  );
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -493,10 +527,16 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
               <Box
                 sx={{
                   display: 'flex',
+                  minWidth: 0,
                 }}
               >
                 <ProductImage src={currentImage || product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
-                <Flex>
+                <Flex
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
                   <FlexItem padding="0">
                     <Box
                       sx={{
@@ -524,22 +564,66 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                       : currencyFormat(newPrice * Number(quantity) || getProductPrice(product))}
                   </FlexItem>
 
-                  <FlexItem>
-                    <StyleTextField
-                      type="number"
-                      variant="filled"
-                      label={b3Lang('shoppingList.chooseOptionsDialog.quantity')}
-                      value={quantity}
-                      onChange={handleProductQuantityChange}
-                      onKeyDown={handleNumberInputKeyDown}
-                      onBlur={handleNumberInputBlur}
-                      size="small"
+                  <Box
+                    sx={{
+                      flexGrow: 0,
+                      flexShrink: 0,
+                      minWidth: 0,
+                      overflow: 'visible',
+                      padding: '0 0 0 16px',
+                    }}
+                  >
+                    <Box
                       sx={{
-                        width: '60%',
-                        maxWidth: '100px',
+                        display: 'grid',
+                        gridTemplateColumns: '100px',
+                        justifyItems: 'start',
+                        rowGap: 0.5,
+                        overflow: 'visible',
                       }}
-                    />
-                  </FlexItem>
+                    >
+                      <StyleTextField
+                        type="number"
+                        variant="filled"
+                        label={b3Lang('shoppingList.chooseOptionsDialog.quantity')}
+                        value={quantity}
+                        onChange={handleProductQuantityChange}
+                        onKeyDown={handleNumberInputKeyDown}
+                        onBlur={handleNumberInputBlur}
+                        size="small"
+                        fullWidth
+                        error={Boolean(qtyHelperText)}
+                      />
+                      {(qtyHelperText || backorderFields) && (
+                        <Box
+                          sx={{
+                            width: 'max-content',
+                            maxWidth: 'none',
+                            overflow: 'visible',
+                          }}
+                        >
+                          {qtyHelperText && (
+                            <Typography
+                              variant="caption"
+                              color="error"
+                              component="p"
+                              sx={{ m: 0, whiteSpace: 'nowrap' }}
+                            >
+                              {qtyHelperText}
+                            </Typography>
+                          )}
+                          {backorderFields && (
+                            <BackorderMessage
+                              totalOnHand={backorderFields.totalOnHand}
+                              quantityBackordered={backorderFields.quantityBackordered}
+                              backorderMessage={backorderFields.backorderMessage}
+                              visible
+                            />
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
                 </Flex>
               </Box>
 
