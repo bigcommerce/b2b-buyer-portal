@@ -112,6 +112,37 @@ const mobileItemStyle = {
   },
 };
 
+type ProductListItemStyle = typeof defaultItemStyle;
+
+interface BackorderLayoutStyles {
+  qtyColumn: ProductListItemStyle['qty'];
+  qtyColumnSx: FlexItemProps['sx'];
+  numericColumn: ProductListItemStyle['default'];
+  productColumnPadding: string;
+  productColumnSx: FlexItemProps['sx'];
+}
+
+function getBackorderLayoutStyles(
+  desktopBackorderLayoutEnabled: boolean,
+  isMobile: boolean,
+  itemStyle: ProductListItemStyle,
+): BackorderLayoutStyles {
+  let productColumnPadding = '0 6% 0 0';
+  if (isMobile) {
+    productColumnPadding = '0';
+  } else if (desktopBackorderLayoutEnabled) {
+    productColumnPadding = '0 16px 0 0';
+  }
+
+  return {
+    qtyColumn: desktopBackorderLayoutEnabled ? { width: '16%' } : itemStyle.qty,
+    qtyColumnSx: desktopBackorderLayoutEnabled ? { minWidth: '140px' } : undefined,
+    numericColumn: desktopBackorderLayoutEnabled ? { width: '12%' } : itemStyle.default,
+    productColumnPadding,
+    productColumnSx: desktopBackorderLayoutEnabled ? { flex: '1 1 42%', minWidth: 0 } : undefined,
+  };
+}
+
 interface ProductProps<T> {
   products: Array<T & ProductItem>;
   money?: MoneyFormat;
@@ -232,10 +263,13 @@ export function B3ProductList<T>(props: ProductProps<T>) {
   }, [products]);
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
-  const desktopQtyColumnExtraSx: FlexItemProps['sx'] =
-    catalogBackorderUiEnabled && !isMobile ? { minWidth: '160px' } : undefined;
-  const desktopQtyColumnStyle =
-    catalogBackorderUiEnabled && !isMobile ? { width: '22%' } : itemStyle.qty;
+  const {
+    qtyColumn: desktopQtyColumnStyle,
+    qtyColumnSx: desktopQtyColumnExtraSx,
+    numericColumn: desktopNumericColumnStyle,
+    productColumnPadding: desktopProductColumnPadding,
+    productColumnSx: desktopProductColumnSx,
+  } = getBackorderLayoutStyles(catalogBackorderUiEnabled && !isMobile, isMobile, itemStyle);
 
   const showTypePrice = (newMoney: string | number, product: CustomFieldItems): string | number => {
     if (type === 'quote') {
@@ -265,10 +299,10 @@ export function B3ProductList<T>(props: ProductProps<T>) {
           {showCheckbox && (
             <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           )}
-          <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
+          <FlexItem padding={desktopProductColumnPadding} sx={desktopProductColumnSx}>
             <ProductHead>{b3Lang('global.searchProduct.product')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
+          <FlexItem textAlignLocation={textAlign} {...desktopNumericColumnStyle}>
             <ProductHead>{b3Lang('global.searchProduct.price')}</ProductHead>
           </FlexItem>
           <FlexItem
@@ -278,12 +312,12 @@ export function B3ProductList<T>(props: ProductProps<T>) {
           >
             <ProductHead>{b3Lang('global.searchProduct.qty')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
+          <FlexItem textAlignLocation={textAlign} {...desktopNumericColumnStyle}>
             <ProductHead>{b3Lang('global.searchProduct.total')}</ProductHead>
           </FlexItem>
           {renderAction && (
             <FlexItem
-              {...itemStyle.default}
+              {...desktopNumericColumnStyle}
               textAlignLocation="right"
               width={isMobile ? '100%' : actionWidth}
             />
@@ -365,7 +399,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
             <FlexItem
               textAlignLocation={textAlign}
               padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
+              {...desktopNumericColumnStyle}
               sx={
                 isMobile
                   ? {
@@ -411,11 +445,17 @@ export function B3ProductList<T>(props: ProductProps<T>) {
             {showCheckbox && (
               <Checkbox checked={isChecked(product)} onChange={() => handleSelectChange(product)} />
             )}
-            <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
+            <FlexItem padding={desktopProductColumnPadding} sx={desktopProductColumnSx}>
               <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
                 sx={{
                   marginLeft: '16px',
+                  ...(isMobile
+                    ? {}
+                    : {
+                        flex: 1,
+                        minWidth: 0,
+                      }),
                 }}
               >
                 <Typography
@@ -537,7 +577,7 @@ export function B3ProductList<T>(props: ProductProps<T>) {
             {renderPrice(totalText, totalPrice, discountedTotalPrice)}
             {renderAction && (
               <FlexItem
-                {...itemStyle.default}
+                {...desktopNumericColumnStyle}
                 textAlignLocation="right"
                 width={isMobile ? '100%' : actionWidth}
               >
