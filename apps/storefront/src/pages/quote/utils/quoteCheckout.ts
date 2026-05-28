@@ -87,7 +87,7 @@ export const handleQuoteCheckout = async ({
       return;
     }
 
-    setQuoteToStorage(quoteId, date, quoteUuid);
+    setQuoteToStorage(quoteId, date);
     const { checkoutUrl, cartId } = checkout;
 
     if (platform === 'bigcommerce') {

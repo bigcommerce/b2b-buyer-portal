@@ -1363,7 +1363,7 @@ describe('when the user is a B2B customer', () => {
 
         const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
         await userEvent.click(checkoutButton);
-        expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual(uuid);
+
         expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));
         expect(sessionStorage.getItem('quoteCheckoutId')).toEqual(id);
         expect(sessionStorage.getItem('quoteDate')).toEqual(dateString);
@@ -1405,7 +1405,6 @@ describe('when the user is a B2B customer', () => {
         await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
         const checkoutButton = screen.getByRole('button', { name: 'Proceed to checkout' });
         await userEvent.click(checkoutButton);
-        expect(sessionStorage.getItem('quoteCheckoutUuid')).toEqual('');
         expect(sessionStorage.getItem('isNewStorefront')).toEqual(JSON.stringify(true));
         expect(sessionStorage.getItem('quoteCheckoutId')).toEqual(id);
         expect(sessionStorage.getItem('quoteDate')).toEqual(dateString);

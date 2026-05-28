@@ -28,9 +28,8 @@ export const attemptCheckoutLoginAndRedirect = async (
   }
 };
 
-export const setQuoteToStorage = (quoteId: string, date: any, quoteUuid?: string) => {
+export const setQuoteToStorage = (quoteId: string, date: any) => {
   sessionStorage.setItem('isNewStorefront', JSON.stringify(true));
   sessionStorage.setItem('quoteCheckoutId', quoteId);
   sessionStorage.setItem('quoteDate', date?.toString());
-  sessionStorage.setItem('quoteCheckoutUuid', quoteUuid || '');
 };
