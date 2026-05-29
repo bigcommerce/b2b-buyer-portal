@@ -1,6 +1,45 @@
 import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { Variant } from '@/types/products';
+import type { ShoppingListProductItem } from '@/types/shoppingList';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
+
+type SearchProductInventorySource = Pick<
+  ShoppingListProductItem,
+  | 'inventoryTracking'
+  | 'availableToSell'
+  | 'unlimitedBackorder'
+  | 'totalOnHand'
+  | 'backorderMessage'
+>;
+
+export function getCatalogInventoryRowFromSearchProduct(
+  product: SearchProductInventorySource,
+  variant?: Partial<Variant> | null,
+): CatalogQuickVariantSku | undefined {
+  const tracking = product.inventoryTracking || 'none';
+  if (tracking !== 'product' && tracking !== 'variant') return undefined;
+
+  if (tracking === 'product') {
+    return {
+      inventoryTracking: tracking,
+      availableToSell: product.availableToSell ?? 0,
+      unlimitedBackorder: product.unlimitedBackorder ?? false,
+      totalOnHand: product.totalOnHand,
+      backorderMessage: product.backorderMessage,
+    };
+  }
+
+  if (!variant) return undefined;
+
+  return {
+    inventoryTracking: tracking,
+    availableToSell: variant.available_to_sell ?? 0,
+    unlimitedBackorder: variant.unlimited_backorder ?? false,
+    totalOnHand: variant.total_on_hand,
+    backorderMessage: variant.backorder_message,
+  };
+}
 
 export function quantityExceedsAvailableToSell(
   quantity: number,
