@@ -1,0 +1,16 @@
+import type { Locale, Locales } from '@/store/slices/global';
+
+export const getActiveLocale = (locales: Locales): Locale | undefined =>
+  [...locales]
+    .sort((a, b) => b.fullPath.length - a.fullPath.length)
+    .find(({ fullPath }) => {
+      const { href } = window.location;
+      if (!href.startsWith(fullPath)) {
+        return false;
+      }
+      if (fullPath.endsWith('/')) {
+        return true;
+      }
+      const next = href[fullPath.length];
+      return next === undefined || next === '/' || next === '#' || next === '?';
+    });
