@@ -1,31 +1,38 @@
 import { ReactNode } from 'react';
 import { IntlProvider } from 'react-intl';
-import { useSelector } from 'react-redux';
 
-import locales from './locales';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useAppSelector } from '@/store';
+
+import { getActiveLocale } from './getActiveLocale';
+import { en } from './locales';
+import { pickLocaleBundle } from './pickLocaleBundle';
+import { useLocaleBundle } from './useLocaleBundle';
 
 interface LangProviderProps {
   readonly children: ReactNode;
   readonly customText?: Record<string, string>;
 }
 
-type Translations = Record<string, string>;
-
-interface RootState {
-  lang: {
-    translations: Translations;
-  };
-}
-
 function LangProvider({ children, customText = {} }: LangProviderProps) {
-  const translations = useSelector<RootState, Translations>(({ lang }) => lang.translations);
+  const translations = useAppSelector(({ lang }) => lang.translations);
+  const isMultiLang = useFeatureFlag('LOCAL-3191.B2B_multi_language');
+  const localesList = useAppSelector(({ global }) => global.locales);
+  const activeLocale = isMultiLang ? getActiveLocale(localesList) : undefined;
+  const code = isMultiLang ? (activeLocale?.code ?? 'en') : 'en';
+  const { ready, bundles } = useLocaleBundle(code);
 
+  // Render unconditionally so children (notably B3PageMask) stay mounted while
+  // the locale bundle is loading. Until the bundle resolves we fall back to
+  // English; once it lands react-intl swaps the messages in place.
+  const localeMessages = isMultiLang && ready ? pickLocaleBundle(code, bundles) : {};
+  const activeLocaleCode = ready ? code : 'en';
+  let messages = { ...en, ...localeMessages, ...customText, ...translations };
+  if (isMultiLang && activeLocale?.isDefault === false) {
+    messages = { ...en, ...localeMessages, ...customText };
+  }
   return (
-    <IntlProvider
-      defaultLocale="en"
-      locale="en"
-      messages={{ ...locales.en, ...customText, ...translations }}
-    >
+    <IntlProvider defaultLocale="en" locale={activeLocaleCode} messages={messages}>
       {children}
     </IntlProvider>
   );
