@@ -23,6 +23,8 @@ module.exports = {
           '^src/headless.ts',
           // This should be removed once we get proper gql types
           'src/types/gql/index.ts',
+          // Locale bundles are loaded via import.meta.glob, which depcruise can't follow
+          '^src/lib/lang/locales/.*\\.json$',
         ],
         numberOfDependentsLessThan: 1,
       },
