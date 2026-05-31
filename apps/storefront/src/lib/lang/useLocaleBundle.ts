@@ -6,6 +6,8 @@ type LocaleMessages = Record<string, string>;
 
 const cache = new Map<string, LocaleMessages | undefined>();
 
+export const clearLocaleBundleCache = () => cache.clear();
+
 const candidatesFor = (code: string): string[] => {
   const dashIdx = code.indexOf('-');
   const lang = dashIdx > 0 ? code.slice(0, dashIdx) : '';
@@ -35,9 +37,13 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
           cache.set(c, undefined);
         }
       }),
-    ).then(() => {
-      if (!cancelled) setTick((t) => t + 1);
-    });
+    )
+      .then(() => {
+        if (!cancelled) setTick((t) => t + 1);
+      })
+      .catch(() => {
+        if (!cancelled) setTick((t) => t + 1);
+      });
     return () => {
       cancelled = true;
     };
