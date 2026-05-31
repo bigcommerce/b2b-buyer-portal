@@ -13,6 +13,7 @@ const withServiceTranslations = {
   translations: { [TEST_KEY]: SERVICE_VALUE },
   fetchedPages: ['global'],
   translationVersion: 1,
+  _persist: { version: -1, rehydrated: true },
 };
 
 const setHref = (href: string) => {
