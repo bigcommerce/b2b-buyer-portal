@@ -5,7 +5,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAppSelector } from '@/store';
 
 import { getActiveLocale } from './getActiveLocale';
-import { en } from './locales';
+import { en, localeLoaders } from './locales';
 import { pickLocaleBundle } from './pickLocaleBundle';
 import { useLocaleBundle } from './useLocaleBundle';
 
@@ -28,7 +28,7 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   const localeMessages = isMultiLang && ready ? pickLocaleBundle(code, bundles) : {};
   const activeLocaleCode = ready ? code : 'en';
   let messages = { ...en, ...localeMessages, ...customText, ...translations };
-  if (isMultiLang && activeLocale?.isDefault === false) {
+  if (isMultiLang && activeLocale?.isDefault === false && activeLocale.code in localeLoaders) {
     messages = { ...en, ...localeMessages, ...customText };
   }
   return (
