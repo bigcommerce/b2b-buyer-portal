@@ -1,10 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { useLocaleBundle } from './useLocaleBundle';
-
-// Access the module-level cache via a side-effect reset between tests.
-// Each test re-imports fresh by clearing the module registry.
+// Each test dynamically imports useLocaleBundle after mocking locales,
+// so the module registry must be reset between tests.
 afterEach(() => {
   vi.resetModules();
 });
