@@ -78,6 +78,24 @@ describe('LangProvider — service translation inclusion by locale type', () => 
     await waitFor(() => expect(screen.getByText(EN_DEFAULT)).toBeVisible());
   });
 
+  it('excludes service translations when en is a non-default locale (fr-default store)', async () => {
+    setHref('http://localhost/en');
+    renderWithProviders(<Msg />, {
+      preloadedState: {
+        global: buildGlobalStateWith({
+          featureFlags: { 'LOCAL-3191.B2B_multi_language': true },
+          locales: [
+            { code: 'fr', isDefault: true, fullPath: 'http://localhost/' },
+            { code: 'en', isDefault: false, fullPath: 'http://localhost/en' },
+          ],
+        }),
+        lang: withServiceTranslations,
+      },
+    });
+
+    await waitFor(() => expect(screen.getByText(EN_DEFAULT)).toBeVisible());
+  });
+
   it('includes service translations for a non-default locale without a static bundle (ro)', async () => {
     setHref('http://localhost/ro');
     renderWithProviders(<Msg />, {
