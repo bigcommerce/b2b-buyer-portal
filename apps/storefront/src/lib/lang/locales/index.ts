@@ -8,4 +8,16 @@ const localeLoaders: Record<string, () => Promise<LocaleMessages>> = {
   es: () => import('./es.json').then((m) => m.default),
 };
 
-export { en, localeLoaders };
+// Returns true when a static bundle covers the given code — either an exact
+// match or via the base-language fallback (mirrors pickLocaleBundle's logic).
+function hasLocaleBundle(code: string): boolean {
+  if (code in localeLoaders) return true;
+  const dashIdx = code.indexOf('-');
+  if (dashIdx > 0) {
+    const lang = code.slice(0, dashIdx);
+    if (lang in localeLoaders) return true;
+  }
+  return false;
+}
+
+export { en, hasLocaleBundle, localeLoaders };
