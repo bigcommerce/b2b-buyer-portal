@@ -1,5 +1,6 @@
 {
   "global.navMenu.orders": "Mis pedidos",
   "global.orders.title": "Mis pedidos",
+  "global.tips.loading": "Cargando...",
   "login.loginText.forgotPasswordText": "¿Olvidaste tu contraseña?"
 }
