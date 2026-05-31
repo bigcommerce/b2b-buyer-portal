@@ -29,7 +29,11 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
     Promise.all(
       missing.map(async (c) => {
         const loader = localeLoaders[c];
-        cache.set(c, loader ? await loader() : undefined);
+        try {
+          cache.set(c, loader ? await loader() : undefined);
+        } catch {
+          cache.set(c, undefined);
+        }
       }),
     ).then(() => {
       if (!cancelled) setTick((t) => t + 1);
