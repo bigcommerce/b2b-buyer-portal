@@ -1,9 +1,22 @@
 import { FormattedMessage } from 'react-intl';
 import { buildGlobalStateWith, renderWithProviders, screen, waitFor } from 'tests/test-utils';
 
+import { clearLocaleBundleCache } from './useLocaleBundle';
+
 const TEST_KEY = 'test.langprovider.service.override';
 const EN_DEFAULT = 'en-default-text';
 const SERVICE_VALUE = 'service-translated-text';
+
+// Ensure TEST_KEY exists in the en bundle so react-intl never fires
+// MISSING_TRANSLATION when a non-en locale is active. This mirrors production
+// where every message key is present in en.json.
+vi.mock('./locales', async (importOriginal) => {
+  const original = await importOriginal<typeof import('./locales')>();
+  return {
+    ...original,
+    en: { ...original.en, 'test.langprovider.service.override': 'en-default-text' },
+  };
+});
 
 function Msg() {
   return <FormattedMessage id={TEST_KEY} defaultMessage={EN_DEFAULT} />;
@@ -22,6 +35,10 @@ const setHref = (href: string) => {
 
 describe('LangProvider — service translation inclusion by locale type', () => {
   const originalLocation = window.location;
+
+  beforeEach(() => {
+    clearLocaleBundleCache();
+  });
 
   afterEach(() => {
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
