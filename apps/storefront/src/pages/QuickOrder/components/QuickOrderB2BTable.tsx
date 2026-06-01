@@ -1,14 +1,20 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
-import { Box, styled, TextField, Typography } from '@mui/material';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
+import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@mui/material';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
+import {
+  type CatalogQuickVariantSku,
+  getVariantInfoBySkus,
+} from '@/shared/service/b2b/graphql/product';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
@@ -19,6 +25,10 @@ import { getProductPriceIncTaxOrExTaxBySetting } from '@/utils/b3Price';
 import { getDisplayPrice } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
+import {
+  catalogListHasBackorderedItemsForDisplay,
+  getCatalogProductRowDisplayState,
+} from '@/utils/catalogBackorderDisplay';
 
 import B3FilterMore from '../../../components/filter/B3FilterMore';
 import B3FilterPicker from '../../../components/filter/B3FilterPicker';
@@ -132,10 +142,72 @@ function QuickOrderTable({
   const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
 
   const [total, setTotalCount] = useState<number>(0);
+  const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
+  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+  const [tableDataVersion, setTableDataVersion] = useState(0);
 
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
+
+  const {
+    isBackorderMessagingContextEnabled,
+    isBackorderMessagingEnabled,
+    hasAnyBackorderDisplay,
+  } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+
+  const inventoryBySku = useMemo(() => {
+    const map: Record<string, CatalogQuickVariantSku> = {};
+    variantInfoList.forEach((row) => {
+      if (row.variantSku) {
+        map[row.variantSku.toUpperCase()] = row;
+      }
+    });
+    return map;
+  }, [variantInfoList]);
+
+  const fetchInventoryForSkus = useCallback(
+    async (skus: string[]) => {
+      if (!backorderUiEnabled || skus.length === 0) return;
+
+      const existingSkus = new Set(
+        variantInfoList.flatMap((row) => (row.variantSku ? [row.variantSku.toUpperCase()] : [])),
+      );
+
+      const newSkus = [...new Set(skus.map((sku) => sku.toUpperCase()))].filter(
+        (sku) => !existingSkus.has(sku),
+      );
+
+      if (newSkus.length === 0) return;
+
+      try {
+        const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(newSkus);
+        setVariantInfoList((prev) => [...prev, ...nextVariantInfoList]);
+      } catch {
+        // Inventory fetch failure should not block the product list
+      }
+    },
+    [backorderUiEnabled, variantInfoList],
+  );
+
+  const hasBackorderedItems = useMemo(() => {
+    if (!isBackorderMessagingEnabled) {
+      return false;
+    }
+
+    const cacheList: ListItemProps[] = paginationTableRef.current?.getCacheList() || [];
+    const items = cacheList.map(({ node }) => ({
+      qty: Number(node.quantity) || 0,
+      variantSku: node.variantSku,
+    }));
+
+    return catalogListHasBackorderedItemsForDisplay(items, inventoryBySku);
+    // tableDataVersion drives re-evaluation when list or qty changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventoryBySku, isBackorderMessagingEnabled, tableDataVersion]);
+
+  const showBackorderToggle = backorderUiEnabled && hasBackorderedItems;
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
 
@@ -190,6 +262,17 @@ function QuickOrderTable({
     const listProducts = await handleGetProductsById(edges);
 
     setTotalCount(totalCount);
+
+    if (backorderUiEnabled && listProducts?.length) {
+      const skus = listProducts
+        .map((item) => item.node.variantSku)
+        .filter((sku): sku is string => Boolean(sku));
+      fetchInventoryForSkus(skus).catch(() => {
+        // Inventory fetch failure should not block the product list
+      });
+    }
+
+    setTableDataVersion((version) => version + 1);
 
     return {
       edges: listProducts,
@@ -273,6 +356,7 @@ function QuickOrderTable({
     });
     paginationTableRef.current?.setList([...newListItems]);
     paginationTableRef.current?.setCacheAllList([...newListCacheItems]);
+    setTableDataVersion((version) => version + 1);
   };
 
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
@@ -399,24 +483,51 @@ function QuickOrderTable({
       title: b3Lang('purchasedProducts.qty'),
       render: (row) => {
         const qty = handleSetCheckedQty(row);
+        const inventoryRow = inventoryBySku[row.variantSku?.toUpperCase()];
+        const { backorderFields } = getCatalogProductRowDisplayState({
+          qty: Number(qty) || 0,
+          showAvailableToSellHelper: false,
+          inventoryRow,
+          backorderUiEnabled,
+          formatOnlyAvailable: () => '',
+        });
 
         return (
-          <StyledTextField
-            size="small"
-            type="number"
-            variant="filled"
-            value={qty}
-            inputProps={{
-              inputMode: 'numeric',
-              pattern: '[0-9]*',
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              width: '100%',
             }}
-            onChange={(e) => {
-              handleUpdateProductQty(row.id, e.target.value);
-            }}
-          />
+          >
+            <StyledTextField
+              size="small"
+              type="number"
+              variant="filled"
+              value={qty}
+              inputProps={{
+                inputMode: 'numeric',
+                pattern: '[0-9]*',
+              }}
+              onChange={(e) => {
+                handleUpdateProductQty(row.id, e.target.value);
+              }}
+            />
+            {backorderFields && (
+              <Box sx={{ mt: 1, width: '100%', textAlign: 'right' }}>
+                <BackorderMessage
+                  totalOnHand={backorderFields.totalOnHand}
+                  quantityBackordered={backorderFields.quantityBackordered}
+                  backorderMessage={backorderFields.backorderMessage}
+                  visible={showBackorderDetails}
+                />
+              </Box>
+            )}
+          </Box>
         );
       },
-      width: '15%',
+      width: backorderUiEnabled ? '18%' : '15%',
       style: {
         textAlign: 'right',
       },
@@ -446,14 +557,36 @@ function QuickOrderTable({
   return (
     <B3Spin isSpinning={isRequestLoading}>
       <StyleQuickOrderTable>
-        <Typography
+        <Box
           sx={{
-            fontSize: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             height: '50px',
+            marginBottom: '0.5rem',
           }}
         >
-          {b3Lang('purchasedProducts.totalProducts', { total })}
-        </Typography>
+          <Typography
+            sx={{
+              fontSize: '24px',
+            }}
+          >
+            {b3Lang('purchasedProducts.totalProducts', { total })}
+          </Typography>
+          {showBackorderToggle && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showBackorderDetails}
+                  onChange={(e) => setShowBackorderDetails(e.target.checked)}
+                />
+              }
+              label={b3Lang('quoteDetail.table.backorderDetails')}
+              labelPlacement="start"
+              sx={{ mr: 0, gap: '0.5rem', flexShrink: 0 }}
+            />
+          )}
+        </Box>
         <Box
           sx={{
             marginBottom: '5px',
@@ -557,6 +690,9 @@ function QuickOrderTable({
               item={row}
               checkBox={checkBox}
               handleUpdateProductQty={handleUpdateProductQty}
+              inventoryBySku={inventoryBySku}
+              backorderUiEnabled={backorderUiEnabled}
+              showBackorderDetails={showBackorderDetails}
             />
           )}
         />

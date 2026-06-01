@@ -1,16 +1,22 @@
 import { ReactElement } from 'react';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
+import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
 
 interface QuickOrderCardProps {
   item: any;
   checkBox?: () => ReactElement;
   handleUpdateProductQty: (id: number, val: string) => void;
+  inventoryBySku?: Record<string, CatalogQuickVariantSku>;
+  backorderUiEnabled?: boolean;
+  showBackorderDetails?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -20,7 +26,14 @@ const StyledImage = styled('img')(() => ({
 }));
 
 function QuickOrderCard(props: QuickOrderCardProps) {
-  const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props;
+  const {
+    item: shoppingDetail,
+    checkBox,
+    handleUpdateProductQty,
+    inventoryBySku = {},
+    backorderUiEnabled = false,
+    showBackorderDetails = false,
+  } = props;
   const b3Lang = useB3Lang();
 
   const {
@@ -38,6 +51,15 @@ function QuickOrderCard(props: QuickOrderCardProps) {
   const price = Number(basePrice) * Number(quantity);
   const currentVariants = productsSearch.variants || [];
   const currentImage = b2bGetVariantImageByVariantInfo(currentVariants, { variantId }) || imageUrl;
+
+  const inventoryRow = inventoryBySku[variantSku?.toUpperCase()];
+  const { backorderFields } = getCatalogProductRowDisplayState({
+    qty: Number(quantity) || 0,
+    showAvailableToSellHelper: false,
+    inventoryRow,
+    backorderUiEnabled,
+    formatOnlyAvailable: () => '',
+  });
 
   return (
     <Box
@@ -132,6 +154,16 @@ function QuickOrderCard(props: QuickOrderCardProps) {
                 handleUpdateProductQty(shoppingDetail.id, e.target.value);
               }}
             />
+            {backorderFields && (
+              <Box sx={{ mt: -0.5, mb: 1, width: '100%' }}>
+                <BackorderMessage
+                  totalOnHand={backorderFields.totalOnHand}
+                  quantityBackordered={backorderFields.quantityBackordered}
+                  backorderMessage={backorderFields.backorderMessage}
+                  visible={showBackorderDetails}
+                />
+              </Box>
+            )}
           </Box>
 
           <Typography sx={{ fontSize: '14px' }}>
