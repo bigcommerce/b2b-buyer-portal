@@ -52,6 +52,7 @@ import {
   QUOTE_VALIDATION_ERROR_CODES,
   QUOTE_VALIDATION_MESSAGE_CONTEXTS,
 } from '../quote/shared/getQuoteValidationErrorMessage';
+import { buildQuoteStockSnapshot } from '../quote/utils/buildQuoteStockSnapshot';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
@@ -135,36 +136,23 @@ function useData() {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
-    if (listProducts.length > 0) {
-      const productIds: number[] = [];
+  const fetchProductsWithSearch = async (
+    listProducts: ProductInfoProps[],
+  ): Promise<ProductInfoProps[]> => {
+    if (listProducts.length === 0) return [];
 
-      listProducts.forEach((item) => {
-        if (!productIds.includes(item.productId)) {
-          productIds.push(item.productId);
-        }
-      });
+    const productIds = Array.from(new Set(listProducts.map((item) => item.productId)));
+    const options = { productIds, currencyCode, companyId, customerGroupId };
 
-      const options = { productIds, currencyCode, companyId, customerGroupId };
+    const { productsSearch } = await searchProducts(options);
+    const newProductsSearch = conversionProductsList(productsSearch);
 
-      const { productsSearch } = await searchProducts(options);
-
-      const newProductsSearch = conversionProductsList(productsSearch);
-
-      listProducts.forEach((item) => {
-        const listProduct = item;
-        const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-          const { id: productId } = search;
-
-          return Number(item.productId) === Number(productId);
-        });
-
-        listProduct.productsSearch = productInfo || {};
-      });
-
-      return listProducts;
-    }
-    return undefined;
+    return listProducts.map((item) => {
+      const productInfo = newProductsSearch.find(
+        (search: CustomFieldItems) => Number(item.productId) === Number(search.id),
+      );
+      return { ...item, productsSearch: productInfo || {} };
+    });
   };
 
   const location = useLocation();
@@ -201,7 +189,7 @@ function useData() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    handleGetProductsById,
+    fetchProductsWithSearch,
     getQuote,
   };
 }
@@ -279,7 +267,7 @@ function QuoteDetail() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    handleGetProductsById,
+    fetchProductsWithSearch,
     getQuote,
   } = useData();
 
@@ -289,6 +277,9 @@ function QuoteDetail() {
 
   const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
     'B2B-3876.fix_quote_currency_symbol_placement',
+  );
+  const isBackorderMessagingEnabled = useFeatureFlag(
+    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
   );
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
@@ -540,10 +531,11 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch(() => {
-        return undefined;
-      });
+      const productsWithMoreInfo = await fetchProductsWithSearch(quote.productsList).catch(
+        () => undefined,
+      );
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
+      const productListResponse = productsWithMoreInfo ?? [];
       setQuoteDetail({
         ...quote,
         extraFields: quoteExtraFieldInfos,
@@ -556,7 +548,6 @@ function QuoteDetail() {
         totalAmount: quote.totalAmount,
       });
 
-      const productListResponse = productsWithMoreInfo ?? [];
       setProductList(productListResponse);
 
       const { salesRep, salesRepEmail } = quote;
@@ -615,7 +606,9 @@ function QuoteDetail() {
 
       setFileList(newFileList);
 
-      return quote;
+      // On enrichment failure, fall back to the original (unenriched) productsList so the
+      // table's empty-state fallback in getQuoteTableDetails still has items to render.
+      return { ...quote, productsList: productsWithMoreInfo ?? quote.productsList };
     } catch (error: unknown) {
       if (error instanceof Error) {
         snackbar.error(error.message);
@@ -756,6 +749,11 @@ function QuoteDetail() {
       context: QUOTE_VALIDATION_MESSAGE_CONTEXTS.QUOTE,
     });
 
+  const fetchCurrentStockSnapshot = async () => {
+    const refreshed = await fetchProductsWithSearch(productList);
+    return buildQuoteStockSnapshot(refreshed);
+  };
+
   const quoteGotoCheckout = async () => {
     try {
       if (hasQuoteValidationErrors()) return;
@@ -768,6 +766,9 @@ function QuoteDetail() {
         navigate,
         b3Lang,
         formatValidationError: formatQuoteValidationError,
+        isBackorderMessagingEnabled,
+        quoteStockSnapshot: buildQuoteStockSnapshot(productList),
+        fetchCurrentStockSnapshot,
       });
     } finally {
       setQuoteCheckoutLoading(false);
@@ -1024,6 +1025,9 @@ function QuoteDetail() {
                     navigate,
                     b3Lang,
                     formatValidationError: formatQuoteValidationError,
+                    isBackorderMessagingEnabled,
+                    quoteStockSnapshot: buildQuoteStockSnapshot(productList),
+                    fetchCurrentStockSnapshot,
                   });
                 }}
               >
