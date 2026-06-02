@@ -142,3 +142,18 @@ export function getCatalogProductRowDisplayState({
 
   return { qtyHelperText, backorderFields };
 }
+
+export function catalogListHasBackorderedItemsForDisplay(
+  items: Array<{ qty: number; variantSku?: string }>,
+  inventoryBySku: Record<string, CatalogQuickVariantSku>,
+): boolean {
+  return items.some(({ qty, variantSku }) =>
+    Boolean(
+      getCatalogBackorderFieldsForVariantSku({
+        quantity: qty,
+        variantSku,
+        inventoryBySku,
+      }),
+    ),
+  );
+}

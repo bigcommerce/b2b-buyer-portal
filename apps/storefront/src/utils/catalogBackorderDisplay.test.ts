@@ -5,6 +5,7 @@ import type { Variant } from '@/types/products';
 import type { ShoppingListProductItem } from '@/types/shoppingList';
 
 import {
+  catalogListHasBackorderedItemsForDisplay,
   getCatalogBackorderDisplayFields,
   getCatalogBackorderDisplayQuantity,
   getCatalogBackorderFieldsForVariantSku,
@@ -328,6 +329,46 @@ describe('catalogBackorderDisplay', () => {
           formatOnlyAvailable,
         }).backorderFields,
       ).toBeNull();
+    });
+  });
+
+  describe('catalogListHasBackorderedItemsForDisplay', () => {
+    const inventoryRow = {
+      inventoryTracking: 'variant',
+      variantSku: 'SKU-1',
+      availableToSell: 10,
+      totalOnHand: 3,
+      backorderMessage: '2 weeks',
+    } as CatalogQuickVariantSku;
+
+    const inventoryBySku = { 'SKU-1': inventoryRow };
+
+    it('returns false for an empty list', () => {
+      expect(catalogListHasBackorderedItemsForDisplay([], inventoryBySku)).toBe(false);
+    });
+
+    it('returns true when any item has backordered quantity', () => {
+      expect(
+        catalogListHasBackorderedItemsForDisplay(
+          [{ qty: 10, variantSku: 'SKU-1' }],
+          inventoryBySku,
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false when qty is within on hand', () => {
+      expect(
+        catalogListHasBackorderedItemsForDisplay([{ qty: 3, variantSku: 'SKU-1' }], inventoryBySku),
+      ).toBe(false);
+    });
+
+    it('returns false when sku is missing from inventory map', () => {
+      expect(
+        catalogListHasBackorderedItemsForDisplay(
+          [{ qty: 10, variantSku: 'UNKNOWN' }],
+          inventoryBySku,
+        ),
+      ).toBe(false);
     });
   });
 });

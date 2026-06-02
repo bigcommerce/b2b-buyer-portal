@@ -115,6 +115,11 @@ interface VariantInfo {
   purchasingDisabled: '1' | '0';
   variantSku: string;
   imageUrl: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
 }
 
 interface VariantInfoResponse {
@@ -425,6 +430,24 @@ const buildAddCartLineItemsResponseWith = builder(() => ({
 const storeInfoWithDateFormat = buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } });
 
 const preloadedState = { company: approvedB2BCompany, storeInfo: storeInfoWithDateFormat };
+
+const backorderPreloadedState = {
+  company: approvedB2BCompany,
+  storeInfo: storeInfoWithDateFormat,
+  global: buildGlobalStateWith({
+    backorderEnabled: true,
+    backorderDisplaySettings: {
+      showQuantityOnBackorder: true,
+      showQuantityOnHand: true,
+      showBackorderMessage: true,
+      showDefaultShippingExpectationPrompt: false,
+      defaultShippingExpectationPrompt: '',
+    },
+    featureFlags: {
+      'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+    },
+  }),
+};
 
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
@@ -5257,6 +5280,229 @@ describe('when backorder validation is enabled', () => {
       await waitFor(() => {
         expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
       });
+    });
+  });
+});
+
+describe('when backorder messaging is enabled on purchased products', () => {
+  const variantSku = 'PP-123';
+
+  const setupPurchasedProductsTable = ({
+    totalOnHand = 2,
+    availableToSell = 4,
+    backorderMessage = 'Lead time: 2-4 weeks',
+    inventoryFetchFails = false,
+  }: {
+    totalOnHand?: number;
+    availableToSell?: number;
+    backorderMessage?: string;
+    inventoryFetchFails?: boolean;
+  } = {}) => {
+    const orderedProduct = buildRecentlyOrderedProductNodeWith({
+      node: {
+        productName: 'Laugh Canister',
+        variantSku,
+        sku: variantSku,
+        basePrice: '100',
+      },
+    });
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue(
+      buildGetRecentlyOrderedProductsWith({
+        data: { orderedProducts: { totalCount: 1, edges: [orderedProduct] } },
+      }),
+    );
+
+    const searchProducts = vi.fn().mockReturnValue({
+      data: {
+        productsSearch: [
+          buildSearchProductWith({
+            id: Number(orderedProduct.node.productId),
+            name: orderedProduct.node.productName,
+            sku: variantSku,
+            variants: [
+              buildVariantWith({
+                sku: variantSku,
+                variant_id: Number(orderedProduct.node.variantId),
+                product_id: Number(orderedProduct.node.productId),
+                purchasing_disabled: false,
+              }),
+            ],
+          }),
+        ],
+      },
+    });
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku,
+      inventoryTracking: 'variant',
+      availableToSell,
+      unlimitedBackorder: false,
+      totalOnHand,
+      backorderMessage,
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining(`variantSkus: ["${variantSku}"]`))
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        inventoryFetchFails ? HttpResponse.error() : HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+    );
+
+    return { orderedProduct };
+  };
+
+  it('shows backorder lines when toggle is on and qty exceeds on hand', async () => {
+    setupPurchasedProductsTable();
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    await userEvent.click(backorderToggle);
+
+    await waitFor(() => {
+      expect(screen.getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(screen.getByText('2 will be backordered')).toBeVisible();
+    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('hides backorder lines when toggle is off', async () => {
+    setupPurchasedProductsTable();
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await screen.findByRole('checkbox', { name: /Backorder details/i });
+
+    expect(screen.queryByText('2 ready to ship')).not.toBeInTheDocument();
+    expect(screen.queryByText('2 will be backordered')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+  });
+
+  it('hides backorder toggle and lines when qty is within on hand', async () => {
+    setupPurchasedProductsTable({ totalOnHand: 9, availableToSell: 10 });
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('checkbox', { name: /Backorder details/i }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('hides backorder toggle and lines when messaging is disabled', async () => {
+    setupPurchasedProductsTable();
+
+    renderWithProviders(<QuickOrder />, { preloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(screen.queryByRole('checkbox', { name: /Backorder details/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('still shows purchased products without backorder UI when inventory fetch fails', async () => {
+    setupPurchasedProductsTable({ inventoryFetchFails: true });
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('checkbox', { name: /Backorder details/i }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  describe('on mobile', () => {
+    beforeEach(() => {
+      vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
+    });
+
+    it('shows backorder lines in the card view when toggle is on and qty exceeds on hand', async () => {
+      setupPurchasedProductsTable();
+
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+      expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+      });
+
+      const productCard = screen.getByText('Laugh Canister').closest('.MuiCardContent-root');
+      const quantityInput = within(productCard as HTMLElement).getByRole('spinbutton');
+
+      await userEvent.type(quantityInput, '10', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+      await userEvent.click(backorderToggle);
+
+      await waitFor(() => {
+        expect(screen.getByText('2 ready to ship')).toBeVisible();
+      });
+      expect(screen.getByText('2 will be backordered')).toBeVisible();
+      expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
     });
   });
 });
