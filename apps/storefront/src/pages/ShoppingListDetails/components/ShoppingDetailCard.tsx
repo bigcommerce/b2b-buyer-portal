@@ -2,11 +2,14 @@ import { ReactElement } from 'react';
 import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
+import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
+import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';
 
@@ -26,6 +29,9 @@ interface ShoppingDetailCardProps {
   setNotes: (value: string) => void;
   showPrice: (price: string, row: CustomFieldItems) => string | number;
   b2bAndBcShoppingListActionsPermissions: boolean;
+  inventoryBySku?: Record<string, CatalogQuickVariantSku>;
+  backorderUiEnabled?: boolean;
+  showBackorderDetails?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -52,6 +58,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     setNotes,
     showPrice,
     b2bAndBcShoppingListActionsPermissions,
+    inventoryBySku = {},
+    backorderUiEnabled = false,
+    showBackorderDetails = false,
   } = props;
 
   const {
@@ -89,6 +98,15 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
 
   const currentImage =
     b2bGetVariantImageByVariantInfo(currentVariants, { variantId, variantSku }) || primaryImage;
+
+  const inventoryRow = inventoryBySku[variantSku?.toUpperCase()];
+  const { backorderFields } = getCatalogProductRowDisplayState({
+    qty: Number(quantity) || 0,
+    showAvailableToSellHelper: false,
+    inventoryRow,
+    backorderUiEnabled,
+    formatOnlyAvailable: () => '',
+  });
 
   return (
     <Box
@@ -214,6 +232,16 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               handleUpdateShoppingListItem(itemId);
             }}
           />
+          {backorderFields && (
+            <Box sx={{ mt: -0.5, mb: 1, width: '100%' }}>
+              <BackorderMessage
+                totalOnHand={backorderFields.totalOnHand}
+                quantityBackordered={backorderFields.quantityBackordered}
+                backorderMessage={backorderFields.backorderMessage}
+                visible={showBackorderDetails}
+              />
+            </Box>
+          )}
           <Typography
             sx={{
               color: '#212121',
