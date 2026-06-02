@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-import { platform } from '@/utils/basicConfig';
-
-import B3Request from '../../request/b3Fetch';
+import { storefrontGQLRequest } from './client';
 
 const taxDisplayTypeEnumSchema = z.enum(['INC', 'EX', 'BOTH']);
 
@@ -25,14 +23,9 @@ const queryGetTaxDisplayType = `query GetTaxDisplayType {
 }`;
 
 export const getStorefrontTaxDisplayType = async (): Promise<StorefrontTaxDisplayType> => {
-  const response =
-    platform === 'bigcommerce'
-      ? await B3Request.graphqlBC({
-          query: queryGetTaxDisplayType,
-        })
-      : await B3Request.graphqlBCProxy({
-          query: queryGetTaxDisplayType,
-        });
+  const response = await storefrontGQLRequest({
+    query: queryGetTaxDisplayType,
+  });
 
   return storefrontTaxDisplayTypeSchema.parse(response.data.site.settings.tax);
 };

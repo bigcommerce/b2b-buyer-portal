@@ -1,4 +1,3 @@
-import { platform } from '@/utils/basicConfig';
 import { mapToCompanyError } from '@/utils/companyUtils';
 
 import B3Request from '../../request/b3Fetch';
@@ -77,22 +76,16 @@ interface LoginVariables {
   password: string;
 }
 
-export const bcLogin = (variables: LoginVariables) => {
-  const query = getBcLogin();
-
-  return platform === 'bigcommerce'
-    ? B3Request.graphqlBC({ query, variables })
-    : B3Request.graphqlBCProxy({ query, variables });
-};
+export const bcLogin = (variables: LoginVariables) =>
+  storefrontGQLRequest({
+    query: getBcLogin(),
+    variables,
+  });
 
 export const bcLogoutLogin = () =>
-  platform === 'bigcommerce'
-    ? B3Request.graphqlBC({
-        query: logoutLogin(),
-      })
-    : B3Request.graphqlBCProxy({
-        query: logoutLogin(),
-      });
+  storefrontGQLRequest({
+    query: logoutLogin(),
+  });
 
 interface BCPermission {
   code: string;
