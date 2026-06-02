@@ -7,11 +7,8 @@
  * @see https://docs.bigcommerce.com/developer/api-reference/graphql/storefront/queries/node#fields.body.Order
  */
 
-import { platform } from '@/utils/basicConfig';
-
-import B3Request from '../../request/b3Fetch';
-
 import type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
+import { graphqlRequest } from './client';
 
 export type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
 
@@ -699,12 +696,6 @@ const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
 // ===========================================================================
 // Service functions
 // ===========================================================================
-
-function graphqlRequest<T>(data: { query: string; variables?: object }): Promise<T> {
-  return platform === 'bigcommerce'
-    ? B3Request.graphqlBC<T>(data)
-    : B3Request.graphqlBCProxy<T>(data);
-}
 
 /** Company Orders — all orders from all company members (B2B only). */
 export async function getCompanyOrders(variables: {

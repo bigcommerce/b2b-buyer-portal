@@ -3,6 +3,8 @@ import { mapToCompanyError } from '@/utils/companyUtils';
 
 import B3Request from '../../request/b3Fetch';
 
+import { graphqlRequest } from './client';
+
 interface LoginData {
   loginData: {
     storeHash: string;
@@ -125,12 +127,6 @@ const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!)
     }
   }
 }`;
-
-function graphqlRequest<T>(data: { query: string; variables?: object }): Promise<T> {
-  return platform === 'bigcommerce'
-    ? B3Request.graphqlBC<T>(data)
-    : B3Request.graphqlBCProxy<T>(data);
-}
 
 /** @public Reserved for follow-up ticket; remove when wired into login flow. */
 export async function bcAuthorization(
