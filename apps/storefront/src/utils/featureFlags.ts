@@ -39,6 +39,14 @@ export const featureFlags = [
     key: 'B2B-3876.fix_quote_currency_symbol_placement',
     name: 'fixQuoteCurrencySymbolPlacement',
   },
+  {
+    key: 'PROJECT-7920.use_bc_account_settings',
+    name: 'useBcAccountSettings',
+  },
+  {
+    key: 'PROJECT-7920.use_bc_login_and_authorisation',
+    name: 'useBcLoginAndAuthorisation',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
