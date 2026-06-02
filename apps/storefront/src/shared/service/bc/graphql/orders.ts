@@ -8,7 +8,7 @@
  */
 
 import type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
-import { graphqlRequest } from './client';
+import { storefrontGQLRequest } from './client';
 
 export type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
 
@@ -706,7 +706,7 @@ export async function getCompanyOrders(variables: {
   last?: number;
   before?: string;
 }): Promise<GetCompanyOrdersResponse> {
-  return graphqlRequest<GetCompanyOrdersResponse>({
+  return storefrontGQLRequest<GetCompanyOrdersResponse>({
     query: GET_COMPANY_ORDERS,
     variables,
   });
@@ -721,7 +721,7 @@ export async function getCustomerOrders(variables: {
   last?: number;
   before?: string;
 }): Promise<GetCustomerOrdersResponse> {
-  return graphqlRequest<GetCustomerOrdersResponse>({
+  return storefrontGQLRequest<GetCustomerOrdersResponse>({
     query: GET_CUSTOMER_ORDERS,
     variables,
   });
@@ -731,7 +731,7 @@ export async function getCustomerOrders(variables: {
 export async function getOrderDetail(variables: {
   entityId: number;
 }): Promise<GetOrderDetailResponse> {
-  return graphqlRequest<GetOrderDetailResponse>({
+  return storefrontGQLRequest<GetOrderDetailResponse>({
     query: GET_ORDER_DETAIL,
     variables,
   });
@@ -743,7 +743,7 @@ export async function getCustomersWithOrders(variables: {
   first?: number;
   after?: string;
 }): Promise<GetCustomersWithOrdersResponse> {
-  return graphqlRequest<GetCustomersWithOrdersResponse>({
+  return storefrontGQLRequest<GetCustomersWithOrdersResponse>({
     query: GET_CUSTOMERS_WITH_ORDERS,
     variables,
   });

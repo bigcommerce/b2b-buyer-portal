@@ -3,7 +3,7 @@ import { mapToCompanyError } from '@/utils/companyUtils';
 
 import B3Request from '../../request/b3Fetch';
 
-import { graphqlRequest } from './client';
+import { storefrontGQLRequest } from './client';
 
 interface LoginData {
   loginData: {
@@ -132,7 +132,7 @@ const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!)
 export async function bcAuthorization(
   authData: BCAuthorizationInput,
 ): Promise<BCAuthorizationResponse> {
-  return graphqlRequest<BCAuthorizationResponse>({
+  return storefrontGQLRequest<BCAuthorizationResponse>({
     query: GET_BC_AUTHORIZATION,
     variables: { authData },
   });
