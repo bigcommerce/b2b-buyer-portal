@@ -91,3 +91,53 @@ export const bcLogoutLogin = () =>
     : B3Request.graphqlBCProxy({
         query: logoutLogin(),
       });
+
+interface BCPermission {
+  code: string;
+  permissionLevel: number;
+}
+
+interface BCAuthorizationInput {
+  bcToken: string;
+  channelId: number;
+}
+
+interface BCAuthorizationResponse {
+  data?: {
+    authorization?: {
+      __typename: string;
+      result?: {
+        permissions: BCPermission[];
+      };
+    };
+  };
+  errors?: Array<{ message: string }>;
+}
+
+const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!) {
+  authorization(authData: $authData) {
+    __typename
+    result {
+      permissions {
+        code
+        permissionLevel
+      }
+    }
+  }
+}`;
+
+function graphqlRequest<T>(data: { query: string; variables?: object }): Promise<T> {
+  return platform === 'bigcommerce'
+    ? B3Request.graphqlBC<T>(data)
+    : B3Request.graphqlBCProxy<T>(data);
+}
+
+/** @public Reserved for follow-up ticket; remove when wired into login flow. */
+export async function bcAuthorization(
+  authData: BCAuthorizationInput,
+): Promise<BCAuthorizationResponse> {
+  return graphqlRequest<BCAuthorizationResponse>({
+    query: GET_BC_AUTHORIZATION,
+    variables: { authData },
+  });
+}
