@@ -7,11 +7,8 @@
  * @see https://docs.bigcommerce.com/developer/api-reference/graphql/storefront/queries/node#fields.body.Order
  */
 
-import { platform } from '@/utils/basicConfig';
-
-import B3Request from '../../request/b3Fetch';
-
 import type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
+import { storefrontGQLRequest } from './client';
 
 export type { CollectionInfo, DateTimeExtended, Money, PageInfo } from './base';
 
@@ -700,12 +697,6 @@ const GET_CUSTOMERS_WITH_ORDERS = `query GetCustomersWithOrders(
 // Service functions
 // ===========================================================================
 
-function graphqlRequest<T>(data: { query: string; variables?: object }): Promise<T> {
-  return platform === 'bigcommerce'
-    ? B3Request.graphqlBC<T>(data)
-    : B3Request.graphqlBCProxy<T>(data);
-}
-
 /** Company Orders — all orders from all company members (B2B only). */
 export async function getCompanyOrders(variables: {
   filters?: CompanyOrdersFiltersInput;
@@ -715,7 +706,7 @@ export async function getCompanyOrders(variables: {
   last?: number;
   before?: string;
 }): Promise<GetCompanyOrdersResponse> {
-  return graphqlRequest<GetCompanyOrdersResponse>({
+  return storefrontGQLRequest<GetCompanyOrdersResponse>({
     query: GET_COMPANY_ORDERS,
     variables,
   });
@@ -730,7 +721,7 @@ export async function getCustomerOrders(variables: {
   last?: number;
   before?: string;
 }): Promise<GetCustomerOrdersResponse> {
-  return graphqlRequest<GetCustomerOrdersResponse>({
+  return storefrontGQLRequest<GetCustomerOrdersResponse>({
     query: GET_CUSTOMER_ORDERS,
     variables,
   });
@@ -740,7 +731,7 @@ export async function getCustomerOrders(variables: {
 export async function getOrderDetail(variables: {
   entityId: number;
 }): Promise<GetOrderDetailResponse> {
-  return graphqlRequest<GetOrderDetailResponse>({
+  return storefrontGQLRequest<GetOrderDetailResponse>({
     query: GET_ORDER_DETAIL,
     variables,
   });
@@ -752,7 +743,7 @@ export async function getCustomersWithOrders(variables: {
   first?: number;
   after?: string;
 }): Promise<GetCustomersWithOrdersResponse> {
-  return graphqlRequest<GetCustomersWithOrdersResponse>({
+  return storefrontGQLRequest<GetCustomersWithOrdersResponse>({
     query: GET_CUSTOMERS_WITH_ORDERS,
     variables,
   });
