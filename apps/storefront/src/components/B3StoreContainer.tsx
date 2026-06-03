@@ -10,6 +10,7 @@ import {
   setTimeFormat,
   useAppDispatch,
 } from '@/store';
+import { removePreMountLoginMask } from '@/utils/preMountLoginMask';
 
 import { B3PageMask, usePageMask } from './loading';
 
@@ -73,6 +74,9 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
         if (!isEnabled) {
           showPageMask(false);
+          // B2B is disabled for this store/channel, so App never mounts to clear
+          // the pre-mount mask. Reveal the native login.php form here instead.
+          removePreMountLoginMask();
         }
 
         storeDispatch(
@@ -86,6 +90,9 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled));
       } catch (error) {
         showPageMask(false);
+        // Failed to resolve store info: don't leave the native login.php form
+        // hidden behind the pre-mount mask.
+        removePreMountLoginMask();
       }
     };
     setZIndexVariables();

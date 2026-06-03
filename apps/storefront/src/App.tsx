@@ -31,6 +31,7 @@ import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { logoutSession } from './utils/logoutSession';
+import { removePreMountLoginMask } from './utils/preMountLoginMask';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -289,6 +290,18 @@ export default function App() {
     // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Remove the pre-mount login mask only once initialization has finished. The
+  // mask sits just below the iframe, so keeping it until init completes is
+  // invisible to the user once the iframe paints, but it crucially still covers
+  // the native login.php form while the (transparent) in-iframe login page is
+  // loading — removing it earlier (on isOpen) caused the native form to flicker
+  // through. See utils/preMountLoginMask.
+  useEffect(() => {
+    if (isPageComplete) {
+      removePreMountLoginMask();
+    }
+  }, [isPageComplete]);
 
   useEffect(() => {
     const init = async () => {
