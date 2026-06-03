@@ -513,6 +513,7 @@
   "shoppingList.quantityTextField.maxQuantity": "Max is {maxQuantity}",
   "shoppingList.table.total": "Total",
   "shoppingList.table.totalProductCount": "{quantity} products",
+  "shoppingList.table.totalProductCountWithPrice": "{quantity} products ({price})",
   "shoppingList.table.itemsPerPage": "Items per page",
   "shoppingList.table.noProductsFound": "No products found",
   "shoppingList.shoppingDetailCard.price": "Price: {price}",

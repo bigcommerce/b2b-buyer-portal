@@ -399,12 +399,8 @@ it('displays a summary of products within the shopping list', async () => {
 
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-  expect(screen.getByText('2 products')).toBeVisible();
-
-  // This is a workaround for the fact that the total price is not immediately available.
-  // The price is set after a useEffect and can fail during tests.
   await waitFor(() => {
-    expect(screen.getByText('$460.00')).toBeVisible();
+    expect(screen.getByText(/2 products \(\$460\.00\)/)).toBeVisible();
   });
 
   expect(screen.getByRole('row', { name: /Lovely socks/ })).toBeVisible();
@@ -2157,7 +2153,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2283,7 +2280,8 @@ describe('when backend validation is enabled', () => {
       expect.stringContaining('productIds: [73737]'),
     );
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2397,7 +2395,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2512,7 +2511,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2626,7 +2626,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
 
@@ -2864,7 +2865,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -2998,7 +3000,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -3128,7 +3131,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -3224,7 +3228,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -3323,7 +3328,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -3386,7 +3392,8 @@ describe('when backend validation is enabled', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await userEvent.click(screen.getAllByRole('checkbox')[0]); // select-all checkbox
+    const table = screen.getByRole('table');
+    await userEvent.click(within(table).getAllByRole('checkbox')[0]); // select-all checkbox
 
     await userEvent.click(screen.getByRole('button', { name: /Add selected to/ }));
     await userEvent.click(screen.getByRole('menuitem', { name: /Add selected to cart/ }));
@@ -3397,5 +3404,257 @@ describe('when backend validation is enabled', () => {
       within(dialog).getByText('1 product(s) were not added to cart, please change the quantity'),
     ).toBeVisible();
     expect(within(dialog).getByText('Happy Product')).toBeVisible();
+  });
+});
+
+describe('when backorder messaging is enabled on shopping list products', () => {
+  const variantSku = 'SL-BO-123';
+
+  const backorderPreloadedState = {
+    company: b2bCompanyWithShoppingListPermissions,
+    global: buildGlobalStateWith({
+      backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
+    }),
+  };
+
+  const setupShoppingListTable = ({
+    totalOnHand = 2,
+    availableToSell = 4,
+    backorderMessage = 'Lead time: 2-4 weeks',
+    inventoryFetchFails = false,
+  }: {
+    totalOnHand?: number;
+    availableToSell?: number;
+    backorderMessage?: string;
+    inventoryFetchFails?: boolean;
+  } = {}) => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const productEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Bistro Pro Literide Clog',
+        productId: 73737,
+        variantSku,
+        quantity: 1,
+        basePrice: '100',
+      },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [productEdge] },
+          status: 0,
+          grandTotal: '100',
+          totalTax: '0',
+        },
+      },
+    });
+
+    const variantInfo = buildVariantInfoWith({
+      variantSku,
+      inventoryTracking: 'variant',
+      availableToSell,
+      unlimitedBackorder: false,
+      totalOnHand,
+      backorderMessage,
+    });
+
+    const getVariantInfoBySkus = when(vi.fn())
+      .calledWith(expect.stringContaining(`variantSkus: ["${variantSku}"]`))
+      .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+      graphql.query('GetVariantInfoBySkus', ({ query }) =>
+        inventoryFetchFails ? HttpResponse.error() : HttpResponse.json(getVariantInfoBySkus(query)),
+      ),
+    );
+  };
+
+  it('shows backorder lines when toggle is on and qty exceeds on hand', async () => {
+    setupShoppingListTable();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    await userEvent.click(backorderToggle);
+
+    await waitFor(() => {
+      expect(screen.getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(screen.getByText('2 will be backordered')).toBeVisible();
+    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('hides backorder lines when toggle is off', async () => {
+    setupShoppingListTable();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await screen.findByRole('checkbox', { name: /Backorder details/i });
+
+    expect(screen.queryByText('2 ready to ship')).not.toBeInTheDocument();
+    expect(screen.queryByText('2 will be backordered')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+  });
+
+  it('hides backorder toggle and lines when qty is within on hand', async () => {
+    setupShoppingListTable({ totalOnHand: 9, availableToSell: 10 });
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('checkbox', { name: /Backorder details/i }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('hides backorder toggle and lines when messaging is disabled', async () => {
+    setupShoppingListTable();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(screen.queryByRole('checkbox', { name: /Backorder details/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('still shows shopping list products without backorder UI when inventory fetch fails', async () => {
+    setupShoppingListTable({ inventoryFetchFails: true });
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('checkbox', { name: /Backorder details/i }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+  });
+
+  describe('on mobile', () => {
+    beforeEach(() => {
+      vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
+    });
+
+    it('shows backorder lines in the card view when toggle is on and qty exceeds on hand', async () => {
+      setupShoppingListTable();
+
+      renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+        preloadedState: backorderPreloadedState,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+      });
+
+      const productCard = screen
+        .getByText('Bistro Pro Literide Clog')
+        .closest('.MuiCardContent-root');
+      const quantityInput = within(productCard as HTMLElement).getByRole('spinbutton');
+
+      await userEvent.type(quantityInput, '10', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+      await userEvent.click(backorderToggle);
+
+      await waitFor(() => {
+        expect(screen.getByText('2 ready to ship')).toBeVisible();
+      });
+      expect(screen.getByText('2 will be backordered')).toBeVisible();
+      expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+    });
   });
 });
