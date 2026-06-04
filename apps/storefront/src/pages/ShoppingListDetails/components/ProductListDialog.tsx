@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useContext, useMemo } from 'react';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 
@@ -6,10 +6,13 @@ import B3Dialog from '@/components/B3Dialog';
 import { B3ProductList } from '@/components/B3ProductList';
 import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
+import { buildVariantSkuDependencyKey } from '@/utils/catalogBackorderDisplay';
 
 import { ShoppingListProductItem } from '../../../types';
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';
@@ -103,6 +106,23 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   );
 
   const [isMobile] = useMobile();
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+
+  const variantSkuDependencyKey = useMemo(
+    () =>
+      buildVariantSkuDependencyKey(
+        productList.map((product) => product.variants?.[0]?.sku ?? product.sku),
+      ),
+    [productList],
+  );
+
+  const inventoryBySku = useCatalogInventoryBySku({
+    isActive: isOpen,
+    enabled: backorderUiEnabled,
+    skuDependencyKey: variantSkuDependencyKey,
+  });
 
   const handleCancelClicked = () => {
     onCancel();
@@ -201,6 +221,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
               type={type}
               textAlign={isMobile ? 'left' : 'right'}
               canToProduct
+              catalogBackorderUiEnabled={backorderUiEnabled}
+              catalogInventoryBySku={inventoryBySku}
               onProductQuantityChange={onProductQuantityChange}
               renderAction={(product) => (
                 <ProductTableAction

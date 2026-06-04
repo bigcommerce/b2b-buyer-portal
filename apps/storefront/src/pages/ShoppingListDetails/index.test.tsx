@@ -3658,3 +3658,459 @@ describe('when backorder messaging is enabled on shopping list products', () => 
     });
   });
 });
+
+describe('when backorder messaging is enabled in add to list search modal', () => {
+  const variantSku = 'SL-SEARCH-123';
+  const productName = 'Cast Iron Skillet';
+  const searchTerm = 'Skillet';
+
+  const backorderPreloadedState = {
+    company: b2bCompanyWithShoppingListPermissions,
+    global: buildGlobalStateWith({
+      backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
+    }),
+  };
+
+  const setupSearchAddToListModal = ({
+    totalOnHand = 2,
+    availableToSell = 4,
+    backorderMessage = 'Lead time: 2-4 weeks',
+    inventoryFetchFails = false,
+  }: {
+    totalOnHand?: number;
+    availableToSell?: number;
+    backorderMessage?: string;
+    inventoryFetchFails?: boolean;
+  } = {}) => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const listProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Existing list item',
+        productId: 8000,
+        variantSku: 'LIST-SKU-001',
+        quantity: 1,
+        basePrice: '10.00',
+      },
+    });
+
+    const variant = buildSearchB2BProductVariantWith({
+      sku: variantSku,
+      purchasing_disabled: false,
+      bc_calculated_price: {
+        as_entered: 199.95,
+        tax_inclusive: 199.95,
+        tax_exclusive: 199.95,
+        entered_inclusive: false,
+      },
+    });
+
+    const searchProduct = buildSearchB2BProductWith({
+      id: 9001,
+      name: productName,
+      sku: variantSku,
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [variant],
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [listProductEdge] },
+          status: 0,
+          grandTotal: '10.00',
+          totalTax: '0',
+        },
+      },
+    });
+
+    const searchVariantInfo = buildVariantInfoWith({
+      variantSku,
+      inventoryTracking: 'variant',
+      availableToSell,
+      unlimitedBackorder: false,
+      totalOnHand,
+      backorderMessage,
+    });
+
+    const getVariantInfoBySkus = vi.fn(({ query }: { query: string }) => {
+      if (inventoryFetchFails) {
+        return HttpResponse.error();
+      }
+
+      if (query.includes(`"${variantSku}"`)) {
+        return HttpResponse.json(
+          buildVariantInfoResponseWith({ data: { variantSku: [searchVariantInfo] } }),
+        );
+      }
+
+      return HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        if (/productIds: \[\d/.test(query)) {
+          return HttpResponse.json(
+            buildSearchProductsResponseWith({ data: { productsSearch: [] } }),
+          );
+        }
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [searchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) => getVariantInfoBySkus({ query })),
+    );
+  };
+
+  const openAddToListSearchDialog = async () => {
+    await screen.findByRole('heading', { name: /add to list/i });
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, searchTerm);
+    await userEvent.click(screen.getByRole('button', { name: /Search product/i }));
+
+    return screen.findByRole('dialog', { name: 'Add to list' });
+  };
+
+  it('shows backorder lines when qty exceeds on hand', async () => {
+    setupSearchAddToListModal();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(within(dialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(dialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('does not show ATS error helper when qty exceeds available to sell', async () => {
+    setupSearchAddToListModal();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText('2 will be backordered')).toBeVisible();
+    });
+
+    expect(within(dialog).queryByText('4 available')).not.toBeInTheDocument();
+    expect(quantityInput.closest('.MuiTextField-root')).not.toHaveClass('Mui-error');
+  });
+
+  it('hides backorder lines when qty is within on hand', async () => {
+    setupSearchAddToListModal({ totalOnHand: 9, availableToSell: 10 });
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(
+        within(dialog).queryByText('will be backordered', { exact: false }),
+      ).not.toBeInTheDocument();
+    });
+    expect(within(dialog).queryByText('ready to ship', { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('hides backorder lines when messaging is disabled', async () => {
+    setupSearchAddToListModal();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText(productName)).toBeVisible();
+    });
+    expect(
+      within(dialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('still shows search results without backorder UI when inventory fetch fails', async () => {
+    setupSearchAddToListModal({ inventoryFetchFails: true });
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText(productName)).toBeVisible();
+    });
+    expect(
+      within(dialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('clears stale backorder inventory while refetching after a new search', async () => {
+    const sharedSku = 'SL-SHARED-SKU';
+    const otherSku = 'SL-OTHER-SKU';
+    const secondProductName = 'Cast Iron Pan';
+    let resolveSecondInventoryFetch!: (value: HttpResponse<VariantInfoResponse>) => void;
+    let sharedSkuFetchCount = 0;
+
+    const pendingSecondInventoryFetch = new Promise<HttpResponse<VariantInfoResponse>>(
+      (resolve) => {
+        resolveSecondInventoryFetch = resolve;
+      },
+    );
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const listProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Existing list item',
+        productId: 8000,
+        variantSku: 'LIST-SKU-001',
+        quantity: 1,
+        basePrice: '10.00',
+      },
+    });
+
+    const buildSearchVariant = (sku: string) =>
+      buildSearchB2BProductVariantWith({
+        sku,
+        purchasing_disabled: false,
+        bc_calculated_price: {
+          as_entered: 199.95,
+          tax_inclusive: 199.95,
+          tax_exclusive: 199.95,
+          entered_inclusive: false,
+        },
+      });
+
+    const firstSearchProduct = buildSearchB2BProductWith({
+      id: 9001,
+      name: productName,
+      sku: sharedSku,
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [buildSearchVariant(sharedSku)],
+    });
+
+    const secondSearchProduct = buildSearchB2BProductWith({
+      id: 9002,
+      name: secondProductName,
+      sku: sharedSku,
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [buildSearchVariant(sharedSku)],
+    });
+
+    const otherSearchProduct = buildSearchB2BProductWith({
+      id: 9003,
+      name: 'Silicone Spatula',
+      sku: otherSku,
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [buildSearchVariant(otherSku)],
+    });
+
+    const lowInventoryVariantInfo = buildVariantInfoWith({
+      variantSku: sharedSku,
+      inventoryTracking: 'variant',
+      availableToSell: 4,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Lead time: 2-4 weeks',
+    });
+
+    const highInventoryVariantInfo = buildVariantInfoWith({
+      variantSku: sharedSku,
+      inventoryTracking: 'variant',
+      availableToSell: 10,
+      unlimitedBackorder: false,
+      totalOnHand: 9,
+      backorderMessage: 'Lead time: 2-4 weeks',
+    });
+
+    const otherInventoryVariantInfo = buildVariantInfoWith({
+      variantSku: otherSku,
+      inventoryTracking: 'variant',
+      availableToSell: 10,
+      unlimitedBackorder: false,
+      totalOnHand: 9,
+    });
+
+    const getVariantInfoBySkus = vi.fn(
+      ({
+        query,
+      }: {
+        query: string;
+      }): HttpResponse<VariantInfoResponse> | Promise<HttpResponse<VariantInfoResponse>> => {
+        if (!query.includes(`"${sharedSku}"`)) {
+          return HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+        }
+
+        sharedSkuFetchCount += 1;
+
+        if (sharedSkuFetchCount === 1) {
+          return HttpResponse.json(
+            buildVariantInfoResponseWith({ data: { variantSku: [lowInventoryVariantInfo] } }),
+          );
+        }
+
+        return pendingSecondInventoryFetch;
+      },
+    );
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () =>
+        HttpResponse.json(
+          buildShoppingListGraphQLResponseWith({
+            data: {
+              shoppingList: {
+                products: { totalCount: 1, edges: [listProductEdge] },
+                status: 0,
+                grandTotal: '10.00',
+                totalTax: '0',
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('SearchProducts', ({ query }) => {
+        if (/productIds: \[\d/.test(query)) {
+          return HttpResponse.json(
+            buildSearchProductsResponseWith({ data: { productsSearch: [] } }),
+          );
+        }
+
+        if (query.includes('Pan')) {
+          return HttpResponse.json(
+            buildSearchProductsResponseWith({
+              data: { productsSearch: [secondSearchProduct, otherSearchProduct] },
+            }),
+          );
+        }
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [firstSearchProduct] } }),
+        );
+      }),
+      graphql.query('GetVariantInfoBySkus', ({ query }) => getVariantInfoBySkus({ query })),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const dialog = await openAddToListSearchDialog();
+    const quantityInput = within(dialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+    });
+
+    const dialogSearchBox = within(dialog).getByDisplayValue(searchTerm);
+    await userEvent.clear(dialogSearchBox);
+    await userEvent.type(dialogSearchBox, 'Pan{Enter}');
+
+    await waitFor(() => {
+      expect(within(dialog).getByText(secondProductName)).toBeVisible();
+    });
+
+    const refreshedQuantityInput = within(dialog).getAllByRole('spinbutton')[0];
+    await userEvent.type(refreshedQuantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(within(dialog).queryByText('2 ready to ship')).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(sharedSkuFetchCount).toBeGreaterThan(1);
+    });
+
+    resolveSecondInventoryFetch(
+      HttpResponse.json(
+        buildVariantInfoResponseWith({
+          data: { variantSku: [highInventoryVariantInfo, otherInventoryVariantInfo] },
+        }),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(
+        within(dialog).queryByText('will be backordered', { exact: false }),
+      ).not.toBeInTheDocument();
+    });
+  });
+});

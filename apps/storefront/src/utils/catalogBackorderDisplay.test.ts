@@ -5,6 +5,7 @@ import type { Variant } from '@/types/products';
 import type { ShoppingListProductItem } from '@/types/shoppingList';
 
 import {
+  buildVariantSkuDependencyKey,
   catalogListHasBackorderedItemsForDisplay,
   getCatalogBackorderDisplayFields,
   getCatalogBackorderDisplayQuantity,
@@ -15,6 +16,12 @@ import {
 } from './catalogBackorderDisplay';
 
 describe('catalogBackorderDisplay', () => {
+  it('buildVariantSkuDependencyKey deduplicates, filters empty values, and sorts skus', () => {
+    expect(buildVariantSkuDependencyKey(['B-SKU', 'A-SKU', 'B-SKU', '', null, undefined])).toBe(
+      'A-SKU|B-SKU',
+    );
+  });
+
   it('quantityExceedsAvailableToSell is false when unlimited backorder', () => {
     const row = {
       inventoryTracking: 'variant',
