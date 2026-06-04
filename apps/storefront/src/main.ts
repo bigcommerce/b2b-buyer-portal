@@ -1,4 +1,4 @@
-import { injectPreMountLoginMask } from './utils/preMountLoginMask';
+import { injectPreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } from './load-functions';
 
 // Paint the pre-mount mask as early as possible (before React mounts) so the
@@ -42,12 +42,11 @@ window.b2b = {
 };
 
 (async function bootstrap() {
-  const { pathname, search } = window.location;
-  const isLoginPage = pathname.includes('login.php') && !search.includes('change_password');
-
-  // check if the accessed url contains a hashtag, or if we're on a login.php URL
-  // (eager init avoids the idle-callback delay while the BC native form is visible)
-  if (window.location.hash.startsWith('#/') || isLoginPage) {
+  // check if the accessed url contains a hashtag, or if the buyer portal is
+  // taking over the login page (eager init avoids the idle-callback delay while
+  // the masked BC native form is visible). The login-page branch is gated on the
+  // default-login-styling feature flag via shouldUseDefaultLoginStyling().
+  if (window.location.hash.startsWith('#/') || shouldUseDefaultLoginStyling()) {
     initApp();
   } else {
     // load the app when the browser is free

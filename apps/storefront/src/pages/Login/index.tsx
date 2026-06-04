@@ -20,6 +20,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { platform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { isDefaultLoginStylingActive } from '@/utils/preMountLoginMask';
 
 import { type PageProps } from '../PageProps';
 
@@ -70,6 +71,23 @@ function Login(props: PageProps) {
   const {
     state: { isCheckout, registerEnabled, isLogoLoaded },
   } = useContext(GlobalContext);
+
+  // Read the feature signal synchronously (not from Redux), since the Redux flag
+  // is still false on the first render — before getStoreConfigs resolves — which
+  // would let the form render with hardcoded defaults and then flicker as the
+  // real config swaps in. isDefaultLoginStylingActive() mirrors the pre-mount
+  // mask's optimistic gate, so the in-iframe content and the mask stay in step.
+  const [isDefaultLoginStyling] = useState(isDefaultLoginStylingActive);
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+
+  // When the default-login-styling feature is on, hold the form back until the
+  // merchant login config has loaded (isLogoLoaded) to avoid a flicker as the
+  // hardcoded context defaults are swapped for the real config. We also reveal
+  // the form once app init has finished (isPageComplete) so that a failed
+  // getStoreConfigs — which leaves isLogoLoaded false — doesn't strand the user
+  // on an endless spinner with no sign-in form. When the feature is off we keep
+  // the previous behaviour of rendering the form immediately.
+  const isLoginConfigReady = !isDefaultLoginStyling || isLogoLoaded || isPageComplete;
 
   const {
     state: {
@@ -188,7 +206,7 @@ function Login(props: PageProps) {
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
         <B3Spin
-          isSpinning={isLoading || !isLogoLoaded}
+          isSpinning={isLoading || !isLoginConfigReady}
           tip={b3Lang('global.tips.loading')}
           background="transparent"
         >
@@ -208,8 +226,10 @@ function Login(props: PageProps) {
               defaults until getStoreConfigs() resolves, and rendering them first causes a
               flicker as the real config swaps in. isLogoLoaded flips true in the same dispatch
               that merges the CustomStyleContext config, so it gates the whole login config.
+              This gating only applies when the default-login-styling feature flag is on; see
+              isLoginConfigReady for the flag/fallback behaviour.
             */}
-            {isLogoLoaded && (
+            {isLoginConfigReady && (
               <>
                 <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
                 {quoteDetailToCheckoutUrl && (

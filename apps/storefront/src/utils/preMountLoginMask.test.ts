@@ -1,11 +1,22 @@
-import { injectPreMountLoginMask, removePreMountLoginMask } from './preMountLoginMask';
+import {
+  injectPreMountLoginMask,
+  isDefaultLoginStylingActive,
+  removePreMountLoginMask,
+  setDefaultLoginStylingEnabled,
+  shouldUseDefaultLoginStyling,
+} from './preMountLoginMask';
 
 const MASK_ID = 'b2b-pre-mount-login-mask';
 
 const getMask = () => document.getElementById(MASK_ID);
 
+// The pre-mount mask is gated behind the default-login-styling feature flag,
+// cached in localStorage. The gate is optimistic: it masks unless the flag has
+// been explicitly cached as 'false'. Tests start from a clean (uncached) state
+// and opt into the cached values they need.
 afterEach(() => {
   getMask()?.remove();
+  localStorage.clear();
 });
 
 describe('injectPreMountLoginMask', () => {
@@ -51,6 +62,71 @@ describe('injectPreMountLoginMask', () => {
     injectPreMountLoginMask();
 
     expect(document.querySelectorAll(`#${MASK_ID}`)).toHaveLength(1);
+  });
+
+  it('does not inject when the flag is explicitly cached as off', () => {
+    setDefaultLoginStylingEnabled(false);
+    window.location.assign('/login.php');
+
+    injectPreMountLoginMask();
+
+    expect(getMask()).toBeNull();
+  });
+
+  it('injects optimistically when the flag has never been cached', () => {
+    localStorage.clear();
+    window.location.assign('/login.php');
+
+    injectPreMountLoginMask();
+
+    expect(getMask()).not.toBeNull();
+  });
+});
+
+describe('isDefaultLoginStylingActive', () => {
+  it('is true when the flag is cached as on', () => {
+    setDefaultLoginStylingEnabled(true);
+
+    expect(isDefaultLoginStylingActive()).toBe(true);
+  });
+
+  it('is true (optimistic) when the flag has never been cached', () => {
+    localStorage.clear();
+
+    expect(isDefaultLoginStylingActive()).toBe(true);
+  });
+
+  it('is false only when the flag is explicitly cached as off', () => {
+    setDefaultLoginStylingEnabled(false);
+
+    expect(isDefaultLoginStylingActive()).toBe(false);
+  });
+});
+
+describe('shouldUseDefaultLoginStyling', () => {
+  it('is true on the login page when the feature is active', () => {
+    window.location.assign('/login.php');
+
+    expect(shouldUseDefaultLoginStyling()).toBe(true);
+  });
+
+  it('is false when the flag is explicitly cached as off', () => {
+    setDefaultLoginStylingEnabled(false);
+    window.location.assign('/login.php');
+
+    expect(shouldUseDefaultLoginStyling()).toBe(false);
+  });
+
+  it('is false when not on the login page even if the feature is active', () => {
+    window.location.assign('/cart.php');
+
+    expect(shouldUseDefaultLoginStyling()).toBe(false);
+  });
+
+  it('is false on the change password flow', () => {
+    window.location.assign('/login.php?action=change_password');
+
+    expect(shouldUseDefaultLoginStyling()).toBe(false);
   });
 });
 

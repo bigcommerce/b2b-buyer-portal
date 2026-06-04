@@ -30,6 +30,7 @@ import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage } from '@/utils/b3Storage';
 import { channelId } from '@/utils/basicConfig';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
+import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
 import { checkEveryPermissionsCode } from './b3CheckPermissions/check';
 
@@ -294,6 +295,15 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
       };
     }
   });
+
+  // Cache the default-login-styling flag so the next page load can gate the
+  // pre-mount login mask synchronously, before StoreConfig is fetched again.
+  // Read from the store (rather than the loop) so an absent flag resolves to
+  // false rather than leaving a stale cached value.
+  setDefaultLoginStylingEnabled(
+    store.getState().global.featureFlags['B2B-4870.default_buyer_portal_styling_on_login_page'] ??
+      false,
+  );
 
   dispatchGlobal({
     type: 'common',

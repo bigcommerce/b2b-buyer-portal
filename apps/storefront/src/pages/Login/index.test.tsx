@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   buildCompanyStateWith,
+  buildGlobalStateWith,
   graphql,
   HttpResponse,
   renderWithProviders,
@@ -12,6 +13,7 @@ import {
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
 import LoginPage from './index';
 import LoginForm from './LoginForm';
@@ -25,11 +27,12 @@ vi.mock('@/utils/loginInfo');
 
 const { server } = startMockServer();
 
-// The login page now gates its content on `isLogoLoaded` (set true once the
-// merchant login config resolves during app init). That flow doesn't run in
-// these unit tests, so default it to true — otherwise the page stays stuck on
-// the loading spinner and never renders the form. Tests that specifically care
-// about the logo/loaded state can override `initialGlobalContext`.
+// When the default-login-styling feature flag is on, the login page gates its
+// content on `isLogoLoaded` (set true once the merchant login config resolves
+// during app init). That flow doesn't run in these unit tests, so default it to
+// true — otherwise, if a test enables the flag, the page would stay stuck on the
+// loading spinner and never render the form. Tests that specifically care about
+// the logo/loaded state can override `initialGlobalContext`.
 const renderLoginPage = (options: Parameters<typeof renderWithProviders>[1] = {}) =>
   renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
     ...options,
@@ -457,9 +460,23 @@ describe('LoginPage', () => {
   });
 
   describe('login config gating', () => {
+    // The gate reads the cached feature value synchronously (see
+    // isDefaultLoginStylingActive); the cache is optimistic, so an uncached value
+    // is treated as active. We control it via localStorage rather than the Redux
+    // flag, which is still false on first render before getStoreConfigs resolves.
+    const buildGlobalStateWithPageComplete = (isPageComplete: boolean) =>
+      buildGlobalStateWith({ isPageComplete });
+
+    afterEach(() => {
+      localStorage.clear();
+    });
+
     it('shows the loading spinner and hides the form until the login config has loaded', async () => {
+      setDefaultLoginStylingEnabled(true);
+
       renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
         initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
       });
 
       // Spinner stays up and the form is not rendered while the config is loading.
@@ -470,8 +487,43 @@ describe('LoginPage', () => {
     });
 
     it('renders the login form once the login config has loaded', async () => {
-      renderLoginPage({
+      setDefaultLoginStylingEnabled(true);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
         initialGlobalContext: { isLogoLoaded: true },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'SIGN IN' })).toBeInTheDocument();
+    });
+
+    it('renders the login form when app init completes even if the config failed to load', async () => {
+      // getStoreConfigs failing leaves isLogoLoaded false, but app init still
+      // flips isPageComplete true — the form must render rather than leaving the
+      // user on an endless spinner with no sign-in form.
+      setDefaultLoginStylingEnabled(true);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(true) },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'SIGN IN' })).toBeInTheDocument();
+    });
+
+    it('renders the login form immediately when the feature is cached off', async () => {
+      // With the feature explicitly off, the form is not gated on isLogoLoaded.
+      setDefaultLoginStylingEnabled(false);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
       });
 
       await waitFor(() => {

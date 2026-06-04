@@ -31,7 +31,7 @@ import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { logoutSession } from './utils/logoutSession';
-import { removePreMountLoginMask } from './utils/preMountLoginMask';
+import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -62,6 +62,7 @@ export default function App() {
   const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+  const [isDefaultLoginStyling] = useState(shouldUseDefaultLoginStyling);
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
@@ -298,10 +299,10 @@ export default function App() {
   // loading — removing it earlier (on isOpen) caused the native form to flicker
   // through. See utils/preMountLoginMask.
   useEffect(() => {
-    if (isPageComplete) {
+    if (isPageComplete && isDefaultLoginStyling) {
       removePreMountLoginMask();
     }
-  }, [isPageComplete]);
+  }, [isPageComplete, isDefaultLoginStyling]);
 
   useEffect(() => {
     const init = async () => {
