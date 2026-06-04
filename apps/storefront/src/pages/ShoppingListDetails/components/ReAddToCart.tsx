@@ -10,17 +10,17 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
-import {
-  type CatalogQuickVariantSku,
-  getVariantInfoBySkus,
-} from '@/shared/service/b2b/graphql/product';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields, ProductsProps } from '@/utils/b3Product/shared/config';
-import { getCatalogBackorderFieldsForVariantSku } from '@/utils/catalogBackorderDisplay';
+import {
+  buildVariantSkuDependencyKey,
+  getCatalogBackorderFieldsForVariantSku,
+} from '@/utils/catalogBackorderDisplay';
 
 import { B3QuantityTextField } from './B3QuantityTextField';
 
@@ -178,65 +178,21 @@ export default function ReAddToCart({
     backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '160px' } : itemStyle.default;
 
   const [internalProducts, setInternalProducts] = useState<ProductsProps[]>([]);
-  const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
 
   useEffect(() => {
     setInternalProducts(cloneDeep(products));
   }, [products]);
 
-  const variantSkuDependencyKey = useMemo(() => {
-    return [
-      ...new Set(
-        internalProducts
-          .map((product) => product.node.variantSku)
-          .filter((sku): sku is string => Boolean(sku)),
-      ),
-    ]
-      .sort()
-      .join('|');
-  }, [internalProducts]);
+  const variantSkuDependencyKey = useMemo(
+    () => buildVariantSkuDependencyKey(internalProducts.map((product) => product.node.variantSku)),
+    [internalProducts],
+  );
 
-  useEffect(() => {
-    if (!isOpen || !backorderUiEnabled || !variantSkuDependencyKey) {
-      if (!isOpen) {
-        setVariantInfoList([]);
-      }
-      return () => {};
-    }
-
-    let cancelled = false;
-    const skus = variantSkuDependencyKey.split('|');
-
-    const fetchVariantInfo = async () => {
-      try {
-        const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(skus);
-
-        if (!cancelled) {
-          setVariantInfoList(nextVariantInfoList);
-        }
-      } catch {
-        if (!cancelled) {
-          setVariantInfoList([]);
-        }
-      }
-    };
-
-    fetchVariantInfo();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isOpen, backorderUiEnabled, variantSkuDependencyKey]);
-
-  const inventoryBySku = useMemo(() => {
-    const map: Record<string, CatalogQuickVariantSku> = {};
-    variantInfoList.forEach((row) => {
-      if (row.variantSku) {
-        map[row.variantSku.toUpperCase()] = row;
-      }
-    });
-    return map;
-  }, [variantInfoList]);
+  const inventoryBySku = useCatalogInventoryBySku({
+    isActive: isOpen,
+    enabled: backorderUiEnabled,
+    skuDependencyKey: variantSkuDependencyKey,
+  });
 
   const handleUpdateProductQty = async (
     index: number,

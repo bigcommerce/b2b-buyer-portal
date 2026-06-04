@@ -4,6 +4,10 @@ import type { ShoppingListProductItem } from '@/types/shoppingList';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
 
+export function buildVariantSkuDependencyKey(skus: readonly (string | undefined | null)[]): string {
+  return [...new Set(skus.filter((sku): sku is string => Boolean(sku)))].sort().join('|');
+}
+
 type SearchProductInventorySource = Pick<
   ShoppingListProductItem,
   | 'inventoryTracking'

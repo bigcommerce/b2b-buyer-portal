@@ -1,6 +1,4 @@
-import { platform } from '@/utils/basicConfig';
-
-import B3Request from '../../request/b3Fetch';
+import { storefrontGQLRequest } from './client';
 
 interface Locale {
   code: string;
@@ -31,9 +29,6 @@ query GetLocales {
   }
 }`;
 
-const getLocales = () =>
-  platform === 'bigcommerce'
-    ? B3Request.graphqlBC<LocalesResponse>({ query: getLocalesQuery })
-    : B3Request.graphqlBCProxy<LocalesResponse>({ query: getLocalesQuery });
+const getLocales = () => storefrontGQLRequest<LocalesResponse>({ query: getLocalesQuery });
 
 export default getLocales;
