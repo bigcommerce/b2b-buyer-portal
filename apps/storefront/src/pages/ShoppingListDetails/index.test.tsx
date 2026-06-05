@@ -4114,3 +4114,256 @@ describe('when backorder messaging is enabled in add to list search modal', () =
     });
   });
 });
+
+describe('when backorder messaging is enabled in choose options dialog', () => {
+  const searchTerm = 'Fog Towel';
+  const productId = 9001;
+  const optionId = 50;
+  const sizeM = 102;
+  const variantSku = 'TOWEL-M';
+  const variantId = 5001;
+
+  const backorderPreloadedState = {
+    company: b2bCompanyWithShoppingListPermissions,
+    global: buildGlobalStateWith({
+      backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
+    }),
+  };
+
+  const setupChooseOptionsModal = () => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const listProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Existing list item',
+        productId: 8000,
+        variantSku: 'LIST-SKU-001',
+        quantity: 1,
+        basePrice: '10.00',
+      },
+    });
+
+    const variantM = buildSearchB2BProductVariantWith({
+      variant_id: variantId,
+      product_id: productId,
+      sku: variantSku,
+      purchasing_disabled: false,
+      option_values: [
+        {
+          id: sizeM,
+          label: 'M',
+          option_id: optionId,
+          option_display_name: 'Size',
+        },
+      ],
+      available_to_sell: 10,
+      unlimited_backorder: false,
+      total_on_hand: 2,
+      backorder_message: 'Lead time: 2-4 weeks',
+      bc_calculated_price: {
+        tax_exclusive: 50,
+        tax_inclusive: 55,
+        as_entered: 50,
+        entered_inclusive: false,
+      },
+    });
+
+    const variantS = buildSearchB2BProductVariantWith({
+      product_id: productId,
+      sku: 'TOWEL-S',
+      purchasing_disabled: false,
+      option_values: [
+        {
+          id: 101,
+          label: 'S',
+          option_id: optionId,
+          option_display_name: 'Size',
+        },
+      ],
+      available_to_sell: 5,
+      unlimited_backorder: false,
+      total_on_hand: 5,
+      bc_calculated_price: {
+        tax_exclusive: 45,
+        tax_inclusive: 50,
+        as_entered: 45,
+        entered_inclusive: false,
+      },
+    });
+
+    const sizeOption = buildSearchB2BProductV3OptionWith({
+      id: optionId,
+      product_id: productId,
+      type: 'rectangles',
+      display_name: 'Size',
+      option_values: [
+        buildSearchB2BProductV3OptionValueWith({
+          id: 101,
+          label: 'S',
+          is_default: false,
+        }),
+        buildSearchB2BProductV3OptionValueWith({
+          id: sizeM,
+          label: 'M',
+          is_default: true,
+        }),
+      ],
+    });
+
+    const searchProduct = buildSearchB2BProductWith({
+      id: productId,
+      name: 'Fog Towel',
+      sku: 'TOWEL-BASE',
+      inventoryTracking: 'variant',
+      optionsV3: [sizeOption],
+      isPriceHidden: false,
+      orderQuantityMinimum: 0,
+      orderQuantityMaximum: 0,
+      variants: [variantS, variantM],
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [listProductEdge] },
+          status: 0,
+          grandTotal: '10.00',
+          totalTax: '0',
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        if (/productIds: \[\d/.test(query)) {
+          return HttpResponse.json(
+            buildSearchProductsResponseWith({ data: { productsSearch: [] } }),
+          );
+        }
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [searchProduct] } }),
+        );
+      }),
+      graphql.query('priceProducts', () =>
+        HttpResponse.json({
+          data: {
+            priceProducts: [
+              buildProductPriceWith({
+                productId,
+                variantId,
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+  };
+
+  const openChooseOptionsDialog = async () => {
+    await screen.findByRole('heading', { name: /add to list/i });
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, searchTerm);
+    await userEvent.click(screen.getByRole('button', { name: /Search product/i }));
+
+    const listDialog = await screen.findByRole('dialog', { name: 'Add to list' });
+    await userEvent.click(within(listDialog).getByRole('button', { name: 'Choose options' }));
+
+    return screen.findByRole('dialog', { name: 'Choose options' });
+  };
+
+  it('shows backorder prompts when a variant is selected', async () => {
+    setupChooseOptionsModal();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const chooseOptionsDialog = await openChooseOptionsDialog();
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText(variantSku)).toBeInTheDocument();
+    });
+
+    await userEvent.type(quantityInput, '4', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+    await userEvent.type(quantityInput, '15', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).getByText('8 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).queryByText('10 available')).not.toBeInTheDocument();
+    expect(quantityInput.closest('.MuiTextField-root')).not.toHaveClass('Mui-error');
+
+    await userEvent.type(quantityInput, '2', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).queryByText('2 ready to ship')).not.toBeInTheDocument();
+    });
+    expect(
+      within(chooseOptionsDialog).queryByText('2 will be backordered'),
+    ).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('10 available')).not.toBeInTheDocument();
+  });
+
+  it('hides backorder lines when messaging is disabled', async () => {
+    setupChooseOptionsModal();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const chooseOptionsDialog = await openChooseOptionsDialog();
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText(variantSku)).toBeInTheDocument();
+    });
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('Fog Towel')).toBeVisible();
+    });
+    expect(
+      within(chooseOptionsDialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+  });
+});
