@@ -439,6 +439,7 @@ export const createQuote = (data: CustomFieldItems) => {
     message: data.message,
     legalTerms: data.legalTerms,
     totalAmount: data.totalAmount,
+    totalIsTbd: data.totalIsTbd,
     grandTotal: data.grandTotal,
     subtotal: data.subtotal || '',
     taxTotal: data.taxTotal || '',

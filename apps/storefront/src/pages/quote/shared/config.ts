@@ -7,7 +7,7 @@ interface Summary {
   shipping: number;
   tax: number;
   grandTotal: number;
-  totalIsTBD: boolean;
+  totalIsTbd: boolean;
 }
 
 const defaultSummary: Summary = {
@@ -15,7 +15,7 @@ const defaultSummary: Summary = {
   shipping: 0,
   tax: 0,
   grandTotal: 0,
-  totalIsTBD: false,
+  totalIsTbd: false,
 };
 
 const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
@@ -57,13 +57,13 @@ export const addPrice = () => {
 
       // The actual display format of the price is not important here; we want to know whether a the
       // price _should_ be displayed.
-      let totalIsTBD = summary.totalIsTBD;
+      let totalIsTbd = summary.totalIsTbd;
       if (getDisplayPrice({
         price: String(basePrice),
         productInfo: product,
         showText: "DO NOT DISPLAY",
       }) === "DO NOT DISPLAY") {
-        totalIsTBD = true;
+        totalIsTbd = true;
       }
 
       return {
@@ -71,7 +71,7 @@ export const addPrice = () => {
         shipping,
         tax,
         subtotal,
-        totalIsTBD,
+        totalIsTbd,
       };
     },
     {
