@@ -5,7 +5,6 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -19,7 +18,7 @@ import B3Dialog from '@/components/B3Dialog';
 import BackorderMessage from '@/components/BackorderMessage';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useCatalogChooseOptionsBackorderDisplay } from '@/hooks/useCatalogChooseOptionsBackorderDisplay';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -30,10 +29,6 @@ import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Produ
 import { getOptionRequestData, getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import { Base64 } from '@/utils/base64';
-import {
-  getCatalogInventoryRowFromSearchProduct,
-  getCatalogProductRowDisplayState,
-} from '@/utils/catalogBackorderDisplay';
 
 const Flex = styled('div')({
   display: 'flex',
@@ -124,34 +119,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const isShowPrice = !product?.isPriceHidden;
 
-  const isShowPrice = Boolean(product?.isPriceHidden);
-
-  const formatOnlyAvailable = useCallback(
-    (count: number) =>
-      b3Lang('purchasedProducts.quickAdd.inlineErrors.insufficientStockSku', { count }),
-    [b3Lang],
-  );
-
-  const inventoryRow = useMemo(
-    () => (product ? getCatalogInventoryRowFromSearchProduct(product, variantInfo) : undefined),
-    [product, variantInfo],
-  );
-
-  const { qtyHelperText, backorderFields } = useMemo(
-    () =>
-      getCatalogProductRowDisplayState({
-        qty: Number(quantity) || 0,
-        showAvailableToSellHelper: backorderUiEnabled,
-        inventoryRow,
-        backorderUiEnabled,
-        formatOnlyAvailable,
-      }),
-    [quantity, inventoryRow, backorderUiEnabled, formatOnlyAvailable],
-  );
+  const { qtyHelperText, backorderFields } = useCatalogChooseOptionsBackorderDisplay({
+    product,
+    variantInfo,
+    quantity,
+  });
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
