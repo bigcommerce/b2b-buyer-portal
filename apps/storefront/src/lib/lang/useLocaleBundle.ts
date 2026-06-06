@@ -4,9 +4,13 @@ import { en, localeLoaders } from './locales';
 
 type LocaleMessages = Record<string, string>;
 
-const cache = new Map<string, LocaleMessages | undefined>();
+const cache = new Map<string, LocaleMessages>();
+const failed = new Set<string>();
 
-export const clearLocaleBundleCache = () => cache.clear();
+export const clearLocaleBundleCache = () => {
+  cache.clear();
+  failed.clear();
+};
 
 const candidatesFor = (code: string): string[] => {
   const dashIdx = code.indexOf('-');
@@ -24,7 +28,9 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
 
   useEffect(() => {
     if (code === 'en') return undefined;
-    const missing = candidatesFor(code).filter((c) => c !== 'en' && !cache.has(c));
+    const missing = candidatesFor(code).filter(
+      (c) => c !== 'en' && localeLoaders[c] && !cache.has(c) && !failed.has(c),
+    );
     if (missing.length === 0) return undefined;
 
     let cancelled = false;
@@ -32,9 +38,9 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
       missing.map(async (c) => {
         const loader = localeLoaders[c];
         try {
-          cache.set(c, loader ? await loader() : undefined);
+          cache.set(c, await loader());
         } catch {
-          cache.set(c, undefined);
+          failed.add(c);
         }
       }),
     )
@@ -49,7 +55,11 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
     };
   }, [code]);
 
-  const ready = code === 'en' || candidatesFor(code).every((c) => c === 'en' || cache.has(c));
+  const ready =
+    code === 'en' ||
+    candidatesFor(code).every(
+      (c) => c === 'en' || !localeLoaders[c] || cache.has(c) || failed.has(c),
+    );
 
   const bundles: Record<string, LocaleMessages | undefined> = { en };
   cache.forEach((value, key) => {
