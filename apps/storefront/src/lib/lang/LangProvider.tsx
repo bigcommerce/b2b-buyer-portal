@@ -26,13 +26,12 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   // the locale bundle is loading. Until the bundle resolves we fall back to
   // English; once it lands react-intl swaps the messages in place.
   const localeMessages = isMultiLang && ready ? pickLocaleBundle(code, bundles) : {};
-  const activeLocaleCode = ready ? code : 'en';
   let messages = { ...en, ...localeMessages, ...customText, ...translations };
   if (isMultiLang && activeLocale?.isDefault === false && hasLocaleBundle(activeLocale.code)) {
     messages = { ...en, ...localeMessages, ...customText };
   }
   return (
-    <IntlProvider defaultLocale="en" locale={activeLocaleCode} messages={messages}>
+    <IntlProvider defaultLocale="en" locale={ready ? code : 'en'} messages={messages}>
       {children}
     </IntlProvider>
   );
