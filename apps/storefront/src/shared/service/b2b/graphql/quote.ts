@@ -42,6 +42,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `
           totalAmount,
           taxTotal,
           uuid,
+          totalIsTbd,
         }
       }
     }
@@ -413,6 +414,7 @@ export interface QuoteEdge {
     totalAmount: string;
     taxTotal: string;
     uuid?: string;
+    totalIsTbd?: boolean;
   };
 }
 
