@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
 import B3GlobalTip from '@/components/B3GlobalTip';
@@ -31,6 +31,7 @@ import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
 import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
 import { logoutSession } from './utils/logoutSession';
+import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
 import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
@@ -61,6 +62,7 @@ export default function App() {
   const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+  const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
@@ -289,6 +291,18 @@ export default function App() {
     // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Remove the pre-mount login mask only once initialization has finished. The
+  // mask sits just below the iframe, so keeping it until init completes is
+  // invisible to the user once the iframe paints, but it crucially still covers
+  // the native login.php form while the (transparent) in-iframe login page is
+  // loading — removing it earlier (on isOpen) caused the native form to flicker
+  // through. See utils/preMountLoginMask.
+  useEffect(() => {
+    if (isPageComplete && isDefaultLoginStyling) {
+      removePreMountLoginMask();
+    }
+  }, [isPageComplete, isDefaultLoginStyling]);
 
   useEffect(() => {
     const init = async () => {

@@ -1,4 +1,10 @@
+import { injectPreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } from './load-functions';
+
+// Paint the pre-mount mask as early as possible (before React mounts) so the
+// merchant never sees BC's native login.php form before the buyer-portal iframe
+// takes over. See utils/preMountLoginMask for the masking/removal contract.
+injectPreMountLoginMask();
 
 export enum Environment {
   Production = 'production',
@@ -36,8 +42,11 @@ window.b2b = {
 };
 
 (async function bootstrap() {
-  // check if the accessed url contains a hashtag
-  if (window.location.hash.startsWith('#/')) {
+  // check if the accessed url contains a hashtag, or if the buyer portal is
+  // taking over the login page (eager init avoids the idle-callback delay while
+  // the masked BC native form is visible). The login-page branch is gated on the
+  // default-login-styling feature flag via shouldUseDefaultLoginStyling().
+  if (window.location.hash.startsWith('#/') || shouldUseDefaultLoginStyling()) {
     initApp();
   } else {
     // load the app when the browser is free
