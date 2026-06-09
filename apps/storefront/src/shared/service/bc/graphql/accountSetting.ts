@@ -14,18 +14,23 @@ import { storefrontGQLRequest } from './client';
 export type AccountSettingExtraFieldValue =
   | {
       __typename: 'MultilineTextExtraFieldValue';
-      fieldEntityId: number;
+      fieldEntityId: number | null;
       name: string;
       multilineText: string;
     }
   | {
       __typename: 'MultipleChoiceExtraFieldValue';
-      fieldEntityId: number;
+      fieldEntityId: number | null;
       name: string;
       value: string;
     }
-  | { __typename: 'NumberExtraFieldValue'; fieldEntityId: number; name: string; number: number }
-  | { __typename: 'TextExtraFieldValue'; fieldEntityId: number; name: string; text: string };
+  | {
+      __typename: 'NumberExtraFieldValue';
+      fieldEntityId: number | null;
+      name: string;
+      number: number;
+    }
+  | { __typename: 'TextExtraFieldValue'; fieldEntityId: number | null; name: string; text: string };
 
 export type FormFieldValue =
   | {
