@@ -73,6 +73,7 @@ import {
   getQuoteValidationErrorMessage,
   QUOTE_VALIDATION_ERROR_CODES,
 } from '../quote/shared/getQuoteValidationErrorMessage';
+import getQuoteDraftShowPriceTBD from '../quote/shared/utils';
 import Container from '../quote/style';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
@@ -693,6 +694,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       });
 
       const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
+      const totalIsTbd = getQuoteDraftShowPriceTBD(draftQuoteList);
 
       const data = {
         message: newNote,
@@ -715,6 +717,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         fileList,
         taxTotal: allTaxPrice.toFixed(decimalPlaces),
         currency: displayCurrency,
+        totalIsTbd,
         referenceNumber: `${info.referenceNumber}` || '',
         extraFields: info.extraFields || [],
         recipients: info.recipients || [],

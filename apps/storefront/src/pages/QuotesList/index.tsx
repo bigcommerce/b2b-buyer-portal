@@ -194,7 +194,10 @@ const useColumnList = (
 
   const getTotalAmount = useMemo(
     () => (item: ListItem) => {
-      const { totalAmount, currency } = item;
+      const { totalAmount, currency, totalIsTbd } = item;
+      if (totalIsTbd) {
+        return b3Lang('quoteDraft.quoteSummary.tbd');
+      }
       const currencyCode = currency?.currencyCode;
       const effectiveCurrency =
         (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
@@ -360,6 +363,7 @@ function QuotesList() {
             totalAmount: summaryPrice?.grandTotal,
             status: 0,
             taxTotal: summaryPrice?.tax,
+            totalIsTbd: summaryPrice?.totalIsTbd,
           },
         };
 

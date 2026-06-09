@@ -1,5 +1,5 @@
 import { store } from '@/store';
-import { getBCPrice } from '@/utils/b3Product/b3Product';
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 
 interface Summary {
@@ -7,6 +7,7 @@ interface Summary {
   shipping: number;
   tax: number;
   grandTotal: number;
+  totalIsTbd: boolean;
 }
 
 const defaultSummary: Summary = {
@@ -14,6 +15,7 @@ const defaultSummary: Summary = {
   shipping: 0,
   tax: 0,
   grandTotal: 0,
+  totalIsTbd: false,
 };
 
 const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
@@ -53,11 +55,23 @@ export const addPrice = () => {
 
       grandTotal = showInclusiveTaxPrice ? subtotal + shipping : subtotal + shipping + tax;
 
+      // The actual display format of the price is not important here; we want to know whether a the
+      // price _should_ be displayed.
+      let totalIsTbd = summary.totalIsTbd;
+      if (getDisplayPrice({
+        price: String(basePrice),
+        productInfo: product,
+        showText: "DO NOT DISPLAY",
+      }) === "DO NOT DISPLAY") {
+        totalIsTbd = true;
+      }
+
       return {
         grandTotal,
         shipping,
         tax,
         subtotal,
+        totalIsTbd,
       };
     },
     {
