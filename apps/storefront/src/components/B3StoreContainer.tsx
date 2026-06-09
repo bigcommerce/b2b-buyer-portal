@@ -1,4 +1,4 @@
-import { ReactNode, useContext, useLayoutEffect, useState } from 'react';
+import { ReactNode, useContext, useLayoutEffect, useRef } from 'react';
 
 import { Z_INDEX } from '@/constants';
 import { GlobalContext } from '@/shared/global';
@@ -36,7 +36,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
   } = useContext(GlobalContext);
   const storeDispatch = useAppDispatch();
 
-  const [isDefaultLoginStyling] = useState(shouldUseDefaultLoginStyling);
+  const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
 
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {

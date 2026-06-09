@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
 import B3GlobalTip from '@/components/B3GlobalTip';
@@ -62,7 +62,7 @@ export default function App() {
   const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
-  const [isDefaultLoginStyling] = useState(shouldUseDefaultLoginStyling);
+  const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
