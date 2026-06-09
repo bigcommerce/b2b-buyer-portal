@@ -47,6 +47,10 @@ export const featureFlags = [
     key: 'PROJECT-7920.use_bc_login_and_authorisation',
     name: 'useBcLoginAndAuthorisation',
   },
+  {
+    key: 'B2B-4870.default_buyer_portal_styling_on_login_page',
+    name: 'defaultBuyerPortalStylingOnLoginPage',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

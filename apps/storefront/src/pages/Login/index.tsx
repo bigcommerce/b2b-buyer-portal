@@ -20,6 +20,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { platform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { isDefaultLoginStylingActive } from '@/utils/preMountLoginMask';
 
 import { type PageProps } from '../PageProps';
 
@@ -70,6 +71,23 @@ function Login(props: PageProps) {
   const {
     state: { isCheckout, registerEnabled, isLogoLoaded },
   } = useContext(GlobalContext);
+
+  // Read the feature signal synchronously (not from Redux), since the Redux flag
+  // is still false on the first render — before getStoreConfigs resolves — which
+  // would let the form render with hardcoded defaults and then flicker as the
+  // real config swaps in. isDefaultLoginStylingActive() mirrors the pre-mount
+  // mask's optimistic gate, so the in-iframe content and the mask stay in step.
+  const [isDefaultLoginStyling] = useState(isDefaultLoginStylingActive);
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+
+  // When the default-login-styling feature is on, hold the form back until the
+  // merchant login config has loaded (isLogoLoaded) to avoid a flicker as the
+  // hardcoded context defaults are swapped for the real config. We also reveal
+  // the form once app init has finished (isPageComplete) so that a failed
+  // getStoreConfigs — which leaves isLogoLoaded false — doesn't strand the user
+  // on an endless spinner with no sign-in form. When the feature is off we keep
+  // the previous behaviour of rendering the form immediately.
+  const isLoginConfigReady = !isDefaultLoginStyling || isLogoLoaded || isPageComplete;
 
   const {
     state: {
@@ -187,7 +205,11 @@ function Login(props: PageProps) {
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
-        <B3Spin isSpinning={isLoading} tip={b3Lang('global.tips.loading')} background="transparent">
+        <B3Spin
+          isSpinning={isLoading || !isLoginConfigReady}
+          tip={b3Lang('global.tips.loading')}
+          background="transparent"
+        >
           <Box
             sx={{
               display: 'flex',
@@ -198,84 +220,97 @@ function Login(props: PageProps) {
               minWidth: '343px',
             }}
           >
-            <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
-            {quoteDetailToCheckoutUrl && (
-              <Alert severity="error" variant="filled">
-                {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
-              </Alert>
-            )}
-            <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-              {isLogoLoaded && loginInfo.logo && (
-                <LoginImage
-                  maxWidth={isMobile ? '70%' : '250px'}
-                  src={loginInfo.logo}
-                  alt={b3Lang('login.registerLogo')}
-                  onClick={() => {
-                    window.location.href = '/';
-                  }}
-                />
-              )}
-            </Box>
-            {loginInfo.widgetHeadText && (
-              <LoginWidget
-                sx={{
-                  minHeight: '48px',
-                  width: registerEnabled || isMobile ? '100%' : '50%',
-                }}
-                html={loginInfo.widgetHeadText}
-              />
-            )}
-            <Box
-              sx={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '4px',
-                margin: '20px 0',
-                display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'center',
-                width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
-              }}
-            >
-              <Box
-                sx={{
-                  width: isMobile ? 'auto' : loginContainerWidth,
-                  paddingRight: isMobile ? 0 : '2%',
-                  ml: '16px',
-                  mr: isMobile ? '16px' : undefined,
-                  pb: registerEnabled ? undefined : '36px',
-                }}
-              >
-                <LoginForm
-                  loginBtn={loginInfo.loginBtn}
-                  handleLoginSubmit={handleLoginSubmit}
-                  backgroundColor={backgroundColor}
-                  isLoading={isLoading}
-                />
-              </Box>
-
-              {registerEnabled && (
+            {/*
+              Wait for the merchant login config (logo, button text, HTML regions, create
+              account panel) to load before rendering the form. The contexts hold hardcoded
+              defaults until getStoreConfigs() resolves, and rendering them first causes a
+              flicker as the real config swaps in. isLogoLoaded flips true in the same dispatch
+              that merges the CustomStyleContext config, so it gates the whole login config.
+              This gating only applies when the default-login-styling feature flag is on; see
+              isLoginConfigReady for the flag/fallback behaviour.
+            */}
+            {isLoginConfigReady && (
+              <>
+                <LoginTip showTipInfo={showTipInfo} flag={flag} loginAccount={loginAccount} />
+                {quoteDetailToCheckoutUrl && (
+                  <Alert severity="error" variant="filled">
+                    {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
+                  </Alert>
+                )}
+                <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+                  {isLogoLoaded && loginInfo.logo && (
+                    <LoginImage
+                      maxWidth={isMobile ? '70%' : '250px'}
+                      src={loginInfo.logo}
+                      alt={b3Lang('login.registerLogo')}
+                      onClick={() => {
+                        window.location.href = '/';
+                      }}
+                    />
+                  )}
+                </Box>
+                {loginInfo.widgetHeadText && (
+                  <LoginWidget
+                    sx={{
+                      minHeight: '48px',
+                      width: registerEnabled || isMobile ? '100%' : '50%',
+                    }}
+                    html={loginInfo.widgetHeadText}
+                  />
+                )}
                 <Box
                   sx={{
-                    flex: '1',
-                    paddingLeft: isMobile ? 0 : '2%',
-                    mb: '20px',
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '4px',
+                    margin: '20px 0',
+                    display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'center',
+                    width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
                   }}
                 >
-                  <LoginPanel
-                    createAccountButtonText={loginInfo.createAccountButtonText}
-                    widgetBodyText={loginInfo.widgetBodyText}
-                  />
+                  <Box
+                    sx={{
+                      width: isMobile ? 'auto' : loginContainerWidth,
+                      paddingRight: isMobile ? 0 : '2%',
+                      ml: '16px',
+                      mr: isMobile ? '16px' : undefined,
+                      pb: registerEnabled ? undefined : '36px',
+                    }}
+                  >
+                    <LoginForm
+                      loginBtn={loginInfo.loginBtn}
+                      handleLoginSubmit={handleLoginSubmit}
+                      backgroundColor={backgroundColor}
+                      isLoading={isLoading}
+                    />
+                  </Box>
+
+                  {registerEnabled && (
+                    <Box
+                      sx={{
+                        flex: '1',
+                        paddingLeft: isMobile ? 0 : '2%',
+                        mb: '20px',
+                      }}
+                    >
+                      <LoginPanel
+                        createAccountButtonText={loginInfo.createAccountButtonText}
+                        widgetBodyText={loginInfo.widgetBodyText}
+                      />
+                    </Box>
+                  )}
                 </Box>
-              )}
-            </Box>
-            {loginInfo.widgetFooterText && (
-              <LoginWidget
-                sx={{
-                  minHeight: '48px',
-                  width: registerEnabled || isMobile ? '100%' : '50%',
-                }}
-                html={loginInfo.widgetFooterText}
-              />
+                {loginInfo.widgetFooterText && (
+                  <LoginWidget
+                    sx={{
+                      minHeight: '48px',
+                      width: registerEnabled || isMobile ? '100%' : '50%',
+                    }}
+                    html={loginInfo.widgetFooterText}
+                  />
+                )}
+              </>
             )}
           </Box>
         </B3Spin>

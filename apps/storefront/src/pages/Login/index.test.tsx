@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   buildCompanyStateWith,
+  buildGlobalStateWith,
   graphql,
   HttpResponse,
   renderWithProviders,
@@ -12,6 +13,7 @@ import {
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
 import LoginPage from './index';
 import LoginForm from './LoginForm';
@@ -24,6 +26,18 @@ vi.mock('./useLogout', () => ({
 vi.mock('@/utils/loginInfo');
 
 const { server } = startMockServer();
+
+// When the default-login-styling feature flag is on, the login page gates its
+// content on `isLogoLoaded` (set true once the merchant login config resolves
+// during app init). That flow doesn't run in these unit tests, so default it to
+// true — otherwise, if a test enables the flag, the page would stay stuck on the
+// loading spinner and never render the form. Tests that specifically care about
+// the logo/loaded state can override `initialGlobalContext`.
+const renderLoginPage = (options: Parameters<typeof renderWithProviders>[1] = {}) =>
+  renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+    ...options,
+    initialGlobalContext: { isLogoLoaded: true, ...options.initialGlobalContext },
+  });
 
 describe('LoginPage', () => {
   beforeEach(() => {
@@ -56,7 +70,7 @@ describe('LoginPage', () => {
         companyRoleName: 'Junior Buyer',
       });
 
-      const { navigation } = renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
+      const { navigation } = renderLoginPage();
 
       await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
       await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
@@ -96,7 +110,7 @@ describe('LoginPage', () => {
         companyRoleName: 'SuperAdmin',
       });
 
-      const { navigation } = renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
+      const { navigation } = renderLoginPage();
 
       await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
       await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
@@ -114,7 +128,7 @@ describe('LoginPage', () => {
 
   describe('failed login attempts show appropriate error messages', () => {
     const renderLoginAndSubmit = async () => {
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
+      renderLoginPage();
 
       await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
       await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
@@ -287,7 +301,7 @@ describe('LoginPage', () => {
 
   describe('loading state prevents duplicate submit', () => {
     it('passes isLoading to LoginForm so Sign In button can be disabled', async () => {
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />);
+      renderLoginPage();
 
       await waitFor(() => {
         expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -350,7 +364,7 @@ describe('LoginPage', () => {
         }),
       };
 
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+      renderLoginPage({
         preloadedState,
         initialEntries: ['/?loginFlag=loggedOutLogin'],
       });
@@ -386,7 +400,7 @@ describe('LoginPage', () => {
           }),
         };
 
-        renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        renderLoginPage({
           preloadedState,
           initialEntries: [`/?loginFlag=${loginFlag}`],
         });
@@ -414,7 +428,7 @@ describe('LoginPage', () => {
         }),
       };
 
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+      renderLoginPage({
         preloadedState,
         initialEntries: ['/?loginFlag=accountIncorrect'],
       });
@@ -432,7 +446,7 @@ describe('LoginPage', () => {
     it('renders the merchant logo when isLogoLoaded is true and logo is set', async () => {
       const merchantLogoUrl = 'https://cdn.example.com/b2bLogo.png';
 
-      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+      renderLoginPage({
         initialGlobalContext: {
           isLogoLoaded: true,
           logo: merchantLogoUrl,
@@ -442,6 +456,80 @@ describe('LoginPage', () => {
       const logoImage = await screen.findByAltText('register Logo');
       expect(logoImage).toBeVisible();
       expect(logoImage).toHaveAttribute('src', merchantLogoUrl);
+    });
+  });
+
+  describe('login config gating', () => {
+    // The gate reads the cached feature value synchronously (see
+    // isDefaultLoginStylingActive); the cache is optimistic, so an uncached value
+    // is treated as active. We control it via localStorage rather than the Redux
+    // flag, which is still false on first render before getStoreConfigs resolves.
+    const buildGlobalStateWithPageComplete = (isPageComplete: boolean) =>
+      buildGlobalStateWith({ isPageComplete });
+
+    afterEach(() => {
+      localStorage.clear();
+    });
+
+    it('shows the loading spinner and hides the form until the login config has loaded', async () => {
+      setDefaultLoginStylingEnabled(true);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
+      });
+
+      // Spinner stays up and the form is not rendered while the config is loading.
+      await waitFor(() => {
+        expect(screen.getByText('Loading...')).toBeInTheDocument();
+      });
+      expect(screen.queryByRole('button', { name: 'SIGN IN' })).not.toBeInTheDocument();
+    });
+
+    it('renders the login form once the login config has loaded', async () => {
+      setDefaultLoginStylingEnabled(true);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: true },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'SIGN IN' })).toBeInTheDocument();
+    });
+
+    it('renders the login form when app init completes even if the config failed to load', async () => {
+      // getStoreConfigs failing leaves isLogoLoaded false, but app init still
+      // flips isPageComplete true — the form must render rather than leaving the
+      // user on an endless spinner with no sign-in form.
+      setDefaultLoginStylingEnabled(true);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(true) },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'SIGN IN' })).toBeInTheDocument();
+    });
+
+    it('renders the login form immediately when the feature is cached off', async () => {
+      // With the feature explicitly off, the form is not gated on isLogoLoaded.
+      setDefaultLoginStylingEnabled(false);
+
+      renderWithProviders(<LoginPage setOpenPage={vi.fn()} />, {
+        initialGlobalContext: { isLogoLoaded: false },
+        preloadedState: { global: buildGlobalStateWithPageComplete(false) },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'SIGN IN' })).toBeInTheDocument();
     });
   });
 });
