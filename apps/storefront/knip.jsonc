@@ -33,6 +33,7 @@
   "ignore": [
     "src/types/gql/graphql.ts",
     "src/shared/service/bc/graphql/base.ts",
-    "src/shared/service/bc/graphql/orders.ts"
+    "src/shared/service/bc/graphql/orders.ts",
+    "src/shared/service/bc/graphql/accountSetting.ts"
   ]
 }
