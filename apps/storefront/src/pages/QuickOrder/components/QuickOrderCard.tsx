@@ -2,19 +2,24 @@ import { ReactElement } from 'react';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
-import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { CatalogQuickVariantSku, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
-import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
+import {
+  getCatalogProductRowDisplayState,
+  getPicklistSelectionsForRow,
+} from '@/utils/catalogBackorderDisplay';
 
 interface QuickOrderCardProps {
   item: any;
   checkBox?: () => ReactElement;
   handleUpdateProductQty: (id: number, val: string) => void;
   inventoryBySku?: Record<string, CatalogQuickVariantSku>;
+  picklistProductsById?: Record<number, ProductSearch>;
   backorderUiEnabled?: boolean;
   showBackorderDetails?: boolean;
 }
@@ -31,6 +36,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
     checkBox,
     handleUpdateProductQty,
     inventoryBySku = {},
+    picklistProductsById = {},
     backorderUiEnabled = false,
     showBackorderDetails = false,
   } = props;
@@ -60,6 +66,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
     backorderUiEnabled,
     formatOnlyAvailable: () => '',
   });
+  const picklistSelections = getPicklistSelectionsForRow(shoppingDetail);
 
   return (
     <Box
@@ -164,6 +171,13 @@ function QuickOrderCard(props: QuickOrderCardProps) {
                 />
               </Box>
             )}
+            <PicklistBackorderMessages
+              selections={picklistSelections}
+              picklistProductsById={picklistProductsById}
+              qty={Number(quantity) || 0}
+              visible={showBackorderDetails}
+              backorderUiEnabled={backorderUiEnabled}
+            />
           </Box>
 
           <Typography sx={{ fontSize: '14px' }}>

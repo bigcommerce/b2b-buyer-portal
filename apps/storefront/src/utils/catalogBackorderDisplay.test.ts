@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { CatalogQuickVariantSku, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import type { Variant } from '@/types/products';
 import type { ShoppingListProductItem } from '@/types/shoppingList';
 
 import {
   buildVariantSkuDependencyKey,
   catalogListHasBackorderedItemsForDisplay,
+  catalogListHasPicklistBackorderedItemsForDisplay,
   getCatalogBackorderDisplayFields,
   getCatalogBackorderDisplayQuantity,
   getCatalogBackorderFieldsForVariantSku,
   getCatalogInventoryRowFromSearchProduct,
   getCatalogProductRowDisplayState,
+  getPicklistSelectionsForRow,
   quantityExceedsAvailableToSell,
 } from './catalogBackorderDisplay';
 
@@ -374,6 +376,154 @@ describe('catalogBackorderDisplay', () => {
         catalogListHasBackorderedItemsForDisplay(
           [{ qty: 10, variantSku: 'UNKNOWN' }],
           inventoryBySku,
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe('getPicklistSelectionsForRow', () => {
+    const buildRow = (type: string) => ({
+      optionSelections: [{ option_id: 100, value_id: 200 }],
+      productsSearch: {
+        modifiers: [
+          {
+            id: 100,
+            type,
+            display_name: 'Bundle option 1',
+            option_values: [{ id: 200, value_data: { product_id: 555 } }],
+          },
+        ],
+      },
+    });
+
+    it('resolves a product_list selection to its product id', () => {
+      expect(getPicklistSelectionsForRow(buildRow('product_list'))).toEqual([
+        { modifierId: 100, displayName: 'Bundle option 1', productId: 555 },
+      ]);
+    });
+
+    it('resolves a product_list_with_images selection to its product id', () => {
+      expect(getPicklistSelectionsForRow(buildRow('product_list_with_images'))).toEqual([
+        { modifierId: 100, displayName: 'Bundle option 1', productId: 555 },
+      ]);
+    });
+
+    it('returns an empty array when there are no picklist modifiers', () => {
+      expect(getPicklistSelectionsForRow(buildRow('dropdown'))).toEqual([]);
+    });
+
+    it('returns an empty array when optionSelections is missing', () => {
+      expect(
+        getPicklistSelectionsForRow({
+          productsSearch: buildRow('product_list').productsSearch,
+        }),
+      ).toEqual([]);
+    });
+
+    it('skips a selected option value that has no product id', () => {
+      expect(
+        getPicklistSelectionsForRow({
+          optionSelections: [{ option_id: 100, value_id: 200 }],
+          productsSearch: {
+            modifiers: [
+              {
+                id: 100,
+                type: 'product_list',
+                display_name: 'Bundle option 1',
+                option_values: [{ id: 200, value_data: {} }],
+              },
+            ],
+          },
+        }),
+      ).toEqual([]);
+    });
+
+    it('resolves multiple picklist modifiers into multiple selections', () => {
+      expect(
+        getPicklistSelectionsForRow({
+          optionSelections: [
+            { option_id: 100, value_id: 200 },
+            { option_id: 101, value_id: 201 },
+          ],
+          productsSearch: {
+            modifiers: [
+              {
+                id: 100,
+                type: 'product_list',
+                display_name: 'Bundle option 1',
+                option_values: [{ id: 200, value_data: { product_id: 555 } }],
+              },
+              {
+                id: 101,
+                type: 'product_list_with_images',
+                display_name: 'Bundle option 2',
+                option_values: [{ id: 201, value_data: { product_id: 666 } }],
+              },
+            ],
+          },
+        }),
+      ).toEqual([
+        { modifierId: 100, displayName: 'Bundle option 1', productId: 555 },
+        { modifierId: 101, displayName: 'Bundle option 2', productId: 666 },
+      ]);
+    });
+  });
+
+  describe('catalogListHasPicklistBackorderedItemsForDisplay', () => {
+    const productTrackedPicklist = {
+      id: 555,
+      inventoryTracking: 'product',
+      availableToSell: 10,
+      unlimitedBackorder: false,
+      totalOnHand: 9,
+      backorderMessage: 'Lead time: 2-4 weeks',
+    } as ProductSearch;
+
+    const variantTrackedPicklist = {
+      id: 666,
+      inventoryTracking: 'variant',
+      variants: [
+        {
+          available_to_sell: 10,
+          unlimited_backorder: false,
+          total_on_hand: 9,
+          backorder_message: 'Lead time: 2-4 weeks',
+        },
+      ],
+    } as unknown as ProductSearch;
+
+    const selection = { modifierId: 100, displayName: 'Bundle option 1', productId: 555 };
+
+    it('returns true when a product-tracked picklist item is backordered', () => {
+      expect(
+        catalogListHasPicklistBackorderedItemsForDisplay([{ qty: 10, selections: [selection] }], {
+          555: productTrackedPicklist,
+        }),
+      ).toBe(true);
+    });
+
+    it('returns true when a variant-tracked picklist item is backordered', () => {
+      expect(
+        catalogListHasPicklistBackorderedItemsForDisplay(
+          [{ qty: 10, selections: [{ ...selection, productId: 666 }] }],
+          { 666: variantTrackedPicklist },
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false when qty is within on hand', () => {
+      expect(
+        catalogListHasPicklistBackorderedItemsForDisplay([{ qty: 9, selections: [selection] }], {
+          555: productTrackedPicklist,
+        }),
+      ).toBe(false);
+    });
+
+    it('returns false when the picklist product is missing from the map', () => {
+      expect(
+        catalogListHasPicklistBackorderedItemsForDisplay(
+          [{ qty: 10, selections: [selection] }],
+          {},
         ),
       ).toBe(false);
     });
