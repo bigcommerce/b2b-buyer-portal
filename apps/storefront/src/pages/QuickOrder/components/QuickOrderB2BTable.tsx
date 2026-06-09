@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from
 import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
@@ -14,6 +15,7 @@ import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
   getVariantInfoBySkus,
+  type ProductSearch,
 } from '@/shared/service/b2b/graphql/product';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
@@ -27,7 +29,9 @@ import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import {
   catalogListHasBackorderedItemsForDisplay,
+  catalogListHasPicklistBackorderedItemsForDisplay,
   getCatalogProductRowDisplayState,
+  getProductDetailsForPicklistSelections,
 } from '@/utils/catalogBackorderDisplay';
 
 import B3FilterMore from '../../../components/filter/B3FilterMore';
@@ -143,6 +147,9 @@ function QuickOrderTable({
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
+  const [picklistProductsById, setPicklistProductsById] = useState<Record<number, ProductSearch>>(
+    {},
+  );
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
@@ -202,14 +209,57 @@ function QuickOrderTable({
       variantSku: node.variantSku,
     }));
 
-    return catalogListHasBackorderedItemsForDisplay(items, inventoryBySku);
+    if (catalogListHasBackorderedItemsForDisplay(items, inventoryBySku)) {
+      return true;
+    }
+
+    const picklistRows = cacheList.map(({ node }) => ({
+      qty: Number(node.quantity) || 0,
+      selections: getProductDetailsForPicklistSelections(node),
+    }));
+
+    return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
     // tableDataVersion drives re-evaluation when list or qty changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inventoryBySku, isBackorderMessagingEnabled, tableDataVersion]);
+  }, [inventoryBySku, picklistProductsById, isBackorderMessagingEnabled, tableDataVersion]);
 
   const showBackorderToggle = backorderUiEnabled && hasBackorderedItems;
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
+
+  const fetchPicklistProducts = useCallback(
+    async (productIds: number[]) => {
+      if (!backorderUiEnabled || productIds.length === 0) {
+        return;
+      }
+
+      const newProductIds = [...new Set(productIds)].filter((id) => !picklistProductsById[id]);
+
+      if (newProductIds.length === 0) {
+        return;
+      }
+
+      try {
+        const { productsSearch = [] } = await searchProducts({
+          productIds: newProductIds,
+          currencyCode,
+          companyId: companyInfoId,
+          customerGroupId,
+        });
+
+        setPicklistProductsById((prev) => {
+          const next = { ...prev };
+          productsSearch.forEach((product: ProductSearch) => {
+            next[Number(product.id)] = product;
+          });
+          return next;
+        });
+      } catch {
+        // Inventory fetch failure should not block the product list
+      }
+    },
+    [backorderUiEnabled, picklistProductsById, currencyCode, companyInfoId, customerGroupId],
+  );
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
@@ -268,6 +318,13 @@ function QuickOrderTable({
         .map((item) => item.node.variantSku)
         .filter((sku): sku is string => Boolean(sku));
       fetchInventoryForSkus(skus).catch(() => {
+        // Inventory fetch failure should not block the product list
+      });
+
+      const picklistProductIds = listProducts.flatMap((item) =>
+        getProductDetailsForPicklistSelections(item.node).map((selection) => selection.productId),
+      );
+      fetchPicklistProducts(picklistProductIds).catch(() => {
         // Inventory fetch failure should not block the product list
       });
     }
@@ -491,6 +548,7 @@ function QuickOrderTable({
           backorderUiEnabled,
           formatOnlyAvailable: () => '',
         });
+        const picklistSelections = getProductDetailsForPicklistSelections(row);
 
         return (
           <Box
@@ -521,6 +579,17 @@ function QuickOrderTable({
                   quantityBackordered={backorderFields.quantityBackordered}
                   backorderMessage={backorderFields.backorderMessage}
                   visible={showBackorderDetails}
+                />
+              </Box>
+            )}
+            {picklistSelections.length > 0 && (
+              <Box sx={{ width: '100%', textAlign: 'right' }}>
+                <PicklistBackorderMessages
+                  selections={picklistSelections}
+                  picklistProductsById={picklistProductsById}
+                  qty={Number(qty) || 0}
+                  visible={showBackorderDetails}
+                  backorderUiEnabled={backorderUiEnabled}
                 />
               </Box>
             )}
@@ -691,6 +760,7 @@ function QuickOrderTable({
               checkBox={checkBox}
               handleUpdateProductQty={handleUpdateProductQty}
               inventoryBySku={inventoryBySku}
+              picklistProductsById={picklistProductsById}
               backorderUiEnabled={backorderUiEnabled}
               showBackorderDetails={showBackorderDetails}
             />
