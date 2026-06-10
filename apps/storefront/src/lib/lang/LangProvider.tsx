@@ -5,7 +5,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAppSelector } from '@/store';
 
 import { getActiveLocale } from './getActiveLocale';
-import { en, hasLocaleBundle } from './locales';
+import { en, isSupportedLocale } from './locales';
 import { pickLocaleBundle } from './pickLocaleBundle';
 import { useLocaleBundle } from './useLocaleBundle';
 
@@ -27,7 +27,7 @@ function LangProvider({ children, customText = {} }: LangProviderProps) {
   // English; once it lands react-intl swaps the messages in place.
   const localeMessages = isMultiLang && ready ? pickLocaleBundle(code, bundles) : {};
   let messages = { ...en, ...localeMessages, ...customText, ...translations };
-  if (isMultiLang && activeLocale?.isDefault === false && hasLocaleBundle(activeLocale.code)) {
+  if (isMultiLang && activeLocale?.isDefault === false && isSupportedLocale(activeLocale.code)) {
     messages = { ...en, ...localeMessages, ...customText };
   }
   return (
