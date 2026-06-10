@@ -51,7 +51,7 @@ export function CatalystLogin() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       window.location.href = '/login';
-    }, 3000);
+    }, 7000);
 
     return () => {
       clearTimeout(timeout);
