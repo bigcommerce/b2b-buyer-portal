@@ -67,6 +67,7 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
       result[key] = value;
     });
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tick is a version counter signalling cache mutation; cache is a stable module-level ref
   }, [tick]);
 
   return { ready, bundles };
