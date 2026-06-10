@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { en, localeLoaders } from './locales';
+import { getFallbackLocale } from './pickLocaleBundle';
 
 type LocaleMessages = Record<string, string>;
 
@@ -13,9 +14,8 @@ export const clearLocaleBundleCache = () => {
 };
 
 const candidatesFor = (code: string): string[] => {
-  const dashIdx = code.indexOf('-');
-  const lang = dashIdx > 0 ? code.slice(0, dashIdx) : '';
-  return lang && lang !== code ? [code, lang] : [code];
+  const fallback = getFallbackLocale(code);
+  return fallback ? [code, fallback] : [code];
 };
 
 interface UseLocaleBundleResult {
@@ -24,7 +24,7 @@ interface UseLocaleBundleResult {
 }
 
 export function useLocaleBundle(code: string): UseLocaleBundleResult {
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (code === 'en') return undefined;
@@ -61,10 +61,13 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
       (c) => c === 'en' || !localeLoaders[c] || cache.has(c) || failed.has(c),
     );
 
-  const bundles: Record<string, LocaleMessages | undefined> = { en };
-  cache.forEach((value, key) => {
-    bundles[key] = value;
-  });
+  const bundles = useMemo(() => {
+    const result: Record<string, LocaleMessages | undefined> = { en };
+    cache.forEach((value, key) => {
+      result[key] = value;
+    });
+    return result;
+  }, [tick]);
 
   return { ready, bundles };
 }
