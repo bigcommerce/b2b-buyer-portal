@@ -1,6 +1,6 @@
-import en from './en.json';
-
 import { getFallbackLocale } from '../pickLocaleBundle';
+
+import en from './en.json';
 
 type LocaleMessages = Record<string, string>;
 
