@@ -1,5 +1,7 @@
 import en from './en.json';
 
+import { getFallbackLocale } from '../pickLocaleBundle';
+
 type LocaleMessages = Record<string, string>;
 
 // Filenames use underscores for BCP-47 region tags (fr_FR.json); runtime codes use dashes (fr-FR).
@@ -12,17 +14,9 @@ const localeLoaders: Record<string, () => Promise<LocaleMessages>> = {
 // match or via the base-language fallback (mirrors pickLocaleBundle's logic).
 // en is always covered by the statically imported bundle even though it has no localeLoader entry.
 function hasLocaleBundle(code: string): boolean {
-  if (code === 'en' || code in localeLoaders) {
-    return true;
-  }
-  const dashIdx = code.indexOf('-');
-  if (dashIdx > 0) {
-    const lang = code.slice(0, dashIdx);
-    if (lang === 'en' || lang in localeLoaders) {
-      return true;
-    }
-  }
-  return false;
+  if (code === 'en' || code in localeLoaders) return true;
+  const fallback = getFallbackLocale(code);
+  return fallback !== null && (fallback === 'en' || fallback in localeLoaders);
 }
 
 export { en, hasLocaleBundle, localeLoaders };
