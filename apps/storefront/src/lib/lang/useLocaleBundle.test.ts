@@ -24,19 +24,21 @@ describe('useLocaleBundle — loader failure recovery', () => {
     expect(result.current.bundles.fr).toBeUndefined();
   });
 
-  it('sets ready=true even when all loaders reject (Promise.all .catch path)', async () => {
+  it('sets ready=true when fallback loader exists but rejects', async () => {
+    vi.doMock('./pickLocaleBundle', () => ({
+      getFallbackLocale: () => 'es',
+    }));
     vi.doMock('./locales', () => ({
       en: { greeting: 'Hello' },
       localeLoaders: {
-        fr: () => Promise.reject(new Error('chunk load failure')),
         es: () => Promise.reject(new Error('chunk load failure')),
       },
     }));
 
     const { useLocaleBundle: hook } = await import('./useLocaleBundle');
-    const { result } = renderHook(() => hook('fr'));
+    const { result } = renderHook(() => hook('es-MX'));
 
     await waitFor(() => expect(result.current.ready).toBe(true));
-    expect(result.current.bundles.fr).toBeUndefined();
+    expect(result.current.bundles.es).toBeUndefined();
   });
 });
