@@ -13,10 +13,12 @@ const localeLoaders: Record<string, () => Promise<LocaleMessages>> = {
 // Returns true when a static bundle covers the given code — either an exact
 // match or via the base-language fallback (mirrors pickLocaleBundle's logic).
 // en is always covered by the statically imported bundle even though it has no localeLoader entry.
-function hasLocaleBundle(code: string): boolean {
-  if (code === 'en' || code in localeLoaders) return true;
+function isSupportedLocale(code: string): boolean {
+  if (code === 'en' || code in localeLoaders) {
+    return true;
+  }
   const fallback = getFallbackLocale(code);
   return fallback !== null && (fallback === 'en' || fallback in localeLoaders);
 }
 
-export { en, hasLocaleBundle, localeLoaders };
+export { en, isSupportedLocale, localeLoaders };
