@@ -13,9 +13,15 @@ export const clearLocaleBundleCache = () => {
   failed.clear();
 };
 
-const candidatesFor = (code: string): string[] => {
+const determineLocaleToLoad = (code: string): string | null => {
+  if (localeLoaders[code]) {
+    return code;
+  }
   const fallback = getFallbackLocale(code);
-  return fallback ? [code, fallback] : [code];
+  if (fallback && localeLoaders[fallback]) {
+    return fallback;
+  }
+  return null;
 };
 
 interface UseLocaleBundleResult {
@@ -28,28 +34,29 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
 
   useEffect(() => {
     if (code === 'en') return undefined;
-    const missing = candidatesFor(code).filter(
-      (c) => c !== 'en' && localeLoaders[c] && !cache.has(c) && !failed.has(c),
-    );
-    if (missing.length === 0) return undefined;
+
+    const toLoad = determineLocaleToLoad(code);
+    if (!toLoad || cache.has(toLoad) || failed.has(toLoad)) {
+      return undefined;
+    }
 
     let cancelled = false;
-    Promise.all(
-      missing.map(async (c) => {
-        const loader = localeLoaders[c];
-        try {
-          cache.set(c, await loader());
-        } catch {
-          failed.add(c);
+    const loader = localeLoaders[toLoad];
+
+    loader()
+      .then((messages) => {
+        if (!cancelled) {
+          cache.set(toLoad, messages);
+          setTick((t) => t + 1);
         }
-      }),
-    )
-      .then(() => {
-        if (!cancelled) setTick((t) => t + 1);
       })
       .catch(() => {
-        if (!cancelled) setTick((t) => t + 1);
+        if (!cancelled) {
+          failed.add(toLoad);
+          setTick((t) => t + 1);
+        }
       });
+
     return () => {
       cancelled = true;
     };
@@ -57,9 +64,10 @@ export function useLocaleBundle(code: string): UseLocaleBundleResult {
 
   const ready =
     code === 'en' ||
-    candidatesFor(code).every(
-      (c) => c === 'en' || !localeLoaders[c] || cache.has(c) || failed.has(c),
-    );
+    (() => {
+      const toLoad = determineLocaleToLoad(code);
+      return !toLoad || cache.has(toLoad) || failed.has(toLoad);
+    })();
 
   const bundles = useMemo(() => {
     const result: Record<string, LocaleMessages | undefined> = { en };
