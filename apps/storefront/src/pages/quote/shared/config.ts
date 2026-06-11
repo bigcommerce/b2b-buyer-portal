@@ -57,12 +57,14 @@ export const addPrice = () => {
 
       // The actual display format of the price is not important here; we want to know whether a the
       // price _should_ be displayed.
-      let totalIsTbd = summary.totalIsTbd;
-      if (getDisplayPrice({
-        price: String(basePrice),
-        productInfo: product,
-        showText: "DO NOT DISPLAY",
-      }) === "DO NOT DISPLAY") {
+      let { totalIsTbd } = summary;
+      if (
+        getDisplayPrice({
+          price: String(basePrice),
+          productInfo: product,
+          showText: 'DO NOT DISPLAY',
+        }) === 'DO NOT DISPLAY'
+      ) {
         totalIsTbd = true;
       }
 

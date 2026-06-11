@@ -189,13 +189,14 @@ function useData() {
 const useColumnList = (
   currenciesMap: Record<string, DisplayCurrency>,
   isCurrencySymbolPlacementFixEnabled: boolean,
+  isTbdPriceEnabled: boolean,
 ): Array<TableColumnItem<ListItem>> => {
   const b3Lang = useB3Lang();
 
   const getTotalAmount = useMemo(
     () => (item: ListItem) => {
       const { totalAmount, currency, totalIsTbd } = item;
-      if (totalIsTbd) {
+      if (isTbdPriceEnabled && totalIsTbd) {
         return b3Lang('quoteDraft.quoteSummary.tbd');
       }
       const currencyCode = currency?.currencyCode;
@@ -208,7 +209,7 @@ const useColumnList = (
         useCurrentCurrency: !!effectiveCurrency,
       });
     },
-    [isCurrencySymbolPlacementFixEnabled, currenciesMap],
+    [isCurrencySymbolPlacementFixEnabled, isTbdPriceEnabled, currenciesMap, b3Lang],
   );
 
   return useMemo(
@@ -282,7 +283,8 @@ function QuotesList() {
   const fixQuoteCurrencySymbolPlacement = useFeatureFlag(
     'B2B-3876.fix_quote_currency_symbol_placement',
   );
-  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement);
+  const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
+  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement, isTbdPriceEnabled);
 
   const initSearch = {
     q: '',
@@ -363,7 +365,7 @@ function QuotesList() {
             totalAmount: summaryPrice?.grandTotal,
             status: 0,
             taxTotal: summaryPrice?.tax,
-            totalIsTbd: summaryPrice?.totalIsTbd,
+            totalIsTbd: isTbdPriceEnabled ? summaryPrice?.totalIsTbd : undefined,
           },
         };
 
@@ -386,7 +388,14 @@ function QuotesList() {
         totalCount,
       };
     },
-    [getQuotesList, draftQuoteListLength, customer.firstName, customer.lastName, filterData],
+    [
+      getQuotesList,
+      draftQuoteListLength,
+      customer.firstName,
+      customer.lastName,
+      filterData,
+      isTbdPriceEnabled,
+    ],
   );
 
   const handleChange = (key: string, value: string) => {
