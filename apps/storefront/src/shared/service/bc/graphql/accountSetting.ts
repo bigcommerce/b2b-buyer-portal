@@ -74,11 +74,27 @@ export interface CompanyUser {
   phoneNumber: string;
 }
 
-export interface GetCompanyUserAccountSettingsResponse {
+export interface GetCompanyUserAccountDetailsResponse {
   data?: {
     company?: {
       companyUser?: CompanyUser;
     };
+  };
+  errors?: Array<{ message: string }>;
+}
+
+export interface CustomerUser {
+  firstName: string;
+  lastName: string;
+  company: string;
+  phoneNumber: string;
+  email: string;
+  formFields: FormFieldValue[];
+}
+
+export interface GetCustomerUserAccountDetailsResponse {
+  data?: {
+    customer?: CustomerUser;
   };
   errors?: Array<{ message: string }>;
 }
@@ -110,7 +126,7 @@ const formFieldsFragment = `
 // Query
 // ===========================================================================
 
-const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
+const GET_COMPANY_USER_ACCOUNT_DETAILS = `query GetCompanyUserAccountDetails {
   company {
     companyUser {
       company
@@ -129,12 +145,31 @@ const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
   }
 }`;
 
+const GET_CUSTOMER_USER_ACCOUNT_DETAILS = `query GetCustomerUserAccountDetails {
+  customer {
+    firstName
+    lastName
+    company
+    phoneNumber: phone
+    email
+    formFields {
+      ${formFieldsFragment}
+    }
+  }
+}`;
+
 // ===========================================================================
 // Service function
 // ===========================================================================
 
-export async function getCompanyUserAccountSettings(): Promise<GetCompanyUserAccountSettingsResponse> {
-  return storefrontGQLRequest<GetCompanyUserAccountSettingsResponse>({
-    query: GET_COMPANY_USER_ACCOUNT_SETTINGS,
+export async function getCompanyUserAccountInfo(): Promise<GetCompanyUserAccountDetailsResponse> {
+  return storefrontGQLRequest<GetCompanyUserAccountDetailsResponse>({
+    query: GET_COMPANY_USER_ACCOUNT_DETAILS,
+  });
+}
+
+export async function getCustomerAccountInfo(): Promise<GetCustomerUserAccountDetailsResponse> {
+  return storefrontGQLRequest<GetCustomerUserAccountDetailsResponse>({
+    query: GET_CUSTOMER_USER_ACCOUNT_DETAILS,
   });
 }
