@@ -494,7 +494,7 @@ export default function OrderDialog({
     setOpenShoppingList(true);
   };
 
-  const reorderInventoryBySku = useMemo(() => {
+  const catalogInventoryBySku = useMemo(() => {
     const map: Record<string, CatalogQuickVariantSku> = {};
     variantInfoList.forEach((row) => {
       if (row.variantSku) {
@@ -590,9 +590,11 @@ export default function OrderDialog({
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
             type={type}
-            reorderInventoryBySku={reorderInventoryBySku}
-            reorderBackorderUiEnabled={
-              isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && type === 'reOrder'
+            catalogInventoryBySku={catalogInventoryBySku}
+            backorderUiEnabled={
+              isBackorderMessagingContextEnabled &&
+              hasAnyBackorderDisplay &&
+              (type === 'reOrder' || type === 'shoppingList')
             }
           />
 
