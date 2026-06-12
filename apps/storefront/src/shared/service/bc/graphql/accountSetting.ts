@@ -63,7 +63,7 @@ export type FormFieldValue =
   | { __typename: 'PasswordFormFieldValue'; entityId: number; name: string; password: string }
   | { __typename: 'TextFormFieldValue'; entityId: number; name: string; text: string };
 
-export interface CompanyUser {
+export interface B2BUser {
   company: string;
   companyRoleName: string;
   email: string;
@@ -74,11 +74,27 @@ export interface CompanyUser {
   phoneNumber: string;
 }
 
-export interface GetCompanyUserAccountSettingsResponse {
+export interface GetB2BUserAccountSettingsResponse {
   data?: {
     company?: {
-      companyUser?: CompanyUser;
+      companyUser?: B2BUser;
     };
+  };
+  errors?: Array<{ message: string }>;
+}
+
+export interface B2CUser {
+  firstName: string;
+  lastName: string;
+  company: string;
+  phoneNumber: string;
+  email: string;
+  formFields: FormFieldValue[];
+}
+
+export interface GetB2CUserAccountSettingsResponse {
+  data?: {
+    customer?: B2CUser;
   };
   errors?: Array<{ message: string }>;
 }
@@ -110,7 +126,7 @@ const formFieldsFragment = `
 // Query
 // ===========================================================================
 
-const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
+const GET_B2B_USER_ACCOUNT_SETTINGS = `query GetB2BUserAccountSettings {
   company {
     companyUser {
       company
@@ -129,12 +145,31 @@ const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
   }
 }`;
 
+const GET_B2C_USER_ACCOUNT_SETTINGS = `query GetB2CUserAccountSettings {
+  customer {
+    firstName
+    lastName
+    company
+    phoneNumber: phone
+    email
+    formFields {
+      ${formFieldsFragment}
+    }
+  }
+}`;
+
 // ===========================================================================
 // Service function
 // ===========================================================================
 
-export async function getCompanyUserAccountSettings(): Promise<GetCompanyUserAccountSettingsResponse> {
-  return storefrontGQLRequest<GetCompanyUserAccountSettingsResponse>({
-    query: GET_COMPANY_USER_ACCOUNT_SETTINGS,
+export async function getCompanyUserAccountInfo(): Promise<GetB2BUserAccountSettingsResponse> {
+  return storefrontGQLRequest<GetB2BUserAccountSettingsResponse>({
+    query: GET_B2B_USER_ACCOUNT_SETTINGS,
+  });
+}
+
+export async function getCustomerAccountInfo(): Promise<GetB2CUserAccountSettingsResponse> {
+  return storefrontGQLRequest<GetB2CUserAccountSettingsResponse>({
+    query: GET_B2C_USER_ACCOUNT_SETTINGS,
   });
 }
