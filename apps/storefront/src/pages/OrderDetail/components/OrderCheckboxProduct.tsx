@@ -34,8 +34,8 @@ interface OrderCheckboxProductProps {
   setReturnArr?: (items: ReturnListProps[]) => void;
   textAlign?: string;
   type?: string;
-  reorderInventoryBySku?: Record<string, CatalogQuickVariantSku>;
-  reorderBackorderUiEnabled?: boolean;
+  catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
+  backorderUiEnabled?: boolean;
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -48,8 +48,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     setReturnArr = () => {},
     textAlign = 'left',
     type,
-    reorderInventoryBySku,
-    reorderBackorderUiEnabled = false,
+    catalogInventoryBySku,
+    backorderUiEnabled = false,
   } = props;
 
   const b3Lang = useB3Lang();
@@ -57,6 +57,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const [isMobile] = useMobile();
 
   const [returnList, setReturnList] = useState<ReturnListProps[]>([]);
+
+  const usesCatalogBackorderInventory = type === 'reOrder' || type === 'shoppingList';
 
   const getProductTotals = (quantity: string | number, price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0;
@@ -68,9 +70,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
   const qtyStackAlignItems = textAlign === 'right' ? 'flex-end' : 'flex-start';
   const desktopQtyColumnStyle =
-    reorderBackorderUiEnabled && !isMobile
-      ? { width: '22%', minWidth: '160px' }
-      : itemStyle.default;
+    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '160px' } : itemStyle.default;
 
   const handleSelectAllChange = () => {
     if (checkedArr.length === products.length) {
@@ -205,9 +205,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           qty,
           productHelperText: product.helperText,
           showAvailableToSellHelper: type === 'reOrder',
-          inventoryRow:
-            type === 'reOrder' ? reorderInventoryBySku?.[product.sku.toUpperCase()] : undefined,
-          backorderUiEnabled: reorderBackorderUiEnabled,
+          inventoryRow: usesCatalogBackorderInventory
+            ? catalogInventoryBySku?.[product.sku.toUpperCase()]
+            : undefined,
+          backorderUiEnabled,
           formatOnlyAvailable: (count) => b3Lang('orderDetail.reorder.onlyAvailable', { count }),
         });
 

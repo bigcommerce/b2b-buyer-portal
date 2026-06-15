@@ -311,6 +311,65 @@ const buildCustomerShoppingListResponseWith = builder(() => {
   };
 });
 
+interface VariantInfo {
+  isStock: '1' | '0';
+  stock: number;
+  calculatedPrice: string;
+  productId: string;
+  variantId: string;
+  baseSku: string;
+  productName: string;
+  categories: string[];
+  option: unknown[];
+  isVisible: '1' | '0';
+  minQuantity: number;
+  maxQuantity: number;
+  modifiers: unknown[];
+  purchasingDisabled: '1' | '0';
+  variantSku: string;
+  imageUrl: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
+}
+
+interface VariantInfoResponse {
+  data: {
+    variantSku: VariantInfo[];
+  };
+}
+
+const buildVariantInfoWith = builder<VariantInfo>(() => ({
+  isStock: faker.helpers.arrayElement(['0', '1']),
+  stock: faker.number.int(),
+  calculatedPrice: faker.commerce.price(),
+  productId: faker.number.int().toString(),
+  variantId: faker.number.int().toString(),
+  baseSku: faker.string.uuid(),
+  productName: faker.commerce.productName(),
+  categories: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () =>
+    faker.number.int().toString(),
+  ),
+  imageUrl: faker.image.url(),
+  option: [],
+  isVisible: faker.helpers.arrayElement(['0', '1']),
+  minQuantity: faker.number.int(),
+  maxQuantity: faker.number.int(),
+  modifiers: [],
+  purchasingDisabled: faker.helpers.arrayElement(['0', '1']),
+  variantSku: faker.string.uuid(),
+}));
+
+const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
+  data: {
+    variantSku: bulk(buildVariantInfoWith, 'WHATEVER_VALUES').times(
+      faker.number.int({ min: 1, max: 5 }),
+    ),
+  },
+}));
+
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 });
@@ -3049,6 +3108,137 @@ describe('when a personal customer visits an order', () => {
       await waitFor(() => {
         expect(screen.getByText('Please select at least one item')).toBeVisible();
       });
+    });
+  });
+
+  describe('when backorder messaging is enabled in add to shopping list dialog', () => {
+    const variantSku = 'ORDER-SKU-001';
+    const productName = 'Cast Iron Skillet';
+
+    const backorderPreloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.B2C,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+      global: buildGlobalStateWith({
+        backorderEnabled: true,
+        backorderDisplaySettings: {
+          showQuantityOnBackorder: true,
+          showQuantityOnHand: true,
+          showBackorderMessage: true,
+          showDefaultShippingExpectationPrompt: false,
+          defaultShippingExpectationPrompt: '',
+        },
+        featureFlags: {
+          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+        },
+      }),
+    };
+
+    const setupAddToShoppingListModal = () => {
+      const skillet = {
+        ...buildProductWith({
+          name: productName,
+          sku: variantSku,
+          quantity: 2,
+          product_options: [],
+        }),
+        isVisible: true,
+      };
+
+      const variantInfo = buildVariantInfoWith({
+        variantSku,
+        inventoryTracking: 'variant',
+        availableToSell: 10,
+        unlimitedBackorder: false,
+        totalOnHand: 9,
+        backorderMessage: 'Lead time: 2-4 weeks',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [skillet] } },
+            }),
+          ),
+        ),
+        graphql.query('GetVariantInfoBySkus', ({ query }) => {
+          if (query.includes(`"${variantSku}"`)) {
+            return HttpResponse.json(
+              buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+            );
+          }
+
+          return HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+        }),
+      );
+    };
+
+    it('shows backorder prompts when qty exceeds on hand', async () => {
+      setupAddToShoppingListModal();
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: backorderPreloadedState,
+        initialGlobalContext: { shoppingListEnabled: true },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Add to shopping list' });
+      const productGroup = within(dialog).getByRole('group', { name: productName });
+      const quantityInput = within(productGroup).getByRole('spinbutton');
+
+      await userEvent.type(quantityInput, '10', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      await waitFor(() => {
+        expect(within(dialog).getByText('9 ready to ship')).toBeVisible();
+      });
+      expect(within(dialog).getByText('1 will be backordered')).toBeVisible();
+      expect(within(dialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+      expect(quantityInput.closest('.MuiTextField-root')).not.toHaveClass('Mui-error');
+    });
+
+    it('hides backorder lines when messaging is disabled', async () => {
+      setupAddToShoppingListModal();
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialGlobalContext: { shoppingListEnabled: true },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Add to shopping list' });
+      const productGroup = within(dialog).getByRole('group', { name: productName });
+      const quantityInput = within(productGroup).getByRole('spinbutton');
+
+      await userEvent.type(quantityInput, '10', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      await waitFor(() => {
+        expect(within(dialog).getByText(productName)).toBeVisible();
+      });
+      expect(
+        within(dialog).queryByText('will be backordered', { exact: false }),
+      ).not.toBeInTheDocument();
     });
   });
 });
