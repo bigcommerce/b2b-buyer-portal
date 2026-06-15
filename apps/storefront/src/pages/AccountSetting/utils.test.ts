@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type {
   AccountSettingExtraFieldValue,
-  B2BUser,
+  CompanyUser,
   FormFieldValue,
 } from '@/shared/service/bc/graphql/accountSetting';
 import type { Fields } from '@/types/accountSetting';
@@ -330,7 +330,7 @@ describe('mapUserToAccountInfo', () => {
       { __typename: 'PasswordFormFieldValue', entityId: 7, name: 'fPass', password: 'secret' },
     ];
 
-    const user: B2BUser = {
+    const user: CompanyUser = {
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@example.com',
@@ -378,7 +378,7 @@ describe('mapUserToAccountInfo', () => {
         { __typename: 'UnknownFormFieldValue', name: 'mystery', whatever: 1 },
         { __typename: 'TextFormFieldValue', entityId: 1, name: 'fText', text: 'a' },
       ],
-    } as unknown as B2BUser;
+    } as unknown as CompanyUser;
 
     const result = mapUserToAccountInfo(user);
 
