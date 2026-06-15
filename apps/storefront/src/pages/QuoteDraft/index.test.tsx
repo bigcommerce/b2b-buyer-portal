@@ -27,11 +27,16 @@ import {
   SearchProductsResponse,
   ValidateProductResponse,
 } from '@/shared/service/b2b/graphql/product';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { CreateQuoteResponse, QuoteInfo, QuoteItem } from '@/types/quotes';
 
 import QuoteDraft from '.';
+
+// vi.mock('@/hooks/useFeatureFlag', () => ({
+//   useFeatureFlag: vi.fn(() => false),
+// }));
 
 interface VariantInfoResponse {
   data: {
@@ -405,6 +410,10 @@ const fakeCountry = {
   countryCode: 'FC',
   states: [],
 };
+
+beforeEach(() => {
+  vi.mocked(useFeatureFlag).mockReturnValue(false);
+});
 
 it('displays a page title of "Quote" and label "Draft"', async () => {
   server.use(
@@ -2154,6 +2163,122 @@ describe('when the user is a B2B customer', () => {
       expect(navigation).toHaveBeenCalled();
       expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245');
     });
+
+    // it('sends totalIsTbd=true in payload when experiment is enabled and price is hidden', async () => {
+    //   vi.mocked(useFeatureFlag).mockReturnValue(true);
+    //   set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
+
+    //   const quote = buildQuoteWith({ data: { quote: { id: '272989', quoteNumber: '911911' } } });
+    //   const state = { stateName: 'Jalisco', stateCode: 'JL' };
+    //   const country = { id: '123', countryName: 'Mexico', countryCode: 'MX', states: [state] };
+
+    //   server.use(
+    //     graphql.query('Countries', () => HttpResponse.json({ data: { countries: [country] } })),
+    //     graphql.query('Addresses', () =>
+    //       HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+    //     ),
+    //     graphql.query('getQuoteExtraFields', () =>
+    //       HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+    //     ),
+    //   );
+
+    //   const companyInfo = buildCompanyStateWith({
+    //     companyInfo: { status: CompanyStatus.APPROVED },
+    //     customer: {
+    //       userType: UserTypes.MULTIPLE_B2C,
+    //       role: CustomerRole.SENIOR_BUYER,
+    //       emailAddress: customerEmail,
+    //     },
+    //     permissions: [
+    //       {
+    //         code: 'create_quote',
+    //         permissionLevel: 2,
+    //       },
+    //     ],
+    //   });
+
+    //   const product = buildDraftQuoteItemWith({
+    //     node: {
+    //       primaryImage: 'url',
+    //       quantity: 100,
+    //       variantSku: 'test',
+    //       basePrice: 10,
+    //       taxPrice: 5,
+    //       productName: 'Unbranded Rubber Cheese',
+    //       productsSearch: buildProductWith({
+    //         inventoryTracking: 'variant',
+    //         inventoryLevel: 10,
+    //         sku: 'test',
+    //         basePrice: '10.00',
+    //         offeredPrice: '10.00',
+    //         productId: 1,
+    //         imageUrl: 'url',
+    //         id: 4451490883947128,
+    //         variants: [
+    //           buildVariantWith({
+    //             sku: 'test',
+    //             available_to_sell: 5,
+    //             unlimited_backorder: false,
+    //             purchasing_disabled: false,
+    //           }),
+    //         ],
+    //       }),
+    //     },
+    //   });
+
+    //   const quoteInfo = buildQuoteInfoStateWith({
+    //     draftQuoteInfo: {
+    //       contactInfo: { email: customerEmail },
+    //       billingAddress: noAddress,
+    //       shippingAddress: noAddress,
+    //       referenceNumber: '123',
+    //       note: 'meow',
+    //     },
+    //     draftQuoteList: [product],
+    //   });
+
+    //   renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+    //     preloadedState: {
+    //       company: companyInfo,
+    //       storeInfo: storeInfoWithDateFormat,
+    //       quoteInfo,
+    //       global: buildGlobalStateWith({
+    //         blockPendingQuoteNonPurchasableOOS: { isEnableProduct: true },
+    //         backorderEnabled: true,
+    //         quoteSubmissionResponse: {
+    //           value: '0',
+    //         },
+    //       }),
+    //     },
+    //   });
+
+    //   server.use(
+    //     graphql.mutation('CreateQuote', () =>
+    //       HttpResponse.json(
+    //         buildQuoteCreateResponseWith({
+    //           data: {
+    //             quoteCreate: { quote: { id: 123, createdAt: '1245' } },
+    //           },
+    //         }),
+    //       ),
+    //     ),
+    //     graphql.mutation('DeleteCart', () =>
+    //       HttpResponse.json({ data: { cart: { deleteCart: { deletedCartEntityId: '12345' } } } }),
+    //     ),
+    //     graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+    //     graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
+    //   );
+
+    //   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+    //   await userEvent.click(await screen.findByRole('button', { name: /Submit/i }));
+
+    //   expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith(
+    //     'on-quote-create',
+    //     expect.objectContaining({
+    //       totalIsTbd: true,
+    //     }),
+    //   );
+    // });
 
     it('navigates correctly when quote submission response dialog is shown and then closed', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));

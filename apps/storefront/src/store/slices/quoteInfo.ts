@@ -78,6 +78,7 @@ const initialState: QuoteInfoState = {
     referenceNumber: '',
     extraFields: [],
     recipients: [],
+    // totalIsTbd: false,
   },
   quoteDetailToCheckoutUrl: '',
 };
