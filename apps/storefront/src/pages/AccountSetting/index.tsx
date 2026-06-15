@@ -22,7 +22,7 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
-import { getCompanyUserAccountInfo, getCustomerAccountInfo } from '@/shared/service/bc';
+import { getCompanyUserDetails, getCustomerDetails } from '@/shared/service/bc';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
@@ -166,11 +166,11 @@ function AccountSetting() {
         if (useBcAccountSettings) {
           let userData;
           if (isBCUser) {
-            const response = await getCustomerAccountInfo();
+            const response = await getCustomerDetails();
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.customer;
           } else {
-            const response = await getCompanyUserAccountInfo();
+            const response = await getCompanyUserDetails();
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.company?.companyUser;
           }

@@ -74,7 +74,7 @@ export interface CompanyUser {
   phoneNumber: string;
 }
 
-export interface GetCompanyUserAccountDetailsResponse {
+export interface CompanyUserResponse {
   data?: {
     company?: {
       companyUser?: CompanyUser;
@@ -83,7 +83,7 @@ export interface GetCompanyUserAccountDetailsResponse {
   errors?: Array<{ message: string }>;
 }
 
-export interface CustomerUser {
+export interface Customer {
   firstName: string;
   lastName: string;
   company: string;
@@ -92,9 +92,9 @@ export interface CustomerUser {
   formFields: FormFieldValue[];
 }
 
-export interface GetCustomerUserAccountDetailsResponse {
+export interface CustomerResponse {
   data?: {
-    customer?: CustomerUser;
+    customer?: Customer;
   };
   errors?: Array<{ message: string }>;
 }
@@ -126,7 +126,7 @@ const formFieldsFragment = `
 // Query
 // ===========================================================================
 
-const GET_COMPANY_USER_ACCOUNT_DETAILS = `query GetCompanyUserAccountDetails {
+const QUERY_COMPANY_USER_DETAILS = `query CompanyUserDetails {
   company {
     companyUser {
       company
@@ -145,7 +145,7 @@ const GET_COMPANY_USER_ACCOUNT_DETAILS = `query GetCompanyUserAccountDetails {
   }
 }`;
 
-const GET_CUSTOMER_USER_ACCOUNT_DETAILS = `query GetCustomerUserAccountDetails {
+const QUERY_CUSTOMER_DETAILS = `query CustomerDetails {
   customer {
     firstName
     lastName
@@ -162,14 +162,14 @@ const GET_CUSTOMER_USER_ACCOUNT_DETAILS = `query GetCustomerUserAccountDetails {
 // Service function
 // ===========================================================================
 
-export async function getCompanyUserAccountInfo(): Promise<GetCompanyUserAccountDetailsResponse> {
-  return storefrontGQLRequest<GetCompanyUserAccountDetailsResponse>({
-    query: GET_COMPANY_USER_ACCOUNT_DETAILS,
+export async function getCompanyUserDetails(): Promise<CompanyUserResponse> {
+  return storefrontGQLRequest<CompanyUserResponse>({
+    query: QUERY_COMPANY_USER_DETAILS,
   });
 }
 
-export async function getCustomerAccountInfo(): Promise<GetCustomerUserAccountDetailsResponse> {
-  return storefrontGQLRequest<GetCustomerUserAccountDetailsResponse>({
-    query: GET_CUSTOMER_USER_ACCOUNT_DETAILS,
+export async function getCustomerDetails(): Promise<CustomerResponse> {
+  return storefrontGQLRequest<CustomerResponse>({
+    query: QUERY_CUSTOMER_DETAILS,
   });
 }

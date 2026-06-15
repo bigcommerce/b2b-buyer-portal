@@ -41,14 +41,14 @@ const buildCustomerWith = builder<Customer>(() => ({
 }));
 
 // The page loads account settings through the storefront GQL proxy queries
-// `GetB2CUserAccountSettings` (BC users) and `GetB2BUserAccountSettings` (B2B
-// users). Mock both so the page initializes regardless of which path runs.
+// `CustomerDetails` (BC users) and `CompanyUserDetails` (B2B users). Mock
+// both so the page initializes regardless of which path runs.
 const mockAccountSettingsQueries = () =>
   server.use(
     graphql.query('B2BAccountFormFields', () =>
       HttpResponse.json({ data: { accountFormFields: [] } }),
     ),
-    graphql.query('GetB2CUserAccountSettings', () =>
+    graphql.query('CustomerDetails', () =>
       HttpResponse.json({
         data: {
           customer: {
@@ -62,7 +62,7 @@ const mockAccountSettingsQueries = () =>
         },
       }),
     ),
-    graphql.query('GetB2BUserAccountSettings', () =>
+    graphql.query('CompanyUserDetails', () =>
       HttpResponse.json({
         data: {
           company: {
