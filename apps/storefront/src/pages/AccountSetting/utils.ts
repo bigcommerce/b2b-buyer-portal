@@ -1,3 +1,8 @@
+import {
+  AccountSettingExtraFieldValue as ExtraFieldValue,
+  CompanyUser,
+  FormFieldValue,
+} from '@/shared/service/bc/graphql/accountSetting';
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { deCodeField } from '@/utils/registerUtils';
 import { validatorRules } from '@/utils/validatorRules';
@@ -261,3 +266,51 @@ export const bcSubmitDataProcessing = (
 
   return param;
 };
+
+function extractExtraFieldValue(field: ExtraFieldValue) {
+  switch (field.__typename) {
+    case 'TextExtraFieldValue':
+      return { fieldName: field.name, fieldValue: field.text };
+    case 'MultilineTextExtraFieldValue':
+      return { fieldName: field.name, fieldValue: field.multilineText };
+    case 'MultipleChoiceExtraFieldValue':
+      return { fieldName: field.name, fieldValue: field.value };
+    case 'NumberExtraFieldValue':
+      return { fieldName: field.name, fieldValue: field.number };
+    default:
+      return undefined;
+  }
+}
+function extractFormFieldValue(field: FormFieldValue) {
+  switch (field.__typename) {
+    case 'TextFormFieldValue':
+      return { name: field.name, value: field.text };
+    case 'MultilineTextFormFieldValue':
+      return { name: field.name, value: field.multilineText };
+    case 'MultipleChoiceFormFieldValue':
+      return { name: field.name, value: field.value };
+    case 'NumberFormFieldValue':
+      return { name: field.name, value: field.number };
+    case 'CheckboxesFormFieldValue':
+      return { name: field.name, value: field.values };
+    case 'DateFormFieldValue':
+      return { name: field.name, value: field.date?.utc };
+    case 'PasswordFormFieldValue':
+      return { name: field.name, value: field.password };
+    default:
+      return undefined;
+  }
+}
+
+export function mapUserToAccountInfo(companyUser?: Partial<CompanyUser>) {
+  return {
+    firstName: companyUser?.firstName,
+    lastName: companyUser?.lastName,
+    email: companyUser?.email,
+    phoneNumber: companyUser?.phoneNumber,
+    company: companyUser?.company,
+    companyRoleName: companyUser?.companyRoleName,
+    extraFields: companyUser?.extraFields?.map(extractExtraFieldValue).filter(Boolean),
+    formFields: companyUser?.formFields?.map(extractFormFieldValue).filter(Boolean),
+  };
+}

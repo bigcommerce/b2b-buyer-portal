@@ -74,11 +74,27 @@ export interface CompanyUser {
   phoneNumber: string;
 }
 
-export interface GetCompanyUserAccountSettingsResponse {
+export interface CompanyUserResponse {
   data?: {
     company?: {
       companyUser?: CompanyUser;
     };
+  };
+  errors?: Array<{ message: string }>;
+}
+
+export interface Customer {
+  firstName: string;
+  lastName: string;
+  company: string;
+  phoneNumber: string;
+  email: string;
+  formFields: FormFieldValue[];
+}
+
+export interface CustomerResponse {
+  data?: {
+    customer?: Customer;
   };
   errors?: Array<{ message: string }>;
 }
@@ -110,7 +126,7 @@ const formFieldsFragment = `
 // Query
 // ===========================================================================
 
-const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
+const QUERY_COMPANY_USER_DETAILS = `query CompanyUserDetails {
   company {
     companyUser {
       company
@@ -129,12 +145,31 @@ const GET_COMPANY_USER_ACCOUNT_SETTINGS = `query GetCompanyUserAccountSettings {
   }
 }`;
 
+const QUERY_CUSTOMER_DETAILS = `query CustomerDetails {
+  customer {
+    firstName
+    lastName
+    company
+    phoneNumber: phone
+    email
+    formFields {
+      ${formFieldsFragment}
+    }
+  }
+}`;
+
 // ===========================================================================
 // Service function
 // ===========================================================================
 
-export async function getCompanyUserAccountSettings(): Promise<GetCompanyUserAccountSettingsResponse> {
-  return storefrontGQLRequest<GetCompanyUserAccountSettingsResponse>({
-    query: GET_COMPANY_USER_ACCOUNT_SETTINGS,
+export async function getCompanyUserDetails(): Promise<CompanyUserResponse> {
+  return storefrontGQLRequest<CompanyUserResponse>({
+    query: QUERY_COMPANY_USER_DETAILS,
+  });
+}
+
+export async function getCustomerDetails(): Promise<CustomerResponse> {
+  return storefrontGQLRequest<CustomerResponse>({
+    query: QUERY_CUSTOMER_DETAILS,
   });
 }
