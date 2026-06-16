@@ -81,13 +81,17 @@ const getAccountFormFields = (type: number) => `query B2BAccountFormFields {
     }
 }`;
 
-const getCustomerInfo = () => `{
+const getCustomerInfo = (useBcLoginAndAuthorisation = false) => `{
   customerInfo {
     userType,
-    permissions {
+    ${
+      useBcLoginAndAuthorisation
+        ? ''
+        : `permissions {
       code
       permissionLevel
-    },
+    },`
+    }
     userInfo {
       id
       phoneNumber
@@ -213,9 +217,9 @@ export const getB2BAccountFormFields = (type: number) =>
     query: getAccountFormFields(type),
   });
 
-export const getB2BCompanyUserInfo = () =>
+export const getB2BCompanyUserInfo = (useBcLoginAndAuthorisation = false) =>
   B3Request.graphqlB2B({
-    query: getCustomerInfo(),
+    query: getCustomerInfo(useBcLoginAndAuthorisation),
   });
 
 export const getB2BCountries = () =>

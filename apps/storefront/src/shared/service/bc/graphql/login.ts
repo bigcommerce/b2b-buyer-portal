@@ -98,12 +98,9 @@ interface BCAuthorizationInput {
 }
 
 interface BCAuthorizationResponse {
-  data?: {
-    authorization?: {
-      __typename: string;
-      result?: {
-        permissions: BCPermission[];
-      };
+  authorization?: {
+    result?: {
+      permissions: BCPermission[];
     };
   };
   errors?: Array<{ message: string }>;
@@ -111,7 +108,6 @@ interface BCAuthorizationResponse {
 
 const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!) {
   authorization(authData: $authData) {
-    __typename
     result {
       permissions {
         code
@@ -121,11 +117,10 @@ const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!)
   }
 }`;
 
-/** @public Reserved for follow-up ticket; remove when wired into login flow. */
 export async function bcAuthorization(
   authData: BCAuthorizationInput,
 ): Promise<BCAuthorizationResponse> {
-  return storefrontGQLRequest<BCAuthorizationResponse>({
+  return B3Request.graphqlB2B<BCAuthorizationResponse>({
     query: GET_BC_AUTHORIZATION,
     variables: { authData },
   });
