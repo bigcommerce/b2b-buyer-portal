@@ -94,4 +94,24 @@ describe('shouldOpenAllowedPageOnInit', () => {
       }),
     ).toBe(false);
   });
+
+  it('opens on account.php order status without a hash for a logged-in customer', () => {
+    expect(
+      shouldOpenAllowedPageOnInit({
+        pathname: '/account.php',
+        hash: '',
+        customerId: 456,
+      }),
+    ).toBe(true);
+  });
+
+  it('opens on account.php even when the URL has a native query string', () => {
+    expect(
+      shouldOpenAllowedPageOnInit({
+        pathname: '/account.php',
+        hash: '',
+        customerId: 456,
+      }),
+    ).toBe(true);
+  });
 });
