@@ -696,7 +696,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       });
 
       const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
-      const totalIsTbd = isTbdPriceEnabled ? getQuoteDraftShowPriceTBD(draftQuoteList) : undefined;
+      const totalIsTbd = isTbdPriceEnabled ? getQuoteDraftShowPriceTBD(draftQuoteList) : false;
 
       const data = {
         message: newNote,

@@ -365,7 +365,7 @@ function QuotesList() {
             totalAmount: summaryPrice?.grandTotal,
             status: 0,
             taxTotal: summaryPrice?.tax,
-            totalIsTbd: isTbdPriceEnabled ? summaryPrice?.totalIsTbd : undefined,
+            totalIsTbd: isTbdPriceEnabled ? summaryPrice?.totalIsTbd : false,
           },
         };
 
