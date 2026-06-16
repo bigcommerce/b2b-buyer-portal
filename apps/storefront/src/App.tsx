@@ -22,6 +22,7 @@ import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
 
+import { shouldOpenAllowedPageOnInit } from '@/utils/nativeStorefrontLinks';
 import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import clearInvoiceCart from './utils/b3ClearCart';
@@ -213,8 +214,15 @@ export default function App() {
         }
 
         // background login enter judgment and refresh
-        if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
-          await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
+        const shouldOpenAllowedPage = shouldOpenAllowedPageOnInit({
+          pathname,
+          hash: window.location.hash,
+          customerId,
+        });
+        const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
+
+        if (shouldOpenAllowedPage) {
+          await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
         } else {
           showPageMask(false);
         }
