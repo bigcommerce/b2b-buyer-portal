@@ -116,8 +116,16 @@ export default defineConfig(({ mode }): UserConfig & Pick<ViteUserConfig, 'test'
             eCache: ['@emotion/cache'],
           },
           chunkFileNames(chunk) {
-            if (chunk.name === 'index' && chunk.facadeModuleId) {
-              const folderName = path.basename(path.dirname(chunk.facadeModuleId));
+            const id = chunk.facadeModuleId;
+
+            if (id && /\/lib\/lang\/locales\/[^/]+\.json$/.test(id)) {
+              const base = path.basename(id, '.json');
+
+              return `chunks/locale-${base}.[hash].js`;
+            }
+
+            if (chunk.name === 'index' && id) {
+              const folderName = path.basename(path.dirname(id));
 
               return `chunks/${folderName}.[hash].js`;
             }
