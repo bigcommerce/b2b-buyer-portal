@@ -1,4 +1,4 @@
-import { waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { buildCompanyStateWith, userEvent } from 'tests/test-utils';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
@@ -37,7 +37,7 @@ describe('useB3AppOpen native storefront link interception', () => {
       { preloadedState: { company: loggedInCompanyState } },
     );
 
-    await userEvent.click(document.querySelector('.navUser-item-accountLabel') as HTMLElement);
+    await userEvent.click(screen.getByText('Account'));
 
     await waitFor(() => {
       expect(handleEnterClick).toHaveBeenCalledWith('/account.php?action=order_status', false);
@@ -62,7 +62,7 @@ describe('useB3AppOpen native storefront link interception', () => {
       { preloadedState: { company: loggedInCompanyState } },
     );
 
-    await userEvent.click(document.querySelector('a[href]') as HTMLElement);
+    await userEvent.click(screen.getByRole('link'));
 
     await waitFor(() => {
       expect(handleEnterClick).toHaveBeenCalledWith('/account.php', false);
@@ -84,7 +84,7 @@ describe('useB3AppOpen native storefront link interception', () => {
       { preloadedState: { company: loggedInCompanyState } },
     );
 
-    await userEvent.click(document.querySelector('a[href]') as HTMLElement);
+    await userEvent.click(screen.getByRole('link'));
 
     // Drain microtasks before asserting absence
     await Promise.resolve();

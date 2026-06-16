@@ -14,7 +14,10 @@ export function getClosestAnchorFromTarget(target: EventTarget | null): HTMLAnch
   return target.closest<HTMLAnchorElement>('a[href]');
 }
 
-export function getNativeStorefrontPath(href: string, origin = window.location.origin): string | null {
+export function getNativeStorefrontPath(
+  href: string,
+  origin = window.location.origin,
+): string | null {
   try {
     const url = new URL(href, origin);
 
@@ -35,7 +38,9 @@ export function isBuyerPortalNativeHref(href: string, origin = window.location.o
     return false;
   }
 
-  return NATIVE_BUYER_PORTAL_PATHS.some((nativePath) => path === nativePath || path.startsWith(`${nativePath}?`));
+  return NATIVE_BUYER_PORTAL_PATHS.some(
+    (nativePath) => path === nativePath || path.startsWith(`${nativePath}?`),
+  );
 }
 
 export function shouldOpenAllowedPageOnInit({
