@@ -2148,7 +2148,6 @@ describe('when the user is a B2B customer', () => {
         message: 'meow',
         grandTotal: '1000.00',
         totalAmount: '1500.00',
-        totalIsTbd: false,
       });
 
       expect(navigation).toHaveBeenCalled();
@@ -2425,7 +2424,6 @@ describe('when the user is a B2B customer', () => {
         message: 'meow',
         grandTotal: '1000.00',
         totalAmount: '1500.00',
-        totalIsTbd: false,
       });
 
       expect(getVariantInfoOOSAndPurchase).not.toHaveBeenCalled();
