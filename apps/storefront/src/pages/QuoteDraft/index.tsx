@@ -10,7 +10,6 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import B3Spin from '@/components/spin/B3Spin';
 import { permissionLevels } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSetCountry } from '@/hooks/useGetCountry';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
@@ -74,7 +73,6 @@ import {
   getQuoteValidationErrorMessage,
   QUOTE_VALIDATION_ERROR_CODES,
 } from '../quote/shared/getQuoteValidationErrorMessage';
-import getQuoteDraftShowPriceTBD from '../quote/shared/utils';
 import Container from '../quote/style';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
@@ -181,7 +179,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   } = useContext(CustomStyleContext);
 
   const isBackorderEnabled = useIsBackorderEnabled();
-  const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
 
   const quotesActionsPermission = useMemo(() => {
     if (isB2BUser) {
@@ -696,7 +693,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       });
 
       const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
-      const totalIsTbd = isTbdPriceEnabled ? getQuoteDraftShowPriceTBD(draftQuoteList) : false;
 
       const data = {
         message: newNote,
@@ -719,7 +715,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         fileList,
         taxTotal: allTaxPrice.toFixed(decimalPlaces),
         currency: displayCurrency,
-        totalIsTbd,
         referenceNumber: `${info.referenceNumber}` || '',
         extraFields: info.extraFields || [],
         recipients: info.recipients || [],
