@@ -5,7 +5,6 @@ import config from '@/lib/config';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-
 import {
   getClosestAnchorFromTarget,
   getNativeStorefrontPath,
@@ -109,7 +108,8 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         if (isSearchNode || isCheckoutNormalHref) return false;
         e.preventDefault();
         e.stopPropagation();
-        const isRegisterArrInclude = registerArr.includes(target) || (anchor ? registerArr.includes(anchor) : false);
+        const isRegisterArrInclude =
+          registerArr.includes(target) || (anchor ? registerArr.includes(anchor) : false);
         const tagHref = nativePath || anchor?.href || (e.target as HTMLAnchorElement)?.href;
         let href = tagHref || authorizedPages;
         if (!tagHref || typeof tagHref !== 'string') {
