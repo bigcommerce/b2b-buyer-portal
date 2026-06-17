@@ -25,6 +25,7 @@ import {
   QuoteStatus,
 } from '@/shared/service/b2b/graphql/quote';
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
+import * as quoteSharedConfig from '../quote/shared/config';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
 
