@@ -25,7 +25,7 @@ export function getNativeStorefrontPath(
       return null;
     }
 
-    return `${url.pathname}${url.search}`;
+    return `${url.pathname}${url.search}${url.hash}`;
   } catch (_error: unknown) {
     return null;
   }
@@ -38,8 +38,11 @@ export function isBuyerPortalNativeHref(href: string, origin = window.location.o
     return false;
   }
 
+  // Strip hash before matching so /account.php#section still matches /account.php
+  const pathWithoutHash = path.split('#')[0];
+
   return NATIVE_BUYER_PORTAL_PATHS.some(
-    (nativePath) => path === nativePath || path.startsWith(`${nativePath}?`),
+    (nativePath) => pathWithoutHash === nativePath || pathWithoutHash.startsWith(`${nativePath}?`),
   );
 }
 

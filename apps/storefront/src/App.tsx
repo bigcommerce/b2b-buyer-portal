@@ -222,7 +222,22 @@ export default function App() {
         const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
 
         if (shouldOpenAllowedPage) {
-          await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
+          if (isAccountPageWithoutHash && search) {
+            // Map native action (e.g. ?action=address_book) to the correct portal route
+            // using the same logic as runtime click interception, so direct navigation
+            // and link clicks land on the same page.
+            gotoPage(
+              openPageByClick({
+                href: `${pathname}${search}`,
+                role: Number(userInfo.role),
+                isRegisterAndLogin: false,
+                isAgenting,
+                authorizedPages,
+              }),
+            );
+          } else {
+            await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
+          }
         } else {
           showPageMask(false);
         }
