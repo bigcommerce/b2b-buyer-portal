@@ -6,18 +6,20 @@ import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { getBCForcePasswordReset } from '@/shared/service/b2b';
-import { bcLogin, customerLoginAPI } from '@/shared/service/bc';
+import { getB2BToken, getBCForcePasswordReset } from '@/shared/service/b2b';
+import { bcLogin, customerLoginAPI, getCurrentCustomerJWT } from '@/shared/service/bc';
+import { getAppClientId } from '@/shared/service/request/base';
 import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
-import { setB2BToken } from '@/store/slices/company';
+import { setB2BToken, setCurrentCustomerJWT } from '@/store/slices/company';
 import { LoginFlagType } from '@/types/login';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { platform } from '@/utils/basicConfig';
+import { channelId, platform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { isDefaultLoginStylingActive } from '@/utils/preMountLoginMask';
@@ -49,6 +51,8 @@ function Login(props: PageProps) {
   const logout = useLogout();
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
+
+  const useBcAccountSettings = useFeatureFlag('PROJECT-7920.use_bc_account_settings');
 
   const quoteDetailToCheckoutUrl = useAppSelector(
     ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
@@ -122,12 +126,60 @@ function Login(props: PageProps) {
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
 
+  const fetchB2BToken = async (): Promise<{
+    token?: string;
+    storefrontLoginToken?: string;
+    error?: string;
+  }> => {
+    const currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId()).catch((error) => {
+      b2bLogger.error(error);
+      return undefined;
+    });
+
+    if (!currentCustomerJWT) {
+      return { error: 'Missing customer JWT' };
+    }
+
+    try {
+      const data = await getB2BToken(currentCustomerJWT, channelId);
+      const token = data.authorization.result.token as string;
+      const storefrontLoginToken = data.authorization.result.storefrontLoginToken as string;
+
+      storeDispatch(setCurrentCustomerJWT(currentCustomerJWT));
+
+      return { token, storefrontLoginToken };
+    } catch (error) {
+      b2bLogger.error('Failed to get B2B token:', error);
+      return { error: error instanceof Error ? error.message : 'Unknown B2B token error' };
+    }
+  };
+
   const handleRegularLogin = async (data: LoginConfig) => {
     try {
       const { errors: bcErrors } = await bcLogin({ email: data.email, password: data.password });
       if (bcErrors?.[0]?.message === 'Reset password') {
         const needsReset = await getBCForcePasswordReset(data.email);
         setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+        return;
+      }
+
+      if (useBcAccountSettings) {
+        const { token: B2BToken, error: b2bError, storefrontLoginToken } = await fetchB2BToken();
+        if (b2bError) {
+          b2bLogger.error('B2B token error:', b2bError);
+          setLoginFlag('accountIncorrect');
+          return;
+        }
+        if (!B2BToken) {
+          b2bLogger.error('No B2B token returned from auth mutation');
+          const needsReset = await getBCForcePasswordReset(data.email);
+          setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+          return;
+        }
+        storeDispatch(setB2BToken(B2BToken));
+        dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+        const info = await getCurrentCustomerInfo(B2BToken);
+        navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
         return;
       }
 
@@ -157,6 +209,12 @@ function Login(props: PageProps) {
       if (isCompanyError(error)) {
         snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
         await logout({ showLogoutBanner: false });
+      } else if (
+        useBcAccountSettings &&
+        error instanceof Error &&
+        error.message === 'Operation cannot be performed as the storefront channel is not live'
+      ) {
+        setLoginFlag('accountPrelaunch');
       } else if (error instanceof Error) {
         snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
       }
