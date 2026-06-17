@@ -342,9 +342,7 @@ export const getCurrentCustomerInfo = async (
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
 
-      let bcPermissions = permissions ?? [];
       if (useBcLoginAndAuthorisation) {
-        // a failed permission fetch must not tear down the established session
         let { currentCustomerJWT } = store.getState().company.tokens;
         if (!currentCustomerJWT) {
           currentCustomerJWT =
@@ -358,11 +356,14 @@ export const getCurrentCustomerInfo = async (
             b2bLogger.error(error);
             return undefined;
           });
-          bcPermissions = authorizationData?.authorization?.result?.permissions ?? bcPermissions;
+          const bcPermissions = authorizationData?.authorization?.result?.permissions ?? [];
+          if (bcPermissions) {
+            store.dispatch(setPermissionModules(bcPermissions));
+          }
         }
+      } else {
+        store.dispatch(setPermissionModules(permissions));
       }
-
-      store.dispatch(setPermissionModules(bcPermissions));
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
       store.dispatch(setQuoteUserId(quoteUserId));

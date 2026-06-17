@@ -17,11 +17,18 @@ const BC_PERMISSIONS = [
   { code: 'create_quote', permissionLevel: 1 },
 ];
 
-const mockState = (featureFlags: Record<string, boolean>) =>
+const mockState = (featureFlags: Record<string, boolean>, currentCustomerJWT = 'bc-jwt') =>
   vi.spyOn(store, 'getState').mockReturnValue({
-    company: { tokens: { B2BToken: 'b2b-token', currentCustomerJWT: 'bc-jwt' } },
+    company: { tokens: { B2BToken: 'b2b-token', currentCustomerJWT } },
     global: { featureFlags },
   } as unknown as ReturnType<typeof store.getState>);
+
+const permissionsWereDispatched = () =>
+  vi
+    .mocked(store.dispatch)
+    .mock.calls.some(
+      ([action]) => (action as { type?: string }).type === setPermissionModules([]).type,
+    );
 
 const stubServices = () => {
   vi.spyOn(bcService, 'getCustomerInfo').mockResolvedValue({
@@ -93,12 +100,33 @@ describe('getCurrentCustomerInfo permissions source', () => {
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
   });
 
-  it('keeps the existing query permissions when bcAuthorization fails', async () => {
+  it('dispatches an empty permission set when bcAuthorization fails', async () => {
     mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
     vi.spyOn(bcService, 'bcAuthorization').mockRejectedValue(new Error('network'));
 
     await getCurrentCustomerInfo();
 
-    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules([]));
+  });
+
+  it('preserves already-loaded permissions when no customer JWT is available', async () => {
+    mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true }, '');
+    vi.spyOn(bcService, 'getCurrentCustomerJWT').mockResolvedValue('');
+
+    await getCurrentCustomerInfo();
+
+    expect(bcService.bcAuthorization).not.toHaveBeenCalled();
+    expect(permissionsWereDispatched()).toBe(false);
+  });
+
+  it('dispatches an empty permission set when bcAuthorization returns one', async () => {
+    mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
+    vi.spyOn(bcService, 'bcAuthorization').mockResolvedValue({
+      authorization: { result: { permissions: [] } },
+    } as never);
+
+    await getCurrentCustomerInfo();
+
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules([]));
   });
 });
