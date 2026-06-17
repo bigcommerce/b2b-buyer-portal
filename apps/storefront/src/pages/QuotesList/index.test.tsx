@@ -16,7 +16,6 @@ import {
   waitFor,
   within,
 } from 'tests/test-utils';
-
 import { vi as vitest } from 'vitest';
 
 import {
@@ -26,9 +25,10 @@ import {
   QuoteStatus,
 } from '@/shared/service/b2b/graphql/quote';
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
-import * as quoteSharedConfig from '../quote/shared/config';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
+
+import * as quoteSharedConfig from '../quote/shared/config';
 
 import QuotesList from './index';
 
@@ -456,6 +456,9 @@ describe('when the user is a B2B customer', () => {
       });
       server.use(
         graphql.query('GetQuotesList', () => HttpResponse.json(quotesListB2B)),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({
@@ -497,6 +500,9 @@ describe('when the user is a B2B customer', () => {
       });
       server.use(
         graphql.query('GetQuotesList', () => HttpResponse.json(quotesListB2B)),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({
@@ -538,6 +544,9 @@ describe('when the user is a B2B customer', () => {
       });
       server.use(
         graphql.query('GetQuotesList', () => HttpResponse.json(quotesListB2B)),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
       );
 
       const quoteInfo = buildQuoteInfoStateWith({

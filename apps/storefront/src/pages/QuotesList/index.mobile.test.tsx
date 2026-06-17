@@ -2,6 +2,7 @@ import { PersistPartial } from 'redux-persist/es/persistReducer';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -23,6 +24,8 @@ import {
 import { ShoppingListsCreatedByUser } from '@/shared/service/b2b/graphql/shoppingList';
 import { QuoteInfoState } from '@/store/slices/quoteInfo';
 import { CompanyStatus, UserTypes } from '@/types';
+
+import * as quoteSharedConfig from '../quote/shared/config';
 
 import QuotesList from './index';
 
@@ -346,6 +349,49 @@ describe('when the user is a B2B customer', () => {
       expect(screen.getByText(textContent('Last update:—'))).toBeInTheDocument();
       expect(screen.getByText(textContent('Expiration date:—'))).toBeInTheDocument();
       expect(screen.getByText(textContent('Subtotal:$200.00'))).toBeInTheDocument();
+    });
+
+    it('shows TBD for draft subtotal on the card when totalIsTbd is true and feature flag is enabled', async () => {
+      const addPriceSpy = vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
+        subtotal: 200,
+        shipping: 0,
+        tax: 0,
+        grandTotal: 200,
+        totalIsTbd: true,
+      });
+
+      server.use(
+        graphql.query('GetQuotesList', () =>
+          HttpResponse.json(
+            buildQuotesListB2BWith({ data: { quotes: { totalCount: 0, edges: [] } } }),
+          ),
+        ),
+        graphql.query('GetShoppingListsCreatedByUser', () =>
+          HttpResponse.json(buildShoppingListsCreatedByUserWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      const quoteInfo = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      });
+
+      renderWithProviders(<QuotesList />, {
+        preloadedState: {
+          ...preloadedState,
+          quoteInfo,
+          global: buildGlobalStateWith({
+            featureFlags: { 'B2B-4089.use_tbd_price_on_quotes_list': true },
+          }),
+        },
+      });
+
+      // Custom matcher to match text even if it is broken up by multiple elements
+      const textContent = (content: string) => (_: string, element: Element | null) =>
+        element?.textContent === content;
+
+      expect(await screen.findByText(textContent('Subtotal:TBD'))).toBeInTheDocument();
+
+      addPriceSpy.mockRestore();
     });
   });
 

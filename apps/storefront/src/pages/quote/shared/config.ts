@@ -55,7 +55,7 @@ export const addPrice = () => {
 
       grandTotal = showInclusiveTaxPrice ? subtotal + shipping : subtotal + shipping + tax;
 
-      // The actual display format of the price is not important here; we want to know whether a the
+      // The actual display format of the price is not important here; we want to know whether the
       // price _should_ be displayed.
       let { totalIsTbd } = summary;
       if (
