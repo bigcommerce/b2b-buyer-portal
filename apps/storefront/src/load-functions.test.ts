@@ -14,7 +14,7 @@ describe('bindLinks', () => {
     unbindLinks();
   });
 
-  it('intercepts account link child clicks and replays the anchor after init', async () => {
+  it('intercepts account link child clicks and stores the resolved anchor element', async () => {
     document.body.innerHTML = `
       <a class="navUser-action" href="/account.php">
         <span class="navUser-item-accountLabel">Account</span>

@@ -49,6 +49,12 @@ describe('getNativeStorefrontPath', () => {
       getNativeStorefrontPath('https://other.example.com/account.php', 'https://store.example.com'),
     ).toBeNull();
   });
+
+  it('preserves hash fragment so runtime clicks do not lose fragment targets', () => {
+    expect(getNativeStorefrontPath('/account.php#invoice123', 'https://store.example.com')).toBe(
+      '/account.php#invoice123',
+    );
+  });
 });
 
 describe('isBuyerPortalNativeHref', () => {
@@ -74,6 +80,10 @@ describe('isBuyerPortalNativeHref', () => {
     expect(
       isBuyerPortalNativeHref('https://other.example.com/account.php', 'https://store.example.com'),
     ).toBe(false);
+  });
+
+  it('matches account.php URLs that include a hash fragment', () => {
+    expect(isBuyerPortalNativeHref('/account.php#section', 'https://store.example.com')).toBe(true);
   });
 });
 
@@ -118,7 +128,7 @@ describe('shouldOpenAllowedPageOnInit', () => {
     ).toBe(true);
   });
 
-  it('opens on account.php even when the URL has a native query string', () => {
+  it('opens on account.php without a hash regardless of native query string (pathname strips search)', () => {
     expect(
       shouldOpenAllowedPageOnInit({
         pathname: '/account.php',
