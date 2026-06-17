@@ -702,6 +702,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                             number: '1Z999AA10123456784',
                             url: 'https://fedex.com/track/1Z999AA10123456784',
                           },
+                          items: [{ lineItemId: 2001, quantity: 3 }],
                         },
                       },
                     ],
