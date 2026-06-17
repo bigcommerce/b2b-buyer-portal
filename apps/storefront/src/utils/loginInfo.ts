@@ -356,10 +356,8 @@ export const getCurrentCustomerInfo = async (
             b2bLogger.error(error);
             return undefined;
           });
-          const bcPermissions = authorizationData?.authorization?.result?.permissions ?? [];
-          if (bcPermissions) {
-            store.dispatch(setPermissionModules(bcPermissions));
-          }
+          const b2bPermissions = authorizationData?.authorization?.result?.permissions ?? [];
+          store.dispatch(setPermissionModules(b2bPermissions));
         }
       } else {
         store.dispatch(setPermissionModules(permissions));
