@@ -13,6 +13,7 @@ interface B2BTokenResponse {
   authorization: {
     result: {
       token: string;
+      storefrontLoginToken: string;
       loginType: LoginTypes;
       permissions: {
         code: string;
@@ -55,6 +56,7 @@ const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutati
 	}) {
 		result {
 			token
+			storefrontLoginToken
 			loginType
 			permissions {
 				code
