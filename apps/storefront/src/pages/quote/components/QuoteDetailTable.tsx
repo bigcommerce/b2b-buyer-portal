@@ -11,6 +11,11 @@ import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 
+import {
+  getQuoteBackorderDisplayFields,
+  quoteDetailListHasBackorderedItemsForDisplay,
+} from '../utils/getQuoteBackorderDisplayFields';
+
 import QuoteDetailTableCard from './QuoteDetailTableCard';
 
 interface ProductInfoProps {
@@ -135,7 +140,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
 
-  const hasBackorderedItems = productList.some((item) => (item.quantityBackordered ?? 0) > 0);
+  const hasBackorderedItems = quoteDetailListHasBackorderedItemsForDisplay(productList);
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
@@ -305,19 +310,26 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     {
       key: 'Qty',
       title: b3Lang('quoteDetail.table.qty'),
-      render: (row) => (
-        <Box>
-          <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
-          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && !isOrdered && (
-            <BackorderMessage
-              totalOnHand={row.totalOnHand}
-              quantityBackordered={row.quantityBackordered}
-              backorderMessage={row.backorderMessage}
-              visible={showBackorderDetails}
-            />
-          )}
-        </Box>
-      ),
+      render: (row) => {
+        const backorderFields = getQuoteBackorderDisplayFields(row);
+
+        return (
+          <Box>
+            <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
+            {isBackorderMessagingContextEnabled &&
+              hasAnyBackorderDisplay &&
+              !isOrdered &&
+              backorderFields && (
+                <BackorderMessage
+                  totalOnHand={backorderFields.totalOnHand}
+                  quantityBackordered={backorderFields.quantityBackordered}
+                  backorderMessage={backorderFields.backorderMessage}
+                  visible={showBackorderDetails}
+                />
+              )}
+          </Box>
+        );
+      },
       width: '130px',
       style: {
         textAlign: 'left',

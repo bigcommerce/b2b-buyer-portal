@@ -10,10 +10,7 @@ import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
-import {
-  draftRowQuantityExceedsAvailableToSell,
-  getDraftBackorderDisplayFields,
-} from '../utils/getDraftBackorderDisplayFields';
+import { getDraftBackorderDisplayFields } from '../utils/getQuoteBackorderDisplayFields';
 
 interface QuoteTableCardProps {
   item: QuoteItem['node'];
@@ -53,13 +50,9 @@ function QuoteTableCard({
 
   const b3Lang = useB3Lang();
   const backorderFields = getDraftBackorderDisplayFields(item);
-  const hideBackorderForStockError = draftRowQuantityExceedsAvailableToSell(item);
 
   const showBackorderMessage =
-    draftQuoteBackorderContextEnabled &&
-    Boolean(backorderFields) &&
-    !hideBackorderForStockError &&
-    showBackorderDetails;
+    draftQuoteBackorderContextEnabled && Boolean(backorderFields) && showBackorderDetails;
 
   const price = getBCPrice(Number(basePrice), Number(taxPrice));
 

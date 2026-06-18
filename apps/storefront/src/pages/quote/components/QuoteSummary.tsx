@@ -19,7 +19,7 @@ import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 import getQuoteDraftShowPriceTBD from '../shared/utils';
-import { draftQuoteListHasBackorderedItemsForDisplay } from '../utils/getDraftBackorderDisplayFields';
+import { draftQuoteListHasBackorderedItemsForDisplay } from '../utils/getQuoteBackorderDisplayFields';
 
 interface Summary {
   subtotal: number;
