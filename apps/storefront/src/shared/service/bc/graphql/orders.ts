@@ -62,12 +62,18 @@ export interface OrderShipmentTracking {
   url?: string;
 }
 
+export interface OrderShipmentLineItem {
+  lineItemId: number;
+  quantity: number;
+}
+
 export interface OrderShipment {
   entityId: number;
   shippedAt: DateTimeExtended;
   shippingMethodName: string;
   shippingProviderName: string;
   tracking: OrderShipmentTracking | null;
+  items: OrderShipmentLineItem[];
 }
 
 /** Projects OrderShippingConsignment. */
@@ -393,6 +399,10 @@ const orderShipmentFields = `entityId
         ... on OrderShipmentUrlOnlyTracking {
           url
         }
+      }
+      items {
+        lineItemId
+        quantity
       }`;
 
 const orderConsignmentsFields = `consignments {

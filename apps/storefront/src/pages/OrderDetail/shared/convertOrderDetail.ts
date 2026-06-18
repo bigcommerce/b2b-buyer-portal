@@ -332,16 +332,42 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
       convertLineItemToProduct(le.node, decimalPlaces, consignment.entityId),
     );
 
-    const hasShipments = consignment.shipments.edges.length > 0;
+    // Sum shipped quantity per line item across all shipments.
+    // shipment.items[].lineItemId references lineItem.entityId (product.id).
+    const shippedByLineItem = new Map<number, number>();
+    consignment.shipments.edges.forEach((se) => {
+      se.node.items.forEach((item) => {
+        shippedByLineItem.set(
+          item.lineItemId,
+          (shippedByLineItem.get(item.lineItemId) ?? 0) + item.quantity,
+        );
+      });
+    });
 
-    const productsWithShipStatus = products.map((p) => ({
-      ...p,
-      quantity_shipped: hasShipments ? p.quantity : 0,
-      not_shipping_number: hasShipments ? 0 : p.quantity,
-    }));
+    const productsWithShipStatus = products.map((p) => {
+      const shipped = shippedByLineItem.get(p.id) ?? 0;
+      return {
+        ...p,
+        quantity_shipped: shipped,
+        not_shipping_number: p.quantity - shipped,
+      };
+    });
 
     const shipmentItems = consignment.shipments.edges.map((se) => {
       const shipment = se.node;
+
+      // Only include products that were in this specific shipment.
+      const shipmentProductInfo = shipment.items
+        .map((item) => {
+          const product = productsWithShipStatus.find((p) => p.id === item.lineItemId);
+          if (!product) return null;
+          return {
+            ...product,
+            current_quantity_shipped: item.quantity,
+          };
+        })
+        .filter(Boolean);
+
       return {
         id: shipment.entityId,
         order_id: order.entityId,
@@ -356,26 +382,25 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
         billing_address: convertAddress(order.billingAddress),
         comments: '',
         customer_id: 0,
-        items: products.map((p) => ({
-          order_product_id: p.id,
-          product_id: p.product_id,
-          quantity: p.quantity,
+        items: shipment.items.map((item) => ({
+          order_product_id: item.lineItemId,
+          product_id: productsWithShipStatus.find((p) => p.id === item.lineItemId)?.product_id ?? 0,
+          quantity: item.quantity,
         })),
         merchant_shipping_cost: '0',
         shipping_address: address,
-        itemsInfo: productsWithShipStatus.map((p) => ({
-          ...p,
-          current_quantity_shipped: p.quantity,
-        })),
+        itemsInfo: shipmentProductInfo,
       };
     });
 
-    const notShipItems = hasShipments
-      ? []
-      : productsWithShipStatus.map((p) => ({
-          ...p,
-          not_shipping_number: p.quantity,
-        }));
+    const notShipItems = productsWithShipStatus
+      .filter((p) => p.quantity > p.quantity_shipped)
+      .map((p) => ({
+        ...p,
+        not_shipping_number: p.quantity - p.quantity_shipped,
+      }));
+
+    const itemsShippedCount = productsWithShipStatus.filter((p) => p.quantity_shipped > 0).length;
 
     const shippingCost = formatPrice(consignment.shippingCost.value, decimalPlaces);
 
@@ -393,7 +418,7 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
       handling_cost_inc_tax: '0',
       handling_cost_tax: '0',
       handling_cost_tax_class_id: 0,
-      items_shipped: hasShipments ? products.length : 0,
+      items_shipped: itemsShippedCount,
       items_total: products.length,
       shipping_method: shipmentItems[0]?.shipping_method ?? '',
       shipping_quotes: '',
