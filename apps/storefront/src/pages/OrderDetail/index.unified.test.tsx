@@ -948,6 +948,192 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByText(/123 Main St/)).toBeVisible();
       expect(screen.getByText(/456 Oak Ave/)).toBeVisible();
     });
+
+    it('renders both shipped and not-shipped sections for a partial shipment', async () => {
+      const partialOrder = buildShippedOrder({
+        status: { value: 'PARTIALLY_SHIPPED', label: 'Partially Shipped' },
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: 'Acme Corp',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: 4001,
+                          sku: 'WIDGET-A',
+                          brand: 'WidgetCo',
+                          name: 'Partially Shipped Widget',
+                          quantity: 5,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 125 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 5001,
+                          shippedAt: { utc: '2026-05-15T10:00:00Z' },
+                          shippingMethodName: 'Standard Shipping',
+                          shippingProviderName: 'FedEx',
+                          tracking: {
+                            number: 'PARTIAL-TRACK-001',
+                            url: 'https://fedex.com/track/PARTIAL-TRACK-001',
+                          },
+                          items: [{ lineItemId: 2001, quantity: 2 }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+      });
+
+      setupServerWithOrder(partialOrder);
+      await renderAndWait();
+
+      expect(await screen.findByText(/Shipment/)).toBeVisible();
+      expect(screen.getByText('PARTIAL-TRACK-001')).toBeVisible();
+      expect(screen.getByText('Not shipped yet')).toBeVisible();
+      // Product appears in both shipped and not-shipped sections
+      expect(screen.getAllByText('Partially Shipped Widget')).toHaveLength(2);
+    });
+
+    it('renders multiple shipments for different line items in the same consignment', async () => {
+      const multiShipmentOrder = buildShippedOrder({
+        consignments: {
+          shipping: {
+            edges: [
+              {
+                cursor: 'sc1',
+                node: {
+                  entityId: 1001,
+                  shippingAddress: {
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    company: 'Acme Corp',
+                    address1: '123 Main St',
+                    address2: null,
+                    city: 'Austin',
+                    stateOrProvince: 'TX',
+                    postalCode: '73301',
+                    country: 'United States',
+                    countryCode: 'US',
+                    phone: null,
+                    email: null,
+                  },
+                  shippingCost: { currencyCode: 'USD', value: 20 },
+                  lineItems: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 2001,
+                          productEntityId: 3001,
+                          variantEntityId: 4001,
+                          sku: 'W-A',
+                          brand: null,
+                          name: 'Widget Alpha',
+                          quantity: 3,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 75 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                      {
+                        node: {
+                          entityId: 2002,
+                          productEntityId: 3002,
+                          variantEntityId: 4002,
+                          sku: 'W-B',
+                          brand: null,
+                          name: 'Widget Beta',
+                          quantity: 4,
+                          productOptions: [],
+                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          image: null,
+                          baseCatalogProduct: null,
+                        },
+                      },
+                    ],
+                  },
+                  shipments: {
+                    edges: [
+                      {
+                        node: {
+                          entityId: 5001,
+                          shippedAt: { utc: '2026-05-10T10:00:00Z' },
+                          shippingMethodName: 'Standard Shipping',
+                          shippingProviderName: 'FedEx',
+                          tracking: {
+                            number: 'MULTI-TRACK-001',
+                            url: 'https://fedex.com/track/MULTI-TRACK-001',
+                          },
+                          items: [{ lineItemId: 2001, quantity: 3 }],
+                        },
+                      },
+                      {
+                        node: {
+                          entityId: 5002,
+                          shippedAt: { utc: '2026-05-12T14:00:00Z' },
+                          shippingMethodName: 'Express Shipping',
+                          shippingProviderName: 'UPS',
+                          tracking: {
+                            number: 'MULTI-TRACK-002',
+                            url: 'https://ups.com/track/MULTI-TRACK-002',
+                          },
+                          items: [{ lineItemId: 2002, quantity: 2 }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          downloads: null,
+        },
+      });
+
+      setupServerWithOrder(multiShipmentOrder);
+      await renderAndWait();
+
+      expect(await screen.findByText('MULTI-TRACK-001')).toBeVisible();
+      expect(screen.getByText('MULTI-TRACK-002')).toBeVisible();
+      expect(screen.getByText('Widget Alpha')).toBeVisible();
+      // Widget Beta appears in both shipped and not-shipped sections (2 of 4 shipped)
+      expect(screen.getAllByText('Widget Beta')).toHaveLength(2);
+      expect(screen.getByText('Not shipped yet')).toBeVisible();
+    });
   });
 
   describe('B2B-4826: payment details', () => {
