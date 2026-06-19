@@ -48,7 +48,6 @@ const stubServices = () => {
     customerInfo: {
       userType: UserTypes.MULTIPLE_B2C,
       userInfo: { role: CustomerRole.SENIOR_BUYER, id: 456, companyRoleName: 'Senior Buyer' },
-      permissions: QUERY_PERMISSIONS,
     },
   } as never);
 
@@ -92,6 +91,14 @@ describe('getCurrentCustomerInfo permissions source', () => {
 
   it('sources permissions from the customer-info query when the BC login flag is off', async () => {
     mockState({ [COMBINED_QUERY_FLAG]: true });
+
+    vi.spyOn(b2bService, 'getB2BCompanyUserInfo').mockResolvedValue({
+      customerInfo: {
+        userType: UserTypes.MULTIPLE_B2C,
+        userInfo: { role: CustomerRole.SENIOR_BUYER, id: 456, companyRoleName: 'Senior Buyer' },
+        permissions: QUERY_PERMISSIONS,
+      },
+    } as never);
 
     await getCurrentCustomerInfo();
 
