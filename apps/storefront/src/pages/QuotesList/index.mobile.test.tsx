@@ -390,8 +390,6 @@ describe('when the user is a B2B customer', () => {
         element?.textContent === content;
 
       expect(await screen.findByText(textContent('Subtotal:TBD'))).toBeInTheDocument();
-
-      addPriceSpy.mockRestore();
     });
   });
 

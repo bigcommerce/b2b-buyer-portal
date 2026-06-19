@@ -16,7 +16,7 @@ import {
   waitFor,
   within,
 } from 'tests/test-utils';
-import { vi as vitest } from 'vitest';
+import { vi } from 'vitest';
 
 import {
   QuoteEdge,
@@ -442,7 +442,7 @@ describe('when the user is a B2B customer', () => {
 
     it('shows TBD for draft subtotal when totalIsTbd is true and feature flag is enabled', async () => {
       // Mock the price calculation since product details are not available.
-      const addPriceSpy = vitest.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
+      vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
         subtotal: 200,
         shipping: 0,
         tax: 0,
@@ -480,13 +480,11 @@ describe('when the user is a B2B customer', () => {
       const allDraftQuoteCells = within(rowOfDraftQuote).getAllByRole('cell');
 
       expect(allDraftQuoteCells[7]).toHaveTextContent('TBD');
-
-      addPriceSpy.mockRestore();
     });
 
     it('shows numeric draft subtotal when totalIsTbd is false even with feature flag enabled', async () => {
       // Mock the price calculation since product details are not available.
-      const addPriceSpy = vitest.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
+      vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
         subtotal: 200,
         shipping: 0,
         tax: 0,
@@ -524,13 +522,11 @@ describe('when the user is a B2B customer', () => {
       const allDraftQuoteCells = within(rowOfDraftQuote).getAllByRole('cell');
 
       expect(allDraftQuoteCells[7]).toHaveTextContent('$200.00');
-
-      addPriceSpy.mockRestore();
     });
 
     it('shows numeric draft subtotal when totalIsTbd is true with feature flag disabled', async () => {
       // Mock the price calculation since product details are not available.
-      const addPriceSpy = vitest.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
+      vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
         subtotal: 200,
         shipping: 0,
         tax: 0,
@@ -568,8 +564,6 @@ describe('when the user is a B2B customer', () => {
       const allDraftQuoteCells = within(rowOfDraftQuote).getAllByRole('cell');
 
       expect(allDraftQuoteCells[7]).toHaveTextContent('$200.00');
-
-      addPriceSpy.mockRestore();
     });
   });
 

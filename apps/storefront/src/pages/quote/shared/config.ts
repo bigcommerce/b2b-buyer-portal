@@ -55,8 +55,9 @@ export const addPrice = () => {
 
       grandTotal = showInclusiveTaxPrice ? subtotal + shipping : subtotal + shipping + tax;
 
-      // The actual display format of the price is not important here; we want to know whether the
-      // price _should_ be displayed.
+      // The actual display format of the price is not important here which is why the dummy string
+      // "DO NOT DISPLAY" is being passed; we want to know whether the price _should_ be displayed
+      // or hidden, by checking whether any of the items have their individual prices hidden.
       let { totalIsTbd } = summary;
       if (
         getDisplayPrice({
