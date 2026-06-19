@@ -69,12 +69,15 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     return isSearchNode;
   };
 
-  const handleJudgeCheckoutNormalHref = (element: MouseEvent) => {
+  const handleJudgeCheckoutNormalHref = (
+    element: MouseEvent,
+    anchor: HTMLAnchorElement | null,
+  ) => {
     if (window?.location?.pathname !== CHECKOUT_URL) return false;
 
     const target = element.target as HTMLAnchorElement;
 
-    if (target.getAttribute('href') && target.getAttribute('href') === '#') return true;
+    if (target.getAttribute('href') === '#' || anchor?.getAttribute('href') === '#') return true;
 
     return false;
   };
@@ -103,7 +106,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
 
       if (isConfiguredTarget || isNativeBuyerPortalLink) {
         const isSearchNode = handleJudgeSearchNode(e);
-        const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e);
+        const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e, anchor);
 
         if (isSearchNode || isCheckoutNormalHref) return false;
         e.preventDefault();

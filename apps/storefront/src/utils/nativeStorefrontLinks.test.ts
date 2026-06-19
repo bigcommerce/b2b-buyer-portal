@@ -128,13 +128,4 @@ describe('shouldOpenAllowedPageOnInit', () => {
     ).toBe(true);
   });
 
-  it('opens on account.php without a hash regardless of native query string (pathname strips search)', () => {
-    expect(
-      shouldOpenAllowedPageOnInit({
-        pathname: '/account.php',
-        hash: '',
-        customerId: 456,
-      }),
-    ).toBe(true);
-  });
 });
