@@ -127,5 +127,4 @@ describe('shouldOpenAllowedPageOnInit', () => {
       }),
     ).toBe(true);
   });
-
 });

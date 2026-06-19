@@ -69,10 +69,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     return isSearchNode;
   };
 
-  const handleJudgeCheckoutNormalHref = (
-    element: MouseEvent,
-    anchor: HTMLAnchorElement | null,
-  ) => {
+  const handleJudgeCheckoutNormalHref = (element: MouseEvent, anchor: HTMLAnchorElement | null) => {
     if (window?.location?.pathname !== CHECKOUT_URL) return false;
 
     const target = element.target as HTMLAnchorElement;
