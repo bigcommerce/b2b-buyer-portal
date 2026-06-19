@@ -10,6 +10,8 @@ import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
+import { getQuoteBackorderDisplayFields } from '../utils/getQuoteBackorderDisplayFields';
+
 interface QuoteTableCardProps {
   item: any;
   len: number;
@@ -60,11 +62,10 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     sku,
     notes,
     offeredPrice,
-    backorderMessage,
-    quantityBackordered,
-    totalOnHand,
     productsSearch: { productUrl, variants = [] },
   } = quoteTableItem;
+
+  const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem);
 
   const taxRate = getTaxRate(variants);
   const taxPrice = enteredInclusiveTax
@@ -152,14 +153,17 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && !isOrdered && (
-            <BackorderMessage
-              totalOnHand={totalOnHand}
-              quantityBackordered={quantityBackordered}
-              backorderMessage={backorderMessage}
-              visible={showBackorderDetails}
-            />
-          )}
+          {isBackorderMessagingContextEnabled &&
+            hasAnyBackorderDisplay &&
+            !isOrdered &&
+            backorderFields && (
+              <BackorderMessage
+                totalOnHand={backorderFields.totalOnHand}
+                quantityBackordered={backorderFields.quantityBackordered}
+                backorderMessage={backorderFields.backorderMessage}
+                visible={showBackorderDetails}
+              />
+            )}
           <Typography
             sx={{
               fontSize: '14px',

@@ -53,6 +53,7 @@ import {
   QUOTE_VALIDATION_MESSAGE_CONTEXTS,
 } from '../quote/shared/getQuoteValidationErrorMessage';
 import { buildQuoteStockSnapshot } from '../quote/utils/buildQuoteStockSnapshot';
+import { quoteDetailListHasBackorderedItemsForDisplay } from '../quote/utils/getQuoteBackorderDisplayFields';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
@@ -284,7 +285,7 @@ function QuoteDetail() {
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
-  const hasBackorderedItems = productList.some((item) => (item.quantityBackordered ?? 0) > 0);
+  const hasBackorderedItems = quoteDetailListHasBackorderedItemsForDisplay(productList);
   const [fileList, setFileList] = useState<FileObjects[]>([]);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<

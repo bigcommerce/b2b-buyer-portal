@@ -1,4 +1,4 @@
-import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { CatalogQuickVariantSku, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import type { Variant } from '@/types/products';
 import type { ShoppingListProductItem } from '@/types/shoppingList';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
@@ -158,6 +158,106 @@ export function catalogListHasBackorderedItemsForDisplay(
         variantSku,
         inventoryBySku,
       }),
+    ),
+  );
+}
+
+export interface PicklistSelection {
+  modifierId: number;
+  displayName: string;
+  productId: number;
+}
+
+// Only the modifier fields this resolver reads — keeps the input contract decoupled
+// from the full Modifiers type so loosely-typed row sources can be passed directly.
+interface PicklistModifier {
+  id?: number | string;
+  type?: string;
+  display_name: string;
+  option_values?: Array<{ id: number; value_data?: { product_id?: number } | null }> | null;
+}
+
+interface PicklistSelectionSource {
+  optionSelections?: Array<{ option_id: number; value_id: number }> | null;
+  productsSearch?: { modifiers?: PicklistModifier[] | null } | null;
+}
+
+const isPicklistModifier = (modifier: PicklistModifier): boolean =>
+  typeof modifier.type === 'string' && modifier.type.includes('product_list');
+
+export function getProductDetailsForPicklistSelections(
+  row: PicklistSelectionSource,
+): PicklistSelection[] {
+  const optionSelections = row.optionSelections ?? [];
+  if (optionSelections.length === 0) {
+    return [];
+  }
+
+  const modifiers = row.productsSearch?.modifiers ?? [];
+
+  return modifiers.flatMap((modifier) => {
+    if (!isPicklistModifier(modifier)) {
+      return [];
+    }
+
+    const selection = optionSelections.find(
+      (option) => Number(option.option_id) === Number(modifier.id),
+    );
+    if (!selection) {
+      return [];
+    }
+
+    const optionValue = (modifier.option_values ?? []).find(
+      (value) => Number(value.id) === Number(selection.value_id),
+    );
+    const productId = optionValue?.value_data?.product_id;
+    if (productId == null) {
+      return [];
+    }
+
+    return [
+      {
+        modifierId: Number(modifier.id),
+        displayName: modifier.display_name,
+        productId,
+      },
+    ];
+  });
+}
+
+export function getCatalogBackorderFieldsForPicklistProduct(
+  quantity: number,
+  product: ProductSearch | undefined,
+): BackorderDisplayFields | null {
+  if (!product) {
+    return null;
+  }
+
+  // A picklist (product_list) modifier references a product, not a variant — value_data
+  // carries only product_id, and the row stores no child-variant id. The app resolves a
+  // picklist product to variants[0] wherever it's carted/quoted/listed (ProductListDialog,
+  // ChooseOptionsDialog, B3ProductList), so matching that here reflects the same variant the
+  // item was ordered under.
+  const inventoryRow = getCatalogInventoryRowFromSearchProduct(
+    product,
+    product.variants?.[0] as unknown as Partial<Variant> | undefined,
+  );
+
+  return getCatalogBackorderDisplayFields(
+    getCatalogBackorderDisplayQuantity(quantity, inventoryRow),
+    inventoryRow,
+  );
+}
+
+export function catalogListHasPicklistBackorderedItemsForDisplay(
+  rows: Array<{ qty: number; selections: PicklistSelection[] }>,
+  picklistProductsById: Record<number, ProductSearch>,
+): boolean {
+  return rows.some(({ qty, selections }) =>
+    selections.some((selection) =>
+      Boolean(
+        getCatalogBackorderFieldsForPicklistProduct(qty, picklistProductsById[selection.productId]),
+      ),
     ),
   );
 }
