@@ -1,4 +1,5 @@
 import {
+  bcAuthorization,
   endUserMasqueradingCompany,
   getAgentInfo,
   getB2BCompanyUserInfo,
@@ -8,7 +9,7 @@ import {
   getUserCompany,
   getUserMasqueradingCompany,
 } from '@/shared/service/b2b';
-import { bcAuthorization, getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
+import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import { getAppClientId } from '@/shared/service/request/base';
 import {
   clearMasqueradeCompany,
