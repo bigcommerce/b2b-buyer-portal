@@ -55,7 +55,7 @@ const stubServices = () => {
     userCompany: { id: '79', companyName: 'Acme', companyStatus: CompanyStatus.APPROVED },
   } as never);
 
-  vi.spyOn(b2bService, 'bcAuthorization').mockResolvedValue({
+  vi.spyOn(b2bService, 'b2bAuthorization').mockResolvedValue({
     authorization: { result: { permissions: BC_PERMISSIONS } },
   } as never);
 };
@@ -71,14 +71,14 @@ describe('getCurrentCustomerInfo permissions source', () => {
     vi.restoreAllMocks();
   });
 
-  it('sources permissions from bcAuthorization when the BC login flag is on', async () => {
+  it('sources permissions from b2bAuthorization when the BC login flag is on', async () => {
     mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
 
     const result = await getCurrentCustomerInfo();
 
     // the customer-info query is asked to skip the permissions selection
     expect(b2bService.getB2BCompanyUserInfo).toHaveBeenCalledWith(true);
-    expect(b2bService.bcAuthorization).toHaveBeenCalledWith(
+    expect(b2bService.b2bAuthorization).toHaveBeenCalledWith(
       expect.objectContaining({ bcToken: 'bc-jwt' }),
     );
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(BC_PERMISSIONS));
@@ -103,13 +103,13 @@ describe('getCurrentCustomerInfo permissions source', () => {
     await getCurrentCustomerInfo();
 
     expect(b2bService.getB2BCompanyUserInfo).toHaveBeenCalledWith(false);
-    expect(b2bService.bcAuthorization).not.toHaveBeenCalled();
+    expect(b2bService.b2bAuthorization).not.toHaveBeenCalled();
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
   });
 
-  it('dispatches an empty permission set when bcAuthorization fails', async () => {
+  it('dispatches an empty permission set when b2bAuthorization fails', async () => {
     mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
-    vi.spyOn(b2bService, 'bcAuthorization').mockRejectedValue(new Error('network'));
+    vi.spyOn(b2bService, 'b2bAuthorization').mockRejectedValue(new Error('network'));
 
     await getCurrentCustomerInfo();
 
@@ -122,13 +122,13 @@ describe('getCurrentCustomerInfo permissions source', () => {
 
     await getCurrentCustomerInfo();
 
-    expect(b2bService.bcAuthorization).not.toHaveBeenCalled();
+    expect(b2bService.b2bAuthorization).not.toHaveBeenCalled();
     expect(permissionsWereDispatched()).toBe(false);
   });
 
-  it('dispatches an empty permission set when bcAuthorization returns one', async () => {
+  it('dispatches an empty permission set when b2bAuthorization returns one', async () => {
     mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
-    vi.spyOn(b2bService, 'bcAuthorization').mockResolvedValue({
+    vi.spyOn(b2bService, 'b2bAuthorization').mockResolvedValue({
       authorization: { result: { permissions: [] } },
     } as never);
 

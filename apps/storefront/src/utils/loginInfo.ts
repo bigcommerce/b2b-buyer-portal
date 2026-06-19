@@ -1,5 +1,5 @@
 import {
-  bcAuthorization,
+  b2bAuthorization,
   endUserMasqueradingCompany,
   getAgentInfo,
   getB2BCompanyUserInfo,
@@ -350,7 +350,7 @@ export const getCurrentCustomerInfo = async (
             (await getCurrentCustomerJWT(getAppClientId()).catch(() => '')) ?? '';
         }
         if (currentCustomerJWT) {
-          const authorizationData = await bcAuthorization({
+          const authorizationData = await b2bAuthorization({
             bcToken: currentCustomerJWT,
             channelId,
           }).catch((error) => {

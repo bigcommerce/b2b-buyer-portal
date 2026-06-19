@@ -26,26 +26,26 @@ export const getBCGraphqlToken = (data: Partial<ApiTokenConfig>): Promise<string
   }).then((res) => res.storeFrontToken.token);
 };
 
-interface BCPermission {
+interface B2BAuthorizationPermission {
   code: string;
   permissionLevel: number;
 }
 
-interface BCAuthorizationInput {
+interface B2BAuthorizationInput {
   bcToken: string;
   channelId: number;
 }
 
-interface BCAuthorizationResponse {
+interface B2BAuthorizationResponse {
   authorization?: {
     result?: {
-      permissions: BCPermission[];
+      permissions: B2BAuthorizationPermission[];
     };
   };
   errors?: Array<{ message: string }>;
 }
 
-const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!) {
+const GET_B2B_AUTHORIZATION = `mutation B2BAuthorization($authData: UserAuthType!) {
   authorization(authData: $authData) {
     result {
       permissions {
@@ -56,11 +56,11 @@ const GET_BC_AUTHORIZATION = `mutation BCAuthorization($authData: UserAuthType!)
   }
 }`;
 
-export async function bcAuthorization(
-  authData: BCAuthorizationInput,
-): Promise<BCAuthorizationResponse> {
-  return B3Request.graphqlB2B<BCAuthorizationResponse>({
-    query: GET_BC_AUTHORIZATION,
+export async function b2bAuthorization(
+  authData: B2BAuthorizationInput,
+): Promise<B2BAuthorizationResponse> {
+  return B3Request.graphqlB2B<B2BAuthorizationResponse>({
+    query: GET_B2B_AUTHORIZATION,
     variables: { authData },
   });
 }
