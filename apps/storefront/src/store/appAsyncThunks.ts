@@ -32,6 +32,19 @@ interface GetPageTranslationResponse {
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
+  'purchased-products': 'purchasedProducts',
+  'user-management': 'userManagement',
+};
+
+/**
+ * Pages that render shared components whose translation keys belong to another page.
+ * When a page is visited, translations for its dependencies are also fetched.
+ */
+const TRANSLATION_DEPENDENCIES: Partial<Record<string, string[]>> = {
+  purchasedProducts: ['shoppingLists'],
+  shoppingList: ['purchasedProducts'],
+  quoteDraft: ['purchasedProducts', 'shoppingList', 'shoppingLists'],
+  quoteDetail: ['quoteDraft', 'purchasedProducts', 'shoppingList', 'shoppingLists'],
 };
 
 /**
