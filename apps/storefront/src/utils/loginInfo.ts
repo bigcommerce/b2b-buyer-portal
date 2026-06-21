@@ -1,4 +1,5 @@
 import {
+  b2bAuthorization,
   endUserMasqueradingCompany,
   getAgentInfo,
   getB2BCompanyUserInfo,
@@ -161,7 +162,7 @@ const agentInfo = async (customerId: number | string, role: number) => {
   }
 };
 
-const getCompanyUserInfo = async () => {
+const getCompanyUserInfo = async (useBcLoginAndAuthorisation = false) => {
   try {
     const {
       customerInfo: {
@@ -169,7 +170,7 @@ const getCompanyUserInfo = async () => {
         userInfo: { role = '', id, companyRoleName = '' },
         permissions,
       },
-    } = await getB2BCompanyUserInfo();
+    } = await getB2BCompanyUserInfo(useBcLoginAndAuthorisation);
 
     return {
       userType,
@@ -239,6 +240,10 @@ export const getCurrentCustomerInfo = async (
   }
 
   try {
+    const { featureFlags } = store.getState().global;
+    const useBcLoginAndAuthorisation =
+      featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+
     const data = await getCustomerInfo();
 
     if (data?.detail) return undefined;
@@ -254,7 +259,7 @@ export const getCurrentCustomerInfo = async (
       customerGroupId,
     } = loginCustomer;
 
-    const companyUserInfo = await getCompanyUserInfo();
+    const companyUserInfo = await getCompanyUserInfo(useBcLoginAndAuthorisation);
 
     if (companyUserInfo && customerId) {
       const { userType, id, companyRoleName, permissions } = companyUserInfo;
@@ -296,7 +301,6 @@ export const getCurrentCustomerInfo = async (
         companyName: companyInfo.companyName,
       };
 
-      const { featureFlags } = store.getState().global;
       const useCombinedQuery =
         featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
 
@@ -338,7 +342,27 @@ export const getCurrentCustomerInfo = async (
 
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
-      store.dispatch(setPermissionModules(permissions));
+
+      if (useBcLoginAndAuthorisation) {
+        let { currentCustomerJWT } = store.getState().company.tokens;
+        if (!currentCustomerJWT) {
+          currentCustomerJWT =
+            (await getCurrentCustomerJWT(getAppClientId()).catch(() => '')) ?? '';
+        }
+        if (currentCustomerJWT) {
+          const authorizationData = await b2bAuthorization({
+            bcToken: currentCustomerJWT,
+            channelId,
+          }).catch((error) => {
+            b2bLogger.error(error);
+            return undefined;
+          });
+          const b2bPermissions = authorizationData?.authorization?.result?.permissions ?? [];
+          store.dispatch(setPermissionModules(b2bPermissions));
+        }
+      } else {
+        store.dispatch(setPermissionModules(permissions));
+      }
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
       store.dispatch(setQuoteUserId(quoteUserId));
