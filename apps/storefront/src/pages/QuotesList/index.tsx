@@ -190,14 +190,13 @@ function useData() {
 const useColumnList = (
   currenciesMap: Record<string, DisplayCurrency>,
   isCurrencySymbolPlacementFixEnabled: boolean,
-  isTbdPriceEnabled: boolean,
 ): Array<TableColumnItem<ListItem>> => {
   const b3Lang = useB3Lang();
 
   const getTotalAmount = useMemo(
     () => (item: ListItem) => {
       const { totalAmount, currency, totalIsTbd } = item;
-      if (isTbdPriceEnabled && totalIsTbd) {
+      if (totalIsTbd) {
         return b3Lang('quoteDraft.quoteSummary.tbd');
       }
       const currencyCode = currency?.currencyCode;
