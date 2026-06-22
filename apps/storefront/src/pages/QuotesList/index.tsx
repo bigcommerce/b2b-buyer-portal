@@ -33,6 +33,7 @@ interface ListItem {
   status: string;
   quoteNumber: string;
   currency?: CurrencyProps | DisplayCurrency;
+  totalIsTbd?: boolean;
 }
 
 interface FilterSearchProps {
@@ -189,14 +190,13 @@ function useData() {
 const useColumnList = (
   currenciesMap: Record<string, DisplayCurrency>,
   isCurrencySymbolPlacementFixEnabled: boolean,
-  isTbdPriceEnabled: boolean,
 ): Array<TableColumnItem<ListItem>> => {
   const b3Lang = useB3Lang();
 
   const getTotalAmount = useMemo(
     () => (item: ListItem) => {
       const { totalAmount, currency, totalIsTbd } = item;
-      if (isTbdPriceEnabled && totalIsTbd) {
+      if (totalIsTbd) {
         return b3Lang('quoteDraft.quoteSummary.tbd');
       }
       const currencyCode = currency?.currencyCode;
@@ -209,7 +209,7 @@ const useColumnList = (
         useCurrentCurrency: !!effectiveCurrency,
       });
     },
-    [isCurrencySymbolPlacementFixEnabled, isTbdPriceEnabled, currenciesMap, b3Lang],
+    [isCurrencySymbolPlacementFixEnabled, currenciesMap, b3Lang],
   );
 
   return useMemo(
@@ -284,7 +284,7 @@ function QuotesList() {
     'B2B-3876.fix_quote_currency_symbol_placement',
   );
   const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
-  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement, isTbdPriceEnabled);
+  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement);
 
   const initSearch = {
     q: '',
