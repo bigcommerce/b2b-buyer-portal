@@ -139,7 +139,7 @@ function Login(props: PageProps) {
     return currentCustomerJWT;
   };
 
-  const fetchB2BToken = async (
+  const fetchB2BTokenByAuthMutation = async (
     currentCustomerJWT: string | undefined,
     email: string,
   ): Promise<string | undefined> => {
@@ -170,11 +170,12 @@ function Login(props: PageProps) {
    * handleRegularLogin flow
    *
    * Step 1: On page load, no BC auth token exists — it is fetched automatically.
+   * So storefronttoken gql fetches the token
    * Step 2: Run the BC login mutation (bcLogin).
    * (when useBcLoginAndAuthorisation = true)
    * If the Step 2 fails, the flow stops here.
    * Step 3: Retrieve the current customer JWT (fetchCurrentCustomerJWT).
-   * Step 4: Call fetchB2BToken, which performs the Authorization mutation and returns the B2B token
+   * Step 4: Performs the Authorization mutation using JWT, which performs the Authorization
    */
   const handleRegularLogin = async (data: LoginConfig) => {
     try {
@@ -198,7 +199,7 @@ function Login(props: PageProps) {
         }
 
         const currentCustomerJWT = await fetchCurrentCustomerJWT();
-        const B2BToken = await fetchB2BToken(currentCustomerJWT, data.email);
+        const B2BToken = await fetchB2BTokenByAuthMutation(currentCustomerJWT, data.email);
         if (!B2BToken) {
           return;
         }

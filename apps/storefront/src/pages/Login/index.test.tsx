@@ -366,7 +366,7 @@ describe('LoginPage', () => {
           }),
         ),
         // Non-OK response whose body includes "errors" makes getCurrentCustomerJWT
-        // resolve to undefined, so fetchB2BToken bails on the missing JWT.
+        // resolve to undefined, so fetchB2BTokenByAuthMutation bails on the missing JWT.
         http.get(CURRENT_JWT_URL, () => new HttpResponse('errors', { status: 401 })),
       );
 

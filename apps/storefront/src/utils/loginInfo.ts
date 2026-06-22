@@ -195,20 +195,36 @@ const loginWithCurrentCustomerJWT = async () => {
 
   if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
-  const data = await getB2BToken(currentCustomerJWT, channelId).catch((error) => {
-    // eslint-disable-next-line no-console
-    console.error('Failed to get B2B token:', error);
-    throw error;
-  });
+  /*
+   * The new BC-first login/authorisation flow sources loginType and permissions
+   * elsewhere, so only the legacy flow needs them from this mutation. We tell
+   * getB2BToken which fields to request and only read/dispatch them when the
+   * flag is off.
+   */
+  const useBcLoginAndAuthorisation =
+    store.getState().global.featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+
+  const data = await getB2BToken(currentCustomerJWT, channelId, !useBcLoginAndAuthorisation).catch(
+    (error) => {
+      // eslint-disable-next-line no-console
+      console.error('Failed to get B2B token:', error);
+      throw error;
+    },
+  );
 
   const B2BToken = data.authorization.result.token as string;
-  const newLoginType = data.authorization.result.loginType as LoginTypes;
 
-  const B2BPermissions = data.authorization.result.permissions;
-  store.dispatch(setPermissionModules(B2BPermissions));
+  let newLoginType: LoginTypes | undefined;
+
+  if (!useBcLoginAndAuthorisation) {
+    newLoginType = data.authorization.result.loginType as LoginTypes;
+    store.dispatch(setLoginType(newLoginType));
+
+    const B2BPermissions = data.authorization.result.permissions;
+    store.dispatch(setPermissionModules(B2BPermissions));
+  }
 
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
-  store.dispatch(setLoginType(newLoginType));
   store.dispatch(setB2BToken(B2BToken));
 
   store.dispatch(clearMasqueradeCompany());
@@ -236,7 +252,11 @@ export const getCurrentCustomerInfo = async (
       throw error;
     });
     if (!data) return undefined;
-    loginType = data.newLoginType;
+    /*
+     * newLoginType is only populated in the legacy flow; under the BC-first flag
+     * it's undefined, so we keep the GENERAL_LOGIN default.
+     */
+    loginType = data.newLoginType ?? loginType;
   }
 
   try {
