@@ -6,6 +6,7 @@ import {
   draftQuoteListHasBackorderedItemsForDisplay,
   draftRowQuantityExceedsAvailableToSell,
   getDraftBackorderDisplayFields,
+  getDraftQuotePicklistSelections,
   getQuoteBackorderDisplayFields,
   getQuoteBackorderDisplayQuantity,
   getQuoteItemBackendAvailability,
@@ -482,6 +483,70 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
       quantityBackordered: 8,
       backorderMessage: 'Snapshot message',
     });
+  });
+});
+
+describe('getDraftQuotePicklistSelections', () => {
+  const picklistModifier = {
+    id: 100,
+    type: 'product_list',
+    display_name: 'Pick a pickle',
+    option_values: [{ id: 200, value_data: { product_id: 555 } }],
+  };
+
+  const buildRow = (optionList: string) =>
+    ({
+      quantity: 1,
+      optionList,
+      productsSearch: { modifiers: [picklistModifier] },
+    }) as unknown as QuoteItem['node'];
+
+  it('resolves a picklist selection from camelCase attribute-keyed optionList', () => {
+    const optionList = JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]);
+
+    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
+  });
+
+  it('resolves a picklist selection from snake_case option_id/option_value entries', () => {
+    const optionList = JSON.stringify([{ option_id: 100, option_value: 200 }]);
+
+    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
+  });
+
+  it('returns an empty array when the modifier is not a picklist', () => {
+    const optionList = JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]);
+    const row = {
+      quantity: 1,
+      optionList,
+      productsSearch: { modifiers: [{ ...picklistModifier, type: 'dropdown' }] },
+    } as unknown as QuoteItem['node'];
+
+    expect(getDraftQuotePicklistSelections(row)).toEqual([]);
+  });
+
+  it('returns an empty array when optionList is empty', () => {
+    expect(getDraftQuotePicklistSelections(buildRow('[]'))).toEqual([]);
+  });
+
+  it('returns an empty array when optionList is not valid JSON', () => {
+    expect(getDraftQuotePicklistSelections(buildRow('not json'))).toEqual([]);
+  });
+
+  it('skips null and primitive entries without throwing on malformed optionList', () => {
+    const optionList = JSON.stringify([
+      null,
+      'x',
+      42,
+      { optionId: 'attribute[100]', optionValue: '200' },
+    ]);
+
+    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
   });
 });
 

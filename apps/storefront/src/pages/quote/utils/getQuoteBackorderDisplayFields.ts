@@ -2,6 +2,11 @@ import type { Variant } from '@/types/products';
 import { QuoteItem } from '@/types/quotes';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
+import {
+  getProductDetailsForPicklistSelections,
+  type PicklistSelection,
+  type PicklistSelectionSource,
+} from '@/utils/catalogBackorderDisplay';
 
 export interface QuoteBackorderRow {
   quantity: number | string;
@@ -137,6 +142,67 @@ export function getQuoteBackorderDisplayFields(
 
 export function getDraftBackorderDisplayFields(row: QuoteItem['node']) {
   return getQuoteBackorderDisplayFields(row);
+}
+
+interface DraftQuoteOptionListEntry {
+  option_id?: number | string;
+  optionId?: number | string;
+  option_value?: number | string;
+  optionValue?: number | string;
+}
+
+// Draft quote items store their selected options in `optionList` (a JSON string), keyed
+// either {option_id, option_value} or {optionId, optionValue}, with the option id shaped
+// like "attribute[123]". The shared picklist resolver expects numeric {option_id, value_id}
+// pairs (the shape catalog/quick-order rows carry natively), so translate before handing off.
+function parseDraftQuoteOptionSelections(
+  optionList: string | undefined,
+): Array<{ option_id: number; value_id: number }> {
+  if (!optionList) {
+    return [];
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(optionList);
+  } catch {
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  return (parsed as unknown[]).flatMap((item) => {
+    if (item === null || typeof item !== 'object') {
+      return [];
+    }
+
+    const entry = item as DraftQuoteOptionListEntry;
+    const rawId = entry.option_id ?? entry.optionId;
+    const rawValue = entry.option_value ?? entry.optionValue;
+    if (rawId == null || rawValue == null) {
+      return [];
+    }
+
+    const idMatch = `${rawId}`.match(/\d+/);
+    const optionId = idMatch ? Number(idMatch[0]) : Number.NaN;
+    const valueId = Number(rawValue);
+    if (Number.isNaN(optionId) || Number.isNaN(valueId)) {
+      return [];
+    }
+
+    return [{ option_id: optionId, value_id: valueId }];
+  });
+}
+
+export function getDraftQuotePicklistSelections(row: QuoteItem['node']): PicklistSelection[] {
+  const source: PicklistSelectionSource = {
+    optionSelections: parseDraftQuoteOptionSelections(row.optionList),
+    productsSearch: row.productsSearch,
+  };
+
+  return getProductDetailsForPicklistSelections(source);
 }
 
 export function draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList: QuoteItem[]): boolean {

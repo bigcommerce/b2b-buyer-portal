@@ -184,7 +184,7 @@ interface PicklistModifier {
   option_values?: Array<{ id: number; value_data?: { product_id?: number } | null }> | null;
 }
 
-interface PicklistSelectionSource {
+export interface PicklistSelectionSource {
   optionSelections?: Array<{ option_id: number; value_id: number }> | null;
   productsSearch?: { modifiers?: PicklistModifier[] | null } | null;
 }
