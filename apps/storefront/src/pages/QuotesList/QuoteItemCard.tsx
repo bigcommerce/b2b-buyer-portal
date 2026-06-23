@@ -7,7 +7,6 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
 import { TableColumnItem } from '@/components/table/B3Table';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -41,7 +40,6 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
   const { item, goToDetail, currenciesMap, isCurrencySymbolPlacementFixEnabled } = props;
   const theme = useTheme();
   const b3Lang = useB3Lang();
-  const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
 
   const primaryColor = theme.palette.primary.main;
 

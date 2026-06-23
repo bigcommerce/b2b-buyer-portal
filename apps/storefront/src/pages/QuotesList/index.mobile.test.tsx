@@ -352,7 +352,7 @@ describe('when the user is a B2B customer', () => {
     });
 
     it('shows TBD for draft subtotal on the card when totalIsTbd is true and feature flag is enabled', async () => {
-      const addPriceSpy = vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
+      vi.spyOn(quoteSharedConfig, 'addPrice').mockReturnValue({
         subtotal: 200,
         shipping: 0,
         tax: 0,
