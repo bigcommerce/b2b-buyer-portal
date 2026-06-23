@@ -5,21 +5,20 @@ import {
   useEffect,
   useId,
   useImperativeHandle,
-  useMemo,
   useState,
 } from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import ShippingExpectationPrompt from '@/components/ShippingExpectationPrompt';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
+import { useDraftQuoteBackorderState } from '../hooks/useDraftQuoteBackorderState';
 import getQuoteDraftShowPriceTBD from '../shared/utils';
-import { draftQuoteListHasBackorderedItemsForDisplay } from '../utils/getQuoteBackorderDisplayFields';
 
 interface Summary {
   subtotal: number;
@@ -46,19 +45,20 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
   const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
   const backorderEnabled = useIsBackorderEnabled();
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
+  const {
+    isBackorderMessagingEnabled,
+    isBackorderMessagingContextEnabled,
+    hasAnyBackorderDisplay,
+  } = useBackorderStorefrontMessaging();
   const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
 
-  const hasBackorderedItems = useMemo(() => {
-    if (!isBackorderMessagingEnabled) {
-      return false;
-    }
-    return draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList);
-  }, [draftQuoteList, isBackorderMessagingEnabled]);
+  const { hasBackorderedItems } = useDraftQuoteBackorderState({
+    items: draftQuoteList,
+    isBackorderMessagingEnabled,
+    draftQuoteBackorderContextEnabled: isBackorderMessagingContextEnabled && hasAnyBackorderDisplay,
+  });
 
   const priceCalc = (price: number) => parseFloat(String(price));
 
