@@ -26,8 +26,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
   const isNativeLinkInterceptionEnabled = useAppSelector(
-    ({ global }) =>
-      global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
+    ({ global }) => global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
   );
   const authorizedPages = initOpenState?.authorizedPages || '/orders';
 
