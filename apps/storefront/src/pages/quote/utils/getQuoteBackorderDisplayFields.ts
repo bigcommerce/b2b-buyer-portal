@@ -1,7 +1,14 @@
+import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import type { Variant } from '@/types/products';
 import { QuoteItem } from '@/types/quotes';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
+import {
+  getProductDetailsForPicklistSelections,
+  type PicklistSelection,
+  type PicklistSelectionSource,
+} from '@/utils/catalogBackorderDisplay';
+import { parseAttributeOptionId } from '@/utils/parseAttributeOptionId';
 
 export interface QuoteBackorderRow {
   quantity: number | string;
@@ -135,14 +142,82 @@ export function getQuoteBackorderDisplayFields(
   return getBackorderDisplayFieldsFromOnHand(displayQty, totalOnHand, backorderMessage);
 }
 
-export function getDraftBackorderDisplayFields(row: QuoteItem['node']) {
-  return getQuoteBackorderDisplayFields(row);
+// Fall back to the snapshot's id so rows missing node.productId still resolve live
+// inventory rather than stale stored data.
+export function resolveDraftLineProductId(row: QuoteItem['node']): number {
+  return Number(row.productId) || Number(row.productsSearch?.id);
 }
 
-export function draftQuoteListHasBackorderedItemsForDisplay(draftQuoteList: QuoteItem[]): boolean {
-  return draftQuoteList.some((quoteItem) =>
-    Boolean(getQuoteBackorderDisplayFields(quoteItem.node)),
-  );
+export function getDraftBackorderDisplayFields(
+  row: QuoteItem['node'],
+  liveProductsSearch?: ProductSearch,
+) {
+  if (!liveProductsSearch) {
+    return getQuoteBackorderDisplayFields(row);
+  }
+
+  return getQuoteBackorderDisplayFields({
+    ...row,
+    productsSearch: liveProductsSearch as unknown as QuoteBackorderRow['productsSearch'],
+  });
+}
+
+interface DraftQuoteOptionListEntry {
+  option_id?: number | string;
+  optionId?: number | string;
+  option_value?: number | string;
+  optionValue?: number | string;
+}
+
+// Draft `optionList` is a JSON string keyed {option_id|optionId, option_value|optionValue}
+// with ids shaped like "attribute[123]"; translate to the resolver's numeric-pair shape.
+function parseDraftQuoteOptionSelections(
+  optionList: string | undefined,
+): Array<{ option_id: number; value_id: number }> {
+  if (!optionList) {
+    return [];
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(optionList);
+  } catch {
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  return (parsed as unknown[]).flatMap((item) => {
+    if (item === null || typeof item !== 'object') {
+      return [];
+    }
+
+    const entry = item as DraftQuoteOptionListEntry;
+    const rawId = entry.option_id ?? entry.optionId;
+    const rawValue = entry.option_value ?? entry.optionValue;
+    if (rawId == null || rawValue == null) {
+      return [];
+    }
+
+    const optionId = parseAttributeOptionId(rawId);
+    const valueId = Number(rawValue);
+    if (optionId === null || Number.isNaN(valueId)) {
+      return [];
+    }
+
+    return [{ option_id: optionId, value_id: valueId }];
+  });
+}
+
+export function getDraftQuotePicklistSelections(row: QuoteItem['node']): PicklistSelection[] {
+  const source: PicklistSelectionSource = {
+    optionSelections: parseDraftQuoteOptionSelections(row.optionList),
+    productsSearch: row.productsSearch,
+  };
+
+  return getProductDetailsForPicklistSelections(source);
 }
 
 export function quoteDetailListHasBackorderedItemsForDisplay(
