@@ -13,6 +13,11 @@ const loggedInCompanyState = buildCompanyStateWith({
   },
 });
 
+const withNativeLinkInterception = {
+  company: loggedInCompanyState,
+  global: { featureFlags: { 'B2B-4912.buyer_portal_native_link_interception': true } },
+};
+
 describe('useB3AppOpen native storefront link interception', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
@@ -34,7 +39,7 @@ describe('useB3AppOpen native storefront link interception', () => {
           handleEnterClick,
           authorizedPages: '/orders',
         }),
-      { preloadedState: { company: loggedInCompanyState } },
+      { preloadedState: withNativeLinkInterception },
     );
 
     await userEvent.click(screen.getByText('Account'));
@@ -59,7 +64,7 @@ describe('useB3AppOpen native storefront link interception', () => {
           handleEnterClick,
           authorizedPages: '/orders',
         }),
-      { preloadedState: { company: loggedInCompanyState } },
+      { preloadedState: withNativeLinkInterception },
     );
 
     await userEvent.click(screen.getByRole('link'));

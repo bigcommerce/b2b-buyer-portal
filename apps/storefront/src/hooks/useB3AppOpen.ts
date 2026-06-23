@@ -25,6 +25,10 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1);
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
+  const isNativeLinkInterceptionEnabled = useAppSelector(
+    ({ global }) =>
+      global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
+  );
   const authorizedPages = initOpenState?.authorizedPages || '/orders';
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
@@ -101,7 +105,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
       const nativePath = anchor ? getNativeStorefrontPath(anchor.href) : null;
       const isNativeBuyerPortalLink = anchor ? isBuyerPortalNativeHref(anchor.href) : false;
 
-      if (isConfiguredTarget || isNativeBuyerPortalLink) {
+      if (isConfiguredTarget || (isNativeLinkInterceptionEnabled && isNativeBuyerPortalLink)) {
         const isSearchNode = handleJudgeSearchNode(e);
         const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e, anchor);
 
@@ -172,7 +176,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkoutRegisterNumber, initOpenState, role]);
+  }, [checkoutRegisterNumber, initOpenState, isNativeLinkInterceptionEnabled, role]);
 
   useMutationObservable(config['dom.checkoutRegisterParentElement'], callback);
 
