@@ -56,6 +56,13 @@ function Login(props: PageProps) {
 
   const [isLoading, setLoading] = useState(true);
   const isSubmittingRef = useRef(false);
+  /**
+    * Tracks which loginFlag has already triggered logout so it only runs once.
+    Without this, the first logout flips isLoggedIn to false,
+    the effect fires again, and a second logout clears the freshly fetched bcGraphqlToken,
+    breaking login until refresh.
+   */
+  const handledLogoutFlagRef = useRef<LoginFlagType | null>(null);
   const [isMobile] = useMobile();
 
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
@@ -107,11 +114,19 @@ function Login(props: PageProps) {
         if (isLoginFlagType(loginFlag)) {
           setLoginFlag(loginFlag);
 
-          if (isLoggedIn && loginFlag === 'loggedOutLogin') {
-            await logout({ showLogoutBanner: true });
-            // All company-related flags have isLoggedIn set to false.
-          } else if (!isLoggedIn && SHOULD_LOGOUT_FLAGS.includes(loginFlag)) {
-            await logout({ showLogoutBanner: false });
+          const shouldLogout =
+            (isLoggedIn && loginFlag === 'loggedOutLogin') ||
+            (!isLoggedIn && SHOULD_LOGOUT_FLAGS.includes(loginFlag));
+
+          /* 
+            Guard against a second logout: logging out flips isLoggedIn to
+            false and re-runs this effect, which would otherwise re-trigger
+            logout via the !isLoggedIn branch. Only log out once per flag.
+          */
+          if (shouldLogout && handledLogoutFlagRef.current !== loginFlag) {
+            handledLogoutFlagRef.current = loginFlag;
+            // Banner only when an actually-logged-in user is signing out.
+            await logout({ showLogoutBanner: isLoggedIn && loginFlag === 'loggedOutLogin' });
           }
         }
 
