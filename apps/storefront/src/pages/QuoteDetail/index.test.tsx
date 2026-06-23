@@ -1509,6 +1509,59 @@ describe('when the user is a B2B customer', () => {
 
       expect(screen.queryByText(/backorder details/i)).not.toBeInTheDocument();
     });
+
+    it('hides the toggle on an ordered quote with backordered items when the BACK-593 experiment is off', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            status: 4,
+            productsList: [buildQuoteProductWith({ quantityBackordered: 3 })],
+          },
+        },
+      });
+
+      server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(screen.queryByText(/backorder details/i)).not.toBeInTheDocument();
+    });
+
+    it('shows the toggle on an ordered quote with backordered items', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            status: 4,
+            productsList: [buildQuoteProductWith({ quantityBackordered: 3 })],
+          },
+        },
+      });
+
+      server.use(graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)));
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...backorderPreloadedState,
+          global: {
+            ...backorderPreloadedState.global,
+            featureFlags: {
+              ...backorderPreloadedState.global.featureFlags,
+              'BACK-593.surface_order_backorder_info_on_quotes': true,
+            },
+          },
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(await screen.findByText(/backorder details/i)).toBeInTheDocument();
+    });
   });
 
   describe('fix_quote_currency_symbol_placement feature flag', () => {

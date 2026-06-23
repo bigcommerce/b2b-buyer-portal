@@ -6,6 +6,7 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
@@ -120,7 +121,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     currency,
     status,
   } = props;
+
   const isOrdered = Number(status) === 4;
+  const surfaceOrderedQuoteBackorders = useFeatureFlag(
+    'BACK-593.surface_order_backorder_info_on_quotes',
+  );
+  const shouldDisplayBackorderInformation = !isOrdered || surfaceOrderedQuoteBackorders;
 
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
@@ -318,7 +324,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
             {isBackorderMessagingContextEnabled &&
               hasAnyBackorderDisplay &&
-              !isOrdered &&
+              shouldDisplayBackorderInformation &&
               backorderFields && (
                 <BackorderMessage
                   totalOnHand={backorderFields.totalOnHand}
@@ -425,7 +431,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         </Typography>
         {isBackorderMessagingContextEnabled &&
           hasAnyBackorderDisplay &&
-          !isOrdered &&
+          shouldDisplayBackorderInformation &&
           hasBackorderedItems && (
             <FormControlLabel
               control={
@@ -463,7 +469,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
             showBackorderDetails={showBackorderDetails}
-            status={status}
+            shouldDisplayBackorderInformation={shouldDisplayBackorderInformation}
           />
         )}
       />
