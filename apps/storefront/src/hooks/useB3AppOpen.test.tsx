@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { buildCompanyStateWith, userEvent } from 'tests/test-utils';
+import { buildCompanyStateWith, buildGlobalStateWith, userEvent } from 'tests/test-utils';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
 import { CustomerRole } from '@/types';
@@ -15,7 +15,9 @@ const loggedInCompanyState = buildCompanyStateWith({
 
 const withNativeLinkInterception = {
   company: loggedInCompanyState,
-  global: { featureFlags: { 'B2B-4912.buyer_portal_native_link_interception': true } },
+  global: buildGlobalStateWith({
+    featureFlags: { 'B2B-4912.buyer_portal_native_link_interception': true },
+  }),
 };
 
 describe('useB3AppOpen native storefront link interception', () => {
