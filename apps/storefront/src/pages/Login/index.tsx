@@ -164,11 +164,13 @@ function Login(props: PageProps) {
       return undefined;
     }
 
-    // Don't catch getB2BToken errors here — let them propagate to
-    // handleRegularLogin's catch, which distinguishes CompanyError (pending /
-    // inactive accounts → snackbar + logout) and the prelaunch error
-    // (→ accountPrelaunch). Swallowing them would mis-report every failure as
-    // "incorrect credentials".
+    /*
+     * Don't catch getB2BToken errors here — let them propagate to
+     * handleRegularLogin's catch, which distinguishes CompanyError (pending /
+     * inactive accounts → snackbar + logout) and the prelaunch error
+     * (→ accountPrelaunch). Swallowing them would mis-report every failure as
+     * "incorrect credentials".
+     */
     const data = await getB2BToken(currentCustomerJWT, channelId);
     const B2BToken = data.authorization.result.token as string;
 
@@ -181,16 +183,65 @@ function Login(props: PageProps) {
 
     return B2BToken;
   };
+  // Shared success tail for both login flows: load the customer profile for the
+  // freshly issued B2B token and route the user to the right landing page.
+  const finishLoginAndNavigate = async (token: string) => {
+    const info = await getCurrentCustomerInfo(token);
+    navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
+  };
+
+  const loginWithBcAuthorization = async (
+    email: string,
+    bcErrors: Awaited<ReturnType<typeof bcLogin>>['errors'],
+  ) => {
+    if (bcErrors?.[0]) {
+      b2bLogger.error('BC login error:', bcErrors[0]?.message);
+      setLoginFlag('accountIncorrect');
+      return;
+    }
+
+    const currentCustomerJWT = await fetchCurrentCustomerJWT();
+    const B2BToken = await fetchB2BTokenByAuthMutation(currentCustomerJWT, email);
+    if (!B2BToken) {
+      return;
+    }
+
+    storeDispatch(setB2BToken(B2BToken));
+    await finishLoginAndNavigate(B2BToken);
+  };
+
+  // Legacy flow (useBcLoginAndAuthorisation = false): the B2B login mutation
+  // returns the B2B token and a storefront login token in a single call.
+  const loginWithLegacyB2BMutation = async (data: LoginConfig) => {
+    const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
+
+    storeDispatch(setB2BToken(token));
+    customerLoginAPI(storefrontLoginToken);
+    dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+
+    if (
+      errors?.[0]?.message === 'Operation cannot be performed as the storefront channel is not live'
+    ) {
+      setLoginFlag('accountPrelaunch');
+      return;
+    }
+
+    if (errors?.[0] || !token) {
+      const needsReset = await getBCForcePasswordReset(data.email);
+      setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+      return;
+    }
+
+    await finishLoginAndNavigate(token);
+  };
+
   /*
-   * handleRegularLogin flow
-   *
-   * Step 1: On page load, no BC auth token exists — it is fetched automatically.
-   * So storefronttoken gql fetches the token
-   * Step 2: Run the BC login mutation (bcLogin).
-   * (when useBcLoginAndAuthorisation = true)
-   * If the Step 2 fails, the flow stops here.
-   * Step 3: Retrieve the current customer JWT (fetchCurrentCustomerJWT).
-   * Step 4: Performs the Authorization mutation using JWT, which performs the Authorization
+   *  New Login flow:
+   * 1. Fetch the BC storefront auth token (storefronttoken gql) — done automatically on page load.
+   * 2. Run the BC login mutation (bcLogin) with the email/password. If it fails, the flow stops here.
+   *   Skipped when the user logs in from the control panel Customers tab.
+   * 3. Retrieve the current customer JWT (fetchCurrentCustomerJWT).
+   * 4. Run the Authorization mutation using that JWT.
    */
   const handleRegularLogin = async (data: LoginConfig) => {
     try {
@@ -203,49 +254,10 @@ function Login(props: PageProps) {
       }
 
       if (useBcLoginAndAuthorisation) {
-        // Any other BC login error (e.g. "Invalid credentials") means the login
-        // failed — stop here and surface the error without making any further
-        // API calls. BC returns these with HTTP 200 in the GraphQL `errors`
-        // array, so we have to inspect `errors` rather than rely on a throw.
-        if (bcErrors?.[0]) {
-          b2bLogger.error('BC login error:', bcErrors[0]?.message);
-          setLoginFlag('accountIncorrect');
-          return;
-        }
-
-        const currentCustomerJWT = await fetchCurrentCustomerJWT();
-        const B2BToken = await fetchB2BTokenByAuthMutation(currentCustomerJWT, data.email);
-        if (!B2BToken) {
-          return;
-        }
-        storeDispatch(setB2BToken(B2BToken));
-        const info = await getCurrentCustomerInfo(B2BToken);
-        navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
-        return;
+        await loginWithBcAuthorization(data.email, bcErrors);
+      } else {
+        await loginWithLegacyB2BMutation(data);
       }
-
-      const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
-
-      storeDispatch(setB2BToken(token));
-      customerLoginAPI(storefrontLoginToken);
-      dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
-
-      if (
-        errors?.[0]?.message ===
-        'Operation cannot be performed as the storefront channel is not live'
-      ) {
-        setLoginFlag('accountPrelaunch');
-        return;
-      }
-
-      if (errors?.[0] || !token) {
-        const needsReset = await getBCForcePasswordReset(data.email);
-        setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
-        return;
-      }
-
-      const info = await getCurrentCustomerInfo(token);
-      navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
     } catch (error: unknown) {
       if (isCompanyError(error)) {
         snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
