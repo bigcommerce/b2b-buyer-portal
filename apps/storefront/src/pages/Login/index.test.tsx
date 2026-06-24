@@ -11,6 +11,8 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
+import { setupStore } from '@/store';
+import { clearCompanySlice } from '@/store/slices/company';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -635,6 +637,32 @@ describe('LoginPage', () => {
 
       // Should not call logout for flags not in shouldLogout array
       expect(logoutMock).not.toHaveBeenCalled();
+    });
+
+    it('should logout only once when loginFlag=loggedOutLogin even after isLoggedIn flips to false', async () => {
+      const store = setupStore({
+        company: buildCompanyStateWith({
+          customer: { role: CustomerRole.ADMIN },
+          tokens: { B2BToken: 'test-token', bcGraphqlToken: '', currentCustomerJWT: '' },
+        }),
+      });
+
+      // Mimic the real logout: clearing the company slice flips the customer
+      // role to GUEST, so isLoggedIn becomes false and the effect re-runs. The
+      // ref guard must stop that re-run from triggering a second logout (which
+      // would wipe the BC storefront token the login flow depends on).
+      const logoutMock = vi.fn(async () => {
+        store.dispatch(clearCompanySlice());
+      });
+      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      renderLoginPage({ store, initialEntries: ['/?loginFlag=loggedOutLogin'] });
+
+      await waitFor(() => {
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: true });
+      });
+
+      expect(logoutMock).toHaveBeenCalledTimes(1);
     });
   });
 
