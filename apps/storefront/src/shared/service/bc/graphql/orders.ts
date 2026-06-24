@@ -40,6 +40,8 @@ export interface OrderAddress {
 export interface OrderLineItemProductOption {
   name: string;
   value: string;
+  /** Available once BE exposes productOptionId on OrderLineItemProductOption (PROJECT-7288). */
+  productOptionId?: number;
 }
 
 /** Projects OrderPhysicalLineItem. */
@@ -365,6 +367,7 @@ const orderLineItemFields = `entityId
       productOptions {
         name
         value
+        productOptionId
       }
       subTotalListPrice {
         ${moneyFields}

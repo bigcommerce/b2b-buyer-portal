@@ -170,7 +170,7 @@ interface LineItemBase {
   productEntityId: number;
   name: string;
   quantity: number;
-  productOptions: Array<{ name: string; value: string }>;
+  productOptions: Array<{ name: string; value: string; productOptionId?: number }>;
   subTotalListPrice: Money;
 }
 
@@ -217,15 +217,15 @@ function buildOrderProduct(
     refund_amount: '0',
     return_id: 0,
     optionList: item.productOptions.map((o) => ({
-      optionId: 0,
+      optionId: o.productOptionId ?? 0,
       optionValue: o.value,
       type: o.name,
     })),
     product_options: item.productOptions.map((o) => ({
-      id: 0,
-      option_id: 0,
+      id: o.productOptionId ?? 0,
+      option_id: o.productOptionId ?? 0,
       order_product_id: item.entityId,
-      product_option_id: 0,
+      product_option_id: o.productOptionId ?? 0,
       name: o.name,
       value: o.value,
       display_name: o.name,
