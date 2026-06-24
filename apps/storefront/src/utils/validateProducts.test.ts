@@ -311,4 +311,40 @@ describe('convertStockAndThresholdValidationErrorToWarning', () => {
       error: [],
     });
   });
+
+  it('keeps OOS errors when convertOosErrorsToWarning is false', () => {
+    const { validatedProducts, products } = buildValidatedProductsFixture();
+
+    const result = convertStockAndThresholdValidationErrorToWarning(validatedProducts, {
+      convertOosErrorsToWarning: false,
+    });
+
+    expect(result.warning).toEqual([
+      { status: 'warning', message: 'Existing warning', product: products.warning },
+      {
+        status: 'warning',
+        message: `You need to purchase a minimum of 5 of the ${products.minimumThreshold.name} per order.`,
+        product: products.minimumThreshold,
+      },
+      {
+        status: 'warning',
+        message: `You can only purchase a maximum of 10 of the ${products.maximumThreshold.name} per order.`,
+        product: products.maximumThreshold,
+      },
+    ]);
+    expect(result.error).toEqual(
+      expect.arrayContaining([
+        {
+          status: 'error',
+          error: {
+            type: VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION,
+            message: 'Out of stock.',
+            errorCode: 'OOS',
+            availableToSell: 0,
+          },
+          product: products.stock,
+        },
+      ]),
+    );
+  });
 });
