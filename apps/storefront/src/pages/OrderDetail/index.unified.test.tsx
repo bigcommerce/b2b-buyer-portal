@@ -1960,6 +1960,58 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       });
     });
 
+    it('can independently select products that share variant_id 0', async () => {
+      const simpleProductA = {
+        entityId: 2001,
+        productEntityId: 3001,
+        variantEntityId: null,
+        name: 'Gift Card $50',
+        quantity: 1,
+        productOptions: [] as Array<{ name: string; value: string }>,
+      };
+      const simpleProductB = {
+        entityId: 2002,
+        productEntityId: 3002,
+        variantEntityId: null,
+        name: 'Gift Card $100',
+        quantity: 1,
+        productOptions: [] as Array<{ name: string; value: string }>,
+      };
+
+      const order = buildUnifiedOrderWithProducts([simpleProductA, simpleProductB]);
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(buildOrderDetailResponseWith({ data: { site: { order } } })),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const giftCard50 = within(dialog).getByRole('group', { name: 'Gift Card $50' });
+      const giftCard100 = within(dialog).getByRole('group', { name: 'Gift Card $100' });
+
+      await userEvent.click(within(giftCard50).getByRole('checkbox'));
+
+      expect(within(giftCard50).getByRole('checkbox')).toBeChecked();
+      expect(within(giftCard100).getByRole('checkbox')).not.toBeChecked();
+    });
+
     it('shows a warning if no product is selected', async () => {
       const screamProduct = {
         entityId: 2001,
