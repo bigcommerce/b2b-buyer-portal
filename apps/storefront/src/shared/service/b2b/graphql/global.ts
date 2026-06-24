@@ -48,21 +48,36 @@ interface CompanySubsidiariesProps {
 interface ConfigsSwitchStatus {
   storeConfigSwitchStatus: ConfigsSwitchStatusProps;
 }
-const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutation {
+const getB2BTokenQl = (
+  currentCustomerJWT: string,
+  channelId: number,
+  includeLegacyFields: boolean,
+) => {
+  /*
+   * The BC-first authorisation flow only needs the token from this mutation;
+   * loginType and permissions are sourced elsewhere. Callers opt in to the
+   * legacy fields (used by the pre-BC-first login flow) via includeLegacyFields.
+   */
+  const legacyFields = includeLegacyFields
+    ? `
+			loginType
+			permissions {
+				code
+				permissionLevel
+			}`
+    : '';
+
+  return `mutation {
 	authorization(authData: {
 		bcToken: "${currentCustomerJWT}"
 		channelId: ${channelId}
 	}) {
 		result {
-			token
-			loginType
-			permissions {
-				code
-				permissionLevel
-			}
+			token${legacyFields}
 		}
 	}
 }`;
+};
 
 export interface AgentInfo {
   data: {
@@ -489,9 +504,13 @@ const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
 	}
 }`;
 
-export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
+export const getB2BToken = (
+  currentCustomerJWT: string,
+  channelId = 1,
+  includeLegacyFields = false,
+) =>
   B3Request.graphqlB2B<B2BTokenResponse>({
-    query: getB2BTokenQl(currentCustomerJWT, channelId),
+    query: getB2BTokenQl(currentCustomerJWT, channelId, includeLegacyFields),
   }).catch(mapToCompanyError);
 
 export const getAgentInfo = (customerId: string | number) =>

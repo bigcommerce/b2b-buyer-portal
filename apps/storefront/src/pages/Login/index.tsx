@@ -6,18 +6,20 @@ import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { getBCForcePasswordReset } from '@/shared/service/b2b';
-import { bcLogin, customerLoginAPI } from '@/shared/service/bc';
+import { getB2BToken, getBCForcePasswordReset } from '@/shared/service/b2b';
+import { bcLogin, customerLoginAPI, getCurrentCustomerJWT } from '@/shared/service/bc';
+import { getAppClientId } from '@/shared/service/request/base';
 import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
-import { setB2BToken } from '@/store/slices/company';
+import { setB2BToken, setCurrentCustomerJWT } from '@/store/slices/company';
 import { LoginFlagType } from '@/types/login';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { platform } from '@/utils/basicConfig';
+import { channelId, platform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { isDefaultLoginStylingActive } from '@/utils/preMountLoginMask';
@@ -49,6 +51,8 @@ function Login(props: PageProps) {
   const logout = useLogout();
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
+
+  const useBcLoginAndAuthorisation = useFeatureFlag('PROJECT-7920.use_bc_login_and_authorisation');
 
   const quoteDetailToCheckoutUrl = useAppSelector(
     ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
@@ -137,41 +141,133 @@ function Login(props: PageProps) {
     })();
   }, [b3Lang, isLoggedIn, logout, searchParams]);
 
+  const fetchCurrentCustomerJWT = async (): Promise<string | undefined> => {
+    const currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId()).catch((error) => {
+      b2bLogger.error(error);
+      return undefined;
+    });
+
+    if (currentCustomerJWT) {
+      storeDispatch(setCurrentCustomerJWT(currentCustomerJWT));
+    }
+
+    return currentCustomerJWT;
+  };
+
+  const fetchB2BTokenByAuthMutation = async (
+    currentCustomerJWT: string | undefined,
+    email: string,
+  ): Promise<string | undefined> => {
+    if (!currentCustomerJWT) {
+      b2bLogger.error('B2B token error:', 'Missing customer JWT');
+      setLoginFlag('accountIncorrect');
+      return undefined;
+    }
+
+    /*
+     * Don't catch getB2BToken errors here — let them propagate to
+     * handleRegularLogin's catch, which distinguishes CompanyError (pending /
+     * inactive accounts → snackbar + logout) and the prelaunch error
+     * (→ accountPrelaunch). Swallowing them would mis-report every failure as
+     * "incorrect credentials".
+     */
+    const data = await getB2BToken(currentCustomerJWT, channelId);
+    const B2BToken = data.authorization.result.token as string;
+
+    if (!B2BToken) {
+      b2bLogger.error('No B2B token returned from auth mutation');
+      const needsReset = await getBCForcePasswordReset(email);
+      setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+      return undefined;
+    }
+
+    return B2BToken;
+  };
+  // Shared success tail for both login flows: load the customer profile for the
+  // freshly issued B2B token and route the user to the right landing page.
+  const finishLoginAndNavigate = async (token: string) => {
+    const info = await getCurrentCustomerInfo(token);
+    navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
+  };
+
+  const loginWithBcAuthorization = async (
+    email: string,
+    bcErrors: Awaited<ReturnType<typeof bcLogin>>['errors'],
+  ) => {
+    if (bcErrors?.[0]) {
+      b2bLogger.error('BC login error:', bcErrors[0]?.message);
+      setLoginFlag('accountIncorrect');
+      return;
+    }
+
+    const currentCustomerJWT = await fetchCurrentCustomerJWT();
+    const B2BToken = await fetchB2BTokenByAuthMutation(currentCustomerJWT, email);
+    if (!B2BToken) {
+      return;
+    }
+
+    storeDispatch(setB2BToken(B2BToken));
+    await finishLoginAndNavigate(B2BToken);
+  };
+
+  // Legacy flow (useBcLoginAndAuthorisation = false): the B2B login mutation
+  // returns the B2B token and a storefront login token in a single call.
+  const loginWithLegacyB2BMutation = async (data: LoginConfig) => {
+    const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
+
+    storeDispatch(setB2BToken(token));
+    customerLoginAPI(storefrontLoginToken);
+    dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+
+    if (
+      errors?.[0]?.message === 'Operation cannot be performed as the storefront channel is not live'
+    ) {
+      setLoginFlag('accountPrelaunch');
+      return;
+    }
+
+    if (errors?.[0] || !token) {
+      const needsReset = await getBCForcePasswordReset(data.email);
+      setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+      return;
+    }
+
+    await finishLoginAndNavigate(token);
+  };
+
+  /*
+   *  New Login flow:
+   * 1. Fetch the BC storefront auth token (storefronttoken gql) — done automatically on page load.
+   * 2. Run the BC login mutation (bcLogin) with the email/password. If it fails, the flow stops here.
+   *   Skipped when the user logs in from the control panel Customers tab.
+   * 3. Retrieve the current customer JWT (fetchCurrentCustomerJWT).
+   * 4. Run the Authorization mutation using that JWT.
+   */
   const handleRegularLogin = async (data: LoginConfig) => {
     try {
       const { errors: bcErrors } = await bcLogin({ email: data.email, password: data.password });
+
       if (bcErrors?.[0]?.message === 'Reset password') {
         const needsReset = await getBCForcePasswordReset(data.email);
         setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
         return;
       }
 
-      const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
-
-      storeDispatch(setB2BToken(token));
-      customerLoginAPI(storefrontLoginToken);
-      dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
-
-      if (
-        errors?.[0]?.message ===
-        'Operation cannot be performed as the storefront channel is not live'
-      ) {
-        setLoginFlag('accountPrelaunch');
-        return;
+      if (useBcLoginAndAuthorisation) {
+        await loginWithBcAuthorization(data.email, bcErrors);
+      } else {
+        await loginWithLegacyB2BMutation(data);
       }
-
-      if (errors?.[0] || !token) {
-        const needsReset = await getBCForcePasswordReset(data.email);
-        setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
-        return;
-      }
-
-      const info = await getCurrentCustomerInfo(token);
-      navigateAfterSuccessfulLogin(navigate, info, quoteDetailToCheckoutUrl);
     } catch (error: unknown) {
       if (isCompanyError(error)) {
         snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
         await logout({ showLogoutBanner: false });
+      } else if (
+        useBcLoginAndAuthorisation &&
+        error instanceof Error &&
+        error.message === 'Operation cannot be performed as the storefront channel is not live'
+      ) {
+        setLoginFlag('accountPrelaunch');
       } else if (error instanceof Error) {
         snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
       }
