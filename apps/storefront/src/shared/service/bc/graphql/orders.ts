@@ -40,6 +40,10 @@ export interface OrderAddress {
 export interface OrderLineItemProductOption {
   name: string;
   value: string;
+  /** Option ID — maps to product_attribute_id (PROJECT-7288). */
+  productAttributeEntityId?: number;
+  /** Option value ID — maps to validated_value (PROJECT-7288). */
+  productAttributeValueEntityId?: number;
 }
 
 /** Projects OrderPhysicalLineItem. */
@@ -371,6 +375,8 @@ const orderLineItemFields = `entityId
       productOptions {
         name
         value
+        productAttributeEntityId
+        productAttributeValueEntityId
       }
       subTotalListPrice {
         ${moneyFields}
