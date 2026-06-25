@@ -12,7 +12,10 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
-import { buildVariantSkuDependencyKey } from '@/utils/catalogBackorderDisplay';
+import {
+  buildVariantSkuDependencyKey,
+  shouldBlockQuoteAtsAdd,
+} from '@/utils/catalogBackorderDisplay';
 
 import { ShoppingListProductItem } from '../../../types';
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';
@@ -22,6 +25,7 @@ interface ProductTableActionProps {
   onAddToListClick: (id: number) => void;
   onChooseOptionsClick: (id: number) => void;
   addButtonText: string;
+  addDisabled?: boolean;
 }
 
 function ProductTableAction(props: ProductTableActionProps) {
@@ -30,6 +34,7 @@ function ProductTableAction(props: ProductTableActionProps) {
     onAddToListClick,
     onChooseOptionsClick,
     addButtonText,
+    addDisabled = false,
   } = props;
 
   const {
@@ -57,7 +62,7 @@ function ProductTableAction(props: ProductTableActionProps) {
       onClick={() => {
         onAddToListClick(id);
       }}
-      disabled={isLoading}
+      disabled={isLoading || addDisabled}
       fullWidth={isMobile}
     >
       {addButtonText}
@@ -109,6 +114,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
   const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const showQuoteAtsHelper = type === 'quote' && backorderUiEnabled && !isEnableProduct;
 
   const variantSkuDependencyKey = useMemo(
     () =>
@@ -123,6 +129,30 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     enabled: backorderUiEnabled,
     skuDependencyKey: variantSkuDependencyKey,
   });
+
+  const formatOnlyAvailable = useCallback(
+    (count: number) => b3Lang('orderDetail.reorder.onlyAvailable', { count }),
+    [b3Lang],
+  );
+
+  const productExceedsAvailableToSell = useCallback(
+    (product: ShoppingListProductItem) => {
+      if (!showQuoteAtsHelper) {
+        return false;
+      }
+
+      const variantSku = product.variants?.[0]?.sku ?? product.sku;
+      if (!variantSku) {
+        return false;
+      }
+
+      const inventoryRow = inventoryBySku[variantSku.toUpperCase()];
+      const qty = parseInt(product.quantity?.toString() || '', 10) || 1;
+
+      return shouldBlockQuoteAtsAdd(qty, inventoryRow);
+    },
+    [inventoryBySku, showQuoteAtsHelper],
+  );
 
   const handleCancelClicked = () => {
     onCancel();
@@ -153,6 +183,10 @@ export default function ProductListDialog(props: ProductListDialogProps) {
 
   const handleAddToList = (id: number) => {
     const product = productList.find((product) => product.id === id);
+
+    if (!product || productExceedsAvailableToSell(product)) {
+      return;
+    }
 
     if (product && validateQuantityNumber(product || {})) {
       let variantId: number | string = product.variantId || 0;
@@ -223,6 +257,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
               canToProduct
               catalogBackorderUiEnabled={backorderUiEnabled}
               catalogInventoryBySku={inventoryBySku}
+              showAvailableToSellHelper={showQuoteAtsHelper}
+              formatOnlyAvailable={formatOnlyAvailable}
               onProductQuantityChange={onProductQuantityChange}
               renderAction={(product) => (
                 <ProductTableAction
@@ -230,6 +266,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
                   onAddToListClick={handleAddToList}
                   onChooseOptionsClick={onChooseOptionsClick}
                   addButtonText={addButtonText}
+                  addDisabled={productExceedsAvailableToSell(product)}
                 />
               )}
               actionWidth="180px"

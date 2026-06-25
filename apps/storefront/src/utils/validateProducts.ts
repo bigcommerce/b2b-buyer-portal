@@ -287,19 +287,29 @@ export const validateProducts = async <T extends ValidateProductsInput>(
   };
 };
 
-/* 
-  Required in case of adding to the quote, because min, max threshold error
-  products should still be added to the quote
+/*
+  For quote add flows: min/max threshold validation errors are always converted to
+  warnings so those products can still be added. OOS validation errors are converted
+  to warnings only when convertOosErrorsToWarning is true (the default).
 */
+interface ConvertStockAndThresholdValidationErrorOptions {
+  convertOosErrorsToWarning?: boolean;
+}
+
 export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
   validatedProducts: ValidateProductsResult<T>,
+  options?: ConvertStockAndThresholdValidationErrorOptions,
 ): ValidateProductsResult<T>;
 export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
   validatedProducts: ValidateProductsLegacyResult<T>,
+  options?: ConvertStockAndThresholdValidationErrorOptions,
 ): ValidateProductsLegacyResult<T>;
 export function convertStockAndThresholdValidationErrorToWarning<T extends ValidateProductsInput>(
   validatedProducts: ValidateProductsLegacyResult<T> | ValidateProductsResult<T>,
+  options?: ConvertStockAndThresholdValidationErrorOptions,
 ): ValidateProductsLegacyResult<T> | ValidateProductsResult<T> {
+  const convertOosErrorsToWarning = options?.convertOosErrorsToWarning ?? true;
+
   const isThresholdError = (error: ValidatedProductError<T>['error']) =>
     error.type === VALIDATED_PRODUCT_ERROR_TYPES.VALIDATION &&
     error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OTHER &&
@@ -309,13 +319,25 @@ export function convertStockAndThresholdValidationErrorToWarning<T extends Valid
   const isStockError = (error: ValidatedProductError<T>['error']) =>
     error.errorCode === QUOTE_VALIDATION_ERROR_CODES.OOS;
 
-  const stockAndThresholdErrors = validatedProducts.error.filter(
-    ({ error }) => isThresholdError(error) || isStockError(error),
-  ) as Array<ValidatedProductServerError<T>>;
+  const stockAndThresholdErrors = validatedProducts.error.filter(({ error }) => {
+    if (isThresholdError(error)) {
+      return true;
+    }
 
-  const nonStockAndThresholdErrors = validatedProducts.error.filter(
-    ({ error }) => !(isThresholdError(error) || isStockError(error)),
-  );
+    return convertOosErrorsToWarning && isStockError(error);
+  }) as Array<ValidatedProductServerError<T>>;
+
+  const nonStockAndThresholdErrors = validatedProducts.error.filter(({ error }) => {
+    if (isThresholdError(error)) {
+      return false;
+    }
+
+    if (isStockError(error) && convertOosErrorsToWarning) {
+      return false;
+    }
+
+    return true;
+  });
 
   const stockAndThresholdWarnings = stockAndThresholdErrors.map(({ product, error }) => ({
     status: 'warning',

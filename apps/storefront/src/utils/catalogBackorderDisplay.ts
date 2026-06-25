@@ -58,6 +58,13 @@ export function quantityExceedsAvailableToSell(
   return quantity > availableToSell;
 }
 
+export function shouldBlockQuoteAtsAdd(
+  quantity: number,
+  inventoryRow: CatalogQuickVariantSku | undefined,
+): boolean {
+  return quantityExceedsAvailableToSell(quantity, inventoryRow);
+}
+
 export function getCatalogBackorderDisplayQuantity(
   quantity: number,
   row: CatalogQuickVariantSku | undefined,
