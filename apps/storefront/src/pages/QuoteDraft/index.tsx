@@ -70,11 +70,11 @@ import QuoteSubmissionResponse from '../quote/components/QuoteSubmissionResponse
 import QuoteSummary from '../quote/components/QuoteSummary';
 import QuoteTable from '../quote/components/QuoteTable';
 import getAccountFormFields from '../quote/config';
+import { addPrice } from '../quote/shared/config';
 import {
   getQuoteValidationErrorMessage,
   QUOTE_VALIDATION_ERROR_CODES,
 } from '../quote/shared/getQuoteValidationErrorMessage';
-import { addPrice } from '../quote/shared/config';
 import Container from '../quote/style';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
