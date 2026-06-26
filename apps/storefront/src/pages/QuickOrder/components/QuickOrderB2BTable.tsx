@@ -9,13 +9,13 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
+import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
   getVariantInfoBySkus,
-  type ProductSearch,
 } from '@/shared/service/b2b/graphql/product';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { ProductInfoType } from '@/types/gql/graphql';
@@ -147,9 +147,6 @@ function QuickOrderTable({
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
-  const [picklistProductsById, setPicklistProductsById] = useState<Record<number, ProductSearch>>(
-    {},
-  );
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
@@ -163,6 +160,11 @@ function QuickOrderTable({
     hasAnyBackorderDisplay,
   } = useBackorderStorefrontMessaging();
   const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+
+  // Derived from the freshly loaded products in getList (see below) rather than the paginated
+  // cache ref, which lags a render behind the load and would leave this empty until the next change.
+  const [picklistProductIds, setPicklistProductIds] = useState<number[]>([]);
+  const picklistProductsById = usePicklistInventory(picklistProductIds);
 
   const inventoryBySku = useMemo(() => {
     const map: Record<string, CatalogQuickVariantSku> = {};
@@ -227,40 +229,6 @@ function QuickOrderTable({
 
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
 
-  const fetchPicklistProducts = useCallback(
-    async (productIds: number[]) => {
-      if (!backorderUiEnabled || productIds.length === 0) {
-        return;
-      }
-
-      const newProductIds = [...new Set(productIds)].filter((id) => !picklistProductsById[id]);
-
-      if (newProductIds.length === 0) {
-        return;
-      }
-
-      try {
-        const { productsSearch = [] } = await searchProducts({
-          productIds: newProductIds,
-          currencyCode,
-          companyId: companyInfoId,
-          customerGroupId,
-        });
-
-        setPicklistProductsById((prev) => {
-          const next = { ...prev };
-          productsSearch.forEach((product: ProductSearch) => {
-            next[Number(product.id)] = product;
-          });
-          return next;
-        });
-      } catch {
-        // Inventory fetch failure should not block the product list
-      }
-    },
-    [backorderUiEnabled, picklistProductsById, currencyCode, companyInfoId, customerGroupId],
-  );
-
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       const productIds: number[] = [];
@@ -321,12 +289,13 @@ function QuickOrderTable({
         // Inventory fetch failure should not block the product list
       });
 
-      const picklistProductIds = listProducts.flatMap((item) =>
-        getProductDetailsForPicklistSelections(item.node).map((selection) => selection.productId),
+      setPicklistProductIds(
+        listProducts.flatMap((item) =>
+          getProductDetailsForPicklistSelections(item.node).map((selection) => selection.productId),
+        ),
       );
-      fetchPicklistProducts(picklistProductIds).catch(() => {
-        // Inventory fetch failure should not block the product list
-      });
+    } else {
+      setPicklistProductIds([]);
     }
 
     setTableDataVersion((version) => version + 1);
