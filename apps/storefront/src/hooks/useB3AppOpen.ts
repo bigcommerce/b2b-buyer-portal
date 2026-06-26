@@ -5,6 +5,11 @@ import config from '@/lib/config';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
+import {
+  getClosestAnchorFromTarget,
+  getNativeStorefrontPath,
+  isBuyerPortalNativeHref,
+} from '@/utils/nativeStorefrontLinks';
 
 import useMutationObservable from './useMutationObservable';
 
@@ -20,6 +25,9 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1);
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
+  const isNativeLinkInterceptionEnabled = useAppSelector(
+    ({ global }) => global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
+  );
   const authorizedPages = initOpenState?.authorizedPages || '/orders';
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
@@ -64,12 +72,12 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     return isSearchNode;
   };
 
-  const handleJudgeCheckoutNormalHref = (element: MouseEvent) => {
+  const handleJudgeCheckoutNormalHref = (element: MouseEvent, anchor: HTMLAnchorElement | null) => {
     if (window?.location?.pathname !== CHECKOUT_URL) return false;
 
     const target = element.target as HTMLAnchorElement;
 
-    if (target.getAttribute('href') && target.getAttribute('href') === '#') return true;
+    if (target.getAttribute('href') === '#' || anchor?.getAttribute('href') === '#') return true;
 
     return false;
   };
@@ -86,82 +94,88 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         : [],
     );
 
-    if (registerArr.length || allOtherArr.length) {
-      const handleTriggerClick = (e: MouseEvent) => {
-        if (
-          registerArr.includes(e.target as Element) ||
-          allOtherArr.includes(e.target as Element)
-        ) {
-          const isSearchNode = handleJudgeSearchNode(e);
-          const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e);
+    const handleTriggerClick = (e: MouseEvent) => {
+      const anchor = getClosestAnchorFromTarget(e.target);
+      const target = e.target as Element;
+      const isConfiguredTarget =
+        registerArr.includes(target) ||
+        allOtherArr.includes(target) ||
+        (anchor ? registerArr.includes(anchor) || allOtherArr.includes(anchor) : false);
+      const nativePath = anchor ? getNativeStorefrontPath(anchor.href) : null;
+      const isNativeBuyerPortalLink = anchor ? isBuyerPortalNativeHref(anchor.href) : false;
 
-          if (isSearchNode || isCheckoutNormalHref) return false;
-          e.preventDefault();
-          e.stopPropagation();
-          const isRegisterArrInclude = registerArr.includes(e.target as Element);
-          const tagHref = (e.target as HTMLAnchorElement)?.href;
-          let href = tagHref || authorizedPages;
-          if (!tagHref || typeof tagHref !== 'string') {
-            let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
-            let parentHref = (parentNode as HTMLAnchorElement)?.href;
-            let number = 0;
-            while (number < 3 && !parentHref) {
-              parentNode = (parentNode as HTMLAnchorElement)?.parentNode;
-              const newUrl = (parentNode as HTMLAnchorElement)?.href;
-              if (newUrl && typeof newUrl === 'string') {
-                parentHref = newUrl;
-                number += 3;
-              } else {
-                number += 1;
-              }
-            }
-            if (parentHref) {
-              href = parentHref || authorizedPages;
+      if (isConfiguredTarget || (isNativeLinkInterceptionEnabled && isNativeBuyerPortalLink)) {
+        const isSearchNode = handleJudgeSearchNode(e);
+        const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e, anchor);
+
+        if (isSearchNode || isCheckoutNormalHref) return false;
+        e.preventDefault();
+        e.stopPropagation();
+        const isRegisterArrInclude =
+          registerArr.includes(target) || (anchor ? registerArr.includes(anchor) : false);
+        const tagHref = nativePath || anchor?.href || (e.target as HTMLAnchorElement)?.href;
+        let href = tagHref || authorizedPages;
+        if (!tagHref || typeof tagHref !== 'string') {
+          let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
+          let parentHref = (parentNode as HTMLAnchorElement)?.href;
+          let number = 0;
+          while (number < 3 && !parentHref) {
+            parentNode = (parentNode as HTMLAnchorElement)?.parentNode;
+            const newUrl = (parentNode as HTMLAnchorElement)?.href;
+            if (newUrl && typeof newUrl === 'string') {
+              parentHref = newUrl;
+              number += 3;
             } else {
-              const childNodeList = (e.target as HTMLAnchorElement)?.childNodes;
-              if (childNodeList.length > 0) {
-                childNodeList.forEach((node: ChildNodeListProps) => {
-                  const nodeHref = node?.href;
-                  if (nodeHref && node.localName === 'a') {
-                    href = nodeHref || authorizedPages;
-                  }
-                });
-              }
+              number += 1;
             }
           }
-
-          const isLogin = role !== CustomerRole.GUEST;
-          const hrefArr = href.split('/#');
-          if (hrefArr[1] === '') {
-            href = isLogin ? authorizedPages : '/login';
-          }
-
-          if (
-            isLogin &&
-            href.includes('/login') &&
-            !href.includes('action=create_account') &&
-            !href.includes('action=logout')
-          ) {
-            href = authorizedPages;
-          }
-
-          if (initOpenState?.handleEnterClick) {
-            initOpenState.handleEnterClick(href, isRegisterArrInclude);
+          if (parentHref) {
+            href = parentHref || authorizedPages;
+          } else {
+            const childNodeList = (e.target as HTMLAnchorElement)?.childNodes;
+            if (childNodeList.length > 0) {
+              childNodeList.forEach((node: ChildNodeListProps) => {
+                const nodeHref = node?.href;
+                if (nodeHref && node.localName === 'a') {
+                  href = nodeHref || authorizedPages;
+                }
+              });
+            }
           }
         }
-        return false;
-      };
 
-      window.addEventListener('click', handleTriggerClick, {
+        const isLogin = role !== CustomerRole.GUEST;
+        const hrefArr = href.split('/#');
+        if (hrefArr[1] === '') {
+          href = isLogin ? authorizedPages : '/login';
+        }
+
+        if (
+          isLogin &&
+          href.includes('/login') &&
+          !href.includes('action=create_account') &&
+          !href.includes('action=logout')
+        ) {
+          href = authorizedPages;
+        }
+
+        if (initOpenState?.handleEnterClick) {
+          initOpenState.handleEnterClick(href, isRegisterArrInclude);
+        }
+      }
+      return false;
+    };
+
+    window.addEventListener('click', handleTriggerClick, {
+      capture: true,
+    });
+    return () => {
+      window.removeEventListener('click', handleTriggerClick, {
         capture: true,
       });
-      return () => {
-        window.removeEventListener('click', handleTriggerClick);
-      };
-    }
-    return () => {};
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkoutRegisterNumber, initOpenState, role]);
+  }, [checkoutRegisterNumber, initOpenState, isNativeLinkInterceptionEnabled, role]);
 
   useMutationObservable(config['dom.checkoutRegisterParentElement'], callback);
 
