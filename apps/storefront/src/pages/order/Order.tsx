@@ -19,12 +19,12 @@ import {
 } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
 
 import OrderStatus from './components/OrderStatus';
+import { formatOrderListGrandTotal } from './shared/buildMoneyFormat';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   adaptCompanyUnifiedToLegacyFilterParams,
@@ -348,10 +348,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       {
         key: 'totalIncTax',
         title: b3Lang('orders.grandTotal'),
-        render: ({ money, totalIncTax }) =>
-          money
-            ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
-            : currencyFormat(totalIncTax),
+        render: ({ money, totalIncTax }) => formatOrderListGrandTotal(totalIncTax, money),
         align: 'right',
         width: '8%',
         isSortable: true,

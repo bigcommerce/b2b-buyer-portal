@@ -6,6 +6,7 @@ import {
   buildLegacyOrderListMoneyString,
   buildMoneyFormat,
   DEFAULT_MONEY_FORMAT,
+  formatOrderListGrandTotal,
 } from './buildMoneyFormat';
 
 const buildCurrencyWith = builder<Currency>(() => ({
@@ -74,5 +75,27 @@ describe('buildLegacyOrderListMoneyString', () => {
 
     expect(moneyFormat.currency_token).toBe('A$');
     expect(moneyFormat.currency_token).not.toBe('$');
+  });
+});
+
+describe('formatOrderListGrandTotal', () => {
+  it('formats using the order money field when present', () => {
+    const money = buildLegacyOrderListMoneyString(
+      [
+        buildCurrencyWith({
+          currency_code: 'EUR',
+          token: '€',
+          decimal_token: ',',
+          thousands_token: '.',
+        }),
+      ],
+      'EUR',
+    );
+
+    expect(formatOrderListGrandTotal(1000, money)).toBe('€1.000,00');
+  });
+
+  it('falls back to session currency formatting when money is absent', () => {
+    expect(formatOrderListGrandTotal(1000)).toMatch(/\$1,000\.00/);
   });
 });

@@ -1,4 +1,5 @@
 import type { Currency, MoneyFormat } from '@/types';
+import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 
 export const DEFAULT_MONEY_FORMAT: MoneyFormat = {
   currency_location: 'left',
@@ -35,4 +36,12 @@ export function buildLegacyOrderListMoneyString(
   currencyCode: string,
 ): string {
   return JSON.stringify(JSON.stringify(buildMoneyFormat(currencies, currencyCode)));
+}
+
+/** Formats a list row grand total using order-specific money when present, else session currency. */
+export function formatOrderListGrandTotal(totalIncTax: string | number, money?: string): string {
+  if (money) {
+    return ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax);
+  }
+  return currencyFormat(totalIncTax);
 }

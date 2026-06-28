@@ -14,7 +14,7 @@ export interface ListItem {
   status: string;
   statusText?: string;
   createdAt: string;
-  companyName: string;
+  companyName?: string;
   companyInfo?: CompanyInfoTypes;
   /** Cursor from the SF GQL edge — populated for unified order paths only. */
   cursor?: string;
