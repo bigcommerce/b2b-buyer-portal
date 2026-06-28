@@ -89,7 +89,6 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   quote: null,
   invoice: null,
   extraFields: [],
-  canReturn: true,
 }));
 
 const buildSfGqlB2COrderWith = builder<Order>(() => ({

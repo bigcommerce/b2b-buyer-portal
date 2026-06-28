@@ -55,6 +55,7 @@ export interface OrderLineItem {
   subTotalListPrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
+  returnableQuantity: number;
 }
 
 export interface OrderShipmentTracking {
@@ -213,7 +214,6 @@ export interface Order {
   quote: OrderQuote | null;
   invoice: OrderInvoice | null;
   extraFields: ExtraFieldValue[];
-  canReturn?: boolean;
 }
 
 // ===========================================================================
@@ -380,7 +380,8 @@ const orderLineItemFields = `entityId
       }
       baseCatalogProduct {
         path
-      }`;
+      }
+      returnableQuantity`;
 
 const orderShipmentFields = `entityId
       shippedAt {
@@ -538,8 +539,7 @@ const orderB2BFields = `reference
   extraFields {
     name
     value
-  }
-  canReturn`;
+  }`;
 
 /** Lightweight fields for order list views. */
 const orderListNodeFields = `entityId

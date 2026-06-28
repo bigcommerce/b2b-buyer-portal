@@ -527,7 +527,9 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    canReturn: order.canReturn ?? false,
+    canReturn: (order.consignments?.shipping?.edges ?? []).some((edge) =>
+      edge.node.lineItems.edges.some((le) => le.node.returnableQuantity > 0),
+    ),
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
     invoiceId: order.invoice ? Number(order.invoice.id) : 0,
