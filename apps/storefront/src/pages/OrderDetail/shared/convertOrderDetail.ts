@@ -5,6 +5,7 @@ import type {
   OrderAddress,
   OrderDigitalLineItem,
   OrderLineItem,
+  OrderLineItemProductOption,
 } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type {
@@ -170,12 +171,7 @@ interface LineItemBase {
   productEntityId: number;
   name: string;
   quantity: number;
-  productOptions: Array<{
-    name: string;
-    value: string;
-    productAttributeEntityId?: number;
-    productAttributeValueEntityId?: number;
-  }>;
+  productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
 }
 

@@ -40,9 +40,9 @@ export interface OrderAddress {
 export interface OrderLineItemProductOption {
   name: string;
   value: string;
-  /** Option ID — maps to product_attribute_id (PROJECT-7288). */
+  /** Option ID — maps to product_attribute_id. */
   productAttributeEntityId?: number;
-  /** Option value ID — maps to validated_value (PROJECT-7288). */
+  /** Option value ID — maps to validated_value. */
   productAttributeValueEntityId?: number;
 }
 
