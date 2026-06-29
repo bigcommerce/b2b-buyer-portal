@@ -21,7 +21,7 @@ interface QuoteTableCardProps {
   displayDiscount: boolean;
   currency: CurrencyProps | DisplayCurrency;
   showBackorderDetails?: boolean;
-  status?: string | number;
+  shouldDisplayBackorderInformation?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -40,9 +40,8 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     currency,
     displayDiscount,
     showBackorderDetails = false,
-    status,
+    shouldDisplayBackorderInformation = true,
   } = props;
-  const isOrdered = Number(status) === 4;
   const b3Lang = useB3Lang();
   const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
     'B2B-3876.fix_quote_currency_symbol_placement',
@@ -155,7 +154,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           </Typography>
           {isBackorderMessagingContextEnabled &&
             hasAnyBackorderDisplay &&
-            !isOrdered &&
+            shouldDisplayBackorderInformation &&
             backorderFields && (
               <BackorderMessage
                 totalOnHand={backorderFields.totalOnHand}

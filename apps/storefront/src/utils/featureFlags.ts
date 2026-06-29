@@ -51,6 +51,10 @@ export const featureFlags = [
     key: 'B2B-4870.default_buyer_portal_styling_on_login_page',
     name: 'defaultBuyerPortalStylingOnLoginPage',
   },
+  {
+    key: 'BACK-593.surface_order_backorder_info_on_quotes',
+    name: 'surfaceOrderBackorderInfoOnQuotes',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
