@@ -4,10 +4,10 @@ import type { Currency } from '@/types';
 
 import {
   buildLegacyOrderListMoneyString,
-  buildMoneyFormat,
   DEFAULT_MONEY_FORMAT,
   formatOrderListGrandTotal,
-} from './buildMoneyFormat';
+  getMoneyFormatByCurrencyCode,
+} from './orderMoneyUtils';
 
 const buildCurrencyWith = builder<Currency>(() => ({
   id: '1',
@@ -28,9 +28,9 @@ const buildCurrencyWith = builder<Currency>(() => ({
   default_for_country_codes: ['USD'],
 }));
 
-describe('buildMoneyFormat', () => {
+describe('getMoneyFormatByCurrencyCode', () => {
   it('returns USD defaults when the currency code is not in the store', () => {
-    expect(buildMoneyFormat([], 'EUR')).toEqual(DEFAULT_MONEY_FORMAT);
+    expect(getMoneyFormatByCurrencyCode([], 'EUR')).toEqual(DEFAULT_MONEY_FORMAT);
   });
 
   it('maps store currency fields to MoneyFormat', () => {
@@ -42,7 +42,7 @@ describe('buildMoneyFormat', () => {
       currency_exchange_rate: '0.85',
     });
 
-    expect(buildMoneyFormat([euro], 'EUR')).toEqual({
+    expect(getMoneyFormatByCurrencyCode([euro], 'EUR')).toEqual({
       currency_location: 'left',
       currency_token: '€',
       decimal_token: ',',
@@ -51,6 +51,17 @@ describe('buildMoneyFormat', () => {
       currency_exchange_rate: '0.85',
     });
   });
+
+  it('matches currency codes case-insensitively', () => {
+    const euro = buildCurrencyWith({
+      currency_code: 'EUR',
+      token: '€',
+      decimal_token: ',',
+      thousands_token: '.',
+    });
+
+    expect(getMoneyFormatByCurrencyCode([euro], 'eur').currency_token).toBe('€');
+  });
 });
 
 describe('buildLegacyOrderListMoneyString', () => {
@@ -58,7 +69,7 @@ describe('buildLegacyOrderListMoneyString', () => {
     const usd = buildCurrencyWith('WHATEVER_VALUES');
     const encoded = buildLegacyOrderListMoneyString([usd], 'USD');
 
-    expect(JSON.parse(JSON.parse(encoded))).toEqual(buildMoneyFormat([usd], 'USD'));
+    expect(JSON.parse(JSON.parse(encoded))).toEqual(getMoneyFormatByCurrencyCode([usd], 'USD'));
   });
 
   it('encodes the order currency token, not a different code in the list', () => {

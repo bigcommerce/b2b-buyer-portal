@@ -9,7 +9,7 @@ import { isB2BUserSelector, useAppSelector } from '@/store';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import OrderStatus from './components/OrderStatus';
-import { formatOrderListGrandTotal } from './shared/buildMoneyFormat';
+import { formatOrderListGrandTotal } from './shared/orderMoneyUtils';
 import type { ListItem } from './mapSfGqlOrderToListItem';
 
 interface OrderItemCardProps {

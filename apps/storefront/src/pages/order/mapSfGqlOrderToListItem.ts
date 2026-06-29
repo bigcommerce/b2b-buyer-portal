@@ -2,7 +2,7 @@ import type { Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
 import type { Currency } from '@/types';
 import type { CompanyInfoTypes } from '@/types/invoice';
 
-import { buildLegacyOrderListMoneyString } from './shared/buildMoneyFormat';
+import { buildLegacyOrderListMoneyString } from './shared/orderMoneyUtils';
 
 export interface ListItem {
   firstName: string;

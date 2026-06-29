@@ -19,7 +19,7 @@ import type {
   OrderSummary,
 } from '@/types';
 
-import { buildMoneyFormat } from '../../order/shared/buildMoneyFormat';
+import { getMoneyFormatByCurrencyCode } from '../../order/shared/orderMoneyUtils';
 import type { OrderDetailsState } from '../context/OrderDetailsContext';
 
 // ===========================================================================
@@ -470,7 +470,7 @@ export function convertOrderDetail(
   | 'companyInfo'
   | 'customerId'
 > {
-  const moneyFormat = buildMoneyFormat(currencies, order.totalIncTax.currencyCode);
+  const moneyFormat = getMoneyFormatByCurrencyCode(currencies, order.totalIncTax.currencyCode);
   const decimalPlaces = moneyFormat.decimal_places;
 
   const allProducts = gatherAllProducts(order, decimalPlaces);

@@ -10,8 +10,13 @@ export const DEFAULT_MONEY_FORMAT: MoneyFormat = {
   currency_exchange_rate: '1.0000000000',
 };
 
-export function buildMoneyFormat(currencies: Currency[], currencyCode: string): MoneyFormat {
-  const currency = currencies.find((c) => c.currency_code === currencyCode);
+export function getMoneyFormatByCurrencyCode(
+  currencies: Currency[],
+  currencyCode: string,
+): MoneyFormat {
+  const currency = currencies.find(
+    (c) => c.currency_code.toLowerCase() === currencyCode.toLowerCase(),
+  );
 
   if (!currency) {
     return DEFAULT_MONEY_FORMAT;
@@ -35,7 +40,7 @@ export function buildLegacyOrderListMoneyString(
   currencies: Currency[],
   currencyCode: string,
 ): string {
-  return JSON.stringify(JSON.stringify(buildMoneyFormat(currencies, currencyCode)));
+  return JSON.stringify(JSON.stringify(getMoneyFormatByCurrencyCode(currencies, currencyCode)));
 }
 
 /** Formats a list row grand total using order-specific money when present, else session currency. */

@@ -24,7 +24,7 @@ import { displayFormat } from '@/utils/b3DateFormat';
 import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
 
 import OrderStatus from './components/OrderStatus';
-import { formatOrderListGrandTotal } from './shared/buildMoneyFormat';
+import { formatOrderListGrandTotal } from './shared/orderMoneyUtils';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   adaptCompanyUnifiedToLegacyFilterParams,
