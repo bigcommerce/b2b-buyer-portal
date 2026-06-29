@@ -51,10 +51,6 @@ export const featureFlags = [
     key: 'B2B-4870.default_buyer_portal_styling_on_login_page',
     name: 'defaultBuyerPortalStylingOnLoginPage',
   },
-  {
-    key: 'B2B-4912.buyer_portal_native_link_interception',
-    name: 'buyerPortalNativeLinkInterception',
-  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

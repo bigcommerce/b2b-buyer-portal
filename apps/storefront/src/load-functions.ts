@@ -1,5 +1,4 @@
 import config from '@/lib/config';
-import { getClosestAnchorFromTarget, isBuyerPortalNativeHref } from '@/utils/nativeStorefrontLinks';
 
 export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
   window.requestIdleCallback
@@ -45,21 +44,10 @@ export const initApp = async () => {
 };
 
 const clickLink = async (e: MouseEvent) => {
-  const anchor = getClosestAnchorFromTarget(e.target);
-  window.b2b.initializationEnvironment.clickedLinkElement = anchor || (e.target as HTMLElement);
+  window.b2b.initializationEnvironment.clickedLinkElement = e.target as HTMLElement;
   e.preventDefault();
   e.stopPropagation();
   await initApp();
-};
-
-const clickNativeBuyerPortalLink = async (e: MouseEvent) => {
-  const anchor = getClosestAnchorFromTarget(e.target);
-
-  if (!anchor || !isBuyerPortalNativeHref(anchor.href)) {
-    return;
-  }
-
-  await clickLink(e);
 };
 
 export const bindLinks = () => {
@@ -67,7 +55,6 @@ export const bindLinks = () => {
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
-  document.addEventListener('click', clickNativeBuyerPortalLink, { capture: true });
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
 export const unbindLinks = () => {
@@ -75,6 +62,5 @@ export const unbindLinks = () => {
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
-  document.removeEventListener('click', clickNativeBuyerPortalLink, { capture: true });
   links.forEach((accessLink) => accessLink.removeEventListener('click', clickLink));
 };
