@@ -30,8 +30,8 @@ import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOpti
 import {
   draftQuoteListHasBackorderedItemsForDisplay,
   getDraftBackorderDisplayFields,
-  getDraftQuotePicklistSelections,
   getQuoteItemBackendAvailability,
+  getQuotePicklistSelections,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 import QuoteTableCard from './QuoteTableCard';
@@ -185,7 +185,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
     () =>
       draftQuoteBackorderContextEnabled
         ? items.flatMap((item) =>
-            getDraftQuotePicklistSelections(item.node).map((selection) => selection.productId),
+            getQuotePicklistSelections(item.node).map((selection) => selection.productId),
           )
         : [],
     [items, draftQuoteBackorderContextEnabled],
@@ -203,7 +203,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
     const picklistRows = items.map((item) => ({
       qty: Number(item.node.quantity) || 0,
-      selections: getDraftQuotePicklistSelections(item.node),
+      selections: getQuotePicklistSelections(item.node),
     }));
 
     return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
@@ -456,7 +456,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
         const backorderFields = getDraftBackorderDisplayFields(row);
         const shouldShowBackorder = showBackorderMessageBase && Boolean(backorderFields);
         const picklistSelections = draftQuoteBackorderContextEnabled
-          ? getDraftQuotePicklistSelections(row)
+          ? getQuotePicklistSelections(row)
           : [];
         return (
           <>

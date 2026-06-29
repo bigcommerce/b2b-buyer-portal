@@ -14,7 +14,7 @@ import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
 import {
   getDraftBackorderDisplayFields,
-  getDraftQuotePicklistSelections,
+  getQuotePicklistSelections,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 interface QuoteTableCardProps {
@@ -58,7 +58,7 @@ function QuoteTableCard({
   const b3Lang = useB3Lang();
   const backorderFields = getDraftBackorderDisplayFields(item);
   const picklistSelections = draftQuoteBackorderContextEnabled
-    ? getDraftQuotePicklistSelections(item)
+    ? getQuotePicklistSelections(item)
     : [];
 
   const showBackorderMessage =

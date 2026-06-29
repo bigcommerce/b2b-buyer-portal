@@ -1,19 +1,23 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, Ref, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Box, FormControlLabel, styled, Switch, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
+import { catalogListHasPicklistBackorderedItemsForDisplay } from '@/utils/catalogBackorderDisplay';
 
 import {
   getQuoteBackorderDisplayFields,
+  getQuotePicklistSelections,
   quoteDetailListHasBackorderedItemsForDisplay,
 } from '../utils/getQuoteBackorderDisplayFields';
 
@@ -133,6 +137,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   );
   const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
+  const backorderContextEnabled =
+    isBackorderMessagingContextEnabled &&
+    hasAnyBackorderDisplay &&
+    shouldDisplayBackorderInformation;
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -146,7 +154,29 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
 
-  const hasBackorderedItems = quoteDetailListHasBackorderedItemsForDisplay(productList);
+  const picklistProductIds = useMemo(
+    () =>
+      backorderContextEnabled
+        ? productList.flatMap((row) =>
+            getQuotePicklistSelections(row).map((selection) => selection.productId),
+          )
+        : [],
+    [productList, backorderContextEnabled],
+  );
+  const picklistProductsById = usePicklistInventory(picklistProductIds);
+
+  const hasBackorderedItems = useMemo(
+    () =>
+      quoteDetailListHasBackorderedItemsForDisplay(productList) ||
+      catalogListHasPicklistBackorderedItemsForDisplay(
+        productList.map((row) => ({
+          qty: Number(row.quantity) || 0,
+          selections: getQuotePicklistSelections(row),
+        })),
+        picklistProductsById,
+      ),
+    [productList, picklistProductsById],
+  );
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
@@ -318,6 +348,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: b3Lang('quoteDetail.table.qty'),
       render: (row) => {
         const backorderFields = getQuoteBackorderDisplayFields(row);
+        const picklistSelections = backorderContextEnabled ? getQuotePicklistSelections(row) : [];
 
         return (
           <Box>
@@ -333,6 +364,15 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   visible={showBackorderDetails}
                 />
               )}
+            {picklistSelections.length > 0 && (
+              <PicklistBackorderMessages
+                selections={picklistSelections}
+                picklistProductsById={picklistProductsById}
+                qty={Number(row.quantity) || 0}
+                visible={showBackorderDetails}
+                backorderUiEnabled={backorderContextEnabled}
+              />
+            )}
           </Box>
         );
       },
@@ -470,6 +510,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             getTaxRate={getTaxRate}
             showBackorderDetails={showBackorderDetails}
             shouldDisplayBackorderInformation={shouldDisplayBackorderInformation}
+            picklistProductsById={picklistProductsById}
           />
         )}
       />
