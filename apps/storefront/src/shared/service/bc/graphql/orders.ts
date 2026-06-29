@@ -208,6 +208,7 @@ export interface Order {
 
   // B2B extensions (null for B2C orders)
   reference: string | null;
+  poNumber: string | null;
   company: OrderCompany | null;
   placedBy: OrderPlacedBy | null;
   history: OrderHistoryEvent[];
@@ -506,6 +507,7 @@ const orderFinancialFields = `subTotal {
   }`;
 
 const orderB2BFields = `reference
+  poNumber
   company {
     entityId
     name
@@ -551,6 +553,7 @@ const orderListNodeFields = `entityId
     ${moneyFields}
   }
   reference
+  poNumber
   company {
     entityId
     name

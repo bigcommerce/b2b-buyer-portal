@@ -515,7 +515,7 @@ export function convertOrderDetail(
     orderId: order.entityId,
     status: order.status.label,
     customStatus: '',
-    poNumber: order.reference ?? '',
+    poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,
     money: moneyFormat,
     orderSummary: buildOrderSummary(order, b3Lang, decimalPlaces),

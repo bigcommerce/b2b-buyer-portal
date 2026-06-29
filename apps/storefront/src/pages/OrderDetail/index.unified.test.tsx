@@ -118,6 +118,7 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   totalProductQuantity: 0,
   consignments: null,
   reference: null,
+  poNumber: null,
   company: null,
   placedBy: null,
   history: [],
@@ -531,7 +532,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                 site: {
                   order: buildUnifiedOrderWith({
                     entityId: 6696,
-                    reference: '3405',
+                    poNumber: '3405',
                   }),
                 },
               },
@@ -1227,7 +1228,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     it('renders payment details for a Purchase Order', async () => {
       const poOrder = buildUnifiedOrderWith({
         entityId: 6696,
-        reference: 'PO-2026-001',
+        poNumber: 'PO-2026-001',
         orderedAt: { utc: '2026-05-01T12:00:00Z' },
         consignments: {
           shipping: {

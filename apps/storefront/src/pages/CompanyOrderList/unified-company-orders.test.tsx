@@ -82,6 +82,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   totalProductQuantity: 2,
   consignments: null,
   reference: faker.string.alphanumeric(8),
+  poNumber: faker.string.alphanumeric(6),
   company: { entityId: faker.number.int({ min: 1, max: 999 }), name: faker.company.name() },
   placedBy: buildPlacedByWith('WHATEVER_VALUES'),
   history: [],
@@ -289,7 +290,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
     it('renders company orders with all fields', async () => {
       const order = buildSfGqlOrderWith({
         entityId: 12345,
-        reference: 'PO-9876',
+        poNumber: 'PO-9876',
         status: { value: 'COMPLETED', label: 'Completed' },
         totalIncTax: { currencyCode: 'USD', value: 250 },
         orderedAt: { utc: '2025-03-13T00:00:00Z' },
