@@ -21,7 +21,6 @@ import { openPageByClick, removeBCMenus } from '@/utils/b3AccountItem';
 import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
-import { shouldOpenAllowedPageOnInit } from '@/utils/nativeStorefrontLinks';
 
 import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
@@ -41,7 +40,6 @@ import {
   rolePermissionSelector,
   setGlobalCommonState,
   setOpenPageReducer,
-  store,
   useAppDispatch,
   useAppSelector,
 } from './store';
@@ -215,31 +213,8 @@ export default function App() {
         }
 
         // background login enter judgment and refresh
-        const nativeLinkInterceptionEnabled =
-          store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ??
-          false;
-        const shouldOpenAllowedPage = nativeLinkInterceptionEnabled
-          ? shouldOpenAllowedPageOnInit({ pathname, hash: window.location.hash, customerId })
-          : !pathname.includes('checkout') && !(!!customerId && !window.location.hash);
-        const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
-
-        if (shouldOpenAllowedPage) {
-          if (isAccountPageWithoutHash && search) {
-            // Map native action (e.g. ?action=address_book) to the correct portal route
-            // using the same logic as runtime click interception, so direct navigation
-            // and link clicks land on the same page.
-            gotoPage(
-              openPageByClick({
-                href: `${pathname}${search}`,
-                role: Number(userInfo.role),
-                isRegisterAndLogin: false,
-                isAgenting,
-                authorizedPages,
-              }),
-            );
-          } else {
-            await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
-          }
+        if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
+          await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
         } else {
           showPageMask(false);
         }
