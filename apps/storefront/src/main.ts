@@ -53,7 +53,7 @@ window.b2b = {
     requestIdleCallbackFunction(initApp);
     // and bind links to load the app
     bindLinks();
-    window.addEventListener('beforeunload', unbindLinks);
+    window.addEventListener('beforeunload', () => unbindLinks());
     // and observe global flag to simulate click
     window.b2b.initializationEnvironment.isInitListener = () => {
       unbindLinks();
