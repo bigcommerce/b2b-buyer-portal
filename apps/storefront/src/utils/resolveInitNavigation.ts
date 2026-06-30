@@ -11,7 +11,7 @@ interface ResolveInitNavigationInput {
   authorizedPages: string;
 }
 
-export type InitNavigation =
+type InitNavigation =
   | { type: 'goto'; url: string }
   | { type: 'allowedAppPage' }
   | { type: 'mask' };
