@@ -11,10 +11,7 @@ interface ResolveInitNavigationInput {
   authorizedPages: string;
 }
 
-type InitNavigation =
-  | { type: 'goto'; url: string }
-  | { type: 'allowedAppPage' }
-  | { type: 'mask' };
+type InitNavigation = { type: 'goto'; url: string } | { type: 'allowedAppPage' } | { type: 'mask' };
 
 export const resolveInitNavigation = ({
   companyLoginFlag,
