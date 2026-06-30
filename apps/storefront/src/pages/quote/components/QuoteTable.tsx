@@ -4,10 +4,12 @@ import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@m
 import ceil from 'lodash-es/ceil';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { TableColumnItem } from '@/components/table/B3Table';
 import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
 import { Product } from '@/types';
@@ -22,12 +24,14 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
+import { catalogListHasPicklistBackorderedItemsForDisplay } from '@/utils/catalogBackorderDisplay';
 
 import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOptionsDialog';
 import {
   draftQuoteListHasBackorderedItemsForDisplay,
   getDraftBackorderDisplayFields,
   getQuoteItemBackendAvailability,
+  getQuotePicklistSelections,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 import QuoteTableCard from './QuoteTableCard';
@@ -177,12 +181,33 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
 
   const showBackorderMessageBase = draftQuoteBackorderContextEnabled && showBackorderDetails;
 
+  const picklistProductIds = useMemo(
+    () =>
+      draftQuoteBackorderContextEnabled
+        ? items.flatMap((item) =>
+            getQuotePicklistSelections(item.node).map((selection) => selection.productId),
+          )
+        : [],
+    [items, draftQuoteBackorderContextEnabled],
+  );
+  const picklistProductsById = usePicklistInventory(picklistProductIds);
+
   const hasBackorderedItems = useMemo(() => {
     if (!isBackorderMessagingEnabled) {
       return false;
     }
-    return draftQuoteListHasBackorderedItemsForDisplay(items);
-  }, [items, isBackorderMessagingEnabled]);
+
+    if (draftQuoteListHasBackorderedItemsForDisplay(items)) {
+      return true;
+    }
+
+    const picklistRows = items.map((item) => ({
+      qty: Number(item.node.quantity) || 0,
+      selections: getQuotePicklistSelections(item.node),
+    }));
+
+    return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
+  }, [items, isBackorderMessagingEnabled, picklistProductsById]);
 
   const showBackorderToggle = draftQuoteBackorderContextEnabled && hasBackorderedItems;
 
@@ -430,6 +455,9 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       render: (row) => {
         const backorderFields = getDraftBackorderDisplayFields(row);
         const shouldShowBackorder = showBackorderMessageBase && Boolean(backorderFields);
+        const picklistSelections = draftQuoteBackorderContextEnabled
+          ? getQuotePicklistSelections(row)
+          : [];
         return (
           <>
             <TextField
@@ -464,6 +492,15 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                   visible
                 />
               </Box>
+            )}
+            {picklistSelections.length > 0 && (
+              <PicklistBackorderMessages
+                selections={picklistSelections}
+                picklistProductsById={picklistProductsById}
+                qty={Number(row.quantity) || 0}
+                visible={showBackorderDetails}
+                backorderUiEnabled={draftQuoteBackorderContextEnabled}
+              />
             )}
           </>
         );
@@ -593,6 +630,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
             handleUpdateProductQty={handleUpdateProductQty}
             draftQuoteBackorderContextEnabled={draftQuoteBackorderContextEnabled}
             showBackorderDetails={showBackorderDetails}
+            picklistProductsById={picklistProductsById}
           />
         )}
       />
