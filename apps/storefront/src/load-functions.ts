@@ -62,19 +62,23 @@ const clickNativeBuyerPortalLink = async (e: MouseEvent) => {
   await clickLink(e);
 };
 
-export const bindLinks = () => {
+export const bindLinks = (nativeLinkInterceptionEnabled = false) => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
-  document.addEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  if (nativeLinkInterceptionEnabled) {
+    document.addEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  }
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
-export const unbindLinks = () => {
+export const unbindLinks = (nativeLinkInterceptionEnabled = false) => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
-  document.removeEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  if (nativeLinkInterceptionEnabled) {
+    document.removeEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  }
   links.forEach((accessLink) => accessLink.removeEventListener('click', clickLink));
 };
