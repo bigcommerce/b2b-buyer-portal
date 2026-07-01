@@ -141,14 +141,24 @@ const B3Request = {
     });
   },
   /**
-   * Request used in stencil store to call bigcommerce graphql storefront api
+   * Request used in stencil store to call bigcommerce graphql storefront api.
+   * Uses `credentials: 'include'` so the browser stores and sends the BC session
+   * cookie set by `bcLogin` — required for cross-origin headless (Catalyst) flows.
+   * The BC Storefront respects this because `storeFrontToken` sets allowedCorsOrigins,
+   * causing BC to respond with Access-Control-Allow-Credentials: true.
    */
   graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
     const { bcGraphqlToken } = store.getState().company.tokens;
-    const config = {
-      Authorization: `Bearer  ${bcGraphqlToken}`,
-    };
-    return graphqlRequest(RequestType.BCGraphql, data, config);
+    const url = GraphqlEndpointsFn(RequestType.BCGraphql);
+    return b3Fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: `Bearer  ${bcGraphqlToken}`,
+      },
+      body: JSON.stringify(data),
+      credentials: 'include',
+    });
   },
   /**
    * Request used in headless context to talk to the bigcommerce graphql storefront api via proxy

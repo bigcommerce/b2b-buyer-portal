@@ -64,6 +64,7 @@ declare global {
         environment: string;
         disable_logout_button?: boolean;
         cart_url?: string;
+        bc_graphql_domain?: string;
       };
     };
     catalyst?: {

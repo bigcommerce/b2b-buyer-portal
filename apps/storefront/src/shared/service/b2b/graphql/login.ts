@@ -17,7 +17,10 @@ const storeFrontToken = `mutation storeFrontToken($storeFrontTokenData: Customer
 }
 `;
 export const getBCGraphqlToken = (data: Partial<ApiTokenConfig>): Promise<string> | undefined => {
-  if (platform !== 'bigcommerce') {
+  // Allow both Stencil ('bigcommerce') and Catalyst ('catalyst') to fetch the store-level
+  // BC Storefront bearer token. The storeFrontToken B2B mutation does not require a B2B token,
+  // so this works in the registration flow before the user is logged in.
+  if (platform !== 'bigcommerce' && platform !== 'catalyst') {
     return undefined;
   }
   return B3Request.graphqlB2B({
