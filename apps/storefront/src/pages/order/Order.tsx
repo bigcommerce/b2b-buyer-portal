@@ -19,12 +19,12 @@ import {
 } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
 
 import OrderStatus from './components/OrderStatus';
+import { formatOrderListGrandTotal } from './shared/orderMoneyUtils';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   adaptCompanyUnifiedToLegacyFilterParams,
@@ -105,6 +105,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
   const { role, isAgenting, companyId, isB2BUser, isEnabledCompanyHierarchy, selectedCompanyId } =
     useData();
+  const currencies = useAppSelector(({ storeConfigs }) => storeConfigs.currencies.currencies);
 
   const [legacyPagination, setLegacyPagination] = useState({ offset: 0, first: 10 });
 
@@ -227,7 +228,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const result = await getCustomerOrders(args);
     const orders = result.data?.customer?.orders;
     const edges = (orders?.edges || []).map((edge) =>
-      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+      mapSfGqlOrderToListItem(edge.node, currencies, edge.cursor),
     );
     const pageInfo = orders?.pageInfo ?? null;
 
@@ -249,7 +250,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const result = await getCompanyOrders(args);
     const orders = result.data?.customer?.activeCompany?.orders;
     const edges = (orders?.edges || []).map((edge) =>
-      mapSfGqlOrderToListItem(edge.node, edge.cursor),
+      mapSfGqlOrderToListItem(edge.node, currencies, edge.cursor),
     );
     const pageInfo = orders?.pageInfo ?? null;
     const totalCount = orders?.collectionInfo?.totalItems ?? -1;
@@ -347,10 +348,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       {
         key: 'totalIncTax',
         title: b3Lang('orders.grandTotal'),
-        render: ({ money, totalIncTax }) =>
-          money
-            ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
-            : currencyFormat(totalIncTax),
+        render: ({ money, totalIncTax }) => formatOrderListGrandTotal(totalIncTax, money),
         align: 'right',
         width: '8%',
         isSortable: true,
@@ -390,6 +388,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         companyFilterState.filters,
         companyFilterState.sortBy,
         companyFilterState.paginationVariables,
+        currencies,
       ];
     }
     if (isUnifiedCustomerPath) {
@@ -398,6 +397,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         customerFilterState.filters,
         customerFilterState.sortBy,
         customerFilterState.paginationVariables,
+        currencies,
       ];
     }
     return ['orderList:legacy', filterData, legacyPagination, orderBy];

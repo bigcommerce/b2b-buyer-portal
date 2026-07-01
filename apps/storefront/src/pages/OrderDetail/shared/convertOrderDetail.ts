@@ -12,7 +12,6 @@ import type {
   Address,
   CompanyInfoTypes,
   Currency,
-  MoneyFormat,
   OrderBillings,
   OrderHistoryItem,
   OrderPayment,
@@ -21,33 +20,12 @@ import type {
   OrderSummary,
 } from '@/types';
 
+import { getMoneyFormatByCurrencyCode } from '../../order/shared/orderMoneyUtils';
 import type { OrderDetailsState } from '../context/OrderDetailsContext';
 
 // ===========================================================================
 // Shared helpers
 // ===========================================================================
-
-function buildMoneyFormat(currencies: Currency[], currencyCode: string): MoneyFormat {
-  const currency = currencies.find((c) => c.currency_code === currencyCode);
-  if (!currency) {
-    return {
-      currency_location: 'left',
-      currency_token: '$',
-      decimal_token: '.',
-      decimal_places: 2,
-      thousands_token: ',',
-      currency_exchange_rate: '1.0000000000',
-    };
-  }
-  return {
-    currency_location: currency.token_location,
-    currency_token: currency.token,
-    decimal_token: currency.decimal_token,
-    decimal_places: currency.decimal_places,
-    thousands_token: currency.thousands_token,
-    currency_exchange_rate: currency.currency_exchange_rate,
-  };
-}
 
 function formatPrice(value: number, decimalPlaces: number): string {
   return value.toFixed(decimalPlaces);
@@ -493,7 +471,7 @@ export function convertOrderDetail(
   | 'companyInfo'
   | 'customerId'
 > {
-  const moneyFormat = buildMoneyFormat(currencies, order.totalIncTax.currencyCode);
+  const moneyFormat = getMoneyFormatByCurrencyCode(currencies, order.totalIncTax.currencyCode);
   const decimalPlaces = moneyFormat.decimal_places;
 
   const allProducts = gatherAllProducts(order, decimalPlaces);
