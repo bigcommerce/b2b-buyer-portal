@@ -184,7 +184,7 @@ interface PicklistModifier {
   option_values?: Array<{ id: number; value_data?: { product_id?: number } | null }> | null;
 }
 
-interface PicklistSelectionSource {
+export interface PicklistSelectionSource {
   optionSelections?: Array<{ option_id: number; value_id: number }> | null;
   productsSearch?: { modifiers?: PicklistModifier[] | null } | null;
 }
@@ -254,6 +254,31 @@ export function getCatalogBackorderFieldsForPicklistProduct(
     getCatalogBackorderDisplayQuantity(quantity, inventoryRow),
     inventoryRow,
   );
+}
+
+export interface PicklistBackorderSnapshotChild {
+  product_id: number;
+  sku?: string | null;
+  backorder_message?: string | null;
+  quantity_backordered?: number | null;
+  total_on_hand?: number | null;
+}
+
+export function getPicklistSnapshotBackorderFields(
+  child: PicklistBackorderSnapshotChild | undefined,
+): BackorderDisplayFields | null {
+  if (!child) {
+    return null;
+  }
+  if ((child.quantity_backordered ?? 0) <= 0) {
+    return null;
+  }
+
+  return {
+    totalOnHand: child.total_on_hand ?? 0,
+    quantityBackordered: child.quantity_backordered ?? 0,
+    backorderMessage: child.backorder_message ?? undefined,
+  };
 }
 
 export function catalogListHasPicklistBackorderedItemsForDisplay(
