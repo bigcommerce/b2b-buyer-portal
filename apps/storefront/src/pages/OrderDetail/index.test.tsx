@@ -1761,6 +1761,9 @@ describe('when a personal customer visits an order', () => {
       storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
       global: buildGlobalStateWith({
         backorderEnabled: true,
+        featureFlags: {
+          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+        },
       }),
     };
 
@@ -3107,6 +3110,199 @@ describe('when a personal customer visits an order', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Please select at least one item')).toBeVisible();
+      });
+    });
+  });
+
+  describe('when reorder ATS validation is gated behind backorder flags', () => {
+    const variantSku = 'REORDER-ATS-SKU';
+
+    const basePreloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.B2C,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+    };
+
+    const buildVisibleReorderProduct = () => ({
+      ...buildProductWith({
+        name: 'Tracked Product',
+        sku: variantSku,
+        quantity: 1,
+        product_options: [],
+      }),
+      isVisible: true,
+    });
+
+    it('does not show ATS helper when backorder is enabled but BACK-134 is off', async () => {
+      const product = buildVisibleReorderProduct();
+
+      const variantInfo = buildVariantInfoWith({
+        variantSku,
+        inventoryTracking: 'variant',
+        isStock: '0',
+        stock: 100,
+        minQuantity: 0,
+        maxQuantity: 0,
+      });
+
+      const createCartSimple = vi.fn();
+      const validateProductHandler = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [product] } },
+            }),
+          ),
+        ),
+        graphql.query('GetVariantInfoBySkus', ({ query }) => {
+          if (query.includes(`"${variantSku}"`)) {
+            return HttpResponse.json(
+              buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+            );
+          }
+
+          return HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+        }),
+        graphql.query('getCart', () => HttpResponse.json({ data: { site: { cart: null } } })),
+        graphql.mutation('createCartSimple', ({ variables }) =>
+          HttpResponse.json(createCartSimple(variables)),
+        ),
+        graphql.query('ValidateProduct', () => {
+          validateProductHandler();
+          return HttpResponse.json({
+            data: { validateProduct: { responseType: 'SUCCESS', message: '' } },
+          });
+        }),
+      );
+
+      when(createCartSimple)
+        .calledWith({
+          createCartInput: {
+            lineItems: [
+              {
+                quantity: 5,
+                productEntityId: product.product_id,
+                variantEntityId: product.variant_id,
+                selectedOptions: { multipleChoices: [], textFields: [] },
+              },
+            ],
+          },
+        })
+        .thenReturn({ data: { cart: { createCart: { cart: { entityId: 'cart-1' } } } } });
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: {
+          ...basePreloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: true,
+            featureFlags: {
+              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': false,
+            },
+          }),
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+      const productGroup = within(dialog).getByRole('group', { name: 'Tracked Product' });
+
+      await userEvent.click(within(productGroup).getByRole('checkbox'));
+
+      await userEvent.type(within(productGroup).getByRole('spinbutton'), '5', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      expect(within(dialog).queryByText('Only 0 available')).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Products are added to cart')).toBeVisible();
+      });
+
+      expect(validateProductHandler).not.toHaveBeenCalled();
+    });
+
+    it('shows ATS helper when backorder and BACK-134 are enabled', async () => {
+      const product = buildVisibleReorderProduct();
+
+      const variantInfo = buildVariantInfoWith({
+        variantSku,
+        inventoryTracking: 'variant',
+        availableToSell: 2,
+        unlimitedBackorder: false,
+        isStock: '1',
+        stock: 2,
+        minQuantity: 0,
+        maxQuantity: 0,
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [product] } },
+            }),
+          ),
+        ),
+        graphql.query('GetVariantInfoBySkus', ({ query }) => {
+          if (query.includes(`"${variantSku}"`)) {
+            return HttpResponse.json(
+              buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+            );
+          }
+
+          return HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [] } }));
+        }),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: {
+          ...basePreloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: true,
+            featureFlags: {
+              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+            },
+          }),
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+      const productGroup = within(dialog).getByRole('group', { name: 'Tracked Product' });
+
+      await userEvent.type(within(productGroup).getByRole('spinbutton'), '5', {
+        initialSelectionStart: 0,
+        initialSelectionEnd: Infinity,
+      });
+
+      await waitFor(() => {
+        expect(within(dialog).getByText('Only 2 available')).toBeVisible();
       });
     });
   });

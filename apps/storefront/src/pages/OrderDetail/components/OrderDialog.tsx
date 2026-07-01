@@ -103,7 +103,7 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const { isBackorderEnabled, isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+  const { isBackorderMessagingContextEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
@@ -386,7 +386,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true);
 
-      if (isBackorderEnabled) {
+      if (isReorderAtsEnabled) {
         await handleReorderBackend();
       } else {
         await handleReorderOnFrontend();
@@ -594,10 +594,11 @@ export default function OrderDialog({
             type={type}
             catalogInventoryBySku={catalogInventoryBySku}
             backorderUiEnabled={
-              isBackorderMessagingContextEnabled &&
+              isReorderAtsEnabled &&
               hasAnyBackorderDisplay &&
               (type === 'reOrder' || type === 'shoppingList')
             }
+            showReorderAtsHelper={type === 'reOrder' && isReorderAtsEnabled}
           />
 
           {type === 'return' && (
