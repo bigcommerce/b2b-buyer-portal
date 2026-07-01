@@ -36,6 +36,7 @@ interface OrderCheckboxProductProps {
   type?: string;
   catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
   backorderUiEnabled?: boolean;
+  showReorderAtsHelper?: boolean;
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -50,6 +51,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     type,
     catalogInventoryBySku,
     backorderUiEnabled = false,
+    showReorderAtsHelper = false,
   } = props;
 
   const b3Lang = useB3Lang();
@@ -204,7 +206,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         const { qtyHelperText, backorderFields } = getCatalogProductRowDisplayState({
           qty,
           productHelperText: product.helperText,
-          showAvailableToSellHelper: type === 'reOrder',
+          showAvailableToSellHelper: showReorderAtsHelper,
           inventoryRow: usesCatalogBackorderInventory
             ? catalogInventoryBySku?.[product.sku.toUpperCase()]
             : undefined,
