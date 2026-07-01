@@ -9,8 +9,10 @@ import {
   getQuoteBackorderDisplayQuantity,
   getQuoteItemBackendAvailability,
   getQuotePicklistSelections,
+  getRowPicklistBackorderHistory,
   type QuoteBackorderRow,
   quoteDetailListHasBackorderedItemsForDisplay,
+  quoteDetailListHasPicklistBackorderHistory,
 } from './getQuoteBackorderDisplayFields';
 
 type QuoteLineNode = QuoteItem['node'];
@@ -291,7 +293,7 @@ describe('draftRowQuantityExceedsAvailableToSell', () => {
 });
 
 describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
-  it('caps backorder display using enriched productsSearch ATS and API snapshot on-hand', () => {
+  it('caps backorder display using enriched productsSearch ATS and API history on-hand', () => {
     const row = {
       quantity: 100,
       variantSku: 'V1',
@@ -314,12 +316,12 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
     });
   });
 
-  it('prefers API snapshot totalOnHand and backorderMessage over productsSearch values', () => {
+  it('prefers API history totalOnHand and backorderMessage over productsSearch values', () => {
     const row = {
       quantity: 10,
       variantSku: 'V1',
       totalOnHand: 3,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
       productsSearch: {
         inventoryTracking: 'product',
         totalOnHand: 99,
@@ -332,7 +334,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
     expect(getQuoteBackorderDisplayFields(row)).toEqual({
       totalOnHand: 3,
       quantityBackordered: 7,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
     });
   });
 
@@ -396,7 +398,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
       quantity: 10,
       variantSku: 'V1',
       quantityBackordered: 3,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
       productsSearch: {
         inventoryTracking: 'product',
         availableToSell: 10,
@@ -407,7 +409,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
     expect(getQuoteBackorderDisplayFields(row)).toEqual({
       totalOnHand: 0,
       quantityBackordered: 3,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
     });
   });
 
@@ -417,7 +419,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
       variantSku: 'SKU-B',
       totalOnHand: 2,
       quantityBackordered: 8,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
       productsSearch: {
         inventoryTracking: 'variant',
         availableToSell: 10,
@@ -429,7 +431,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
     expect(getQuoteBackorderDisplayFields(row)).toEqual({
       totalOnHand: 2,
       quantityBackordered: 8,
-      backorderMessage: 'Snapshot message',
+      backorderMessage: 'History message',
     });
   });
 });
@@ -552,5 +554,72 @@ describe('quoteDetailListHasBackorderedItemsForDisplay', () => {
     };
 
     expect(quoteDetailListHasBackorderedItemsForDisplay([row])).toBe(true);
+  });
+});
+
+describe('getRowPicklistBackorderHistory', () => {
+  it('indexes the history children by product id', () => {
+    expect(
+      getRowPicklistBackorderHistory({
+        picklistBackorder: [
+          { product_id: 555, quantity_backordered: 2, total_on_hand: 3 },
+          { product_id: 666, quantity_backordered: 0, total_on_hand: 9 },
+        ],
+      }),
+    ).toEqual({
+      555: { product_id: 555, quantity_backordered: 2, total_on_hand: 3 },
+      666: { product_id: 666, quantity_backordered: 0, total_on_hand: 9 },
+    });
+  });
+
+  it('returns undefined when there is no history (non-ordered quotes)', () => {
+    expect(getRowPicklistBackorderHistory({})).toBeUndefined();
+    expect(getRowPicklistBackorderHistory({ picklistBackorder: [] })).toBeUndefined();
+  });
+});
+
+describe('quoteDetailListHasPicklistBackorderHistory', () => {
+  const picklistModifier = {
+    id: 100,
+    type: 'product_list',
+    display_name: 'Pick a pickle',
+    option_values: [{ id: 200, value_data: { product_id: 555 } }],
+  };
+
+  const buildRow = (
+    picklistBackorder: Array<{
+      product_id: number;
+      quantity_backordered: number;
+      total_on_hand: number;
+    }>,
+  ) => ({
+    optionList: JSON.stringify([{ option_id: 100, option_value: 200 }]),
+    productsSearch: { modifiers: [picklistModifier] },
+    picklistBackorder,
+  });
+
+  it('returns true when a resolved selection maps to a backordered history child', () => {
+    expect(
+      quoteDetailListHasPicklistBackorderHistory([
+        buildRow([{ product_id: 555, quantity_backordered: 1, total_on_hand: 0 }]),
+      ]),
+    ).toBe(true);
+  });
+
+  it('returns false when the matched history child is not backordered', () => {
+    expect(
+      quoteDetailListHasPicklistBackorderHistory([
+        buildRow([{ product_id: 555, quantity_backordered: 0, total_on_hand: 9 }]),
+        {},
+      ]),
+    ).toBe(false);
+  });
+
+  it('returns false when a backordered history child matches no picklist selection', () => {
+    expect(
+      quoteDetailListHasPicklistBackorderHistory([
+        buildRow([{ product_id: 999, quantity_backordered: 3, total_on_hand: 0 }]),
+      ]),
+    ).toBe(false);
   });
 });

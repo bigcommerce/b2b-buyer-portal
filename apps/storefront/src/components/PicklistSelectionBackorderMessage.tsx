@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
 import type { ProductSearch } from '@/shared/service/b2b/graphql/product';
+import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import {
   getCatalogBackorderFieldsForPicklistProduct,
   type PicklistSelection,
@@ -11,16 +12,21 @@ interface PicklistSelectionBackorderMessageProps {
   selection: PicklistSelection;
   product: ProductSearch | undefined;
   qty: number;
+  backorderFields?: BackorderDisplayFields | null;
 }
 
 function PicklistSelectionBackorderMessage({
   selection,
   product,
   qty,
+  backorderFields,
 }: PicklistSelectionBackorderMessageProps) {
-  const backorderFields = getCatalogBackorderFieldsForPicklistProduct(qty, product);
+  const resolvedFields =
+    backorderFields === undefined
+      ? getCatalogBackorderFieldsForPicklistProduct(qty, product)
+      : backorderFields;
 
-  if (!backorderFields) {
+  if (!resolvedFields) {
     return null;
   }
 
@@ -30,9 +36,9 @@ function PicklistSelectionBackorderMessage({
         {`${selection.displayName}:`}
       </Typography>
       <BackorderMessage
-        totalOnHand={backorderFields.totalOnHand}
-        quantityBackordered={backorderFields.quantityBackordered}
-        backorderMessage={backorderFields.backorderMessage}
+        totalOnHand={resolvedFields.totalOnHand}
+        quantityBackordered={resolvedFields.quantityBackordered}
+        backorderMessage={resolvedFields.backorderMessage}
         visible
       />
     </Box>

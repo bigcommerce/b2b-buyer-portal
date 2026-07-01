@@ -1,6 +1,10 @@
 import PicklistSelectionBackorderMessage from '@/components/PicklistSelectionBackorderMessage';
 import type { ProductSearch } from '@/shared/service/b2b/graphql/product';
-import type { PicklistSelection } from '@/utils/catalogBackorderDisplay';
+import {
+  getPicklistBackorderHistoryFields,
+  type PicklistBackorderHistoryChild,
+  type PicklistSelection,
+} from '@/utils/catalogBackorderDisplay';
 
 interface PicklistBackorderMessagesProps {
   selections: PicklistSelection[];
@@ -8,6 +12,7 @@ interface PicklistBackorderMessagesProps {
   qty: number;
   visible: boolean;
   backorderUiEnabled: boolean;
+  historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
 }
 
 function PicklistBackorderMessages({
@@ -16,6 +21,7 @@ function PicklistBackorderMessages({
   qty,
   visible,
   backorderUiEnabled,
+  historyByProductId,
 }: PicklistBackorderMessagesProps) {
   if (!backorderUiEnabled || selections.length === 0 || !visible) {
     return null;
@@ -29,6 +35,11 @@ function PicklistBackorderMessages({
           selection={selection}
           product={picklistProductsById[selection.productId]}
           qty={qty}
+          backorderFields={
+            historyByProductId
+              ? getPicklistBackorderHistoryFields(historyByProductId[selection.productId])
+              : undefined
+          }
         />
       ))}
     </>
