@@ -1,5 +1,6 @@
 import { QuoteExtraFieldsType } from '@/types/quotes';
 import { channelId, storeHash } from '@/utils/basicConfig';
+import type { PicklistBackorderSnapshotChild } from '@/utils/catalogBackorderDisplay';
 import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
@@ -232,6 +233,7 @@ const getQuoteInfo = `
         backorderMessage,
         totalOnHand,
         quantityBackordered,
+        picklistBackorder,
       },
       storefrontAttachFiles {
         id,
@@ -622,6 +624,7 @@ export interface B2BQuoteDetail {
         backorderMessage?: string;
         totalOnHand?: number;
         quantityBackordered?: number;
+        picklistBackorder?: PicklistBackorderSnapshotChild[];
       }[];
       storefrontAttachFiles: unknown[];
       backendAttachFiles: unknown[];

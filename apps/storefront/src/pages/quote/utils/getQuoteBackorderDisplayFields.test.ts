@@ -10,8 +10,10 @@ import {
   getQuoteBackorderDisplayQuantity,
   getQuoteItemBackendAvailability,
   getQuotePicklistSelections,
+  getRowPicklistBackorderSnapshot,
   type QuoteBackorderRow,
   quoteDetailListHasBackorderedItemsForDisplay,
+  quoteDetailListHasPicklistSnapshotBackordered,
 } from './getQuoteBackorderDisplayFields';
 
 type QuoteLineNode = QuoteItem['node'];
@@ -592,5 +594,72 @@ describe('quoteDetailListHasBackorderedItemsForDisplay', () => {
     };
 
     expect(quoteDetailListHasBackorderedItemsForDisplay([row])).toBe(true);
+  });
+});
+
+describe('getRowPicklistBackorderSnapshot', () => {
+  it('indexes the snapshot children by product id', () => {
+    expect(
+      getRowPicklistBackorderSnapshot({
+        picklistBackorder: [
+          { product_id: 555, quantity_backordered: 2, total_on_hand: 3 },
+          { product_id: 666, quantity_backordered: 0, total_on_hand: 9 },
+        ],
+      }),
+    ).toEqual({
+      555: { product_id: 555, quantity_backordered: 2, total_on_hand: 3 },
+      666: { product_id: 666, quantity_backordered: 0, total_on_hand: 9 },
+    });
+  });
+
+  it('returns undefined when there is no snapshot (non-ordered quotes)', () => {
+    expect(getRowPicklistBackorderSnapshot({})).toBeUndefined();
+    expect(getRowPicklistBackorderSnapshot({ picklistBackorder: [] })).toBeUndefined();
+  });
+});
+
+describe('quoteDetailListHasPicklistSnapshotBackordered', () => {
+  const picklistModifier = {
+    id: 100,
+    type: 'product_list',
+    display_name: 'Pick a pickle',
+    option_values: [{ id: 200, value_data: { product_id: 555 } }],
+  };
+
+  const buildRow = (
+    picklistBackorder: Array<{
+      product_id: number;
+      quantity_backordered: number;
+      total_on_hand: number;
+    }>,
+  ) => ({
+    optionList: JSON.stringify([{ option_id: 100, option_value: 200 }]),
+    productsSearch: { modifiers: [picklistModifier] },
+    picklistBackorder,
+  });
+
+  it('returns true when a resolved selection maps to a backordered snapshot child', () => {
+    expect(
+      quoteDetailListHasPicklistSnapshotBackordered([
+        buildRow([{ product_id: 555, quantity_backordered: 1, total_on_hand: 0 }]),
+      ]),
+    ).toBe(true);
+  });
+
+  it('returns false when the matched snapshot child is not backordered', () => {
+    expect(
+      quoteDetailListHasPicklistSnapshotBackordered([
+        buildRow([{ product_id: 555, quantity_backordered: 0, total_on_hand: 9 }]),
+        {},
+      ]),
+    ).toBe(false);
+  });
+
+  it('returns false when a backordered snapshot child matches no picklist selection', () => {
+    expect(
+      quoteDetailListHasPicklistSnapshotBackordered([
+        buildRow([{ product_id: 999, quantity_backordered: 3, total_on_hand: 0 }]),
+      ]),
+    ).toBe(false);
   });
 });

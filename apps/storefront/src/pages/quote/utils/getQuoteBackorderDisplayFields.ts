@@ -3,7 +3,9 @@ import { QuoteItem } from '@/types/quotes';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
 import {
+  getPicklistSnapshotBackorderFields,
   getProductDetailsForPicklistSelections,
+  type PicklistBackorderSnapshotChild,
   type PicklistSelection,
   type PicklistSelectionSource,
 } from '@/utils/catalogBackorderDisplay';
@@ -233,4 +235,42 @@ export function quoteDetailListHasBackorderedItemsForDisplay(
   productList: QuoteBackorderRow[],
 ): boolean {
   return productList.some((item) => Boolean(getQuoteBackorderDisplayFields(item)));
+}
+
+interface PicklistBackorderSnapshotRow {
+  picklistBackorder?: PicklistBackorderSnapshotChild[] | null;
+}
+
+export function getRowPicklistBackorderSnapshot(
+  row: PicklistBackorderSnapshotRow,
+): Record<number, PicklistBackorderSnapshotChild> | undefined {
+  const children = row.picklistBackorder;
+  if (!children?.length) {
+    return undefined;
+  }
+
+  const byProductId: Record<number, PicklistBackorderSnapshotChild> = {};
+  children.forEach((child) => {
+    if (child?.product_id != null) {
+      byProductId[child.product_id] = child;
+    }
+  });
+  return byProductId;
+}
+
+export function quoteDetailListHasPicklistSnapshotBackordered(
+  productList: Array<
+    Parameters<typeof getQuotePicklistSelections>[0] & PicklistBackorderSnapshotRow
+  >,
+): boolean {
+  return productList.some((row) => {
+    const snapshotByProductId = getRowPicklistBackorderSnapshot(row);
+    if (!snapshotByProductId) {
+      return false;
+    }
+    return getQuotePicklistSelections(row).some(
+      (selection) =>
+        getPicklistSnapshotBackorderFields(snapshotByProductId[selection.productId]) !== null,
+    );
+  });
 }
