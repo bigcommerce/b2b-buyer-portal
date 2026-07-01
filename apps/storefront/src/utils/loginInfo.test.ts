@@ -1,11 +1,17 @@
+import { graphql, HttpResponse, startMockServer } from 'tests/test-utils';
+
 import * as b2bService from '@/shared/service/b2b';
 import * as bcService from '@/shared/service/bc';
 import { store } from '@/store';
-import { setPermissionModules } from '@/store/slices/company';
+import { setBcGraphQLToken, setPermissionModules } from '@/store/slices/company';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { snackbar } from '@/utils/b3Tip';
+import { CompanyError } from '@/utils/companyUtils';
 
 import b2bLogger from './b3Logger';
-import { getCurrentCustomerInfo } from './loginInfo';
+import { ensureBcGraphqlToken, getCurrentCustomerInfo } from './loginInfo';
+
+const { server } = startMockServer();
 
 const BC_AUTH_FLAG = 'PROJECT-7920.use_bc_login_and_authorisation';
 // keeps the account-hierarchy branch (and its extra requests) out of the path under test
@@ -135,5 +141,92 @@ describe('getCurrentCustomerInfo permissions source', () => {
     await getCurrentCustomerInfo();
 
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules([]));
+  });
+});
+
+describe('getCurrentCustomerInfo company error during token exchange', () => {
+  const b2bGraphql = graphql.link('https://api-b2b.bigcommerce.com/graphql');
+  const pendingApprovalMessage =
+    'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.';
+
+  beforeEach(() => {
+    vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
+    vi.spyOn(b2bLogger, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(snackbar, 'error');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does not show a snackbar when getB2BToken returns a company error during init', async () => {
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: { tokens: { B2BToken: '', currentCustomerJWT: '' } },
+      global: { featureFlags: { [BC_AUTH_FLAG]: true } },
+    } as unknown as ReturnType<typeof store.getState>);
+
+    vi.spyOn(bcService, 'getCurrentCustomerJWT').mockResolvedValue('new-jwt');
+    server.use(
+      b2bGraphql.operation(() =>
+        HttpResponse.json({ errors: [{ message: pendingApprovalMessage }] }),
+      ),
+    );
+
+    await expect(getCurrentCustomerInfo()).rejects.toBeInstanceOf(CompanyError);
+
+    expect(snackbar.error).not.toHaveBeenCalled();
+  });
+});
+
+describe('ensureBcGraphqlToken', () => {
+  const b2bGraphql = graphql.link('https://api-b2b.bigcommerce.com/graphql');
+
+  beforeEach(() => {
+    vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('coalesces concurrent storefront token requests into one network call', async () => {
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: { tokens: { B2BToken: '', bcGraphqlToken: '' } },
+    } as ReturnType<typeof store.getState>);
+
+    let requestCount = 0;
+    server.use(
+      b2bGraphql.mutation('storeFrontToken', () => {
+        requestCount += 1;
+        return HttpResponse.json({ data: { storeFrontToken: { token: 'fresh-token' } } });
+      }),
+    );
+
+    await Promise.all([ensureBcGraphqlToken(), ensureBcGraphqlToken()]);
+
+    expect(requestCount).toBe(1);
+    expect(store.dispatch).toHaveBeenCalledWith(setBcGraphQLToken('fresh-token'));
+  });
+
+  it('resets the in-flight state after a failed fetch, allowing a retry', async () => {
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: { tokens: { B2BToken: '', bcGraphqlToken: '' } },
+    } as ReturnType<typeof store.getState>);
+
+    let callCount = 0;
+    server.use(
+      b2bGraphql.mutation('storeFrontToken', () => {
+        callCount += 1;
+        return callCount === 1
+          ? HttpResponse.error()
+          : HttpResponse.json({ data: { storeFrontToken: { token: 'retry-token' } } });
+      }),
+    );
+
+    await expect(ensureBcGraphqlToken()).rejects.toThrow();
+    await ensureBcGraphqlToken();
+
+    expect(store.dispatch).toHaveBeenCalledWith(setBcGraphQLToken('retry-token'));
   });
 });

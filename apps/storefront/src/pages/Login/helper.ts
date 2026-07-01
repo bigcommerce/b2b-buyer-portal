@@ -126,7 +126,6 @@ export const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
 };
 
 export const SHOULD_LOGOUT_FLAGS: LoginFlagType[] = [
-  'loggedOutLogin',
   'pendingApprovalToViewPrices',
   'pendingApprovalToOrder',
   'pendingApprovalToAccessFeatures',
