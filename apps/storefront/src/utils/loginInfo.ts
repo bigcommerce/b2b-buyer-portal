@@ -9,8 +9,7 @@ import {
   getUserCompany,
   getUserMasqueradingCompany,
 } from '@/shared/service/b2b';
-import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
-import { getAppClientId } from '@/shared/service/request/base';
+import { getCustomerInfo } from '@/shared/service/bc';
 import {
   clearMasqueradeCompany,
   MasqueradeCompany,
@@ -36,6 +35,7 @@ import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
+import { fetchCurrentCustomerJwt } from './currentCustomerJwt';
 import { getAccountHierarchyIsEnabled } from './storefrontConfig';
 
 const getLoginTokenInfo = () => {
@@ -187,11 +187,7 @@ const getCompanyUserInfo = async (useBcLoginAndAuthorisation = false) => {
 
 const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
-  const currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId()).catch((error) => {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    return undefined;
-  });
+  const currentCustomerJWT = await fetchCurrentCustomerJwt();
 
   if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
@@ -366,8 +362,8 @@ export const getCurrentCustomerInfo = async (
       if (useBcLoginAndAuthorisation) {
         let { currentCustomerJWT } = store.getState().company.tokens;
         if (!currentCustomerJWT) {
-          currentCustomerJWT =
-            (await getCurrentCustomerJWT(getAppClientId()).catch(() => '')) ?? '';
+          currentCustomerJWT = await fetchCurrentCustomerJwt();
+          if (currentCustomerJWT) store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
         }
         if (currentCustomerJWT) {
           const authorizationData = await b2bAuthorization({
