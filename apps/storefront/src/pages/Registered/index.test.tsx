@@ -1026,7 +1026,7 @@ const preloadedStateB2bCompanyCreate = {
   }),
 };
 
-/** FF on: Storefront `registerCompany` + `bcLogin` after `createBCCompanyUser`. Prefetch `bcGraphqlToken` so `loginInfo` is not required in the happy path. */
+/** FF on: Storefront `registerCompany` + `bcLogin` after `createBCCompanyUser`. Prefetch `bcGraphqlToken` so `ensureBcGraphqlToken` early-returns without a network call. */
 const preloadedStateStorefrontRegisterCompany = {
   global: buildGlobalStateWith({
     featureFlags: { 'B2B-4466.use_register_company_flow': true },
@@ -1045,7 +1045,7 @@ describe('Registered Page', () => {
     vi.spyOn(companyGraphqlModule, 'registerCompany').mockResolvedValue(
       mockRegisterCompanyGraphqlApproved,
     );
-    vi.spyOn(loginInfoModule, 'loginInfo').mockImplementation(() => Promise.resolve());
+    vi.spyOn(loginInfoModule, 'ensureBcGraphqlToken').mockImplementation(() => Promise.resolve());
 
     vi.spyOn(b2bService, 'getB2BAccountFormFields').mockResolvedValue({
       accountFormFields: formType2Fields,
@@ -1174,7 +1174,7 @@ describe('Registered Page', () => {
         email: 'john.doe@example.com',
         password: 'Password123',
       });
-      expect(loginInfoModule.loginInfo).not.toHaveBeenCalled();
+      expect(loginInfoModule.ensureBcGraphqlToken).toHaveBeenCalledTimes(1);
       expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
       expect(
         screen.getByText(

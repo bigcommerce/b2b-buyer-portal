@@ -31,7 +31,7 @@ import { LineItem } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { channelId } from '@/utils/basicConfig';
-import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+import { ensureBcGraphqlToken, getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { logoutSession } from '@/utils/logoutSession';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
@@ -241,6 +241,11 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             } finally {
               window.sessionStorage.clear();
               logoutSession();
+              try {
+                await ensureBcGraphqlToken();
+              } catch (e) {
+                b2bLogger.error(e);
+              }
               window.b2b.callbacks.dispatchEvent('on-logout');
             }
           },

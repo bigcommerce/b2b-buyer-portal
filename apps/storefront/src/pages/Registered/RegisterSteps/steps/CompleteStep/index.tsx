@@ -15,17 +15,14 @@ import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, storeHash } from '@/utils/basicConfig';
+import { ensureBcGraphqlToken } from '@/utils/loginInfo';
 
 import { RegisteredContext } from '../../../Context';
 import { RegisterFields } from '../../../types';
 import { PrimaryButton } from '../../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../../styled';
 
-import {
-  ensureBcStorefrontGraphqlToken,
-  loginAndGetBcCustomer,
-  logoutBcCustomer,
-} from './bcHelpers';
+import { loginAndGetBcCustomer, logoutBcCustomer } from './bcHelpers';
 import { createCompany } from './createCompany';
 import { createCustomer } from './createCustomer';
 import { registerCompany } from './registerCompany';
@@ -292,7 +289,7 @@ export default function CompleteStep(props: CompleteStepProps) {
             );
 
             if (isRegisterCompanyFlowEnabled) {
-              await ensureBcStorefrontGraphqlToken();
+              await ensureBcGraphqlToken();
 
               const customerDetails = await loginAndGetBcCustomer(
                 {

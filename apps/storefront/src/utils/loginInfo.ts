@@ -53,13 +53,28 @@ const getLoginTokenInfo = () => {
   return data;
 };
 
-export const loginInfo = async () => {
-  const loginTokenInfo = getLoginTokenInfo();
+// Logout clears bcGraphqlToken and customer state, which re-runs App init while
+// useLogout also refetches the token — both can call ensureBcGraphqlToken at once.
+let pendingStorefrontToken: Promise<void> | null = null;
 
-  const token = await getBCGraphqlToken(loginTokenInfo);
-  if (token) {
-    store.dispatch(setBcGraphQLToken(token));
+export const ensureBcGraphqlToken = async (): Promise<void> => {
+  if (store.getState().company.tokens.bcGraphqlToken) {
+    return;
   }
+
+  if (!pendingStorefrontToken) {
+    pendingStorefrontToken = (async () => {
+      const loginTokenInfo = getLoginTokenInfo();
+      const token = await getBCGraphqlToken(loginTokenInfo);
+      if (token) {
+        store.dispatch(setBcGraphQLToken(token));
+      }
+    })().finally(() => {
+      pendingStorefrontToken = null;
+    });
+  }
+
+  await pendingStorefrontToken;
 };
 
 const clearCurrentCustomerInfo = async () => {

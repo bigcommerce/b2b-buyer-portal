@@ -509,9 +509,12 @@ export const getB2BToken = (
   channelId = 1,
   includeLegacyFields = false,
 ) =>
-  B3Request.graphqlB2B<B2BTokenResponse>({
-    query: getB2BTokenQl(currentCustomerJWT, channelId, includeLegacyFields),
-  }).catch(mapToCompanyError);
+  B3Request.graphqlB2B<B2BTokenResponse>(
+    {
+      query: getB2BTokenQl(currentCustomerJWT, channelId, includeLegacyFields),
+    },
+    true,
+  ).catch(mapToCompanyError);
 
 export const getAgentInfo = (customerId: string | number) =>
   B3Request.graphqlB2B({

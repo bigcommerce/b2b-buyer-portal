@@ -95,7 +95,7 @@ const B3Request = {
    */
   graphqlB2B: function post<T extends DataWrapper | CustomFieldItems = CustomFieldItems>(
     data: GQLRequest,
-    customMessage = false,
+    suppressSnackbar = false,
   ): Promise<T extends DataWrapper ? T['data'] : T> {
     const { B2BToken } = store.getState().company.tokens;
     const config = {
@@ -128,7 +128,7 @@ const B3Request = {
       }
 
       if (message) {
-        if (!customMessage) {
+        if (!suppressSnackbar) {
           snackbar.error(message);
         }
 

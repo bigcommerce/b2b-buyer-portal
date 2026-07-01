@@ -5,6 +5,7 @@ import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/se
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
+import { ensureBcGraphqlToken } from '@/utils/loginInfo';
 import { logoutSession } from '@/utils/logoutSession';
 
 const useEndMasquerade = () => {
@@ -58,6 +59,11 @@ export const useLogout = () => {
         // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
         window.sessionStorage.clear();
         logoutSession();
+        try {
+          await ensureBcGraphqlToken();
+        } catch (e) {
+          b2bLogger.error(e);
+        }
         if (showLogoutBanner) {
           dispatchEvent('on-logout');
         }
