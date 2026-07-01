@@ -1,17 +1,9 @@
 import { bcLogin, bcLogoutLogin } from '@/shared/service/bc';
-import { store } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
-import { loginInfo } from '@/utils/loginInfo';
 
 interface Credentials {
   email: string;
   password: string;
-}
-
-/** `registerCompany` uses Storefront GraphQL (`graphqlBC` or `graphqlBCProxy` by platform), which requires a storefront session token in the store. */
-export async function ensureBcStorefrontGraphqlToken(): Promise<void> {
-  if (store.getState().company.tokens.bcGraphqlToken) return;
-  await loginInfo();
 }
 
 /** Storefront login after account creation; throws if the login mutation returns errors. */

@@ -429,8 +429,42 @@ describe('LoginPage', () => {
       const { navigation } = await renderBcFirstLoginAndSubmit();
 
       await waitFor(() => {
-        expect(snackbar.error).toHaveBeenCalledWith(pendingApprovalMessage);
+        expect(snackbar.error).toHaveBeenCalledTimes(1);
       });
+      expect(snackbar.error).toHaveBeenCalledWith(pendingApprovalMessage);
+      await waitFor(() => {
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
+      });
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the pending-approval ordering message once and logs out when the token exchange returns that company error', async () => {
+      const logoutMock = vi.fn();
+      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      const pendingApprovalMessage =
+        'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval.';
+
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ errors: [{ message: pendingApprovalMessage }] }),
+        ),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      await waitFor(() => {
+        expect(snackbar.error).toHaveBeenCalledTimes(1);
+      });
+      expect(snackbar.error).toHaveBeenCalledWith(pendingApprovalMessage);
       await waitFor(() => {
         expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
       });
@@ -577,7 +611,6 @@ describe('LoginPage', () => {
       'pendingApprovalToOrder',
       'pendingApprovalToAccessFeatures',
       'accountInactive',
-      'loggedOutLogin',
     ] as const)(
       'should logout without banner when loginFlag=%s and user is not logged in',
       async (loginFlag) => {
@@ -608,6 +641,27 @@ describe('LoginPage', () => {
         });
       },
     );
+
+    it('does not logout again when loginFlag=loggedOutLogin and user is already logged out', async () => {
+      const logoutMock = vi.fn();
+      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      renderLoginPage({
+        preloadedState: {
+          company: buildCompanyStateWith({
+            customer: { role: CustomerRole.GUEST },
+            tokens: { B2BToken: '', bcGraphqlToken: 'storefront-token', currentCustomerJWT: '' },
+          }),
+        },
+        initialEntries: ['/?loginFlag=loggedOutLogin'],
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+
+      expect(logoutMock).not.toHaveBeenCalled();
+    });
 
     it('should not logout when loginFlag is not a logout-triggering flag', async () => {
       const logoutMock = vi.fn();

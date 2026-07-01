@@ -122,11 +122,9 @@ function Login(props: PageProps) {
             (isLoggedIn && loginFlag === 'loggedOutLogin') ||
             (!isLoggedIn && SHOULD_LOGOUT_FLAGS.includes(loginFlag));
 
-          /*
-           * Guard against a second logout: logging out flips isLoggedIn to
-           * false and re-runs this effect, which would otherwise re-trigger
-           * logout via the !isLoggedIn branch. Only log out once per flag.
-           */
+          /* Guard against a second logout: logging out flips isLoggedIn to false and
+           * re-runs this effect, which would otherwise re-trigger the !isLoggedIn branch.
+           * loggedOutLogin is only handled while logged in; the post-sign-out re-run skips it. */
           if (shouldLogout && handledLogoutFlagRef.current !== loginFlag) {
             handledLogoutFlagRef.current = loginFlag;
             // Banner only when an actually-logged-in user is signing out.

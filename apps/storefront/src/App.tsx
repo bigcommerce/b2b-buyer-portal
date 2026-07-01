@@ -31,7 +31,7 @@ import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
 import { isCompanyError } from './utils/companyUtils';
-import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
+import { ensureBcGraphqlToken, getCompanyInfo, getCurrentCustomerInfo } from './utils/loginInfo';
 import { logoutSession } from './utils/logoutSession';
 import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
@@ -68,7 +68,6 @@ export default function App() {
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
-  const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
     useAppSelector(rolePermissionSelector);
 
@@ -183,10 +182,8 @@ export default function App() {
           }
         }
 
-        // bc graphql token
-        if (!bcGraphqlToken) {
-          await loginInfo();
-        }
+        await ensureBcGraphqlToken();
+
         setChannelStoreType();
 
         // load the store config before fetching other data
