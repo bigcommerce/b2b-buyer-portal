@@ -5,6 +5,7 @@ import type {
   OrderAddress,
   OrderDigitalLineItem,
   OrderLineItem,
+  OrderLineItemProductOption,
 } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type {
@@ -170,7 +171,7 @@ interface LineItemBase {
   productEntityId: number;
   name: string;
   quantity: number;
-  productOptions: Array<{ name: string; value: string }>;
+  productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
 }
 
@@ -217,15 +218,15 @@ function buildOrderProduct(
     refund_amount: '0',
     return_id: 0,
     optionList: item.productOptions.map((o) => ({
-      optionId: 0,
-      optionValue: o.value,
+      optionId: o.productAttributeEntityId ?? 0,
+      optionValue: o.productAttributeValueEntityId?.toString() ?? o.value,
       type: o.name,
     })),
     product_options: item.productOptions.map((o) => ({
-      id: 0,
-      option_id: 0,
+      id: o.productAttributeEntityId ?? 0,
+      option_id: o.productAttributeEntityId ?? 0,
       order_product_id: item.entityId,
-      product_option_id: 0,
+      product_option_id: o.productAttributeEntityId ?? 0,
       name: o.name,
       value: o.value,
       display_name: o.name,
@@ -515,7 +516,7 @@ export function convertOrderDetail(
     orderId: order.entityId,
     status: order.status.label,
     customStatus: '',
-    poNumber: order.reference ?? '',
+    poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,
     money: moneyFormat,
     orderSummary: buildOrderSummary(order, b3Lang, decimalPlaces),
@@ -527,7 +528,9 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    canReturn: order.canReturn ?? false,
+    canReturn: (order.consignments?.shipping?.edges ?? []).some((edge) =>
+      edge.node.lineItems.edges.some((le) => le.node.returnableQuantity > 0),
+    ),
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
     invoiceId: order.invoice ? Number(order.invoice.id) : 0,

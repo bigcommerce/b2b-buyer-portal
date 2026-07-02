@@ -19,7 +19,7 @@ export interface ListItem {
 
 export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): ListItem => ({
   orderId: String(order.entityId),
-  poNumber: order.reference || '',
+  poNumber: order.poNumber || '',
   totalIncTax: String(order.totalIncTax.value),
   status: order.status.label,
   statusText: order.status.label,

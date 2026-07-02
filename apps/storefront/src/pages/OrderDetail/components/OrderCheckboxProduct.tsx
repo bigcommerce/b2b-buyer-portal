@@ -77,7 +77,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
       setCheckedArr([]);
       setReturnList([]);
     } else {
-      const variantIds = products.map((item) => item.variant_id);
+      const productIds = products.map((item) => item.id);
       const returnIds: ReturnListProps[] = [];
       products.forEach((item, index) => {
         returnIds[index] = {
@@ -86,21 +86,21 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         };
       });
 
-      setCheckedArr(variantIds);
+      setCheckedArr(productIds);
       setReturnList(returnIds);
     }
   };
 
-  const handleSelectChange = (variantId: number, returnId: number, returnQty: number) => {
+  const handleSelectChange = (productId: number, returnId: number, returnQty: number) => {
     const newList = [...checkedArr];
     const newReturnList = [...returnList];
-    const index = newList.findIndex((item) => item === variantId);
+    const index = newList.findIndex((item) => item === productId);
     const returnIndex = newReturnList.findIndex((item) => item.returnId === returnId);
     if (index !== -1) {
       newList.splice(index, 1);
       newReturnList.splice(returnIndex, 1);
     } else {
-      newList.push(variantId);
+      newList.push(productId);
       newReturnList.push({
         returnId,
         returnQty,
@@ -110,7 +110,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     setReturnList(newReturnList);
   };
 
-  const isChecked = (variantId: number) => checkedArr.includes(variantId);
+  const isChecked = (productId: number) => checkedArr.includes(productId);
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -220,9 +220,9 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             aria-labelledby={`group-label-${product.id}`}
           >
             <Checkbox
-              checked={isChecked(product.variant_id)}
+              checked={isChecked(product.id)}
               onChange={() =>
-                handleSelectChange(product.variant_id, product.id, Number(product.editQuantity))
+                handleSelectChange(product.id, product.id, Number(product.editQuantity))
               }
             />
             <FlexItem>

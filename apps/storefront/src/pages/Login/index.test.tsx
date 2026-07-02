@@ -3,6 +3,7 @@ import {
   buildCompanyStateWith,
   buildGlobalStateWith,
   graphql,
+  http,
   HttpResponse,
   renderWithProviders,
   screen,
@@ -10,6 +11,8 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
+import { setupStore } from '@/store';
+import { clearCompanySlice } from '@/store/slices/company';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -25,7 +28,14 @@ vi.mock('./useLogout', () => ({
 
 vi.mock('@/utils/loginInfo');
 
+// The BC-first login flow logs failures via b2bLogger (console.error), which
+// fails the suite under CI's fail-on-console rule — mock it out.
+vi.mock('@/utils/b3Logger');
+
 const { server } = startMockServer();
+
+const ACCOUNT_INCORRECT_MESSAGE =
+  "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.";
 
 // When the default-login-styling feature flag is on, the login page gates its
 // content on `isLogoLoaded` (set true once the merchant login config resolves
@@ -299,6 +309,194 @@ describe('LoginPage', () => {
     });
   });
 
+  describe('BC-first login flow (PROJECT-7920.use_bc_login_and_authorisation)', () => {
+    const CURRENT_JWT_URL = '*/customer/current.jwt';
+
+    // bcLogin hits the BC storefront GraphQL endpoint while getB2BToken hits the
+    // B2B endpoint with an *anonymous* mutation. Scope each handler to its own
+    // endpoint so the named 'Login' handler never tries (and warns) on the
+    // anonymous B2B operation.
+    const bcGraphql = graphql.link(`${window.location.origin}/graphql`);
+    const b2bGraphql = graphql.link('https://api-b2b.bigcommerce.com/graphql');
+
+    const renderBcFirstLoginAndSubmit = () => {
+      const utils = renderLoginPage({
+        preloadedState: {
+          global: buildGlobalStateWith({
+            featureFlags: { 'PROJECT-7920.use_bc_login_and_authorisation': true },
+          }),
+        },
+      });
+
+      return (async () => {
+        await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
+        await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
+        await userEvent.keyboard('{Enter}');
+        return utils;
+      })();
+    };
+
+    it('stops at BC login and shows the incorrect-account error when credentials are invalid', async () => {
+      // BC returns invalid-credentials as HTTP 200 with a populated `errors` array.
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Invalid credentials' }],
+          }),
+        ),
+        // If the flow wrongly proceeds, these would be hit — they assert the
+        // guard short-circuited by failing the test loudly if requested.
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt should not be requested after a BC login error');
+        }),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the incorrect-account error when the customer JWT cannot be retrieved', async () => {
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        // Non-OK response whose body includes "errors" makes getCurrentCustomerJWT
+        // resolve to undefined, so fetchB2BTokenByAuthMutation bails on the missing JWT.
+        http.get(CURRENT_JWT_URL, () => new HttpResponse('errors', { status: 401 })),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the incorrect-account error when the B2B token exchange fails generically', async () => {
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        // The authorization mutation fails with a generic error, which propagates
+        // to handleRegularLogin's catch and surfaces as a snackbar.
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ errors: [{ message: 'Authorization failed' }] }),
+        ),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      await waitFor(() => {
+        expect(snackbar.error).toHaveBeenCalledWith(ACCOUNT_INCORRECT_MESSAGE);
+      });
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the company-status error and logs out when the token exchange returns a company error', async () => {
+      const logoutMock = vi.fn();
+      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      const pendingApprovalMessage =
+        'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.';
+
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        // getB2BToken maps this to a CompanyError, which handleRegularLogin's
+        // catch surfaces as the mapped status message + a silent logout.
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ errors: [{ message: pendingApprovalMessage }] }),
+        ),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      await waitFor(() => {
+        expect(snackbar.error).toHaveBeenCalledWith(pendingApprovalMessage);
+      });
+      await waitFor(() => {
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: false });
+      });
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the prelaunch error when the token exchange reports the channel is not live', async () => {
+      const prelaunchApiMessage =
+        'Operation cannot be performed as the storefront channel is not live';
+      const prelaunchTip =
+        'You can not login to the Buyer Portal while the store is in prelaunch or maintenance mode. Please set the store live, or login inside the customer admin panel.';
+
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ errors: [{ message: prelaunchApiMessage }] }),
+        ),
+      );
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      expect(await screen.findByText(prelaunchTip)).toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('exchanges the customer JWT for a B2B token, stores both, and navigates on success', async () => {
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        // The anonymous authorization mutation returns the B2B token, scoped to
+        // the B2B endpoint so it only catches the token exchange.
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ data: { authorization: { result: { token: 'b2b-token' } } } }),
+        ),
+      );
+
+      vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+        userType: 5,
+        role: 2,
+        companyRoleName: 'Junior Buyer',
+      });
+
+      const { navigation, store } = await renderBcFirstLoginAndSubmit();
+
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+      });
+
+      expect(store.getState().company.tokens.B2BToken).toBe('b2b-token');
+      expect(store.getState().company.tokens.currentCustomerJWT).toBe('jwt-token');
+    });
+  });
+
   describe('loading state prevents duplicate submit', () => {
     it('passes isLoading to LoginForm so Sign In button can be disabled', async () => {
       renderLoginPage();
@@ -439,6 +637,32 @@ describe('LoginPage', () => {
 
       // Should not call logout for flags not in shouldLogout array
       expect(logoutMock).not.toHaveBeenCalled();
+    });
+
+    it('should logout only once when loginFlag=loggedOutLogin even after isLoggedIn flips to false', async () => {
+      const store = setupStore({
+        company: buildCompanyStateWith({
+          customer: { role: CustomerRole.ADMIN },
+          tokens: { B2BToken: 'test-token', bcGraphqlToken: '', currentCustomerJWT: '' },
+        }),
+      });
+
+      // Mimic the real logout: clearing the company slice flips the customer
+      // role to GUEST, so isLoggedIn becomes false and the effect re-runs. The
+      // ref guard must stop that re-run from triggering a second logout (which
+      // would wipe the BC storefront token the login flow depends on).
+      const logoutMock = vi.fn(async () => {
+        store.dispatch(clearCompanySlice());
+      });
+      vi.mocked(useLogout).mockReturnValue(logoutMock);
+
+      renderLoginPage({ store, initialEntries: ['/?loginFlag=loggedOutLogin'] });
+
+      await waitFor(() => {
+        expect(logoutMock).toHaveBeenCalledWith({ showLogoutBanner: true });
+      });
+
+      expect(logoutMock).toHaveBeenCalledTimes(1);
     });
   });
 

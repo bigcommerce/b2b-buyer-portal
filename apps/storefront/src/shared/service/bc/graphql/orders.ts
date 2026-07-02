@@ -40,6 +40,10 @@ export interface OrderAddress {
 export interface OrderLineItemProductOption {
   name: string;
   value: string;
+  /** Option ID — maps to product_attribute_id. */
+  productAttributeEntityId?: number;
+  /** Option value ID — maps to validated_value. */
+  productAttributeValueEntityId?: number;
 }
 
 /** Projects OrderPhysicalLineItem. */
@@ -55,6 +59,7 @@ export interface OrderLineItem {
   subTotalListPrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
+  returnableQuantity: number;
 }
 
 export interface OrderShipmentTracking {
@@ -207,13 +212,13 @@ export interface Order {
 
   // B2B extensions (null for B2C orders)
   reference: string | null;
+  poNumber: string | null;
   company: OrderCompany | null;
   placedBy: OrderPlacedBy | null;
   history: OrderHistoryEvent[];
   quote: OrderQuote | null;
   invoice: OrderInvoice | null;
   extraFields: ExtraFieldValue[];
-  canReturn?: boolean;
 }
 
 // ===========================================================================
@@ -371,6 +376,8 @@ const orderLineItemFields = `entityId
       productOptions {
         name
         value
+        productAttributeEntityId
+        productAttributeValueEntityId
       }
       subTotalListPrice {
         ${moneyFields}
@@ -380,7 +387,8 @@ const orderLineItemFields = `entityId
       }
       baseCatalogProduct {
         path
-      }`;
+      }
+      returnableQuantity`;
 
 const orderShipmentFields = `entityId
       shippedAt {
@@ -505,6 +513,7 @@ const orderFinancialFields = `subTotal {
   }`;
 
 const orderB2BFields = `reference
+  poNumber
   company {
     entityId
     name
@@ -538,8 +547,7 @@ const orderB2BFields = `reference
   extraFields {
     name
     value
-  }
-  canReturn`;
+  }`;
 
 /** Lightweight fields for order list views. */
 const orderListNodeFields = `entityId
@@ -551,6 +559,7 @@ const orderListNodeFields = `entityId
     ${moneyFields}
   }
   reference
+  poNumber
   company {
     entityId
     name

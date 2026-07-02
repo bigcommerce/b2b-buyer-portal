@@ -56,6 +56,11 @@ interface VariantInfo {
   purchasingDisabled: '1' | '0';
   variantSku: string;
   imageUrl: string;
+  inventoryTracking?: string;
+  availableToSell?: number;
+  unlimitedBackorder?: boolean;
+  totalOnHand?: number | null;
+  backorderMessage?: string | null;
 }
 
 const { server } = startMockServer();
@@ -3147,6 +3152,352 @@ describe('when the user is a B2B customer', () => {
 
         expect(validateProduct).toHaveBeenCalled();
         expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+      });
+
+      describe('when OOS quoting is disabled and backorder messaging is enabled', () => {
+        const backorderMessagingGlobal = buildGlobalStateWith({
+          backorderEnabled: true,
+          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+          backorderDisplaySettings: {
+            showQuantityOnBackorder: true,
+            showQuantityOnHand: true,
+            showBackorderMessage: true,
+            showDefaultShippingExpectationPrompt: false,
+            defaultShippingExpectationPrompt: '',
+          },
+          featureFlags: {
+            'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+          },
+        });
+
+        const setupSearchModalWithInventory = ({
+          availableToSell = 7,
+          totalOnHand = 2,
+          unlimitedBackorder = false,
+          isEnableProduct = false,
+          isBackorderMessagingEnabled = true,
+          inventoryFetchFails = false,
+          pendingInventoryFetch,
+        }: {
+          availableToSell?: number;
+          totalOnHand?: number;
+          unlimitedBackorder?: boolean;
+          isEnableProduct?: boolean;
+          isBackorderMessagingEnabled?: boolean;
+          inventoryFetchFails?: boolean;
+          pendingInventoryFetch?: Promise<HttpResponse<VariantInfoResponse>>;
+        } = {}) => {
+          const variant = buildVariantWith({
+            sku: 'LC-123',
+            purchasing_disabled: false,
+            bc_calculated_price: {
+              tax_exclusive: 123,
+            },
+          });
+
+          const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+          when(searchProducts)
+            .calledWith(stringContainingAll('search: "Laugh Canister"', 'currencyCode: "USD"'))
+            .thenReturn({
+              data: {
+                productsSearch: [
+                  buildSearchProductWith({
+                    id: variant.product_id,
+                    name: 'Laugh Canister',
+                    sku: 'LC-123',
+                    optionsV3: [],
+                    isPriceHidden: false,
+                    orderQuantityMinimum: 0,
+                    orderQuantityMaximum: 0,
+                    inventoryLevel: 100,
+                    variants: [variant],
+                  }),
+                ],
+              },
+            });
+
+          const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+          when(getPriceProducts)
+            .calledWith({
+              storeHash: 'store-hash',
+              channelId: 1,
+              currencyCode: 'USD',
+              items: [
+                { productId: variant.product_id, variantId: variant.variant_id, options: [] },
+              ],
+              customerGroupId: 0,
+            })
+            .thenReturn({
+              data: {
+                priceProducts: [buildProductPriceWith('WHATEVER_VALUES')],
+              },
+            });
+
+          const variantInfo = buildVariantInfoWith({
+            variantSku: 'LC-123',
+            minQuantity: 0,
+            purchasingDisabled: '0',
+            isStock: '1',
+            stock: 50,
+            productId: variant.product_id.toString(),
+            variantId: variant.variant_id.toString(),
+            inventoryTracking: 'variant',
+            availableToSell,
+            unlimitedBackorder,
+            totalOnHand,
+            backorderMessage: 'Lead time: 2-4 weeks',
+          });
+
+          const getVariantInfoBySkus = vi.fn();
+
+          when(getVariantInfoBySkus)
+            .calledWith(expect.stringContaining('variantSkus: ["LC-123"]'))
+            .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+          const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+          when(validateProduct)
+            .calledWith(expect.any(Object))
+            .thenReturn({
+              data: {
+                validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+              },
+            });
+
+          server.use(
+            graphql.query('Countries', () =>
+              HttpResponse.json({ data: { countries: [fakeCountry] } }),
+            ),
+            graphql.query('Addresses', () =>
+              HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+            ),
+            graphql.query('getQuoteExtraFields', () =>
+              HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+            ),
+            graphql.query('SearchProducts', ({ query }) =>
+              HttpResponse.json(searchProducts(query)),
+            ),
+            graphql.query('priceProducts', ({ variables }) =>
+              HttpResponse.json(getPriceProducts(variables)),
+            ),
+            graphql.query('GetVariantInfoBySkus', ({ query }) => {
+              if (inventoryFetchFails) {
+                return HttpResponse.error();
+              }
+
+              if (pendingInventoryFetch) {
+                return pendingInventoryFetch;
+              }
+
+              return HttpResponse.json(getVariantInfoBySkus(query));
+            }),
+            graphql.query('ValidateProduct', ({ variables }) =>
+              HttpResponse.json(validateProduct(variables)),
+            ),
+          );
+
+          const quoteInfo = buildQuoteInfoStateWith({
+            draftQuoteInfo: {
+              contactInfo: { email: customerEmail },
+              billingAddress: noAddress,
+              shippingAddress: noAddress,
+            },
+            draftQuoteList: [],
+          });
+
+          renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+            preloadedState: {
+              ...preloadedState,
+              quoteInfo,
+              global: buildGlobalStateWith({
+                ...backorderMessagingGlobal,
+                blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+                featureFlags: {
+                  'BACK-134.backorders_phase_1_1_control_messaging_on_storefront':
+                    isBackorderMessagingEnabled,
+                },
+              }),
+            },
+          });
+
+          return { validateProduct, variantInfo };
+        };
+
+        const openSearchModal = async () => {
+          await userEvent.click(screen.getByText('Add to quote'));
+          const searchProduct = screen.getByPlaceholderText('Search products');
+          await userEvent.type(searchProduct, 'Laugh Canister');
+          await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+          const dialog = await screen.findByRole('dialog');
+          await within(dialog).findByRole('spinbutton');
+
+          return dialog;
+        };
+
+        it('shows Only X available, disables Add to quote, and keeps backorder lines when qty exceeds ATS', async () => {
+          const { validateProduct } = setupSearchModalWithInventory();
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).getByText('Only 7 available')).toBeVisible();
+          });
+
+          expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+          expect(within(dialog).getByText('5 will be backordered')).toBeVisible();
+          expect(within(dialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+          const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+          expect(addToQuote).toBeDisabled();
+
+          expect(validateProduct).not.toHaveBeenCalled();
+          expect(screen.queryByText('Product was added to your quote.')).not.toBeInTheDocument();
+        });
+
+        it('does not show ATS error when quantity is within available to sell', async () => {
+          setupSearchModalWithInventory();
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '5', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+          });
+
+          expect(within(dialog).getByRole('button', { name: 'Add to quote' })).toBeEnabled();
+        });
+
+        it('does not show ATS error when OOS quoting is enabled', async () => {
+          setupSearchModalWithInventory({ isEnableProduct: true });
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).getByText('2 ready to ship')).toBeVisible();
+          });
+
+          expect(within(dialog).getByText('5 will be backordered')).toBeVisible();
+          expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+          expect(within(dialog).getByRole('button', { name: 'Add to quote' })).toBeEnabled();
+        });
+
+        it('does not show ATS error when unlimited backorder is true', async () => {
+          setupSearchModalWithInventory({ unlimitedBackorder: true });
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+          });
+
+          expect(within(dialog).getByRole('button', { name: 'Add to quote' })).toBeEnabled();
+        });
+
+        it('does not show ATS error when backorder messaging is disabled', async () => {
+          setupSearchModalWithInventory({ isBackorderMessagingEnabled: false });
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+          expect(within(dialog).getByRole('button', { name: 'Add to quote' })).toBeEnabled();
+        });
+
+        it('keeps Add to quote enabled with no ATS helper when inventory lookup fails', async () => {
+          const { validateProduct } = setupSearchModalWithInventory({ inventoryFetchFails: true });
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+          });
+
+          expect(
+            within(dialog).queryByText('will be backordered', { exact: false }),
+          ).not.toBeInTheDocument();
+
+          const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+          expect(addToQuote).toBeEnabled();
+
+          await userEvent.click(addToQuote);
+
+          expect(validateProduct).toHaveBeenCalled();
+          expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+        });
+
+        it('keeps Add to quote enabled and allows add while inventory lookup is pending', async () => {
+          let resolveInventoryFetch!: (value: HttpResponse<VariantInfoResponse>) => void;
+          const pendingInventoryFetch = new Promise<HttpResponse<VariantInfoResponse>>(
+            (resolve) => {
+              resolveInventoryFetch = resolve;
+            },
+          );
+
+          const { validateProduct, variantInfo } = setupSearchModalWithInventory({
+            pendingInventoryFetch,
+          });
+
+          const dialog = await openSearchModal();
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+
+          const addToQuote = within(dialog).getByRole('button', { name: 'Add to quote' });
+          expect(addToQuote).toBeEnabled();
+
+          await userEvent.click(addToQuote);
+
+          expect(validateProduct).toHaveBeenCalled();
+          expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+
+          resolveInventoryFetch(
+            HttpResponse.json(
+              buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+            ),
+          );
+        });
       });
     });
 

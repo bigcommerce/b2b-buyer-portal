@@ -15,6 +15,7 @@ import {
   getCatalogProductRowDisplayState,
   getProductDetailsForPicklistSelections,
   quantityExceedsAvailableToSell,
+  shouldBlockQuoteAtsAdd,
 } from './catalogBackorderDisplay';
 
 describe('catalogBackorderDisplay', () => {
@@ -56,6 +57,44 @@ describe('catalogBackorderDisplay', () => {
 
   it('quantityExceedsAvailableToSell is false when row is undefined', () => {
     expect(quantityExceedsAvailableToSell(10, undefined)).toBe(false);
+  });
+
+  describe('shouldBlockQuoteAtsAdd', () => {
+    const trackedRow = {
+      inventoryTracking: 'variant',
+      unlimitedBackorder: false,
+      availableToSell: 5,
+    } as CatalogQuickVariantSku;
+
+    it('allows add when catalog inventory row is missing', () => {
+      expect(shouldBlockQuoteAtsAdd(1, undefined)).toBe(false);
+    });
+
+    it('blocks add when quantity exceeds available to sell', () => {
+      expect(shouldBlockQuoteAtsAdd(6, trackedRow)).toBe(true);
+    });
+
+    it('allows add when quantity is within available to sell', () => {
+      expect(shouldBlockQuoteAtsAdd(5, trackedRow)).toBe(false);
+    });
+
+    it('allows add when unlimited backorder is true', () => {
+      expect(
+        shouldBlockQuoteAtsAdd(100, {
+          ...trackedRow,
+          unlimitedBackorder: true,
+        }),
+      ).toBe(false);
+    });
+
+    it('allows add when inventory tracking is none', () => {
+      expect(
+        shouldBlockQuoteAtsAdd(100, {
+          inventoryTracking: 'none',
+          availableToSell: 0,
+        } as CatalogQuickVariantSku),
+      ).toBe(false);
+    });
   });
 
   it('getCatalogBackorderDisplayQuantity caps at available to sell when qty exceeds it', () => {

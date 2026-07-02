@@ -118,13 +118,13 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   totalProductQuantity: 0,
   consignments: null,
   reference: null,
+  poNumber: null,
   company: null,
   placedBy: null,
   history: [],
   quote: null,
   invoice: null,
   extraFields: [],
-  canReturn: true,
 }));
 
 const buildOrderDetailResponseWith = builder<GetOrderDetailResponse>(() => ({
@@ -532,7 +532,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                 site: {
                   order: buildUnifiedOrderWith({
                     entityId: 6696,
-                    reference: '3405',
+                    poNumber: '3405',
                   }),
                 },
               },
@@ -686,6 +686,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 75 },
                           image: { url: 'https://example.com/widget.jpg' },
                           baseCatalogProduct: { path: '/widget/' },
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -806,6 +807,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 50 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -886,6 +888,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 25 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -927,6 +930,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 50 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -989,6 +993,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 125 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1067,6 +1072,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 75 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                       {
@@ -1082,6 +1088,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 100 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1179,6 +1186,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 100 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1220,7 +1228,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     it('renders payment details for a Purchase Order', async () => {
       const poOrder = buildUnifiedOrderWith({
         entityId: 6696,
-        reference: 'PO-2026-001',
+        poNumber: 'PO-2026-001',
         orderedAt: { utc: '2026-05-01T12:00:00Z' },
         consignments: {
           shipping: {
@@ -1259,6 +1267,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalListPrice: { currencyCode: 'USD', value: 100 },
                           image: null,
                           baseCatalogProduct: null,
+                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1584,6 +1593,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalListPrice: { currencyCode: 'USD', value: 200 },
                         image: null,
                         baseCatalogProduct: null,
+                        returnableQuantity: 0,
                       },
                     },
                   ],
@@ -1700,6 +1710,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
                         image: null,
                         baseCatalogProduct: null,
+                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -1960,6 +1971,58 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       });
     });
 
+    it('can independently select products that share variant_id 0', async () => {
+      const simpleProductA = {
+        entityId: 2001,
+        productEntityId: 3001,
+        variantEntityId: null,
+        name: 'Gift Card $50',
+        quantity: 1,
+        productOptions: [] as Array<{ name: string; value: string }>,
+      };
+      const simpleProductB = {
+        entityId: 2002,
+        productEntityId: 3002,
+        variantEntityId: null,
+        name: 'Gift Card $100',
+        quantity: 1,
+        productOptions: [] as Array<{ name: string; value: string }>,
+      };
+
+      const order = buildUnifiedOrderWithProducts([simpleProductA, simpleProductB]);
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(buildOrderDetailResponseWith({ data: { site: { order } } })),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+
+      const giftCard50 = within(dialog).getByRole('group', { name: 'Gift Card $50' });
+      const giftCard100 = within(dialog).getByRole('group', { name: 'Gift Card $100' });
+
+      await userEvent.click(within(giftCard50).getByRole('checkbox'));
+
+      expect(within(giftCard50).getByRole('checkbox')).toBeChecked();
+      expect(within(giftCard100).getByRole('checkbox')).not.toBeChecked();
+    });
+
     it('shows a warning if no product is selected', async () => {
       const screamProduct = {
         entityId: 2001,
@@ -2071,6 +2134,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
                         image: null,
                         baseCatalogProduct: null,
+                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -2733,6 +2797,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
                         image: null,
                         baseCatalogProduct: null,
+                        returnableQuantity: 0,
                       },
                     })),
                   },

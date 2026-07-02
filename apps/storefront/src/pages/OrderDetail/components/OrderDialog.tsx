@@ -246,7 +246,7 @@ export default function OrderDialog({
     const items: CustomFieldItems[] = [];
     const skus: string[] = [];
     editableProducts.forEach((product) => {
-      if (checkedArr.includes(product.variant_id)) {
+      if (checkedArr.includes(product.id)) {
         items.push({
           quantity: parseInt(`${product.editQuantity}`, 10) || 1,
           productId: product.product_id,
@@ -288,7 +288,7 @@ export default function OrderDialog({
   };
 
   const handleReorderBackend = async () => {
-    const items = editableProducts.filter((product) => checkedArr.includes(product.variant_id));
+    const items = editableProducts.filter((product) => checkedArr.includes(product.id));
 
     if (items.length <= 0) {
       return;
@@ -366,9 +366,11 @@ export default function OrderDialog({
     // This will throw if there are errors, no need to check the response
     await createOrUpdateExistingCart(validItems);
 
-    const successfulVariantIds = validItems.map((item) => item.variantId);
+    const successfulLineItemIds = validItems
+      .map((item) => editableProducts.find((p) => p.product_id === item.productId)?.id)
+      .filter((id): id is number => id != null);
 
-    if (successfulVariantIds.length === checkedArr.length) {
+    if (validItems.length === checkedArr.length) {
       setOpen(false);
       setReorderValidationBanner(false);
       showSuccessSnackbarWithCartLink(b3Lang('orderDetail.reorder.productsAdded'));
@@ -376,9 +378,7 @@ export default function OrderDialog({
       showSuccessSnackbarWithCartLink(
         b3Lang('orderDetail.reorder.partialSuccess', { count: validItems.length }),
       );
-      setCheckedArr((prev) =>
-        prev.filter((variantId) => !successfulVariantIds.includes(variantId)),
-      );
+      setCheckedArr((prev) => prev.filter((id) => !successfulLineItemIds.includes(id)));
     }
   };
 
@@ -440,6 +440,7 @@ export default function OrderDialog({
     try {
       const items = editableProducts.map((product) => {
         const {
+          id: lineItemId,
           product_id: productId,
           variant_id: variantId,
           editQuantity,
@@ -447,6 +448,7 @@ export default function OrderDialog({
         } = product;
 
         return {
+          lineItemId,
           productId: Number(productId),
           variantId,
           quantity: Number(editQuantity),
@@ -460,7 +462,7 @@ export default function OrderDialog({
           }),
         };
       });
-      const params = items.filter((item) => checkedArr.includes(Number(item.variantId)));
+      const params = items.filter((item) => checkedArr.includes(item.lineItemId));
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 

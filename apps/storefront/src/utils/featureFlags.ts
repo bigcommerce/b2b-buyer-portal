@@ -55,6 +55,10 @@ export const featureFlags = [
     key: 'B2B-4089.use_tbd_price_on_quotes_list',
     name: 'useTbdPriceOnQuotesList',
   },
+  {
+    key: 'BACK-593.surface_order_backorder_info_on_quotes',
+    name: 'surfaceOrderBackorderInfoOnQuotes',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
