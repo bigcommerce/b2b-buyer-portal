@@ -3498,6 +3498,189 @@ describe('when the user is a B2B customer', () => {
             ),
           );
         });
+
+        it('does not show backorder lines for complex products before choosing options', async () => {
+          const productId = 9101;
+          const optionId = 60;
+          const sizeM = 202;
+          const variantSku = 'TEE-M';
+          const variantId = 5101;
+
+          const variantM = buildVariantWith({
+            variant_id: variantId,
+            product_id: productId,
+            sku: variantSku,
+            purchasing_disabled: false,
+            option_values: [
+              {
+                id: sizeM,
+                label: 'M',
+                option_id: optionId,
+                option_display_name: 'Size',
+              },
+            ],
+            bc_calculated_price: { tax_exclusive: 50 },
+          });
+
+          const variantS = buildVariantWith({
+            product_id: productId,
+            sku: 'TEE-S',
+            purchasing_disabled: false,
+            option_values: [
+              {
+                id: 201,
+                label: 'S',
+                option_id: optionId,
+                option_display_name: 'Size',
+              },
+            ],
+            bc_calculated_price: { tax_exclusive: 45 },
+          });
+
+          const sizeOption = buildSearchProductV3OptionWith({
+            id: optionId,
+            product_id: productId,
+            type: 'rectangles',
+            display_name: 'Size',
+            option_values: [
+              buildSearchProductV3OptionValueWith({ id: 201, label: 'S', is_default: false }),
+              buildSearchProductV3OptionValueWith({ id: sizeM, label: 'M', is_default: true }),
+            ],
+          });
+
+          const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+          when(searchProducts)
+            .calledWith(stringContainingAll('search: "Size Tee"', 'currencyCode: "USD"'))
+            .thenReturn({
+              data: {
+                productsSearch: [
+                  buildSearchProductWith({
+                    id: productId,
+                    name: 'Size Tee',
+                    sku: 'TEE-BASE',
+                    inventoryTracking: 'product',
+                    availableToSell: 10,
+                    unlimitedBackorder: false,
+                    totalOnHand: 2,
+                    backorderMessage: 'Lead time: 2-4 weeks',
+                    optionsV3: [sizeOption],
+                    isPriceHidden: false,
+                    orderQuantityMinimum: 0,
+                    orderQuantityMaximum: 0,
+                    variants: [variantS, variantM],
+                  }),
+                ],
+              },
+            });
+
+          const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+          when(getPriceProducts)
+            .calledWith({
+              storeHash: 'store-hash',
+              channelId: 1,
+              currencyCode: 'USD',
+              items: [{ productId, variantId, options: [] }],
+              customerGroupId: 0,
+            })
+            .thenReturn({
+              data: {
+                priceProducts: [
+                  buildProductPriceWith({
+                    productId,
+                    variantId,
+                  }),
+                ],
+              },
+            });
+
+          server.use(
+            graphql.query('Countries', () =>
+              HttpResponse.json({ data: { countries: [fakeCountry] } }),
+            ),
+            graphql.query('Addresses', () =>
+              HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+            ),
+            graphql.query('getQuoteExtraFields', () =>
+              HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+            ),
+            graphql.query('SearchProducts', ({ query }) =>
+              HttpResponse.json(searchProducts(query)),
+            ),
+            graphql.query('priceProducts', ({ variables }) =>
+              HttpResponse.json(getPriceProducts(variables)),
+            ),
+          );
+
+          const quoteInfo = buildQuoteInfoStateWith({
+            draftQuoteInfo: {
+              contactInfo: { email: customerEmail },
+              billingAddress: noAddress,
+              shippingAddress: noAddress,
+            },
+            draftQuoteList: [],
+          });
+
+          renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+            preloadedState: {
+              ...preloadedState,
+              quoteInfo,
+              global: buildGlobalStateWith({
+                ...backorderMessagingGlobal,
+                blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+              }),
+            },
+          });
+
+          await userEvent.click(screen.getByText('Add to quote'));
+          const searchProduct = screen.getByPlaceholderText('Search products');
+          await userEvent.type(searchProduct, 'Size Tee');
+          await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+          const dialog = await screen.findByRole('dialog');
+          const quantityInput = within(dialog).getByRole('spinbutton');
+
+          expect(within(dialog).getByRole('button', { name: 'Choose options' })).toBeVisible();
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(dialog).getByText('Size Tee')).toBeVisible();
+          });
+          expect(
+            within(dialog).queryByText('will be backordered', { exact: false }),
+          ).not.toBeInTheDocument();
+          expect(
+            within(dialog).queryByText('ready to ship', { exact: false }),
+          ).not.toBeInTheDocument();
+          expect(within(dialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+          expect(within(dialog).queryByText('Only 7 available')).not.toBeInTheDocument();
+
+          await userEvent.click(within(dialog).getByRole('button', { name: 'Choose options' }));
+
+          const chooseOptionsDialog = await screen.findByRole('dialog', { name: 'Choose options' });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText(variantSku)).toBeInTheDocument();
+          });
+
+          const chooseOptionsQuantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(chooseOptionsQuantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+          });
+          expect(within(chooseOptionsDialog).getByText('8 will be backordered')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+        });
       });
     });
 

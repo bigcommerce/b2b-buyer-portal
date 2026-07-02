@@ -11,7 +11,10 @@ import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/produc
 import { useAppSelector } from '@/store';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { getDisplayPrice, judgmentBuyerProduct } from '@/utils/b3Product/b3Product';
-import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
+import {
+  getCatalogProductRowDisplayState,
+  productRequiresChooseOptionsBeforeAdd,
+} from '@/utils/catalogBackorderDisplay';
 
 import { MoneyFormat, ProductItem } from '../types';
 
@@ -143,7 +146,7 @@ function getBackorderLayoutStyles(
   };
 }
 
-interface ProductProps<T> {
+interface ProductProps<T extends ProductItem = ProductItem> {
   products: Array<T & ProductItem>;
   money?: MoneyFormat;
   renderAction?: (item: T & ProductItem) => ReactElement;
@@ -170,7 +173,7 @@ function getProductVariantSku(product: ProductItem): string {
   return product.variants?.[0]?.sku ?? product.sku;
 }
 
-export function B3ProductList<T>(props: ProductProps<T>) {
+export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
   const {
     products,
     renderAction,
@@ -372,7 +375,9 @@ export function B3ProductList<T>(props: ProductProps<T>) {
         const discountedTotalPrice = getProductTotals(quantity, discountedPrice);
 
         const variantSku = getProductVariantSku(product);
-        const inventoryRow = catalogInventoryBySku?.[variantSku.toUpperCase()];
+        const inventoryRow = productRequiresChooseOptionsBeforeAdd(product)
+          ? undefined
+          : catalogInventoryBySku?.[variantSku.toUpperCase()];
         const { qtyHelperText, backorderFields } = getCatalogProductRowDisplayState({
           qty: Number(quantity) || 0,
           productHelperText: product.helperText,
