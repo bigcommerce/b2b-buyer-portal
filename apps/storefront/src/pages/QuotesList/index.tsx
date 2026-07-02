@@ -33,6 +33,7 @@ interface ListItem {
   status: string;
   quoteNumber: string;
   currency?: CurrencyProps | DisplayCurrency;
+  totalIsTbd?: boolean;
 }
 
 interface FilterSearchProps {
@@ -194,7 +195,10 @@ const useColumnList = (
 
   const getTotalAmount = useMemo(
     () => (item: ListItem) => {
-      const { totalAmount, currency } = item;
+      const { totalAmount, currency, totalIsTbd } = item;
+      if (totalIsTbd) {
+        return b3Lang('quoteDraft.quoteSummary.tbd');
+      }
       const currencyCode = currency?.currencyCode;
       const effectiveCurrency =
         (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
@@ -205,7 +209,7 @@ const useColumnList = (
         useCurrentCurrency: !!effectiveCurrency,
       });
     },
-    [isCurrencySymbolPlacementFixEnabled, currenciesMap],
+    [isCurrencySymbolPlacementFixEnabled, currenciesMap, b3Lang],
   );
 
   return useMemo(
@@ -279,6 +283,7 @@ function QuotesList() {
   const fixQuoteCurrencySymbolPlacement = useFeatureFlag(
     'B2B-3876.fix_quote_currency_symbol_placement',
   );
+  const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
   const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement);
 
   const initSearch = {
@@ -360,6 +365,7 @@ function QuotesList() {
             totalAmount: summaryPrice?.grandTotal,
             status: 0,
             taxTotal: summaryPrice?.tax,
+            totalIsTbd: isTbdPriceEnabled ? summaryPrice?.totalIsTbd : false,
           },
         };
 
@@ -382,7 +388,14 @@ function QuotesList() {
         totalCount,
       };
     },
-    [getQuotesList, draftQuoteListLength, customer.firstName, customer.lastName, filterData],
+    [
+      getQuotesList,
+      draftQuoteListLength,
+      customer.firstName,
+      customer.lastName,
+      filterData,
+      isTbdPriceEnabled,
+    ],
   );
 
   const handleChange = (key: string, value: string) => {

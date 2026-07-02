@@ -19,6 +19,7 @@ interface ListItem {
   status: string;
   quoteNumber: string;
   currency?: CurrencyProps | DisplayCurrency;
+  totalIsTbd?: boolean;
 }
 
 interface QuoteItemCardProps {
@@ -43,7 +44,10 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
   const primaryColor = theme.palette.primary.main;
 
   const getTotalAmount = useMemo(() => {
-    const { totalAmount, currency } = item;
+    const { totalAmount, currency, totalIsTbd } = item;
+    if (totalIsTbd) {
+      return b3Lang('quoteDraft.quoteSummary.tbd');
+    }
     const currencyCode = currency?.currencyCode;
     const effectiveCurrency =
       (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
@@ -53,7 +57,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       isConversionRate: false,
       useCurrentCurrency: !!effectiveCurrency,
     });
-  }, [item, isCurrencySymbolPlacementFixEnabled, currenciesMap]);
+  }, [item, isCurrencySymbolPlacementFixEnabled, currenciesMap, b3Lang]);
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {

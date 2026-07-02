@@ -52,6 +52,10 @@ export const featureFlags = [
     name: 'defaultBuyerPortalStylingOnLoginPage',
   },
   {
+    key: 'B2B-4089.use_tbd_price_on_quotes_list',
+    name: 'useTbdPriceOnQuotesList',
+  },
+  {
     key: 'BACK-593.surface_order_backorder_info_on_quotes',
     name: 'surfaceOrderBackorderInfoOnQuotes',
   },

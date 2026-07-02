@@ -2272,7 +2272,7 @@ describe('when the user is a B2B customer', () => {
       expect(navigation).toHaveBeenCalledWith('/quoteDetail/123?date=1245&uuid=test-uuid-1234');
     });
 
-    it('renders snackbar error if mutation throws product validation erros', async () => {
+    it('renders snackbar error if mutation throws product validation errors', async () => {
       set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
       const getVariantInfoOOSAndPurchase = vi.fn();
 
