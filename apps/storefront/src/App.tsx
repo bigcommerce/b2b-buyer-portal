@@ -216,7 +216,7 @@ export default function App() {
           }
         }
 
-        const resolvedAuthorizedPages = isB2BUser
+        const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
           ? b2bJumpPath(Number(userInfo.role))
           : PATH_ROUTES.ORDERS;
 
