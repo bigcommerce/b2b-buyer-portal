@@ -14,7 +14,10 @@ import { ShoppingListDetailsContext } from '@/pages/ShoppingListDetails/context/
 import { useAppSelector } from '@/store';
 import { ShoppingListProductItem } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
-import { buildVariantSkuDependencyKey } from '@/utils/catalogBackorderDisplay';
+import {
+  buildVariantSkuDependencyKey,
+  productRequiresChooseOptionsBeforeAdd,
+} from '@/utils/catalogBackorderDisplay';
 
 interface ProductTableActionProps {
   product: ShoppingListProductItem;
@@ -107,7 +110,9 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   const variantSkuDependencyKey = useMemo(
     () =>
       buildVariantSkuDependencyKey(
-        productList.map((product) => product.variants?.[0]?.sku ?? product.sku),
+        productList
+          .filter((product) => !productRequiresChooseOptionsBeforeAdd(product))
+          .map((product) => product.variants?.[0]?.sku ?? product.sku),
       ),
     [productList],
   );

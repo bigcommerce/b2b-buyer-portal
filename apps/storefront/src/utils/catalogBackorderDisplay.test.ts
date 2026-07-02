@@ -14,6 +14,7 @@ import {
   getCatalogInventoryRowFromSearchProduct,
   getCatalogProductRowDisplayState,
   getProductDetailsForPicklistSelections,
+  productRequiresChooseOptionsBeforeAdd,
   quantityExceedsAvailableToSell,
   shouldBlockQuoteAtsAdd,
 } from './catalogBackorderDisplay';
@@ -23,6 +24,22 @@ describe('catalogBackorderDisplay', () => {
     expect(buildVariantSkuDependencyKey(['B-SKU', 'A-SKU', 'B-SKU', '', null, undefined])).toBe(
       'A-SKU|B-SKU',
     );
+  });
+
+  describe('productRequiresChooseOptionsBeforeAdd', () => {
+    it('returns true when allOptions has entries', () => {
+      expect(productRequiresChooseOptionsBeforeAdd({ allOptions: [{ id: 1 }] })).toBe(true);
+    });
+
+    it('returns false when allOptions is empty or missing', () => {
+      expect(productRequiresChooseOptionsBeforeAdd({ allOptions: [] })).toBe(false);
+      expect(productRequiresChooseOptionsBeforeAdd({})).toBe(false);
+      expect(productRequiresChooseOptionsBeforeAdd({ allOptions: null })).toBe(false);
+    });
+
+    it('returns false when allOptions is not an array', () => {
+      expect(productRequiresChooseOptionsBeforeAdd({ allOptions: 'Size' })).toBe(false);
+    });
   });
 
   it('quantityExceedsAvailableToSell is false when unlimited backorder', () => {

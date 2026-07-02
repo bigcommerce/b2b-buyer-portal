@@ -14,6 +14,7 @@ import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import {
   buildVariantSkuDependencyKey,
+  productRequiresChooseOptionsBeforeAdd,
   shouldBlockQuoteAtsAdd,
 } from '@/utils/catalogBackorderDisplay';
 
@@ -119,7 +120,9 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   const variantSkuDependencyKey = useMemo(
     () =>
       buildVariantSkuDependencyKey(
-        productList.map((product) => product.variants?.[0]?.sku ?? product.sku),
+        productList
+          .filter((product) => !productRequiresChooseOptionsBeforeAdd(product))
+          .map((product) => product.variants?.[0]?.sku ?? product.sku),
       ),
     [productList],
   );
@@ -137,7 +140,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
 
   const productExceedsAvailableToSell = useCallback(
     (product: ShoppingListProductItem) => {
-      if (!showQuoteAtsHelper) {
+      if (!showQuoteAtsHelper || productRequiresChooseOptionsBeforeAdd(product)) {
         return false;
       }
 

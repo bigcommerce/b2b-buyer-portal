@@ -59,6 +59,7 @@ export interface ProductItem {
   type?: string;
   product_id?: number;
   downloadFileUrls?: string[];
+  allOptions?: Partial<AllOptionProps>[];
 }
 
 interface OptionValue {
