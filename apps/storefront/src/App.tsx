@@ -21,6 +21,8 @@ import { openPageByClick, removeBCMenus } from '@/utils/b3AccountItem';
 import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
+import { shouldOpenAllowedPageOnInit } from '@/utils/nativeStorefrontLinks';
+import { resolveInitNavigation } from '@/utils/resolveInitNavigation';
 
 import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
@@ -40,6 +42,7 @@ import {
   rolePermissionSelector,
   setGlobalCommonState,
   setOpenPageReducer,
+  store,
   useAppDispatch,
   useAppSelector,
 } from './store';
@@ -201,10 +204,11 @@ export default function App() {
           role: Number(role),
           isAgenting,
         };
+        let companyLoginFlag: string | null = null;
         if (!customerId) {
           const info = await getCurrentCustomerInfo().catch((error) => {
             if (isCompanyError(error)) {
-              gotoPage(`/login?loginFlag=${error.reason}`);
+              companyLoginFlag = error.reason;
             }
           });
           if (info) {
@@ -212,9 +216,34 @@ export default function App() {
           }
         }
 
+        const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
+          ? b2bJumpPath(Number(userInfo.role))
+          : PATH_ROUTES.ORDERS;
+
         // background login enter judgment and refresh
-        if (!pathname.includes('checkout') && !(customerId && !window.location.hash)) {
-          await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
+        const nativeLinkInterceptionEnabled =
+          store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ??
+          false;
+        const shouldOpenAllowedPage = nativeLinkInterceptionEnabled
+          ? shouldOpenAllowedPageOnInit({ pathname, hash: window.location.hash, customerId })
+          : !pathname.includes('checkout') && !(!!customerId && !window.location.hash);
+        const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
+
+        const initNavigation = resolveInitNavigation({
+          companyLoginFlag,
+          shouldOpenAllowedPage,
+          isAccountPageWithoutHash,
+          pathname,
+          search,
+          role: Number(userInfo.role),
+          isAgenting,
+          authorizedPages: resolvedAuthorizedPages,
+        });
+
+        if (initNavigation.type === 'goto') {
+          gotoPage(initNavigation.url);
+        } else if (initNavigation.type === 'allowedAppPage') {
+          await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
         } else {
           showPageMask(false);
         }
