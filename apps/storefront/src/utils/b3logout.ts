@@ -3,7 +3,7 @@ import b2bLogger from './b3Logger';
 import { logoutSession } from './logoutSession';
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
-  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login', 'forgotpassword'];
+  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login', 'forgotPassword'];
 
   if (gotoUrl) {
     return !noB2bTokenPages.some((item: string) => gotoUrl.includes(item));
