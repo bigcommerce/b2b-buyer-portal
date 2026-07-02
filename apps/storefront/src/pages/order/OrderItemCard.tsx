@@ -19,6 +19,8 @@ interface ListItem {
   status: string;
   statusText?: string;
   totalIncTax: string;
+  /** Pre-formatted grand total in the order's own currency, from SF GQL Money.formattedV2. */
+  formattedTotalIncTax?: string;
   createdAt: string;
 }
 
@@ -87,7 +89,7 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
             minHeight: '1.43em',
           }}
         >
-          {currencyFormat(item.totalIncTax)}
+          {item.formattedTotalIncTax || currencyFormat(item.totalIncTax)}
         </Typography>
 
         <Box

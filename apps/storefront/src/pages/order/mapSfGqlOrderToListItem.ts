@@ -7,6 +7,8 @@ export interface ListItem {
   orderId: string;
   poNumber?: string;
   money?: string;
+  /** Pre-formatted grand total in the order's own currency, from SF GQL Money.formattedV2. */
+  formattedTotalIncTax?: string;
   totalIncTax: string;
   status: string;
   statusText?: string;
@@ -21,6 +23,7 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): Lis
   orderId: String(order.entityId),
   poNumber: order.poNumber || '',
   totalIncTax: String(order.totalIncTax.value),
+  formattedTotalIncTax: order.totalIncTax.formattedV2,
   status: order.status.label,
   statusText: order.status.label,
   createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),

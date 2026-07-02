@@ -346,7 +346,8 @@ export interface GetCustomersWithOrdersResponse {
 // ===========================================================================
 
 const moneyFields = `currencyCode
-  value`;
+  value
+  formattedV2`;
 
 const orderStatusFields = `status {
     value
