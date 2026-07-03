@@ -977,6 +977,7 @@ function Invoice() {
               }
             />
           )}
+          noDataText={b3Lang('invoice.noDataText')}
         />
         {list.length > 0 && !isMobile && (
           <Box
