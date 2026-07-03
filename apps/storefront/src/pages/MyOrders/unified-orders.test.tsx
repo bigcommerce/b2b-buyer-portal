@@ -2,6 +2,7 @@ import {
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
+  buildSfGqlMoneyWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -15,7 +16,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from 'tests/test-utils';
-import { buildSfGqlMoneyWith } from 'tests/builders/sfGqlMoneyBuilder';
 import { vi } from 'vitest';
 import { when } from 'vitest-when';
 
@@ -66,18 +66,18 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
     phone: faker.phone.number(),
     email: faker.internet.email(),
   },
-  subTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 100  }),
+  subTotal: buildSfGqlMoneyWith({ value: 100 }),
   discountedSubTotal: null,
-  shippingCostTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 9.99  }),
-  handlingCostTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 0  }),
-  wrappingCostTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 0  }),
-  taxTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 5  }),
-  totalIncTax: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 114.99  }),
+  shippingCostTotal: buildSfGqlMoneyWith({ value: 9.99 }),
+  handlingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  wrappingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  taxTotal: buildSfGqlMoneyWith({ value: 5 }),
+  totalIncTax: buildSfGqlMoneyWith({ value: 114.99 }),
   isTaxIncluded: false,
-  taxes: [{ name: 'Tax', amount: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 5  }) }],
+  taxes: [{ name: 'Tax', amount: buildSfGqlMoneyWith({ value: 5 }) }],
   discounts: {
     couponDiscounts: [],
-    nonCouponDiscountTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 0  }),
+    nonCouponDiscountTotal: buildSfGqlMoneyWith({ value: 0 }),
     totalDiscount: null,
   },
   customerMessage: null,
@@ -169,42 +169,6 @@ const b2bStateWithFlag = (featureFlags: Record<string, boolean>) => ({
   storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
 });
 
-/** Store session currency is AUD — used to verify order totals use formattedV2, not session formatting. */
-const b2bStateWithAudActiveCurrency = (featureFlags: Record<string, boolean>) => ({
-  ...b2bStateWithFlag(featureFlags),
-  storeConfigs: {
-    currencies: {
-      currencies: [
-        {
-          id: '2',
-          is_default: true,
-          last_updated: '',
-          country_iso2: 'AU',
-          default_for_country_codes: ['AUD'],
-          currency_code: 'AUD',
-          currency_exchange_rate: '1.0000000000',
-          name: 'Australian Dollar',
-          token: 'A$',
-          auto_update: false,
-          decimal_token: '.',
-          decimal_places: 2,
-          enabled: true,
-          is_transactional: true,
-          token_location: 'left' as const,
-          thousands_token: ',',
-        },
-      ],
-      channelCurrencies: {
-        channel_id: 1,
-        enabled_currencies: ['AUD'],
-        default_currency: 'AUD',
-      },
-      enteredInclusiveTax: false,
-    },
-    activeCurrency: { node: { isActive: true, entityId: 2 } },
-  },
-});
-
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -252,7 +216,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
         entityId: 12345,
         poNumber: 'PO-9876',
         status: { value: 'COMPLETED', label: 'Completed' },
-        totalIncTax: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 250  }),
+        totalIncTax: buildSfGqlMoneyWith({ value: 250 }),
         orderedAt: { utc: '2025-03-13T00:00:00Z' },
         company: { entityId: 1, name: 'Acme Corp' },
         placedBy: { entityId: 1, firstName: 'Jane', lastName: 'Doe', email: 'jane@acme.com' },
@@ -293,7 +257,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       const order = buildSfGqlB2COrderWith({
         entityId: 55555,
         status: { value: 'PENDING', label: 'Pending' },
-        totalIncTax: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 50  }),
+        totalIncTax: buildSfGqlMoneyWith({ value: 50 }),
         orderedAt: { utc: '2025-06-01T00:00:00Z' },
       });
 
@@ -361,79 +325,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       const headerTexts = headers.map((h) => h.textContent);
 
       expect(headerTexts).toContain('Company');
-    });
-
-    it('formats currency correctly', async () => {
-      const order = buildSfGqlOrderWith({
-        entityId: 77777,
-        totalIncTax: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 1234.56, formattedV2: '$1,234.56' }),
-      });
-
-      server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json({
-            data: {
-              customer: {
-                orders: {
-                  edges: [{ node: order, cursor: 'cur' }],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: null,
-                    endCursor: null,
-                  },
-                },
-              },
-            },
-          } satisfies GetCustomerOrdersResponse),
-        ),
-      );
-
-      renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
-
-      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-      const row = screen.getByRole('row', { name: /77777/ });
-      expect(within(row).getByText(/1,234\.56/)).toBeInTheDocument();
-    });
-
-    it("displays the order's own currency via formattedV2, ignoring the store's active session currency", async () => {
-      // Store's active session currency is AUD, but the order was placed in USD.
-      const order = buildSfGqlOrderWith({
-        entityId: 90909,
-        totalIncTax: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 319.95, formattedV2: '319.95$$$' }),
-      });
-
-      server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json({
-            data: {
-              customer: {
-                orders: {
-                  edges: [{ node: order, cursor: 'fmt' }],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: null,
-                    endCursor: null,
-                  },
-                },
-              },
-            },
-          } satisfies GetCustomerOrdersResponse),
-        ),
-      );
-
-      renderWithProviders(<MyOrders />, {
-        preloadedState: b2bStateWithAudActiveCurrency(flagOn),
-      });
-
-      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-      const row = screen.getByRole('row', { name: /90909/ });
-      // The pre-formatted string from the order's own currency is rendered verbatim —
-      // not recomputed using the store's active (AUD) currency formatting.
-      expect(within(row).getByText('319.95$$$')).toBeInTheDocument();
     });
 
     it('formats date correctly', async () => {

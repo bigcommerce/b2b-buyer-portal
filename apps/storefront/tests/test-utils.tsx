@@ -161,6 +161,7 @@ export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
 
 export { builder, bulk } from 'tests/builder';
+export { buildSfGqlMoneyWith } from 'tests/builders/sfGqlMoneyBuilder';
 export * from 'tests/storeStateBuilders';
 export * from 'tests/quoteBuilders';
 export { faker } from '@faker-js/faker';

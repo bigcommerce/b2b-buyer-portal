@@ -1,7 +1,7 @@
+import { buildSfGqlMoneyWith } from 'tests/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import type { Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
-import { buildSfGqlMoneyWith } from 'tests/builders/sfGqlMoneyBuilder';
 
 import { mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
 
@@ -24,14 +24,13 @@ const baseOrder: SfGqlOrder = {
     phone: null,
     email: null,
   },
-  subTotal: buildSfGqlMoneyWith({ currencyCode: 'USD', value: 319.95, formattedV2: '$319.95' }),
+  subTotal: buildSfGqlMoneyWith({ value: 319.95 }),
   discountedSubTotal: null,
-  shippingCostTotal: buildSfGqlMoneyWith({ value: 0, formattedV2: '$0.00' }),
-  handlingCostTotal: buildSfGqlMoneyWith({ value: 0, formattedV2: '$0.00' }),
-  wrappingCostTotal: buildSfGqlMoneyWith({ value: 0, formattedV2: '$0.00' }),
-  taxTotal: buildSfGqlMoneyWith({ value: 0, formattedV2: '$0.00' }),
+  shippingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  handlingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  wrappingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  taxTotal: buildSfGqlMoneyWith({ value: 0 }),
   totalIncTax: buildSfGqlMoneyWith({
-    currencyCode: 'USD',
     value: 319.95,
     formattedV2: '319.95$$$',
   }),
@@ -39,7 +38,7 @@ const baseOrder: SfGqlOrder = {
   taxes: [],
   discounts: {
     couponDiscounts: [],
-    nonCouponDiscountTotal: buildSfGqlMoneyWith({ value: 0, formattedV2: '$0.00' }),
+    nonCouponDiscountTotal: buildSfGqlMoneyWith({ value: 0 }),
     totalDiscount: null,
   },
   customerMessage: null,

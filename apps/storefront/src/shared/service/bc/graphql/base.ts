@@ -8,7 +8,6 @@
 export interface Money {
   currencyCode: string;
   value: number;
-  /** Pre-formatted display string in the order's own currency, e.g. "$319.95". */
   formattedV2: string;
 }
 
