@@ -307,6 +307,8 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   );
 
   // Same rationale as above, for the native-link-interception flag read in main.ts.
+  // TODO(B2B-4912): remove this call once the flag is fully rolled out and deleted
+  // (see nativeStorefrontLinks.ts for the rest of the caching bridge to remove).
   setNativeLinkInterceptionEnabled(
     store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
   );

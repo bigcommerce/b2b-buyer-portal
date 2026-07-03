@@ -54,6 +54,11 @@ const NATIVE_LINK_INTERCEPTION_STORAGE_KEY = 'b2b-native-link-interception-enabl
   last-known value here (set from storefrontConfig once configs load) so the
   next page load can read it back synchronously, mirroring the pattern used
   for the default-login-styling flag in preMountLoginMask.ts.
+
+  TODO(B2B-4912): once buyer_portal_native_link_interception is fully rolled out
+  and the flag is deleted, remove this caching bridge entirely, along with the
+  setNativeLinkInterceptionEnabled call in storefrontConfig.ts and the
+  isNativeLinkInterceptionCached read in main.ts.
 */
 export const setNativeLinkInterceptionEnabled = (enabled: boolean) => {
   try {

@@ -53,6 +53,10 @@ window.b2b = {
     // load the app when the browser is free
     requestIdleCallbackFunction(initApp);
     // and bind links to load the app
+    // TODO(B2B-4912): once buyer_portal_native_link_interception is fully rolled
+    // out and the flag is removed, drop isNativeLinkInterceptionCached() and the
+    // nativeLinkInterceptionEnabled param from bindLinks/unbindLinks (see
+    // nativeStorefrontLinks.ts for the matching cache-write side to remove too).
     const nativeLinkInterceptionEnabled = isNativeLinkInterceptionCached();
     bindLinks(nativeLinkInterceptionEnabled);
     window.addEventListener('beforeunload', () => unbindLinks(nativeLinkInterceptionEnabled));
