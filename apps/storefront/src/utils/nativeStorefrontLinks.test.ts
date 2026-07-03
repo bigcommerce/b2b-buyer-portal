@@ -2,6 +2,8 @@ import {
   getClosestAnchorFromTarget,
   getNativeStorefrontPath,
   isBuyerPortalNativeHref,
+  isNativeLinkInterceptionCached,
+  setNativeLinkInterceptionEnabled,
   shouldOpenAllowedPageOnInit,
 } from './nativeStorefrontLinks';
 
@@ -84,6 +86,40 @@ describe('isBuyerPortalNativeHref', () => {
 
   it('matches account.php URLs that include a hash fragment', () => {
     expect(isBuyerPortalNativeHref('/account.php#section', 'https://store.example.com')).toBe(true);
+  });
+
+  it('matches locale-prefixed account.php and login.php URLs', () => {
+    expect(isBuyerPortalNativeHref('/en/account.php', 'https://store.example.com')).toBe(true);
+    expect(
+      isBuyerPortalNativeHref('/en/account.php?action=order_status', 'https://store.example.com'),
+    ).toBe(true);
+    expect(isBuyerPortalNativeHref('/fr-ca/login.php', 'https://store.example.com')).toBe(true);
+  });
+
+  it('does not match a query string that merely contains account.php', () => {
+    expect(
+      isBuyerPortalNativeHref('/search.php?search_query=account.php', 'https://store.example.com'),
+    ).toBe(false);
+  });
+});
+
+describe('native link interception caching', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('defaults to false when nothing has been cached', () => {
+    expect(isNativeLinkInterceptionCached()).toBe(false);
+  });
+
+  it('reads back the last value set', () => {
+    setNativeLinkInterceptionEnabled(true);
+
+    expect(isNativeLinkInterceptionCached()).toBe(true);
+
+    setNativeLinkInterceptionEnabled(false);
+
+    expect(isNativeLinkInterceptionCached()).toBe(false);
   });
 });
 

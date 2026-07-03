@@ -30,6 +30,7 @@ import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage } from '@/utils/b3Storage';
 import { channelId } from '@/utils/basicConfig';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
+import { setNativeLinkInterceptionEnabled } from '@/utils/nativeStorefrontLinks';
 import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
 import { checkEveryPermissionsCode } from './b3CheckPermissions/check';
@@ -303,6 +304,11 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   setDefaultLoginStylingEnabled(
     store.getState().global.featureFlags['B2B-4870.default_buyer_portal_styling_on_login_page'] ??
       false,
+  );
+
+  // Same rationale as above, for the native-link-interception flag read in main.ts.
+  setNativeLinkInterceptionEnabled(
+    store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
   );
 
   dispatchGlobal({
