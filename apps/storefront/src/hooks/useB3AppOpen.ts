@@ -113,7 +113,10 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         e.stopPropagation();
         const isRegisterArrInclude =
           registerArr.includes(target) || (anchor ? registerArr.includes(anchor) : false);
-        const tagHref = nativePath || anchor?.href || (e.target as HTMLAnchorElement)?.href;
+        const tagHref =
+          (isNativeBuyerPortalLink ? nativePath : null) ||
+          anchor?.href ||
+          (e.target as HTMLAnchorElement)?.href;
         let href = tagHref || authorizedPages;
         if (!tagHref || typeof tagHref !== 'string') {
           let parentNode = (e.target as HTMLAnchorElement)?.parentNode;

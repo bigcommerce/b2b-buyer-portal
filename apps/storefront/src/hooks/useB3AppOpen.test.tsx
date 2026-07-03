@@ -76,6 +76,29 @@ describe('useB3AppOpen native storefront link interception', () => {
     });
   });
 
+  it('keeps the full href for configured elements that are not native buyer-portal links', async () => {
+    document.body.innerHTML = `
+      <a id="checkout-customer-login" href="${window.location.origin}/#/orders">Login</a>
+    `;
+    const handleEnterClick = vi.fn();
+
+    renderHookWithProviders(
+      () =>
+        useB3AppOpen({
+          isOpen: false,
+          handleEnterClick,
+          authorizedPages: '/orders',
+        }),
+      { preloadedState: { company: loggedInCompanyState } },
+    );
+
+    await userEvent.click(screen.getByRole('link'));
+
+    await waitFor(() => {
+      expect(handleEnterClick).toHaveBeenCalledWith(`${window.location.origin}/#/orders`, true);
+    });
+  });
+
   it('does not intercept checkout placeholder links', async () => {
     window.history.pushState({}, '', '/checkout');
     document.body.innerHTML = '<a href="#">Continue</a>';
