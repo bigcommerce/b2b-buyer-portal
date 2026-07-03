@@ -4642,6 +4642,8 @@ export type QuoteType = Node & {
   trackingHistory?: Maybe<Scalars['GenericScalar']['output']>;
   updatedAt: Scalars['Int']['output'];
   userEmail?: Maybe<Scalars['String']['output']>;
+  /** Flag indicating if the total is to be determined (TBD) */
+  totalIsTbd?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type QuoteTypeCountableConnection = {

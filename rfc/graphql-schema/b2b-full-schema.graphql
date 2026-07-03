@@ -7680,6 +7680,12 @@ type QuoteType implements Node {
   The channel name of the quote
   """
   channelName: String
+
+
+  """
+  Flag indicating if the total is to be determined (TBD)
+  """
+  totalIsTbd: Boolean
 }
 
 type QuoteTypeCountableConnection {
