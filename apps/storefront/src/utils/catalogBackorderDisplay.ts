@@ -8,6 +8,10 @@ export function buildVariantSkuDependencyKey(skus: readonly (string | undefined 
   return [...new Set(skus.filter((sku): sku is string => Boolean(sku)))].sort().join('|');
 }
 
+export function productRequiresChooseOptionsBeforeAdd(product: { allOptions?: unknown }): boolean {
+  return Array.isArray(product.allOptions) && product.allOptions.length > 0;
+}
+
 type SearchProductInventorySource = Pick<
   ShoppingListProductItem,
   | 'inventoryTracking'
