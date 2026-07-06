@@ -163,4 +163,10 @@ describe('shouldOpenAllowedPageOnInit', () => {
       }),
     ).toBe(true);
   });
+
+  it('does not force-open on login.php for a logged-in user without a hash', () => {
+    expect(shouldOpenAllowedPageOnInit({ pathname: '/login.php', hash: '', customerId: 123 })).toBe(
+      false,
+    );
+  });
 });
