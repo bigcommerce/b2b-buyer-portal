@@ -475,7 +475,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
 
     await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
+    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('$102.00');
     expect(orderDetailRequestCount).toBe(1);
 
     result.rerender(<OrderDetailsWithCurrencyHydration currencies={[euro]} />);

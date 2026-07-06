@@ -13,7 +13,6 @@ export interface ListItem {
   status: string;
   statusText?: string;
   createdAt: string;
-  companyName: string;
   companyInfo?: CompanyInfoTypes;
   /** Cursor from the SF GQL edge — populated for unified order paths only. */
   cursor?: string;
@@ -29,7 +28,6 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): Lis
   createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),
   firstName: order.placedBy?.firstName || '',
   lastName: order.placedBy?.lastName || '',
-  companyName: order.company?.name || '',
   companyInfo: order.company
     ? {
         companyName: order.company.name,
@@ -43,6 +41,5 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): Lis
         bcId: '',
       }
     : undefined,
-  money: '',
   cursor,
 });

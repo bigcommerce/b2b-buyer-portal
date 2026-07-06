@@ -448,7 +448,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       const row = screen.getByText('90909').closest('tr')!;
-      expect(within(row).getByText('319.95$$$')).toBeInTheDocument();
+      expect(within(row).getByText('319.95$$$')).toBeVisible();
     });
 
     describe('sorting', () => {

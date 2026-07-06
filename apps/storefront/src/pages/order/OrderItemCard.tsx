@@ -10,19 +10,7 @@ import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import OrderStatus from './components/OrderStatus';
-
-interface ListItem {
-  orderId: string;
-  firstName: string;
-  lastName: string;
-  poNumber?: string;
-  status: string;
-  statusText?: string;
-  totalIncTax: string;
-  /** Pre-formatted grand total in the order's own currency, from SF GQL Money.formattedV2. */
-  formattedTotalIncTax?: string;
-  createdAt: string;
-}
+import type { ListItem } from './mapSfGqlOrderToListItem';
 
 interface OrderItemCardProps {
   goToDetail: () => void;
@@ -42,9 +30,9 @@ export function OrderItemCard({ item, goToDetail }: OrderItemCardProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const customer = useAppSelector(({ company }) => company.customer);
 
-  const getName = (item: ListItem) => {
+  const getName = (listItem: ListItem) => {
     if (isB2BUser) {
-      return `by ${item.firstName} ${item.lastName}`;
+      return `by ${listItem.firstName} ${listItem.lastName}`;
     }
     return `by ${customer.firstName} ${customer.lastName}`;
   };

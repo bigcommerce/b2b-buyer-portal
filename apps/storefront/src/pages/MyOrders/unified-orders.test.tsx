@@ -169,6 +169,41 @@ const b2bStateWithFlag = (featureFlags: Record<string, boolean>) => ({
   storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
 });
 
+const b2bStateWithCurrency = (featureFlags: Record<string, boolean>) => ({
+  ...b2bStateWithFlag(featureFlags),
+  storeConfigs: {
+    currencies: {
+      currencies: [
+        {
+          id: '1',
+          is_default: true,
+          last_updated: '',
+          country_iso2: 'US',
+          default_for_country_codes: ['USD'],
+          currency_code: 'USD',
+          currency_exchange_rate: '1.0000000000',
+          name: 'United States Dollar',
+          token: '$',
+          auto_update: false,
+          decimal_token: '.',
+          decimal_places: 2,
+          enabled: true,
+          is_transactional: true,
+          token_location: 'left' as const,
+          thousands_token: ',',
+        },
+      ],
+      channelCurrencies: {
+        channel_id: 1,
+        enabled_currencies: ['USD'],
+        default_currency: 'USD',
+      },
+      enteredInclusiveTax: false,
+    },
+    activeCurrency: { node: { isActive: true, entityId: 1 } },
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -325,6 +360,46 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       const headerTexts = headers.map((h) => h.textContent);
 
       expect(headerTexts).toContain('Company');
+    });
+
+    it("displays the order's own currency via formattedV2, ignoring the store's currency settings", async () => {
+      const order = buildSfGqlOrderWith({
+        entityId: 90909,
+        totalIncTax: buildSfGqlMoneyWith({
+          currencyCode: 'USD',
+          value: 319.95,
+          formattedV2: '319.95$$$',
+        }),
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrders', () =>
+          HttpResponse.json({
+            data: {
+              customer: {
+                orders: {
+                  edges: [{ node: order, cursor: 'fmt' }],
+                  pageInfo: {
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                    startCursor: null,
+                    endCursor: null,
+                  },
+                },
+              },
+            },
+          } satisfies GetCustomerOrdersResponse),
+        ),
+      );
+
+      renderWithProviders(<MyOrders />, {
+        preloadedState: b2bStateWithCurrency(flagOn),
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const row = screen.getByRole('row', { name: /90909/ });
+      expect(within(row).getByText('319.95$$$')).toBeVisible();
     });
 
     it('formats date correctly', async () => {
