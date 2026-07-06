@@ -101,10 +101,12 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         registerArr.includes(target) ||
         allOtherArr.includes(target) ||
         (anchor ? registerArr.includes(anchor) || allOtherArr.includes(anchor) : false);
-      const nativePath = anchor ? getNativeStorefrontPath(anchor.href) : null;
-      const isNativeBuyerPortalLink = anchor ? isBuyerPortalNativeHref(anchor.href) : false;
+      const isNativeBuyerPortalLink =
+        isNativeLinkInterceptionEnabled && anchor ? isBuyerPortalNativeHref(anchor.href) : false;
+      const nativePath =
+        isNativeBuyerPortalLink && anchor ? getNativeStorefrontPath(anchor.href) : null;
 
-      if (isConfiguredTarget || (isNativeLinkInterceptionEnabled && isNativeBuyerPortalLink)) {
+      if (isConfiguredTarget || isNativeBuyerPortalLink) {
         const isSearchNode = handleJudgeSearchNode(e);
         const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e, anchor);
 
