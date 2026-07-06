@@ -18,7 +18,9 @@ import B3Dialog from '@/components/B3Dialog';
 import BackorderMessage from '@/components/BackorderMessage';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useCatalogChooseOptionsBackorderDisplay } from '@/hooks/useCatalogChooseOptionsBackorderDisplay';
+import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
@@ -33,6 +35,7 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { snackbar } from '@/utils/b3Tip';
 import { Base64 } from '@/utils/base64';
+import { getCatalogInventorySku } from '@/utils/catalogBackorderDisplay';
 
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '../../../types';
 import {
@@ -145,13 +148,33 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
   const isBackorderEnabled = useIsBackorderEnabled();
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const showQuoteAtsHelper = type === 'quote' && backorderUiEnabled && !isEnableProduct;
+  const quoteInventorySku = getCatalogInventorySku(product, variantSku);
 
-  const { qtyHelperText, backorderFields } = useCatalogChooseOptionsBackorderDisplay({
-    product,
-    variantInfo,
-    quantity,
-    showAvailableToSellHelper: false,
+  const inventoryBySku = useCatalogInventoryBySku({
+    isActive: isOpen && showQuoteAtsHelper,
+    enabled: backorderUiEnabled,
+    skuDependencyKey: showQuoteAtsHelper ? quoteInventorySku : '',
   });
+
+  const formatQuoteOnlyAvailable = useCallback(
+    (count: number) => b3Lang('orderDetail.reorder.onlyAvailable', { count }),
+    [b3Lang],
+  );
+
+  const { qtyHelperText, backorderFields, exceedsAvailableToSell } =
+    useCatalogChooseOptionsBackorderDisplay({
+      product,
+      variantInfo,
+      quantity,
+      showAvailableToSellHelper: showQuoteAtsHelper,
+      formatOnlyAvailable: showQuoteAtsHelper ? formatQuoteOnlyAvailable : undefined,
+      inventoryBySku: showQuoteAtsHelper ? inventoryBySku : undefined,
+      inventorySku: quoteInventorySku,
+    });
 
   useEffect(() => {
     if (type === 'quote' && product) {
@@ -506,6 +529,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   }, [chooseOptionsProduct]);
 
   const handleConfirmClicked = () => {
+    if (exceedsAvailableToSell) {
+      return;
+    }
+
     handleSubmit((value) => {
       const optionList = getOptionList(value);
 
@@ -549,6 +576,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       handRightClick={handleConfirmClicked}
       title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
       loading={isLoading || isRequestLoading}
+      disabledSaveBtn={exceedsAvailableToSell}
     >
       <B3Spin isSpinning={isLoading}>
         {product && (

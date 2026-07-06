@@ -607,6 +607,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
           handleChooseOptionsDialogConfirm as unknown as (products: CustomFieldItems[]) => void
         }
         isEdit
+        type="quote"
       />
     </StyledQuoteTableContainer>
   );

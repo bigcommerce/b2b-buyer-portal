@@ -12,6 +12,7 @@ import {
   getCatalogBackorderDisplayQuantity,
   getCatalogBackorderFieldsForVariantSku,
   getCatalogInventoryRowFromSearchProduct,
+  getCatalogInventorySku,
   getCatalogProductRowDisplayState,
   getProductDetailsForPicklistSelections,
   productRequiresChooseOptionsBeforeAdd,
@@ -222,6 +223,27 @@ describe('catalogBackorderDisplay', () => {
       totalOnHand: -3,
       quantityBackordered: 13,
       backorderMessage: undefined,
+    });
+  });
+
+  describe('getCatalogInventorySku', () => {
+    it('returns product sku when inventory tracking is product', () => {
+      expect(
+        getCatalogInventorySku({ inventoryTracking: 'product', sku: 'TEE-BASE' }, 'TEE-M'),
+      ).toBe('TEE-BASE');
+    });
+
+    it('returns variant sku when inventory tracking is variant', () => {
+      expect(
+        getCatalogInventorySku({ inventoryTracking: 'variant', sku: 'TEE-BASE' }, 'TEE-M'),
+      ).toBe('TEE-M');
+    });
+
+    it('returns empty string when tracking is none or product is missing', () => {
+      expect(getCatalogInventorySku({ inventoryTracking: 'none', sku: 'TEE-BASE' }, 'TEE-M')).toBe(
+        '',
+      );
+      expect(getCatalogInventorySku(null, 'TEE-M')).toBe('');
     });
   });
 
