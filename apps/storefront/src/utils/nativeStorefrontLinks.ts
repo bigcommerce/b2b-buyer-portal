@@ -4,7 +4,7 @@ interface InitOpenDecisionInput {
   customerId?: number | string;
 }
 
-const NATIVE_BUYER_PORTAL_PATHS = ['/account.php', '/login.php'];
+const NATIVE_STOREFRONT_PATH_SUFFIXES = ['/account.php', '/login.php'];
 
 export function getClosestAnchorFromTarget(target: EventTarget | null): HTMLAnchorElement | null {
   if (!(target instanceof Element)) {
@@ -43,7 +43,7 @@ export function isBuyerPortalNativeHref(href: string, origin = window.location.o
   // contain "account.php" (e.g. /search.php?search_query=account.php) can't.
   const pathname = path.split(/[?#]/)[0];
 
-  return NATIVE_BUYER_PORTAL_PATHS.some((nativePath) => pathname.endsWith(nativePath));
+  return NATIVE_STOREFRONT_PATH_SUFFIXES.some((nativePath) => pathname.endsWith(nativePath));
 }
 
 const NATIVE_LINK_INTERCEPTION_STORAGE_KEY = 'b2b-native-link-interception-enabled';
