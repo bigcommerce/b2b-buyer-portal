@@ -1,4 +1,5 @@
 import config from '@/lib/config';
+import { getClosestAnchorFromTarget, isBuyerPortalNativeHref } from '@/utils/nativeStorefrontLinks';
 
 export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
   window.requestIdleCallback
@@ -44,23 +45,40 @@ export const initApp = async () => {
 };
 
 const clickLink = async (e: MouseEvent) => {
-  window.b2b.initializationEnvironment.clickedLinkElement = e.target as HTMLElement;
+  const anchor = getClosestAnchorFromTarget(e.target);
+  window.b2b.initializationEnvironment.clickedLinkElement = anchor || (e.target as HTMLElement);
   e.preventDefault();
   e.stopPropagation();
   await initApp();
 };
 
-export const bindLinks = () => {
+const clickNativeBuyerPortalLink = async (e: MouseEvent) => {
+  const anchor = getClosestAnchorFromTarget(e.target);
+
+  if (!anchor || !isBuyerPortalNativeHref(anchor.href)) {
+    return;
+  }
+
+  await clickLink(e);
+};
+
+export const bindLinks = (nativeLinkInterceptionEnabled = false) => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
+  if (nativeLinkInterceptionEnabled) {
+    document.addEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  }
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
-export const unbindLinks = () => {
+export const unbindLinks = (nativeLinkInterceptionEnabled = false) => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
     `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
+  if (nativeLinkInterceptionEnabled) {
+    document.removeEventListener('click', clickNativeBuyerPortalLink, { capture: true });
+  }
   links.forEach((accessLink) => accessLink.removeEventListener('click', clickLink));
 };
