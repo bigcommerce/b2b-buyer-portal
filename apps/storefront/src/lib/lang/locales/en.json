@@ -164,6 +164,7 @@
   "orders.status.manualVerificationRequired": "Manual Verification Required",
   "orders.status.disputed": "Disputed",
   "orders.status.partiallyRefunded": "Partially Refunded",
+  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
   "invoice.exportCsvText": "Export all as CSV",
   "invoice.exportSelectedAsCsv": "Export selected as CSV",
   "invoice.exportFilteredAsCsv": "Export filtered as CSV",
