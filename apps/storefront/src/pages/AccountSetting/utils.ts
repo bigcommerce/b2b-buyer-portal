@@ -275,7 +275,7 @@ export const bcSubmitDataProcessing = (
 // Choice field types whose selected option must be resolved to an entityId via the
 // form-field definitions (the mutations take an id, not a label). Kept as one exported
 // list so the "which fields need definitions" gate and the emit routing can't drift apart.
-export const CHOICE_FIELD_TYPES = ['dropdown', 'radio', 'checkbox'];
+const CHOICE_FIELD_TYPES = ['dropdown', 'radio', 'checkbox'];
 export const fieldTypeNeedsOptions = (fieldType?: string): boolean =>
   CHOICE_FIELD_TYPES.includes(fieldType ?? '');
 
