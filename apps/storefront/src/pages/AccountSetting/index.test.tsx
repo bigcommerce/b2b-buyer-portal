@@ -22,6 +22,14 @@ vi.mock('@/utils/basicConfig', async (importOriginal) => ({
   platform: 'catalyst',
 }));
 
+// useStorefrontCaptcha issues an anonymous reCaptcha-config query that MSW can't intercept
+// (and warns about, failing the suite via fail-on-console). Stub it so no request is made;
+// reCaptcha stays disabled, which is what these tests exercise.
+vi.mock('@/shared/service/b2b/graphql/recaptcha', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/service/b2b/graphql/recaptcha')>()),
+  getStorefrontToken: vi.fn().mockResolvedValue({ isEnabledOnStorefront: false, siteKey: '' }),
+}));
+
 const { server } = startMockServer();
 
 const buildCustomerWith = builder<Customer>(() => ({
