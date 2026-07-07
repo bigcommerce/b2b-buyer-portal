@@ -8,6 +8,7 @@ import {
   renderWithProviders,
   screen,
   startMockServer,
+  waitFor,
   waitForElementToBeRemoved,
 } from 'tests/test-utils';
 
@@ -78,6 +79,11 @@ const mockAccountSettingsQueries = () =>
             },
           },
         },
+      }),
+    ),
+    graphql.query('CustomerFormFieldSettings', () =>
+      HttpResponse.json({
+        data: { site: { settings: { formFields: { customer: [] } } } },
       }),
     ),
   );
@@ -213,5 +219,172 @@ describe('account settings feature flag (PROJECT-7920.use_bc_account_settings)',
 
     expect(await screen.findByText(/Upgrade to a business account/i)).toBeInTheDocument();
     expect(screen.queryByText('Something went wrong. Please try again.')).not.toBeInTheDocument();
+  });
+});
+
+// Contact fields (so email validation short-circuits) plus a visible custom form field
+// (groupId 2) whose entityId is encoded in its fieldId (field_27).
+const accountFormFieldsWithCustom = [
+  {
+    id: '1',
+    formType: 1,
+    fieldId: 'field_first_name',
+    groupId: 1,
+    groupName: 'Contact Information',
+    isRequired: true,
+    visible: true,
+    labelName: 'First Name',
+    fieldName: 'first_name',
+    fieldType: 'text',
+  },
+  {
+    id: '2',
+    formType: 1,
+    fieldId: 'field_email',
+    groupId: 1,
+    groupName: 'Contact Information',
+    isRequired: true,
+    visible: true,
+    labelName: 'Email Address',
+    fieldName: 'email',
+    fieldType: 'text',
+  },
+  {
+    id: '11',
+    formType: 1,
+    fieldFrom: 10,
+    fieldId: 'field_27',
+    groupId: 2,
+    groupName: 'Additional Information',
+    isRequired: false,
+    visible: true,
+    labelName: 'Middle name',
+    fieldName: 'middle_name',
+    fieldType: 'text',
+    custom: true,
+  },
+];
+
+describe('native SF GQL form-field updates', () => {
+  it('sends a BC custom form field through customer.updateCustomer keyed by fieldEntityId', async () => {
+    const customer = buildCustomerWith({
+      id: 123,
+      userType: UserTypes.MULTIPLE_B2C,
+      role: CustomerRole.SUPER_ADMIN,
+      emailAddress: 'jane.doe@example.com',
+    });
+
+    const companyState = buildCompanyStateWith({
+      customer,
+      companyInfo: { id: '79', companyName: 'b2bc', status: CompanyStatus.INACTIVE },
+      permissions: [],
+    });
+
+    let capturedInput: { formFields?: unknown } | undefined;
+
+    server.use(
+      graphql.query('B2BAccountFormFields', () =>
+        HttpResponse.json({ data: { accountFormFields: accountFormFieldsWithCustom } }),
+      ),
+      graphql.query('CustomerDetails', () =>
+        HttpResponse.json({
+          data: {
+            customer: {
+              firstName: 'Jane',
+              lastName: 'Doe',
+              company: 'ACME',
+              phoneNumber: '1234567890',
+              email: 'jane.doe@example.com',
+              formFields: [],
+            },
+          },
+        }),
+      ),
+      graphql.mutation('UpdateCustomer', ({ variables }) => {
+        capturedInput = variables.input;
+        return HttpResponse.json({
+          data: { customer: { updateCustomer: { customer: { firstName: 'Jane' } } } },
+        });
+      }),
+    );
+
+    const { user } = renderWithProviders(<AccountSetting />, {
+      preloadedState: {
+        company: companyState,
+        global: buildGlobalStateWith({
+          featureFlags: { 'PROJECT-7920.use_bc_account_settings': true },
+        }),
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    await user.type(screen.getByRole('textbox', { name: /middle name/i }), 'Lee');
+    await user.click(screen.getByRole('button', { name: /save updates/i }));
+
+    await waitFor(() => expect(capturedInput).toBeDefined());
+    expect(capturedInput?.formFields).toEqual({ texts: [{ fieldEntityId: 27, text: 'Lee' }] });
+  });
+
+  it('sends a B2B custom form field through company.updateCompanyUser keyed by fieldEntityId', async () => {
+    const customer = buildCustomerWith({
+      id: 123,
+      userType: UserTypes.MULTIPLE_B2C,
+      role: CustomerRole.JUNIOR_BUYER,
+      emailAddress: 'jane.doe@example.com',
+    });
+
+    const companyState = buildCompanyStateWith({
+      customer,
+      companyInfo: { id: '79', companyName: 'b2bc', status: CompanyStatus.APPROVED },
+      permissions: [],
+    });
+
+    let capturedInput: { formFields?: unknown } | undefined;
+
+    server.use(
+      graphql.query('B2BAccountFormFields', () =>
+        HttpResponse.json({ data: { accountFormFields: accountFormFieldsWithCustom } }),
+      ),
+      graphql.query('CompanyUserDetails', () =>
+        HttpResponse.json({
+          data: {
+            company: {
+              companyUser: {
+                firstName: 'Jane',
+                lastName: 'Doe',
+                company: 'ACME',
+                companyRoleName: 'Buyer',
+                phoneNumber: '1234567890',
+                email: 'jane.doe@example.com',
+                extraFields: [],
+                formFields: [],
+              },
+            },
+          },
+        }),
+      ),
+      graphql.mutation('UpdateCompanyUser', ({ variables }) => {
+        capturedInput = variables.input;
+        return HttpResponse.json({ data: { company: { updateCompanyUser: { errors: [] } } } });
+      }),
+    );
+
+    const { user } = renderWithProviders(<AccountSetting />, {
+      preloadedState: {
+        company: companyState,
+        global: buildGlobalStateWith({
+          featureFlags: { 'PROJECT-7920.use_bc_account_settings': true },
+        }),
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    await user.type(screen.getByRole('textbox', { name: /middle name/i }), 'Lee');
+    await user.click(screen.getByRole('button', { name: /save updates/i }));
+
+    await waitFor(() => expect(capturedInput).toBeDefined());
+    expect(capturedInput?.formFields).toEqual({ texts: [{ fieldEntityId: 27, text: 'Lee' }] });
   });
 });

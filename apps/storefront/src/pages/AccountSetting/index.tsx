@@ -6,11 +6,13 @@ import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import CustomButton from '@/components/button/CustomButton';
+import { Captcha } from '@/components/captcha/Captcha';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
+import { useStorefrontCaptcha } from '@/hooks/useStorefrontCaptcha';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
@@ -22,10 +24,18 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
-import { getCompanyUserDetails, getCustomerDetails } from '@/shared/service/bc';
+import {
+  getCompanyUserDetails,
+  getCustomerDetails,
+  getCustomerFormFieldDefinitions,
+  updateCompanyUserDetails,
+  updateCustomerDetails,
+} from '@/shared/service/bc';
+import { CustomerFormFieldDefinition } from '@/shared/service/bc/graphql/accountSetting';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
+import b2bLogger from '@/utils/b3Logger';
 import { B3SStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, platform } from '@/utils/basicConfig';
@@ -36,6 +46,10 @@ import { UpgradeBanner } from './UpgradeBanner';
 import {
   b2bSubmitDataProcessing,
   bcSubmitDataProcessing,
+  buildUpdateCompanyUserInput,
+  buildUpdateCustomerInput,
+  collectChangedFormFields,
+  fieldTypeNeedsOptions,
   initB2BInfo,
   initBcInfo,
   mapUserToAccountInfo,
@@ -134,6 +148,10 @@ function AccountSetting() {
 
   const useBcAccountSettings = useFeatureFlag('PROJECT-7920.use_bc_account_settings');
 
+  // BC customers update via customer.updateCustomer, which needs a reCaptcha token
+  // when reCaptcha is enabled on the storefront.
+  const isCustomerUpdate = useBcAccountSettings && isBCUser;
+
   const [isMobile] = useMobile();
 
   const navigate = useNavigate();
@@ -143,7 +161,15 @@ function AccountSetting() {
   const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [accountSettings, setAccountSettings] = useState<any>({});
+  const [customerFormFieldDefs, setCustomerFormFieldDefs] = useState<CustomerFormFieldDefinition[]>(
+    [],
+  );
+  const [captchaToken, setCaptchaToken] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  // BC customer.updateCustomer needs a reCaptcha token when reCaptcha is enabled on the
+  // storefront; load that config (shared with the forgot-password flow).
+  const { isCaptchaEnabled, captchaSiteKey } = useStorefrontCaptcha(isCustomerUpdate);
 
   useEffect(() => {
     const init = async () => {
@@ -166,9 +192,25 @@ function AccountSetting() {
         if (useBcAccountSettings) {
           let userData;
           if (isBCUser) {
-            const response = await getCustomerDetails();
+            // Scalar/text/number fields get their entityId from the `field_<id>` fieldId, so
+            // definitions are only needed to resolve option ids for choice/checkbox fields.
+            const needsDefinitions = [...contactInformation, ...additionalInformation].some(
+              (item) => item.custom && fieldTypeNeedsOptions(item.fieldType),
+            );
+            const [response, definitions] = await Promise.all([
+              getCustomerDetails(),
+              needsDefinitions ? getCustomerFormFieldDefinitions() : Promise.resolve(undefined),
+            ]);
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.customer;
+            // Surface (don't swallow) a failed definitions fetch — it's what blocks choice
+            // fields from resolving their option entityIds.
+            if (definitions?.errors?.length) {
+              b2bLogger.error(
+                `Customer form-field definitions unavailable: ${definitions.errors[0]?.message}`,
+              );
+            }
+            setCustomerFormFieldDefs(definitions?.data?.site?.settings?.formFields?.customer ?? []);
           } else {
             const response = await getCompanyUserDetails();
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
@@ -242,6 +284,48 @@ function AccountSetting() {
     }));
   };
 
+  // Sends the prepared payload to the right backend for the current user/flag combination.
+  // Returns true on success; false means an error was already surfaced and the caller stops.
+  const dispatchUpdate = async (payload: Partial<ParamProps>): Promise<boolean> => {
+    if (useBcAccountSettings && isBCUser) {
+      if (isCaptchaEnabled && !captchaToken) {
+        snackbar.error(b3Lang('login.loginText.missingCaptcha'));
+        return false;
+      }
+      let response;
+      try {
+        response = await updateCustomerDetails(
+          buildUpdateCustomerInput(payload, customerFormFieldDefs),
+          captchaToken || undefined,
+        );
+      } finally {
+        // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
+        setCaptchaToken('');
+      }
+      if (response.errors?.length) {
+        snackbar.error(response.errors[0]?.message || b3Lang('global.error.genericMessage'));
+        return false;
+      }
+      return true;
+    }
+
+    if (useBcAccountSettings && !isBCUser) {
+      const response = await updateCompanyUserDetails(buildUpdateCompanyUserInput(payload));
+      const companyUserErrors = response.data?.company?.updateCompanyUser?.errors;
+      if (response.errors?.length || companyUserErrors?.length) {
+        const message = response.errors?.[0]?.message || companyUserErrors?.[0]?.message;
+        snackbar.error(message || b3Lang('global.error.genericMessage'));
+        return false;
+      }
+      return true;
+    }
+
+    // Legacy b2b middleware path (flag off).
+    const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
+    await requestFn(payload);
+    return true;
+  };
+
   const handleAddUserClick = () => {
     handleSubmit(async (data: CustomFieldItems) => {
       setLoading(true);
@@ -277,10 +361,34 @@ function AccountSetting() {
 
         if (isValid && emailFlag && passwordFlag) {
           const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
-          const payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
+          let payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
+
+          // The native SF GQL updates carry custom form fields collected directly from the
+          // form (the submit processor misses them). Only *changed* fields are sent, and a
+          // form-field-only edit is treated as non-pristine so it isn't dropped as "no edits".
+          if (useBcAccountSettings) {
+            const changedFormFields = collectChangedFormFields(
+              data,
+              accountInfoFormFields,
+              accountSettings?.formFields || [],
+            );
+            // A changed choice/checkbox field can only be sent if its option ids resolved from
+            // the definitions; if they didn't load, fail loudly instead of silently dropping it.
+            const hasUnresolvableChoice = changedFormFields.some(
+              (formField) =>
+                fieldTypeNeedsOptions(formField.fieldType) && customerFormFieldDefs.length === 0,
+            );
+            if (hasUnresolvableChoice) {
+              snackbar.error(b3Lang('global.error.genericMessage'));
+              return;
+            }
+            if (!payload && changedFormFields.length > 0) payload = {};
+            if (payload) payload.formFields = changedFormFields;
+          }
 
           if (payload) {
-            if (!isBCUser) {
+            // Legacy B2B middleware still expects name-based extra fields + companyId.
+            if (!useBcAccountSettings && !isBCUser) {
               payload.companyId = companyId;
               payload.extraFields = handleGetUserExtraFields(data, accountInfoFormFields);
             }
@@ -296,8 +404,8 @@ function AccountSetting() {
             return;
           }
 
-          const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
-          await requestFn(payload);
+          const succeeded = await dispatchUpdate(payload);
+          if (!succeeded) return;
 
           if (
             (data.password && data.currentPassword) ||
@@ -369,6 +477,12 @@ function AccountSetting() {
             getValues={getValues}
             setValue={setValue}
           />
+
+          {isCustomerUpdate && isCaptchaEnabled && (
+            <Box sx={{ mt: '20px' }}>
+              <Captcha siteKey={captchaSiteKey} size="normal" handleGetKey={setCaptchaToken} />
+            </Box>
+          )}
 
           <CustomButton
             sx={{

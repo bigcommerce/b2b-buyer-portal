@@ -30,6 +30,8 @@ export interface Fields {
 interface BcFormFieldsProps {
   name: string;
   value: any;
+  fieldType?: string;
+  fieldEntityId?: number;
 }
 
 export interface ParamProps {

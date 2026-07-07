@@ -9,10 +9,11 @@ import CustomButton from '@/components/button/CustomButton';
 import { Captcha } from '@/components/captcha/Captcha';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks/useMobile';
+import { useStorefrontCaptcha } from '@/hooks/useStorefrontCaptcha';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
+import { requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
 import b2bLogger from '@/utils/b3Logger';
 
 import { getForgotPasswordFields } from '../Login/helper';
@@ -199,25 +200,8 @@ export function ForgotPassword({
 export default function Page({ setOpenPage }: PageProps) {
   const { logo } = useContext(GlobalContext).state;
   const { loginPageDisplay } = useContext(CustomStyleContext).state;
-  const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
-  const [storefrontSiteKey, setStorefrontSiteKey] = useState('');
-
-  useEffect(() => {
-    const getIsEnabledOnStorefront = async () => {
-      try {
-        const response = await getStorefrontToken();
-
-        if (response) {
-          setIsEnabledOnStorefront(response.isEnabledOnStorefront);
-          setStorefrontSiteKey(response.siteKey);
-        }
-      } catch (e) {
-        b2bLogger.error(e);
-      }
-    };
-
-    getIsEnabledOnStorefront();
-  }, []);
+  const { isCaptchaEnabled: isEnabledOnStorefront, captchaSiteKey: storefrontSiteKey } =
+    useStorefrontCaptcha();
 
   return (
     <ForgotPassword
