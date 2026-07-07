@@ -46,15 +46,17 @@ cat <<EOF > deploy_revision_payload.json
 EOF
 
 # create revision
-curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/revisions" \
+response=$(curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/revisions" \
   --header "Authorization: Basic $B2B_API_DEPLOY_CREDENTIAL" \
   --header 'Content-Type: application/json' \
-  --data-binary @create_revision_payload.json
+  --data-binary @create_revision_payload.json)
+echo "revision: $response"
 
 # apply the revision
-curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/deployments" \
+response=$(curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/deployments" \
   --header "Authorization: Basic $B2B_API_DEPLOY_CREDENTIAL" \
   --header 'Content-Type: application/json' \
-  --data-binary @deploy_revision_payload.json
+  --data-binary @deploy_revision_payload.json)
+echo "deployment: $response"
 
 rm {create,deploy}_revision_payload.json
