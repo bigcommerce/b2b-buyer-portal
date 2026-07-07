@@ -563,7 +563,7 @@
   "quoteDraft.notification.productPlural": "Produkter blev tilføjet til dit tilbud.",
   "quoteDraft.notification.errorRangeProducts": "Mængden af hvert produkt i tilbuddet er 1-1000000.",
   "quoteDraft.notification.businessAccountPendingActivation": "Din virksomhedskonto afventer godkendelse. Denne funktion er i øjeblikket deaktiveret.",
-  "quoteDraft.notification.openQuote": "Åbent anførselstegn",
+  "quoteDraft.notification.openQuote": "Åbn tilbud",
   "quoteDraft.notification.productCannotBeAddedToQuote": "Produktet {productId} er udsolgt eller utilgængeligt for køb. Fjern produktet, eller rediger produktmængden",
   "quoteDraft.collapseTitle.addToQuote": "Tilføj til tilbud",
   "quoteDraft.modalTitle.addToQuote": "Tilføj til tilbud",
