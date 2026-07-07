@@ -2153,6 +2153,7 @@ describe('when the user is a B2B customer', () => {
         message: 'meow',
         grandTotal: '1000.00',
         totalAmount: '1500.00',
+        totalIsTbd: false,
       });
 
       expect(navigation).toHaveBeenCalled();
@@ -2429,6 +2430,7 @@ describe('when the user is a B2B customer', () => {
         message: 'meow',
         grandTotal: '1000.00',
         totalAmount: '1500.00',
+        totalIsTbd: false,
       });
 
       expect(getVariantInfoOOSAndPurchase).not.toHaveBeenCalled();
@@ -5140,9 +5142,11 @@ describe('when the user is a B2B customer', () => {
     const getPreloadedState = (
       billingAddress: Address = emptyAddress,
       shippingAddress: Address = emptyAddress,
+      global = buildGlobalStateWith('WHATEVER_VALUES'),
     ) => ({
       preloadedState: {
         company: companyInfo,
+        global,
         storeInfo: storeInfoWithDateFormat,
         quoteInfo: {
           ...quoteInfo,
@@ -5204,6 +5208,68 @@ describe('when the user is a B2B customer', () => {
       const mutationData = createQuoteMutation.mock.calls[0][0];
       expect(mutationData).toContain(DEFAULT_BILLING_ADDRESS_ID);
       expect(mutationData).toContain(DEFAULT_SHIPPING_ADDRESS_ID);
+      expect(mutationData).toContain('"totalIsTbd":false');
+    });
+
+    it('sets totalIsTbd to true in CreateQuote payload when draft has a non-purchasable product', async () => {
+      const nonPurchasableProduct = buildDraftQuoteItemWith({
+        node: {
+          primaryImage: 'url',
+          quantity: 1,
+          variantSku: 'test',
+          basePrice: 10,
+          taxPrice: 5,
+          productName: 'Disabled Product',
+          productsSearch: buildProductWith({
+            inventoryLevel: 10,
+            inventoryTracking: 'product',
+            availability: 'disabled',
+            sku: 'test',
+            basePrice: '10.00',
+            offeredPrice: '10.00',
+            productId: 2,
+            imageUrl: 'url',
+            id: 4451490883947129,
+          }),
+        },
+      });
+
+      const quoteInfoWithNonPurchasableProduct = {
+        ...quoteInfo,
+        draftQuoteList: [nonPurchasableProduct],
+      };
+
+      const preloadedState = {
+        preloadedState: {
+          company: companyInfo,
+          global: buildGlobalStateWith({
+            blockPendingQuoteNonPurchasableOOS: {
+              isEnableProduct: true,
+              isEnableRequest: false,
+            },
+            backorderEnabled: false,
+            showInclusiveTaxPrice: false,
+            featureFlags: { 'B2B-4089.use_tbd_price_on_quotes_list': true },
+          }),
+          storeInfo: storeInfoWithDateFormat,
+          quoteInfo: {
+            ...quoteInfoWithNonPurchasableProduct,
+            draftQuoteInfo: {
+              ...quoteInfoWithNonPurchasableProduct.draftQuoteInfo,
+              billingAddress: emptyAddress,
+              shippingAddress: emptyAddress,
+            },
+          },
+        },
+      };
+
+      renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, preloadedState);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      await waitFor(() => expect(createQuoteMutation).toHaveBeenCalled());
+      const mutationData = createQuoteMutation.mock.calls[0][0];
+      expect(mutationData).toContain('"totalIsTbd":true');
     });
 
     it('should submit the quote with the billing address id as 0 when default billing address modified', async () => {
