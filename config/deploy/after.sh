@@ -49,6 +49,8 @@ EOF
 response=$(curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/revisions" \
   --header "Authorization: Basic $B2B_API_DEPLOY_CREDENTIAL" \
   --header 'Content-Type: application/json' \
+  --silent --show-error --fail-with-body \
+  --write-out "\nHTTP status:%{http_code}\n" \
   --data-binary @create_revision_payload.json)
 echo "revision: $response"
 
@@ -56,6 +58,8 @@ echo "revision: $response"
 response=$(curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/deployments" \
   --header "Authorization: Basic $B2B_API_DEPLOY_CREDENTIAL" \
   --header 'Content-Type: application/json' \
+  --silent --show-error --fail-with-body \
+  --write-out "\nHTTP status: %{http_code}\n" \
   --data-binary @deploy_revision_payload.json)
 echo "deployment: $response"
 
