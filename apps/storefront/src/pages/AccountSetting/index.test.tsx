@@ -10,6 +10,7 @@ import {
   startMockServer,
   waitFor,
   waitForElementToBeRemoved,
+  within,
 } from 'tests/test-utils';
 
 import { CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
@@ -420,7 +421,7 @@ describe('native SF GQL form-field updates', () => {
       }),
     );
 
-    const { user } = renderWithProviders(<AccountSetting />, {
+    const { user, result } = renderWithProviders(<AccountSetting />, {
       preloadedState: {
         company: companyState,
         global: buildGlobalStateWith({
@@ -431,8 +432,9 @@ describe('native SF GQL form-field updates', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await user.type(screen.getByRole('textbox', { name: /middle name/i }), 'Lee');
-    await user.click(screen.getByRole('button', { name: /save updates/i }));
+    const view = within(result.container);
+    await user.type(view.getByRole('textbox', { name: /middle name/i }), 'Lee');
+    await user.click(view.getByRole('button', { name: /save updates/i }));
 
     await waitFor(() => expect(capturedInput).toBeDefined());
     expect(capturedInput?.formFields).toEqual({ texts: [{ fieldEntityId: 27, text: 'Lee' }] });
@@ -482,7 +484,7 @@ describe('native SF GQL form-field updates', () => {
       }),
     );
 
-    const { user } = renderWithProviders(<AccountSetting />, {
+    const { user, result } = renderWithProviders(<AccountSetting />, {
       preloadedState: {
         company: companyState,
         global: buildGlobalStateWith({
@@ -493,8 +495,9 @@ describe('native SF GQL form-field updates', () => {
 
     await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-    await user.type(screen.getByRole('textbox', { name: /middle name/i }), 'Lee');
-    await user.click(screen.getByRole('button', { name: /save updates/i }));
+    const view = within(result.container);
+    await user.type(view.getByRole('textbox', { name: /middle name/i }), 'Lee');
+    await user.click(view.getByRole('button', { name: /save updates/i }));
 
     await waitFor(() => expect(capturedInput).toBeDefined());
     expect(capturedInput?.formFields).toEqual({ texts: [{ fieldEntityId: 27, text: 'Lee' }] });
