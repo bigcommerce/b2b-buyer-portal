@@ -298,28 +298,29 @@ function toFiniteNumber(value: unknown): number | undefined {
 // Builds the shared entityId-keyed form-field groups for customer.updateCustomer and
 // company.updateCompanyUser. Each submitted field carries its fieldEntityId (parsed from
 // the form config's `field_<id>` fieldId). Callers pass only *changed* fields, so an empty
-// text/multiline/date value is an intentional clear and is sent through; number and choice
-// fields can't represent "empty" in their typed group, so a cleared one is skipped. Choice
-// selections map the picked option's label to its own entityId via the definitions.
-// Returns undefined when nothing maps.
+// text/multiline/date value is an intentional clear and is sent through. A field that can't
+// be represented — missing fieldEntityId, an unmapped choice label, or a cleared number/
+// checkbox (no empty form) — is collected into `unsendable` instead, so the caller can fail
+// loudly rather than report a save that silently dropped the user's edit.
 function buildFormFieldsInput(
   submitted: Partial<ParamProps>['formFields'],
   definitions: CustomerFormFieldDefinition[],
-): CustomerFormFieldsInput | undefined {
+): { formFields?: CustomerFormFieldsInput; unsendable: NonNullable<ParamProps['formFields']> } {
   const defByEntityId = new Map(definitions.map((def) => [def.entityId, def]));
   const formFields: CustomerFormFieldsInput = {};
+  const unsendable: NonNullable<ParamProps['formFields']> = [];
   const seen = new Set<number>();
 
   const optionEntityId = (fieldEntityId: number, value: unknown) =>
     defByEntityId.get(fieldEntityId)?.options?.find((option) => option.label === String(value))
       ?.entityId;
 
-  const emit = (
-    fieldEntityId: number | undefined,
-    fieldType: string | undefined,
-    value: unknown,
-  ) => {
-    if (fieldEntityId === undefined || seen.has(fieldEntityId)) return;
+  const emit = (formField: NonNullable<ParamProps['formFields']>[number]) => {
+    const { fieldEntityId, fieldType, value } = formField;
+    if (fieldEntityId === undefined || seen.has(fieldEntityId)) {
+      unsendable.push(formField);
+      return;
+    }
     switch (fieldType) {
       case 'multiline':
         seen.add(fieldEntityId);
@@ -330,7 +331,10 @@ function buildFormFieldsInput(
         break;
       case 'number': {
         const num = toFiniteNumber(value);
-        if (num === undefined) return;
+        if (num === undefined) {
+          unsendable.push(formField);
+          return;
+        }
         seen.add(fieldEntityId);
         (formFields.numbers ??= []).push({ fieldEntityId, number: num });
         break;
@@ -342,7 +346,10 @@ function buildFormFieldsInput(
       case 'dropdown':
       case 'radio': {
         const fieldValueEntityId = optionEntityId(fieldEntityId, value);
-        if (fieldValueEntityId === undefined) return;
+        if (fieldValueEntityId === undefined) {
+          unsendable.push(formField);
+          return;
+        }
         seen.add(fieldEntityId);
         (formFields.multipleChoices ??= []).push({ fieldEntityId, fieldValueEntityId });
         break;
@@ -352,7 +359,10 @@ function buildFormFieldsInput(
         const fieldValueEntityIds = values
           .map((choice) => optionEntityId(fieldEntityId, choice))
           .filter((id): id is number => id !== undefined);
-        if (fieldValueEntityIds.length === 0) return;
+        if (fieldValueEntityIds.length === 0) {
+          unsendable.push(formField);
+          return;
+        }
         seen.add(fieldEntityId);
         (formFields.checkboxes ??= []).push({ fieldEntityId, fieldValueEntityIds });
         break;
@@ -365,11 +375,18 @@ function buildFormFieldsInput(
     }
   };
 
-  (submitted ?? []).forEach(({ fieldEntityId, value, fieldType }) =>
-    emit(fieldEntityId, fieldType, value),
-  );
+  (submitted ?? []).forEach(emit);
 
-  return Object.keys(formFields).length > 0 ? formFields : undefined;
+  return { formFields: Object.keys(formFields).length > 0 ? formFields : undefined, unsendable };
+}
+
+// The changed form fields that buildFormFieldsInput can't send (see above). The caller uses
+// this to surface an error instead of a misleading "saved" when an edit would be dropped.
+export function getUnsendableFormFields(
+  submitted: Partial<ParamProps>['formFields'],
+  definitions: CustomerFormFieldDefinition[] = [],
+): NonNullable<ParamProps['formFields']> {
+  return buildFormFieldsInput(submitted, definitions).unsendable;
 }
 
 // Contact scalars shared by both mutation inputs (phoneNumber -> phone).
@@ -393,7 +410,7 @@ export function buildUpdateCustomerInput(
   assignSharedScalars(input, payload);
   if (payload.company !== undefined) input.company = payload.company as string;
 
-  const formFields = buildFormFieldsInput(payload.formFields, definitions);
+  const { formFields } = buildFormFieldsInput(payload.formFields, definitions);
   if (formFields) input.formFields = formFields;
 
   return input;
@@ -411,7 +428,7 @@ export function buildUpdateCompanyUserInput(
   if (payload.currentPassword) input.currentPassword = payload.currentPassword as string;
   if (payload.newPassword) input.newPassword = payload.newPassword as string;
 
-  const formFields = buildFormFieldsInput(payload.formFields, definitions);
+  const { formFields } = buildFormFieldsInput(payload.formFields, definitions);
   if (formFields) input.formFields = formFields;
 
   return input;
