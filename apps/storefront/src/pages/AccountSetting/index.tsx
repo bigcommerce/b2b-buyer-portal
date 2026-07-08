@@ -50,6 +50,7 @@ import {
   buildUpdateCustomerInput,
   collectChangedFormFields,
   fieldTypeNeedsOptions,
+  findPasswordFieldEntityId,
   getUnsendableFormFields,
   initB2BInfo,
   initBcInfo,
@@ -435,6 +436,19 @@ function AccountSetting() {
 
           if (!payload) {
             snackbar.success(b3Lang('accountSettings.notification.noEdits'));
+            return;
+          }
+
+          // customer.updateCustomer sends the password as a form field; if we can't resolve
+          // its entityId we can't change it — bail before the logout-on-password-change below
+          // so we don't sign the user out on an update that never applied the new password.
+          if (
+            useBcAccountSettings &&
+            isBCUser &&
+            payload.newPassword &&
+            findPasswordFieldEntityId(customerFormFieldDefs) === undefined
+          ) {
+            snackbar.error(b3Lang('global.error.genericMessage'));
             return;
           }
 

@@ -517,6 +517,20 @@ describe('buildUpdateCustomerInput', () => {
 
     expect(input.formFields).toEqual({ texts: [{ fieldEntityId: 10, text: '' }] });
   });
+
+  it('sends a new password under the Password form field entityId from the definitions', () => {
+    const input = buildUpdateCustomerInput({ newPassword: 'NewPass1!' }, [
+      { __typename: 'PasswordFormField', entityId: 2, label: 'Password' },
+    ]);
+
+    expect(input.formFields).toEqual({ passwords: [{ fieldEntityId: 2, password: 'NewPass1!' }] });
+  });
+
+  it('does not emit a password when the Password field is not in the definitions', () => {
+    const input = buildUpdateCustomerInput({ newPassword: 'NewPass1!' }, definitions);
+
+    expect(input.formFields).toBeUndefined();
+  });
 });
 
 describe('buildUpdateCompanyUserInput', () => {

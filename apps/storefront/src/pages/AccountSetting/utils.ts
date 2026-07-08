@@ -399,6 +399,15 @@ function assignSharedScalars(
   if (payload.phoneNumber !== undefined) input.phone = payload.phoneNumber as string;
 }
 
+// The definitions entityId of the customer's password form field, if present.
+// customer.updateCustomer takes the password as a form field (unlike company.updateCompanyUser
+// which uses a top-level newPassword scalar), so the caller needs this to send a change.
+export function findPasswordFieldEntityId(
+  definitions: CustomerFormFieldDefinition[] = [],
+): number | undefined {
+  return definitions.find((def) => def.__typename === 'PasswordFormField')?.entityId;
+}
+
 // Builds the BC-native customer.updateCustomer input from the submit payload.
 export function buildUpdateCustomerInput(
   payload: Partial<ParamProps>,
@@ -409,8 +418,17 @@ export function buildUpdateCustomerInput(
   assignSharedScalars(input, payload);
   if (payload.company !== undefined) input.company = payload.company as string;
 
-  const { formFields } = buildFormFieldsInput(payload.formFields, definitions);
-  if (formFields) input.formFields = formFields;
+  const { formFields = {} } = buildFormFieldsInput(payload.formFields, definitions);
+
+  // Password is a BC customer form field; send a change under the Password field's entityId.
+  const passwordFieldEntityId = findPasswordFieldEntityId(definitions);
+  if (payload.newPassword && passwordFieldEntityId !== undefined) {
+    formFields.passwords = [
+      { fieldEntityId: passwordFieldEntityId, password: payload.newPassword as string },
+    ];
+  }
+
+  if (Object.keys(formFields).length > 0) input.formFields = formFields;
 
   return input;
 }
