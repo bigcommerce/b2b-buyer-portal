@@ -188,33 +188,49 @@ function AccountSetting() {
         const additionalInformation = (accountFormFields?.additionalInformation ??
           []) as Partial<Fields>[];
 
+        // Store the customer form-field definitions (option entityIds for choice fields),
+        // surfacing — not swallowing — a failed fetch since it's what blocks choice fields.
+        const applyFormFieldDefinitions = (
+          definitions: Awaited<ReturnType<typeof getCustomerFormFieldDefinitions>> | undefined,
+        ) => {
+          if (definitions?.errors?.length) {
+            b2bLogger.error(
+              `Customer form-field definitions unavailable: ${definitions.errors[0]?.message}`,
+            );
+          }
+          setCustomerFormFieldDefs(definitions?.data?.site?.settings?.formFields?.customer ?? []);
+        };
+
         let accountSettings;
         if (useBcAccountSettings) {
+          // Scalar/text/number fields get their entityId from the `field_<id>` fieldId, so
+          // definitions are only needed to resolve option ids for choice/checkbox fields.
+          // Both customer.updateCustomer and company.updateCompanyUser use them, so fetch for
+          // either user type in parallel with the account read.
+          const needsDefinitions = [...contactInformation, ...additionalInformation].some(
+            (item) => item.custom && fieldTypeNeedsOptions(item.fieldType),
+          );
+          const definitionsPromise = needsDefinitions
+            ? getCustomerFormFieldDefinitions()
+            : Promise.resolve(undefined);
+
           let userData;
           if (isBCUser) {
-            // Scalar/text/number fields get their entityId from the `field_<id>` fieldId, so
-            // definitions are only needed to resolve option ids for choice/checkbox fields.
-            const needsDefinitions = [...contactInformation, ...additionalInformation].some(
-              (item) => item.custom && fieldTypeNeedsOptions(item.fieldType),
-            );
             const [response, definitions] = await Promise.all([
               getCustomerDetails(),
-              needsDefinitions ? getCustomerFormFieldDefinitions() : Promise.resolve(undefined),
+              definitionsPromise,
             ]);
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.customer;
-            // Surface (don't swallow) a failed definitions fetch — it's what blocks choice
-            // fields from resolving their option entityIds.
-            if (definitions?.errors?.length) {
-              b2bLogger.error(
-                `Customer form-field definitions unavailable: ${definitions.errors[0]?.message}`,
-              );
-            }
-            setCustomerFormFieldDefs(definitions?.data?.site?.settings?.formFields?.customer ?? []);
+            applyFormFieldDefinitions(definitions);
           } else {
-            const response = await getCompanyUserDetails();
+            const [response, definitions] = await Promise.all([
+              getCompanyUserDetails(),
+              definitionsPromise,
+            ]);
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.company?.companyUser;
+            applyFormFieldDefinitions(definitions);
           }
 
           if (!userData) throw new Error('Account settings response did not include a user');
@@ -310,7 +326,9 @@ function AccountSetting() {
     }
 
     if (useBcAccountSettings && !isBCUser) {
-      const response = await updateCompanyUserDetails(buildUpdateCompanyUserInput(payload));
+      const response = await updateCompanyUserDetails(
+        buildUpdateCompanyUserInput(payload, customerFormFieldDefs),
+      );
       const companyUserErrors = response.data?.company?.updateCompanyUser?.errors;
       if (response.errors?.length || companyUserErrors?.length) {
         const message = response.errors?.[0]?.message || companyUserErrors?.[0]?.message;
