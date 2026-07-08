@@ -3339,6 +3339,236 @@ describe('when the user is a B2B customer', () => {
           return dialog;
         };
 
+        const setupComplexProductChooseOptionsWithInventory = ({
+          availableToSell = 7,
+          totalOnHand = 2,
+          unlimitedBackorder = false,
+          isEnableProduct = false,
+          isBackorderMessagingEnabled = true,
+          inventoryFetchFails = false,
+          pendingInventoryFetch,
+          inventoryTracking = 'variant' as 'product' | 'variant',
+        }: {
+          availableToSell?: number;
+          totalOnHand?: number;
+          unlimitedBackorder?: boolean;
+          isEnableProduct?: boolean;
+          isBackorderMessagingEnabled?: boolean;
+          inventoryFetchFails?: boolean;
+          pendingInventoryFetch?: Promise<HttpResponse<VariantInfoResponse>>;
+          inventoryTracking?: 'product' | 'variant';
+        } = {}) => {
+          const productId = 9101;
+          const optionId = 60;
+          const sizeM = 202;
+          const variantSku = 'TEE-M';
+          const productSku = 'TEE-BASE';
+          const variantId = 5101;
+          const inventorySku = inventoryTracking === 'product' ? productSku : variantSku;
+
+          const variantM = buildVariantWith({
+            variant_id: variantId,
+            product_id: productId,
+            sku: variantSku,
+            purchasing_disabled: false,
+            option_values: [
+              {
+                id: sizeM,
+                label: 'M',
+                option_id: optionId,
+                option_display_name: 'Size',
+              },
+            ],
+            available_to_sell: inventoryTracking === 'product' ? 50 : 10,
+            unlimited_backorder: false,
+            total_on_hand: 2,
+            backorder_message: 'Lead time: 2-4 weeks',
+            bc_calculated_price: { tax_exclusive: 50 },
+          });
+
+          const variantS = buildVariantWith({
+            product_id: productId,
+            sku: 'TEE-S',
+            purchasing_disabled: false,
+            option_values: [
+              {
+                id: 201,
+                label: 'S',
+                option_id: optionId,
+                option_display_name: 'Size',
+              },
+            ],
+            bc_calculated_price: { tax_exclusive: 45 },
+          });
+
+          const sizeOption = buildSearchProductV3OptionWith({
+            id: optionId,
+            product_id: productId,
+            type: 'rectangles',
+            display_name: 'Size',
+            option_values: [
+              buildSearchProductV3OptionValueWith({ id: 201, label: 'S', is_default: false }),
+              buildSearchProductV3OptionValueWith({ id: sizeM, label: 'M', is_default: true }),
+            ],
+          });
+
+          const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+          when(searchProducts)
+            .calledWith(stringContainingAll('search: "Size Tee"', 'currencyCode: "USD"'))
+            .thenReturn({
+              data: {
+                productsSearch: [
+                  buildSearchProductWith({
+                    id: productId,
+                    name: 'Size Tee',
+                    sku: productSku,
+                    inventoryTracking,
+                    availableToSell: 10,
+                    unlimitedBackorder: false,
+                    totalOnHand: 2,
+                    backorderMessage: 'Lead time: 2-4 weeks',
+                    optionsV3: [sizeOption],
+                    isPriceHidden: false,
+                    orderQuantityMinimum: 0,
+                    orderQuantityMaximum: 0,
+                    variants: [variantS, variantM],
+                  }),
+                ],
+              },
+            });
+
+          const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>();
+
+          when(getPriceProducts)
+            .calledWith({
+              storeHash: 'store-hash',
+              channelId: 1,
+              currencyCode: 'USD',
+              items: [{ productId, variantId, options: [] }],
+              customerGroupId: 0,
+            })
+            .thenReturn({
+              data: {
+                priceProducts: [
+                  buildProductPriceWith({
+                    productId,
+                    variantId,
+                  }),
+                ],
+              },
+            });
+
+          const variantInfo = buildVariantInfoWith({
+            variantSku: inventorySku,
+            minQuantity: 0,
+            purchasingDisabled: '0',
+            isStock: '1',
+            stock: 50,
+            productId: productId.toString(),
+            variantId: variantId.toString(),
+            inventoryTracking,
+            availableToSell,
+            unlimitedBackorder,
+            totalOnHand,
+            backorderMessage: 'Lead time: 2-4 weeks',
+          });
+
+          const getVariantInfoBySkus = vi.fn();
+
+          when(getVariantInfoBySkus)
+            .calledWith(expect.stringContaining(`variantSkus: ["${inventorySku}"]`))
+            .thenReturn(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }));
+
+          const validateProduct = vi.fn<(...arg: unknown[]) => ValidateProductResponse>();
+
+          when(validateProduct)
+            .calledWith(expect.any(Object))
+            .thenReturn({
+              data: {
+                validateProduct: buildValidateProductWith({ responseType: 'SUCCESS', message: '' }),
+              },
+            });
+
+          server.use(
+            graphql.query('Countries', () =>
+              HttpResponse.json({ data: { countries: [fakeCountry] } }),
+            ),
+            graphql.query('Addresses', () =>
+              HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+            ),
+            graphql.query('getQuoteExtraFields', () =>
+              HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+            ),
+            graphql.query('SearchProducts', ({ query }) =>
+              HttpResponse.json(searchProducts(query)),
+            ),
+            graphql.query('priceProducts', ({ variables }) =>
+              HttpResponse.json(getPriceProducts(variables)),
+            ),
+            graphql.query('GetVariantInfoBySkus', ({ query }) => {
+              if (inventoryFetchFails) {
+                return HttpResponse.error();
+              }
+
+              if (pendingInventoryFetch) {
+                return pendingInventoryFetch;
+              }
+
+              return HttpResponse.json(getVariantInfoBySkus(query));
+            }),
+            graphql.query('ValidateProduct', ({ variables }) =>
+              HttpResponse.json(validateProduct(variables)),
+            ),
+          );
+
+          const quoteInfo = buildQuoteInfoStateWith({
+            draftQuoteInfo: {
+              contactInfo: { email: customerEmail },
+              billingAddress: noAddress,
+              shippingAddress: noAddress,
+            },
+            draftQuoteList: [],
+          });
+
+          renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+            preloadedState: {
+              ...preloadedState,
+              quoteInfo,
+              global: buildGlobalStateWith({
+                ...backorderMessagingGlobal,
+                blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+                featureFlags: {
+                  'BACK-134.backorders_phase_1_1_control_messaging_on_storefront':
+                    isBackorderMessagingEnabled,
+                },
+              }),
+            },
+          });
+
+          return { validateProduct, variantInfo, variantSku };
+        };
+
+        const openComplexChooseOptionsModal = async (variantSku: string) => {
+          await userEvent.click(screen.getByText('Add to quote'));
+          const searchProduct = screen.getByPlaceholderText('Search products');
+          await userEvent.type(searchProduct, 'Size Tee');
+          await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+          const dialog = await screen.findByRole('dialog');
+          await userEvent.click(within(dialog).getByRole('button', { name: 'Choose options' }));
+
+          const chooseOptionsDialog = await screen.findByRole('dialog', {
+            name: 'Choose options',
+          });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText(variantSku)).toBeInTheDocument();
+          });
+
+          return chooseOptionsDialog;
+        };
+
         it('shows Only X available, disables Add to quote, and keeps backorder lines when qty exceeds ATS', async () => {
           const { validateProduct } = setupSearchModalWithInventory();
 
@@ -3682,6 +3912,231 @@ describe('when the user is a B2B customer', () => {
           });
           expect(within(chooseOptionsDialog).getByText('8 will be backordered')).toBeVisible();
           expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+        });
+
+        it('shows Only X available, disables Add to quote, and keeps backorder lines in choose options when qty exceeds ATS', async () => {
+          const { validateProduct, variantSku } = setupComplexProductChooseOptionsWithInventory();
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText('Only 7 available')).toBeVisible();
+          });
+
+          expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('5 will be backordered')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+          const addToQuote = within(chooseOptionsDialog).getByRole('button', {
+            name: 'Add to quote',
+          });
+          expect(addToQuote).toBeDisabled();
+
+          expect(validateProduct).not.toHaveBeenCalled();
+          expect(screen.queryByText('Product was added to your quote.')).not.toBeInTheDocument();
+        });
+
+        it('uses product SKU for ATS in choose options when inventory tracking is product', async () => {
+          const { validateProduct, variantSku } = setupComplexProductChooseOptionsWithInventory({
+            inventoryTracking: 'product',
+          });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText('Only 7 available')).toBeVisible();
+          });
+
+          expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('5 will be backordered')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+
+          const addToQuote = within(chooseOptionsDialog).getByRole('button', {
+            name: 'Add to quote',
+          });
+          expect(addToQuote).toBeDisabled();
+
+          expect(validateProduct).not.toHaveBeenCalled();
+          expect(screen.queryByText('Product was added to your quote.')).not.toBeInTheDocument();
+        });
+
+        it('does not show ATS error in choose options when quantity is within available to sell', async () => {
+          const { variantSku } = setupComplexProductChooseOptionsWithInventory();
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '5', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(
+              within(chooseOptionsDialog).queryByText('Only 7 available'),
+            ).not.toBeInTheDocument();
+          });
+
+          expect(
+            within(chooseOptionsDialog).getByRole('button', { name: 'Add to quote' }),
+          ).toBeEnabled();
+        });
+
+        it('does not show ATS error in choose options when OOS quoting is enabled', async () => {
+          const { variantSku } = setupComplexProductChooseOptionsWithInventory({
+            isEnableProduct: true,
+          });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+          });
+
+          expect(
+            within(chooseOptionsDialog).queryByText('Only 7 available'),
+          ).not.toBeInTheDocument();
+          expect(
+            within(chooseOptionsDialog).getByRole('button', { name: 'Add to quote' }),
+          ).toBeEnabled();
+        });
+
+        it('does not show ATS error in choose options when unlimited backorder is true', async () => {
+          const { variantSku } = setupComplexProductChooseOptionsWithInventory({
+            unlimitedBackorder: true,
+          });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(
+              within(chooseOptionsDialog).queryByText('Only 7 available'),
+            ).not.toBeInTheDocument();
+          });
+
+          expect(
+            within(chooseOptionsDialog).getByRole('button', { name: 'Add to quote' }),
+          ).toBeEnabled();
+        });
+
+        it('does not show ATS error in choose options when backorder messaging is disabled', async () => {
+          const { variantSku } = setupComplexProductChooseOptionsWithInventory({
+            isBackorderMessagingEnabled: false,
+          });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          expect(
+            within(chooseOptionsDialog).queryByText('Only 7 available'),
+          ).not.toBeInTheDocument();
+          expect(
+            within(chooseOptionsDialog).getByRole('button', { name: 'Add to quote' }),
+          ).toBeEnabled();
+        });
+
+        it('keeps Add to quote enabled in choose options with no ATS helper when inventory lookup fails', async () => {
+          const { validateProduct, variantSku } = setupComplexProductChooseOptionsWithInventory({
+            inventoryFetchFails: true,
+          });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          await waitFor(() => {
+            expect(
+              within(chooseOptionsDialog).queryByText('Only 7 available'),
+            ).not.toBeInTheDocument();
+          });
+
+          expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+          expect(within(chooseOptionsDialog).getByText('8 will be backordered')).toBeVisible();
+
+          const addToQuote = within(chooseOptionsDialog).getByRole('button', {
+            name: 'Add to quote',
+          });
+          expect(addToQuote).toBeEnabled();
+
+          await userEvent.click(addToQuote);
+
+          expect(validateProduct).toHaveBeenCalled();
+          expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+        });
+
+        it('keeps Add to quote enabled in choose options while inventory lookup is pending', async () => {
+          let resolveInventoryFetch!: (value: HttpResponse<VariantInfoResponse>) => void;
+          const pendingInventoryFetch = new Promise<HttpResponse<VariantInfoResponse>>(
+            (resolve) => {
+              resolveInventoryFetch = resolve;
+            },
+          );
+
+          const { validateProduct, variantInfo, variantSku } =
+            setupComplexProductChooseOptionsWithInventory({
+              pendingInventoryFetch,
+            });
+
+          const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);
+          const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+          await userEvent.type(quantityInput, '10', {
+            initialSelectionStart: 0,
+            initialSelectionEnd: Infinity,
+          });
+
+          expect(
+            within(chooseOptionsDialog).queryByText('Only 7 available'),
+          ).not.toBeInTheDocument();
+
+          const addToQuote = within(chooseOptionsDialog).getByRole('button', {
+            name: 'Add to quote',
+          });
+          expect(addToQuote).toBeEnabled();
+
+          await userEvent.click(addToQuote);
+
+          expect(validateProduct).toHaveBeenCalled();
+          expect(await screen.findByText('Product was added to your quote.')).toBeInTheDocument();
+
+          resolveInventoryFetch(
+            HttpResponse.json(
+              buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
+            ),
+          );
         });
       });
     });

@@ -21,6 +21,22 @@ type SearchProductInventorySource = Pick<
   | 'backorderMessage'
 >;
 
+type CatalogInventorySkuSource = Pick<ShoppingListProductItem, 'inventoryTracking' | 'sku'>;
+
+export function getCatalogInventorySku(
+  product: CatalogInventorySkuSource | null | undefined,
+  variantSku?: string | null,
+): string {
+  const tracking = product?.inventoryTracking || 'none';
+  if (tracking === 'product') {
+    return product?.sku ?? '';
+  }
+  if (tracking === 'variant') {
+    return variantSku ?? '';
+  }
+  return '';
+}
+
 export function getCatalogInventoryRowFromSearchProduct(
   product: SearchProductInventorySource,
   variant?: Partial<Variant> | null,
