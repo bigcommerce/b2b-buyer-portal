@@ -170,7 +170,8 @@ function AccountSetting() {
 
   // BC customer.updateCustomer needs a reCaptcha token when reCaptcha is enabled on the
   // storefront; load that config (shared with the forgot-password flow).
-  const { isCaptchaEnabled, captchaSiteKey } = useStorefrontCaptcha(isCustomerUpdate);
+  const { isCaptchaEnabled, captchaSiteKey, isCaptchaConfigLoading } =
+    useStorefrontCaptcha(isCustomerUpdate);
 
   useEffect(() => {
     const init = async () => {
@@ -305,6 +306,12 @@ function AccountSetting() {
   // Returns true on success; false means an error was already surfaced and the caller stops.
   const dispatchUpdate = async (payload: Partial<ParamProps>): Promise<boolean> => {
     if (useBcAccountSettings && isBCUser) {
+      // Don't submit until the reCaptcha config has loaded, otherwise isCaptchaEnabled is
+      // still false and we'd send customer.updateCustomer without a token the storefront needs.
+      if (isCaptchaConfigLoading) {
+        snackbar.error(b3Lang('global.error.genericMessage'));
+        return false;
+      }
       if (isCaptchaEnabled && !captchaToken) {
         snackbar.error(b3Lang('login.loginText.missingCaptcha'));
         return false;
@@ -315,6 +322,10 @@ function AccountSetting() {
           buildUpdateCustomerInput(payload, customerFormFieldDefs),
           captchaToken || undefined,
         );
+      } catch (error) {
+        b2bLogger.error(error);
+        snackbar.error(b3Lang('global.error.genericMessage'));
+        return false;
       } finally {
         // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
         setCaptchaToken('');
@@ -327,9 +338,16 @@ function AccountSetting() {
     }
 
     if (useBcAccountSettings && !isBCUser) {
-      const response = await updateCompanyUserDetails(
-        buildUpdateCompanyUserInput(payload, customerFormFieldDefs),
-      );
+      let response;
+      try {
+        response = await updateCompanyUserDetails(
+          buildUpdateCompanyUserInput(payload, customerFormFieldDefs),
+        );
+      } catch (error) {
+        b2bLogger.error(error);
+        snackbar.error(b3Lang('global.error.genericMessage'));
+        return false;
+      }
       const companyUserErrors = response.data?.company?.updateCompanyUser?.errors;
       if (response.errors?.length || companyUserErrors?.length) {
         const message = response.errors?.[0]?.message || companyUserErrors?.[0]?.message;

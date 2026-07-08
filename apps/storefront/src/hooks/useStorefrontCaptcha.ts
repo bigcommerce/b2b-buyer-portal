@@ -6,6 +6,7 @@ import b2bLogger from '@/utils/b3Logger';
 interface StorefrontCaptcha {
   isCaptchaEnabled: boolean;
   captchaSiteKey: string;
+  isCaptchaConfigLoading: boolean;
 }
 
 // Loads the storefront reCaptcha config (whether it's enabled + the site key) once, when
@@ -14,9 +15,14 @@ interface StorefrontCaptcha {
 export function useStorefrontCaptcha(enabled = true): StorefrontCaptcha {
   const [isCaptchaEnabled, setIsCaptchaEnabled] = useState(false);
   const [captchaSiteKey, setCaptchaSiteKey] = useState('');
+  const [isCaptchaConfigLoading, setIsCaptchaConfigLoading] = useState(enabled);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      setIsCaptchaConfigLoading(false);
+      return;
+    }
+    setIsCaptchaConfigLoading(true);
     const loadConfig = async () => {
       try {
         const reCaptcha = await getStorefrontToken();
@@ -26,10 +32,12 @@ export function useStorefrontCaptcha(enabled = true): StorefrontCaptcha {
         }
       } catch (error) {
         b2bLogger.error(error);
+      } finally {
+        setIsCaptchaConfigLoading(false);
       }
     };
     loadConfig();
   }, [enabled]);
 
-  return { isCaptchaEnabled, captchaSiteKey };
+  return { isCaptchaEnabled, captchaSiteKey, isCaptchaConfigLoading };
 }
