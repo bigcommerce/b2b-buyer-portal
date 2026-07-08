@@ -15,7 +15,7 @@ import { useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { loginJump } from '@/utils/b3Login';
 import { B3SStorage } from '@/utils/b3Storage';
-import { platform } from '@/utils/basicConfig';
+import { platform, PLATFORM_CATALYST } from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { loginCheckout, LoginConfig } from '../Login/helper';
@@ -112,7 +112,7 @@ function Registered(props: PageProps) {
 
         clearRegisterInfo();
 
-        if (platform === 'catalyst') {
+        if (platform === PLATFORM_CATALYST) {
           const landingLoginLocation =
             params.get('redirectTo') === 'check-out'
               ? LOGIN_LANDING_LOCATIONS.CHECKOUT

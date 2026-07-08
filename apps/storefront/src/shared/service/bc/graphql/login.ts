@@ -1,3 +1,4 @@
+import { isBcStorefrontPlatform } from '@/utils/basicConfig';
 import { mapToCompanyError } from '@/utils/companyUtils';
 
 import B3Request from '../../request/b3Fetch';
@@ -76,13 +77,16 @@ interface LoginVariables {
   password: string;
 }
 
+// bcLogin and bcLogoutLogin must go through graphqlBC (direct to BC Storefront with
+// credentials:include) on platforms where the session cookie matters (bigcommerce, catalyst).
+// Using storefrontGQLRequest would route Catalyst through the proxy, which never sets
+// or sends the BC session cookie that registerCompany requires.
 export const bcLogin = (variables: LoginVariables) =>
-  storefrontGQLRequest({
-    query: getBcLogin(),
-    variables,
-  });
+  isBcStorefrontPlatform
+    ? B3Request.graphqlBC({ query: getBcLogin(), variables })
+    : storefrontGQLRequest({ query: getBcLogin(), variables });
 
 export const bcLogoutLogin = () =>
-  storefrontGQLRequest({
-    query: logoutLogin(),
-  });
+  isBcStorefrontPlatform
+    ? B3Request.graphqlBC({ query: logoutLogin() })
+    : storefrontGQLRequest({ query: logoutLogin() });

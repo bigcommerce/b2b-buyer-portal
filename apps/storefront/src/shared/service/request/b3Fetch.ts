@@ -46,14 +46,23 @@ function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
   return b3Fetch(url, init);
 }
 
-function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
-  const init = {
+function graphqlRequest<T, Y>(
+  type: RequestTypeKeys,
+  data: T,
+  config?: Y,
+  extraInit?: Partial<RequestInit>,
+) {
+  const init: RequestInit = {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       ...config,
     },
     body: JSON.stringify(data),
+    // extraInit is spread last so callers can set non-header RequestInit options (e.g.
+    // credentials, signal). Do not pass `headers` here — it would replace the auth headers
+    // above instead of merging with them.
+    ...extraInit,
   };
 
   const url = GraphqlEndpointsFn(type);
@@ -141,14 +150,18 @@ const B3Request = {
     });
   },
   /**
-   * Request used in stencil store to call bigcommerce graphql storefront api
+   * Request used in stencil store to call bigcommerce graphql storefront api.
+   * Uses `credentials: 'include'` so the browser stores and sends the BC session
+   * cookie set by `bcLogin` — required for cross-origin headless (Catalyst) flows.
+   * The BC Storefront respects this because `storeFrontToken` sets allowedCorsOrigins,
+   * causing BC to respond with Access-Control-Allow-Credentials: true.
    */
   graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
     const { bcGraphqlToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${bcGraphqlToken}`,
     };
-    return graphqlRequest(RequestType.BCGraphql, data, config);
+    return graphqlRequest(RequestType.BCGraphql, data, config, { credentials: 'include' });
   },
   /**
    * Request used in headless context to talk to the bigcommerce graphql storefront api via proxy

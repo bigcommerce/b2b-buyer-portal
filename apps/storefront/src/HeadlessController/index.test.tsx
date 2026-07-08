@@ -12,6 +12,7 @@ import { when } from 'vitest-when';
 
 import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
 import { CustomerRole } from '@/types';
+import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 
 import HeadlessController from '.';
 
@@ -50,6 +51,53 @@ const buildShoppingListsNodeWith = builder<{ node: ShoppingListsItemsProps }>(()
     },
   },
 }));
+
+describe('HeadlessController user.logout', () => {
+  const bcGraphql = graphql.link(`${BigCommerceStorefrontAPIBaseURL}/graphql`);
+  const b2bGraphql = graphql.link('https://api-b2b.bigcommerce.com/graphql');
+
+  it('calls the BC logout mutation to clear the storefront session cookie', async () => {
+    const logoutMutation = vi.fn().mockReturnValue({ data: { logout: { result: 'success' } } });
+
+    server.use(
+      bcGraphql.mutation('Logout', () => HttpResponse.json(logoutMutation())),
+      b2bGraphql.mutation('storeFrontToken', () =>
+        HttpResponse.json({ data: { storeFrontToken: { token: faker.string.uuid() } } }),
+      ),
+    );
+
+    const mockSetOpenPage = vi.fn();
+    renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
+
+    await window.b2b.utils.user.logout();
+
+    expect(logoutMutation).toHaveBeenCalled();
+  });
+
+  it('prefetches a bcGraphqlToken before calling the BC logout mutation when none is cached', async () => {
+    const freshToken = faker.string.uuid();
+    const logoutAuthHeaders: (string | null)[] = [];
+
+    server.use(
+      bcGraphql.mutation('Logout', ({ request }) => {
+        logoutAuthHeaders.push(request.headers.get('Authorization'));
+        return HttpResponse.json({ data: { logout: { result: 'success' } } });
+      }),
+      b2bGraphql.mutation('storeFrontToken', () =>
+        HttpResponse.json({ data: { storeFrontToken: { token: freshToken } } }),
+      ),
+    );
+
+    const mockSetOpenPage = vi.fn();
+    // Default preloaded state has an empty bcGraphqlToken, simulating a cleared/expired
+    // token before logout runs.
+    renderWithProviders(<HeadlessController setOpenPage={mockSetOpenPage} />);
+
+    await window.b2b.utils.user.logout();
+
+    expect(logoutAuthHeaders).toEqual([`Bearer  ${freshToken}`]);
+  });
+});
 
 describe('HeadlessController shopping lists utils', () => {
   it('getLists retrieves B2B shopping lists', async () => {

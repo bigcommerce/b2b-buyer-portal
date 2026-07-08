@@ -10,6 +10,8 @@ const STOREFRONT_URL = 'https://my-custom-storefront.com';
 
 vi.mock('./basicConfig', () => ({
   platform: 'bigcommerce',
+  PLATFORM_BIGCOMMERCE: 'bigcommerce',
+  PLATFORM_CATALYST: 'catalyst',
   BigCommerceStorefrontAPIBaseURL: 'https://store-abc.mybigcommerce.com',
 }));
 
