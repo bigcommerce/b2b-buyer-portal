@@ -15,6 +15,7 @@ import {
   buildUpdateCompanyUserInput,
   buildUpdateCustomerInput,
   collectChangedFormFields,
+  getUnsendableFormFields,
   initB2BInfo,
   initBcInfo,
   mapUserToAccountInfo,
@@ -577,6 +578,54 @@ describe('buildUpdateCompanyUserInput', () => {
     });
 
     expect(input).toEqual({ firstName: 'Ada' });
+  });
+});
+
+describe('getUnsendableFormFields', () => {
+  const definitions: CustomerFormFieldDefinition[] = [
+    {
+      __typename: 'MultipleChoicesFormField',
+      entityId: 14,
+      label: 'fChoice',
+      options: [{ entityId: 99, label: 'A' }],
+    },
+  ];
+
+  it('returns nothing when every field maps', () => {
+    expect(
+      getUnsendableFormFields(
+        [
+          { name: 'fText', value: 'x', fieldType: 'text', fieldEntityId: 10 },
+          { name: 'fChoice', value: 'A', fieldType: 'dropdown', fieldEntityId: 14 },
+        ],
+        definitions,
+      ),
+    ).toEqual([]);
+  });
+
+  it('flags a choice whose label is not in the definitions', () => {
+    const field = { name: 'fChoice', value: 'B', fieldType: 'dropdown', fieldEntityId: 14 };
+    expect(getUnsendableFormFields([field], definitions)).toEqual([field]);
+  });
+
+  it('flags a cleared number and a cleared checkbox (no empty form)', () => {
+    const num = { name: 'Age', value: '', fieldType: 'number', fieldEntityId: 12 };
+    const checks = { name: 'Interests', value: [], fieldType: 'checkbox', fieldEntityId: 15 };
+    expect(getUnsendableFormFields([num, checks], definitions)).toEqual([num, checks]);
+  });
+
+  it('flags a field with no resolved entityId', () => {
+    const field = { name: 'Mystery', value: 'x', fieldType: 'text', fieldEntityId: undefined };
+    expect(getUnsendableFormFields([field], definitions)).toEqual([field]);
+  });
+
+  it('does not flag a cleared text field (empty text is a valid clear)', () => {
+    expect(
+      getUnsendableFormFields(
+        [{ name: 'fText', value: '', fieldType: 'text', fieldEntityId: 10 }],
+        definitions,
+      ),
+    ).toEqual([]);
   });
 });
 

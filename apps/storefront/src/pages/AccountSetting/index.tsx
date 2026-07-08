@@ -50,6 +50,7 @@ import {
   buildUpdateCustomerInput,
   collectChangedFormFields,
   fieldTypeNeedsOptions,
+  getUnsendableFormFields,
   initB2BInfo,
   initBcInfo,
   mapUserToAccountInfo,
@@ -390,13 +391,10 @@ function AccountSetting() {
               accountInfoFormFields,
               accountSettings?.formFields || [],
             );
-            // A changed choice/checkbox field can only be sent if its option ids resolved from
-            // the definitions; if they didn't load, fail loudly instead of silently dropping it.
-            const hasUnresolvableChoice = changedFormFields.some(
-              (formField) =>
-                fieldTypeNeedsOptions(formField.fieldType) && customerFormFieldDefs.length === 0,
-            );
-            if (hasUnresolvableChoice) {
+            // Fail loudly if any changed field can't actually be sent (unmapped choice option,
+            // cleared number/checkbox, missing entityId) instead of reporting a save that
+            // silently dropped the edit.
+            if (getUnsendableFormFields(changedFormFields, customerFormFieldDefs).length > 0) {
               snackbar.error(b3Lang('global.error.genericMessage'));
               return;
             }
