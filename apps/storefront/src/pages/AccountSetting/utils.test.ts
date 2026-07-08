@@ -589,6 +589,15 @@ describe('getUnsendableFormFields', () => {
       label: 'fChoice',
       options: [{ entityId: 99, label: 'A' }],
     },
+    {
+      __typename: 'CheckboxesFormField',
+      entityId: 15,
+      label: 'fChecks',
+      options: [
+        { entityId: 7, label: 'x' },
+        { entityId: 8, label: 'y' },
+      ],
+    },
   ];
 
   it('returns nothing when every field maps', () => {
@@ -617,6 +626,21 @@ describe('getUnsendableFormFields', () => {
   it('flags a field with no resolved entityId', () => {
     const field = { name: 'Mystery', value: 'x', fieldType: 'text', fieldEntityId: undefined };
     expect(getUnsendableFormFields([field], definitions)).toEqual([field]);
+  });
+
+  it('flags a checkbox when only some selected labels resolve (no partial send)', () => {
+    const field = {
+      name: 'fChecks',
+      value: ['x', 'unknown'],
+      fieldType: 'checkbox',
+      fieldEntityId: 15,
+    };
+    expect(getUnsendableFormFields([field], definitions)).toEqual([field]);
+  });
+
+  it('does not flag a checkbox when every selected label resolves', () => {
+    const field = { name: 'fChecks', value: ['x', 'y'], fieldType: 'checkbox', fieldEntityId: 15 };
+    expect(getUnsendableFormFields([field], definitions)).toEqual([]);
   });
 
   it('does not flag a cleared text field (empty text is a valid clear)', () => {

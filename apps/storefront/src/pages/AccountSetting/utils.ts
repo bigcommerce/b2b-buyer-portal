@@ -356,10 +356,9 @@ function buildFormFieldsInput(
       }
       case 'checkbox': {
         const values = Array.isArray(value) ? value : [value];
-        const fieldValueEntityIds = values
-          .map((choice) => optionEntityId(fieldEntityId, choice))
-          .filter((id): id is number => id !== undefined);
-        if (fieldValueEntityIds.length === 0) {
+        const mapped = values.map((choice) => optionEntityId(fieldEntityId, choice));
+        const fieldValueEntityIds = mapped.filter((id): id is number => id !== undefined);
+        if (fieldValueEntityIds.length === 0 || fieldValueEntityIds.length !== mapped.length) {
           unsendable.push(formField);
           return;
         }
