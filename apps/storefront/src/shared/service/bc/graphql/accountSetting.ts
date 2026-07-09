@@ -215,7 +215,8 @@ const QUERY_CUSTOMER_FORM_FIELD_SETTINGS = `query CustomerFormFieldSettings {
           __typename
           entityId
           label
-          ... on MultipleChoicesFormField { options { entityId label } }
+          ... on PicklistFormField { options { entityId label } }
+          ... on RadioButtonsFormField { options { entityId label } }
           ... on CheckboxesFormField { options { entityId label } }
         }
       }
@@ -233,14 +234,14 @@ export async function getCustomerFormFieldDefinitions(): Promise<CustomerFormFie
 // Update mutation (BC-native customer.updateCustomer)
 // ===========================================================================
 
-// Typed form-field groups mirror the BC Storefront CustomerFormFieldsInput; each
-// entry is keyed by the field's numeric fieldEntityId (resolved from the definitions).
+// Typed form-field groups mirror the BC Storefront CustomerFormFieldsInput; each entry is
+// keyed by the field's numeric fieldEntityId. (Password is not here — BC customers change it
+// via customer.changePassword, B2B via the updateCompanyUser scalar.)
 export interface CustomerFormFieldsInput {
   checkboxes?: Array<{ fieldEntityId: number; fieldValueEntityIds: number[] }>;
   multipleChoices?: Array<{ fieldEntityId: number; fieldValueEntityId: number }>;
   numbers?: Array<{ fieldEntityId: number; number: number }>;
   dates?: Array<{ fieldEntityId: number; date: string }>;
-  passwords?: Array<{ fieldEntityId: number; password: string }>;
   multilineTexts?: Array<{ fieldEntityId: number; multilineText: string }>;
   texts?: Array<{ fieldEntityId: number; text: string }>;
 }
@@ -296,12 +297,65 @@ export async function updateCustomerDetails(
 }
 
 // ===========================================================================
+// Change password (BC customer.changePassword)
+// ===========================================================================
+
+// BC customer password changes go through the dedicated changePassword mutation (plain
+// currentPassword/newPassword scalars) — no form-field entityId or definitions needed.
+export interface ChangeCustomerPasswordResponse {
+  data?: {
+    customer?: {
+      changePassword?: {
+        errors?: Array<{ __typename?: string; message?: string; path?: string[] }>;
+      };
+    };
+  };
+  errors?: Array<{ message: string }>;
+}
+
+// The password values are passed as variables (not interpolated) so they're never embedded
+// in the query string.
+const MUTATION_CHANGE_CUSTOMER_PASSWORD = `mutation ChangeCustomerPassword($currentPassword: String!, $newPassword: String!) {
+  customer {
+    changePassword(input: { currentPassword: $currentPassword, newPassword: $newPassword }) {
+      errors {
+        __typename
+        ... on ValidationError { message path }
+        ... on CustomerDoesNotExistError { message }
+        ... on CustomerPasswordError { message }
+        ... on CustomerNotLoggedInError { message }
+      }
+    }
+  }
+}`;
+
+export async function changeCustomerPassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<ChangeCustomerPasswordResponse> {
+  return storefrontGQLRequest<ChangeCustomerPasswordResponse>({
+    query: MUTATION_CHANGE_CUSTOMER_PASSWORD,
+    variables: { currentPassword, newPassword },
+  });
+}
+
+// ===========================================================================
 // Update mutation (B2B company user: company.updateCompanyUser)
 // ===========================================================================
 
+// Company-user extra fields are name-keyed (no entityId) — the company-user equivalent of
+// customer form fields. Types mirror companyExtraFieldsType: text/multiline/number/dropdown.
+export interface CompanyUserExtraFieldsInput {
+  texts?: Array<{ name: string; text: string }>;
+  multilineTexts?: Array<{ name: string; multilineText: string }>;
+  numbers?: Array<{ name: string; number: string }>;
+  multipleChoices?: Array<{ name: string; fieldValue: string }>;
+}
+
 // company.updateCompanyUser uses the same entityId-keyed form-field groups as
 // customer.updateCustomer; only the scalar fields differ (it carries current/new
-// password instead of company).
+// password instead of company). It also accepts name-keyed extraFields for the
+// company-user's own custom fields (which don't have a BC form-field entityId).
 export interface UpdateCompanyUserInput {
   firstName?: string;
   lastName?: string;
@@ -310,6 +364,7 @@ export interface UpdateCompanyUserInput {
   currentPassword?: string;
   newPassword?: string;
   formFields?: CustomerFormFieldsInput;
+  extraFields?: CompanyUserExtraFieldsInput;
 }
 
 // The result's `errors` carries business validation failures (returned with a 200

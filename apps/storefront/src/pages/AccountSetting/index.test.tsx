@@ -309,6 +309,11 @@ describe('native SF GQL form-field updates', () => {
           },
         }),
       ),
+      graphql.query('CustomerFormFieldSettings', () =>
+        HttpResponse.json({
+          data: { site: { settings: { formFields: { customer: [] } } } },
+        }),
+      ),
       graphql.mutation('UpdateCustomer', ({ variables }) => {
         capturedInput = variables.input;
         return HttpResponse.json({
@@ -374,6 +379,11 @@ describe('native SF GQL form-field updates', () => {
           },
         }),
       ),
+      graphql.query('CustomerFormFieldSettings', () =>
+        HttpResponse.json({
+          data: { site: { settings: { formFields: { customer: [] } } } },
+        }),
+      ),
       graphql.mutation('UpdateCompanyUser', ({ variables }) => {
         capturedInput = variables.input;
         return HttpResponse.json({ data: { company: { updateCompanyUser: { errors: [] } } } });
@@ -397,5 +407,80 @@ describe('native SF GQL form-field updates', () => {
 
     await waitFor(() => expect(capturedInput).toBeDefined());
     expect(capturedInput?.formFields).toEqual({ texts: [{ fieldEntityId: 27, text: 'Lee' }] });
+  });
+
+  it('changes a BC customer password via the dedicated changePassword mutation', async () => {
+    const customer = buildCustomerWith({
+      id: 123,
+      userType: UserTypes.MULTIPLE_B2C,
+      role: CustomerRole.SUPER_ADMIN,
+      emailAddress: 'jane.doe@example.com',
+    });
+
+    const companyState = buildCompanyStateWith({
+      customer,
+      companyInfo: { id: '79', companyName: 'b2bc', status: CompanyStatus.INACTIVE },
+      permissions: [],
+    });
+
+    let capturedPassword: { currentPassword?: string; newPassword?: string } | undefined;
+
+    server.use(
+      graphql.query('B2BAccountFormFields', () =>
+        HttpResponse.json({ data: { accountFormFields: accountFormFieldsWithCustom } }),
+      ),
+      graphql.query('CustomerDetails', () =>
+        HttpResponse.json({
+          data: {
+            customer: {
+              firstName: 'Jane',
+              lastName: 'Doe',
+              company: 'ACME',
+              phoneNumber: '1234567890',
+              email: 'jane.doe@example.com',
+              formFields: [],
+            },
+          },
+        }),
+      ),
+      graphql.query('CustomerFormFieldSettings', () =>
+        HttpResponse.json({
+          data: { site: { settings: { formFields: { customer: [] } } } },
+        }),
+      ),
+      graphql.mutation('UpdateCustomer', () =>
+        HttpResponse.json({
+          data: { customer: { updateCustomer: { customer: { firstName: 'Jane' } } } },
+        }),
+      ),
+      graphql.mutation('ChangeCustomerPassword', ({ variables }) => {
+        capturedPassword = variables;
+        return HttpResponse.json({
+          data: { customer: { changePassword: { errors: [] } } },
+        });
+      }),
+    );
+
+    const { user, result } = renderWithProviders(<AccountSetting />, {
+      preloadedState: {
+        company: companyState,
+        global: buildGlobalStateWith({
+          featureFlags: { 'PROJECT-7920.use_bc_account_settings': true },
+        }),
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    // Password fields render as type=password inputs (no textbox role); target them by name.
+    const input = (name: string) =>
+      result.container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
+    await user.type(input('currentPassword'), 'OldPass1!');
+    await user.type(input('password'), 'NewPass1!');
+    await user.type(input('confirmPassword'), 'NewPass1!');
+    await user.click(within(result.container).getByRole('button', { name: /save updates/i }));
+
+    await waitFor(() => expect(capturedPassword).toBeDefined());
+    expect(capturedPassword).toEqual({ currentPassword: 'OldPass1!', newPassword: 'NewPass1!' });
   });
 });

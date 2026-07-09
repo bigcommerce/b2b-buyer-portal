@@ -25,13 +25,17 @@ import {
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
 import {
+  changeCustomerPassword,
   getCompanyUserDetails,
   getCustomerDetails,
   getCustomerFormFieldDefinitions,
   updateCompanyUserDetails,
   updateCustomerDetails,
 } from '@/shared/service/bc';
-import { CustomerFormFieldDefinition } from '@/shared/service/bc/graphql/accountSetting';
+import {
+  CustomerFormFieldDefinition,
+  CustomerFormFieldsInput,
+} from '@/shared/service/bc/graphql/accountSetting';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
@@ -46,12 +50,12 @@ import { UpgradeBanner } from './UpgradeBanner';
 import {
   b2bSubmitDataProcessing,
   bcSubmitDataProcessing,
+  buildFormFieldsInput,
   buildUpdateCompanyUserInput,
   buildUpdateCustomerInput,
+  collectChangedExtraFields,
   collectChangedFormFields,
-  fieldTypeNeedsOptions,
-  findPasswordFieldEntityId,
-  getUnsendableFormFields,
+  CONTACT_GROUP_ID,
   initB2BInfo,
   initBcInfo,
   mapUserToAccountInfo,
@@ -206,12 +210,11 @@ function AccountSetting() {
 
         let accountSettings;
         if (useBcAccountSettings) {
-          // Scalar/text/number fields get their entityId from the `field_<id>` fieldId, so
-          // definitions are only needed to resolve option ids for choice/checkbox fields.
-          // Both customer.updateCustomer and company.updateCompanyUser use them, so fetch for
-          // either user type in parallel with the account read.
+          // Definitions supply choice option ids AND the entityId fallback (by label) for any
+          // custom field whose fieldId isn't `field_<id>`, so fetch them whenever the form has
+          // any custom field — not only choice fields.
           const needsDefinitions = [...contactInformation, ...additionalInformation].some(
-            (item) => item.custom && fieldTypeNeedsOptions(item.fieldType),
+            (item) => item.custom,
           );
           const definitionsPromise = needsDefinitions
             ? getCustomerFormFieldDefinitions()
@@ -303,10 +306,51 @@ function AccountSetting() {
     }));
   };
 
+  const runMutation = async (
+    run: () => Promise<{
+      errors?: Array<{ message: string }>;
+      resultErrors?: Array<{ message?: string }> | null;
+    }>,
+  ): Promise<boolean> => {
+    let result;
+    try {
+      result = await run();
+    } catch (error) {
+      b2bLogger.error(error);
+      snackbar.error(b3Lang('global.error.genericMessage'));
+      return false;
+    }
+    if (result.errors?.length || result.resultErrors?.length) {
+      const message = result.errors?.[0]?.message || result.resultErrors?.[0]?.message;
+      snackbar.error(message || b3Lang('global.error.genericMessage'));
+      return false;
+    }
+    return true;
+  };
+
   // Sends the prepared payload to the right backend for the current user/flag combination.
-  // Returns true on success; false means an error was already surfaced and the caller stops.
-  const dispatchUpdate = async (payload: Partial<ParamProps>): Promise<boolean> => {
+  // `formFields` is the pre-resolved entityId-keyed group (built once by the caller). Returns
+  // true on success; false means an error was already surfaced and the caller stops.
+  const dispatchUpdate = async (
+    payload: Partial<ParamProps>,
+    formFields?: CustomerFormFieldsInput,
+  ): Promise<boolean> => {
     if (useBcAccountSettings && isBCUser) {
+      if (payload.newPassword) {
+        const ok = await runMutation(() =>
+          changeCustomerPassword(
+            (payload.currentPassword as string) || '',
+            payload.newPassword as string,
+          ).then((res) => ({
+            errors: res.errors,
+            resultErrors: res.data?.customer?.changePassword?.errors,
+          })),
+        );
+        if (!ok) return false;
+      }
+      const customerInput = buildUpdateCustomerInput(payload, formFields);
+      if (Object.keys(customerInput).length === 0) return true;
+
       // Don't submit until the reCaptcha config has loaded, otherwise isCaptchaEnabled is
       // still false and we'd send customer.updateCustomer without a token the storefront needs.
       if (isCaptchaConfigLoading) {
@@ -317,45 +361,25 @@ function AccountSetting() {
         snackbar.error(b3Lang('login.loginText.missingCaptcha'));
         return false;
       }
-      let response;
       try {
-        response = await updateCustomerDetails(
-          buildUpdateCustomerInput(payload, customerFormFieldDefs),
-          captchaToken || undefined,
+        return await runMutation(() =>
+          updateCustomerDetails(customerInput, captchaToken || undefined).then((res) => ({
+            errors: res.errors,
+          })),
         );
-      } catch (error) {
-        b2bLogger.error(error);
-        snackbar.error(b3Lang('global.error.genericMessage'));
-        return false;
       } finally {
         // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
         setCaptchaToken('');
       }
-      if (response.errors?.length) {
-        snackbar.error(response.errors[0]?.message || b3Lang('global.error.genericMessage'));
-        return false;
-      }
-      return true;
     }
 
     if (useBcAccountSettings && !isBCUser) {
-      let response;
-      try {
-        response = await updateCompanyUserDetails(
-          buildUpdateCompanyUserInput(payload, customerFormFieldDefs),
-        );
-      } catch (error) {
-        b2bLogger.error(error);
-        snackbar.error(b3Lang('global.error.genericMessage'));
-        return false;
-      }
-      const companyUserErrors = response.data?.company?.updateCompanyUser?.errors;
-      if (response.errors?.length || companyUserErrors?.length) {
-        const message = response.errors?.[0]?.message || companyUserErrors?.[0]?.message;
-        snackbar.error(message || b3Lang('global.error.genericMessage'));
-        return false;
-      }
-      return true;
+      return runMutation(() =>
+        updateCompanyUserDetails(buildUpdateCompanyUserInput(payload, formFields)).then((res) => ({
+          errors: res.errors,
+          resultErrors: res.data?.company?.updateCompanyUser?.errors,
+        })),
+      );
     }
 
     // Legacy b2b middleware path (flag off).
@@ -401,24 +425,44 @@ function AccountSetting() {
           const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
           let payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
 
-          // The native SF GQL updates carry custom form fields collected directly from the
-          // form (the submit processor misses them). Only *changed* fields are sent, and a
-          // form-field-only edit is treated as non-pristine so it isn't dropped as "no edits".
+          // Native SF GQL form fields are resolved to their entityId-keyed groups once here;
+          // the same build reports any changed field that can't be sent so we fail loudly.
+          let customerFormFields;
           if (useBcAccountSettings) {
+            // BC keeps every custom field as an entityId-keyed form field; for B2B the
+            // company-user's own custom fields (contact group) are name-keyed extraFields,
+            // while any additional BC form fields stay entityId-keyed.
+            const formFieldConfig = isBCUser
+              ? accountInfoFormFields
+              : accountInfoFormFields.filter((item) => item.groupId !== CONTACT_GROUP_ID);
             const changedFormFields = collectChangedFormFields(
               data,
-              accountInfoFormFields,
+              formFieldConfig,
               accountSettings?.formFields || [],
+              customerFormFieldDefs,
             );
-            // Fail loudly if any changed field can't actually be sent (unmapped choice option,
-            // cleared number/checkbox, missing entityId) instead of reporting a save that
-            // silently dropped the edit.
-            if (getUnsendableFormFields(changedFormFields, customerFormFieldDefs).length > 0) {
+            const changedExtraFields = isBCUser
+              ? []
+              : collectChangedExtraFields(
+                  data,
+                  accountInfoFormFields,
+                  accountSettings?.extraFields || [],
+                );
+
+            const { formFields, unsendable } = buildFormFieldsInput(
+              changedFormFields,
+              customerFormFieldDefs,
+            );
+            // Fail loudly if a changed form field can't be sent (unmapped choice option, cleared
+            // number/checkbox, missing entityId) rather than reporting a save that dropped it.
+            if (unsendable.length > 0) {
               snackbar.error(b3Lang('global.error.genericMessage'));
               return;
             }
-            if (!payload && changedFormFields.length > 0) payload = {};
-            if (payload) payload.formFields = changedFormFields;
+            customerFormFields = formFields;
+            // Treat a field-only edit as non-pristine so it isn't dropped as "no edits".
+            if (!payload && (formFields || changedExtraFields.length > 0)) payload = {};
+            if (payload && changedExtraFields.length > 0) payload.extraFields = changedExtraFields;
           }
 
           if (payload) {
@@ -439,20 +483,7 @@ function AccountSetting() {
             return;
           }
 
-          // customer.updateCustomer sends the password as a form field; if we can't resolve
-          // its entityId we can't change it — bail before the logout-on-password-change below
-          // so we don't sign the user out on an update that never applied the new password.
-          if (
-            useBcAccountSettings &&
-            isBCUser &&
-            payload.newPassword &&
-            findPasswordFieldEntityId(customerFormFieldDefs) === undefined
-          ) {
-            snackbar.error(b3Lang('global.error.genericMessage'));
-            return;
-          }
-
-          const succeeded = await dispatchUpdate(payload);
+          const succeeded = await dispatchUpdate(payload, customerFormFields);
           if (!succeeded) return;
 
           if (
