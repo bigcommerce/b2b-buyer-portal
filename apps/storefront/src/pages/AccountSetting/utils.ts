@@ -307,10 +307,11 @@ function toIsoDateTime(raw: string): string | undefined {
 // Builds the shared entityId-keyed form-field groups for customer.updateCustomer and
 // company.updateCompanyUser. Each submitted field carries its fieldEntityId (parsed from
 // the form config's `field_<id>` fieldId). Callers pass only *changed* fields, so an empty
-// text/multiline/date value is an intentional clear and is sent through. A field that can't
-// be represented — missing fieldEntityId, an unmapped choice label, or a cleared number/
-// checkbox (no empty form) — is collected into `unsendable` instead, so the caller can fail
-// loudly rather than report a save that silently dropped the user's edit.
+// text/multiline value ('') and an empty checkbox selection ([]) are intentional clears that
+// the input can represent, and are sent through. A field that can't be represented — missing
+// fieldEntityId, an unmapped choice label, or a cleared number/date/choice (no empty form) —
+// is collected into `unsendable` instead, so the caller can fail loudly rather than report a
+// save that silently dropped the user's edit.
 export function buildFormFieldsInput(
   submitted: Partial<ParamProps>['formFields'],
   definitions: CustomerFormFieldDefinition[] = [],
@@ -325,8 +326,9 @@ export function buildFormFieldsInput(
       ?.entityId;
 
   // Number/date/choice fields have no "empty" representation in the entityId-keyed input, so a
-  // cleared one (value blank) is skipped rather than sent or flagged — it must not block the
-  // rest of the save. Text/multiline clear via '' and checkbox clears via [] (handled below).
+  // cleared one (value blank) can't be sent — it's flagged as unsendable so the caller fails
+  // loudly instead of reporting a save that silently dropped the clear (a lone clear would
+  // otherwise look like "no edits"). Text/multiline clear via '' and checkbox via [] below.
   const isBlank = (value: unknown) =>
     value === null ||
     value === undefined ||
@@ -348,7 +350,10 @@ export function buildFormFieldsInput(
         });
         break;
       case 'number': {
-        if (isBlank(value)) return;
+        if (isBlank(value)) {
+          unsendable.push(formField);
+          return;
+        }
         const num = toFiniteNumber(value);
         if (num === undefined) {
           unsendable.push(formField);
@@ -359,7 +364,10 @@ export function buildFormFieldsInput(
         break;
       }
       case 'date': {
-        if (isBlank(value)) return;
+        if (isBlank(value)) {
+          unsendable.push(formField);
+          return;
+        }
         const iso = toIsoDateTime(String(value).trim());
         if (iso === undefined) {
           unsendable.push(formField);
@@ -371,7 +379,10 @@ export function buildFormFieldsInput(
       }
       case 'dropdown':
       case 'radio': {
-        if (isBlank(value)) return;
+        if (isBlank(value)) {
+          unsendable.push(formField);
+          return;
+        }
         const fieldValueEntityId = optionEntityId(fieldEntityId, value);
         if (fieldValueEntityId === undefined) {
           unsendable.push(formField);
