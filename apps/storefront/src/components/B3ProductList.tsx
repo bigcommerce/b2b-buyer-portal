@@ -149,6 +149,8 @@ function getBackorderLayoutStyles(
 interface ProductProps<T extends ProductItem = ProductItem> {
   products: Array<T & ProductItem>;
   money?: MoneyFormat;
+  /** Order currency code (e.g. "USD"). When provided without `money`, uses Intl.NumberFormat. */
+  currencyCode?: string;
   renderAction?: (item: T & ProductItem) => ReactElement;
   actionWidth?: string;
   quantityKey?: string;
@@ -188,6 +190,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     canToProduct = false,
     textAlign = 'left',
     money,
+    currencyCode,
     type,
     getCurrentProductUrls,
     catalogBackorderUiEnabled = false,
@@ -387,18 +390,33 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
           formatOnlyAvailable,
         });
 
-        const getDisplayPrice = (priceValue: number) => {
-          const newMoney = money
-            ? ordersCurrencyFormat(money, priceValue)
-            : currencyFormat(priceValue);
+        const getDisplayPrice = (priceValue: number, preFormatted?: string) => {
+          if (preFormatted) return showTypePrice(preFormatted, product);
 
-          return showTypePrice(newMoney, product);
+          let formatted: string;
+          if (money) {
+            formatted = ordersCurrencyFormat(money, priceValue);
+          } else if (currencyCode) {
+            formatted = new Intl.NumberFormat('en', {
+              style: 'currency',
+              currency: currencyCode,
+            }).format(priceValue);
+          } else {
+            formatted = currencyFormat(priceValue);
+          }
+
+          return showTypePrice(formatted, product);
         };
+
+        const hasDiscounts = discountAccountForSingleProduct > 0;
+        const safeFormattedPrice = hasDiscounts ? undefined : product.formattedPrice;
+        const safeFormattedTotal = hasDiscounts ? undefined : product.formattedTotal;
 
         const renderPrice = (
           priceLabel: string,
           priceValue: number,
           priceDiscountedValue: number,
+          preFormatted?: string,
         ) => {
           return (
             <FlexItem
@@ -424,14 +442,14 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                 <Box
                   sx={{
                     '& #product-price': {
-                      textDecoration: discountAccountForSingleProduct > 0 ? 'line-through' : 'none',
+                      textDecoration: hasDiscounts ? 'line-through' : 'none',
                     },
                   }}
                 >
                   {isMobile && <span>{priceLabel}: </span>}
-                  <span id="product-price">{getDisplayPrice(priceValue)}</span>
+                  <span id="product-price">{getDisplayPrice(priceValue, preFormatted)}</span>
                 </Box>
-                {discountAccountForSingleProduct > 0 ? (
+                {hasDiscounts ? (
                   <Box
                     sx={{
                       color: '#2E7D32',
@@ -507,7 +525,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
               </Box>
             </FlexItem>
 
-            {renderPrice('Price', productPrice, discountedPrice)}
+            {renderPrice('Price', productPrice, discountedPrice, safeFormattedPrice)}
             <FlexItem
               textAlignLocation={textAlign}
               {...desktopQtyColumnStyle}
@@ -579,7 +597,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
               )}
             </FlexItem>
 
-            {renderPrice(totalText, totalPrice, discountedTotalPrice)}
+            {renderPrice(totalText, totalPrice, discountedTotalPrice, safeFormattedTotal)}
             {renderAction && (
               <FlexItem
                 {...desktopNumericColumnStyle}

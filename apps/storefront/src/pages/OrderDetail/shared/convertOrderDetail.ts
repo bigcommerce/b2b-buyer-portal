@@ -11,8 +11,6 @@ import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import type {
   Address,
   CompanyInfoTypes,
-  Currency,
-  MoneyFormat,
   OrderBillings,
   OrderHistoryItem,
   OrderPayment,
@@ -27,41 +25,16 @@ import type { OrderDetailsState } from '../context/OrderDetailsContext';
 // Shared helpers
 // ===========================================================================
 
-function buildMoneyFormat(currencies: Currency[], currencyCode: string): MoneyFormat {
-  const currency = currencies.find((c) => c.currency_code === currencyCode);
-  if (!currency) {
-    return {
-      currency_location: 'left',
-      currency_token: '$',
-      decimal_token: '.',
-      decimal_places: 2,
-      thousands_token: ',',
-      currency_exchange_rate: '1.0000000000',
-    };
-  }
-  return {
-    currency_location: currency.token_location,
-    currency_token: currency.token,
-    decimal_token: currency.decimal_token,
-    decimal_places: currency.decimal_places,
-    thousands_token: currency.thousands_token,
-    currency_exchange_rate: currency.currency_exchange_rate,
-  };
-}
-
-function formatPrice(value: number, decimalPlaces: number): string {
-  return value.toFixed(decimalPlaces);
+/** Format a Money value for display, preferring the server-formatted string. */
+function formatMoney(money: Money): string {
+  return money.formattedV2 ?? money.value.toFixed(2);
 }
 
 // ===========================================================================
 // Order summary
 // ===========================================================================
 
-function buildOrderSummary(
-  order: Order,
-  b3Lang: LangFormatFunction,
-  decimalPlaces: number,
-): OrderSummary {
+function buildOrderSummary(order: Order, b3Lang: LangFormatFunction): OrderSummary {
   const labels = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
     shipping: b3Lang('orderDetail.summary.shipping'),
@@ -80,7 +53,7 @@ function buildOrderSummary(
     const key = b3Lang('orderDetail.summary.coupon', {
       couponCode: coupon.couponCode ? `(${coupon.couponCode})` : '',
     });
-    couponPrices[key] = formatPrice(coupon.discountedAmount.value, decimalPlaces);
+    couponPrices[key] = formatMoney(coupon.discountedAmount);
     couponSymbols[key] = 'coupon';
   });
 
@@ -92,18 +65,15 @@ function buildOrderSummary(
     createAt: order.orderedAt.utc,
     name: placedByName,
     priceData: {
-      [labels.subTotal]: formatPrice(order.subTotal.value, decimalPlaces),
-      [labels.shipping]: formatPrice(order.shippingCostTotal.value, decimalPlaces),
+      [labels.subTotal]: formatMoney(order.subTotal),
+      [labels.shipping]: formatMoney(order.shippingCostTotal),
       ...(hasHandlingFee && {
-        [labels.handlingFee]: formatPrice(order.handlingCostTotal.value, decimalPlaces),
+        [labels.handlingFee]: formatMoney(order.handlingCostTotal),
       }),
-      [labels.discountAmount]: formatPrice(
-        order.discounts.nonCouponDiscountTotal.value,
-        decimalPlaces,
-      ),
+      [labels.discountAmount]: formatMoney(order.discounts.nonCouponDiscountTotal),
       ...couponPrices,
-      [labels.tax]: formatPrice(order.taxTotal.value, decimalPlaces),
-      [labels.grandTotal]: formatPrice(order.totalIncTax.value, decimalPlaces),
+      [labels.tax]: formatMoney(order.taxTotal),
+      [labels.grandTotal]: formatMoney(order.totalIncTax),
     },
     priceSymbol: {
       [labels.subTotal]: 'subTotal',
@@ -173,12 +143,12 @@ interface LineItemBase {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  subTotalSalePrice: Money;
 }
 
 function buildOrderProduct(
   item: LineItemBase,
   productType: 'physical' | 'digital',
-  decimalPlaces: number,
   consignmentEntityId: number,
   physicalFields?: {
     variantEntityId: number | null;
@@ -187,9 +157,14 @@ function buildOrderProduct(
     imageUrl: string;
   },
 ): OrderProductItem {
-  const unitPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
-  const formattedUnitPrice = formatPrice(unitPrice, decimalPlaces);
-  const formattedTotal = formatPrice(item.subTotalListPrice.value, decimalPlaces);
+  // Unit price from list price (per Jesse/Shayne decision — no unit price Money field exists)
+  const unitListPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
+  const formattedUnitPrice = String(unitListPrice);
+  const formattedTotal = String(item.subTotalSalePrice.value);
+
+  const { currencyCode } = item.subTotalSalePrice;
+  const intlFormat = (value: number) =>
+    new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(value);
 
   return {
     id: item.entityId,
@@ -256,15 +231,16 @@ function buildOrderProduct(
     wrapping_id: 0,
     wrapping_message: '',
     wrapping_name: '',
+    formattedPrice: intlFormat(unitListPrice),
+    formattedTotal: item.subTotalSalePrice.formattedV2 ?? intlFormat(item.subTotalSalePrice.value),
   };
 }
 
 function convertLineItemToProduct(
   item: OrderLineItem,
-  decimalPlaces: number,
   consignmentEntityId: number,
 ): OrderProductItem {
-  return buildOrderProduct(item, 'physical', decimalPlaces, consignmentEntityId, {
+  return buildOrderProduct(item, 'physical', consignmentEntityId, {
     variantEntityId: item.variantEntityId,
     sku: item.sku ?? '',
     brand: item.brand ?? '',
@@ -274,22 +250,19 @@ function convertLineItemToProduct(
 
 function convertDigitalLineItemToProduct(
   item: OrderDigitalLineItem,
-  decimalPlaces: number,
   consignmentEntityId: number,
 ): OrderProductItem {
-  return buildOrderProduct(item, 'digital', decimalPlaces, consignmentEntityId);
+  return buildOrderProduct(item, 'digital', consignmentEntityId);
 }
 
-function gatherAllProducts(order: Order, decimalPlaces: number): OrderProductItem[] {
+function gatherAllProducts(order: Order): OrderProductItem[] {
   const physical = (order.consignments?.shipping?.edges ?? []).flatMap((edge) =>
-    edge.node.lineItems.edges.map((le) =>
-      convertLineItemToProduct(le.node, decimalPlaces, edge.node.entityId),
-    ),
+    edge.node.lineItems.edges.map((le) => convertLineItemToProduct(le.node, edge.node.entityId)),
   );
 
   const digital = (order.consignments?.downloads?.edges ?? []).flatMap((edge) =>
     edge.node.lineItems.edges.map((le) =>
-      convertDigitalLineItemToProduct(le.node, decimalPlaces, edge.node.entityId),
+      convertDigitalLineItemToProduct(le.node, edge.node.entityId),
     ),
   );
 
@@ -320,7 +293,7 @@ function deduplicateProducts(products: OrderProductItem[]): OrderProductItem[] {
 // Shipments conversion
 // ===========================================================================
 
-function convertShippings(order: Order, decimalPlaces: number): OrderShippingsItem[] {
+function convertShippings(order: Order): OrderShippingsItem[] {
   if (!order.consignments?.shipping?.edges?.length) {
     return [];
   }
@@ -330,7 +303,7 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
     const address = convertAddress(consignment.shippingAddress);
 
     const products = consignment.lineItems.edges.map((le) =>
-      convertLineItemToProduct(le.node, decimalPlaces, consignment.entityId),
+      convertLineItemToProduct(le.node, consignment.entityId),
     );
 
     // Sum shipped quantity per line item across all shipments.
@@ -403,7 +376,7 @@ function convertShippings(order: Order, decimalPlaces: number): OrderShippingsIt
 
     const itemsShippedCount = productsWithShipStatus.filter((p) => p.quantity_shipped > 0).length;
 
-    const shippingCost = formatPrice(consignment.shippingCost.value, decimalPlaces);
+    const shippingCost = formatMoney(consignment.shippingCost);
 
     return {
       ...address,
@@ -467,7 +440,6 @@ function buildPayment(order: Order): OrderPayment {
 export function convertOrderDetail(
   order: Order,
   b3Lang: LangFormatFunction,
-  currencies: Currency[],
 ): Pick<
   OrderDetailsState,
   | 'orderId'
@@ -475,7 +447,6 @@ export function convertOrderDetail(
   | 'customStatus'
   | 'poNumber'
   | 'currencyCode'
-  | 'money'
   | 'orderSummary'
   | 'history'
   | 'orderComments'
@@ -493,10 +464,7 @@ export function convertOrderDetail(
   | 'companyInfo'
   | 'customerId'
 > {
-  const moneyFormat = buildMoneyFormat(currencies, order.totalIncTax.currencyCode);
-  const decimalPlaces = moneyFormat.decimal_places;
-
-  const allProducts = gatherAllProducts(order, decimalPlaces);
+  const allProducts = gatherAllProducts(order);
   const products = deduplicateProducts(allProducts);
   const digitalProducts = products.filter((p) => p.type === 'digital');
 
@@ -518,12 +486,11 @@ export function convertOrderDetail(
     customStatus: '',
     poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,
-    money: moneyFormat,
-    orderSummary: buildOrderSummary(order, b3Lang, decimalPlaces),
+    orderSummary: buildOrderSummary(order, b3Lang),
     payment: buildPayment(order),
     history: mapHistoryEvents(order.history),
     orderComments: order.customerMessage ?? '',
-    shippings: convertShippings(order, decimalPlaces),
+    shippings: convertShippings(order),
     billings: convertBillings(order, products),
     products,
     digitalProducts,

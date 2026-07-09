@@ -57,6 +57,7 @@ interface OrderDialogProps {
   currentDialogData?: DialogData;
   itemKey: string;
   orderId: number;
+  currencyCode?: string;
 }
 
 interface ReturnListProps {
@@ -101,6 +102,7 @@ export default function OrderDialog({
   setOpen,
   itemKey,
   orderId,
+  currencyCode,
 }: OrderDialogProps) {
   const navigate = useNavigate();
   const { isBackorderMessagingContextEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
@@ -599,6 +601,7 @@ export default function OrderDialog({
               (type === 'reOrder' || type === 'shoppingList')
             }
             showReorderAtsHelper={type === 'reOrder' && isReorderAtsEnabled}
+            currencyCode={currencyCode}
           />
 
           {type === 'return' && (

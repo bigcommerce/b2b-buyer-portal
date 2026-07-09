@@ -37,6 +37,8 @@ interface OrderCheckboxProductProps {
   catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
   backorderUiEnabled?: boolean;
   showReorderAtsHelper?: boolean;
+  /** Order currency code — uses Intl.NumberFormat when provided. */
+  currencyCode?: string;
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -52,9 +54,17 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     catalogInventoryBySku,
     backorderUiEnabled = false,
     showReorderAtsHelper = false,
+    currencyCode,
   } = props;
 
   const b3Lang = useB3Lang();
+
+  const formatPrice = (value: string | number) =>
+    currencyCode
+      ? new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(
+          Number(value),
+        )
+      : currencyFormat(value);
 
   const [isMobile] = useMobile();
 
@@ -249,7 +259,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             </FlexItem>
             <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
               {isMobile && <span>{b3Lang('orderDetail.reorder.price')} </span>}
-              {currencyFormat(product.base_price)}
+              {product.formattedPrice || formatPrice(product.base_price)}
             </FlexItem>
             <FlexItem
               textAlignLocation={textAlign}
@@ -309,7 +319,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             </FlexItem>
             <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
               {isMobile && <span>{b3Lang('orderDetail.reorder.total')} </span>}
-              {currencyFormat(getProductTotals(getProductQuantity(product), product.base_price))}
+              {formatPrice(getProductTotals(getProductQuantity(product), product.base_price))}
             </FlexItem>
           </Flex>
         );

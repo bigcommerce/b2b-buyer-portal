@@ -57,6 +57,7 @@ export interface OrderLineItem {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  subTotalSalePrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
   returnableQuantity: number;
@@ -98,6 +99,7 @@ export interface OrderDigitalLineItem {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  subTotalSalePrice: Money;
 }
 
 /** Projects OrderDownloadConsignment. */
@@ -381,6 +383,9 @@ const orderLineItemFields = `entityId
         productAttributeValueEntityId
       }
       subTotalListPrice {
+        ${moneyFields}
+      }
+      subTotalSalePrice {
         ${moneyFields}
       }
       image {
