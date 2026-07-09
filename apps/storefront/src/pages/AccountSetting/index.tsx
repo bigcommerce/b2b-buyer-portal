@@ -33,6 +33,7 @@ import {
   updateCustomerDetails,
 } from '@/shared/service/bc';
 import {
+  CompanyUserExtraFieldsInput,
   CustomerFormFieldDefinition,
   CustomerFormFieldsInput,
 } from '@/shared/service/bc/graphql/accountSetting';
@@ -50,6 +51,7 @@ import { UpgradeBanner } from './UpgradeBanner';
 import {
   b2bSubmitDataProcessing,
   bcSubmitDataProcessing,
+  buildExtraFieldsInput,
   buildFormFieldsInput,
   buildUpdateCompanyUserInput,
   buildUpdateCustomerInput,
@@ -334,13 +336,14 @@ function AccountSetting() {
   const dispatchUpdate = async (
     payload: Partial<ParamProps>,
     formFields?: CustomerFormFieldsInput,
+    extraFields?: CompanyUserExtraFieldsInput,
   ): Promise<boolean> => {
     if (useBcAccountSettings && isBCUser) {
       const customerInput = buildUpdateCustomerInput(payload, formFields);
       const hasProfileUpdate = Object.keys(customerInput).length > 0;
 
-      // Check the reCaptcha gates up front (they guard updateCustomer) so a gate can't fail
-      // AFTER the password has already been committed below.
+      // Check the reCaptcha gates up front (they guard updateCustomer) so we don't attempt the
+      // details update — and its password follow-up — with a token that can't be accepted.
       if (hasProfileUpdate) {
         if (isCaptchaConfigLoading) {
           snackbar.error(b3Lang('global.error.genericMessage'));
@@ -352,10 +355,26 @@ function AccountSetting() {
         }
       }
 
-      // Password change (its own mutation, no reCaptcha) runs first: its common failure — a
-      // wrong current password — then fails fast before any profile data is written.
+      // Update the profile details first; only change the password if that succeeds so we never
+      // commit a password change against a details update that failed.
+      if (hasProfileUpdate) {
+        let ok;
+        try {
+          ok = await runMutation(() =>
+            updateCustomerDetails(customerInput, captchaToken || undefined).then((res) => ({
+              errors: res.errors,
+            })),
+          );
+        } finally {
+          // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
+          setCaptchaToken('');
+        }
+        if (!ok) return false;
+      }
+
+      // Details update succeeded (or there was none); now change the password if requested.
       if (payload.newPassword) {
-        const ok = await runMutation(() =>
+        return runMutation(() =>
           changeCustomerPassword(
             (payload.currentPassword as string) || '',
             payload.newPassword as string,
@@ -364,34 +383,16 @@ function AccountSetting() {
             resultErrors: res.data?.customer?.changePassword?.errors,
           })),
         );
-        if (!ok) return false;
       }
 
-      if (!hasProfileUpdate) return true;
-
-      let ok;
-      try {
-        ok = await runMutation(() =>
-          updateCustomerDetails(customerInput, captchaToken || undefined).then((res) => ({
-            errors: res.errors,
-          })),
-        );
-      } finally {
-        // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
-        setCaptchaToken('');
-      }
-      // The password (if changed) already committed; if the profile update then failed, force a
-      // re-login so the session stays consistent with the changed password (and the user isn't
-      // stuck re-entering a now-stale current password on retry).
-      if (!ok && payload.newPassword) {
-        navigate('/login?loginFlag=loggedOutLogin');
-      }
-      return ok;
+      return true;
     }
 
     if (useBcAccountSettings && !isBCUser) {
       return runMutation(() =>
-        updateCompanyUserDetails(buildUpdateCompanyUserInput(payload, formFields)).then((res) => ({
+        updateCompanyUserDetails(
+          buildUpdateCompanyUserInput(payload, formFields, extraFields),
+        ).then((res) => ({
           errors: res.errors,
           resultErrors: res.data?.company?.updateCompanyUser?.errors,
         })),
@@ -441,9 +442,10 @@ function AccountSetting() {
           const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
           let payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
 
-          // Native SF GQL form fields are resolved to their entityId-keyed groups once here;
-          // the same build reports any changed field that can't be sent so we fail loudly.
+          // Native SF GQL custom fields are resolved to their typed groups once here; the same
+          // build reports any changed field that can't be sent so we fail loudly.
           let customerFormFields;
+          let customerExtraFields;
           if (useBcAccountSettings) {
             // BC keeps every custom field as an entityId-keyed form field; for B2B the
             // company-user's own custom fields (contact group) are name-keyed extraFields,
@@ -469,16 +471,19 @@ function AccountSetting() {
               changedFormFields,
               customerFormFieldDefs,
             );
-            // Fail loudly if a changed form field can't be sent (unmapped choice option, cleared
-            // number/checkbox, missing entityId) rather than reporting a save that dropped it.
-            if (unsendable.length > 0) {
+            const { extraFields, unsendable: unsendableExtra } =
+              buildExtraFieldsInput(changedExtraFields);
+            // Fail loudly if a changed field can't be sent (unmapped choice option, cleared
+            // number/date, missing entityId, or an array-valued extra field) rather than
+            // reporting a save that silently dropped the edit.
+            if (unsendable.length > 0 || unsendableExtra.length > 0) {
               snackbar.error(b3Lang('global.error.genericMessage'));
               return;
             }
             customerFormFields = formFields;
+            customerExtraFields = extraFields;
             // Treat a field-only edit as non-pristine so it isn't dropped as "no edits".
-            if (!payload && (formFields || changedExtraFields.length > 0)) payload = {};
-            if (payload && changedExtraFields.length > 0) payload.extraFields = changedExtraFields;
+            if (!payload && (formFields || extraFields)) payload = {};
           }
 
           if (payload) {
@@ -499,7 +504,7 @@ function AccountSetting() {
             return;
           }
 
-          const succeeded = await dispatchUpdate(payload, customerFormFields);
+          const succeeded = await dispatchUpdate(payload, customerFormFields, customerExtraFields);
           if (!succeeded) return;
 
           if (
