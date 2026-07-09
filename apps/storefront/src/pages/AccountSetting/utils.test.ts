@@ -498,7 +498,12 @@ describe('buildFormFieldsInput', () => {
 
   it('flags a cleared date and a cleared dropdown as unsendable (no empty form to send)', () => {
     const clearedDate = { name: 'fDate', value: '', fieldType: 'date', fieldEntityId: 13 };
-    const clearedDropdown = { name: 'fChoice', value: '', fieldType: 'dropdown', fieldEntityId: 14 };
+    const clearedDropdown = {
+      name: 'fChoice',
+      value: '',
+      fieldType: 'dropdown',
+      fieldEntityId: 14,
+    };
     const { formFields, unsendable } = buildFormFieldsInput(
       [clearedDate, clearedDropdown],
       definitions,
