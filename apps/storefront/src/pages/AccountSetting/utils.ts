@@ -1,6 +1,7 @@
 import {
   AccountSettingExtraFieldValue as ExtraFieldValue,
   CompanyUser,
+  CompanyUserExtraFieldsInput,
   CustomerFormFieldDefinition,
   CustomerFormFieldsInput,
   FormFieldValue,
@@ -12,6 +13,10 @@ import { deCodeField } from '@/utils/registerUtils';
 import { validatorRules } from '@/utils/validatorRules';
 
 const emailValidate = validatorRules(['email']);
+
+// The "Contact Information" form-field group. For B2B, custom fields in this group are the
+// company user's own name-keyed extra fields; other groups are entityId-keyed form fields.
+export const CONTACT_GROUP_ID = 1;
 
 export const initB2BInfo = (
   accountSettings: any,
@@ -242,7 +247,6 @@ export const bcSubmitDataProcessing = (
           param.formFields.push({
             name: field?.bcLabel || '',
             value: data[key],
-            fieldType: field.fieldType,
           });
           flag = false;
           const account = (accountSettings?.formFields || []).find(
@@ -272,18 +276,13 @@ export const bcSubmitDataProcessing = (
   return param;
 };
 
-// Choice field types whose selected option must be resolved to an entityId via the
-// form-field definitions (the mutations take an id, not a label). Kept as one exported
-// list so the "which fields need definitions" gate and the emit routing can't drift apart.
-const CHOICE_FIELD_TYPES = ['dropdown', 'radio', 'checkbox'];
-export const fieldTypeNeedsOptions = (fieldType?: string): boolean =>
-  CHOICE_FIELD_TYPES.includes(fieldType ?? '');
-
 // Normalizes a stored or submitted value for change comparison so a typed stored value
 // (number 25, string[] ['a']) and its string form value ('25', ['a']) compare equal.
 function normalizeForCompare(value: unknown): string {
   if (value === null || value === undefined) return '';
-  if (Array.isArray(value)) return JSON.stringify(value);
+  // An empty array (e.g. an unchecked checkbox) is "empty", equal to unset — otherwise a
+  // never-set checkbox rendered as [] reads as a spurious change from undefined.
+  if (Array.isArray(value)) return value.length === 0 ? '' : JSON.stringify(value);
   return String(value);
 }
 
@@ -295,6 +294,16 @@ function toFiniteNumber(value: unknown): number | undefined {
   return Number.isFinite(num) ? num : undefined;
 }
 
+// BC's date form-field input is a DateTime, so a date is sent as an ISO string. A plain
+// calendar date (YYYY-MM-DD, the datepicker's default output) is mapped explicitly to UTC
+// midnight to avoid `new Date`'s local-timezone parsing shifting the day. Anything else falls
+// back to Date parsing; an unparseable value returns undefined.
+function toIsoDateTime(raw: string): string | undefined {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return `${raw}T00:00:00.000Z`;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+}
+
 // Builds the shared entityId-keyed form-field groups for customer.updateCustomer and
 // company.updateCompanyUser. Each submitted field carries its fieldEntityId (parsed from
 // the form config's `field_<id>` fieldId). Callers pass only *changed* fields, so an empty
@@ -302,9 +311,9 @@ function toFiniteNumber(value: unknown): number | undefined {
 // be represented — missing fieldEntityId, an unmapped choice label, or a cleared number/
 // checkbox (no empty form) — is collected into `unsendable` instead, so the caller can fail
 // loudly rather than report a save that silently dropped the user's edit.
-function buildFormFieldsInput(
+export function buildFormFieldsInput(
   submitted: Partial<ParamProps>['formFields'],
-  definitions: CustomerFormFieldDefinition[],
+  definitions: CustomerFormFieldDefinition[] = [],
 ): { formFields?: CustomerFormFieldsInput; unsendable: NonNullable<ParamProps['formFields']> } {
   const defByEntityId = new Map(definitions.map((def) => [def.entityId, def]));
   const formFields: CustomerFormFieldsInput = {};
@@ -314,6 +323,15 @@ function buildFormFieldsInput(
   const optionEntityId = (fieldEntityId: number, value: unknown) =>
     defByEntityId.get(fieldEntityId)?.options?.find((option) => option.label === String(value))
       ?.entityId;
+
+  // Number/date/choice fields have no "empty" representation in the entityId-keyed input, so a
+  // cleared one (value blank) is skipped rather than sent or flagged — it must not block the
+  // rest of the save. Text/multiline clear via '' and checkbox clears via [] (handled below).
+  const isBlank = (value: unknown) =>
+    value === null ||
+    value === undefined ||
+    (typeof value === 'string' && value.trim() === '') ||
+    (Array.isArray(value) && value.length === 0);
 
   const emit = (formField: NonNullable<ParamProps['formFields']>[number]) => {
     const { fieldEntityId, fieldType, value } = formField;
@@ -330,6 +348,7 @@ function buildFormFieldsInput(
         });
         break;
       case 'number': {
+        if (isBlank(value)) return;
         const num = toFiniteNumber(value);
         if (num === undefined) {
           unsendable.push(formField);
@@ -339,12 +358,20 @@ function buildFormFieldsInput(
         (formFields.numbers ??= []).push({ fieldEntityId, number: num });
         break;
       }
-      case 'date':
+      case 'date': {
+        if (isBlank(value)) return;
+        const iso = toIsoDateTime(String(value).trim());
+        if (iso === undefined) {
+          unsendable.push(formField);
+          return;
+        }
         seen.add(fieldEntityId);
-        (formFields.dates ??= []).push({ fieldEntityId, date: String(value ?? '') });
+        (formFields.dates ??= []).push({ fieldEntityId, date: iso });
         break;
+      }
       case 'dropdown':
       case 'radio': {
+        if (isBlank(value)) return;
         const fieldValueEntityId = optionEntityId(fieldEntityId, value);
         if (fieldValueEntityId === undefined) {
           unsendable.push(formField);
@@ -355,10 +382,18 @@ function buildFormFieldsInput(
         break;
       }
       case 'checkbox': {
-        const values = Array.isArray(value) ? value : [value];
+        const values = Array.isArray(value) ? value : [];
+        // An empty selection is an intentional clear — send an empty id list.
+        if (values.length === 0) {
+          seen.add(fieldEntityId);
+          (formFields.checkboxes ??= []).push({ fieldEntityId, fieldValueEntityIds: [] });
+          break;
+        }
         const mapped = values.map((choice) => optionEntityId(fieldEntityId, choice));
         const fieldValueEntityIds = mapped.filter((id): id is number => id !== undefined);
-        if (fieldValueEntityIds.length === 0 || fieldValueEntityIds.length !== mapped.length) {
+        // Unsendable if any selected label failed to resolve — otherwise part of the user's
+        // selection would be dropped silently.
+        if (fieldValueEntityIds.length !== mapped.length) {
           unsendable.push(formField);
           return;
         }
@@ -379,13 +414,38 @@ function buildFormFieldsInput(
   return { formFields: Object.keys(formFields).length > 0 ? formFields : undefined, unsendable };
 }
 
-// The changed form fields that buildFormFieldsInput can't send (see above). The caller uses
-// this to surface an error instead of a misleading "saved" when an edit would be dropped.
-export function getUnsendableFormFields(
-  submitted: Partial<ParamProps>['formFields'],
-  definitions: CustomerFormFieldDefinition[] = [],
-): NonNullable<ParamProps['formFields']> {
-  return buildFormFieldsInput(submitted, definitions).unsendable;
+function buildExtraFieldsInput(
+  submitted: Array<{ name: string; value: unknown; fieldType?: string }> | undefined,
+): CompanyUserExtraFieldsInput | undefined {
+  const extraFields: CompanyUserExtraFieldsInput = {};
+  const seen = new Set<string>();
+
+  (submitted ?? []).forEach(({ name, value, fieldType }) => {
+    if (!name || seen.has(name)) return;
+    // Company-user extra fields have no multi-value (checkbox) group, so an array value can't
+    // be represented — skip it rather than coerce it into a comma-joined string.
+    if (Array.isArray(value)) return;
+    seen.add(name);
+    const text = String(value ?? '');
+    switch (fieldType) {
+      case 'multiline':
+        (extraFields.multilineTexts ??= []).push({ name, multilineText: text });
+        break;
+      case 'number':
+        (extraFields.numbers ??= []).push({ name, number: text });
+        break;
+      case 'dropdown':
+      case 'radio':
+        (extraFields.multipleChoices ??= []).push({ name, fieldValue: text });
+        break;
+      case 'text':
+      default:
+        (extraFields.texts ??= []).push({ name, text });
+        break;
+    }
+  });
+
+  return Object.keys(extraFields).length > 0 ? extraFields : undefined;
 }
 
 // Contact scalars shared by both mutation inputs (phoneNumber -> phone).
@@ -399,54 +459,34 @@ function assignSharedScalars(
   if (payload.phoneNumber !== undefined) input.phone = payload.phoneNumber as string;
 }
 
-// The definitions entityId of the customer's password form field, if present.
-// customer.updateCustomer takes the password as a form field (unlike company.updateCompanyUser
-// which uses a top-level newPassword scalar), so the caller needs this to send a change.
-export function findPasswordFieldEntityId(
-  definitions: CustomerFormFieldDefinition[] = [],
-): number | undefined {
-  return definitions.find((def) => def.__typename === 'PasswordFormField')?.entityId;
-}
-
-// Builds the BC-native customer.updateCustomer input from the submit payload.
 export function buildUpdateCustomerInput(
   payload: Partial<ParamProps>,
-  definitions: CustomerFormFieldDefinition[] = [],
+  formFields?: CustomerFormFieldsInput,
 ): UpdateCustomerInput {
   const input: UpdateCustomerInput = {};
 
   assignSharedScalars(input, payload);
   if (payload.company !== undefined) input.company = payload.company as string;
-
-  const { formFields = {} } = buildFormFieldsInput(payload.formFields, definitions);
-
-  // Password is a BC customer form field; send a change under the Password field's entityId.
-  const passwordFieldEntityId = findPasswordFieldEntityId(definitions);
-  if (payload.newPassword && passwordFieldEntityId !== undefined) {
-    formFields.passwords = [
-      { fieldEntityId: passwordFieldEntityId, password: payload.newPassword as string },
-    ];
-  }
-
-  if (Object.keys(formFields).length > 0) input.formFields = formFields;
+  if (formFields && Object.keys(formFields).length > 0) input.formFields = formFields;
 
   return input;
 }
 
-// Builds the B2B company.updateCompanyUser input. Form fields use the same entityId-keyed
-// shape as customer.updateCustomer; the scalars carry current/new password instead of company.
 export function buildUpdateCompanyUserInput(
   payload: Partial<ParamProps>,
-  definitions: CustomerFormFieldDefinition[] = [],
+  formFields?: CustomerFormFieldsInput,
 ): UpdateCompanyUserInput {
   const input: UpdateCompanyUserInput = {};
 
   assignSharedScalars(input, payload);
   if (payload.currentPassword) input.currentPassword = payload.currentPassword as string;
   if (payload.newPassword) input.newPassword = payload.newPassword as string;
+  if (formFields && Object.keys(formFields).length > 0) input.formFields = formFields;
 
-  const { formFields } = buildFormFieldsInput(payload.formFields, definitions);
-  if (formFields) input.formFields = formFields;
+  const extraFields = buildExtraFieldsInput(
+    payload.extraFields as Array<{ name: string; value: unknown; fieldType?: string }> | undefined,
+  );
+  if (extraFields) input.extraFields = extraFields;
 
   return input;
 }
@@ -458,29 +498,68 @@ export function parseFieldEntityId(fieldId?: string): number | undefined {
   return match ? Number(match[1]) : undefined;
 }
 
+// The stored date value is a full ISO string (date.utc), while the form submits YYYY-MM-DD;
+// compare on the date-only portion so an untouched date isn't seen as changed and re-sent.
+const toDateOnly = (value: unknown): string => String(value ?? '').slice(0, 10);
+
+const isValueChanged = (
+  originalValue: unknown,
+  submittedValue: unknown,
+  fieldType?: string,
+): boolean => {
+  if (fieldType === 'date') return toDateOnly(originalValue) !== toDateOnly(submittedValue);
+  return normalizeForCompare(originalValue) !== normalizeForCompare(submittedValue);
+};
+
 // Collects the custom form fields for the native SF GQL updates straight from the form
 // values and returns only the ones that actually CHANGED from their stored original. The
 // form registers each field under `name` (the submit processor's fieldId capture misses
-// them), so read data[item.name]; the entityId the mutations need is encoded in the
-// `field_<id>` fieldId. Values are normalized before comparison so a typed stored value
-// (number/array) and its string form value don't read as a spurious change, and an unchanged
-// field isn't re-sent on an unrelated edit.
+// them), so read data[item.name]; the entityId the mutations need comes from the `field_<id>`
+// fieldId, falling back to the form-field definitions (matched by label) when the fieldId
+// isn't in that shape.
 export function collectChangedFormFields(
   data: CustomFieldItems,
   accountInfoFormFields: Partial<Fields>[],
   originalFormFields: Array<{ name?: string; value?: unknown }>,
+  definitions: CustomerFormFieldDefinition[] = [],
 ): NonNullable<ParamProps['formFields']> {
+  const entityIdByLabel = new Map(definitions.map((def) => [def.label, def.entityId]));
   return accountInfoFormFields
     .filter((item) => item.custom)
-    .map((item) => ({
-      name: item.bcLabel || '',
-      value: data[item.name || ''],
-      fieldType: item.fieldType,
-      fieldEntityId: parseFieldEntityId(item.fieldId),
-    }))
+    .map((item) => {
+      const name = item.bcLabel || '';
+      return {
+        name,
+        value: data[item.name || ''],
+        fieldType: item.fieldType,
+        fieldEntityId: parseFieldEntityId(item.fieldId) ?? entityIdByLabel.get(name),
+      };
+    })
     .filter((formField) => {
       const original = originalFormFields.find((item) => item.name === formField.name);
-      return normalizeForCompare(original?.value) !== normalizeForCompare(formField.value);
+      return isValueChanged(original?.value, formField.value, formField.fieldType);
+    });
+}
+
+// Collects the company-user extra fields that changed — the name-keyed custom fields in the
+// contact group (groupId 1), matched from the read's extraFields. Unlike form fields these
+// need no entityId or definitions (the mutation keys them by name), so they work through the
+// proxy. Returns {name, value, fieldType} entries keyed by the decoded field name.
+export function collectChangedExtraFields(
+  data: CustomFieldItems,
+  accountInfoFormFields: Partial<Fields>[],
+  originalExtraFields: Array<{ fieldName?: string; fieldValue?: unknown }>,
+): Array<{ name: string; value: unknown; fieldType?: string }> {
+  return accountInfoFormFields
+    .filter((item) => item.custom && item.groupId === CONTACT_GROUP_ID)
+    .map((item) => ({
+      name: deCodeField(item.name || ''),
+      value: data[item.name || ''],
+      fieldType: item.fieldType,
+    }))
+    .filter((extraField) => {
+      const original = originalExtraFields.find((item) => item.fieldName === extraField.name);
+      return isValueChanged(original?.fieldValue, extraField.value);
     });
 }
 
