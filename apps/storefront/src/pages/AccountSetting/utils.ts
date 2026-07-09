@@ -69,7 +69,7 @@ export const initB2BInfo = (
 
   additionalInformation.forEach((item: Partial<Fields>) => {
     const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === item.bcLabel,
+      (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
     );
     const infoItem = item;
     if (formFields) infoItem.default = formFields.value;
@@ -105,7 +105,7 @@ export const initBcInfo = (
 
   additionalInformation.forEach((item: Partial<Fields>) => {
     const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === item.bcLabel,
+      (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
     );
     const infoItem = item;
     if (formFields) infoItem.default = formFields.value;
@@ -527,7 +527,10 @@ export function collectChangedFormFields(
   return accountInfoFormFields
     .filter((item) => item.custom)
     .map((item) => {
-      const name = item.bcLabel || '';
+      // The field's display label is the key that matches the stored formFields name and the
+      // definition label. getAccountFormFields leaves bcLabel empty when the config supplies
+      // only labelName (kept on `label`), so fall back to label.
+      const name = item.bcLabel || item.label || '';
       return {
         name,
         value: data[item.name || ''],
