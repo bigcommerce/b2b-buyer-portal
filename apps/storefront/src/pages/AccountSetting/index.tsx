@@ -336,6 +336,24 @@ function AccountSetting() {
     formFields?: CustomerFormFieldsInput,
   ): Promise<boolean> => {
     if (useBcAccountSettings && isBCUser) {
+      const customerInput = buildUpdateCustomerInput(payload, formFields);
+      const hasProfileUpdate = Object.keys(customerInput).length > 0;
+
+      // Check the reCaptcha gates up front (they guard updateCustomer) so a gate can't fail
+      // AFTER the password has already been committed below.
+      if (hasProfileUpdate) {
+        if (isCaptchaConfigLoading) {
+          snackbar.error(b3Lang('global.error.genericMessage'));
+          return false;
+        }
+        if (isCaptchaEnabled && !captchaToken) {
+          snackbar.error(b3Lang('login.loginText.missingCaptcha'));
+          return false;
+        }
+      }
+
+      // Password change (its own mutation, no reCaptcha) runs first: its common failure — a
+      // wrong current password — then fails fast before any profile data is written.
       if (payload.newPassword) {
         const ok = await runMutation(() =>
           changeCustomerPassword(
@@ -348,21 +366,12 @@ function AccountSetting() {
         );
         if (!ok) return false;
       }
-      const customerInput = buildUpdateCustomerInput(payload, formFields);
-      if (Object.keys(customerInput).length === 0) return true;
 
-      // Don't submit until the reCaptcha config has loaded, otherwise isCaptchaEnabled is
-      // still false and we'd send customer.updateCustomer without a token the storefront needs.
-      if (isCaptchaConfigLoading) {
-        snackbar.error(b3Lang('global.error.genericMessage'));
-        return false;
-      }
-      if (isCaptchaEnabled && !captchaToken) {
-        snackbar.error(b3Lang('login.loginText.missingCaptcha'));
-        return false;
-      }
+      if (!hasProfileUpdate) return true;
+
+      let ok;
       try {
-        return await runMutation(() =>
+        ok = await runMutation(() =>
           updateCustomerDetails(customerInput, captchaToken || undefined).then((res) => ({
             errors: res.errors,
           })),
@@ -371,6 +380,13 @@ function AccountSetting() {
         // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
         setCaptchaToken('');
       }
+      // The password (if changed) already committed; if the profile update then failed, force a
+      // re-login so the session stays consistent with the changed password (and the user isn't
+      // stuck re-entering a now-stale current password on retry).
+      if (!ok && payload.newPassword) {
+        navigate('/login?loginFlag=loggedOutLogin');
+      }
+      return ok;
     }
 
     if (useBcAccountSettings && !isBCUser) {

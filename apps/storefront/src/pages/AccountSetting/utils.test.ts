@@ -661,6 +661,27 @@ describe('collectChangedFormFields', () => {
     ]);
   });
 
+  it('keys by label when bcLabel is empty (getAccountFormFields leaves bcLabel unset)', () => {
+    // The config only supplied labelName, so bcLabel is '' and the display name lives on label.
+    const labelOnly = [
+      field({
+        name: 'field_28',
+        label: 'Preferences',
+        fieldType: 'text',
+        fieldId: 'field_28',
+        custom: true,
+      }),
+    ];
+    // Unchanged against the stored value keyed by that label → not reported as changed.
+    expect(
+      collectChangedFormFields({ field_28: 'x' }, labelOnly, [{ name: 'Preferences', value: 'x' }]),
+    ).toEqual([]);
+    // Changed → keyed by label, entityId parsed from fieldId.
+    expect(
+      collectChangedFormFields({ field_28: 'y' }, labelOnly, [{ name: 'Preferences', value: 'x' }]),
+    ).toEqual([{ name: 'Preferences', value: 'y', fieldType: 'text', fieldEntityId: 28 }]);
+  });
+
   it('does not treat an untouched date as changed (ISO original vs YYYY-MM-DD submitted)', () => {
     const dateFields = [
       field({ name: 'dob', bcLabel: 'DOB', fieldType: 'date', fieldId: 'field_30', custom: true }),
