@@ -403,7 +403,6 @@ describe('buildFormFieldsInput', () => {
   // fields only need the fieldEntityId carried on each submitted entry.
   const definitions: CustomerFormFieldDefinition[] = [
     {
-      __typename: 'MultipleChoicesFormField',
       entityId: 14,
       label: 'fChoice',
       options: [
@@ -412,7 +411,6 @@ describe('buildFormFieldsInput', () => {
       ],
     },
     {
-      __typename: 'CheckboxesFormField',
       entityId: 15,
       label: 'fChecks',
       options: [
@@ -689,7 +687,7 @@ describe('collectChangedFormFields', () => {
       { nn: 25 },
       nonNumericFields,
       [],
-      [{ __typename: 'NumberFormField', entityId: 26, label: 'Age' }],
+      [{ entityId: 26, label: 'Age' }],
     );
 
     expect(result.fieldEntityId).toBe(26);

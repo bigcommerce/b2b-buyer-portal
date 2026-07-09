@@ -188,7 +188,6 @@ export interface CustomerFormFieldOption {
 }
 
 export interface CustomerFormFieldDefinition {
-  __typename: string;
   entityId: number;
   label: string;
   options?: CustomerFormFieldOption[];
@@ -212,7 +211,6 @@ const QUERY_CUSTOMER_FORM_FIELD_SETTINGS = `query CustomerFormFieldSettings {
     settings {
       formFields {
         customer {
-          __typename
           entityId
           label
           ... on PicklistFormField { options { entityId label } }
