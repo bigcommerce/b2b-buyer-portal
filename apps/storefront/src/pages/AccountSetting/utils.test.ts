@@ -6,12 +6,13 @@ import type {
   CustomerFormFieldDefinition,
   FormFieldValue,
 } from '@/shared/service/bc/graphql/accountSetting';
-import type { Fields, ParamProps } from '@/types/accountSetting';
+import type { Fields } from '@/types/accountSetting';
 import { Base64 } from '@/utils/base64';
 
 import {
   b2bSubmitDataProcessing,
   bcSubmitDataProcessing,
+  buildExtraFieldsInput,
   buildFormFieldsInput,
   buildUpdateCompanyUserInput,
   buildUpdateCustomerInput,
@@ -567,40 +568,45 @@ describe('buildUpdateCompanyUserInput', () => {
     });
   });
 
-  it('attaches the pre-resolved formFields group', () => {
+  it('attaches the pre-resolved formFields and extraFields groups', () => {
     const input = buildUpdateCompanyUserInput(
       { firstName: 'Ada' },
       { numbers: [{ fieldEntityId: 26, number: 28 }] },
+      { texts: [{ name: 'Nickname', text: 'AT' }] },
     );
 
     expect(input.formFields).toEqual({ numbers: [{ fieldEntityId: 26, number: 28 }] });
+    expect(input.extraFields).toEqual({ texts: [{ name: 'Nickname', text: 'AT' }] });
   });
+});
 
-  it('routes company-user extra fields into the name-keyed extraFields groups (no entityId)', () => {
-    const input = buildUpdateCompanyUserInput({
-      extraFields: [
-        { name: 'Nickname', value: 'AT', fieldType: 'text' },
-        { name: 'Bio', value: 'hi', fieldType: 'multiline' },
-        { name: 'Age', value: '25', fieldType: 'number' },
-        { name: 'Tier', value: 'Gold', fieldType: 'dropdown' },
-      ],
-    } as Partial<ParamProps>);
+describe('buildExtraFieldsInput', () => {
+  it('routes company-user extra fields into the name-keyed groups by field type', () => {
+    const { extraFields, unsendable } = buildExtraFieldsInput([
+      { name: 'Nickname', value: 'AT', fieldType: 'text' },
+      { name: 'Bio', value: 'hi', fieldType: 'multiline' },
+      { name: 'Age', value: '25', fieldType: 'number' },
+      { name: 'Tier', value: 'Gold', fieldType: 'dropdown' },
+    ]);
 
-    expect(input.extraFields).toEqual({
+    expect(unsendable).toEqual([]);
+    expect(extraFields).toEqual({
       texts: [{ name: 'Nickname', text: 'AT' }],
       multilineTexts: [{ name: 'Bio', multilineText: 'hi' }],
       numbers: [{ name: 'Age', number: '25' }],
       multipleChoices: [{ name: 'Tier', fieldValue: 'Gold' }],
     });
-    expect(input.formFields).toBeUndefined();
   });
 
-  it('skips an array-valued extra field rather than sending a comma-joined string', () => {
-    const input = buildUpdateCompanyUserInput({
-      extraFields: [{ name: 'Multi', value: ['a', 'b'], fieldType: 'text' }],
-    } as Partial<ParamProps>);
+  it('flags an array-valued (checkbox) extra field as unsendable instead of dropping it', () => {
+    const multi = { name: 'Multi', value: ['a', 'b'], fieldType: 'checkbox' };
+    const { extraFields, unsendable } = buildExtraFieldsInput([
+      multi,
+      { name: 'Nickname', value: 'AT', fieldType: 'text' },
+    ]);
 
-    expect(input.extraFields).toBeUndefined();
+    expect(extraFields).toEqual({ texts: [{ name: 'Nickname', text: 'AT' }] });
+    expect(unsendable).toEqual([multi]);
   });
 });
 

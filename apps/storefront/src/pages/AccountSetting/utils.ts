@@ -414,17 +414,27 @@ export function buildFormFieldsInput(
   return { formFields: Object.keys(formFields).length > 0 ? formFields : undefined, unsendable };
 }
 
-function buildExtraFieldsInput(
-  submitted: Array<{ name: string; value: unknown; fieldType?: string }> | undefined,
-): CompanyUserExtraFieldsInput | undefined {
+type ExtraFieldEntry = { name: string; value: unknown; fieldType?: string };
+
+// Builds the name-keyed CompanyUserExtraFieldsInput from changed company-user extra fields.
+// The extraFields groups (texts/multilineTexts/numbers/multipleChoices) are all scalar, so an
+// array value (e.g. a contact-group checkbox) can't be represented — it's reported in
+// `unsendable` so the caller can fail loudly instead of silently dropping the edit.
+export function buildExtraFieldsInput(submitted: ExtraFieldEntry[] | undefined): {
+  extraFields?: CompanyUserExtraFieldsInput;
+  unsendable: ExtraFieldEntry[];
+} {
   const extraFields: CompanyUserExtraFieldsInput = {};
+  const unsendable: ExtraFieldEntry[] = [];
   const seen = new Set<string>();
 
-  (submitted ?? []).forEach(({ name, value, fieldType }) => {
+  (submitted ?? []).forEach((entry) => {
+    const { name, value, fieldType } = entry;
     if (!name || seen.has(name)) return;
-    // Company-user extra fields have no multi-value (checkbox) group, so an array value can't
-    // be represented — skip it rather than coerce it into a comma-joined string.
-    if (Array.isArray(value)) return;
+    if (Array.isArray(value)) {
+      unsendable.push(entry);
+      return;
+    }
     seen.add(name);
     const text = String(value ?? '');
     switch (fieldType) {
@@ -445,7 +455,7 @@ function buildExtraFieldsInput(
     }
   });
 
-  return Object.keys(extraFields).length > 0 ? extraFields : undefined;
+  return { extraFields: Object.keys(extraFields).length > 0 ? extraFields : undefined, unsendable };
 }
 
 // Contact scalars shared by both mutation inputs (phoneNumber -> phone).
@@ -475,6 +485,7 @@ export function buildUpdateCustomerInput(
 export function buildUpdateCompanyUserInput(
   payload: Partial<ParamProps>,
   formFields?: CustomerFormFieldsInput,
+  extraFields?: CompanyUserExtraFieldsInput,
 ): UpdateCompanyUserInput {
   const input: UpdateCompanyUserInput = {};
 
@@ -482,11 +493,7 @@ export function buildUpdateCompanyUserInput(
   if (payload.currentPassword) input.currentPassword = payload.currentPassword as string;
   if (payload.newPassword) input.newPassword = payload.newPassword as string;
   if (formFields && Object.keys(formFields).length > 0) input.formFields = formFields;
-
-  const extraFields = buildExtraFieldsInput(
-    payload.extraFields as Array<{ name: string; value: unknown; fieldType?: string }> | undefined,
-  );
-  if (extraFields) input.extraFields = extraFields;
+  if (extraFields && Object.keys(extraFields).length > 0) input.extraFields = extraFields;
 
   return input;
 }
