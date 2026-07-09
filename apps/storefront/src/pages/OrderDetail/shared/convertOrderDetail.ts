@@ -447,6 +447,7 @@ export function convertOrderDetail(
   | 'customStatus'
   | 'poNumber'
   | 'currencyCode'
+  | 'money'
   | 'orderSummary'
   | 'history'
   | 'orderComments'
@@ -486,6 +487,9 @@ export function convertOrderDetail(
     customStatus: '',
     poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,
+    // Explicitly clear money so stale MoneyFormat from a previous legacy order
+    // doesn't persist in context (reducer spreads payload over existing state).
+    money: undefined,
     orderSummary: buildOrderSummary(order, b3Lang),
     payment: buildPayment(order),
     history: mapHistoryEvents(order.history),

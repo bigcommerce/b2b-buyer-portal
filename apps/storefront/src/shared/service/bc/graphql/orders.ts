@@ -467,6 +467,9 @@ const orderConsignmentsFields = `consignments {
                 subTotalListPrice {
                   ${moneyFields}
                 }
+                subTotalSalePrice {
+                  ${moneyFields}
+                }
               }
             }
           }

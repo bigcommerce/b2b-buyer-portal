@@ -409,8 +409,12 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
         };
 
         const hasDiscounts = discountAccountForSingleProduct > 0;
+        // formattedTotal is only valid when qty matches the original order quantity
+        // (partial shipments show a different qty via quantityKey)
+        const qtyMatchesOriginal = quantity === originQuantity;
         const safeFormattedPrice = hasDiscounts ? undefined : product.formattedPrice;
-        const safeFormattedTotal = hasDiscounts ? undefined : product.formattedTotal;
+        const safeFormattedTotal =
+          hasDiscounts || !qtyMatchesOriginal ? undefined : product.formattedTotal;
 
         const renderPrice = (
           priceLabel: string,
