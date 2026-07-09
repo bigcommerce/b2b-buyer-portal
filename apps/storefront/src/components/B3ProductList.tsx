@@ -11,6 +11,7 @@ import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/produc
 import { useAppSelector } from '@/store';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { getDisplayPrice, judgmentBuyerProduct } from '@/utils/b3Product/b3Product';
+import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import {
   getCatalogProductRowDisplayState,
   productRequiresChooseOptionsBeforeAdd,
@@ -166,6 +167,12 @@ interface ProductProps<T extends ProductItem = ProductItem> {
   catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
   showAvailableToSellHelper?: boolean;
   formatOnlyAvailable?: (availableToSell: number) => string;
+  /**
+   * Backorder fields resolved directly from a per-row source (e.g. an order-time
+   * snapshot). When provided it takes precedence over the catalog-inventory path,
+   * which derives backorder from live stock.
+   */
+  backorderFieldsForProduct?: (product: ProductItem) => BackorderDisplayFields | null;
 }
 
 function getProductVariantSku(product: ProductItem): string {
@@ -194,7 +201,12 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     catalogInventoryBySku,
     showAvailableToSellHelper = false,
     formatOnlyAvailable = () => '',
+    backorderFieldsForProduct,
   } = props;
+
+  // The snapshot path (order-time backorder) drives the same layout + BackorderMessage
+  // render as the catalog path, so treat either source as "backorder UI on".
+  const backorderUiEnabled = catalogBackorderUiEnabled || Boolean(backorderFieldsForProduct);
 
   const [list, setList] = useState<ProductItem[]>([]);
   const [isMobile] = useMobile();
@@ -272,7 +284,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     numericColumn: desktopNumericColumnStyle,
     productColumnPadding: desktopProductColumnPadding,
     productColumnSx: desktopProductColumnSx,
-  } = getBackorderLayoutStyles(catalogBackorderUiEnabled && !isMobile, isMobile, itemStyle);
+  } = getBackorderLayoutStyles(backorderUiEnabled && !isMobile, isMobile, itemStyle);
 
   const showTypePrice = (newMoney: string | number, product: CustomFieldItems): string | number => {
     if (type === 'quote') {
@@ -378,14 +390,37 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
         const inventoryRow = productRequiresChooseOptionsBeforeAdd(product)
           ? undefined
           : catalogInventoryBySku?.[variantSku.toUpperCase()];
-        const { qtyHelperText, backorderFields } = getCatalogProductRowDisplayState({
-          qty: Number(quantity) || 0,
-          productHelperText: product.helperText,
-          showAvailableToSellHelper,
-          inventoryRow,
-          backorderUiEnabled: catalogBackorderUiEnabled,
-          formatOnlyAvailable,
-        });
+        const { qtyHelperText, backorderFields: catalogBackorderFields } =
+          getCatalogProductRowDisplayState({
+            qty: Number(quantity) || 0,
+            productHelperText: product.helperText,
+            showAvailableToSellHelper,
+            inventoryRow,
+            backorderUiEnabled: catalogBackorderUiEnabled,
+            formatOnlyAvailable,
+          });
+        const backorderFields = backorderFieldsForProduct
+          ? backorderFieldsForProduct(product)
+          : catalogBackorderFields;
+        const backorderMessageNode = backorderFields ? (
+          <Box
+            sx={{
+              mt: 1,
+              width: '100%',
+              maxWidth: '100%',
+              minWidth: 0,
+              textAlign,
+              alignSelf: quantityStackItemsAlignment,
+            }}
+          >
+            <BackorderMessage
+              totalOnHand={backorderFields.totalOnHand}
+              quantityBackordered={backorderFields.quantityBackordered}
+              backorderMessage={backorderFields.backorderMessage}
+              visible
+            />
+          </Box>
+        ) : null;
 
         const getDisplayPrice = (priceValue: number) => {
           const newMoney = money
@@ -551,31 +586,25 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                     error={Boolean(qtyHelperText)}
                     helperText={qtyHelperText || undefined}
                   />
-                  {backorderFields && (
-                    <Box
-                      sx={{
-                        mt: 1,
-                        width: '100%',
-                        maxWidth: '100%',
-                        minWidth: 0,
-                        textAlign,
-                        alignSelf: quantityStackItemsAlignment,
-                      }}
-                    >
-                      <BackorderMessage
-                        totalOnHand={backorderFields.totalOnHand}
-                        quantityBackordered={backorderFields.quantityBackordered}
-                        backorderMessage={backorderFields.backorderMessage}
-                        visible
-                      />
-                    </Box>
-                  )}
+                  {backorderMessageNode}
                 </Box>
               ) : (
-                <>
-                  {isMobile && <span>Qty: </span>}
-                  {quantity}
-                </>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: quantityStackItemsAlignment,
+                    width: '100%',
+                    maxWidth: '100%',
+                    minWidth: 0,
+                  }}
+                >
+                  <Box>
+                    {isMobile && <span>Qty: </span>}
+                    {quantity}
+                  </Box>
+                  {backorderMessageNode}
+                </Box>
               )}
             </FlexItem>
 

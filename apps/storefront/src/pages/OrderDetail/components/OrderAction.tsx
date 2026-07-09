@@ -5,6 +5,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { GlobalContext } from '@/shared/global';
@@ -91,6 +92,7 @@ interface OrderCardProps {
   invoiceId?: number | string | undefined | null;
   isCurrentCompany: boolean;
   switchCompanyId: number | string | undefined;
+  additionalContent?: ReactNode;
 }
 
 interface DialogData {
@@ -114,6 +116,7 @@ function OrderCard(props: OrderCardProps) {
     ipStatus,
     isCurrentCompany,
     switchCompanyId,
+    additionalContent,
   } = props;
   const displayAsNegativeNumber = ['coupon', 'discountAmount'];
   const b3Lang = useB3Lang();
@@ -256,6 +259,7 @@ function OrderCard(props: OrderCardProps) {
         >
           {showedInformation}
         </Box>
+        {additionalContent}
       </CardContent>
       <StyledCardActions isShowButtons={isShowButtons}>
         {buttons &&
@@ -316,6 +320,7 @@ interface OrderData {
   subtitle: string;
   buttons: Buttons[];
   infos: Infos | string;
+  additionalContent?: ReactNode;
 }
 
 export function OrderAction(props: OrderActionProps) {
@@ -345,7 +350,15 @@ export function OrderAction(props: OrderActionProps) {
     poNumber,
     customerId,
     companyInfo: { companyId } = {},
+    backorderShippingExpectationMessage = '',
   } = detailsData;
+
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const orderBackorderMessage =
+    isBackorderMessagingContextEnabled && hasAnyBackorderDisplay
+      ? backorderShippingExpectationMessage
+      : '';
 
   const getPaymentMessage = useCallback(() => {
     let message = '';
@@ -488,6 +501,11 @@ export function OrderAction(props: OrderActionProps) {
         info: priceData || {},
         symbol: priceSymbol || {},
       },
+      additionalContent: orderBackorderMessage ? (
+        <Typography variant="body2" sx={{ color: '#616161', mt: 1 }}>
+          {orderBackorderMessage}
+        </Typography>
+      ) : undefined,
     },
     {
       header: b3Lang('orderDetail.payment'),

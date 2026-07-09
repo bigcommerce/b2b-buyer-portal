@@ -23,7 +23,12 @@ import { when } from 'vitest-when';
 
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
-import type { GetOrderDetailResponse, Order } from '@/shared/service/bc/graphql/orders';
+import type {
+  GetOrderDetailResponse,
+  Order,
+  OrderLineItem,
+  ShippingConsignment,
+} from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import { useAppDispatch } from '@/store';
 import { setCurrencies } from '@/store/slices/storeConfigs';
@@ -3424,5 +3429,240 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         expect(screen.getByText('Please select at least one item')).toBeVisible();
       });
     });
+  });
+});
+
+describe('Order detail backorder display (unified path, BACK-534)', () => {
+  const buildOrderLineItemWith = builder<OrderLineItem>(() => ({
+    entityId: faker.number.int({ min: 1, max: 9999 }),
+    productEntityId: faker.number.int(),
+    variantEntityId: faker.number.int(),
+    sku: faker.string.alphanumeric(8),
+    brand: faker.company.name(),
+    name: faker.commerce.productName(),
+    quantity: 1,
+    productOptions: [],
+    subTotalListPrice: { currencyCode: 'USD', value: 100 },
+    image: null,
+    baseCatalogProduct: null,
+    returnableQuantity: 0,
+  }));
+
+  const buildShippingConsignmentNodeWith = builder<ShippingConsignment>(() => ({
+    entityId: faker.number.int(),
+    shippingAddress: {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      company: '',
+      address1: '1 Main St',
+      address2: null,
+      city: 'Boise',
+      stateOrProvince: 'Idaho',
+      postalCode: '88822',
+      country: 'United States',
+      countryCode: 'US',
+      phone: '',
+      email: '',
+    },
+    shippingCost: { currencyCode: 'USD', value: 0 },
+    lineItems: { edges: [] },
+    shipments: { edges: [] },
+  }));
+
+  // A single unshipped line (no shipments) lands in the "Not shipped yet" section.
+  const buildOrderWithLine = (
+    lineOverrides: Partial<OrderLineItem>,
+    orderOverrides: Partial<Order> = {},
+  ) =>
+    buildUnifiedOrderWith({
+      entityId: 6696,
+      status: { value: 'PENDING', label: 'Pending' },
+      reference: '',
+      consignments: {
+        shipping: {
+          edges: [
+            {
+              cursor: 'cursor-1',
+              node: buildShippingConsignmentNodeWith({
+                lineItems: { edges: [{ node: buildOrderLineItemWith(lineOverrides) }] },
+              }),
+            },
+          ],
+        },
+        downloads: null,
+      },
+      ...orderOverrides,
+    });
+
+  const backorderEnabledState = {
+    company: buildCompanyStateWith({ customer: { role: CustomerRole.B2C } }),
+    global: buildGlobalStateWith({
+      backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'B2B-4613.buyer_portal_unified_sf_gql_orders': true,
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
+    }),
+    storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+  };
+
+  beforeEach(() => {
+    vi.mocked(useParams).mockReturnValue({ id: '6696' });
+
+    server.use(
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(
+          buildCustomerOrderStatusesWith({
+            data: {
+              bcOrderStatuses: [
+                buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+              ],
+            },
+          }),
+        ),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+  });
+
+  async function renderWith(state: object) {
+    renderWithProviders(<OrderDetails />, {
+      preloadedState: state,
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+  }
+
+  it('shows ready-to-ship, backordered and lead-time lines for a backordered item', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildOrderWithLine({
+                  quantity: 10,
+                  backorderedQuantity: 1,
+                  backorderMessage: 'Lead time: 2-4 weeks',
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    await renderWith(backorderEnabledState);
+
+    expect(await screen.findByText('9 ready to ship')).toBeVisible();
+    expect(screen.getByText('1 will be backordered')).toBeVisible();
+    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('does not show backorder lines when backorder messaging is disabled', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildOrderWithLine({
+                  quantity: 10,
+                  backorderedQuantity: 1,
+                  backorderMessage: 'Lead time: 2-4 weeks',
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    // Module-level preloadedState has backorderEnabled: false.
+    await renderWith(preloadedState);
+
+    expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+    expect(screen.queryByText('will be backordered', { exact: false })).toBeNull();
+    expect(screen.queryByText('ready to ship', { exact: false })).toBeNull();
+  });
+
+  it('shows the order-level backorder shipping-expectation message in the summary', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildOrderWithLine(
+                  { quantity: 10, backorderedQuantity: 1, backorderMessage: '' },
+                  {
+                    backorderShippingExpectationMessage:
+                      'Backordered items will ship separately, as soon as they are available.',
+                  },
+                ),
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    await renderWith(backorderEnabledState);
+
+    expect(
+      await screen.findByText(
+        'Backordered items will ship separately, as soon as they are available.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('omits backorder fields from the query when backorder messaging is disabled', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: { site: { order: buildOrderWithLine({ quantity: 1, backorderedQuantity: 0 }) } },
+          }),
+        );
+      }),
+    );
+
+    await renderWith(preloadedState);
+
+    expect(capturedQuery).toContain('returnableQuantity');
+    expect(capturedQuery).not.toContain('backorderedQuantity');
+    expect(capturedQuery).not.toContain('backorderShippingExpectationMessage');
+  });
+
+  it('requests backorder fields in the query when backorder messaging is enabled', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: { site: { order: buildOrderWithLine({ quantity: 1, backorderedQuantity: 0 }) } },
+          }),
+        );
+      }),
+    );
+
+    await renderWith(backorderEnabledState);
+
+    expect(capturedQuery).toContain('backorderedQuantity');
+    expect(capturedQuery).toContain('backorderMessage');
+    expect(capturedQuery).toContain('backorderShippingExpectationMessage');
   });
 });

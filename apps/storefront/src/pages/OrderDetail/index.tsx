@@ -5,6 +5,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -64,6 +65,8 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+
+  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
 
   const {
     state: { addressConfig },
@@ -174,7 +177,10 @@ function OrderDetail() {
       setIsRequestLoading(true);
 
       try {
-        const response = await getOrderDetail({ entityId: id });
+        const response = await getOrderDetail({
+          entityId: id,
+          includeBackorder: isBackorderMessagingContextEnabled,
+        });
         const order = response.data?.site?.order;
 
         if (order && isCurrentRequest) {
@@ -200,7 +206,7 @@ function OrderDetail() {
       isCurrentRequest = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- preOrderId is only used for failed navigation fallback
-  }, [isUnifiedOrders, orderId]);
+  }, [isUnifiedOrders, orderId, isBackorderMessagingContextEnabled]);
 
   useEffect(() => {
     if (!isUnifiedOrders || !unifiedOrder) {

@@ -40,6 +40,7 @@ export interface OrderDetailsState {
   customerId?: number;
   digitalProducts?: OrderProductItem[];
   billingAddress?: Address;
+  backorderShippingExpectationMessage?: string;
 }
 interface OrderDetailsAction {
   type: string;

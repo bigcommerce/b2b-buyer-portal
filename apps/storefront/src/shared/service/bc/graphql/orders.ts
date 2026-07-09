@@ -60,6 +60,9 @@ export interface OrderLineItem {
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
   returnableQuantity: number;
+  /** Order-time backorder snapshot. Present only when backorder fields are requested. */
+  backorderedQuantity?: number;
+  backorderMessage?: string | null;
 }
 
 export interface OrderShipmentTracking {
@@ -219,6 +222,8 @@ export interface Order {
   quote: OrderQuote | null;
   invoice: OrderInvoice | null;
   extraFields: ExtraFieldValue[];
+  /** Order-level backorder shipping-expectation message. Present only when requested. */
+  backorderShippingExpectationMessage?: string | null;
 }
 
 // ===========================================================================
@@ -366,7 +371,10 @@ const orderAddressFields = `firstName
     phone
     email`;
 
-const orderLineItemFields = `entityId
+// backorderedQuantity/backorderMessage are alpha, experiment-gated storefront fields
+// (BACK-598). Only request them when backorder messaging is on, so the query stays valid
+// on stores whose storefront GraphQL predates those fields.
+const orderLineItemFields = (includeBackorder: boolean) => `entityId
       productEntityId
       variantEntityId
       sku
@@ -388,7 +396,13 @@ const orderLineItemFields = `entityId
       baseCatalogProduct {
         path
       }
-      returnableQuantity`;
+      returnableQuantity${
+        includeBackorder
+          ? `
+      backorderedQuantity
+      backorderMessage`
+          : ''
+      }`;
 
 const orderShipmentFields = `entityId
       shippedAt {
@@ -413,7 +427,7 @@ const orderShipmentFields = `entityId
         quantity
       }`;
 
-const orderConsignmentsFields = `consignments {
+const orderConsignmentsFields = (includeBackorder: boolean) => `consignments {
     shipping {
       edges {
         cursor
@@ -428,7 +442,7 @@ const orderConsignmentsFields = `consignments {
           lineItems {
             edges {
               node {
-                ${orderLineItemFields}
+                ${orderLineItemFields(includeBackorder)}
               }
             }
           }
@@ -653,7 +667,9 @@ const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
 }`;
 
 /** Single order detail. Entry: site.order. */
-const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
+const buildOrderDetailQuery = (
+  includeBackorder: boolean,
+) => `query GetOrderDetail($entityId: Int!) {
   site {
     order(filter: { entityId: $entityId }) {
       entityId
@@ -670,8 +686,13 @@ const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
       ${orderFinancialFields}
       customerMessage
       totalProductQuantity
-      ${orderConsignmentsFields}
-      ${orderB2BFields}
+      ${orderConsignmentsFields(includeBackorder)}
+      ${orderB2BFields}${
+        includeBackorder
+          ? `
+      backorderShippingExpectationMessage`
+          : ''
+      }
       payments {
         description
       }
@@ -749,10 +770,12 @@ export async function getCustomerOrders(variables: {
 /** Single order detail by entityId. */
 export async function getOrderDetail(variables: {
   entityId: number;
+  includeBackorder?: boolean;
 }): Promise<GetOrderDetailResponse> {
+  const { entityId, includeBackorder = false } = variables;
   return storefrontGQLRequest<GetOrderDetailResponse>({
-    query: GET_ORDER_DETAIL,
-    variables,
+    query: buildOrderDetailQuery(includeBackorder),
+    variables: { entityId },
   });
 }
 

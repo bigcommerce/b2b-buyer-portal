@@ -185,6 +185,8 @@ function buildOrderProduct(
     sku: string;
     brand: string | null;
     imageUrl: string;
+    backorderedQuantity?: number;
+    backorderMessage?: string | null;
   },
 ): OrderProductItem {
   const unitPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
@@ -217,6 +219,8 @@ function buildOrderProduct(
     quantity_refunded: 0,
     refund_amount: '0',
     return_id: 0,
+    quantityBackordered: physicalFields?.backorderedQuantity ?? 0,
+    backorderMessage: physicalFields?.backorderMessage ?? null,
     optionList: item.productOptions.map((o) => ({
       optionId: o.productAttributeEntityId ?? 0,
       optionValue: o.productAttributeValueEntityId?.toString() ?? o.value,
@@ -269,6 +273,8 @@ function convertLineItemToProduct(
     sku: item.sku ?? '',
     brand: item.brand ?? '',
     imageUrl: item.image?.url ?? '',
+    backorderedQuantity: item.backorderedQuantity,
+    backorderMessage: item.backorderMessage,
   });
 }
 
@@ -492,6 +498,7 @@ export function convertOrderDetail(
   | 'createdEmail'
   | 'companyInfo'
   | 'customerId'
+  | 'backorderShippingExpectationMessage'
 > {
   const moneyFormat = buildMoneyFormat(currencies, order.totalIncTax.currencyCode);
   const decimalPlaces = moneyFormat.decimal_places;
@@ -537,5 +544,6 @@ export function convertOrderDetail(
     createdEmail: order.placedBy?.email ?? '',
     companyInfo,
     customerId: order.placedBy?.entityId,
+    backorderShippingExpectationMessage: order.backorderShippingExpectationMessage ?? '',
   };
 }

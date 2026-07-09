@@ -67,6 +67,9 @@ export interface OrderProductItem {
   not_shipping_number?: number;
   variantImageUrl?: string;
   isVisible?: boolean;
+  /** Order-time backorder snapshot (unified storefront orders, BACK-534). */
+  quantityBackordered?: number;
+  backorderMessage?: string | null;
 }
 
 export interface EditableProductItem extends OrderProductItem {

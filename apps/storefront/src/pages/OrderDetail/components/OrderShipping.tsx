@@ -5,10 +5,17 @@ import { format } from 'date-fns/format';
 import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components/B3ProductList';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 
-import { OrderShippedItem, OrderShippingsItem } from '../../../types';
+import {
+  OrderProductItem,
+  OrderShippedItem,
+  OrderShippingsItem,
+  ProductItem,
+} from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 const ShipmentTitle = styled('span')(() => ({
@@ -28,6 +35,25 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
+
+  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
+    useBackorderStorefrontMessaging();
+  const showOrderBackorder = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+
+  // Order-time snapshot: backordered units are fixed on the line, and ready-to-ship is
+  // ordered minus backordered — no live inventory lookup (this is historical order data).
+  const backorderFieldsForProduct = (product: ProductItem): BackorderDisplayFields | null => {
+    const { quantityBackordered = 0, quantity = 0, backorderMessage } = product as OrderProductItem;
+    if (quantityBackordered <= 0) {
+      return null;
+    }
+
+    return {
+      totalOnHand: Math.max(0, quantity - quantityBackordered),
+      quantityBackordered,
+      backorderMessage: backorderMessage ?? undefined,
+    };
+  };
 
   const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>([]);
 
@@ -192,6 +218,9 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                   totalText="Total"
                   canToProduct={isCurrentCompany}
                   textAlign={isMobile ? 'left' : 'right'}
+                  backorderFieldsForProduct={
+                    showOrderBackorder ? backorderFieldsForProduct : undefined
+                  }
                 />
               </Fragment>
             ) : null}
