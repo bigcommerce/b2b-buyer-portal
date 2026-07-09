@@ -454,12 +454,13 @@ describe('buildFormFieldsInput', () => {
     expect(formFields?.multipleChoices).toEqual([{ fieldEntityId: 14, fieldValueEntityId: 99 }]);
   });
 
-  it('clears text ("") and checkbox ([]) which are representable, and skips an emptied number without blocking', () => {
+  it('clears text ("") and checkbox ([]) which are representable, and flags an emptied number as unsendable', () => {
+    // A number has no "empty" form, so a cleared one is unsendable — not sent, not silently dropped.
+    const clearedNumber = { name: 'Age', value: '', fieldType: 'number', fieldEntityId: 12 };
     const { formFields, unsendable } = buildFormFieldsInput(
       [
         { name: 'fText', value: '', fieldType: 'text', fieldEntityId: 10 },
-        // A number has no "empty" form, so a cleared one is skipped — not sent, not unsendable.
-        { name: 'Age', value: '', fieldType: 'number', fieldEntityId: 12 },
+        clearedNumber,
         { name: 'fChecks', value: [], fieldType: 'checkbox', fieldEntityId: 15 },
       ],
       definitions,
@@ -469,7 +470,7 @@ describe('buildFormFieldsInput', () => {
       texts: [{ fieldEntityId: 10, text: '' }],
       checkboxes: [{ fieldEntityId: 15, fieldValueEntityIds: [] }],
     });
-    expect(unsendable).toEqual([]);
+    expect(unsendable).toEqual([clearedNumber]);
   });
 
   it('flags an unmapped choice, a missing entityId, and a partial checkbox as unsendable', () => {
@@ -495,17 +496,16 @@ describe('buildFormFieldsInput', () => {
     expect(unsendable).toEqual([unmappedChoice, noEntityId, partialCheckbox]);
   });
 
-  it('skips a cleared date and a cleared dropdown without blocking (not unsendable)', () => {
+  it('flags a cleared date and a cleared dropdown as unsendable (no empty form to send)', () => {
+    const clearedDate = { name: 'fDate', value: '', fieldType: 'date', fieldEntityId: 13 };
+    const clearedDropdown = { name: 'fChoice', value: '', fieldType: 'dropdown', fieldEntityId: 14 };
     const { formFields, unsendable } = buildFormFieldsInput(
-      [
-        { name: 'fDate', value: '', fieldType: 'date', fieldEntityId: 13 },
-        { name: 'fChoice', value: '', fieldType: 'dropdown', fieldEntityId: 14 },
-      ],
+      [clearedDate, clearedDropdown],
       definitions,
     );
 
     expect(formFields).toBeUndefined();
-    expect(unsendable).toEqual([]);
+    expect(unsendable).toEqual([clearedDate, clearedDropdown]);
   });
 });
 
