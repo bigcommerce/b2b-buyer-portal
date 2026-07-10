@@ -11,6 +11,7 @@ import { snackbar } from '@/utils/b3Tip';
 import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';
+import { formatCurrency } from '../shared/convertOrderDetail';
 import {
   defaultItemStyle,
   Flex,
@@ -60,11 +61,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const b3Lang = useB3Lang();
 
   const formatPrice = (value: string | number) =>
-    currencyCode
-      ? new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(
-          Number(value),
-        )
-      : currencyFormat(value);
+    currencyCode ? formatCurrency(Number(value), currencyCode) : currencyFormat(value);
 
   const [isMobile] = useMobile();
 

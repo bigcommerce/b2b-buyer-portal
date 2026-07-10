@@ -25,9 +25,14 @@ import type { OrderDetailsState } from '../context/OrderDetailsContext';
 // Shared helpers
 // ===========================================================================
 
+/** Format a numeric value with currency symbol via Intl.NumberFormat. */
+export function formatCurrency(value: number, currencyCode: string): string {
+  return new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(value);
+}
+
 /** Format a Money value for display, preferring the server-formatted string. */
 function formatMoney(money: Money): string {
-  return money.formattedV2 ?? money.value.toFixed(2);
+  return money.formattedV2 ?? formatCurrency(money.value, money.currencyCode);
 }
 
 // ===========================================================================
@@ -163,8 +168,6 @@ function buildOrderProduct(
   const formattedTotal = String(item.subTotalSalePrice.value);
 
   const { currencyCode } = item.subTotalSalePrice;
-  const intlFormat = (value: number) =>
-    new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(value);
 
   return {
     id: item.entityId,
@@ -231,8 +234,10 @@ function buildOrderProduct(
     wrapping_id: 0,
     wrapping_message: '',
     wrapping_name: '',
-    formattedPrice: intlFormat(unitListPrice),
-    formattedTotal: item.subTotalSalePrice.formattedV2 ?? intlFormat(item.subTotalSalePrice.value),
+    formattedPrice: formatCurrency(unitListPrice, currencyCode),
+    formattedTotal:
+      item.subTotalSalePrice.formattedV2 ??
+      formatCurrency(item.subTotalSalePrice.value, currencyCode),
   };
 }
 

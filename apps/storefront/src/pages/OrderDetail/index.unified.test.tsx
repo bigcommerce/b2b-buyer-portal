@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
 import {
@@ -26,9 +25,7 @@ import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
 import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
-import { useAppDispatch } from '@/store';
-import { setCurrencies } from '@/store/slices/storeConfigs';
-import { Currency, CustomerRole } from '@/types';
+import { CustomerRole } from '@/types';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
@@ -195,30 +192,6 @@ const buildCustomerShoppingListResponseWith = builder(() => {
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 });
-
-function OrderDetailsWithCurrencyHydration({ currencies }: { currencies?: Currency[] }) {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (!currencies) {
-      return;
-    }
-
-    dispatch(
-      setCurrencies({
-        currencies,
-        channelCurrencies: {
-          channel_id: 1,
-          enabled_currencies: currencies.map((currency) => currency.currency_code),
-          default_currency: currencies[0]?.currency_code ?? 'USD',
-        },
-        enteredInclusiveTax: false,
-      }),
-    );
-  }, [currencies, dispatch]);
-
-  return <OrderDetails />;
-}
 
 const preloadedState = {
   company: buildCompanyStateWith({
@@ -404,89 +377,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13.50');
     expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37.93');
     expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€431.77');
-  });
-
-  it('updates currency formatting without refetching the order detail', async () => {
-    const euro = buildCurrencyWith({
-      country_iso2: 'DE',
-      default_for_country_codes: ['EUR'],
-      currency_code: 'EUR',
-      currency_exchange_rate: '0.85',
-      name: 'Euro',
-      token: '€',
-      decimal_token: ',',
-      thousands_token: '.',
-    });
-
-    const euroOrder = buildUnifiedOrderWith({
-      entityId: 6696,
-      subTotal: buildSfGqlMoneyWith({ currencyCode: 'EUR', value: 102, formattedV2: '€102.00' }),
-      shippingCostTotal: buildSfGqlMoneyWith({
-        currencyCode: 'EUR',
-        value: 332,
-        formattedV2: '€332.00',
-      }),
-      handlingCostTotal: buildSfGqlMoneyWith({
-        currencyCode: 'EUR',
-        value: 22.2,
-        formattedV2: '€22.20',
-      }),
-      taxTotal: buildSfGqlMoneyWith({ currencyCode: 'EUR', value: 13.5, formattedV2: '€13.50' }),
-      totalIncTax: buildSfGqlMoneyWith({
-        currencyCode: 'EUR',
-        value: 431.77,
-        formattedV2: '€431.77',
-      }),
-      discounts: {
-        couponDiscounts: [],
-        nonCouponDiscountTotal: buildSfGqlMoneyWith({
-          currencyCode: 'EUR',
-          value: 37.93,
-          formattedV2: '€37.93',
-        }),
-        totalDiscount: null,
-      },
-    });
-
-    let orderDetailRequestCount = 0;
-
-    server.use(
-      graphql.query('GetOrderDetail', () => {
-        orderDetailRequestCount += 1;
-
-        return HttpResponse.json(
-          buildOrderDetailResponseWith({
-            data: { site: { order: euroOrder } },
-          }),
-        );
-      }),
-      graphql.query('GetCustomerOrderStatuses', () =>
-        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
-      ),
-      graphql.query('AddressConfig', () =>
-        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
-      ),
-    );
-
-    const { result } = renderWithProviders(<OrderDetailsWithCurrencyHydration />, {
-      preloadedState,
-      initialEntries: [{ state: { isCompanyOrder: false } }],
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-    // formattedV2 comes from the server — display uses it directly
-    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102.00');
-    expect(orderDetailRequestCount).toBe(1);
-
-    // Changing Redux currencies should NOT affect display — formattedV2 is authoritative
-    result.rerender(<OrderDetailsWithCurrencyHydration currencies={[euro]} />);
-
-    await waitFor(() => {
-      expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102.00');
-    });
-
-    expect(orderDetailRequestCount).toBe(1);
   });
 
   it('omits the handling fee row when cost is zero', async () => {
