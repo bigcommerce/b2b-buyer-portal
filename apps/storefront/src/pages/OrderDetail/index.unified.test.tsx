@@ -25,7 +25,7 @@ import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
 import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
-import { CustomerRole } from '@/types';
+import { Currency, CustomerRole } from '@/types';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
