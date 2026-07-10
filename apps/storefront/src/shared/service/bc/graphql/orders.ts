@@ -158,7 +158,6 @@ export interface OrderHistoryEvent {
   status: string;
   source: string | null;
   createdBy: OrderPlacedBy | null;
-  details: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -536,7 +535,6 @@ const orderB2BFields = `reference
       lastName
       email
     }
-    details
     createdAt
   }
   quote {

@@ -1355,7 +1355,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         status: 'Pending',
                         source: null,
                         createdBy: null,
-                        details: null,
                         createdAt: '2025-05-01T03:44:00.000Z',
                       },
                       {
@@ -1364,7 +1363,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         status: 'Shipped',
                         source: null,
                         createdBy: null,
-                        details: null,
                         createdAt: '2025-05-04T07:22:00.000Z',
                       },
                     ],
