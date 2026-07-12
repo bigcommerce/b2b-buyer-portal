@@ -3,14 +3,17 @@ import { vi } from 'vitest';
 import { store } from '@/store';
 
 import { getPrintInvoiceBaseUrl } from './b3PrintInvoice';
-import * as basicConfig from './basicConfig';
 
 const STORE_URL = 'https://store-abc.mybigcommerce.com';
 const STOREFRONT_URL = 'https://my-custom-storefront.com';
 
+const platformMocks = vi.hoisted(() => ({
+  isBigCommercePlatform: vi.fn(() => true),
+}));
+
 vi.mock('./basicConfig', () => ({
-  platform: 'bigcommerce',
   BigCommerceStorefrontAPIBaseURL: 'https://store-abc.mybigcommerce.com',
+  isBigCommercePlatform: platformMocks.isBigCommercePlatform,
 }));
 
 const getStateWithUrls = (urls: string[]) => ({
@@ -23,6 +26,7 @@ const getStateWithUrls = (urls: string[]) => ({
 
 describe('getPrintInvoiceBaseUrl', () => {
   beforeEach(() => {
+    platformMocks.isBigCommercePlatform.mockReturnValue(true);
     vi.spyOn(store, 'getState').mockReturnValue(
       getStateWithUrls([]) as ReturnType<typeof store.getState>,
     );
@@ -30,15 +34,13 @@ describe('getPrintInvoiceBaseUrl', () => {
 
   describe('when platform is bigcommerce (Stencil)', () => {
     it('returns BigCommerceStorefrontAPIBaseURL', () => {
-      (basicConfig as { platform: string }).platform = 'bigcommerce';
-
       expect(getPrintInvoiceBaseUrl()).toBe(STORE_URL);
     });
   });
 
   describe('when platform is not bigcommerce (headless)', () => {
     beforeEach(() => {
-      (basicConfig as { platform: string }).platform = 'catalyst';
+      platformMocks.isBigCommercePlatform.mockReturnValue(false);
     });
 
     it('returns storefront URL when urls contain store URL first and storefront second', () => {

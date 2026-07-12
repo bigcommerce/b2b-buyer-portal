@@ -18,6 +18,7 @@ import AccountSetting from '.';
 vi.mock('@/utils/basicConfig', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/utils/basicConfig')>()),
   platform: 'catalyst',
+  isCatalystPlatform: () => true,
 }));
 
 const { server } = startMockServer();

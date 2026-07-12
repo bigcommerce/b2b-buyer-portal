@@ -1,7 +1,7 @@
 import { store } from '@/store';
 
 import b2bLogger from './b3Logger';
-import { BigCommerceStorefrontAPIBaseURL, platform } from './basicConfig';
+import { BigCommerceStorefrontAPIBaseURL, isBigCommercePlatform } from './basicConfig';
 
 const bindDom = (html: string, domId: string) => {
   let iframeDom = document.getElementById(domId) as HTMLIFrameElement | null;
@@ -28,7 +28,7 @@ const normalizeUrl = (url: string) => url.trim().replace(/\/$/, '');
  * On headless, derives from storeInfo.urls (store URL vs storefront URL) for the current channel.
  */
 export const getPrintInvoiceBaseUrl = (): string => {
-  if (platform === 'bigcommerce') return BigCommerceStorefrontAPIBaseURL;
+  if (isBigCommercePlatform()) return BigCommerceStorefrontAPIBaseURL;
   const { storeInfo } = store.getState().global;
   const storeUrlNormalized = normalizeUrl(BigCommerceStorefrontAPIBaseURL);
   const urls = storeInfo?.urls ?? [];
@@ -46,7 +46,7 @@ export const getPrintInvoiceUrl = (orderId: string) =>
 export const b2bPrintInvoice = async (orderId: string, domId: string) => {
   const url = getPrintInvoiceUrl(orderId);
 
-  if (platform !== 'bigcommerce') {
+  if (!isBigCommercePlatform()) {
     window.open(url);
     return;
   }

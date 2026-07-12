@@ -4,6 +4,7 @@ import { getInvoiceCheckoutUrl } from '@/shared/service/b2b';
 import { BcCartData } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
+import { isBigCommercePlatform, isCatalystPlatform } from '@/utils/basicConfig';
 
 const getCheckoutUrlAndCart = async (params: BcCartData) => {
   const {
@@ -32,12 +33,12 @@ export const gotoInvoiceCheckoutUrl = async (
     }
   };
 
-  if (platform === 'bigcommerce') {
+  if (isBigCommercePlatform(platform)) {
     handleStencil();
     return;
   }
 
-  if (platform === 'catalyst') {
+  if (isCatalystPlatform(platform)) {
     window.location.assign(`/checkout?cartId=${cartId}`);
     return;
   }
