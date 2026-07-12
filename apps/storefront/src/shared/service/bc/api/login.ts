@@ -1,11 +1,14 @@
-import { BigCommerceStorefrontAPIBaseURL, platform } from '../../../../utils/basicConfig';
+import {
+  BigCommerceStorefrontAPIBaseURL,
+  isBigCommercePlatform,
+} from '../../../../utils/basicConfig';
 
 /**
  * This function it's still present due the merchant can logs in as a client and stencil channels trade the current customer jwt to recognize
  * which user log in on the channel
  */
 export const getCurrentCustomerJWT = async (app_client_id: string) => {
-  if (platform !== 'bigcommerce') {
+  if (!isBigCommercePlatform()) {
     return undefined;
   }
   const response = await fetch(
@@ -26,7 +29,7 @@ export const getCurrentCustomerJWT = async (app_client_id: string) => {
  * it makes the stencil channel recognize the user who log in the channel
  */
 export const customerLoginAPI = (storefrontLoginToken: string) => {
-  if (platform !== 'bigcommerce') {
+  if (!isBigCommercePlatform()) {
     return;
   }
   fetch(`${BigCommerceStorefrontAPIBaseURL}/login/token/${storefrontLoginToken}`, {

@@ -8,7 +8,7 @@ import { isLoggedInSelector } from '@/store/selectors';
 import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { platform } from '@/utils/basicConfig';
+import { isBigCommercePlatform, isCatalystPlatform } from '@/utils/basicConfig';
 import { getSearchVal } from '@/utils/loginInfo';
 
 import { detectQuoteStockChange, QuoteStockSnapshotItem } from './detectQuoteStockChange';
@@ -121,12 +121,12 @@ export const handleQuoteCheckout = async ({
       }
     }
 
-    if (platform === 'bigcommerce') {
+    if (isBigCommercePlatform()) {
       window.location.href = checkoutUrl;
       return;
     }
 
-    if (platform === 'catalyst') {
+    if (isCatalystPlatform()) {
       window.location.href = `/checkout?cartId=${cartId}`;
       return;
     }

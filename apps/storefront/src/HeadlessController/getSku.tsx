@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import B3Request from '@/shared/service/request/b3Fetch';
 import { LineItem } from '@/utils/b3Product/b3Product';
-import { platform } from '@/utils/basicConfig';
+import { isBigCommercePlatform } from '@/utils/basicConfig';
 
 const Options = z.array(
   z.object({
@@ -25,7 +25,7 @@ const graphqlRequest: typeof B3Request.graphqlBC | typeof B3Request.graphqlBCPro
   query,
   variables,
 }) => {
-  return platform === 'bigcommerce'
+  return isBigCommercePlatform()
     ? B3Request.graphqlBC({ query, variables })
     : B3Request.graphqlBCProxy({ query, variables });
 };

@@ -28,7 +28,7 @@ import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { B3SStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
-import { channelId, platform } from '@/utils/basicConfig';
+import { channelId, isCatalystPlatform } from '@/utils/basicConfig';
 import { deCodeField, getAccountFormFields } from '@/utils/registerUtils';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
@@ -53,7 +53,7 @@ function useData() {
   const isDisplayUpgradeBanner =
     CustomerRole.B2C === customer.role &&
     [UserTypes.B2C, UserTypes.MULTIPLE_B2C].includes(customer.userType) &&
-    platform === 'catalyst';
+    isCatalystPlatform();
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;

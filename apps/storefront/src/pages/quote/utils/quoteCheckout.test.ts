@@ -42,6 +42,8 @@ vi.mock('@/utils/basicConfig', () => ({
   channelId: 1,
   disableLogoutButton: false,
   BigCommerceStorefrontAPIBaseURL: 'https://store-test-store.mybigcommerce.com',
+  isBigCommercePlatform: () => true,
+  isCatalystPlatform: () => false,
 }));
 
 vi.mock('@/utils/loginInfo', () => ({
