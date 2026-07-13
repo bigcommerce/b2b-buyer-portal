@@ -6,13 +6,19 @@ import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/se
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { isLoggedInSelector, store, useAppSelector } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
+import { ensureBcGraphqlToken } from '@/utils/loginInfo';
 
+// bcLogoutLogin always goes through graphqlBC on Catalyst, which needs a bcGraphqlToken
+// bearer. B2B auth expiry (and any prior logoutSession()) clears that token before this
+// component mounts, so it must be re-fetched here or the storefront logout mutation fails.
 const logout = () => {
-  return bcLogoutLogin().then((res) => {
-    if (res.data.logout.result !== 'success') {
-      throw new Error('Failed to logout');
-    }
-  });
+  return ensureBcGraphqlToken().then(() =>
+    bcLogoutLogin().then((res) => {
+      if (res.data.logout.result !== 'success') {
+        throw new Error('Failed to logout');
+      }
+    }),
+  );
 };
 
 const useEndMasquerade = () => {

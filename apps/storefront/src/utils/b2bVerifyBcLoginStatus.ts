@@ -4,14 +4,14 @@ import { store } from '@/store';
 import { CustomerRole } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
 
-import { platform } from './basicConfig';
+import { platform, PLATFORM_BIGCOMMERCE } from './basicConfig';
 
 const b2bVerifyBcLoginStatus = async () => {
   let isBcLogin = false;
   const { role } = store.getState().company.customer;
   const { B2BToken } = store.getState().company.tokens;
 
-  if (B2BToken && platform !== 'bigcommerce') return true;
+  if (B2BToken && platform !== PLATFORM_BIGCOMMERCE) return true;
 
   try {
     if (Number(role) !== CustomerRole.GUEST) {

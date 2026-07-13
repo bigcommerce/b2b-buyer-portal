@@ -19,7 +19,7 @@ import { setB2BToken, setCurrentCustomerJWT } from '@/store/slices/company';
 import { LoginFlagType } from '@/types/login';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { channelId, platform } from '@/utils/basicConfig';
+import { channelId, platform, PLATFORM_CATALYST } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { isDefaultLoginStylingActive } from '@/utils/preMountLoginMask';
@@ -429,7 +429,7 @@ function Login(props: PageProps) {
 }
 
 export default function LoginPage(props: PageProps) {
-  if (platform === 'catalyst') {
+  if (platform === PLATFORM_CATALYST) {
     return <CatalystLogin />;
   }
 

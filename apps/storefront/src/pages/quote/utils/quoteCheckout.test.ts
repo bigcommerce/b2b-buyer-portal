@@ -38,6 +38,8 @@ vi.mock('@/utils/b3Tip', () => ({
 
 vi.mock('@/utils/basicConfig', () => ({
   platform: 'bigcommerce',
+  PLATFORM_BIGCOMMERCE: 'bigcommerce',
+  PLATFORM_CATALYST: 'catalyst',
   storeHash: 'test-store',
   channelId: 1,
   disableLogoutButton: false,

@@ -15,6 +15,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutesWithoutComponent } from '@/shared/routeList';
 import { getB2BShoppingList, getBcShoppingList, superAdminCompanies } from '@/shared/service/b2b';
+import { bcLogoutLogin } from '@/shared/service/bc';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
   formattedQuoteDraftListSelector,
@@ -233,6 +234,20 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           },
           logout: async () => {
             try {
+              // Invalidate the BC storefront session cookie set via credentials:include,
+              // mirroring CatalystLogin/useLogout, otherwise it stays active for later
+              // credentialed GraphQL calls even after buyer-portal state is cleared.
+              // bcLogoutLogin goes through graphqlBC on Catalyst, which needs a
+              // bcGraphqlToken bearer, so ensure one is present before calling it —
+              // otherwise a cleared/expired token makes the mutation fail while local
+              // state still gets cleared below.
+              await ensureBcGraphqlToken();
+              const { result } = (await bcLogoutLogin()).data.logout;
+
+              if (result !== 'success') {
+                throw new Error('Failed to logout');
+              }
+
               if (isAgenting) {
                 await endMasquerade(store);
               }

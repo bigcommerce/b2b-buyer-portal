@@ -46,6 +46,11 @@ export const useLogout = () => {
   const logout = useCallback(
     async ({ showLogoutBanner = true }: LogoutOptions) => {
       try {
+        // bcLogoutLogin goes through graphqlBC on Catalyst, which needs a bcGraphqlToken
+        // bearer. Prefetch it before logging out, otherwise a cleared/expired token makes
+        // the BC logout mutation fail while local state still gets cleared below, leaving
+        // the BC session cookie (set via credentials: 'include') alive.
+        await ensureBcGraphqlToken();
         const { result } = (await bcLogoutLogin()).data.logout;
 
         if (result !== 'success') {

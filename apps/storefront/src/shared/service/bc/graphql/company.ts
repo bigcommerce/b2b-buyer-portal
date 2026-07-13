@@ -1,3 +1,7 @@
+import { isBcStorefrontPlatform } from '@/utils/basicConfig';
+
+import B3Request from '../../request/b3Fetch';
+
 import { storefrontGQLRequest } from './client';
 
 /**
@@ -96,8 +100,17 @@ export async function registerCompany(
   input: RegisterCompanyInput,
 ): Promise<RegisterCompanyMutationResponse> {
   const variables = { input };
-  return storefrontGQLRequest<RegisterCompanyMutationResponse>({
-    query: REGISTER_COMPANY_MUTATION,
-    variables,
-  });
+  // Must use graphqlBC (direct + credentials:include) on bigcommerce/catalyst so the
+  // BC session cookie set by bcLogin is sent with the request. The proxy never forwards
+  // cookies, so registerCompany would return "Customer not authenticated" via that path.
+  const request = isBcStorefrontPlatform
+    ? B3Request.graphqlBC<RegisterCompanyMutationResponse>({
+        query: REGISTER_COMPANY_MUTATION,
+        variables,
+      })
+    : storefrontGQLRequest<RegisterCompanyMutationResponse>({
+        query: REGISTER_COMPANY_MUTATION,
+        variables,
+      });
+  return request;
 }

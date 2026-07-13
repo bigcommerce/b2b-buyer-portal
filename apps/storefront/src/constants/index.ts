@@ -1,3 +1,5 @@
+import { PLATFORM_BIGCOMMERCE } from '@/utils/basicConfig';
+
 export const SUPPORT_LANGUAGE = ['en', 'zh', 'fr', 'nl', 'de', 'it', 'es'];
 
 // cspell:disable
@@ -68,7 +70,7 @@ export const BROWSER_LANG = navigator.language.substring(0, 2);
 const {
   setting: { platform, cart_url: cartUrl },
 } = window.B3;
-const CART_FALLBACK_VALUE = platform === 'bigcommerce' ? '/cart.php' : '/cart';
+const CART_FALLBACK_VALUE = platform === PLATFORM_BIGCOMMERCE ? '/cart.php' : '/cart';
 export const CART_URL = cartUrl ?? CART_FALLBACK_VALUE;
 export const CHECKOUT_URL = '/checkout';
 
