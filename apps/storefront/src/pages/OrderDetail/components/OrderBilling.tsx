@@ -17,7 +17,14 @@ type OrderBillingProps = {
 
 export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
-    state: { billingAddress, digitalProducts = [], addressLabelPermission, orderId, money },
+    state: {
+      billingAddress,
+      digitalProducts = [],
+      addressLabelPermission,
+      orderId,
+      money,
+      currencyCode,
+    },
   } = useContext(OrderDetailsContext);
 
   const [isMobile] = useMobile();
@@ -147,6 +154,7 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             canToProduct={isCurrentCompany}
             textAlign={isMobile ? 'left' : 'right'}
             money={money}
+            currencyCode={currencyCode}
             getCurrentProductUrls={getCurrentProductUrls}
           />
         </CardContent>
