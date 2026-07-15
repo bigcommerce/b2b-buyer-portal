@@ -10,7 +10,7 @@ import {
 
 import {
   getDraftBackorderDisplayFields,
-  getDraftQuotePicklistSelections,
+  getQuotePicklistSelections,
   resolveDraftLineProductId,
 } from '../utils/getQuoteBackorderDisplayFields';
 
@@ -45,7 +45,7 @@ export function useDraftQuoteBackorderState({
       ? items.map((item) => ({
           id: String(item.node.id),
           qty: Number(item.node.quantity) || 0,
-          selections: getDraftQuotePicklistSelections(item.node),
+          selections: getQuotePicklistSelections(item.node),
         }))
       : [];
 

@@ -5,10 +5,10 @@ import type { QuoteItem } from '@/types/quotes';
 import {
   draftRowQuantityExceedsAvailableToSell,
   getDraftBackorderDisplayFields,
-  getDraftQuotePicklistSelections,
   getQuoteBackorderDisplayFields,
   getQuoteBackorderDisplayQuantity,
   getQuoteItemBackendAvailability,
+  getQuotePicklistSelections,
   type QuoteBackorderRow,
   quoteDetailListHasBackorderedItemsForDisplay,
 } from './getQuoteBackorderDisplayFields';
@@ -434,7 +434,7 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
   });
 });
 
-describe('getDraftQuotePicklistSelections', () => {
+describe('getQuotePicklistSelections', () => {
   const picklistModifier = {
     id: 100,
     type: 'product_list',
@@ -452,7 +452,7 @@ describe('getDraftQuotePicklistSelections', () => {
   it('resolves a picklist selection from camelCase attribute-keyed optionList', () => {
     const optionList = JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]);
 
-    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+    expect(getQuotePicklistSelections(buildRow(optionList))).toEqual([
       { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
     ]);
   });
@@ -460,7 +460,46 @@ describe('getDraftQuotePicklistSelections', () => {
   it('resolves a picklist selection from snake_case option_id/option_value entries', () => {
     const optionList = JSON.stringify([{ option_id: 100, option_value: 200 }]);
 
-    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+    expect(getQuotePicklistSelections(buildRow(optionList))).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
+  });
+
+  it('resolves a submitted quote selection from its options', () => {
+    const row = {
+      quantity: 1,
+      options: [
+        { optionId: 100, optionValue: 200, optionName: 'PickleFest', optionLabel: 'Ice Pick' },
+      ],
+      productsSearch: { modifiers: [picklistModifier] },
+    } as unknown as QuoteItem['node'];
+
+    expect(getQuotePicklistSelections(row)).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
+  });
+
+  it('resolves a submitted quote selection from snake_case option_id/option_value options', () => {
+    const row = {
+      quantity: 1,
+      options: [{ option_id: 100, option_value: 200 }],
+      productsSearch: { modifiers: [picklistModifier] },
+    } as unknown as QuoteItem['node'];
+
+    expect(getQuotePicklistSelections(row)).toEqual([
+      { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+    ]);
+  });
+
+  it('resolves a submitted quote selection even when a leftover draft optionList is present', () => {
+    const row = {
+      quantity: 1,
+      options: [{ optionId: 100, optionValue: 200 }],
+      optionList: '[]',
+      productsSearch: { modifiers: [picklistModifier] },
+    } as unknown as QuoteItem['node'];
+
+    expect(getQuotePicklistSelections(row)).toEqual([
       { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
     ]);
   });
@@ -473,15 +512,15 @@ describe('getDraftQuotePicklistSelections', () => {
       productsSearch: { modifiers: [{ ...picklistModifier, type: 'dropdown' }] },
     } as unknown as QuoteItem['node'];
 
-    expect(getDraftQuotePicklistSelections(row)).toEqual([]);
+    expect(getQuotePicklistSelections(row)).toEqual([]);
   });
 
   it('returns an empty array when optionList is empty', () => {
-    expect(getDraftQuotePicklistSelections(buildRow('[]'))).toEqual([]);
+    expect(getQuotePicklistSelections(buildRow('[]'))).toEqual([]);
   });
 
   it('returns an empty array when optionList is not valid JSON', () => {
-    expect(getDraftQuotePicklistSelections(buildRow('not json'))).toEqual([]);
+    expect(getQuotePicklistSelections(buildRow('not json'))).toEqual([]);
   });
 
   it('skips null and primitive entries without throwing on malformed optionList', () => {
@@ -492,7 +531,7 @@ describe('getDraftQuotePicklistSelections', () => {
       { optionId: 'attribute[100]', optionValue: '200' },
     ]);
 
-    expect(getDraftQuotePicklistSelections(buildRow(optionList))).toEqual([
+    expect(getQuotePicklistSelections(buildRow(optionList))).toEqual([
       { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
     ]);
   });

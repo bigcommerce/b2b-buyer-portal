@@ -162,17 +162,46 @@ export function getDraftBackorderDisplayFields(
   });
 }
 
-interface DraftQuoteOptionListEntry {
+interface QuoteOptionEntry {
   option_id?: number | string;
   optionId?: number | string;
   option_value?: number | string;
   optionValue?: number | string;
 }
 
-// Draft `optionList` is a JSON string keyed {option_id|optionId, option_value|optionValue}
-// with ids shaped like "attribute[123]"; translate to the resolver's numeric-pair shape.
-function parseDraftQuoteOptionSelections(
-  optionList: string | undefined,
+// Option ids arrive either as a bare number or shaped like "attribute[123]"; normalise the id and
+// its value into a numeric { option_id, value_id } pair, or null if either can't be parsed.
+function toQuoteOptionSelection(
+  rawId: number | string | undefined,
+  rawValue: number | string | undefined,
+): { option_id: number; value_id: number } | null {
+  if (rawId == null || rawValue == null) {
+    return null;
+  }
+
+  const optionId = parseAttributeOptionId(rawId);
+  const valueId = Number(rawValue);
+  if (optionId === null || Number.isNaN(valueId)) {
+    return null;
+  }
+
+  return { option_id: optionId, value_id: valueId };
+}
+
+function quoteOptionEntriesToSelections(
+  entries: QuoteOptionEntry[],
+): Array<{ option_id: number; value_id: number }> {
+  return entries.flatMap((entry) => {
+    const selection = toQuoteOptionSelection(
+      entry.option_id ?? entry.optionId,
+      entry.option_value ?? entry.optionValue,
+    );
+    return selection ? [selection] : [];
+  });
+}
+
+function parseQuoteOptionListSelections(
+  optionList: string | null | undefined,
 ): Array<{ option_id: number; value_id: number }> {
   if (!optionList) {
     return [];
@@ -189,35 +218,28 @@ function parseDraftQuoteOptionSelections(
     return [];
   }
 
-  return (parsed as unknown[]).flatMap((item) => {
-    if (item === null || typeof item !== 'object') {
-      return [];
-    }
-
-    const entry = item as DraftQuoteOptionListEntry;
-    const rawId = entry.option_id ?? entry.optionId;
-    const rawValue = entry.option_value ?? entry.optionValue;
-    if (rawId == null || rawValue == null) {
-      return [];
-    }
-
-    const optionId = parseAttributeOptionId(rawId);
-    const valueId = Number(rawValue);
-    if (optionId === null || Number.isNaN(valueId)) {
-      return [];
-    }
-
-    return [{ option_id: optionId, value_id: valueId }];
-  });
+  const entries = parsed.filter(
+    (item): item is QuoteOptionEntry => item !== null && typeof item === 'object',
+  );
+  return quoteOptionEntriesToSelections(entries);
 }
 
-export function getDraftQuotePicklistSelections(row: QuoteItem['node']): PicklistSelection[] {
-  const source: PicklistSelectionSource = {
-    optionSelections: parseDraftQuoteOptionSelections(row.optionList),
-    productsSearch: row.productsSearch,
-  };
+// Draft rows carry selections as `optionList` (a JSON string); saved/detail rows carry them as a
+// structured `options` array. Both shapes key entries as either option_id/option_value or
+// optionId/optionValue, and both translate to the resolver's {option_id, value_id} shape.
+export function getQuotePicklistSelections(row: {
+  optionList?: string | null;
+  options?: QuoteOptionEntry[] | null;
+  productsSearch?: PicklistSelectionSource['productsSearch'];
+}): PicklistSelection[] {
+  const optionSelections = row.options?.length
+    ? quoteOptionEntriesToSelections(row.options)
+    : parseQuoteOptionListSelections(row.optionList);
 
-  return getProductDetailsForPicklistSelections(source);
+  return getProductDetailsForPicklistSelections({
+    optionSelections,
+    productsSearch: row.productsSearch,
+  });
 }
 
 export function quoteDetailListHasBackorderedItemsForDisplay(

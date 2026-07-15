@@ -1,16 +1,21 @@
 import { Box, CardContent, styled, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
+import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
-import { getQuoteBackorderDisplayFields } from '../utils/getQuoteBackorderDisplayFields';
+import {
+  getQuoteBackorderDisplayFields,
+  getQuotePicklistSelections,
+} from '../utils/getQuoteBackorderDisplayFields';
 
 interface QuoteTableCardProps {
   item: any;
@@ -22,6 +27,7 @@ interface QuoteTableCardProps {
   currency: CurrencyProps | DisplayCurrency;
   showBackorderDetails?: boolean;
   shouldDisplayBackorderInformation?: boolean;
+  picklistProductsById?: Record<number, ProductSearch>;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -41,6 +47,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     displayDiscount,
     showBackorderDetails = false,
     shouldDisplayBackorderInformation = true,
+    picklistProductsById = {},
   } = props;
   const b3Lang = useB3Lang();
   const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
@@ -65,6 +72,13 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem;
 
   const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem);
+  const backorderContextEnabled =
+    isBackorderMessagingContextEnabled &&
+    hasAnyBackorderDisplay &&
+    shouldDisplayBackorderInformation;
+  const picklistSelections = backorderContextEnabled
+    ? getQuotePicklistSelections(quoteTableItem)
+    : [];
 
   const taxRate = getTaxRate(variants);
   const taxPrice = enteredInclusiveTax
@@ -163,6 +177,15 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 visible={showBackorderDetails}
               />
             )}
+          {picklistSelections.length > 0 && (
+            <PicklistBackorderMessages
+              selections={picklistSelections}
+              picklistProductsById={picklistProductsById}
+              qty={Number(quantity) || 0}
+              visible={showBackorderDetails}
+              backorderUiEnabled={backorderContextEnabled}
+            />
+          )}
           <Typography
             sx={{
               fontSize: '14px',

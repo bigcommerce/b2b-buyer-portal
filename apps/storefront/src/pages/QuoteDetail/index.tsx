@@ -47,13 +47,13 @@ import QuoteDetailTable from '../quote/components/QuoteDetailTable';
 import QuoteInfo from '../quote/components/QuoteInfo';
 import QuoteNote from '../quote/components/QuoteNote';
 import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions';
+import { useQuoteDetailBackorderState } from '../quote/hooks/useQuoteDetailBackorderState';
 import {
   getQuoteValidationErrorMessage,
   QUOTE_VALIDATION_ERROR_CODES,
   QUOTE_VALIDATION_MESSAGE_CONTEXTS,
 } from '../quote/shared/getQuoteValidationErrorMessage';
 import { buildQuoteStockSnapshot } from '../quote/utils/buildQuoteStockSnapshot';
-import { quoteDetailListHasBackorderedItemsForDisplay } from '../quote/utils/getQuoteBackorderDisplayFields';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
@@ -285,7 +285,7 @@ function QuoteDetail() {
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
-  const hasBackorderedItems = quoteDetailListHasBackorderedItemsForDisplay(productList);
+  const { hasBackorderedItems } = useQuoteDetailBackorderState(productList, quoteDetail.status);
   const [fileList, setFileList] = useState<FileObjects[]>([]);
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState(true);
   const [quoteValidationErrors, setQuoteValidationErrors] = useState<
