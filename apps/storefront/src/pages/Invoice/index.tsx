@@ -39,7 +39,7 @@ import InvoiceListType, {
   filterFormConfigsTranslationVariables,
   sortIdArr,
 } from './utils/config';
-import { formattingNumericValues } from './utils/payment';
+import { filterInvoicesBySameCurrency, formattingNumericValues } from './utils/payment';
 import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
 
@@ -53,10 +53,11 @@ interface FilterSearchProps {
 
 interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void;
-  getCacheList: () => void;
+  getCacheList: () => InvoiceListNode[];
   setCacheAllList: (items?: InvoiceList[]) => void;
   setList: (items?: InvoiceListNode[]) => void;
   getSelectedValue: () => void;
+  setSelectCheckbox: (ids: Array<string | number>) => void;
 }
 
 const initFilter = {
@@ -249,20 +250,29 @@ function Invoice() {
     if (selectCheckbox.length > 0) {
       const productList = paginationTableRef.current?.getCacheList() || [];
 
-      const checkedItems = selectCheckbox.map((item: number | string) => {
-        const newItems = productList.find((product: InvoiceListNode) => {
-          const { node } = product;
+      const checkedItems = selectCheckbox
+        .map((item: number | string) => {
+          const newItems = productList.find((product: InvoiceListNode) => {
+            const { node } = product;
 
-          return Number(node.id) === Number(item);
-        });
+            return Number(node.id) === Number(item);
+          });
 
-        return newItems;
-      });
+          return newItems;
+        })
+        .filter((item): item is InvoiceListNode => !!item && !item.node.disableCurrentCheckbox);
 
-      const newEnableItems = checkedItems.filter(
-        (item: InvoiceListNode | undefined) => item && !item.node.disableCurrentCheckbox,
-      );
-      setCheckedArr([...newEnableItems]);
+      const { validInvoices, hasMixedCurrency } = filterInvoicesBySameCurrency(checkedItems);
+
+      if (hasMixedCurrency) {
+        snackbar.error(b3Lang('invoice.footer.differentCurrencyError'));
+        const validIds = validInvoices.map((item) => item.node.id);
+        paginationTableRef.current?.setSelectCheckbox(validIds);
+        setCheckedArr([...validInvoices]);
+        return;
+      }
+
+      setCheckedArr([...checkedItems]);
     } else {
       setCheckedArr([]);
     }

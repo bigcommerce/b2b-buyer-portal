@@ -21,6 +21,7 @@ import {
 import { when } from 'vitest-when';
 
 import { permissionLevels } from '@/constants';
+import { snackbar } from '@/utils/b3Tip';
 
 import { InvoiceStatusCode } from './components/InvoiceStatus';
 import { triggerPdfDownload } from './components/triggerPdfDownload';
@@ -29,6 +30,9 @@ import Invoice from '.';
 const { server } = startMockServer();
 
 vi.mock('./components/triggerPdfDownload');
+vi.mock('@/utils/b3Tip', () => ({
+  snackbar: { error: vi.fn() },
+}));
 
 const buildInvoiceWith = builder(() => ({
   node: {
@@ -347,6 +351,76 @@ it('can pay for multiple invoices', async () => {
   await waitFor(() => {
     expect(window.location.href).toEqual('https://example.com/checkout?cartId=foo-bar');
   });
+});
+
+it('blocks selecting invoices that are in different currencies', async () => {
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    id: '3344',
+                    invoiceNumber: '3322',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'USD', value: 922 },
+                    openBalance: { code: 'USD', value: 433 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+                buildInvoiceWith({
+                  node: {
+                    id: '3345',
+                    invoiceNumber: '3325',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  renderWithProviders(<Invoice />, { preloadedState });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  const table = screen.getByRole('table');
+
+  const firstRow = within(table).getByRole('row', { name: /3322/ });
+  const firstRowCells = within(firstRow).getAllByRole('cell');
+
+  const secondRow = within(table).getByRole('row', { name: /3325/ });
+  const secondRowCells = within(secondRow).getAllByRole('cell');
+
+  // select the USD invoice first
+  await userEvent.click(within(firstRowCells[0]).getByRole('checkbox'));
+
+  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
+
+  // attempting to also select the EUR invoice should be blocked
+  await userEvent.click(within(secondRowCells[0]).getByRole('checkbox'));
+
+  expect(within(secondRowCells[0]).getByRole('checkbox')).not.toBeChecked();
+  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
+  expect(snackbar.error).toHaveBeenCalled();
 });
 
 it('can specify an amount to pay for the invoices', async () => {
@@ -1301,6 +1375,8 @@ it('exports selected invoices as CSV', async () => {
                   node: {
                     id: '1441',
                     invoiceNumber: '3322',
+                    openBalance: { code: 'USD', value: 100 },
+                    originalBalance: { code: 'USD', value: 100 },
                     companyInfo: {
                       companyId: preloadedState.company.companyInfo.id,
                       companyName: 'Acme Inc.',
@@ -1311,6 +1387,8 @@ it('exports selected invoices as CSV', async () => {
                   node: {
                     id: '1313',
                     invoiceNumber: '4343',
+                    openBalance: { code: 'USD', value: 200 },
+                    originalBalance: { code: 'USD', value: 200 },
                     companyInfo: {
                       companyId: preloadedState.company.companyInfo.id,
                       companyName: 'Acme Inc.',
