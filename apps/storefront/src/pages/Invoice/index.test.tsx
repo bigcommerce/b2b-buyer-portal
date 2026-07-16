@@ -423,6 +423,71 @@ it('blocks selecting invoices that are in different currencies', async () => {
   expect(snackbar.error).toHaveBeenCalled();
 });
 
+it('blocks selecting all invoices when the page contains different currencies', async () => {
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    id: '3344',
+                    invoiceNumber: '3322',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'USD', value: 922 },
+                    openBalance: { code: 'USD', value: 433 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+                buildInvoiceWith({
+                  node: {
+                    id: '3345',
+                    invoiceNumber: '3325',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  renderWithProviders(<Invoice />, { preloadedState });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  const table = screen.getByRole('table');
+
+  const columnHeaders = within(table).getAllByRole('columnheader');
+
+  const secondRow = within(table).getByRole('row', { name: /3325/ });
+  const secondRowCells = within(secondRow).getAllByRole('cell');
+
+  // click the "select all" checkbox in the header, which would otherwise
+  // select both the USD and EUR invoices at once
+  await userEvent.click(within(columnHeaders[0]).getByRole('checkbox'));
+
+  // only the reference-currency invoice should end up selected
+  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
+  expect(within(secondRowCells[0]).getByRole('checkbox')).not.toBeChecked();
+  expect(snackbar.error).toHaveBeenCalled();
+});
+
 it('can specify an amount to pay for the invoices', async () => {
   const getCreateCartResponse = vi.fn();
   const getCheckoutLoginResponse = vi.fn();
