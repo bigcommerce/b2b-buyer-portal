@@ -21,6 +21,9 @@ import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsC
 
 import OrderDialog from './OrderDialog';
 
+const AWAITING_PAYMENT_STATUS_ID = 7;
+const AWAITING_PAYMENT_STATUS_VALUE = 'AWAITING_PAYMENT';
+
 const OrderActionContainer = styled('div')(() => ({}));
 
 interface StyledCardActionsProps {
@@ -346,26 +349,27 @@ export function OrderAction(props: OrderActionProps) {
     ipStatus = 0,
     invoiceId,
     poNumber,
+    statusCode,
     customerId,
     companyInfo: { companyId } = {},
   } = detailsData;
 
   const getPaymentMessage = useCallback(() => {
-    let message = '';
-
-    if (!createAt) return message;
-
+    if (!createAt) return '';
     if (poNumber) {
-      message = b3Lang('orderDetail.paidWithPo', {
-        paidDate: displayFormat(createAt, true),
-      });
-    } else {
-      message = b3Lang('orderDetail.paidInFull', {
+      return b3Lang('orderDetail.paidWithPo', {
         paidDate: displayFormat(createAt, true),
       });
     }
-    return message;
-  }, [poNumber, createAt, b3Lang]);
+
+    if (statusCode === AWAITING_PAYMENT_STATUS_ID || statusCode === AWAITING_PAYMENT_STATUS_VALUE) {
+      return b3Lang('orderDetail.awaitingPayment');
+    }
+
+    return b3Lang('orderDetail.paidInFull', {
+      paidDate: displayFormat(createAt, true),
+    });
+  }, [poNumber, statusCode, createAt, b3Lang]);
 
   if (!orderId) {
     return null;

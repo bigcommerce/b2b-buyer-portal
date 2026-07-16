@@ -449,6 +449,7 @@ export function convertOrderDetail(
   OrderDetailsState,
   | 'orderId'
   | 'status'
+  | 'statusCode'
   | 'customStatus'
   | 'poNumber'
   | 'currencyCode'
@@ -489,6 +490,7 @@ export function convertOrderDetail(
   return {
     orderId: order.entityId,
     status: order.status.label,
+    statusCode: order.status.value ?? '',
     customStatus: '',
     poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,

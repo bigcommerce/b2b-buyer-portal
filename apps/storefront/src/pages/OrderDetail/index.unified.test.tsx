@@ -1238,6 +1238,42 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
       expect(screen.getByText(/PO Submitted/)).toBeVisible();
     });
+
+    it('labels an order awaiting payment with no PO as awaiting payment', async () => {
+      const awaitingPaymentOrder = buildUnifiedOrderWith({
+        entityId: 6696,
+        reference: null,
+        orderedAt: { utc: '2026-05-01T12:00:00Z' },
+        status: { value: 'AWAITING_PAYMENT', label: 'Awaiting Payment' },
+        payments: [{ description: 'Cash on delivery' }],
+      });
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({ data: { site: { order: awaitingPaymentOrder } } }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const paymentBox = screen.getByRole('heading', { name: 'Payment' }).parentElement!;
+      expect(within(paymentBox).getByText('Awaiting Payment')).toBeVisible();
+      expect(within(paymentBox).queryByText(/Paid in full/)).not.toBeInTheDocument();
+      expect(within(paymentBox).queryByText(/PO Submitted/)).not.toBeInTheDocument();
+    });
   });
 
   describe('when there are order history events', () => {

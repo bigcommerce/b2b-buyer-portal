@@ -362,6 +362,7 @@
   "orderDetail.summary": "Summary",
   "orderDetail.paidInFull": "Paid in full on {paidDate}",
   "orderDetail.paidWithPo": "PO Submitted on {paidDate}",
+  "orderDetail.awaitingPayment": "Awaiting Payment",
   "orderDetail.payment": "Payment",
   "orderDetail.viewInvoice": "view invoice",
   "orderDetail.printInvoice": "print invoice",
