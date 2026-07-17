@@ -18,11 +18,9 @@ import { b2bPrintInvoice, getPrintInvoiceUrl } from '@/utils/b3PrintInvoice';
 import { snackbar } from '@/utils/b3Tip';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
+import { AWAITING_PAYMENT_STATUS_VALUE } from '../shared/orderStatus';
 
 import OrderDialog from './OrderDialog';
-
-const AWAITING_PAYMENT_STATUS_ID = 7;
-const AWAITING_PAYMENT_STATUS_VALUE = 'AWAITING_PAYMENT';
 
 const OrderActionContainer = styled('div')(() => ({}));
 
@@ -362,7 +360,7 @@ export function OrderAction(props: OrderActionProps) {
       });
     }
 
-    if (statusCode === AWAITING_PAYMENT_STATUS_ID || statusCode === AWAITING_PAYMENT_STATUS_VALUE) {
+    if (statusCode === AWAITING_PAYMENT_STATUS_VALUE) {
       return b3Lang('orderDetail.awaitingPayment');
     }
 
