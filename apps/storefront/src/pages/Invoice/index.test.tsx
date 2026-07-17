@@ -21,7 +21,6 @@ import {
 import { when } from 'vitest-when';
 
 import { permissionLevels } from '@/constants';
-import { snackbar } from '@/utils/b3Tip';
 
 import { InvoiceStatusCode } from './components/InvoiceStatus';
 import { triggerPdfDownload } from './components/triggerPdfDownload';
@@ -30,9 +29,6 @@ import Invoice from '.';
 const { server } = startMockServer();
 
 vi.mock('./components/triggerPdfDownload');
-vi.mock('@/utils/b3Tip', () => ({
-  snackbar: { error: vi.fn() },
-}));
 
 const buildInvoiceWith = builder(() => ({
   node: {
@@ -353,7 +349,7 @@ it('can pay for multiple invoices', async () => {
   });
 });
 
-it('blocks selecting invoices that are in different currencies', async () => {
+it('disables the Pay invoices button when selected invoices are in different currencies', async () => {
   server.use(
     graphql.query('GetInvoices', () =>
       HttpResponse.json(
@@ -413,17 +409,27 @@ it('blocks selecting invoices that are in different currencies', async () => {
 
   expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeEnabled();
 
-  // attempting to also select the EUR invoice should be blocked
+  // selecting the EUR invoice too is now allowed
   await userEvent.click(within(secondRowCells[0]).getByRole('checkbox'));
 
-  expect(within(secondRowCells[0]).getByRole('checkbox')).not.toBeChecked();
-  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
-  expect(snackbar.error).toHaveBeenCalled();
+  expect(within(secondRowCells[0]).getByRole('checkbox')).toBeChecked();
+  expect(screen.getByText('2 invoices selected')).toBeInTheDocument();
+
+  // the misleading flattened total is replaced with a warning...
+  expect(
+    screen.getByRole('heading', {
+      name: 'You cannot pay multiple invoices in different currencies',
+    }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/Total payment:/)).not.toBeInTheDocument();
+
+  // ...and paying is blocked while the selection mixes currencies
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
 });
 
-it('blocks selecting all invoices when the page contains different currencies', async () => {
+it('disables the Pay invoices button when selecting all invoices with different currencies', async () => {
   server.use(
     graphql.query('GetInvoices', () =>
       HttpResponse.json(
@@ -477,15 +483,19 @@ it('blocks selecting all invoices when the page contains different currencies', 
   const secondRow = within(table).getByRole('row', { name: /3325/ });
   const secondRowCells = within(secondRow).getAllByRole('cell');
 
-  // click the "select all" checkbox in the header, which would otherwise
-  // select both the USD and EUR invoices at once
+  // click the "select all" checkbox in the header
   await userEvent.click(within(columnHeaders[0]).getByRole('checkbox'));
 
-  // only the reference-currency invoice should end up selected
-  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
-  expect(within(secondRowCells[0]).getByRole('checkbox')).not.toBeChecked();
-  expect(snackbar.error).toHaveBeenCalled();
+  // both invoices get selected even though currencies differ
+  expect(within(secondRowCells[0]).getByRole('checkbox')).toBeChecked();
+  expect(screen.getByText('2 invoices selected')).toBeInTheDocument();
+
+  expect(
+    screen.getByRole('heading', {
+      name: 'You cannot pay multiple invoices in different currencies',
+    }),
+  ).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
 });
 
 it('can specify an amount to pay for the invoices', async () => {

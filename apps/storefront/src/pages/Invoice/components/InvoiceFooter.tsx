@@ -8,7 +8,11 @@ import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice
 import { snackbar } from '@/utils/b3Tip';
 import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
 
-import { formattingNumericValues, gotoInvoiceCheckoutUrl } from '../utils/payment';
+import {
+  filterInvoicesBySameCurrency,
+  formattingNumericValues,
+  gotoInvoiceCheckoutUrl,
+} from '../utils/payment';
 
 interface InvoiceFooterProps {
   selectedPay: CustomFieldItems;
@@ -34,6 +38,8 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       };
 
   const { selectedPay, decimalPlaces } = props;
+
+  const { hasMixedCurrency } = filterInvoicesBySameCurrency(selectedPay as InvoiceListNode[]);
 
   const handlePay = async () => {
     const lineItems: BcCartDataLineItem[] = [];
@@ -173,12 +179,14 @@ function InvoiceFooter(props: InvoiceFooterProps) {
               sx={{
                 fontSize: '16px',
                 fontWeight: '700',
-                color: '#000000',
+                color: hasMixedCurrency ? 'error.main' : '#000000',
               }}
             >
-              {b3Lang('invoice.footer.totalPayment', {
-                total: `${currentToken}${selectedAccount}`,
-              })}
+              {hasMixedCurrency
+                ? b3Lang('invoice.footer.differentCurrencyError')
+                : b3Lang('invoice.footer.totalPayment', {
+                    total: `${currentToken}${selectedAccount}`,
+                  })}
             </Typography>
             <Box
               sx={{
@@ -190,6 +198,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
             >
               <Button
                 variant="contained"
+                disabled={hasMixedCurrency}
                 sx={{
                   marginLeft: isMobile ? 0 : '1rem',
                   width: isMobile ? '100%' : 'auto',

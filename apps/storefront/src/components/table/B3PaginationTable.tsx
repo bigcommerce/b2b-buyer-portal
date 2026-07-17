@@ -295,7 +295,6 @@ function PaginationTable<GetRequestListParams, Row extends object>(
       getList,
       getCacheList,
       refresh,
-      setSelectCheckbox,
     }),
     [getList, getCacheList, getSelectedValue, refresh],
   );
