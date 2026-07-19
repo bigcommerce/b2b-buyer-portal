@@ -62,18 +62,12 @@ const getInvoiceCurrency = (invoice: InvoiceListNode) => {
   return openBalance?.code || originalBalance.code;
 };
 
-export const filterInvoicesBySameCurrency = (invoices: InvoiceListNode[]) => {
+export const hasMixedInvoiceCurrencies = (invoices: InvoiceListNode[]) => {
   if (invoices.length === 0) {
-    return { validInvoices: [], hasMixedCurrency: false };
+    return false;
   }
 
   const referenceCurrency = getInvoiceCurrency(invoices[0]);
-  const validInvoices = invoices.filter(
-    (invoice) => getInvoiceCurrency(invoice) === referenceCurrency,
-  );
 
-  return {
-    validInvoices,
-    hasMixedCurrency: validInvoices.length < invoices.length,
-  };
+  return invoices.some((invoice) => getInvoiceCurrency(invoice) !== referenceCurrency);
 };

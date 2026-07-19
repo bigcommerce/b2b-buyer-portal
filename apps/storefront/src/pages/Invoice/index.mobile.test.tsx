@@ -304,6 +304,75 @@ it('can pay for multiple invoices', async () => {
   });
 });
 
+it('disables the Pay invoices button when selected invoices are in different currencies', async () => {
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    id: '3344',
+                    invoiceNumber: '3344',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'USD', value: 922 },
+                    openBalance: { code: 'USD', value: 433 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+                buildInvoiceWith({
+                  node: {
+                    id: '3345',
+                    invoiceNumber: '3345',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  renderWithProviders(<Invoice />, { preloadedState });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  const group3344 = screen.getByRole('group', { name: '3344' });
+  const group3345 = screen.getByRole('group', { name: '3345' });
+
+  await userEvent.click(within(group3344).getByRole('checkbox'));
+
+  expect(screen.getByText('1 invoices selected')).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeEnabled();
+
+  await userEvent.click(within(group3345).getByRole('checkbox'));
+
+  expect(within(group3345).getByRole('checkbox')).toBeChecked();
+  expect(screen.getByText('2 invoices selected')).toBeVisible();
+  expect(
+    screen.getByRole('heading', {
+      name: 'Cannot pay invoices in mixed currencies',
+    }),
+  ).toBeVisible();
+  expect(screen.queryByText(/Total payment:/)).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
+});
+
 it('can specify an amount to pay for the invoices', async () => {
   const getCreateCartResponse = vi.fn();
   const getCheckoutLoginResponse = vi.fn();

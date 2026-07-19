@@ -9,9 +9,9 @@ import { snackbar } from '@/utils/b3Tip';
 import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
 
 import {
-  filterInvoicesBySameCurrency,
   formattingNumericValues,
   gotoInvoiceCheckoutUrl,
+  hasMixedInvoiceCurrencies,
 } from '../utils/payment';
 
 interface InvoiceFooterProps {
@@ -39,7 +39,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   const { selectedPay, decimalPlaces } = props;
 
-  const { hasMixedCurrency } = filterInvoicesBySameCurrency(selectedPay as InvoiceListNode[]);
+  const hasMixedCurrency = hasMixedInvoiceCurrencies(selectedPay as InvoiceListNode[]);
 
   const handlePay = async () => {
     const lineItems: BcCartDataLineItem[] = [];

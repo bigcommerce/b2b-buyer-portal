@@ -360,7 +360,7 @@ it('disables the Pay invoices button when selected invoices are in different cur
                 buildInvoiceWith({
                   node: {
                     id: '3344',
-                    invoiceNumber: '3322',
+                    invoiceNumber: '3344',
                     status: InvoiceStatusCode.PartiallyPaid,
                     originalBalance: { code: 'USD', value: 922 },
                     openBalance: { code: 'USD', value: 433 },
@@ -372,7 +372,7 @@ it('disables the Pay invoices button when selected invoices are in different cur
                 buildInvoiceWith({
                   node: {
                     id: '3345',
-                    invoiceNumber: '3325',
+                    invoiceNumber: '3345',
                     status: InvoiceStatusCode.PartiallyPaid,
                     originalBalance: { code: 'EUR', value: 444 },
                     openBalance: { code: 'EUR', value: 232 },
@@ -398,34 +398,28 @@ it('disables the Pay invoices button when selected invoices are in different cur
 
   const table = screen.getByRole('table');
 
-  const firstRow = within(table).getByRole('row', { name: /3322/ });
+  const firstRow = within(table).getByRole('row', { name: /3344/ });
   const firstRowCells = within(firstRow).getAllByRole('cell');
 
-  const secondRow = within(table).getByRole('row', { name: /3325/ });
+  const secondRow = within(table).getByRole('row', { name: /3345/ });
   const secondRowCells = within(secondRow).getAllByRole('cell');
 
-  // select the USD invoice first
   await userEvent.click(within(firstRowCells[0]).getByRole('checkbox'));
 
-  expect(screen.getByText('1 invoices selected')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeInTheDocument();
+  expect(screen.getByText('1 invoices selected')).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeEnabled();
 
-  // selecting the EUR invoice too is now allowed
   await userEvent.click(within(secondRowCells[0]).getByRole('checkbox'));
 
   expect(within(secondRowCells[0]).getByRole('checkbox')).toBeChecked();
-  expect(screen.getByText('2 invoices selected')).toBeInTheDocument();
-
-  // the misleading flattened total is replaced with a warning...
+  expect(screen.getByText('2 invoices selected')).toBeVisible();
   expect(
     screen.getByRole('heading', {
-      name: 'You cannot pay multiple invoices in different currencies',
+      name: 'Cannot pay invoices in mixed currencies',
     }),
-  ).toBeInTheDocument();
+  ).toBeVisible();
   expect(screen.queryByText(/Total payment:/)).not.toBeInTheDocument();
-
-  // ...and paying is blocked while the selection mixes currencies
   expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
 });
 
@@ -488,13 +482,13 @@ it('disables the Pay invoices button when selecting all invoices with different 
 
   // both invoices get selected even though currencies differ
   expect(within(secondRowCells[0]).getByRole('checkbox')).toBeChecked();
-  expect(screen.getByText('2 invoices selected')).toBeInTheDocument();
+  expect(screen.getByText('2 invoices selected')).toBeVisible();
 
   expect(
     screen.getByRole('heading', {
-      name: 'You cannot pay multiple invoices in different currencies',
+      name: 'Cannot pay invoices in mixed currencies',
     }),
-  ).toBeInTheDocument();
+  ).toBeVisible();
   expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
 });
 
