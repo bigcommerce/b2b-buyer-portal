@@ -750,4 +750,337 @@ describe('when backorder messaging is enabled', () => {
     expect(within(chooseOptionsDialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
     expect(within(chooseOptionsDialog).queryByText('10 available')).not.toBeInTheDocument();
   });
+
+  it('shows the selected picklist child backorder in choose options', async () => {
+    renderWithProviders(<QuickOrderPad />, { preloadedState: backorderPreloadedState });
+
+    const productId = 9100;
+    const modifierId = 70;
+    const pickOptionId = 300;
+    const childProductId = 9200;
+
+    const pickleFestModifier = {
+      id: modifierId,
+      type: 'product_list',
+      display_name: 'PickleFest',
+      required: false,
+      option_values: [
+        {
+          id: pickOptionId,
+          label: 'Mining Pick',
+          is_default: true,
+          value_data: { product_id: childProductId },
+        },
+      ],
+    };
+
+    const baseVariant = buildVariantWith({
+      product_id: productId,
+      sku: 'PK',
+      purchasing_disabled: false,
+      option_values: [],
+      bc_calculated_price: {
+        tax_exclusive: 22,
+        tax_inclusive: 22,
+        as_entered: 22,
+        entered_inclusive: false,
+      },
+    });
+
+    const childProduct = buildSearchProductWith({
+      id: childProductId,
+      name: 'Mining Pick',
+      inventoryTracking: 'product',
+      availableToSell: 100,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Lead time: 2-4 weeks',
+      variants: [],
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Pickle Kit"', 'currencyCode: "USD"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: 'Pickle Kit',
+              sku: 'PK',
+              inventoryTracking: 'simple',
+              optionsV3: [],
+              modifiers: [pickleFestModifier],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [baseVariant],
+            }),
+          ],
+        },
+      });
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${childProductId}]`))
+      .thenReturn({ data: { productsSearch: [childProduct] } });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>().mockReturnValue({
+      data: {
+        priceProducts: [buildProductPriceWith({ productId, variantId: baseVariant.variant_id })],
+      },
+    });
+
+    server.use(
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('priceProducts', () => HttpResponse.json(getPriceProducts())),
+    );
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, 'Pickle Kit');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+    const listDialog = await screen.findByRole('dialog', { name: 'Quick order pad' });
+    await userEvent.click(within(listDialog).getByRole('button', { name: 'Choose options' }));
+
+    const chooseOptionsDialog = await screen.findByRole('dialog', { name: 'Choose options' });
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '4', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('PickleFest:')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).getByText('2 ready to ship')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('2 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('hides the picklist child backorder when messaging is disabled', async () => {
+    renderWithProviders(<QuickOrderPad />, { preloadedState });
+
+    const productId = 9300;
+    const modifierId = 71;
+    const pickOptionId = 301;
+    const childProductId = 9400;
+
+    const pickleFestModifier = {
+      id: modifierId,
+      type: 'product_list',
+      display_name: 'PickleFest',
+      required: false,
+      option_values: [
+        {
+          id: pickOptionId,
+          label: 'Mining Pick',
+          is_default: true,
+          value_data: { product_id: childProductId },
+        },
+      ],
+    };
+
+    const baseVariant = buildVariantWith({
+      product_id: productId,
+      sku: 'PK2',
+      purchasing_disabled: false,
+      option_values: [],
+      bc_calculated_price: {
+        tax_exclusive: 22,
+        tax_inclusive: 22,
+        as_entered: 22,
+        entered_inclusive: false,
+      },
+    });
+
+    const childProduct = buildSearchProductWith({
+      id: childProductId,
+      name: 'Mining Pick',
+      inventoryTracking: 'product',
+      availableToSell: 100,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Lead time: 2-4 weeks',
+      variants: [],
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Pickle Kit"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: 'Pickle Kit',
+              sku: 'PK2',
+              inventoryTracking: 'simple',
+              optionsV3: [],
+              modifiers: [pickleFestModifier],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [baseVariant],
+            }),
+          ],
+        },
+      });
+
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${childProductId}]`))
+      .thenReturn({ data: { productsSearch: [childProduct] } });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>().mockReturnValue({
+      data: {
+        priceProducts: [buildProductPriceWith({ productId, variantId: baseVariant.variant_id })],
+      },
+    });
+
+    server.use(
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('priceProducts', () => HttpResponse.json(getPriceProducts())),
+    );
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, 'Pickle Kit');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+    const listDialog = await screen.findByRole('dialog', { name: 'Quick order pad' });
+    await userEvent.click(within(listDialog).getByRole('button', { name: 'Choose options' }));
+
+    const chooseOptionsDialog = await screen.findByRole('dialog', { name: 'Choose options' });
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '4', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('PickleFest')).toBeVisible();
+    });
+    expect(within(chooseOptionsDialog).queryByText('PickleFest:')).not.toBeInTheDocument();
+    expect(
+      within(chooseOptionsDialog).queryByText('2 will be backordered'),
+    ).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+  });
+
+  it('renders no picklist backorder block when the selected child is in stock', async () => {
+    renderWithProviders(<QuickOrderPad />, { preloadedState: backorderPreloadedState });
+
+    const productId = 9500;
+    const modifierId = 72;
+    const pickOptionId = 302;
+    const childProductId = 9600;
+
+    const pickleFestModifier = {
+      id: modifierId,
+      type: 'product_list',
+      display_name: 'PickleFest',
+      required: false,
+      option_values: [
+        {
+          id: pickOptionId,
+          label: 'Mining Pick',
+          is_default: true,
+          value_data: { product_id: childProductId },
+        },
+      ],
+    };
+
+    const baseVariant = buildVariantWith({
+      product_id: productId,
+      sku: 'PK3',
+      purchasing_disabled: false,
+      option_values: [],
+      bc_calculated_price: {
+        tax_exclusive: 22,
+        tax_inclusive: 22,
+        as_entered: 22,
+        entered_inclusive: false,
+      },
+    });
+
+    const childProduct = buildSearchProductWith({
+      id: childProductId,
+      name: 'Mining Pick',
+      inventoryTracking: 'product',
+      availableToSell: 100,
+      unlimitedBackorder: false,
+      totalOnHand: 100,
+      backorderMessage: 'Lead time: 2-4 weeks',
+      variants: [],
+    });
+
+    const searchProducts = vi.fn<(...arg: unknown[]) => SearchProductsResponse>();
+    when(searchProducts)
+      .calledWith(stringContainingAll('search: "Pickle Kit"'))
+      .thenReturn({
+        data: {
+          productsSearch: [
+            buildSearchProductWith({
+              id: productId,
+              name: 'Pickle Kit',
+              sku: 'PK3',
+              inventoryTracking: 'simple',
+              optionsV3: [],
+              modifiers: [pickleFestModifier],
+              isPriceHidden: false,
+              orderQuantityMinimum: 0,
+              orderQuantityMaximum: 0,
+              inventoryLevel: 100,
+              variants: [baseVariant],
+            }),
+          ],
+        },
+      });
+    when(searchProducts)
+      .calledWith(stringContainingAll(`productIds: [${childProductId}]`))
+      .thenReturn({ data: { productsSearch: [childProduct] } });
+
+    const getPriceProducts = vi.fn<(...arg: unknown[]) => PriceProductsResponse>().mockReturnValue({
+      data: {
+        priceProducts: [buildProductPriceWith({ productId, variantId: baseVariant.variant_id })],
+      },
+    });
+
+    server.use(
+      graphql.query('SearchProducts', ({ query }) => HttpResponse.json(searchProducts(query))),
+      graphql.query('priceProducts', () => HttpResponse.json(getPriceProducts())),
+    );
+
+    const searchBox = screen.getByPlaceholderText('Search products');
+    await userEvent.type(searchBox, 'Pickle Kit');
+    await userEvent.click(screen.getByRole('button', { name: 'Search product' }));
+
+    const listDialog = await screen.findByRole('dialog', { name: 'Quick order pad' });
+    await userEvent.click(within(listDialog).getByRole('button', { name: 'Choose options' }));
+
+    const chooseOptionsDialog = await screen.findByRole('dialog', { name: 'Choose options' });
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+    await userEvent.type(quantityInput, '4', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    // The picklist modifier label still renders in the options form...
+    await waitFor(() => {
+      expect(within(chooseOptionsDialog).getByText('PickleFest')).toBeVisible();
+    });
+    // ...but no backorder block (header or lines) shows for an in-stock child.
+    expect(within(chooseOptionsDialog).queryByText('PickleFest:')).not.toBeInTheDocument();
+    expect(within(chooseOptionsDialog).queryByText('Lead time: 2-4 weeks')).not.toBeInTheDocument();
+    expect(
+      within(chooseOptionsDialog).queryByText('ready to ship', { exact: false }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(chooseOptionsDialog).queryByText('will be backordered', { exact: false }),
+    ).not.toBeInTheDocument();
+  });
 });
