@@ -42,6 +42,10 @@ function InvoiceFooter(props: InvoiceFooterProps) {
   const hasMixedCurrency = hasMixedInvoiceCurrencies(selectedPay as InvoiceListNode[]);
 
   const handlePay = async () => {
+    if (hasMixedCurrency) {
+      return;
+    }
+
     const lineItems: BcCartDataLineItem[] = [];
     let currency = 'SGD';
 
@@ -84,6 +88,10 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   useEffect(() => {
     if (selectedPay.length > 0) {
+      if (hasMixedInvoiceCurrencies(selectedPay as InvoiceListNode[])) {
+        return;
+      }
+
       const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
         let amount = 0;
 

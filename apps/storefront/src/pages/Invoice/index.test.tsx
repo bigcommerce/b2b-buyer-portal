@@ -421,6 +421,13 @@ it('disables the Pay invoices button when selected invoices are in different cur
   ).toBeVisible();
   expect(screen.queryByText(/Total payment:/)).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
+
+  await userEvent.click(within(secondRowCells[0]).getByRole('checkbox'));
+
+  expect(within(secondRowCells[0]).getByRole('checkbox')).not.toBeChecked();
+  expect(screen.getByText('1 invoices selected')).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeEnabled();
 });
 
 it('disables the Pay invoices button when selecting all invoices with different currencies', async () => {
