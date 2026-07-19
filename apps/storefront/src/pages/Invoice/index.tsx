@@ -39,7 +39,7 @@ import InvoiceListType, {
   filterFormConfigsTranslationVariables,
   sortIdArr,
 } from './utils/config';
-import { formattingNumericValues } from './utils/payment';
+import { formatInvoiceBalanceAmount, formattingNumericValues } from './utils/payment';
 import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
 
@@ -638,14 +638,8 @@ function Invoice() {
       isSortable: true,
       render: (item: InvoiceList) => {
         const { originalBalance } = item;
-        const originalAmount = formattingNumericValues(
-          Number(originalBalance.value),
-          decimalPlaces,
-        );
 
-        const token = handleGetCorrespondingCurrencyToken(originalBalance.code);
-
-        return `${token}${originalAmount || 0}`;
+        return formatInvoiceBalanceAmount(originalBalance, decimalPlaces);
       },
       width: '10%',
     },
@@ -656,10 +650,7 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { openBalance } = item;
 
-        const openAmount = formattingNumericValues(Number(openBalance.value), decimalPlaces);
-        const token = handleGetCorrespondingCurrencyToken(openBalance.code);
-
-        return `${token}${openAmount || 0}`;
+        return formatInvoiceBalanceAmount(openBalance, decimalPlaces);
       },
       width: '10%',
     },
@@ -968,6 +959,7 @@ function Invoice() {
               handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
+              decimalPlaces={decimalPlaces}
               addBottom={list.length - 1 === index}
               isCurrentCompany={Number(currentCompanyId) === Number(row.companyInfo.companyId)}
               invoicePay={
