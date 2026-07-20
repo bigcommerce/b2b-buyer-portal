@@ -164,7 +164,7 @@
   "orders.status.manualVerificationRequired": "Manuell verifiering krävs",
   "orders.status.disputed": "Föremål för tvist",
   "orders.status.partiallyRefunded": "delvis återbetalad",
-  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
+  "invoice.noDataText": "Inga fakturor hittades. För faktura-ID, ange hela numret eller de första eller sista siffrorna.",
   "invoice.exportCsvText": "Exportera alla som CSV",
   "invoice.exportSelectedAsCsv": "Exportera markerade som CSV",
   "invoice.exportFilteredAsCsv": "Exportera filtrerat som CSV",
