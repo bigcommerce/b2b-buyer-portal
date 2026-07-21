@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type {
   AccountSettingExtraFieldValue,
   CompanyUser,
+  CustomerFormFieldDefinition,
   FormFieldValue,
 } from '@/shared/service/bc/graphql/accountSetting';
 import type { Fields } from '@/types/accountSetting';
@@ -11,9 +12,16 @@ import { Base64 } from '@/utils/base64';
 import {
   b2bSubmitDataProcessing,
   bcSubmitDataProcessing,
+  buildExtraFieldsInput,
+  buildFormFieldsInput,
+  buildUpdateCompanyUserInput,
+  buildUpdateCustomerInput,
+  collectChangedExtraFields,
+  collectChangedFormFields,
   initB2BInfo,
   initBcInfo,
   mapUserToAccountInfo,
+  parseFieldEntityId,
 } from './utils';
 
 // `deCodeField` Base64-decodes every field name except those in the
@@ -388,5 +396,357 @@ describe('mapUserToAccountInfo', () => {
     expect(result.formFields).toEqual([{ name: 'fText', value: 'a' }]);
     expect(result.extraFields).not.toContain(undefined);
     expect(result.formFields).not.toContain(undefined);
+  });
+});
+
+describe('buildFormFieldsInput', () => {
+  // Choice fields need their options (entityId per label) from the definitions; scalar
+  // fields only need the fieldEntityId carried on each submitted entry.
+  const definitions: CustomerFormFieldDefinition[] = [
+    {
+      entityId: 14,
+      label: 'fChoice',
+      options: [
+        { entityId: 99, label: 'A' },
+        { entityId: 100, label: 'B' },
+      ],
+    },
+    {
+      entityId: 15,
+      label: 'fChecks',
+      options: [
+        { entityId: 7, label: 'x' },
+        { entityId: 8, label: 'y' },
+      ],
+    },
+  ];
+
+  it('routes each form field into its typed group using the fieldEntityId on the entry', () => {
+    const { formFields, unsendable } = buildFormFieldsInput(
+      [
+        { name: 'fText', value: 'new', fieldType: 'text', fieldEntityId: 10 },
+        { name: 'fMulti', value: 'multi', fieldType: 'multiline', fieldEntityId: 11 },
+        { name: 'Age', value: '25', fieldType: 'number', fieldEntityId: 12 },
+        { name: 'fDate', value: '2026-06-10', fieldType: 'date', fieldEntityId: 13 },
+        { name: 'fChoice', value: 'B', fieldType: 'dropdown', fieldEntityId: 14 },
+        { name: 'fChecks', value: ['x', 'y'], fieldType: 'checkbox', fieldEntityId: 15 },
+      ],
+      definitions,
+    );
+
+    expect(unsendable).toEqual([]);
+    expect(formFields).toEqual({
+      texts: [{ fieldEntityId: 10, text: 'new' }],
+      multilineTexts: [{ fieldEntityId: 11, multilineText: 'multi' }],
+      numbers: [{ fieldEntityId: 12, number: 25 }],
+      dates: [{ fieldEntityId: 13, date: '2026-06-10T00:00:00.000Z' }],
+      multipleChoices: [{ fieldEntityId: 14, fieldValueEntityId: 100 }],
+      checkboxes: [{ fieldEntityId: 15, fieldValueEntityIds: [7, 8] }],
+    });
+  });
+
+  it('maps a changed choice selection to the picked option entityId', () => {
+    const { formFields } = buildFormFieldsInput(
+      [{ name: 'fChoice', value: 'A', fieldType: 'dropdown', fieldEntityId: 14 }],
+      definitions,
+    );
+
+    expect(formFields?.multipleChoices).toEqual([{ fieldEntityId: 14, fieldValueEntityId: 99 }]);
+  });
+
+  it('clears text ("") and checkbox ([]) which are representable, and flags an emptied number as unsendable', () => {
+    // A number has no "empty" form, so a cleared one is unsendable — not sent, not silently dropped.
+    const clearedNumber = { name: 'Age', value: '', fieldType: 'number', fieldEntityId: 12 };
+    const { formFields, unsendable } = buildFormFieldsInput(
+      [
+        { name: 'fText', value: '', fieldType: 'text', fieldEntityId: 10 },
+        clearedNumber,
+        { name: 'fChecks', value: [], fieldType: 'checkbox', fieldEntityId: 15 },
+      ],
+      definitions,
+    );
+
+    expect(formFields).toEqual({
+      texts: [{ fieldEntityId: 10, text: '' }],
+      checkboxes: [{ fieldEntityId: 15, fieldValueEntityIds: [] }],
+    });
+    expect(unsendable).toEqual([clearedNumber]);
+  });
+
+  it('flags an unmapped choice, a missing entityId, and a partial checkbox as unsendable', () => {
+    const unmappedChoice = {
+      name: 'fChoice',
+      value: 'Z',
+      fieldType: 'dropdown',
+      fieldEntityId: 14,
+    };
+    const noEntityId = { name: 'Mystery', value: 'x', fieldType: 'text', fieldEntityId: undefined };
+    const partialCheckbox = {
+      name: 'fChecks',
+      value: ['x', 'unknown'],
+      fieldType: 'checkbox',
+      fieldEntityId: 15,
+    };
+    const { formFields, unsendable } = buildFormFieldsInput(
+      [unmappedChoice, noEntityId, partialCheckbox],
+      definitions,
+    );
+
+    expect(formFields).toBeUndefined();
+    expect(unsendable).toEqual([unmappedChoice, noEntityId, partialCheckbox]);
+  });
+
+  it('flags a cleared date and a cleared dropdown as unsendable (no empty form to send)', () => {
+    const clearedDate = { name: 'fDate', value: '', fieldType: 'date', fieldEntityId: 13 };
+    const clearedDropdown = {
+      name: 'fChoice',
+      value: '',
+      fieldType: 'dropdown',
+      fieldEntityId: 14,
+    };
+    const { formFields, unsendable } = buildFormFieldsInput(
+      [clearedDate, clearedDropdown],
+      definitions,
+    );
+
+    expect(formFields).toBeUndefined();
+    expect(unsendable).toEqual([clearedDate, clearedDropdown]);
+  });
+});
+
+describe('buildUpdateCustomerInput', () => {
+  it('maps scalar fields, mapping phoneNumber to phone', () => {
+    const input = buildUpdateCustomerInput({
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      company: 'AE',
+      phoneNumber: '5551234',
+    });
+
+    expect(input).toEqual({
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      company: 'AE',
+      phone: '5551234',
+    });
+  });
+
+  it('attaches the pre-resolved formFields group', () => {
+    const input = buildUpdateCustomerInput(
+      { firstName: 'Ada' },
+      { texts: [{ fieldEntityId: 10, text: 'new' }] },
+    );
+
+    expect(input).toEqual({
+      firstName: 'Ada',
+      formFields: { texts: [{ fieldEntityId: 10, text: 'new' }] },
+    });
+  });
+
+  it('does not put the password in the customer input (BC uses changePassword)', () => {
+    const input = buildUpdateCustomerInput({ firstName: 'Ada', newPassword: 'NewPass1!' });
+
+    expect(input).toEqual({ firstName: 'Ada' });
+  });
+});
+
+describe('buildUpdateCompanyUserInput', () => {
+  it('maps scalar fields including current/new password (no company field)', () => {
+    const input = buildUpdateCompanyUserInput({
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      phoneNumber: '5551234',
+      currentPassword: 'old-pass',
+      newPassword: 'new-pass',
+    });
+
+    expect(input).toEqual({
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      phone: '5551234',
+      currentPassword: 'old-pass',
+      newPassword: 'new-pass',
+    });
+  });
+
+  it('attaches the pre-resolved formFields and extraFields groups', () => {
+    const input = buildUpdateCompanyUserInput(
+      { firstName: 'Ada' },
+      { numbers: [{ fieldEntityId: 26, number: 28 }] },
+      { texts: [{ name: 'Nickname', text: 'AT' }] },
+    );
+
+    expect(input.formFields).toEqual({ numbers: [{ fieldEntityId: 26, number: 28 }] });
+    expect(input.extraFields).toEqual({ texts: [{ name: 'Nickname', text: 'AT' }] });
+  });
+});
+
+describe('buildExtraFieldsInput', () => {
+  it('routes company-user extra fields into the name-keyed groups by field type', () => {
+    const { extraFields, unsendable } = buildExtraFieldsInput([
+      { name: 'Nickname', value: 'AT', fieldType: 'text' },
+      { name: 'Bio', value: 'hi', fieldType: 'multiline' },
+      { name: 'Age', value: '25', fieldType: 'number' },
+      { name: 'Tier', value: 'Gold', fieldType: 'dropdown' },
+    ]);
+
+    expect(unsendable).toEqual([]);
+    expect(extraFields).toEqual({
+      texts: [{ name: 'Nickname', text: 'AT' }],
+      multilineTexts: [{ name: 'Bio', multilineText: 'hi' }],
+      numbers: [{ name: 'Age', number: '25' }],
+      multipleChoices: [{ name: 'Tier', fieldValue: 'Gold' }],
+    });
+  });
+
+  it('flags an array-valued (checkbox) extra field as unsendable instead of dropping it', () => {
+    const multi = { name: 'Multi', value: ['a', 'b'], fieldType: 'checkbox' };
+    const { extraFields, unsendable } = buildExtraFieldsInput([
+      multi,
+      { name: 'Nickname', value: 'AT', fieldType: 'text' },
+    ]);
+
+    expect(extraFields).toEqual({ texts: [{ name: 'Nickname', text: 'AT' }] });
+    expect(unsendable).toEqual([multi]);
+  });
+});
+
+describe('parseFieldEntityId', () => {
+  it('extracts the numeric entityId from a field_<id> fieldId', () => {
+    expect(parseFieldEntityId('field_26')).toBe(26);
+  });
+
+  it('returns undefined for non-matching or missing fieldIds', () => {
+    expect(parseFieldEntityId('field_email')).toBeUndefined();
+    expect(parseFieldEntityId('26')).toBeUndefined();
+    expect(parseFieldEntityId(undefined)).toBeUndefined();
+  });
+});
+
+describe('collectChangedFormFields', () => {
+  const fields = [
+    field({
+      name: 'field_26',
+      bcLabel: 'Age',
+      fieldType: 'number',
+      fieldId: 'field_26',
+      custom: true,
+    }),
+    field({
+      name: 'field_27',
+      bcLabel: 'Middle name',
+      fieldType: 'text',
+      fieldId: 'field_27',
+      custom: true,
+    }),
+    // Non-custom contact field is skipped.
+    field({ name: firstNameField, bcLabel: 'First Name', fieldId: 'field_first_name' }),
+  ];
+  const data = { field_26: 25, field_27: 'Lee', [firstNameField]: 'Ada' };
+
+  it('collects only custom fields, keyed by bcLabel with the parsed fieldEntityId', () => {
+    expect(collectChangedFormFields(data, fields, [])).toEqual([
+      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26 },
+      { name: 'Middle name', value: 'Lee', fieldType: 'text', fieldEntityId: 27 },
+    ]);
+  });
+
+  it('drops fields whose value matches the original, normalizing typed vs string values', () => {
+    // Age stored as the JS number 25 equals the string form value; Middle name changed.
+    expect(
+      collectChangedFormFields(data, fields, [
+        { name: 'Age', value: 25 },
+        { name: 'Middle name', value: 'Lee' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('keeps a field whose value differs from the original', () => {
+    expect(collectChangedFormFields(data, fields, [{ name: 'Age', value: 24 }])).toEqual([
+      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26 },
+      { name: 'Middle name', value: 'Lee', fieldType: 'text', fieldEntityId: 27 },
+    ]);
+  });
+
+  it('keys by label when bcLabel is empty (getAccountFormFields leaves bcLabel unset)', () => {
+    // The config only supplied labelName, so bcLabel is '' and the display name lives on label.
+    const labelOnly = [
+      field({
+        name: 'field_28',
+        label: 'Preferences',
+        fieldType: 'text',
+        fieldId: 'field_28',
+        custom: true,
+      }),
+    ];
+    // Unchanged against the stored value keyed by that label → not reported as changed.
+    expect(
+      collectChangedFormFields({ field_28: 'x' }, labelOnly, [{ name: 'Preferences', value: 'x' }]),
+    ).toEqual([]);
+    // Changed → keyed by label, entityId parsed from fieldId.
+    expect(
+      collectChangedFormFields({ field_28: 'y' }, labelOnly, [{ name: 'Preferences', value: 'x' }]),
+    ).toEqual([{ name: 'Preferences', value: 'y', fieldType: 'text', fieldEntityId: 28 }]);
+  });
+
+  it('does not treat an untouched date as changed (ISO original vs YYYY-MM-DD submitted)', () => {
+    const dateFields = [
+      field({ name: 'dob', bcLabel: 'DOB', fieldType: 'date', fieldId: 'field_30', custom: true }),
+    ];
+    // Stored value is a full ISO string; the datepicker submits date-only for the same day.
+    const changed = collectChangedFormFields({ dob: '2026-07-09' }, dateFields, [
+      { name: 'DOB', value: '2026-07-09T00:00:00Z' },
+    ]);
+
+    expect(changed).toEqual([]);
+  });
+
+  it('falls back to the definitions (by label) for entityId when the fieldId is not field_<id>', () => {
+    const nonNumericFields = [
+      field({
+        name: 'nn',
+        bcLabel: 'Age',
+        fieldType: 'number',
+        fieldId: 'field_age',
+        custom: true,
+      }),
+    ];
+    const [result] = collectChangedFormFields(
+      { nn: 25 },
+      nonNumericFields,
+      [],
+      [{ entityId: 26, label: 'Age' }],
+    );
+
+    expect(result.fieldEntityId).toBe(26);
+  });
+});
+
+describe('collectChangedExtraFields', () => {
+  // Company-user extra fields are the custom contact-group (groupId 1) fields, keyed by the
+  // decoded field name and matched against the read's extraFields (fieldName/fieldValue).
+  const nicknameField = Base64.encode('nickname');
+  const fields = [
+    field({ name: nicknameField, fieldType: 'text', custom: true, groupId: 1 }),
+    // groupId 2 (a form field) is not an extra field.
+    field({ name: 'field_26', bcLabel: 'Age', fieldType: 'number', custom: true, groupId: 2 }),
+  ];
+
+  it('collects only changed groupId-1 custom fields, keyed by decoded field name', () => {
+    const data = { [nicknameField]: 'AT', field_26: 25 };
+    expect(
+      collectChangedExtraFields(data, fields, [{ fieldName: 'nickname', fieldValue: '' }]),
+    ).toEqual([{ name: 'nickname', value: 'AT', fieldType: 'text' }]);
+  });
+
+  it('drops an extra field whose value matches the original', () => {
+    const data = { [nicknameField]: 'AT' };
+    expect(
+      collectChangedExtraFields(data, fields, [{ fieldName: 'nickname', fieldValue: 'AT' }]),
+    ).toEqual([]);
   });
 });
