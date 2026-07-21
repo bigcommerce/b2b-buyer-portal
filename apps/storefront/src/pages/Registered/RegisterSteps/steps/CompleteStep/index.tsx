@@ -14,7 +14,7 @@ import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
-import { channelId, storeHash } from '@/utils/basicConfig';
+import { channelId, isBigCommercePlatform, storeHash } from '@/utils/basicConfig';
 import { ensureBcGraphqlToken } from '@/utils/loginInfo';
 
 import { RegisteredContext } from '../../../Context';
@@ -288,7 +288,7 @@ export default function CompleteStep(props: CompleteStepProps) {
               createCustomerContext,
             );
 
-            if (isRegisterCompanyFlowEnabled) {
+            if (isRegisterCompanyFlowEnabled && isBigCommercePlatform()) {
               await ensureBcGraphqlToken();
 
               const customerDetails = await loginAndGetBcCustomer(
