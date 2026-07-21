@@ -1,10 +1,11 @@
 import round from 'lodash-es/round';
 
 import { getInvoiceCheckoutUrl } from '@/shared/service/b2b';
-import { BcCartData } from '@/types/invoice';
+import { BcCartData, InvoiceListNode } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { isBigCommercePlatform, isCatalystPlatform } from '@/utils/basicConfig';
+import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
 
 const getCheckoutUrlAndCart = async (params: BcCartData) => {
   const {
@@ -53,3 +54,31 @@ export const gotoInvoiceCheckoutUrl = async (
 
 export const formattingNumericValues = (value: number, decimalPlaces: number) =>
   round(Number(value), decimalPlaces).toFixed(decimalPlaces);
+
+export const formatInvoiceBalanceAmount = (
+  balance: { code?: string; value: string | number },
+  decimalPlaces: number,
+) => {
+  const amount = formattingNumericValues(Number(balance.value), decimalPlaces);
+  const token = handleGetCorrespondingCurrencyToken(balance.code || 'USD');
+
+  return `${token}${amount || 0}`;
+};
+
+const getInvoiceCurrency = (invoice: InvoiceListNode) => {
+  const {
+    node: { openBalance, originalBalance },
+  } = invoice;
+
+  return openBalance?.code || originalBalance.code;
+};
+
+export const hasMixedInvoiceCurrencies = (invoices: InvoiceListNode[]) => {
+  if (invoices.length === 0) {
+    return false;
+  }
+
+  const referenceCurrency = getInvoiceCurrency(invoices[0]);
+
+  return invoices.some((invoice) => getInvoiceCurrency(invoice) !== referenceCurrency);
+};

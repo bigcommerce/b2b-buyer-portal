@@ -190,6 +190,7 @@
   "invoice.invoiceItemCardHeader.amountDue": "Amount due",
   "invoice.invoiceItemCardHeader.amountToPay": "Amount to pay",
   "invoice.footer.invalidNameError": "The payment amount entered has an invalid value.",
+  "invoice.footer.differentCurrencyError": "Cannot pay invoices in mixed currencies",
   "invoice.footer.invoiceSelected": "{invoices} invoices selected",
   "invoice.footer.totalPayment": "Total payment: {total}",
   "invoice.footer.payInvoices": "Pay invoices",
