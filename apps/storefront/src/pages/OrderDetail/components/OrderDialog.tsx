@@ -508,6 +508,16 @@ export default function OrderDialog({
     return map;
   }, [variantInfoList]);
 
+  const catalogInventoryByProductId = useMemo(() => {
+    const map: Record<number, CatalogQuickVariantSku> = {};
+    variantInfoList.forEach((row) => {
+      if (row.productId != null) {
+        map[Number(row.productId)] = row;
+      }
+    });
+    return map;
+  }, [variantInfoList]);
+
   useEffect(() => {
     if (!open) {
       setVariantInfoList([]);
@@ -602,6 +612,7 @@ export default function OrderDialog({
             }
             showReorderAtsHelper={type === 'reOrder' && isReorderAtsEnabled}
             currencyCode={currencyCode}
+            catalogInventoryByProductId={catalogInventoryByProductId}
           />
 
           {type === 'return' && (

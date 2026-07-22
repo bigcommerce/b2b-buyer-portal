@@ -8,10 +8,15 @@ import { useB3Lang } from '@/lib/lang';
 import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { snackbar } from '@/utils/b3Tip';
-import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
+import {
+  getCatalogBackorderDisplayFields,
+  getCatalogBackorderDisplayQuantity,
+  getCatalogProductRowDisplayState,
+} from '@/utils/catalogBackorderDisplay';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';
 import { formatCurrency } from '../shared/convertOrderDetail';
+import { getOrderPicklistSelections } from '../shared/getOrderPicklistSelections';
 import {
   defaultItemStyle,
   Flex,
@@ -40,6 +45,7 @@ interface OrderCheckboxProductProps {
   showReorderAtsHelper?: boolean;
   /** Order currency code — uses Intl.NumberFormat when provided. */
   currencyCode?: string;
+  catalogInventoryByProductId?: Record<number, CatalogQuickVariantSku>;
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -56,6 +62,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     backorderUiEnabled = false,
     showReorderAtsHelper = false,
     currencyCode,
+    catalogInventoryByProductId = {},
   } = props;
 
   const b3Lang = useB3Lang();
@@ -220,6 +227,22 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           backorderUiEnabled,
           formatOnlyAvailable: (count) => b3Lang('orderDetail.reorder.onlyAvailable', { count }),
         });
+        const picklistSelections = usesCatalogBackorderInventory
+          ? getOrderPicklistSelections(product, catalogInventoryBySku ?? {})
+          : [];
+        const picklistBackorderRows = backorderUiEnabled
+          ? picklistSelections.flatMap((selection) => {
+              const inventoryRow = catalogInventoryByProductId[selection.productId];
+              const selectionBackorderFields = getCatalogBackorderDisplayFields(
+                getCatalogBackorderDisplayQuantity(qty, inventoryRow),
+                inventoryRow,
+              );
+
+              return selectionBackorderFields
+                ? [{ selection, backorderFields: selectionBackorderFields }]
+                : [];
+            })
+          : [];
 
         return (
           <Flex
@@ -312,6 +335,28 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                     />
                   </Box>
                 )}
+                {picklistBackorderRows.map(({ selection, backorderFields: selectionFields }) => (
+                  <Box
+                    key={selection.modifierId}
+                    sx={{
+                      width: '100%',
+                      maxWidth: '100%',
+                      minWidth: 0,
+                      textAlign,
+                      alignSelf: qtyStackAlignItems,
+                    }}
+                  >
+                    <Typography sx={{ color: '#616161', typography: 'body2' }}>
+                      {`${selection.displayName}:`}
+                    </Typography>
+                    <BackorderMessage
+                      totalOnHand={selectionFields.totalOnHand}
+                      quantityBackordered={selectionFields.quantityBackordered}
+                      backorderMessage={selectionFields.backorderMessage}
+                      visible
+                    />
+                  </Box>
+                ))}
               </Box>
             </FlexItem>
             <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
