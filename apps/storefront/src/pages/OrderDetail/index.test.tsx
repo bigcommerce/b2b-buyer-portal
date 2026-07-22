@@ -21,6 +21,7 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
+import * as b2bService from '@/shared/service/b2b';
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import {
   CustomerOrderNode,
@@ -4234,6 +4235,224 @@ describe('when a personal customer visits an order', () => {
 
       expect(await screen.findByText('Order Two Product')).toBeVisible();
       expect(screen.queryByText('Order one shipping message')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when the reordered product is a picklist', () => {
+    const parentSku = 'BUNDLE-PARENT';
+    const modifierId = 113;
+    const optionValueId = 98;
+    const picklistProductId = 113000;
+
+    const backorderPreloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.B2C,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+      global: buildGlobalStateWith({
+        backorderEnabled: true,
+        backorderDisplaySettings: {
+          showQuantityOnBackorder: true,
+          showQuantityOnHand: true,
+          showBackorderMessage: true,
+          showDefaultShippingExpectationPrompt: false,
+          defaultShippingExpectationPrompt: '',
+        },
+        featureFlags: {
+          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+        },
+      }),
+    };
+
+    const childSku = 'BUNDLE-CHILD';
+
+    function buildPicklistOrderProducts() {
+      const parentProduct = {
+        ...buildProductWith({
+          id: 5,
+          name: 'BUNDLE PARENT',
+          sku: parentSku,
+          quantity: 5,
+          product_options: [
+            buildProductOptionWith({
+              value: String(optionValueId),
+              option_id: 33,
+              display_name: 'Bundle option',
+              display_value: 'Bundle child',
+              product_option_id: modifierId,
+            }),
+          ],
+        }),
+        isVisible: true,
+      };
+
+      const childProduct = {
+        ...buildProductWith({
+          id: 6,
+          name: 'Bundle child',
+          sku: childSku,
+          product_id: picklistProductId,
+          quantity: 5,
+        }),
+        isVisible: true,
+        parent_order_product_id: parentProduct.id,
+      };
+
+      const parentVariantInfo = buildVariantInfoWith({
+        variantSku: parentSku,
+        inventoryTracking: 'variant',
+        availableToSell: 100,
+        unlimitedBackorder: false,
+        modifiers: [
+          {
+            id: modifierId,
+            type: 'product_list',
+            display_name: 'Bundle option',
+            option_values: [{ id: optionValueId, value_data: { product_id: picklistProductId } }],
+          },
+        ],
+      });
+
+      const childLineItemVariantInfo = buildVariantInfoWith({
+        variantSku: childSku,
+        productId: String(picklistProductId),
+        inventoryTracking: 'product',
+        availableToSell: 10,
+        unlimitedBackorder: false,
+        totalOnHand: 7,
+        backorderMessage: 'Line-item row message',
+      });
+
+      const childSearchProduct = {
+        id: picklistProductId,
+        inventoryTracking: 'product',
+        availableToSell: 10,
+        unlimitedBackorder: false,
+        totalOnHand: 3,
+        backorderMessage: 'Restocks in 3 weeks',
+        variants: [],
+      };
+
+      return {
+        parentProduct,
+        childProduct,
+        parentVariantInfo,
+        childLineItemVariantInfo,
+        childSearchProduct,
+      };
+    }
+
+    it('shows the picklist child backorder details nested under the parent product', async () => {
+      const {
+        parentProduct,
+        childProduct,
+        parentVariantInfo,
+        childLineItemVariantInfo,
+        childSearchProduct,
+      } = buildPicklistOrderProducts();
+      const searchProductsSpy = vi.spyOn(b2bService, 'searchProducts');
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [parentProduct, childProduct] } },
+            }),
+          ),
+        ),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json(
+            buildVariantInfoResponseWith({
+              data: { variantSku: [parentVariantInfo, childLineItemVariantInfo] },
+            }),
+          ),
+        ),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json({ data: { productsSearch: [childSearchProduct] } }),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Re-Order' });
+      const productGroup = within(dialog).getByRole('group', { name: 'BUNDLE PARENT' });
+
+      expect(await within(productGroup).findByText('Bundle option:')).toBeVisible();
+      expect(within(productGroup).getByText('3 ready to ship')).toBeVisible();
+      expect(within(productGroup).getByText('2 will be backordered')).toBeVisible();
+      expect(within(productGroup).getByText('Restocks in 3 weeks')).toBeVisible();
+      expect(searchProductsSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ productIds: [picklistProductId] }),
+      );
+    });
+
+    it('shows the picklist child backorder details nested under the parent product in the add to shopping list dialog', async () => {
+      const {
+        parentProduct,
+        childProduct,
+        parentVariantInfo,
+        childLineItemVariantInfo,
+        childSearchProduct,
+      } = buildPicklistOrderProducts();
+      const searchProductsSpy = vi.spyOn(b2bService, 'searchProducts');
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { products: [parentProduct, childProduct] } },
+            }),
+          ),
+        ),
+        graphql.query('GetVariantInfoBySkus', () =>
+          HttpResponse.json(
+            buildVariantInfoResponseWith({
+              data: { variantSku: [parentVariantInfo, childLineItemVariantInfo] },
+            }),
+          ),
+        ),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json({ data: { productsSearch: [childSearchProduct] } }),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: backorderPreloadedState,
+        initialGlobalContext: { shoppingListEnabled: true },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      await userEvent.click(screen.getByRole('button', { name: 'ADD TO SHOPPING LIST' }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Add to shopping list' });
+      const productGroup = within(dialog).getByRole('group', { name: 'BUNDLE PARENT' });
+
+      expect(await within(productGroup).findByText('Bundle option:')).toBeVisible();
+      expect(within(productGroup).getByText('3 ready to ship')).toBeVisible();
+      expect(within(productGroup).getByText('2 will be backordered')).toBeVisible();
+      expect(within(productGroup).getByText('Restocks in 3 weeks')).toBeVisible();
+      expect(searchProductsSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ productIds: [picklistProductId] }),
+      );
     });
   });
 });
