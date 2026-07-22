@@ -5,6 +5,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { GlobalContext } from '@/shared/global';
@@ -93,6 +94,7 @@ interface OrderCardProps {
   isCurrentCompany: boolean;
   switchCompanyId: number | string | undefined;
   currencyCode?: string;
+  shippingExpectationMessage?: string;
 }
 
 interface DialogData {
@@ -117,6 +119,7 @@ function OrderCard(props: OrderCardProps) {
     isCurrentCompany,
     switchCompanyId,
     currencyCode,
+    shippingExpectationMessage,
   } = props;
   const displayAsNegativeNumber = ['coupon', 'discountAmount'];
   const b3Lang = useB3Lang();
@@ -229,6 +232,12 @@ function OrderCard(props: OrderCardProps) {
             <p>{formatValue(infoValue[index])}</p>
           )}
         </ItemContainer>
+
+        {symbol[key] === 'shipping' && shippingExpectationMessage && (
+          <Typography variant="body2" sx={{ color: '#616161', margin: '0 0 12px' }}>
+            {shippingExpectationMessage}
+          </Typography>
+        )}
       </Fragment>
     ));
   }
@@ -319,6 +328,7 @@ interface OrderData {
   subtitle: string;
   buttons: Buttons[];
   infos: Infos | string;
+  shippingExpectationMessage?: string;
 }
 
 export function OrderAction(props: OrderActionProps) {
@@ -350,7 +360,17 @@ export function OrderAction(props: OrderActionProps) {
     statusCode,
     customerId,
     companyInfo: { companyId } = {},
+    shippingExpectationMessage: rawShippingExpectationMessage = '',
   } = detailsData;
+
+  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
+  const { showDefaultShippingExpectationPrompt } = useAppSelector(
+    ({ global }) => global.backorderDisplaySettings,
+  );
+  const shippingExpectationMessage =
+    isBackorderMessagingContextEnabled && showDefaultShippingExpectationPrompt
+      ? rawShippingExpectationMessage
+      : '';
 
   const getPaymentMessage = useCallback(() => {
     if (!createAt) return '';
@@ -493,6 +513,7 @@ export function OrderAction(props: OrderActionProps) {
         info: priceData || {},
         symbol: priceSymbol || {},
       },
+      shippingExpectationMessage: shippingExpectationMessage || undefined,
     },
     {
       header: b3Lang('orderDetail.payment'),

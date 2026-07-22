@@ -11,6 +11,7 @@ import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/produc
 import { useAppSelector } from '@/store';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { getDisplayPrice, judgmentBuyerProduct } from '@/utils/b3Product/b3Product';
+import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import {
   getCatalogProductRowDisplayState,
   productRequiresChooseOptionsBeforeAdd,
@@ -168,6 +169,7 @@ interface ProductProps<T extends ProductItem = ProductItem> {
   catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
   showAvailableToSellHelper?: boolean;
   formatOnlyAvailable?: (availableToSell: number) => string;
+  backorderFieldsForProduct?: (product: T & ProductItem) => BackorderDisplayFields | null;
 }
 
 function getProductVariantSku(product: ProductItem): string {
@@ -197,6 +199,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     catalogInventoryBySku,
     showAvailableToSellHelper = false,
     formatOnlyAvailable = () => '',
+    backorderFieldsForProduct,
   } = props;
 
   const [list, setList] = useState<ProductItem[]>([]);
@@ -269,13 +272,14 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
   }, [products]);
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
+  const backorderLayoutEnabled = catalogBackorderUiEnabled || Boolean(backorderFieldsForProduct);
   const {
     qtyColumn: desktopQtyColumnStyle,
     qtyColumnSx: desktopQtyColumnExtraSx,
     numericColumn: desktopNumericColumnStyle,
     productColumnPadding: desktopProductColumnPadding,
     productColumnSx: desktopProductColumnSx,
-  } = getBackorderLayoutStyles(catalogBackorderUiEnabled && !isMobile, isMobile, itemStyle);
+  } = getBackorderLayoutStyles(backorderLayoutEnabled && !isMobile, isMobile, itemStyle);
 
   const showTypePrice = (newMoney: string | number, product: CustomFieldItems): string | number => {
     if (type === 'quote') {
@@ -381,14 +385,32 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
         const inventoryRow = productRequiresChooseOptionsBeforeAdd(product)
           ? undefined
           : catalogInventoryBySku?.[variantSku.toUpperCase()];
-        const { qtyHelperText, backorderFields } = getCatalogProductRowDisplayState({
-          qty: Number(quantity) || 0,
-          productHelperText: product.helperText,
-          showAvailableToSellHelper,
-          inventoryRow,
-          backorderUiEnabled: catalogBackorderUiEnabled,
-          formatOnlyAvailable,
-        });
+        const { qtyHelperText, backorderFields: catalogBackorderFields } =
+          getCatalogProductRowDisplayState({
+            qty: Number(quantity) || 0,
+            productHelperText: product.helperText,
+            showAvailableToSellHelper,
+            inventoryRow,
+            backorderUiEnabled: catalogBackorderUiEnabled,
+            formatOnlyAvailable,
+          });
+        const backorderFields = backorderFieldsForProduct?.(product) ?? catalogBackorderFields;
+
+        const quantityLabel = (
+          <>
+            {isMobile && <span>Qty: </span>}
+            {quantity}
+          </>
+        );
+
+        const backorderMessageElement = backorderFields && (
+          <BackorderMessage
+            totalOnHand={backorderFields.totalOnHand}
+            quantityBackordered={backorderFields.quantityBackordered}
+            backorderMessage={backorderFields.backorderMessage}
+            visible
+          />
+        );
 
         const getDisplayPrice = (priceValue: number, preFormatted?: string) => {
           if (preFormatted) return showTypePrice(preFormatted, product);
@@ -542,7 +564,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                   : {}),
               }}
             >
-              {quantityEditable ? (
+              {quantityEditable && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -573,7 +595,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                     error={Boolean(qtyHelperText)}
                     helperText={qtyHelperText || undefined}
                   />
-                  {backorderFields && (
+                  {backorderMessageElement && (
                     <Box
                       sx={{
                         mt: 1,
@@ -584,21 +606,34 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                         alignSelf: quantityStackItemsAlignment,
                       }}
                     >
-                      <BackorderMessage
-                        totalOnHand={backorderFields.totalOnHand}
-                        quantityBackordered={backorderFields.quantityBackordered}
-                        backorderMessage={backorderFields.backorderMessage}
-                        visible
-                      />
+                      {backorderMessageElement}
                     </Box>
                   )}
                 </Box>
-              ) : (
-                <>
-                  {isMobile && <span>Qty: </span>}
-                  {quantity}
-                </>
               )}
+              {!quantityEditable && backorderFields && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: quantityStackItemsAlignment,
+                    width: '100%',
+                  }}
+                >
+                  <Box>{quantityLabel}</Box>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      width: '100%',
+                      textAlign,
+                      alignSelf: quantityStackItemsAlignment,
+                    }}
+                  >
+                    {backorderMessageElement}
+                  </Box>
+                </Box>
+              )}
+              {!quantityEditable && !backorderFields && quantityLabel}
             </FlexItem>
 
             {renderPrice(totalText, totalPrice, discountedTotalPrice, safeFormattedTotal)}
