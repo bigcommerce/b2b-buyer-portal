@@ -10,11 +10,13 @@ import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
+import { type PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
 
 import { useQuoteDetailBackorderState } from '../hooks/useQuoteDetailBackorderState';
 import {
   getQuoteBackorderDisplayFields,
   getQuotePicklistSelections,
+  getRowPicklistBackorderHistory,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 import QuoteDetailTableCard from './QuoteDetailTableCard';
@@ -42,6 +44,7 @@ interface ProductInfoProps {
   backorderMessage?: string;
   totalOnHand?: number;
   quantityBackordered?: number;
+  picklistBackorder?: PicklistBackorderHistoryChild[];
 }
 
 interface ListItemProps {
@@ -123,6 +126,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   } = props;
 
   const {
+    isOrdered,
     shouldDisplayBackorderInformation,
     backorderContextEnabled,
     picklistProductsById,
@@ -316,6 +320,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row) => {
         const backorderFields = getQuoteBackorderDisplayFields(row);
         const picklistSelections = backorderContextEnabled ? getQuotePicklistSelections(row) : [];
+        const historyByProductId = isOrdered ? getRowPicklistBackorderHistory(row) : undefined;
 
         return (
           <Box>
@@ -335,6 +340,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 qty={Number(row.quantity) || 0}
                 visible={showBackorderDetails}
                 backorderUiEnabled={backorderContextEnabled}
+                historyByProductId={historyByProductId}
               />
             )}
           </Box>
@@ -472,6 +478,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             showBackorderDetails={showBackorderDetails}
             shouldDisplayBackorderInformation={shouldDisplayBackorderInformation}
             picklistProductsById={picklistProductsById}
+            historyByProductId={isOrdered ? getRowPicklistBackorderHistory(row) : undefined}
           />
         )}
       />
