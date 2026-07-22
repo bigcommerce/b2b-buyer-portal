@@ -5,6 +5,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -18,7 +19,7 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import type { Order as UnifiedOrder } from '@/shared/service/bc/graphql/orders';
-import { getOrderDetail } from '@/shared/service/bc/graphql/orders';
+import { getOrderBackorderHistory, getOrderDetail } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
@@ -33,6 +34,7 @@ import { OrderBilling } from './components/OrderBilling';
 import { OrderHistory } from './components/OrderHistory';
 import { OrderShipping } from './components/OrderShipping';
 import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
+import { applyOrderBackorderHistory } from './shared/applyOrderBackorderHistory';
 import convertB2BOrderDetails from './shared/B2BOrderData';
 import { convertOrderDetail } from './shared/convertOrderDetail';
 
@@ -63,6 +65,7 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
 
   const {
     state: { addressConfig },
@@ -132,9 +135,23 @@ function OrderDetail() {
           setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
 
           const data = convertB2BOrderDetails(newOrder, b3Lang);
+
+          let payload: ReturnType<typeof applyOrderBackorderHistory> = {
+            ...data,
+            shippingExpectationMessage: undefined,
+          };
+          if (isBackorderMessagingContextEnabled) {
+            try {
+              const backorderHistory = await getOrderBackorderHistory({ entityId: id });
+              payload = applyOrderBackorderHistory(data, backorderHistory);
+            } catch (err) {
+              b2bLogger.error(err);
+            }
+          }
+
           dispatch({
             type: 'all',
-            payload: data,
+            payload,
           });
           setPreOrderId(orderId);
         }
@@ -152,7 +169,15 @@ function OrderDetail() {
     fetchLegacyOrderDetails();
     // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isUnifiedOrders, orderId, preOrderId, selectCompanyHierarchyId, currentCompanyId]);
+  }, [
+    isB2BUser,
+    isUnifiedOrders,
+    orderId,
+    preOrderId,
+    selectCompanyHierarchyId,
+    currentCompanyId,
+    isBackorderMessagingContextEnabled,
+  ]);
 
   useEffect(() => {
     if (!isUnifiedOrders || !orderId) {
