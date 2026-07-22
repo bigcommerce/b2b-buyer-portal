@@ -5,6 +5,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
@@ -18,7 +19,7 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import type { Order as UnifiedOrder } from '@/shared/service/bc/graphql/orders';
-import { getOrderDetail } from '@/shared/service/bc/graphql/orders';
+import { getOrderBackorderHistory, getOrderDetail } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
@@ -33,6 +34,7 @@ import { OrderBilling } from './components/OrderBilling';
 import { OrderHistory } from './components/OrderHistory';
 import { OrderShipping } from './components/OrderShipping';
 import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
+import { applyOrderBackorderHistory } from './shared/applyOrderBackorderHistory';
 import convertB2BOrderDetails from './shared/B2BOrderData';
 import { convertOrderDetail } from './shared/convertOrderDetail';
 
@@ -63,6 +65,7 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
 
   const {
     state: { addressConfig },
@@ -102,8 +105,10 @@ function OrderDetail() {
 
   useEffect(() => {
     if (isUnifiedOrders || !orderId) {
-      return;
+      return undefined;
     }
+
+    let isCurrentRequest = true;
 
     const fetchLegacyOrderDetails = async () => {
       const id = parseInt(orderId, 10);
@@ -116,7 +121,7 @@ function OrderDetail() {
       try {
         const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
 
-        if (order) {
+        if (order && isCurrentRequest) {
           const { products, companyInfo } = order;
 
           const newOrder = {
@@ -132,27 +137,58 @@ function OrderDetail() {
           setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
 
           const data = convertB2BOrderDetails(newOrder, b3Lang);
-          dispatch({
-            type: 'all',
-            payload: data,
-          });
-          setPreOrderId(orderId);
+
+          let payload: ReturnType<typeof applyOrderBackorderHistory> = {
+            ...data,
+            shippingExpectationMessage: undefined,
+          };
+          if (isBackorderMessagingContextEnabled) {
+            try {
+              const backorderHistory = await getOrderBackorderHistory({ entityId: id });
+              payload = applyOrderBackorderHistory(data, backorderHistory);
+            } catch (err) {
+              b2bLogger.error(err);
+            }
+          }
+
+          if (isCurrentRequest) {
+            dispatch({
+              type: 'all',
+              payload,
+            });
+            setPreOrderId(orderId);
+          }
         }
       } catch (err) {
-        if (err === 'order does not exist') {
+        if (err === 'order does not exist' && isCurrentRequest) {
           setTimeout(() => {
             window.location.hash = `/orderDetail/${preOrderId}`;
           }, 1000);
         }
       } finally {
-        setIsRequestLoading(false);
+        if (isCurrentRequest) {
+          setIsRequestLoading(false);
+        }
       }
     };
 
     fetchLegacyOrderDetails();
-    // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
+
+    return () => {
+      isCurrentRequest = false;
+    };
+    // dispatch is stable and b3Lang has rendering errors, so both are omitted.
+    // preOrderId is only read in the failed-navigation fallback; including it would
+    // re-run this effect after setPreOrderId on a successful load, refetching the order.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isUnifiedOrders, orderId, preOrderId, selectCompanyHierarchyId, currentCompanyId]);
+  }, [
+    isB2BUser,
+    isUnifiedOrders,
+    orderId,
+    selectCompanyHierarchyId,
+    currentCompanyId,
+    isBackorderMessagingContextEnabled,
+  ]);
 
   useEffect(() => {
     if (!isUnifiedOrders || !orderId) {

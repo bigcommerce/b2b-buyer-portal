@@ -373,6 +373,12 @@ const buildVariantInfoResponseWith = builder<VariantInfoResponse>(() => ({
 
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
+
+  server.use(
+    graphql.query('GetOrderBackorderHistory', () =>
+      HttpResponse.json({ data: { site: { order: null } } }),
+    ),
+  );
 });
 
 describe('when a personal customer visits an order', () => {
@@ -3471,6 +3477,763 @@ describe('when a personal customer visits an order', () => {
       expect(
         within(dialog).queryByText('will be backordered', { exact: false }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when the order has backordered items', () => {
+    const backorderPreloadedState = {
+      company: buildCompanyStateWith({
+        customer: {
+          role: CustomerRole.B2C,
+        },
+      }),
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+      global: buildGlobalStateWith({
+        backorderEnabled: true,
+        backorderDisplaySettings: {
+          showQuantityOnBackorder: true,
+          showQuantityOnHand: true,
+          showBackorderMessage: true,
+          showDefaultShippingExpectationPrompt: true,
+          defaultShippingExpectationPrompt: '',
+        },
+        featureFlags: {
+          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+        },
+      }),
+    };
+
+    const buildBackorderHistoryResponse = (
+      lineItems: Array<{
+        entityId: number;
+        backorderedQuantity: number;
+        backorderMessage?: string;
+      }>,
+      backorderShippingExpectationMessage: string | null = null,
+    ) => ({
+      data: {
+        site: {
+          order: {
+            entityId: 1,
+            backorderShippingExpectationMessage,
+            consignments: {
+              shipping: {
+                edges: [
+                  {
+                    node: {
+                      lineItems: {
+                        edges: lineItems.map((item) => ({ node: item })),
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    it('shows backorder details on unshipped items and the shipping-expectation message directly under Shipping', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const pickleKit = buildProductWith({
+        id: 501,
+        order_address_id: address.id,
+        name: 'Pickle Kit',
+        sku: 'PK',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [pickleKit],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse(
+              [
+                {
+                  entityId: 501,
+                  backorderedQuantity: 1,
+                  backorderMessage: 'Backorders Schmackorders',
+                },
+              ],
+              "We'll ship your in-stock items right away.",
+            ),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('4 ready to ship')).toBeVisible();
+      expect(screen.getByText('1 will be backordered')).toBeVisible();
+      expect(screen.getByText('Backorders Schmackorders')).toBeVisible();
+
+      const summaryHeading = screen.getByRole('heading', { name: 'Summary' });
+      const summaryCard = summaryHeading.closest('.MuiCard-root') as HTMLElement;
+
+      expect(
+        within(summaryCard).getByText("We'll ship your in-stock items right away."),
+      ).toBeVisible();
+
+      const cardText = summaryCard.textContent || '';
+      const shippingIndex = cardText.indexOf('Shipping');
+      const messageIndex = cardText.indexOf("We'll ship your in-stock items right away.");
+      const grandTotalIndex = cardText.indexOf('Grand total');
+
+      expect(shippingIndex).toBeLessThan(messageIndex);
+      expect(messageIndex).toBeLessThan(grandTotalIndex);
+    });
+
+    it('shows the same backorder details when the order is reached via Company Orders', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const pickleKit = buildProductWith({
+        id: 502,
+        order_address_id: address.id,
+        name: 'Pickle Kit',
+        sku: 'PK',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [pickleKit],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse([
+              {
+                entityId: 502,
+                backorderedQuantity: 1,
+                backorderMessage: 'Backorders Schmackorders',
+              },
+            ]),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: backorderPreloadedState,
+        initialEntries: [{ state: { isCompanyOrder: true } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('4 ready to ship')).toBeVisible();
+      expect(screen.getByText('1 will be backordered')).toBeVisible();
+      expect(screen.getByText('Backorders Schmackorders')).toBeVisible();
+    });
+
+    it('hides the shipping-expectation message when disabled, even when other backorder information is set to show and backorders exist', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const pickleKit = buildProductWith({
+        id: 511,
+        order_address_id: address.id,
+        name: 'Pickle Kit',
+        sku: 'PK',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [pickleKit],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse(
+              [
+                {
+                  entityId: 511,
+                  backorderedQuantity: 1,
+                  backorderMessage: 'Backorders Schmackorders',
+                },
+              ],
+              "We'll ship your in-stock items right away.",
+            ),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: {
+          ...backorderPreloadedState,
+          global: buildGlobalStateWith({
+            ...backorderPreloadedState.global,
+            backorderDisplaySettings: {
+              ...backorderPreloadedState.global.backorderDisplaySettings,
+              showDefaultShippingExpectationPrompt: false,
+            },
+          }),
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('4 ready to ship')).toBeVisible();
+      expect(screen.getByText('1 will be backordered')).toBeVisible();
+      expect(
+        screen.queryByText("We'll ship your in-stock items right away."),
+      ).not.toBeInTheDocument();
+    });
+
+    it('displays distinct backorder figures for two separate lines sharing the same SKU', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const lineOne = buildProductWith({
+        id: 601,
+        order_address_id: address.id,
+        name: 'Widget',
+        sku: 'DUPE-SKU',
+        quantity: 10,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const lineTwo = buildProductWith({
+        id: 602,
+        order_address_id: address.id,
+        name: 'Widget',
+        sku: 'DUPE-SKU',
+        quantity: 4,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [lineOne, lineTwo],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse([
+              { entityId: 601, backorderedQuantity: 3, backorderMessage: 'Line one message' },
+              { entityId: 602, backorderedQuantity: 1, backorderMessage: 'Line two message' },
+            ]),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('7 ready to ship')).toBeVisible();
+      expect(screen.getByText('3 will be backordered')).toBeVisible();
+      expect(screen.getByText('Line one message')).toBeVisible();
+
+      expect(screen.getByText('3 ready to ship')).toBeVisible();
+      expect(screen.getByText('1 will be backordered')).toBeVisible();
+      expect(screen.getByText('Line two message')).toBeVisible();
+    });
+
+    it('does not fetch backorder history when backorder messaging is disabled', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+      const product = buildProductWith({
+        id: 701,
+        order_address_id: address.id,
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const historyHandler = vi.fn();
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: { customerOrder: { shippingAddress: [address], products: [product] } },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () => {
+          historyHandler();
+          return HttpResponse.json(buildBackorderHistoryResponse([]));
+        }),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(historyHandler).not.toHaveBeenCalled();
+    });
+
+    it('renders the order normally when the backorder history request fails', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+      const product = buildProductWith({
+        id: 801,
+        order_address_id: address.id,
+        name: 'Resilient Product',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [product],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () => HttpResponse.error()),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Resilient Product')).toBeVisible();
+      expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+    });
+
+    it('shows only the remaining backordered count once part of the backordered units have shipped', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const partiallyShippedProduct = buildProductWith({
+        id: 1001,
+        order_address_id: address.id,
+        name: 'Partially Shipped',
+        quantity: 4,
+        quantity_shipped: 2,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shippingAddress: [address],
+                  products: [partiallyShippedProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse([
+              {
+                entityId: 1001,
+                backorderedQuantity: 3,
+                backorderMessage: 'Backorders Schmackorders',
+              },
+            ]),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Partially Shipped')).toBeVisible();
+      expect(screen.getByText('2 will be backordered')).toBeVisible();
+      expect(screen.queryByText('ready to ship', { exact: false })).not.toBeInTheDocument();
+    });
+
+    it('hides the backorder blob once all backordered units have shipped', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const fullyShippedProduct = buildProductWith({
+        id: 1002,
+        order_address_id: address.id,
+        name: 'Fully Shipped',
+        quantity: 5,
+        quantity_shipped: 5,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const shipment = buildShipmentWith({
+        id: 1,
+        order_address_id: address.id,
+        items: [{ quantity: 5, order_product_id: fullyShippedProduct.id }],
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shipments: [shipment],
+                  shippingAddress: [address],
+                  products: [fullyShippedProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse([
+              { entityId: 1002, backorderedQuantity: 2, backorderMessage: 'Should not show' },
+            ]),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Fully Shipped')).toBeVisible();
+      expect(screen.queryByText('Should not show')).not.toBeInTheDocument();
+      expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
+    });
+
+    it('never shows backorder info in the shipped section, even for a line that also has a remaining backorder in Not shipped yet', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const partiallyShippedProduct = buildProductWith({
+        id: 1003,
+        order_address_id: address.id,
+        name: 'Pickle Kit',
+        quantity: 5,
+        quantity_shipped: 4,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const shipment = buildShipmentWith({
+        id: 1,
+        order_address_id: address.id,
+        items: [{ quantity: 4, order_product_id: partiallyShippedProduct.id }],
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shipments: [shipment],
+                  shippingAddress: [address],
+                  products: [partiallyShippedProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse([
+              {
+                entityId: 1003,
+                backorderedQuantity: 1,
+                backorderMessage: 'Backorders Schmackorders',
+              },
+            ]),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Not shipped yet')).toBeVisible();
+      expect(screen.getAllByText('1 will be backordered')).toHaveLength(1);
+      expect(screen.getAllByText('Backorders Schmackorders')).toHaveLength(1);
+    });
+
+    it('hides the order-level shipping-expectation message once every backordered unit has been shipped', async () => {
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const fullyShippedProduct = buildProductWith({
+        id: 1004,
+        order_address_id: address.id,
+        name: 'Fully Shipped Order',
+        quantity: 5,
+        quantity_shipped: 5,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const shipment = buildShipmentWith({
+        id: 1,
+        order_address_id: address.id,
+        items: [{ quantity: 5, order_product_id: fullyShippedProduct.id }],
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', () =>
+          HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  shipments: [shipment],
+                  shippingAddress: [address],
+                  products: [fullyShippedProduct],
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', () =>
+          HttpResponse.json(
+            buildBackorderHistoryResponse(
+              [{ entityId: 1004, backorderedQuantity: 2, backorderMessage: 'Should not show' }],
+              "We'll ship your in-stock items right away.",
+            ),
+          ),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, { preloadedState: backorderPreloadedState });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Fully Shipped Order')).toBeVisible();
+      expect(
+        screen.queryByText("We'll ship your in-stock items right away."),
+      ).not.toBeInTheDocument();
+    });
+
+    it('clears a stale shipping-expectation message when navigating to an order whose backorder history fetch fails', async () => {
+      vi.mocked(useParams).mockReturnValue({ id: '1' });
+
+      const address = buildShippingAddressWith('WHATEVER_VALUES');
+
+      const orderOneProduct = buildProductWith({
+        id: 601,
+        order_address_id: address.id,
+        name: 'Order One Product',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      const orderTwoProduct = buildProductWith({
+        id: 602,
+        order_address_id: address.id,
+        name: 'Order Two Product',
+        quantity: 5,
+        quantity_shipped: 0,
+        product_options: [],
+        type: 'physical',
+      });
+
+      server.use(
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('GetCustomerOrder', ({ query }) => {
+          if (!query.includes('id: 2')) {
+            return HttpResponse.json(
+              buildCustomerOrderResponseWith({
+                data: {
+                  customerOrder: {
+                    id: '1',
+                    shippingAddress: [address],
+                    products: [orderOneProduct],
+                  },
+                },
+              }),
+            );
+          }
+
+          return HttpResponse.json(
+            buildCustomerOrderResponseWith({
+              data: {
+                customerOrder: {
+                  id: '2',
+                  shippingAddress: [address],
+                  products: [orderTwoProduct],
+                },
+              },
+            }),
+          );
+        }),
+        graphql.query('GetCustomerOrders', () =>
+          HttpResponse.json(
+            buildGetCustomerOrdersWith({
+              data: {
+                customerOrders: {
+                  edges: [
+                    buildCustomerOrderNodeWith({ node: { orderId: '1' } }),
+                    buildCustomerOrderNodeWith({ node: { orderId: '2' } }),
+                  ],
+                  totalCount: 2,
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetOrderBackorderHistory', ({ variables }) => {
+          if (variables.entityId === 1) {
+            return HttpResponse.json(
+              buildBackorderHistoryResponse(
+                [
+                  {
+                    entityId: 601,
+                    backorderedQuantity: 1,
+                    backorderMessage: 'Backorders Schmackorders',
+                  },
+                ],
+                'Order one shipping message',
+              ),
+            );
+          }
+
+          return HttpResponse.error();
+        }),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: backorderPreloadedState,
+        initialEntries: [
+          {
+            state: {
+              isCompanyOrder: false,
+              currentIndex: 0,
+              totalCount: 2,
+            },
+          },
+        ],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      expect(await screen.findByText('Order one shipping message')).toBeVisible();
+
+      const navigation = await screen.findByRole('navigation', { name: 'Order 1 of 2' });
+      const [, next] = within(navigation).getAllByRole('button');
+
+      await userEvent.click(next);
+
+      expect(await screen.findByText('Order Two Product')).toBeVisible();
+      expect(screen.queryByText('Order one shipping message')).not.toBeInTheDocument();
     });
   });
 });

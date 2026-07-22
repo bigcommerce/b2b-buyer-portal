@@ -763,6 +763,101 @@ export async function getOrderDetail(variables: {
   });
 }
 
+const GET_ORDER_BACKORDER_HISTORY = `query GetOrderBackorderHistory($entityId: Int!) {
+  site {
+    order(filter: { entityId: $entityId }) {
+      entityId
+      backorderShippingExpectationMessage
+      consignments {
+        shipping {
+          edges {
+            node {
+              lineItems {
+                edges {
+                  node {
+                    entityId
+                    backorderedQuantity
+                    backorderMessage
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+// entityId (orderProductId), not sku: The same SKU can appear on more than one line in an order (split shipments etc.).
+export interface OrderBackorderLineItem {
+  entityId: number;
+  quantityBackordered: number;
+  backorderMessage?: string | null;
+}
+
+export interface OrderBackorderHistory {
+  shippingExpectationMessage?: string | null;
+  lineItems: OrderBackorderLineItem[];
+}
+
+interface GetOrderBackorderHistoryResponse {
+  data?: {
+    site?: {
+      order?: {
+        entityId: number;
+        backorderShippingExpectationMessage?: string | null;
+        consignments?: {
+          shipping?: {
+            edges: Array<{
+              node: {
+                lineItems: {
+                  edges: Array<{
+                    node: {
+                      entityId: number;
+                      backorderedQuantity?: number;
+                      backorderMessage?: string | null;
+                    };
+                  }>;
+                };
+              };
+            }>;
+          };
+        };
+      } | null;
+    };
+  };
+}
+
+export async function getOrderBackorderHistory(variables: {
+  entityId: number;
+}): Promise<OrderBackorderHistory | null> {
+  const response = await storefrontGQLRequest<GetOrderBackorderHistoryResponse>({
+    query: GET_ORDER_BACKORDER_HISTORY,
+    variables,
+  });
+
+  const order = response.data?.site?.order;
+  if (!order) {
+    return null;
+  }
+
+  const shippingEdges = order.consignments?.shipping?.edges ?? [];
+  const lineItems = shippingEdges
+    .flatMap((edge) => edge.node.lineItems.edges.map(({ node }) => node))
+    .filter((node) => (node.backorderedQuantity ?? 0) > 0)
+    .map((node) => ({
+      entityId: node.entityId,
+      quantityBackordered: node.backorderedQuantity ?? 0,
+      backorderMessage: node.backorderMessage,
+    }));
+
+  return {
+    shippingExpectationMessage: order.backorderShippingExpectationMessage,
+    lineItems,
+  };
+}
+
 /** Customers who have placed orders within a company. */
 export async function getCustomersWithOrders(variables: {
   filters?: CustomerWithOrdersFiltersInput;
