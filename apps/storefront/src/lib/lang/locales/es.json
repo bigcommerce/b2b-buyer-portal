@@ -164,7 +164,7 @@
   "orders.status.manualVerificationRequired": "Se requiere verificación manual",
   "orders.status.disputed": "Reclamado",
   "orders.status.partiallyRefunded": "reembolsado parcialmente",
-  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
+  "invoice.noDataText": "No se han encontrado facturas. Para el ID de factura, introduce el número completo o los primeros o los últimos dígitos.",
   "invoice.exportCsvText": "Exportar todo como CSV",
   "invoice.exportSelectedAsCsv": "Exportar lo seleccionado como CSV",
   "invoice.exportFilteredAsCsv": "Exportar filtrados como CSV",

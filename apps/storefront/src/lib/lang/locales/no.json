@@ -164,7 +164,7 @@
   "orders.status.manualVerificationRequired": "Manuell verifisering kreves",
   "orders.status.disputed": "Tvist",
   "orders.status.partiallyRefunded": "Delvis refundert",
-  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
+  "invoice.noDataText": "Ingen fakturaer funnet. For faktura-ID, skriv inn hele nummeret, eller de første eller siste sifrene.",
   "invoice.exportCsvText": "Eksporter alle som CSV",
   "invoice.exportSelectedAsCsv": "Eksporter valgte som CSV",
   "invoice.exportFilteredAsCsv": "Eksporter filtrert som CSV",
