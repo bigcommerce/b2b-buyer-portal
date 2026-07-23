@@ -2,6 +2,7 @@ import {
   type ExtraFields,
   registerCompany as submitRegisterCompany,
   type RegisterCompanyAddressInput,
+  type RegisterCompanyFileInput,
   type RegisterCompanyInput,
   type RegisterCompanyStatus,
 } from '@/shared/service/bc/graphql/company';
@@ -156,27 +157,9 @@ function buildCompanyUserFields(
   return extraFields ? { extraFields } : undefined;
 }
 
-function mapUploadedFilesToRegisterInput(
-  fileList: unknown,
-): RegisterCompanyInput['fileList'] | undefined {
-  if (!fileList || !Array.isArray(fileList) || fileList.length === 0) return undefined;
-
-  const fileReferences = (fileList as Array<Record<string, unknown>>)
-    .map((uploadedFile) => {
-      const fileIdentifier = uploadedFile.fileId ?? uploadedFile.id;
-      if (fileIdentifier === undefined || fileIdentifier === null || fileIdentifier === '') {
-        return null;
-      }
-      return { fileId: `${fileIdentifier}` };
-    })
-    .filter((fileReference): fileReference is { fileId: string } => fileReference !== null);
-
-  return fileReferences.length ? fileReferences : undefined;
-}
-
 function buildRegisterCompanyInput(
   customerDetails: CustomerDetails,
-  fileList: unknown,
+  fileList: Array<RegisterCompanyFileInput>,
   context: RegisterCompanyContext,
 ): RegisterCompanyInput {
   const { list: contactInformationFields, companyInformation, addressBasicList } = context;
@@ -187,7 +170,7 @@ function buildRegisterCompanyInput(
     email: companyStandardFieldValues.companyEmail ?? '',
     phone: companyStandardFieldValues.companyPhoneNumber ?? '',
     address: buildAddressFieldsFromForm(addressBasicList, customerDetails),
-    fileList: mapUploadedFilesToRegisterInput(fileList),
+    fileList,
     extraFields: buildGraphQLExtraFields(filterCustomRegisterFields(companyInformation)),
     companyUser: buildCompanyUserFields(contactInformationFields ?? []),
   };
@@ -196,16 +179,15 @@ function buildRegisterCompanyInput(
 /** Registers a B2B company via the Storefront GraphQL `registerCompany` mutation. */
 export async function registerCompany(
   customerDetails: CustomerDetails,
-  fileList: unknown,
+  fileList: Array<RegisterCompanyFileInput>,
   context: RegisterCompanyContext,
 ): Promise<RegisterCompanyStatus> {
-  const res = await submitRegisterCompany(
-    buildRegisterCompanyInput(customerDetails, fileList, context),
-  );
-  if (res.errors?.length) {
-    throw new Error(joinedErrorMessages(res.errors));
+  const payload = buildRegisterCompanyInput(customerDetails, fileList, context);
+  const response = await submitRegisterCompany(payload);
+  if (response.errors?.length) {
+    throw new Error(joinedErrorMessages(response.errors));
   }
-  const result = res.data?.company?.registerCompany;
+  const result = response.data?.company?.registerCompany;
   if (!result) {
     throw new Error(context.genericRegistrationErrorMessage);
   }
