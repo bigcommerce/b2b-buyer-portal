@@ -4,6 +4,10 @@ export const featureFlags = [
     name: 'disableMasqueradingCleanupOnLogin',
   },
   {
+    key: 'B2B-3474.get_sku_from_pdp_with_text_content',
+    name: 'getSkuFromPdpWithTextContent',
+  },
+  {
     key: 'B2B-3978.pass_with_modifiers_to_product_upload',
     name: 'passWithModifiersToProductUpload',
   },
@@ -58,10 +62,6 @@ export const featureFlags = [
   {
     key: 'B2B-4912.buyer_portal_native_link_interception',
     name: 'buyerPortalNativeLinkInterception',
-  },
-  {
-    key: 'B2B-3474.get_sku_from_pdp_with_text_content',
-    name: 'getSkuFromPdpWithTextContent',
   },
 ] as const;
 
