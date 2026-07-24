@@ -351,26 +351,29 @@ const addProductFromProductPageToQuote = (
         qty,
       });
 
-      const newProducts: CustomFieldItems = [quoteListitem];
-      const isSuccess = validProductQty(newProducts);
-      if (quoteListitem && isSuccess) {
-        await addQuoteDraftProduce(quoteListitem, qty, optionList || []);
-        globalSnackbar.success(b3Lang('global.notification.addProductSingular'), {
-          action: {
-            onClick: () => gotoQuoteDraft(setOpenPage),
-            label: b3Lang('quoteDraft.notification.openQuote'),
-          },
-        });
-      } else if (!isSuccess) {
+      if (!quoteListitem) {
+        globalSnackbar.error('Price error');
+        return;
+      }
+
+      const isSuccess = validProductQty([quoteListitem]);
+      if (!isSuccess) {
         globalSnackbar.error(b3Lang('global.notification.maximumPurchaseExceed'), {
           action: {
             onClick: () => gotoQuoteDraft(setOpenPage),
             label: b3Lang('quoteDraft.notification.openQuote'),
           },
         });
-      } else {
-        globalSnackbar.error('Price error');
+        return;
       }
+
+      await addQuoteDraftProduce(quoteListitem, qty, optionList || []);
+      globalSnackbar.success(b3Lang('global.notification.addProductSingular'), {
+        action: {
+          onClick: () => gotoQuoteDraft(setOpenPage),
+          label: b3Lang('quoteDraft.notification.openQuote'),
+        },
+      });
     } catch (e) {
       b2bLogger.error(e);
     } finally {
