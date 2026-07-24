@@ -969,5 +969,23 @@ For questions or clarifications:
 
 ---
 
+## Cursor Cloud specific instructions
+
+Standard commands, working-directory rules, and testing patterns are documented above and in `README.md`. This section only captures non-obvious caveats for the cloud VM. The startup update script already ensures Node 22.16 + `yarn install`.
+
+### Node version / PATH gotcha
+- The repo requires Node `>=22.16.0` (`.nvmrc` = `22.16`), but the VM's default `node` on `PATH` (`/exec-daemon/node`) is an older 22.14.x and takes precedence over nvm. `nvm use 22.16` alone will NOT change which `node` runs.
+- In an interactive shell, select the correct Node before running any `yarn` command:
+  `export PATH="$HOME/.nvm/versions/node/v22.16.0/bin:$PATH"` (yarn 1.22.22 is provided here via corepack).
+
+### Running tests (important)
+- Run tests from `apps/storefront/` (see Development Commands). `yarn test` runs Vitest in watch mode; use `yarn test --run` for a single pass.
+- Per-test timeout defaults to 5s locally and only jumps to 40s when `CIRCLECI=true`. This VM is slow enough that a few heavier suites (e.g. `src/pages/QuickOrder/index.main.test.tsx`) can spuriously time out at 5s. Run the suite with `CIRCLECI=true yarn test --run` to get the CI timeout and avoid false failures. `CartError ... does not have enough stock` lines in QuickOrder output are expected (negative-path assertions), not failures.
+
+### Running the app (non-obvious)
+- This is not a standalone site: it is an injectable widget. `yarn dev` serves a mock storefront harness on `http://localhost:3001`; the React portal only mounts when the URL hash starts with `#/` (e.g. `#/login`).
+- Mounting also requires `window.B3.setting` (`store_hash`, `channel_id`, `platform`, injected by a real BigCommerce store) AND reachable B2B Edition + BigCommerce Storefront backends. Without a live store + credentials the portal cannot render its UI in a browser (the default `VITE_B2B_URL` host is not resolvable here).
+- For offline verification of core functionality, rely on the Vitest + MSW suite, which mounts and drives the real page components (Login, Orders, Invoices, Quotes, QuickOrder) end-to-end.
+
 **Last Updated**: November 2025
 **Codebase Version**: Transitioning from legacy to modern architecture
