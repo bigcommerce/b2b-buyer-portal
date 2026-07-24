@@ -155,6 +155,10 @@ function AccountSetting() {
         return;
       }
 
+      skipNextInitRef.current = false;
+
+      let didLoadSuccessfully = false;
+
       try {
         setLoading(true);
 
@@ -221,13 +225,15 @@ function AccountSetting() {
         setExtraFields(additionalInformation);
 
         setIsVisible(true);
+
+        didLoadSuccessfully = true;
       } catch {
         snackbar.error(b3Lang('global.error.genericMessage'));
       } finally {
         if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
           setIsFinishUpdate(false);
-          if (dedupeStorefrontConfigFetchCalls) {
+          if (dedupeStorefrontConfigFetchCalls && didLoadSuccessfully) {
             skipNextInitRef.current = true;
           }
         }
