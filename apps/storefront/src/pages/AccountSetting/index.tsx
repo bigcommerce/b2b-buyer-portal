@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -133,7 +133,9 @@ function AccountSetting() {
   const b3Lang = useB3Lang();
 
   const useBcAccountSettings = useFeatureFlag('PROJECT-7920.use_bc_account_settings');
-
+  const dedupeStorefrontConfigFetchCalls = useFeatureFlag(
+    'B2B-5309.dedupe_storefront_config_fetch_calls',
+  );
   const [isMobile] = useMobile();
 
   const navigate = useNavigate();
@@ -144,9 +146,19 @@ function AccountSetting() {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [accountSettings, setAccountSettings] = useState<any>({});
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const skipNextInitRef = useRef(false);
 
   useEffect(() => {
     const init = async () => {
+      if (skipNextInitRef.current && dedupeStorefrontConfigFetchCalls) {
+        skipNextInitRef.current = false;
+        return;
+      }
+
+      skipNextInitRef.current = false;
+
+      let didLoadSuccessfully = false;
+
       try {
         setLoading(true);
 
@@ -213,12 +225,17 @@ function AccountSetting() {
         setExtraFields(additionalInformation);
 
         setIsVisible(true);
+
+        didLoadSuccessfully = true;
       } catch {
         snackbar.error(b3Lang('global.error.genericMessage'));
       } finally {
         if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
           setIsFinishUpdate(false);
+          if (dedupeStorefrontConfigFetchCalls && didLoadSuccessfully) {
+            skipNextInitRef.current = true;
+          }
         }
         setLoading(false);
       }
