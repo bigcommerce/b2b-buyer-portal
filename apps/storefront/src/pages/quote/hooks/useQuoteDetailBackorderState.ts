@@ -11,11 +11,13 @@ import {
   getQuotePicklistSelections,
   type QuoteBackorderRow,
   quoteDetailListHasBackorderedItemsForDisplay,
+  quoteDetailListHasPicklistBackorderHistory,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 type QuoteDetailBackorderRow = QuoteBackorderRow & Parameters<typeof getQuotePicklistSelections>[0];
 
 interface QuoteDetailBackorderState {
+  isOrdered: boolean;
   shouldDisplayBackorderInformation: boolean;
   backorderContextEnabled: boolean;
   picklistProductsById: Record<number, ProductSearch>;
@@ -39,31 +41,36 @@ export function useQuoteDetailBackorderState(
     hasAnyBackorderDisplay &&
     shouldDisplayBackorderInformation;
 
+  // Ordered quotes read picklist-child backorders from the frozen history on each row, so they
+  // never fetch live inventory; only submitted quotes resolve children against current stock.
   const picklistProductIds = useMemo(
     () =>
-      backorderContextEnabled
+      backorderContextEnabled && !isOrdered
         ? productList.flatMap((row) =>
             getQuotePicklistSelections(row).map((selection) => selection.productId),
           )
         : [],
-    [productList, backorderContextEnabled],
+    [productList, backorderContextEnabled, isOrdered],
   );
   const picklistProductsById = usePicklistInventory(picklistProductIds);
 
   const hasBackorderedItems = useMemo(
     () =>
       quoteDetailListHasBackorderedItemsForDisplay(productList) ||
-      catalogListHasPicklistBackorderedItemsForDisplay(
-        productList.map((row) => ({
-          qty: Number(row.quantity) || 0,
-          selections: getQuotePicklistSelections(row),
-        })),
-        picklistProductsById,
-      ),
-    [productList, picklistProductsById],
+      (isOrdered
+        ? quoteDetailListHasPicklistBackorderHistory(productList)
+        : catalogListHasPicklistBackorderedItemsForDisplay(
+            productList.map((row) => ({
+              qty: Number(row.quantity) || 0,
+              selections: getQuotePicklistSelections(row),
+            })),
+            picklistProductsById,
+          )),
+    [productList, picklistProductsById, isOrdered],
   );
 
   return {
+    isOrdered,
     shouldDisplayBackorderInformation,
     backorderContextEnabled,
     picklistProductsById,

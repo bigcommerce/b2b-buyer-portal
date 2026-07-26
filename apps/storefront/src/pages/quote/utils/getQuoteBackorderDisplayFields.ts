@@ -4,7 +4,9 @@ import { QuoteItem } from '@/types/quotes';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
 import {
+  getPicklistBackorderHistoryFields,
   getProductDetailsForPicklistSelections,
+  type PicklistBackorderHistoryChild,
   type PicklistSelection,
   type PicklistSelectionSource,
 } from '@/utils/catalogBackorderDisplay';
@@ -246,4 +248,42 @@ export function quoteDetailListHasBackorderedItemsForDisplay(
   productList: QuoteBackorderRow[],
 ): boolean {
   return productList.some((item) => Boolean(getQuoteBackorderDisplayFields(item)));
+}
+
+interface PicklistBackorderHistoryRow {
+  picklistBackorder?: PicklistBackorderHistoryChild[] | null;
+}
+
+export function getRowPicklistBackorderHistory(
+  row: PicklistBackorderHistoryRow,
+): Record<number, PicklistBackorderHistoryChild> | undefined {
+  const children = row.picklistBackorder;
+  if (!children?.length) {
+    return undefined;
+  }
+
+  const byProductId: Record<number, PicklistBackorderHistoryChild> = {};
+  children.forEach((child) => {
+    if (child?.product_id != null) {
+      byProductId[child.product_id] = child;
+    }
+  });
+  return byProductId;
+}
+
+export function quoteDetailListHasPicklistBackorderHistory(
+  productList: Array<
+    Parameters<typeof getQuotePicklistSelections>[0] & PicklistBackorderHistoryRow
+  >,
+): boolean {
+  return productList.some((row) => {
+    const historyByProductId = getRowPicklistBackorderHistory(row);
+    if (!historyByProductId) {
+      return false;
+    }
+    return getQuotePicklistSelections(row).some(
+      (selection) =>
+        getPicklistBackorderHistoryFields(historyByProductId[selection.productId]) !== null,
+    );
+  });
 }

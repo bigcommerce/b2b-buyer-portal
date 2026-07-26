@@ -2,6 +2,7 @@ import { waitFor } from '@testing-library/react';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
 import * as b2bService from '@/shared/service/b2b';
+import { QuoteStatus } from '@/shared/service/b2b/graphql/quote';
 
 import { useQuoteDetailBackorderState } from './useQuoteDetailBackorderState';
 
@@ -98,6 +99,28 @@ describe('useQuoteDetailBackorderState', () => {
 
     expect(result.result.current.backorderContextEnabled).toBe(false);
     expect(result.result.current.hasBackorderedItems).toBe(false);
+    expect(b2bService.searchProducts).not.toHaveBeenCalled();
+  });
+
+  it('flags backorders from the picklist snapshot on an ordered quote without fetching live inventory', () => {
+    const orderedRowWithSnapshotChild = {
+      quantity: 5,
+      optionList: JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]),
+      productsSearch: { inventoryTracking: 'none', modifiers: [picklistModifier] },
+      picklistBackorder: [
+        {
+          product_id: 555,
+          quantity_backordered: 3,
+          total_on_hand: 1,
+          backorder_message: 'Ships later',
+        },
+      ],
+    } as never;
+
+    const { result } = renderState([orderedRowWithSnapshotChild], QuoteStatus.ORDERED);
+
+    expect(result.result.current.isOrdered).toBe(true);
+    expect(result.result.current.hasBackorderedItems).toBe(true);
     expect(b2bService.searchProducts).not.toHaveBeenCalled();
   });
 });

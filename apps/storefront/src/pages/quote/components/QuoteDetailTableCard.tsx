@@ -11,6 +11,7 @@ import { useAppSelector } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
+import type { PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
 
 import {
   getQuoteBackorderDisplayFields,
@@ -28,6 +29,7 @@ interface QuoteTableCardProps {
   showBackorderDetails?: boolean;
   shouldDisplayBackorderInformation?: boolean;
   picklistProductsById?: Record<number, ProductSearch>;
+  historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -48,6 +50,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     showBackorderDetails = false,
     shouldDisplayBackorderInformation = true,
     picklistProductsById = {},
+    historyByProductId,
   } = props;
   const b3Lang = useB3Lang();
   const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
@@ -184,6 +187,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               qty={Number(quantity) || 0}
               visible={showBackorderDetails}
               backorderUiEnabled={backorderContextEnabled}
+              historyByProductId={historyByProductId}
             />
           )}
           <Typography

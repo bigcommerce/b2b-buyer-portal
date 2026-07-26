@@ -14,6 +14,7 @@ import {
   getCatalogInventoryRowFromSearchProduct,
   getCatalogInventorySku,
   getCatalogProductRowDisplayState,
+  getPicklistBackorderHistoryFields,
   getProductDetailsForPicklistSelections,
   productRequiresChooseOptionsBeforeAdd,
   quantityExceedsAvailableToSell,
@@ -604,6 +605,48 @@ describe('catalogBackorderDisplay', () => {
           {},
         ),
       ).toBe(false);
+    });
+  });
+
+  describe('getPicklistBackorderHistoryFields', () => {
+    it('maps a backordered history child to display fields', () => {
+      expect(
+        getPicklistBackorderHistoryFields({
+          product_id: 555,
+          sku: 'CHILD-SKU',
+          backorder_message: 'Lead time: 2-4 weeks',
+          quantity_backordered: 3,
+          total_on_hand: 7,
+        }),
+      ).toEqual({
+        totalOnHand: 7,
+        quantityBackordered: 3,
+        backorderMessage: 'Lead time: 2-4 weeks',
+      });
+    });
+
+    it('returns null when nothing is backordered', () => {
+      expect(
+        getPicklistBackorderHistoryFields({
+          product_id: 555,
+          quantity_backordered: 0,
+          total_on_hand: 10,
+        }),
+      ).toBeNull();
+    });
+
+    it('returns null for an undefined child', () => {
+      expect(getPicklistBackorderHistoryFields(undefined)).toBeNull();
+    });
+
+    it('defaults missing totals and message', () => {
+      expect(
+        getPicklistBackorderHistoryFields({ product_id: 555, quantity_backordered: 2 }),
+      ).toEqual({
+        totalOnHand: 0,
+        quantityBackordered: 2,
+        backorderMessage: undefined,
+      });
     });
   });
 });

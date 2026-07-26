@@ -276,6 +276,31 @@ export function getCatalogBackorderFieldsForPicklistProduct(
   );
 }
 
+export interface PicklistBackorderHistoryChild {
+  product_id: number;
+  sku?: string | null;
+  backorder_message?: string | null;
+  quantity_backordered?: number | null;
+  total_on_hand?: number | null;
+}
+
+export function getPicklistBackorderHistoryFields(
+  child: PicklistBackorderHistoryChild | undefined,
+): BackorderDisplayFields | null {
+  if (!child) {
+    return null;
+  }
+  if ((child.quantity_backordered ?? 0) <= 0) {
+    return null;
+  }
+
+  return {
+    totalOnHand: child.total_on_hand ?? 0,
+    quantityBackordered: child.quantity_backordered ?? 0,
+    backorderMessage: child.backorder_message ?? undefined,
+  };
+}
+
 export function catalogListHasPicklistBackorderedItemsForDisplay(
   rows: Array<{ qty: number; selections: PicklistSelection[] }>,
   picklistProductsById: Record<number, ProductSearch>,
