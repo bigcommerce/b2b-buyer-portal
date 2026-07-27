@@ -20,6 +20,7 @@ import {
 import { when } from 'vitest-when';
 
 import { permissionLevels } from '@/constants';
+import { defaultCurrenciesState } from '@/store/slices/storeConfigs';
 
 import { InvoiceStatusCode } from './components/InvoiceStatus';
 import { triggerPdfDownload } from './components/triggerPdfDownload';
@@ -214,6 +215,83 @@ it('renders invoice information in the table', async () => {
   expect(within(group).getByRole('button', { name: 'More actions' })).toBeInTheDocument();
 });
 
+it('displays invoice amounts using the invoice currency when store default differs', async () => {
+  const eurCurrency = {
+    id: '2',
+    is_default: false,
+    last_updated: '2024-01-01',
+    country_iso2: 'DE',
+    default_for_country_codes: [],
+    currency_code: 'EUR',
+    currency_exchange_rate: '1.0000000000',
+    name: 'Euro',
+    token: '€',
+    auto_update: false,
+    decimal_token: '.',
+    decimal_places: 2,
+    enabled: true,
+    is_transactional: true,
+    token_location: 'left' as const,
+    thousands_token: ',',
+  };
+
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    id: '5566',
+                    orderNumber: '5678',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyName: 'Monsters Inc.',
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  renderWithProviders(<Invoice />, {
+    preloadedState: {
+      ...preloadedState,
+      storeConfigs: {
+        currencies: {
+          currencies: [defaultCurrenciesState.currencies[0], eurCurrency],
+          channelCurrencies: {
+            channel_id: 1,
+            enabled_currencies: ['USD', 'EUR'],
+            default_currency: 'USD',
+          },
+          enteredInclusiveTax: false,
+        },
+      },
+    },
+  });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  const group = screen.getByRole('group', { name: '5566' });
+
+  expect(within(group).getByText('€444.00')).toBeVisible();
+  expect(within(group).getByText('€232.00')).toBeVisible();
+  expect(within(group).queryByText('$444.00')).not.toBeInTheDocument();
+  expect(within(group).queryByText('$232.00')).not.toBeInTheDocument();
+});
+
 it('can pay for multiple invoices', async () => {
   const getCreateCartResponse = vi.fn();
   const getCheckoutLoginResponse = vi.fn();
@@ -302,6 +380,75 @@ it('can pay for multiple invoices', async () => {
   await waitFor(() => {
     expect(window.location.href).toEqual('https://example.com/checkout?cartId=foo-bar');
   });
+});
+
+it('disables the Pay invoices button when selected invoices are in different currencies', async () => {
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    id: '3344',
+                    invoiceNumber: '3344',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'USD', value: 922 },
+                    openBalance: { code: 'USD', value: 433 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+                buildInvoiceWith({
+                  node: {
+                    id: '3345',
+                    invoiceNumber: '3345',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  renderWithProviders(<Invoice />, { preloadedState });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  const group3344 = screen.getByRole('group', { name: '3344' });
+  const group3345 = screen.getByRole('group', { name: '3345' });
+
+  await userEvent.click(within(group3344).getByRole('checkbox'));
+
+  expect(screen.getByText('1 invoices selected')).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Total payment: $433.00' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeEnabled();
+
+  await userEvent.click(within(group3345).getByRole('checkbox'));
+
+  expect(within(group3345).getByRole('checkbox')).toBeChecked();
+  expect(screen.getByText('2 invoices selected')).toBeVisible();
+  expect(
+    screen.getByRole('heading', {
+      name: 'Cannot pay invoices in mixed currencies',
+    }),
+  ).toBeVisible();
+  expect(screen.queryByText(/Total payment:/)).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Pay invoices' })).toBeDisabled();
 });
 
 it('can specify an amount to pay for the invoices', async () => {

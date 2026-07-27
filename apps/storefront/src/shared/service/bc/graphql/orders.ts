@@ -57,6 +57,7 @@ export interface OrderLineItem {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  subTotalSalePrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
   returnableQuantity: number;
@@ -98,6 +99,7 @@ export interface OrderDigitalLineItem {
   quantity: number;
   productOptions: OrderLineItemProductOption[];
   subTotalListPrice: Money;
+  subTotalSalePrice: Money;
 }
 
 /** Projects OrderDownloadConsignment. */
@@ -158,7 +160,6 @@ export interface OrderHistoryEvent {
   status: string;
   source: string | null;
   createdBy: OrderPlacedBy | null;
-  details: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -346,7 +347,8 @@ export interface GetCustomersWithOrdersResponse {
 // ===========================================================================
 
 const moneyFields = `currencyCode
-  value`;
+  value
+  formattedV2`;
 
 const orderStatusFields = `status {
     value
@@ -380,6 +382,9 @@ const orderLineItemFields = `entityId
         productAttributeValueEntityId
       }
       subTotalListPrice {
+        ${moneyFields}
+      }
+      subTotalSalePrice {
         ${moneyFields}
       }
       image {
@@ -461,6 +466,9 @@ const orderConsignmentsFields = `consignments {
                 subTotalListPrice {
                   ${moneyFields}
                 }
+                subTotalSalePrice {
+                  ${moneyFields}
+                }
               }
             }
           }
@@ -535,7 +543,6 @@ const orderB2BFields = `reference
       lastName
       email
     }
-    details
     createdAt
   }
   quote {

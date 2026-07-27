@@ -347,10 +347,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       {
         key: 'totalIncTax',
         title: b3Lang('orders.grandTotal'),
-        render: ({ money, totalIncTax }) =>
-          money
+        render: ({ money, totalIncTax, formattedTotalIncTax }) => {
+          if (formattedTotalIncTax) return formattedTotalIncTax;
+          return money
             ? ordersCurrencyFormat(JSON.parse(JSON.parse(money)), totalIncTax)
-            : currencyFormat(totalIncTax),
+            : currencyFormat(totalIncTax);
+        },
         align: 'right',
         width: '8%',
         isSortable: true,

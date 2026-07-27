@@ -4,6 +4,7 @@ import type { RootState } from '@/store';
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 import { getCorrespondsConfigurationPermission } from '@/utils/b3CheckPermissions/base';
 import { B2BPermissionsMapParams } from '@/utils/b3CheckPermissions/config';
+import { parseAttributeOptionId } from '@/utils/parseAttributeOptionId';
 
 import { defaultCurrenciesState } from './slices/storeConfigs';
 
@@ -77,10 +78,8 @@ export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector,
       const parsedOptionList: OptionList[] = JSON.parse(optionList);
 
       const optionSelections = parsedOptionList.map(({ optionId, optionValue }) => {
-        const optionIdFormatted = optionId.match(/\d+/);
-
         return {
-          optionId: optionIdFormatted?.[0] ? Number(optionIdFormatted[0]) : optionId,
+          optionId: parseAttributeOptionId(optionId) ?? optionId,
           optionValue: Number(optionValue),
         };
       });

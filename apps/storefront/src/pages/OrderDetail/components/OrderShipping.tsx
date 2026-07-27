@@ -22,7 +22,7 @@ type OrderShippingProps = {
 
 export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
-    state: { shippings = [], addressLabelPermission, money },
+    state: { shippings = [], addressLabelPermission, money, currencyCode },
   } = useContext(OrderDetailsContext);
 
   const [isMobile] = useMobile();
@@ -165,6 +165,7 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                     quantityKey="current_quantity_shipped"
                     products={shipment.itemsInfo}
                     money={money}
+                    currencyCode={currencyCode}
                     totalText="Total"
                     canToProduct={isCurrentCompany}
                     textAlign="right"
@@ -189,6 +190,7 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                   quantityKey="not_shipping_number"
                   products={shipping.notShip.itemsInfo}
                   money={money}
+                  currencyCode={currencyCode}
                   totalText="Total"
                   canToProduct={isCurrentCompany}
                   textAlign={isMobile ? 'left' : 'right'}

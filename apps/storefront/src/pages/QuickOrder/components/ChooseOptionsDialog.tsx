@@ -16,6 +16,7 @@ import isEqual from 'lodash-es/isEqual';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useCatalogChooseOptionsBackorderDisplay } from '@/hooks/useCatalogChooseOptionsBackorderDisplay';
@@ -29,6 +30,11 @@ import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Produ
 import { getOptionRequestData, getProductOptionsFields } from '@/utils/b3Product/shared/config';
 import { snackbar } from '@/utils/b3Tip';
 import { Base64 } from '@/utils/base64';
+import {
+  catalogListHasPicklistBackorderedItemsForDisplay,
+  getProductDetailsForPicklistSelections,
+} from '@/utils/catalogBackorderDisplay';
+import { parseAttributeOptionId } from '@/utils/parseAttributeOptionId';
 
 const Flex = styled('div')({
   display: 'flex',
@@ -121,11 +127,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
   const isShowPrice = !product?.isPriceHidden;
 
-  const { qtyHelperText, backorderFields } = useCatalogChooseOptionsBackorderDisplay({
-    product,
-    variantInfo,
-    quantity,
-  });
+  const { qtyHelperText, backorderFields, backorderUiEnabled } =
+    useCatalogChooseOptionsBackorderDisplay({
+      product,
+      variantInfo,
+      quantity,
+    });
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -362,6 +369,24 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     [formFields],
   );
 
+  const picklistSelections =
+    backorderUiEnabled && product?.modifiers?.length
+      ? getProductDetailsForPicklistSelections({
+          optionSelections: getOptionList(formValues).flatMap(({ optionId, optionValue }) => {
+            const parsedOptionId = parseAttributeOptionId(optionId);
+            return parsedOptionId === null
+              ? []
+              : [{ option_id: parsedOptionId, value_id: Number(optionValue) }];
+          }),
+          productsSearch: { modifiers: product.modifiers },
+        })
+      : [];
+
+  const hasPicklistBackorderToDisplay = catalogListHasPicklistBackorderedItemsForDisplay(
+    [{ qty: Number(quantity) || 0, selections: picklistSelections }],
+    additionalProducts,
+  );
+
   useEffect(() => {
     if (cache?.current && isEqual(cache?.current, formValues)) {
       return;
@@ -568,7 +593,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                         fullWidth
                         error={Boolean(qtyHelperText)}
                       />
-                      {(qtyHelperText || backorderFields) && (
+                      {(qtyHelperText || backorderFields || hasPicklistBackorderToDisplay) && (
                         <Box
                           sx={{
                             width: 'max-content',
@@ -594,6 +619,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                               visible
                             />
                           )}
+                          <PicklistBackorderMessages
+                            selections={picklistSelections}
+                            picklistProductsById={additionalProducts}
+                            qty={Number(quantity) || 0}
+                            visible
+                            backorderUiEnabled={backorderUiEnabled}
+                          />
                         </Box>
                       )}
                     </Box>

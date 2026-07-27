@@ -160,4 +160,68 @@ describe('PicklistBackorderMessages', () => {
     expect(screen.queryByText('Bundle option 1:')).toBeNull();
     expect(screen.queryByText('1 will be backordered')).toBeNull();
   });
+
+  describe('history mode (ordered quotes)', () => {
+    it('renders the order history instead of live inventory', () => {
+      renderWithProviders(
+        <PicklistBackorderMessages
+          selections={[bundleOption1]}
+          picklistProductsById={{ 555: buildPicklistProduct({ totalOnHand: 100 }) }}
+          qty={10}
+          visible
+          backorderUiEnabled
+          historyByProductId={{
+            555: {
+              product_id: 555,
+              quantity_backordered: 4,
+              total_on_hand: 6,
+              backorder_message: 'Ordered lead time: 3 weeks',
+            },
+          }}
+        />,
+        withAllBackorderDisplayEnabled,
+      );
+
+      expect(screen.getByText('Bundle option 1:')).toBeVisible();
+      expect(screen.getByText('6 ready to ship')).toBeVisible();
+      expect(screen.getByText('4 will be backordered')).toBeVisible();
+      expect(screen.getByText('Ordered lead time: 3 weeks')).toBeVisible();
+    });
+
+    it('renders nothing for an item missing from the history', () => {
+      renderWithProviders(
+        <PicklistBackorderMessages
+          selections={[bundleOption1]}
+          picklistProductsById={{ 555: buildPicklistProduct() }}
+          qty={10}
+          visible
+          backorderUiEnabled
+          historyByProductId={{}}
+        />,
+        withAllBackorderDisplayEnabled,
+      );
+
+      expect(screen.queryByText('Bundle option 1:')).toBeNull();
+      expect(screen.queryByText('will be backordered', { exact: false })).toBeNull();
+    });
+
+    it('renders nothing for a history child that is not backordered', () => {
+      renderWithProviders(
+        <PicklistBackorderMessages
+          selections={[bundleOption1]}
+          picklistProductsById={{ 555: buildPicklistProduct() }}
+          qty={10}
+          visible
+          backorderUiEnabled
+          historyByProductId={{
+            555: { product_id: 555, quantity_backordered: 0, total_on_hand: 10 },
+          }}
+        />,
+        withAllBackorderDisplayEnabled,
+      );
+
+      expect(screen.queryByText('Bundle option 1:')).toBeNull();
+      expect(screen.queryByText('will be backordered', { exact: false })).toBeNull();
+    });
+  });
 });

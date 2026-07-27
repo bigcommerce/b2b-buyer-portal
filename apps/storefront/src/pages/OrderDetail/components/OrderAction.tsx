@@ -12,12 +12,13 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import { Address, MoneyFormat, OrderProductItem } from '@/types';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
-import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
+import { ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 import { b2bPrintInvoice, getPrintInvoiceUrl } from '@/utils/b3PrintInvoice';
 import { snackbar } from '@/utils/b3Tip';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
+import { AWAITING_PAYMENT_STATUS_VALUE } from '../shared/orderStatus';
 
 import OrderDialog from './OrderDialog';
 
@@ -91,6 +92,7 @@ interface OrderCardProps {
   invoiceId?: number | string | undefined | null;
   isCurrentCompany: boolean;
   switchCompanyId: number | string | undefined;
+  currencyCode?: string;
 }
 
 interface DialogData {
@@ -114,6 +116,7 @@ function OrderCard(props: OrderCardProps) {
     ipStatus,
     isCurrentCompany,
     switchCompanyId,
+    currencyCode,
   } = props;
   const displayAsNegativeNumber = ['coupon', 'discountAmount'];
   const b3Lang = useB3Lang();
@@ -198,8 +201,15 @@ function OrderCard(props: OrderCardProps) {
 
   if (typeof infos === 'string') {
     showedInformation = infos;
-  } else if (infos?.money) {
+  } else if (infos?.symbol) {
     const symbol = infos?.symbol || {};
+    const formatValue = (value: string) => {
+      // Legacy path: money is set, use ordersCurrencyFormat
+      // Unified path: values are pre-formatted via formattedV2, display as-is
+      if (infos.money) return ordersCurrencyFormat(infos.money, value);
+      return value;
+    };
+
     showedInformation = infoKey?.map((key: string, index: number) => (
       <Fragment key={key}>
         {symbol[key] === 'grandTotal' && (
@@ -214,17 +224,9 @@ function OrderCard(props: OrderCardProps) {
         <ItemContainer key={key} nameKey={symbol[key]} aria-label={key} role="group">
           <p id="item-name-key">{key}</p>{' '}
           {displayAsNegativeNumber.includes(symbol[key]) ? (
-            <p>
-              {infos?.money
-                ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
-                : `-${currencyFormat(infoValue[index])}`}
-            </p>
+            <p>{`-${formatValue(infoValue[index])}`}</p>
           ) : (
-            <p>
-              {infos?.money
-                ? ordersCurrencyFormat(infos.money, infoValue[index])
-                : currencyFormat(infoValue[index])}
-            </p>
+            <p>{formatValue(infoValue[index])}</p>
           )}
         </ItemContainer>
       </Fragment>
@@ -286,6 +288,7 @@ function OrderCard(props: OrderCardProps) {
         setOpen={setOpen}
         itemKey={itemKey}
         orderId={Number(orderId)}
+        currencyCode={currencyCode}
       />
 
       <HierarchyDialog
@@ -335,6 +338,7 @@ export function OrderAction(props: OrderActionProps) {
 
   const {
     money,
+    currencyCode: orderCurrencyCode,
     orderSummary: { createAt, name, priceData, priceSymbol } = {},
     payment: { billingAddress, paymentMethod, dateCreateAt } = {},
     orderComments = '',
@@ -343,26 +347,27 @@ export function OrderAction(props: OrderActionProps) {
     ipStatus = 0,
     invoiceId,
     poNumber,
+    statusCode,
     customerId,
     companyInfo: { companyId } = {},
   } = detailsData;
 
   const getPaymentMessage = useCallback(() => {
-    let message = '';
-
-    if (!createAt) return message;
-
+    if (!createAt) return '';
     if (poNumber) {
-      message = b3Lang('orderDetail.paidWithPo', {
-        paidDate: displayFormat(createAt, true),
-      });
-    } else {
-      message = b3Lang('orderDetail.paidInFull', {
+      return b3Lang('orderDetail.paidWithPo', {
         paidDate: displayFormat(createAt, true),
       });
     }
-    return message;
-  }, [poNumber, createAt, b3Lang]);
+
+    if (statusCode === AWAITING_PAYMENT_STATUS_VALUE) {
+      return b3Lang('orderDetail.awaitingPayment');
+    }
+
+    return b3Lang('orderDetail.paidInFull', {
+      paidDate: displayFormat(createAt, true),
+    });
+  }, [poNumber, statusCode, createAt, b3Lang]);
 
   if (!orderId) {
     return null;
@@ -534,6 +539,7 @@ export function OrderAction(props: OrderActionProps) {
             key={item.key}
             isCurrentCompany={isCurrentCompany}
             switchCompanyId={companyId}
+            currencyCode={orderCurrencyCode}
           />
         ))}
     </OrderActionContainer>

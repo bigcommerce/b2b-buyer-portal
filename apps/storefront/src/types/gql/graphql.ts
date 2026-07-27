@@ -4493,6 +4493,8 @@ export type QuoteInputType = {
   taxTotal?: InputMaybe<Scalars['Decimal']['input']>;
   /** Total amount of the quote */
   totalAmount?: InputMaybe<Scalars['Decimal']['input']>;
+  /** Flag indicating if the total is to be determined (TBD) */
+  totalIsTbd?: InputMaybe<Scalars['Boolean']['input']>;
   /** User email of the quote */
   userEmail?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4640,6 +4642,8 @@ export type QuoteType = Node & {
   trackingHistory?: Maybe<Scalars['GenericScalar']['output']>;
   updatedAt: Scalars['Int']['output'];
   userEmail?: Maybe<Scalars['String']['output']>;
+  /** Flag indicating if the total is to be determined (TBD) */
+  totalIsTbd?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type QuoteTypeCountableConnection = {

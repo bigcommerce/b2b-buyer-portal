@@ -101,6 +101,7 @@ export interface QuoteInfo {
   referenceNumber?: string;
   extraFields?: QuoteExtraFields[];
   recipients?: string[];
+  totalIsTbd?: boolean;
 }
 
 export interface QuoteInfoAndExtrafieldsItemProps {

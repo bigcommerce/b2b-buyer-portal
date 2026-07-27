@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
+  buildSfGqlMoneyWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -23,10 +23,8 @@ import { when } from 'vitest-when';
 
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
-import type { GetOrderDetailResponse, Order } from '@/shared/service/bc/graphql/orders';
+import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
-import { useAppDispatch } from '@/store';
-import { setCurrencies } from '@/store/slices/storeConfigs';
 import { Currency, CustomerRole } from '@/types';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
@@ -100,18 +98,18 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
     phone: faker.phone.number(),
     email: faker.internet.email(),
   },
-  subTotal: { currencyCode: 'USD', value: 100 },
+  subTotal: buildSfGqlMoneyWith({ value: 100 }),
   discountedSubTotal: null,
-  shippingCostTotal: { currencyCode: 'USD', value: 0 },
-  handlingCostTotal: { currencyCode: 'USD', value: 0 },
-  wrappingCostTotal: { currencyCode: 'USD', value: 0 },
-  taxTotal: { currencyCode: 'USD', value: 0 },
-  totalIncTax: { currencyCode: 'USD', value: 100 },
+  shippingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  handlingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  wrappingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
+  taxTotal: buildSfGqlMoneyWith({ value: 0 }),
+  totalIncTax: buildSfGqlMoneyWith({ value: 100 }),
   isTaxIncluded: false,
   taxes: [],
   discounts: {
     couponDiscounts: [],
-    nonCouponDiscountTotal: { currencyCode: 'USD', value: 0 },
+    nonCouponDiscountTotal: buildSfGqlMoneyWith({ value: 0 }),
     totalDiscount: null,
   },
   customerMessage: null,
@@ -194,30 +192,6 @@ const buildCustomerShoppingListResponseWith = builder(() => {
 beforeEach(() => {
   set(window, 'b2b.callbacks.dispatchEvent', vi.fn());
 });
-
-function OrderDetailsWithCurrencyHydration({ currencies }: { currencies?: Currency[] }) {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (!currencies) {
-      return;
-    }
-
-    dispatch(
-      setCurrencies({
-        currencies,
-        channelCurrencies: {
-          channel_id: 1,
-          enabled_currencies: currencies.map((currency) => currency.currency_code),
-          default_currency: currencies[0]?.currency_code ?? 'USD',
-        },
-        enteredInclusiveTax: false,
-      }),
-    );
-  }, [currencies, dispatch]);
-
-  return <OrderDetails />;
-}
 
 const preloadedState = {
   company: buildCompanyStateWith({
@@ -323,15 +297,31 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         lastName: 'Wazowski',
         email: 'mike@monstersinc.com',
       },
-      subTotal: { currencyCode: 'EUR', value: 102 },
-      shippingCostTotal: { currencyCode: 'EUR', value: 332 },
-      handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
-      taxTotal: { currencyCode: 'EUR', value: 13.5 },
+      subTotal: buildSfGqlMoneyWith({ currencyCode: 'EUR', value: 102, formattedV2: '€102.00' }),
+      shippingCostTotal: buildSfGqlMoneyWith({
+        currencyCode: 'EUR',
+        value: 332,
+        formattedV2: '€332.00',
+      }),
+      handlingCostTotal: buildSfGqlMoneyWith({
+        currencyCode: 'EUR',
+        value: 22.2,
+        formattedV2: '€22.20',
+      }),
+      taxTotal: buildSfGqlMoneyWith({ currencyCode: 'EUR', value: 13.5, formattedV2: '€13.50' }),
       // 102 + 332 + 22.2 − 37.93 + 13.5
-      totalIncTax: { currencyCode: 'EUR', value: 431.77 },
+      totalIncTax: buildSfGqlMoneyWith({
+        currencyCode: 'EUR',
+        value: 431.77,
+        formattedV2: '€431.77',
+      }),
       discounts: {
         couponDiscounts: [],
-        nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
+        nonCouponDiscountTotal: buildSfGqlMoneyWith({
+          currencyCode: 'EUR',
+          value: 37.93,
+          formattedV2: '€37.93',
+        }),
         totalDiscount: null,
       },
     });
@@ -381,77 +371,12 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       ),
     ).toBeVisible();
 
-    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
-    expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('€332,00');
-    expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('€22,20');
-    expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13,50');
-    expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37,93');
-    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€431,77');
-  });
-
-  it('updates currency formatting without refetching the order detail', async () => {
-    const euro = buildCurrencyWith({
-      country_iso2: 'DE',
-      default_for_country_codes: ['EUR'],
-      currency_code: 'EUR',
-      currency_exchange_rate: '0.85',
-      name: 'Euro',
-      token: '€',
-      decimal_token: ',',
-      thousands_token: '.',
-    });
-
-    const euroOrder = buildUnifiedOrderWith({
-      entityId: 6696,
-      subTotal: { currencyCode: 'EUR', value: 102 },
-      shippingCostTotal: { currencyCode: 'EUR', value: 332 },
-      handlingCostTotal: { currencyCode: 'EUR', value: 22.2 },
-      taxTotal: { currencyCode: 'EUR', value: 13.5 },
-      totalIncTax: { currencyCode: 'EUR', value: 431.77 },
-      discounts: {
-        couponDiscounts: [],
-        nonCouponDiscountTotal: { currencyCode: 'EUR', value: 37.93 },
-        totalDiscount: null,
-      },
-    });
-
-    let orderDetailRequestCount = 0;
-
-    server.use(
-      graphql.query('GetOrderDetail', () => {
-        orderDetailRequestCount += 1;
-
-        return HttpResponse.json(
-          buildOrderDetailResponseWith({
-            data: { site: { order: euroOrder } },
-          }),
-        );
-      }),
-      graphql.query('GetCustomerOrderStatuses', () =>
-        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
-      ),
-      graphql.query('AddressConfig', () =>
-        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
-      ),
-    );
-
-    const { result } = renderWithProviders(<OrderDetailsWithCurrencyHydration />, {
-      preloadedState,
-      initialEntries: [{ state: { isCompanyOrder: false } }],
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('$102.00');
-    expect(orderDetailRequestCount).toBe(1);
-
-    result.rerender(<OrderDetailsWithCurrencyHydration currencies={[euro]} />);
-
-    await waitFor(() => {
-      expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102,00');
-    });
-
-    expect(orderDetailRequestCount).toBe(1);
+    expect(screen.getByRole('group', { name: 'Sub total' })).toHaveTextContent('€102.00');
+    expect(screen.getByRole('group', { name: 'Shipping' })).toHaveTextContent('€332.00');
+    expect(screen.getByRole('group', { name: 'Handling Fee' })).toHaveTextContent('€22.20');
+    expect(screen.getByRole('group', { name: 'Tax' })).toHaveTextContent('€13.50');
+    expect(screen.getByRole('group', { name: 'Discount amount' })).toHaveTextContent('-€37.93');
+    expect(screen.getByRole('group', { name: 'Grand total' })).toHaveTextContent('€431.77');
   });
 
   it('omits the handling fee row when cost is zero', async () => {
@@ -462,7 +387,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
             data: {
               site: {
                 order: buildUnifiedOrderWith({
-                  handlingCostTotal: { currencyCode: 'USD', value: 0 },
+                  handlingCostTotal: buildSfGqlMoneyWith({ value: 0 }),
                 }),
               },
             },
@@ -670,7 +595,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 15 }),
                   lineItems: {
                     edges: [
                       {
@@ -683,7 +608,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Premium Widget',
                           quantity: 3,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 75 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 75 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: { url: 'https://example.com/widget.jpg' },
                           baseCatalogProduct: { path: '/widget/' },
                           returnableQuantity: 0,
@@ -791,7 +717,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 15 }),
                   lineItems: {
                     edges: [
                       {
@@ -804,7 +730,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Unshipped Widget',
                           quantity: 2,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 50 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 50 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -872,7 +799,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 10 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 10 }),
                   lineItems: {
                     edges: [
                       {
@@ -885,7 +812,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Widget A',
                           quantity: 1,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 25 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 25 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 25 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -914,7 +842,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 12 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 12 }),
                   lineItems: {
                     edges: [
                       {
@@ -927,7 +855,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Widget B',
                           quantity: 2,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 50 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 50 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -977,7 +906,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 15 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 15 }),
                   lineItems: {
                     edges: [
                       {
@@ -990,7 +919,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Partially Shipped Widget',
                           quantity: 5,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 125 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 125 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 125 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -1056,7 +986,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 20 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 20 }),
                   lineItems: {
                     edges: [
                       {
@@ -1069,7 +999,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Widget Alpha',
                           quantity: 3,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 75 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 75 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -1085,7 +1016,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Widget Beta',
                           quantity: 4,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 100 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -1170,7 +1102,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                   lineItems: {
                     edges: [
                       {
@@ -1183,7 +1115,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Test Product',
                           quantity: 1,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 100 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -1251,7 +1184,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                   lineItems: {
                     edges: [
                       {
@@ -1264,7 +1197,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           name: 'Test Product',
                           quantity: 1,
                           productOptions: [],
-                          subTotalListPrice: { currencyCode: 'USD', value: 100 },
+                          subTotalListPrice: buildSfGqlMoneyWith({ value: 100 }),
+                          subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
                           returnableQuantity: 0,
@@ -1304,6 +1238,42 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
       expect(screen.getByText(/PO Submitted/)).toBeVisible();
     });
+
+    it('labels an order awaiting payment with no PO as awaiting payment', async () => {
+      const awaitingPaymentOrder = buildUnifiedOrderWith({
+        entityId: 6696,
+        reference: null,
+        orderedAt: { utc: '2026-05-01T12:00:00Z' },
+        status: { value: 'AWAITING_PAYMENT', label: 'Awaiting Payment' },
+        payments: [{ description: 'Cash on delivery' }],
+      });
+
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({ data: { site: { order: awaitingPaymentOrder } } }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState,
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      const paymentBox = screen.getByRole('heading', { name: 'Payment' }).parentElement!;
+      expect(within(paymentBox).getByText('Awaiting Payment')).toBeVisible();
+      expect(within(paymentBox).queryByText(/Paid in full/)).not.toBeInTheDocument();
+      expect(within(paymentBox).queryByText(/PO Submitted/)).not.toBeInTheDocument();
+    });
   });
 
   describe('when there are order history events', () => {
@@ -1322,7 +1292,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         status: 'Pending',
                         source: null,
                         createdBy: null,
-                        details: null,
                         createdAt: '2025-05-01T03:44:00.000Z',
                       },
                       {
@@ -1331,7 +1300,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         status: 'Shipped',
                         source: null,
                         createdBy: null,
-                        details: null,
                         createdAt: '2025-05-04T07:22:00.000Z',
                       },
                     ],
@@ -1389,7 +1357,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         name: string;
         quantity: number;
         productOptions: Array<{ name: string; value: string }>;
-        subTotalListPrice: { currencyCode: string; value: number };
+        subTotalListPrice: Money;
+        subTotalSalePrice: Money;
       }>,
       physicalConsignment?: Order['consignments'],
     ) {
@@ -1452,7 +1421,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           name: 'Scare Floor Operations Manual (eBook)',
           quantity: 112,
           productOptions: [{ name: 'Format', value: 'ePub' }],
-          subTotalListPrice: { currencyCode: 'EUR', value: 2502.08 },
+          subTotalListPrice: buildSfGqlMoneyWith({ value: 2502.08 }),
+          subTotalSalePrice: buildSfGqlMoneyWith({ value: 2502.08 }),
         },
       ]);
 
@@ -1491,7 +1461,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           name: 'Digital Product',
           quantity: 1,
           productOptions: [],
-          subTotalListPrice: { currencyCode: 'USD', value: 10 },
+          subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+          subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
         },
       ]);
 
@@ -1577,7 +1548,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                   phone: null,
                   email: null,
                 },
-                shippingCost: { currencyCode: 'USD', value: 0 },
+                shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                 lineItems: {
                   edges: [
                     {
@@ -1590,7 +1561,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         name: 'Phone',
                         quantity: 2,
                         productOptions: [],
-                        subTotalListPrice: { currencyCode: 'USD', value: 200 },
+                        subTotalListPrice: buildSfGqlMoneyWith({ value: 200 }),
+                        subTotalSalePrice: buildSfGqlMoneyWith({ value: 200 }),
                         image: null,
                         baseCatalogProduct: null,
                         returnableQuantity: 0,
@@ -1618,7 +1590,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         name: 'How to meow',
                         quantity: 1,
                         productOptions: [],
-                        subTotalListPrice: { currencyCode: 'USD', value: 10 },
+                        subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+                        subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
                       },
                     },
                   ],
@@ -1661,7 +1634,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     });
   });
 
-  describe('B2B-4826: reorder — frontend validation', () => {
+  describe('reorder — frontend validation', () => {
     function buildUnifiedOrderWithProducts(
       products: Array<{
         entityId: number;
@@ -1695,7 +1668,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                   lineItems: {
                     edges: products.map((p) => ({
                       node: {
@@ -1707,7 +1680,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         name: p.name,
                         quantity: p.quantity,
                         productOptions: p.productOptions,
-                        subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
+                        subTotalListPrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
+                        subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
                         returnableQuantity: 0,
@@ -2120,7 +2094,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                   lineItems: {
                     edges: products.map((p) => ({
                       node: {
@@ -2132,7 +2106,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         name: p.name,
                         quantity: p.quantity,
                         productOptions: p.productOptions,
-                        subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
+                        subTotalListPrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
+                        subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
                         returnableQuantity: 0,
@@ -2783,7 +2758,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                     phone: null,
                     email: null,
                   },
-                  shippingCost: { currencyCode: 'USD', value: 0 },
+                  shippingCost: buildSfGqlMoneyWith({ value: 0 }),
                   lineItems: {
                     edges: products.map((p) => ({
                       node: {
@@ -2795,7 +2770,8 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         name: p.name,
                         quantity: p.quantity,
                         productOptions: p.productOptions,
-                        subTotalListPrice: { currencyCode: 'USD', value: p.quantity * 10 },
+                        subTotalListPrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
+                        subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
                         returnableQuantity: 0,

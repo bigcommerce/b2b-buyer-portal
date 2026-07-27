@@ -172,6 +172,7 @@ const buildCustomerOrderResponseWith = builder<GetCustomerOrder>(() => ({
       shippingAddress: [buildShippingAddressWith('WHATEVER_VALUES')],
       coupons: [],
       status: faker.word.noun(),
+      statusId: faker.number.int(),
       paymentMethod: faker.lorem.sentence(3),
       shipments: false,
       billingAddress: {
@@ -427,6 +428,41 @@ describe('when a personal customer visits an order', () => {
 
     expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
     expect(screen.getByText('Pending')).toBeVisible();
+  });
+
+  it('labels an order awaiting payment with no PO as awaiting payment', async () => {
+    vi.mocked(useParams).mockReturnValue({ id: '6696' });
+
+    server.use(
+      graphql.query('GetCustomerOrderStatuses', () =>
+        HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetCustomerOrder', () =>
+        HttpResponse.json(
+          buildCustomerOrderResponseWith({
+            data: {
+              customerOrder: {
+                status: 'Pending',
+                statusId: 7,
+                poNumber: '',
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, { preloadedState });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+    const paymentBox = screen.getByRole('heading', { name: 'Payment' }).parentElement!;
+    expect(within(paymentBox).getByText('Awaiting Payment')).toBeVisible();
+    expect(within(paymentBox).queryByText(/Paid in full/)).not.toBeInTheDocument();
+    expect(within(paymentBox).queryByText(/PO Submitted/)).not.toBeInTheDocument();
   });
 
   it('can navigate back to the orders listing page', async () => {

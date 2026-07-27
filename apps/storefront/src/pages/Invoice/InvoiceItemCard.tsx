@@ -6,11 +6,11 @@ import { Box, Card, CardContent, InputAdornment, TextField, Typography } from '@
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
-import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { displayFormat } from '@/utils/b3DateFormat';
 
 import B3Pulldown from './components/B3Pulldown';
 import InvoiceStatus from './components/InvoiceStatus';
+import { formatInvoiceBalanceAmount } from './utils/payment';
 
 interface InvoiceItemCardProps {
   item: any;
@@ -22,6 +22,7 @@ interface InvoiceItemCardProps {
   handleOpenHistoryModal: (bool: boolean) => void;
   selectedPay: CustomFieldItems | InvoiceListNode[];
   handleGetCorrespondingCurrency: (code: string) => string;
+  decimalPlaces: number;
   addBottom: boolean;
   isCurrentCompany: boolean;
   invoicePay: boolean;
@@ -45,6 +46,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     handleOpenHistoryModal,
     selectedPay = [],
     handleGetCorrespondingCurrency,
+    decimalPlaces,
     addBottom,
     isCurrentCompany,
     invoicePay,
@@ -108,23 +110,12 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     {
       key: 'originalBalance',
       title: b3Lang('invoice.invoiceItemCardHeader.invoiceTotal'),
-      render: () => {
-        const { originalBalance } = item;
-        const originalAmount = Number(originalBalance.value);
-
-        return currencyFormat(originalAmount || 0);
-      },
+      render: () => formatInvoiceBalanceAmount(item.originalBalance, decimalPlaces),
     },
     {
       key: 'openBalance',
       title: b3Lang('invoice.invoiceItemCardHeader.amountDue'),
-      render: () => {
-        const { openBalance } = item;
-
-        const openAmount = Number(openBalance.value);
-
-        return currencyFormat(openAmount || 0);
-      },
+      render: () => formatInvoiceBalanceAmount(item.openBalance, decimalPlaces),
     },
     {
       key: 'openBalanceToPay',

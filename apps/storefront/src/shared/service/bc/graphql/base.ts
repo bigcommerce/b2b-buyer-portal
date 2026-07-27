@@ -8,6 +8,7 @@
 export interface Money {
   currencyCode: string;
   value: number;
+  formattedV2: string;
 }
 
 export interface PageInfo {

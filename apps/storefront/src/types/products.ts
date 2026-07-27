@@ -60,6 +60,10 @@ export interface ProductItem {
   product_id?: number;
   downloadFileUrls?: string[];
   allOptions?: Partial<AllOptionProps>[];
+  /** Pre-formatted unit price (Intl.NumberFormat with order currencyCode). */
+  formattedPrice?: string;
+  /** Pre-formatted line total from SF GQL Money.formattedV2. */
+  formattedTotal?: string;
 }
 
 interface OptionValue {

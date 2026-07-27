@@ -2,19 +2,21 @@ import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import { Box, FormControlLabel, styled, Switch, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
+import { type PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
 
+import { useQuoteDetailBackorderState } from '../hooks/useQuoteDetailBackorderState';
 import {
   getQuoteBackorderDisplayFields,
-  quoteDetailListHasBackorderedItemsForDisplay,
+  getQuotePicklistSelections,
+  getRowPicklistBackorderHistory,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 import QuoteDetailTableCard from './QuoteDetailTableCard';
@@ -42,6 +44,7 @@ interface ProductInfoProps {
   backorderMessage?: string;
   totalOnHand?: number;
   quantityBackordered?: number;
+  picklistBackorder?: PicklistBackorderHistoryChild[];
 }
 
 interface ListItemProps {
@@ -122,17 +125,17 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     status,
   } = props;
 
-  const isOrdered = Number(status) === 4;
-  const surfaceOrderedQuoteBackorders = useFeatureFlag(
-    'BACK-593.surface_order_backorder_info_on_quotes',
-  );
-  const shouldDisplayBackorderInformation = !isOrdered || surfaceOrderedQuoteBackorders;
+  const {
+    isOrdered,
+    shouldDisplayBackorderInformation,
+    backorderContextEnabled,
+    picklistProductsById,
+    hasBackorderedItems,
+  } = useQuoteDetailBackorderState(productList, status);
 
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -145,8 +148,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   });
 
   const [showBackorderDetails, setShowBackorderDetails] = useState(false);
-
-  const hasBackorderedItems = quoteDetailListHasBackorderedItemsForDisplay(productList);
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
@@ -318,21 +319,30 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: b3Lang('quoteDetail.table.qty'),
       render: (row) => {
         const backorderFields = getQuoteBackorderDisplayFields(row);
+        const picklistSelections = backorderContextEnabled ? getQuotePicklistSelections(row) : [];
+        const historyByProductId = isOrdered ? getRowPicklistBackorderHistory(row) : undefined;
 
         return (
           <Box>
             <Typography sx={{ padding: '12px 0' }}>{row.quantity}</Typography>
-            {isBackorderMessagingContextEnabled &&
-              hasAnyBackorderDisplay &&
-              shouldDisplayBackorderInformation &&
-              backorderFields && (
-                <BackorderMessage
-                  totalOnHand={backorderFields.totalOnHand}
-                  quantityBackordered={backorderFields.quantityBackordered}
-                  backorderMessage={backorderFields.backorderMessage}
-                  visible={showBackorderDetails}
-                />
-              )}
+            {backorderContextEnabled && backorderFields && (
+              <BackorderMessage
+                totalOnHand={backorderFields.totalOnHand}
+                quantityBackordered={backorderFields.quantityBackordered}
+                backorderMessage={backorderFields.backorderMessage}
+                visible={showBackorderDetails}
+              />
+            )}
+            {picklistSelections.length > 0 && (
+              <PicklistBackorderMessages
+                selections={picklistSelections}
+                picklistProductsById={picklistProductsById}
+                qty={Number(row.quantity) || 0}
+                visible={showBackorderDetails}
+                backorderUiEnabled={backorderContextEnabled}
+                historyByProductId={historyByProductId}
+              />
+            )}
           </Box>
         );
       },
@@ -429,22 +439,19 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         >
           {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
-        {isBackorderMessagingContextEnabled &&
-          hasAnyBackorderDisplay &&
-          shouldDisplayBackorderInformation &&
-          hasBackorderedItems && (
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showBackorderDetails}
-                  onChange={(e) => setShowBackorderDetails(e.target.checked)}
-                />
-              }
-              label={b3Lang('quoteDetail.table.backorderDetails')}
-              labelPlacement="start"
-              sx={{ mr: 0, gap: '0.5rem' }}
-            />
-          )}
+        {backorderContextEnabled && hasBackorderedItems && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showBackorderDetails}
+                onChange={(e) => setShowBackorderDetails(e.target.checked)}
+              />
+            }
+            label={b3Lang('quoteDetail.table.backorderDetails')}
+            labelPlacement="start"
+            sx={{ mr: 0, gap: '0.5rem' }}
+          />
+        )}
       </Box>
       <B3PaginationTable
         ref={paginationTableRef}
@@ -470,6 +477,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             getTaxRate={getTaxRate}
             showBackorderDetails={showBackorderDetails}
             shouldDisplayBackorderInformation={shouldDisplayBackorderInformation}
+            picklistProductsById={picklistProductsById}
+            historyByProductId={isOrdered ? getRowPicklistBackorderHistory(row) : undefined}
           />
         )}
       />

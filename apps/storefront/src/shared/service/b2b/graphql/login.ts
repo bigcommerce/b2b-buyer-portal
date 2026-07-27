@@ -1,4 +1,4 @@
-import { platform } from '@/utils/basicConfig';
+import { isBigCommercePlatform } from '@/utils/basicConfig';
 import { convertObjectOrArrayKeysToCamel } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
@@ -17,7 +17,7 @@ const storeFrontToken = `mutation storeFrontToken($storeFrontTokenData: Customer
 }
 `;
 export const getBCGraphqlToken = (data: Partial<ApiTokenConfig>): Promise<string> | undefined => {
-  if (platform !== 'bigcommerce') {
+  if (!isBigCommercePlatform()) {
     return undefined;
   }
   return B3Request.graphqlB2B({

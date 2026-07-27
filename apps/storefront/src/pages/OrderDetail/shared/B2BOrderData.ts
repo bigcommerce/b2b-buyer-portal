@@ -10,6 +10,8 @@ import {
   OrderSummary,
 } from '../../../types';
 
+import { normaliseLegacyStatusCode } from './orderStatus';
+
 interface CouponInfo {
   [key: string]: string;
 }
@@ -209,7 +211,7 @@ const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) 
   history: data.orderHistoryEvent || [],
   poNumber: data.poNumber || '',
   status: data.status,
-  statusCode: data.statusId,
+  statusCode: normaliseLegacyStatusCode(data.statusId),
   currencyCode: data.currencyCode,
   currency: data.money?.currency_token || '$',
   money: data.money,

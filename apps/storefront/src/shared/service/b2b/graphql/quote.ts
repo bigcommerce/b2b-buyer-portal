@@ -1,5 +1,6 @@
 import { QuoteExtraFieldsType } from '@/types/quotes';
 import { channelId, storeHash } from '@/utils/basicConfig';
+import type { PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
 import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
@@ -42,6 +43,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `
           totalAmount,
           taxTotal,
           uuid,
+          totalIsTbd,
         }
       }
     }
@@ -232,6 +234,7 @@ const getQuoteInfo = `
         backorderMessage,
         totalOnHand,
         quantityBackordered,
+        picklistBackorder,
       },
       storefrontAttachFiles {
         id,
@@ -413,6 +416,7 @@ export interface QuoteEdge {
     totalAmount: string;
     taxTotal: string;
     uuid?: string;
+    totalIsTbd?: boolean;
   };
 }
 
@@ -439,6 +443,7 @@ export const createQuote = (data: CustomFieldItems) => {
     message: data.message,
     legalTerms: data.legalTerms,
     totalAmount: data.totalAmount,
+    totalIsTbd: data.totalIsTbd,
     grandTotal: data.grandTotal,
     subtotal: data.subtotal || '',
     taxTotal: data.taxTotal || '',
@@ -622,6 +627,7 @@ export interface B2BQuoteDetail {
         backorderMessage?: string;
         totalOnHand?: number;
         quantityBackordered?: number;
+        picklistBackorder?: PicklistBackorderHistoryChild[];
       }[];
       storefrontAttachFiles: unknown[];
       backendAttachFiles: unknown[];

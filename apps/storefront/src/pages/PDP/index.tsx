@@ -6,6 +6,7 @@ import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { serialize } from '@/utils/b3Serialize';
+import { isBigCommercePlatform } from '@/utils/basicConfig';
 
 import CreateShoppingList from '../OrderDetail/components/CreateShoppingList';
 import OrderShoppingList from '../OrderDetail/components/OrderShoppingList';
@@ -24,7 +25,7 @@ function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
 
   const getShoppingListItem = () => {
-    if (platform !== 'bigcommerce') {
+    if (!isBigCommercePlatform(platform)) {
       return window.b2b.utils.shoppingList.itemFromCurrentPage[0];
     }
 

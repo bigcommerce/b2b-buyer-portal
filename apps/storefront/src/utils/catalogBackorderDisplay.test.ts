@@ -12,7 +12,9 @@ import {
   getCatalogBackorderDisplayQuantity,
   getCatalogBackorderFieldsForVariantSku,
   getCatalogInventoryRowFromSearchProduct,
+  getCatalogInventorySku,
   getCatalogProductRowDisplayState,
+  getPicklistBackorderHistoryFields,
   getProductDetailsForPicklistSelections,
   productRequiresChooseOptionsBeforeAdd,
   quantityExceedsAvailableToSell,
@@ -222,6 +224,27 @@ describe('catalogBackorderDisplay', () => {
       totalOnHand: -3,
       quantityBackordered: 13,
       backorderMessage: undefined,
+    });
+  });
+
+  describe('getCatalogInventorySku', () => {
+    it('returns product sku when inventory tracking is product', () => {
+      expect(
+        getCatalogInventorySku({ inventoryTracking: 'product', sku: 'TEE-BASE' }, 'TEE-M'),
+      ).toBe('TEE-BASE');
+    });
+
+    it('returns variant sku when inventory tracking is variant', () => {
+      expect(
+        getCatalogInventorySku({ inventoryTracking: 'variant', sku: 'TEE-BASE' }, 'TEE-M'),
+      ).toBe('TEE-M');
+    });
+
+    it('returns empty string when tracking is none or product is missing', () => {
+      expect(getCatalogInventorySku({ inventoryTracking: 'none', sku: 'TEE-BASE' }, 'TEE-M')).toBe(
+        '',
+      );
+      expect(getCatalogInventorySku(null, 'TEE-M')).toBe('');
     });
   });
 
@@ -582,6 +605,48 @@ describe('catalogBackorderDisplay', () => {
           {},
         ),
       ).toBe(false);
+    });
+  });
+
+  describe('getPicklistBackorderHistoryFields', () => {
+    it('maps a backordered history child to display fields', () => {
+      expect(
+        getPicklistBackorderHistoryFields({
+          product_id: 555,
+          sku: 'CHILD-SKU',
+          backorder_message: 'Lead time: 2-4 weeks',
+          quantity_backordered: 3,
+          total_on_hand: 7,
+        }),
+      ).toEqual({
+        totalOnHand: 7,
+        quantityBackordered: 3,
+        backorderMessage: 'Lead time: 2-4 weeks',
+      });
+    });
+
+    it('returns null when nothing is backordered', () => {
+      expect(
+        getPicklistBackorderHistoryFields({
+          product_id: 555,
+          quantity_backordered: 0,
+          total_on_hand: 10,
+        }),
+      ).toBeNull();
+    });
+
+    it('returns null for an undefined child', () => {
+      expect(getPicklistBackorderHistoryFields(undefined)).toBeNull();
+    });
+
+    it('defaults missing totals and message', () => {
+      expect(
+        getPicklistBackorderHistoryFields({ product_id: 555, quantity_backordered: 2 }),
+      ).toEqual({
+        totalOnHand: 0,
+        quantityBackordered: 2,
+        backorderMessage: undefined,
+      });
     });
   });
 });

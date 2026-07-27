@@ -211,6 +211,7 @@ export interface GetCustomerOrder {
       paymentMethod: string;
 
       status: string;
+      statusId: number;
 
       totalTax: number;
       totalExTax: number;
