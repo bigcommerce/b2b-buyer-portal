@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -43,7 +43,7 @@ import { Fields, ParamProps } from '@/types/accountSetting';
 import b2bLogger from '@/utils/b3Logger';
 import { B3SStorage } from '@/utils/b3Storage';
 import { snackbar } from '@/utils/b3Tip';
-import { channelId, platform } from '@/utils/basicConfig';
+import { channelId, isCatalystPlatform } from '@/utils/basicConfig';
 import { deCodeField, getAccountFormFields } from '@/utils/registerUtils';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
@@ -75,7 +75,7 @@ function useData() {
   const isDisplayUpgradeBanner =
     CustomerRole.B2C === customer.role &&
     [UserTypes.B2C, UserTypes.MULTIPLE_B2C].includes(customer.userType) &&
-    platform === 'catalyst';
+    isCatalystPlatform();
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
@@ -155,6 +155,9 @@ function AccountSetting() {
   const b3Lang = useB3Lang();
 
   const useBcAccountSettings = useFeatureFlag('PROJECT-7920.use_bc_account_settings');
+  const dedupeStorefrontConfigFetchCalls = useFeatureFlag(
+    'B2B-5309.dedupe_storefront_config_fetch_calls',
+  );
 
   // BC customers update via customer.updateCustomer, which needs a reCaptcha token
   // when reCaptcha is enabled on the storefront.
@@ -174,6 +177,7 @@ function AccountSetting() {
   );
   const [captchaToken, setCaptchaToken] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const skipNextInitRef = useRef(false);
 
   // BC customer.updateCustomer needs a reCaptcha token when reCaptcha is enabled on the
   // storefront; load that config (shared with the forgot-password flow).
@@ -182,6 +186,15 @@ function AccountSetting() {
 
   useEffect(() => {
     const init = async () => {
+      if (skipNextInitRef.current && dedupeStorefrontConfigFetchCalls) {
+        skipNextInitRef.current = false;
+        return;
+      }
+
+      skipNextInitRef.current = false;
+
+      let didLoadSuccessfully = false;
+
       try {
         setLoading(true);
 
@@ -279,12 +292,17 @@ function AccountSetting() {
         setExtraFields(additionalInformation);
 
         setIsVisible(true);
+
+        didLoadSuccessfully = true;
       } catch {
         snackbar.error(b3Lang('global.error.genericMessage'));
       } finally {
         if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
           setIsFinishUpdate(false);
+          if (dedupeStorefrontConfigFetchCalls && didLoadSuccessfully) {
+            skipNextInitRef.current = true;
+          }
         }
         setLoading(false);
       }
