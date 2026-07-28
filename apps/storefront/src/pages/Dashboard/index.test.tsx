@@ -148,15 +148,7 @@ describe('when the user is associated with a company', () => {
     expect(within(rowOfAcmeInc).getByRole('cell', { name: /Acme Inc/ })).toBeInTheDocument();
     expect(within(rowOfAcmeInc).getByRole('cell', { name: /nfo@acme.com/ })).toBeInTheDocument();
 
-    const actionButton = within(rowOfAcmeInc).getByRole('button');
-
-    await userEvent.click(actionButton);
-
-    const masqueradeMenuItem = screen.getByRole('menuitem', { name: /Masquerade/ });
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(masqueradeMenuItem).not.toBeInTheDocument();
+    expect(within(rowOfAcmeInc).getByRole('button', { name: 'Masquerade' })).toBeInTheDocument();
 
     expect(getCompanies).toHaveBeenLastCalledWith(expect.stringContaining('superAdminId: 882288'));
   });
@@ -428,8 +420,7 @@ describe('when the user is associated with a company', () => {
 
     const row = screen.getByRole('row', { name: /Acme Inc/ });
 
-    await userEvent.click(within(row).getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitem', { name: /Masquerade/ }));
+    await userEvent.click(within(row).getByRole('button', { name: 'Masquerade' }));
     await userEvent.click(screen.getByRole('button', { name: /Continue/ }));
 
     await waitFor(() => {
@@ -491,8 +482,7 @@ describe('when the user is associated with a company', () => {
 
     expect(within(row).getByText(/Selected/)).toBeInTheDocument();
 
-    await userEvent.click(within(row).getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitem', { name: /End Masquerade/ }));
+    await userEvent.click(within(row).getByRole('button', { name: 'End Masquerade' }));
 
     await waitFor(() => {
       expect(within(row).queryByText(/Selected/)).not.toBeInTheDocument();
