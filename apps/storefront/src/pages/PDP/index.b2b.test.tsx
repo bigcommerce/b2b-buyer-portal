@@ -279,6 +279,97 @@ describe('stencil', () => {
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 
+  it('can select a variant from a translated SKU when adding to a shopping list', async () => {
+    render(
+      <FakeProductDataProvider
+        productId="123"
+        sku="81006564"
+        quantity="2"
+        options={{ 'attribute[114]': '104' }}
+      />,
+    );
+
+    const skuElement = document.querySelector('[data-product-sku]');
+
+    if (!skuElement) throw new Error('Expected FakeProductDataProvider to render a SKU');
+
+    skuElement.innerHTML = '<font dir="auto"><font dir="auto">81006564</font></font>';
+
+    const addItemsToShoppingList = vi.fn();
+
+    const shoppingList = buildShoppingListNodeWith({
+      node: { id: 992, name: 'Foo Bar Shopping List' },
+    });
+
+    server.use(
+      graphql.query('B2BCustomerShoppingLists', () =>
+        HttpResponse.json(
+          buildShoppingListResponseWith({
+            data: { shoppingLists: { totalCount: 1, edges: [shoppingList] } },
+          }),
+        ),
+      ),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              {
+                variants: [
+                  { variant_id: 222, sku: '81006563' },
+                  { variant_id: 333, sku: '81006564' },
+                ],
+              },
+            ],
+          },
+        }),
+      ),
+      graphql.mutation('AddItemsToShoppingList', ({ variables }) => {
+        addItemsToShoppingList({ variables });
+
+        return HttpResponse.json({
+          data: {
+            shoppingListItemsCreate: {
+              shoppingListsItems: [],
+            },
+          },
+        });
+      }),
+    );
+
+    const shoppingListClickNode = screen.getByRole('link', { name: 'Shopping List Click Node' });
+
+    renderWithProviders(<PDP />, {
+      preloadedState: {
+        ...preloadedState,
+        global: {
+          ...preloadedState.global,
+          featureFlags: {
+            ...preloadedState.global.featureFlags,
+            'B2B-3474.get_sku_from_pdp_with_text_content': true,
+          },
+        },
+      },
+      initialGlobalContext: { shoppingListClickNode },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    await userEvent.click(await screen.findByText('Foo Bar Shopping List'));
+    await userEvent.click(screen.getByText('OK'));
+
+    await waitFor(() => {
+      expect(addItemsToShoppingList).toHaveBeenCalledWith({
+        variables: expect.objectContaining({
+          items: expect.arrayContaining([
+            expect.objectContaining({
+              variantId: 333,
+            }),
+          ]),
+        }),
+      });
+    });
+  });
+
   it('can create a shopping list from the modal and add a product to it', async () => {
     const createShoppingList = vi.fn();
     const getCompanyShoppingLists = vi.fn();
