@@ -114,7 +114,10 @@ export const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: UseMyQuot
   }, [role]);
 
   const [openQuickView] = useDomVariation(config['dom.setToQuote'], setCartPermissionsCallback);
-  const [isProductPurchasable] = usePurchasableQuote(openQuickView);
+  const [isProductPurchasable] = usePurchasableQuote(
+    openQuickView,
+    isSkuFromPdpWithTextContentEnabled,
+  );
 
   const cache = useRef<BtnProperties | null>(null);
   const {

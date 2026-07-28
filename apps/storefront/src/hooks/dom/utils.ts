@@ -26,6 +26,8 @@ import { globalSnackbar } from '@/utils/b3Tip';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 import { validateProducts } from '@/utils/validateProducts';
 
+import { getPdpSku } from './getPdpSku';
+
 interface DiscountsProps {
   discountedAmount: number;
   id: string;
@@ -242,9 +244,10 @@ const addProductFromProductPageToQuote = (
       const productId = (productView.querySelector('input[name=product_id]') as CustomFieldItems)
         ?.value;
       const qty = (productView.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1;
-      const sku = isSkuFromPdpWithTextContentEnabled
-        ? (productView.querySelector('[data-product-sku]')?.textContent ?? '').trim()
-        : (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
+      const sku = getPdpSku(
+        productView.querySelector('[data-product-sku]'),
+        isSkuFromPdpWithTextContentEnabled,
+      );
       const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
 
       if (!sku) {
