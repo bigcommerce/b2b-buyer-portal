@@ -16,10 +16,6 @@ export const featureFlags = [
     name: 'chunkProductSearchesInCsvUpload',
   },
   {
-    key: 'B2B-3705.increase_graphql_limits_inline_with_platform_api',
-    name: 'increaseGraphQLLimitsInlineWithPlatformApi',
-  },
-  {
     key: 'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
     name: 'backordersPhase1_1ControlMessagingOnStorefront',
   },

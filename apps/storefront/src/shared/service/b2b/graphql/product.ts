@@ -1,4 +1,3 @@
-import { store } from '@/store';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { getActiveCurrencyInfo } from '@/utils/currencyUtils';
 import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
@@ -71,9 +70,8 @@ const getProductPurchasable = ({
   }
 }`;
 
-const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementation: boolean) => {
-  if (useVariablesImplementation) {
-    return `
+const getSearchProductsQuery = (data: CustomFieldItems) => {
+  return `
   query SearchProducts(
     $search: String,
     $productIds: [Int!]!,
@@ -117,45 +115,6 @@ const getSearchProductsQuery = (data: CustomFieldItems, useVariablesImplementati
       unlimitedBackorder,
       totalOnHand,
       backorderMessage,
-    }
-  }
-`;
-  }
-  return `
-  query SearchProducts {
-    productsSearch (
-      search: "${data.search || ''}"
-      productIds: [${data.productIds || []}]
-      currencyCode: "${data.currencyCode || ''}"
-      companyId: "${data.companyId || ''}"
-      storeHash: "${storeHash}"
-      channelId: ${channelId}
-      customerGroupId: ${data.customerGroupId || 0}
-      ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
-    ){
-      id,
-      name,
-      sku,
-      costPrice,
-      inventoryLevel,
-      inventoryTracking,
-      availability,
-      orderQuantityMinimum,
-      orderQuantityMaximum,
-      variants,
-      currencyCode,
-      imageUrl,
-      modifiers,
-      options,
-      optionsV3,
-      channelId,
-      productUrl,
-      taxClassId,
-      isPriceHidden,
-      availableToSell,
-      unlimitedBackorder,
-      totalOnHand,
-      backorderMessage
     }
   }
 `;
@@ -487,41 +446,23 @@ interface ValidateProductsResponse {
 export const searchProducts = (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
-  const { featureFlags } = store.getState().global;
-  // This feature flag has a different name to the variable, however it is intended to be enabled at
-  // the same time. Once the GQL limit increases are permanently rolled out, logic in this repo should
-  // remain in place, as a general improvement to the code.
-  const separateQueryAndVariablesForProductSearches =
-    featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
-
-  if (separateQueryAndVariablesForProductSearches) {
-    return B3Request.graphqlB2B({
-      query: getSearchProductsQuery(data, true),
-      variables: {
-        search: data?.search || '',
-        // One of the calls to this API uses productId values that have been returned from the
-        // backend as strings.
-        // This is incorrect for the datatype, but in sending the values back as variables rather
-        // than interpolated into the query, we need to force-cast until proper types are enforced
-        // in the model.
-        productIds: data?.productIds ? data?.productIds.map(Number) : [],
-        currencyCode: data?.currencyCode || currencyCode || '',
-        companyId: `${data?.companyId || ''}`,
-        storeHash,
-        channelId,
-        customerGroupId: data?.customerGroupId || 0,
-        ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
-      },
-    });
-  }
   return B3Request.graphqlB2B({
-    query: getSearchProductsQuery(
-      {
-        ...data,
-        currencyCode: data?.currencyCode || currencyCode,
-      },
-      false,
-    ),
+    query: getSearchProductsQuery(data),
+    variables: {
+      search: data?.search || '',
+      // One of the calls to this API uses productId values that have been returned from the
+      // backend as strings.
+      // This is incorrect for the datatype, but in sending the values back as variables rather
+      // than interpolated into the query, we need to force-cast until proper types are enforced
+      // in the model.
+      productIds: data?.productIds ? data?.productIds.map(Number) : [],
+      currencyCode: data?.currencyCode || currencyCode || '',
+      companyId: `${data?.companyId || ''}`,
+      storeHash,
+      channelId,
+      customerGroupId: data?.customerGroupId || 0,
+      ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
+    },
   });
 };
 
