@@ -121,13 +121,17 @@ export function useAccountSettingsSubmit({
   };
 
   // Sends the prepared payload to the right backend for the current user/flag combination.
-  // `formFields` is the pre-resolved entityId-keyed group (built once by the caller). Returns
-  // true on success; false means an error was already surfaced and the caller stops.
+  // `formFields` is the pre-resolved entityId-keyed group (built once by the caller).
+  // `profileCommitted` tells the caller whether any profile changes were actually saved
+  // server-side, independent of `ok` — a password change is the last step, and if it fails
+  // after the profile details already succeeded, the caller still needs to reflect the
+  // committed profile change (e.g. force a re-login on a changed email) instead of treating
+  // the whole save as a no-op.
   const dispatchUpdate = async (
     payload: Partial<ParamProps>,
     formFields?: CustomerFormFieldsInput,
     extraFields?: CompanyUserExtraFieldsInput,
-  ): Promise<boolean> => {
+  ): Promise<{ ok: boolean; profileCommitted: boolean }> => {
     if (useBcAccountSettings && isBCUser) {
       const customerInput = buildUpdateCustomerInput(payload, formFields);
       const hasProfileUpdate = Object.keys(customerInput).length > 0;
@@ -137,34 +141,40 @@ export function useAccountSettingsSubmit({
       if (hasProfileUpdate) {
         if (isCaptchaConfigLoading) {
           snackbar.error(b3Lang('global.error.genericMessage'));
-          return false;
+          return { ok: false, profileCommitted: false };
         }
         if (isCaptchaEnabled && !captchaToken) {
           snackbar.error(b3Lang('login.loginText.missingCaptcha'));
-          return false;
+          return { ok: false, profileCommitted: false };
         }
       }
 
       // Update the profile details first; only change the password if that succeeds so we never
       // commit a password change against a details update that failed.
+      // `profileCommitted` only flips to true once an actual details update has succeeded — a
+      // password-only save (hasProfileUpdate false) must never report a profile commit, or a
+      // failed password change would be treated as if something had still been saved.
+      let profileCommitted = false;
       if (hasProfileUpdate) {
         let ok;
         try {
           ok = await runMutation(() =>
             updateCustomerDetails(customerInput, captchaToken || undefined).then((res) => ({
               errors: res.errors,
+              resultErrors: res.data?.customer?.updateCustomer?.errors,
             })),
           );
         } finally {
           // reCaptcha v2 tokens are single-use; reset the widget so a retry can issue a new one.
           resetCaptcha();
         }
-        if (!ok) return false;
+        if (!ok) return { ok: false, profileCommitted: false };
+        profileCommitted = true;
       }
 
       // Details update succeeded (or there was none); now change the password if requested.
       if (payload.newPassword) {
-        return runMutation(() =>
+        const passwordOk = await runMutation(() =>
           changeCustomerPassword(
             (payload.currentPassword as string) || '',
             payload.newPassword as string,
@@ -173,13 +183,14 @@ export function useAccountSettingsSubmit({
             resultErrors: res.data?.customer?.changePassword?.errors,
           })),
         );
+        return { ok: passwordOk, profileCommitted };
       }
 
-      return true;
+      return { ok: true, profileCommitted };
     }
 
     if (useBcAccountSettings && !isBCUser) {
-      return runMutation(() =>
+      const ok = await runMutation(() =>
         updateCompanyUserDetails(
           buildUpdateCompanyUserInput(payload, formFields, extraFields),
         ).then((res) => ({
@@ -187,12 +198,13 @@ export function useAccountSettingsSubmit({
           resultErrors: res.data?.company?.updateCompanyUser?.errors,
         })),
       );
+      return { ok, profileCommitted: ok };
     }
 
     // Legacy b2b middleware path (flag off).
     const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
     await requestFn(payload);
-    return true;
+    return { ok: true, profileCommitted: true };
   };
 
   const handleAddUserClick = () => {
@@ -306,11 +318,16 @@ export function useAccountSettingsSubmit({
             return;
           }
 
-          const succeeded = await dispatchUpdate(payload, customerFormFields, customerExtraFields);
-          if (!succeeded) return;
+          const { ok, profileCommitted } = await dispatchUpdate(
+            payload,
+            customerFormFields,
+            customerExtraFields,
+          );
+          // Nothing was saved server-side — stop; the error was already surfaced.
+          if (!ok && !profileCommitted) return;
 
           if (
-            (data.password && data.currentPassword) ||
+            (ok && data.password && data.currentPassword) ||
             customer.emailAddress !== trim(data.email)
           ) {
             navigate('/login?loginFlag=loggedOutLogin');
