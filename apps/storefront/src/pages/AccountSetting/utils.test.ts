@@ -650,8 +650,14 @@ describe('collectChangedFormFields', () => {
 
   it('collects only custom fields, keyed by bcLabel with the parsed fieldEntityId', () => {
     expect(collectChangedFormFields(data, fields, [])).toEqual([
-      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26 },
-      { name: 'Middle name', value: 'Lee', fieldType: 'text', fieldEntityId: 27 },
+      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26, formName: 'field_26' },
+      {
+        name: 'Middle name',
+        value: 'Lee',
+        fieldType: 'text',
+        fieldEntityId: 27,
+        formName: 'field_27',
+      },
     ]);
   });
 
@@ -667,8 +673,14 @@ describe('collectChangedFormFields', () => {
 
   it('keeps a field whose value differs from the original', () => {
     expect(collectChangedFormFields(data, fields, [{ name: 'Age', value: 24 }])).toEqual([
-      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26 },
-      { name: 'Middle name', value: 'Lee', fieldType: 'text', fieldEntityId: 27 },
+      { name: 'Age', value: 25, fieldType: 'number', fieldEntityId: 26, formName: 'field_26' },
+      {
+        name: 'Middle name',
+        value: 'Lee',
+        fieldType: 'text',
+        fieldEntityId: 27,
+        formName: 'field_27',
+      },
     ]);
   });
 
@@ -690,7 +702,15 @@ describe('collectChangedFormFields', () => {
     // Changed → keyed by label, entityId parsed from fieldId.
     expect(
       collectChangedFormFields({ field_28: 'y' }, labelOnly, [{ name: 'Preferences', value: 'x' }]),
-    ).toEqual([{ name: 'Preferences', value: 'y', fieldType: 'text', fieldEntityId: 28 }]);
+    ).toEqual([
+      {
+        name: 'Preferences',
+        value: 'y',
+        fieldType: 'text',
+        fieldEntityId: 28,
+        formName: 'field_28',
+      },
+    ]);
   });
 
   it('does not treat an untouched date as changed (ISO original vs YYYY-MM-DD submitted)', () => {
@@ -740,7 +760,7 @@ describe('collectChangedExtraFields', () => {
     const data = { [nicknameField]: 'AT', field_26: 25 };
     expect(
       collectChangedExtraFields(data, fields, [{ fieldName: 'nickname', fieldValue: '' }]),
-    ).toEqual([{ name: 'nickname', value: 'AT', fieldType: 'text' }]);
+    ).toEqual([{ name: 'nickname', value: 'AT', fieldType: 'text', formName: nicknameField }]);
   });
 
   it('drops an extra field whose value matches the original', () => {
