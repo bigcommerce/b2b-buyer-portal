@@ -26,7 +26,7 @@ const applyStoredCustomFieldDefault = (
     !(typeof storedValue === 'string' && storedValue.trim() === '');
 
   if (hasStoredValue) {
-    fieldConfig.default = storedValue;
+    fieldConfig.default = storedValue as Partial<Fields>['default'];
     return;
   }
 
@@ -249,24 +249,30 @@ export const bcSubmitDataProcessing = (
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
         flag = false;
-        if (deCodeField(item.name) === 'first_name') {
-          if (accountSettings.firstName !== data[item.name]) pristine = false;
+        if (
+          deCodeField(item.name) === 'first_name' &&
+          accountSettings.firstName !== data[item.name]
+        ) {
+          pristine = false;
           param.firstName = data[item.name];
         }
-        if (deCodeField(item.name) === 'last_name') {
-          if (accountSettings.lastName !== data[item.name]) pristine = false;
+        if (
+          deCodeField(item.name) === 'last_name' &&
+          accountSettings.lastName !== data[item.name]
+        ) {
+          pristine = false;
           param.lastName = data[item.name];
         }
-        if (deCodeField(item.name) === 'phone') {
-          if (accountSettings.phoneNumber !== data[item.name]) pristine = false;
+        if (deCodeField(item.name) === 'phone' && accountSettings.phoneNumber !== data[item.name]) {
+          pristine = false;
           param.phoneNumber = data[item.name];
         }
-        if (deCodeField(item.name) === 'email') {
-          if (accountSettings.email !== data[item.name]) pristine = false;
+        if (deCodeField(item.name) === 'email' && accountSettings.email !== data[item.name]) {
+          pristine = false;
           param.email = data[item.name];
         }
-        if (deCodeField(item.name) === 'company') {
-          if (accountSettings.company !== data[item.name]) pristine = false;
+        if (deCodeField(item.name) === 'company' && accountSettings.company !== data[item.name]) {
+          pristine = false;
           param.company = data[item.name];
         }
       }

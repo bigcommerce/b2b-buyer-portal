@@ -258,6 +258,7 @@ export interface UpdateCustomerResponse {
     customer?: {
       updateCustomer?: {
         customer?: Customer;
+        errors?: Array<{ __typename?: string; message?: string }>;
       };
     };
   };
@@ -279,6 +280,14 @@ const updateCustomerMutation = (
         company
         phoneNumber: phone
         email
+      }
+      errors {
+        __typename
+        ... on Error { message }
+        ... on CustomerDoesNotExistError { message }
+        ... on CustomerNotLoggedInError { message }
+        ... on EmailAlreadyInUseError { message }
+        ... on UnexpectedUpdateCustomerError { message }
       }
     }
   }
