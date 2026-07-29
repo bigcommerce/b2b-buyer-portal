@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
@@ -151,7 +151,13 @@ function AccountSetting() {
     [],
   );
   const [captchaToken, setCaptchaToken] = useState<string>('');
+  const [captchaKey, setCaptchaKey] = useState(0);
   const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  const resetCaptcha = useCallback(() => {
+    setCaptchaToken('');
+    setCaptchaKey((key) => key + 1);
+  }, []);
   const skipNextInitRef = useRef(false);
 
   // BC customer.updateCustomer needs a reCaptcha token when reCaptcha is enabled on the
@@ -299,7 +305,7 @@ function AccountSetting() {
     accountInfoFormFields,
     customerFormFieldDefs,
     captchaToken,
-    setCaptchaToken,
+    resetCaptcha,
     isCaptchaEnabled,
     isCaptchaConfigLoading,
     validateEmailValue,
@@ -368,7 +374,12 @@ function AccountSetting() {
 
           {isCustomerUpdate && isCaptchaEnabled && (
             <Box sx={{ mt: '20px' }}>
-              <Captcha siteKey={captchaSiteKey} size="normal" handleGetKey={setCaptchaToken} />
+              <Captcha
+                key={captchaKey}
+                siteKey={captchaSiteKey}
+                size="normal"
+                handleGetKey={setCaptchaToken}
+              />
             </Box>
           )}
 
