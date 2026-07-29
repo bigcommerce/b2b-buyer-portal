@@ -2,8 +2,10 @@ import {
   type ExtraFields,
   registerCompany as submitRegisterCompany,
   type RegisterCompanyAddressInput,
+  type RegisterCompanyFileInput,
   type RegisterCompanyInput,
   type RegisterCompanyStatus,
+  type UploadedCompanyFile,
 } from '@/shared/service/bc/graphql/company';
 import { deCodeField, toHump } from '@/utils/registerUtils';
 
@@ -157,26 +159,26 @@ function buildCompanyUserFields(
 }
 
 function mapUploadedFilesToRegisterInput(
-  fileList: unknown,
-): RegisterCompanyInput['fileList'] | undefined {
-  if (!fileList || !Array.isArray(fileList) || fileList.length === 0) return undefined;
+  fileList: UploadedCompanyFile[] | undefined,
+): RegisterCompanyFileInput[] | undefined {
+  if (!fileList?.length) return undefined;
 
-  const fileReferences = (fileList as Array<Record<string, unknown>>)
-    .map((uploadedFile) => {
-      const fileIdentifier = uploadedFile.fileId ?? uploadedFile.id;
-      if (fileIdentifier === undefined || fileIdentifier === null || fileIdentifier === '') {
-        return null;
-      }
-      return { fileId: `${fileIdentifier}` };
-    })
-    .filter((fileReference): fileReference is { fileId: string } => fileReference !== null);
+  const fileReferences = fileList
+    .filter(({ fileId }) => !!fileId)
+    .map(({ fileId, fileUrl, fileName, fileType, fileSize }) => ({
+      fileId,
+      fileUrl,
+      fileName,
+      contentType: fileType,
+      fileSize: Number(fileSize),
+    }));
 
-  return fileReferences.length ? fileReferences : undefined;
+  return fileReferences;
 }
 
 function buildRegisterCompanyInput(
   customerDetails: CustomerDetails,
-  fileList: unknown,
+  fileList: UploadedCompanyFile[] | undefined,
   context: RegisterCompanyContext,
 ): RegisterCompanyInput {
   const { list: contactInformationFields, companyInformation, addressBasicList } = context;
@@ -196,7 +198,7 @@ function buildRegisterCompanyInput(
 /** Registers a B2B company via the Storefront GraphQL `registerCompany` mutation. */
 export async function registerCompany(
   customerDetails: CustomerDetails,
-  fileList: unknown,
+  fileList: UploadedCompanyFile[] | undefined,
   context: RegisterCompanyContext,
 ): Promise<RegisterCompanyStatus> {
   const res = await submitRegisterCompany(

@@ -26,12 +26,28 @@ export interface RegisterCompanyAddressInput {
   extraFields?: ExtraFields;
 }
 
+export interface UploadedCompanyFile {
+  fileId: string;
+  fileUrl: string;
+  fileName: string;
+  fileType: string;
+  fileSize: string | number;
+}
+
+export interface RegisterCompanyFileInput {
+  fileId: string;
+  fileUrl: string;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+}
+
 export interface RegisterCompanyInput {
   name: string;
   email: string;
   phone: string;
   address: RegisterCompanyAddressInput;
-  fileList?: Array<{ fileId: string }>;
+  fileList?: RegisterCompanyFileInput[];
   extraFields?: ExtraFields;
   companyUser?: { extraFields?: ExtraFields };
 }

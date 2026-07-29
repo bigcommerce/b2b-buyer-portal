@@ -417,6 +417,27 @@ export const getCurrentCustomerInfo = async (
   return undefined;
 };
 
+export const refreshCurrentCustomerJWT = async () => {
+  const currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId()).catch((error) => {
+    b2bLogger.error(error);
+    return undefined;
+  });
+
+  if (currentCustomerJWT) {
+    store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
+  }
+
+  return currentCustomerJWT;
+};
+
+export const refreshB2BToken = async (currentCustomerJWT: string) => {
+  const data = await getB2BToken(currentCustomerJWT, channelId);
+  const B2BToken = data.authorization.result.token as string;
+  store.dispatch(setB2BToken(B2BToken));
+
+  return B2BToken;
+};
+
 export const getSearchVal = (search: string, key: string) => {
   if (!search) {
     return '';
