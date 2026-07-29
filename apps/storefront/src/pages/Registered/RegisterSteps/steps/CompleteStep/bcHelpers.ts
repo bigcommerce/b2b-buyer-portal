@@ -1,5 +1,7 @@
 import { bcLogin, bcLogoutLogin } from '@/shared/service/bc';
 import b2bLogger from '@/utils/b3Logger';
+import { refreshB2BToken, refreshCurrentCustomerJWT } from '@/utils/loginInfo';
+import { logoutSession } from '@/utils/logoutSession';
 
 interface Credentials {
   email: string;
@@ -16,6 +18,12 @@ export async function loginAndGetBcCustomer(credentials: Credentials, errorMessa
   if (!customer) {
     throw new Error(errorMessage);
   }
+  // Valid JWT token is required to get the fileID from the upload API
+  const currentCustomerJWT = await refreshCurrentCustomerJWT();
+  if (!currentCustomerJWT) {
+    throw new Error(errorMessage);
+  }
+  await refreshB2BToken(currentCustomerJWT);
   return customer;
 }
 
@@ -31,5 +39,7 @@ export async function logoutBcCustomer(): Promise<void> {
     }
   } catch (e) {
     b2bLogger.error(e);
+  } finally {
+    logoutSession();
   }
 }

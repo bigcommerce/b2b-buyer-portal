@@ -1,6 +1,9 @@
 import { registerCompany } from '@/pages/Registered/RegisterSteps/steps/CompleteStep/registerCompany';
 import type { RegisterFields } from '@/pages/Registered/types';
-import type { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
+import type {
+  RegisterCompanyStatus,
+  UploadedCompanyFile,
+} from '@/shared/service/bc/graphql/company';
 
 interface BcToB2bCustomerDetails {
   firstName: string;
@@ -30,7 +33,7 @@ export async function submitBcToB2bRegisterCompany(input: {
   contactList: RegisterFields[] | undefined;
   companyInformation: RegisterFields[];
   addressBasicList: RegisterFields[];
-  fileList: unknown;
+  fileList: UploadedCompanyFile[] | undefined;
   genericRegistrationErrorMessage: string;
 }): Promise<RegisterCompanyStatus> {
   const {

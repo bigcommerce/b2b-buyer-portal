@@ -11,7 +11,10 @@ import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobalContext } from '@/shared/global';
 import { sendSubscribersState, uploadB2BFile } from '@/shared/service/b2b';
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
-import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
+import {
+  RegisterCompanyStatus,
+  type UploadedCompanyFile,
+} from '@/shared/service/bc/graphql/company';
 import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, isBigCommercePlatform, storeHash } from '@/utils/basicConfig';
@@ -282,7 +285,6 @@ export default function CompleteStep(props: CompleteStepProps) {
             await createCustomer({ password, confirmPassword }, createCustomerContext);
           } else {
             const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
-            const fileList = await getFileUrl(attachmentsList || []);
             const { customerId, customerEmail } = await createCustomer(
               { password, confirmPassword },
               createCustomerContext,
@@ -298,9 +300,10 @@ export default function CompleteStep(props: CompleteStepProps) {
                 },
                 b3Lang('global.error.genericMessage'),
               );
+              const fileList = await getFileUrl(attachmentsList || []);
               const registerCompanyStatus = await registerCompany(
                 customerDetails,
-                fileList,
+                fileList as UploadedCompanyFile[] | undefined,
                 createCompanyContext,
               );
               isAutoApproval = registerCompanyStatus === RegisterCompanyStatus.APPROVED;
@@ -309,6 +312,7 @@ export default function CompleteStep(props: CompleteStepProps) {
                 await logoutBcCustomer();
               }
             } else {
+              const fileList = await getFileUrl(attachmentsList || []);
               const accountInfo = await createCompany(
                 { password, confirmPassword },
                 customerId,

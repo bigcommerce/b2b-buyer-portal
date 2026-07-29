@@ -1,8 +1,13 @@
 import {
   buildCompanyStateWith,
+  builder,
   buildGlobalStateWith,
+  faker,
+  http,
+  HttpResponse,
   renderWithProviders,
   screen,
+  startMockServer,
   waitFor,
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
@@ -10,7 +15,10 @@ import { when } from 'vitest-when';
 import * as b2bService from '@/shared/service/b2b';
 import * as recaptchaModule from '@/shared/service/b2b/graphql/recaptcha';
 import * as bcModule from '@/shared/service/bc';
-import type { RegisterCompanyMutationResponse } from '@/shared/service/bc/graphql/company';
+import type {
+  RegisterCompanyMutationResponse,
+  UploadedCompanyFile,
+} from '@/shared/service/bc/graphql/company';
 import { RegisterCompanyStatus } from '@/shared/service/bc/graphql/company';
 import * as companyGraphqlModule from '@/shared/service/bc/graphql/company';
 import * as bcGraphqlLoginModule from '@/shared/service/bc/graphql/login';
@@ -20,6 +28,16 @@ import * as storefrontConfigModule from '@/utils/storefrontConfig';
 
 import { RegisteredProvider } from './Context';
 import Registered from '.';
+
+const { server } = startMockServer();
+
+const buildUploadedCompanyFileWith = builder<UploadedCompanyFile>(() => ({
+  fileId: faker.string.uuid(),
+  fileName: faker.system.fileName({ extensionCount: 1 }),
+  fileType: 'application/pdf',
+  fileUrl: faker.internet.url(),
+  fileSize: faker.number.int({ min: 1, max: 10_000 }),
+}));
 
 const mockRegisterCompanyGraphqlApproved: RegisterCompanyMutationResponse = {
   data: {
@@ -890,11 +908,12 @@ type RegistrationData = {
   businessDetails?: Record<string, string>;
   address: Record<string, string>;
   password: Record<string, string>;
+  attachment?: File;
 };
 
 async function completeRegistration(
   user: ReturnType<typeof renderWithProviders>['user'],
-  { accountType, contactInfo, businessDetails, address, password }: RegistrationData,
+  { accountType, contactInfo, businessDetails, address, password, attachment }: RegistrationData,
 ) {
   // Step 1: Account type selection
   await user.click(screen.getByLabelText(accountType));
@@ -942,6 +961,14 @@ async function completeRegistration(
         screen.getByLabelText(/Company Phone Number/i),
         businessDetails['Company Phone Number'] as string,
       );
+    }
+    if (attachment) {
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
+      if (!fileInput) {
+        throw new Error('Attachments file input not found');
+      }
+      await user.upload(fileInput, attachment);
+      await screen.findByText(attachment.name);
     }
     await user.click(screen.getByRole('button', { name: 'Continue' }));
   }
@@ -1150,6 +1177,9 @@ describe('Registered Page', () => {
             },
           },
         });
+      // Authenticated JWT/B2B token are required before media upload returns fileId
+      vi.spyOn(loginInfoModule, 'refreshCurrentCustomerJWT').mockResolvedValue('mock-customer-jwt');
+      vi.spyOn(loginInfoModule, 'refreshB2BToken').mockResolvedValue('mock-b2b-token');
     });
 
     it('completes B2B registration via Storefront registerCompany and does not call B2B companyCreate (createB2BCompanyUser)', async () => {
@@ -1174,6 +1204,8 @@ describe('Registered Page', () => {
         email: 'john.doe@example.com',
         password: 'Password123',
       });
+      expect(loginInfoModule.refreshCurrentCustomerJWT).toHaveBeenCalledTimes(1);
+      expect(loginInfoModule.refreshB2BToken).toHaveBeenCalledWith('mock-customer-jwt');
       expect(loginInfoModule.ensureBcGraphqlToken).toHaveBeenCalledTimes(1);
       expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
       expect(
@@ -1297,8 +1329,104 @@ describe('Registered Page', () => {
       await waitFor(() => {
         expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
       });
+      expect(loginInfoModule.refreshCurrentCustomerJWT).not.toHaveBeenCalled();
       expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
       expect(bcGraphqlLoginModule.bcLogoutLogin).not.toHaveBeenCalled();
+    });
+
+    it('shows generic error when customer JWT refresh fails after login', async () => {
+      vi.mocked(loginInfoModule.refreshCurrentCustomerJWT).mockResolvedValue(undefined);
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, mockRegistrationData.b2b);
+
+      await waitFor(() => {
+        expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+      });
+      expect(loginInfoModule.refreshCurrentCustomerJWT).toHaveBeenCalledTimes(1);
+      expect(loginInfoModule.refreshB2BToken).not.toHaveBeenCalled();
+      expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+    });
+
+    it('uploads attachments after login and sends fileList with fileId from upload API', async () => {
+      const uploadedFile = buildUploadedCompanyFileWith({
+        fileId: 'upload-file-id-123',
+        fileName: 'attachment.pdf',
+        fileType: 'application/pdf',
+        fileSize: 2048,
+      });
+
+      vi.mocked(b2bService.uploadB2BFile).mockRestore();
+      const uploadSpy = vi.spyOn(b2bService, 'uploadB2BFile');
+      server.use(
+        http.post('*/api/v2/media/upload', () =>
+          HttpResponse.json({
+            code: 200,
+            data: uploadedFile,
+          }),
+        ),
+      );
+
+      window.URL.createObjectURL = vi.fn(() => 'blob:mock-attachment');
+      window.URL.revokeObjectURL = vi.fn();
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        {
+          preloadedState: preloadedStateStorefrontRegisterCompany,
+          initialGlobalContext: { storeName: 'My Store' },
+        },
+      );
+
+      await completeRegistration(user, {
+        ...mockRegistrationData.b2b,
+        attachment: new File(['dummy-file-contents'], uploadedFile.fileName, {
+          type: uploadedFile.fileType,
+        }),
+      });
+
+      await waitFor(() => {
+        expect(companyGraphqlModule.registerCompany).toHaveBeenCalled();
+      });
+
+      expect(uploadSpy).toHaveBeenCalled();
+      expect(vi.mocked(bcModule.bcLogin).mock.invocationCallOrder[0]).toBeLessThan(
+        vi.mocked(loginInfoModule.refreshCurrentCustomerJWT).mock.invocationCallOrder[0],
+      );
+      expect(
+        vi.mocked(loginInfoModule.refreshCurrentCustomerJWT).mock.invocationCallOrder[0],
+      ).toBeLessThan(vi.mocked(loginInfoModule.refreshB2BToken).mock.invocationCallOrder[0]);
+      expect(vi.mocked(loginInfoModule.refreshB2BToken).mock.invocationCallOrder[0]).toBeLessThan(
+        uploadSpy.mock.invocationCallOrder[0],
+      );
+      expect(uploadSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        vi.mocked(companyGraphqlModule.registerCompany).mock.invocationCallOrder[0],
+      );
+
+      const registerCompanyInput = vi.mocked(companyGraphqlModule.registerCompany).mock.calls[0][0];
+
+      expect(registerCompanyInput.fileList).toEqual([
+        {
+          fileId: 'upload-file-id-123',
+          fileUrl: uploadedFile.fileUrl,
+          fileName: uploadedFile.fileName,
+          contentType: uploadedFile.fileType,
+          fileSize: Number(uploadedFile.fileSize),
+        },
+      ]);
+      expect(registerCompanyInput.fileList?.[0]).not.toHaveProperty('fileType');
+      expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
     });
   });
 
