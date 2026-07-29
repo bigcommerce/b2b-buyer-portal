@@ -44,7 +44,7 @@ interface UseAccountSettingsSubmitParams {
   accountInfoFormFields: Partial<Fields>[];
   customerFormFieldDefs: CustomerFormFieldDefinition[];
   captchaToken: string;
-  setCaptchaToken: (token: string) => void;
+  resetCaptcha: () => void;
   isCaptchaEnabled: boolean;
   isCaptchaConfigLoading: boolean;
   validateEmailValue: (email: string) => Promise<boolean>;
@@ -71,7 +71,7 @@ export function useAccountSettingsSubmit({
   accountInfoFormFields,
   customerFormFieldDefs,
   captchaToken,
-  setCaptchaToken,
+  resetCaptcha,
   isCaptchaEnabled,
   isCaptchaConfigLoading,
   validateEmailValue,
@@ -156,8 +156,8 @@ export function useAccountSettingsSubmit({
             })),
           );
         } finally {
-          // reCaptcha v2 tokens are single-use; drop it so a retry forces a fresh solve.
-          setCaptchaToken('');
+          // reCaptcha v2 tokens are single-use; reset the widget so a retry can issue a new one.
+          resetCaptcha();
         }
         if (!ok) return false;
       }

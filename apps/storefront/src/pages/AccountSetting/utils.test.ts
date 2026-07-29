@@ -113,6 +113,27 @@ describe('initB2BInfo', () => {
     expect(unmatched.default).toBeUndefined();
   });
 
+  it('clears the registerUtils today placeholder when a date field has no stored value', () => {
+    const additionalInformation = [
+      field({ bcLabel: 'DOB', label: 'DOB', fieldType: 'date', default: '2026-07-29' }),
+    ];
+
+    const [result] = initB2BInfo({ formFields: [] }, [], [], additionalInformation);
+
+    expect(result.default).toBe('');
+  });
+
+  it('clears the today placeholder for an unset date extra field in contact information', () => {
+    const dobField = Base64.encode('dob');
+    const contactInformation = [
+      field({ name: dobField, fieldType: 'date', custom: true, default: '2026-07-29' }),
+    ];
+
+    const [result] = initB2BInfo({ ...accountInfo, extraFields: [] }, contactInformation, [], []);
+
+    expect(result.default).toBe('');
+  });
+
   it('handles missing extraFields and formFields without throwing', () => {
     const contactInformation = [field({ name: firstNameField })];
 
@@ -152,6 +173,28 @@ describe('initBcInfo', () => {
     const [result] = initBcInfo(accountInfo, [], additionalInformation);
 
     expect(result.default).toBe('Weekly');
+  });
+
+  it('clears the registerUtils today placeholder when a date field has no stored value', () => {
+    const additionalInformation = [
+      field({ bcLabel: 'DOB', label: 'DOB', fieldType: 'date', default: '2026-07-29' }),
+    ];
+
+    const [result] = initBcInfo({ formFields: [] }, [], additionalInformation);
+
+    expect(result.default).toBe('');
+  });
+
+  it('keeps a stored date default for additional information fields', () => {
+    const additionalInformation = [field({ bcLabel: 'DOB', label: 'DOB', fieldType: 'date' })];
+
+    const [result] = initBcInfo(
+      { formFields: [{ name: 'DOB', value: '2026-06-10T00:00:00Z' }] },
+      [],
+      additionalInformation,
+    );
+
+    expect(result.default).toBe('2026-06-10T00:00:00Z');
   });
 });
 
@@ -723,6 +766,21 @@ describe('collectChangedFormFields', () => {
     ]);
 
     expect(changed).toEqual([]);
+  });
+
+  it('does not report an unset date field as changed when the form value is blank', () => {
+    const dateFields = [
+      field({
+        name: 'dob',
+        bcLabel: 'DOB',
+        fieldType: 'date',
+        fieldId: 'field_30',
+        custom: true,
+        default: '',
+      }),
+    ];
+
+    expect(collectChangedFormFields({ dob: '' }, dateFields, [])).toEqual([]);
   });
 
   it('falls back to the definitions (by label) for entityId when the fieldId is not field_<id>', () => {

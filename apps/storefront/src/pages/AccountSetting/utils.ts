@@ -14,6 +14,27 @@ import { validatorRules } from '@/utils/validatorRules';
 
 const emailValidate = validatorRules(['email']);
 
+// registerUtils assigns today's date to empty date fields for registration forms; on account
+// settings an unset date must stay blank so saving unrelated fields isn't treated as a date edit.
+const applyStoredCustomFieldDefault = (
+  fieldConfig: Partial<Fields>,
+  storedValue: unknown,
+): void => {
+  const hasStoredValue =
+    storedValue !== undefined &&
+    storedValue !== null &&
+    !(typeof storedValue === 'string' && storedValue.trim() === '');
+
+  if (hasStoredValue) {
+    fieldConfig.default = storedValue;
+    return;
+  }
+
+  if (fieldConfig.fieldType === 'date') {
+    fieldConfig.default = '';
+  }
+};
+
 // The "Contact Information" form-field group. For B2B, custom fields in this group are the
 // company user's own name-keyed extra fields; other groups are entityId-keyed form fields.
 export const CONTACT_GROUP_ID = 1;
@@ -51,10 +72,22 @@ export const initB2BInfo = (
       );
 
       if (currentField) {
-        currentField.default = extraField.fieldValue;
+        applyStoredCustomFieldDefault(currentField, extraField.fieldValue);
       }
     });
   }
+
+  // Custom contact fields with no stored extra value still inherit registerUtils' today
+  // placeholder for date fields — clear those so unrelated saves aren't treated as edits.
+  contactInformation.forEach((item) => {
+    if (!item.custom || item.fieldType !== 'date') return;
+    const extraField = extraFields.find(
+      (field: CustomFieldItems) => deCodeField(item?.name || '') === field.fieldName,
+    );
+    if (!extraField) {
+      applyStoredCustomFieldDefault(item, undefined);
+    }
+  });
 
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item;
@@ -71,8 +104,7 @@ export const initB2BInfo = (
     const formFields = (accountSettings?.formFields || []).find(
       (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
     );
-    const infoItem = item;
-    if (formFields) infoItem.default = formFields.value;
+    applyStoredCustomFieldDefault(item, formFields?.value);
   });
 
   return [...contactInformation, ...accountB2BFormFields, ...additionalInformation];
@@ -107,8 +139,7 @@ export const initBcInfo = (
     const formFields = (accountSettings?.formFields || []).find(
       (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
     );
-    const infoItem = item;
-    if (formFields) infoItem.default = formFields.value;
+    applyStoredCustomFieldDefault(item, formFields?.value);
   });
 
   return [...contactInformation, ...additionalInformation];
