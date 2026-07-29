@@ -141,6 +141,7 @@ module.exports = {
     {
       files: [
         'src/pages/AccountSetting/index.tsx',
+        'src/pages/AccountSetting/useAccountSettingsSubmit.ts',
         'src/pages/AccountSetting/utils.ts',
         'src/pages/AddressList/components/AddressForm.tsx',
         'src/pages/Invoice/InvoiceItemCard.tsx',

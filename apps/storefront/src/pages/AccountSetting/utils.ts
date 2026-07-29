@@ -425,7 +425,14 @@ export function buildFormFieldsInput(
   return { formFields: Object.keys(formFields).length > 0 ? formFields : undefined, unsendable };
 }
 
-type ExtraFieldEntry = { name: string; value: unknown; fieldType?: string };
+type ExtraFieldEntry = {
+  name: string;
+  value: unknown;
+  fieldType?: string;
+  // The react-hook-form registered name, carried through so an unsendable field can be
+  // traced back to the control it belongs to (for a field-level error).
+  formName?: string;
+};
 
 // Builds the name-keyed CompanyUserExtraFieldsInput from changed company-user extra fields.
 // The extraFields groups (texts/multilineTexts/numbers/multipleChoices) are all scalar, so an
@@ -554,6 +561,9 @@ export function collectChangedFormFields(
         value: data[item.name || ''],
         fieldType: item.fieldType,
         fieldEntityId: parseFieldEntityId(item.fieldId) ?? entityIdByLabel.get(name),
+        // The react-hook-form registered name, carried through so an unsendable field can be
+        // traced back to the control it belongs to (for a field-level error).
+        formName: item.name,
       };
     })
     .filter((formField) => {
@@ -570,13 +580,14 @@ export function collectChangedExtraFields(
   data: CustomFieldItems,
   accountInfoFormFields: Partial<Fields>[],
   originalExtraFields: Array<{ fieldName?: string; fieldValue?: unknown }>,
-): Array<{ name: string; value: unknown; fieldType?: string }> {
+): ExtraFieldEntry[] {
   return accountInfoFormFields
     .filter((item) => item.custom && item.groupId === CONTACT_GROUP_ID)
     .map((item) => ({
       name: deCodeField(item.name || ''),
       value: data[item.name || ''],
       fieldType: item.fieldType,
+      formName: item.name,
     }))
     .filter((extraField) => {
       const original = originalExtraFields.find((item) => item.fieldName === extraField.name);

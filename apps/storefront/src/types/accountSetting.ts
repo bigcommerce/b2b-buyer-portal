@@ -32,6 +32,9 @@ interface BcFormFieldsProps {
   value: any;
   fieldType?: string;
   fieldEntityId?: number;
+  // The react-hook-form registered field name (Fields['name']), carried through so an
+  // unsendable field can be traced back to the control that should show the error.
+  formName?: string;
 }
 
 export interface ParamProps {
