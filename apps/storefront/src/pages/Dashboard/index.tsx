@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import { ConfirmMasqueradeDialog } from '@/components/ConfirmMasqueradeDialog';
@@ -18,7 +18,6 @@ import { setCartNumber, useAppSelector, useAppStore } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
-import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
 
 interface ListItem {
@@ -175,6 +174,20 @@ function Dashboard(props: PageProps) {
     }
   };
 
+  const getMasqueradeAction = (companyId: string) => {
+    const isSelected = Number(companyId) === Number(salesRepCompanyId);
+    const action = isSelected
+      ? {
+          label: b3Lang('dashboard.endMasqueradeAction'),
+          onClick: () => onEndMasquerade(),
+        }
+      : {
+          label: b3Lang('dashboard.masqueradeAction'),
+          onClick: () => onStartMasquerade(Number(companyId)),
+        };
+    return action;
+  };
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'companyName',
@@ -196,22 +209,11 @@ function Dashboard(props: PageProps) {
       key: 'actions',
       title: b3Lang('dashboard.action'),
       render: ({ companyId }) => {
-        const isSelected = Number(companyId) === Number(salesRepCompanyId);
-
-        if (isSelected) {
-          return (
-            <ActionMenuCell
-              label={b3Lang('dashboard.endMasqueradeAction')}
-              onClick={() => onEndMasquerade()}
-            />
-          );
-        }
-
+        const masqueradeAction = getMasqueradeAction(companyId);
         return (
-          <ActionMenuCell
-            label={b3Lang('dashboard.masqueradeAction')}
-            onClick={() => onStartMasquerade(Number(companyId))}
-          />
+          <Button variant="text" onClick={() => masqueradeAction.onClick()}>
+            {masqueradeAction.label}
+          </Button>
         );
       },
     },
@@ -246,22 +248,14 @@ function Dashboard(props: PageProps) {
           sortByFn={handleSetOrderBy}
           renderItem={({ companyName, companyEmail, companyId }) => {
             const isSelected = Number(companyId) === Number(salesRepCompanyId);
-            const action = isSelected
-              ? {
-                  label: b3Lang('dashboard.endMasqueradeAction'),
-                  onClick: () => onEndMasquerade(),
-                }
-              : {
-                  label: b3Lang('dashboard.masqueradeAction'),
-                  onClick: () => onStartMasquerade(Number(companyId)),
-                };
+            const masqueradeAction = getMasqueradeAction(companyId);
 
             return (
               <DashboardCard
                 companyName={companyName}
                 email={companyEmail}
                 isSelected={isSelected}
-                action={action}
+                action={masqueradeAction}
               />
             );
           }}
