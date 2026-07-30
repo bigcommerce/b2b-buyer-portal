@@ -6,6 +6,7 @@ import { store } from '@/store';
 import { setBcGraphQLToken, setPermissionModules } from '@/store/slices/company';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
+import * as basicConfig from '@/utils/basicConfig';
 import { CompanyError } from '@/utils/companyUtils';
 
 import b2bLogger from './b3Logger';
@@ -75,6 +76,26 @@ describe('getCurrentCustomerInfo permissions source', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('sources permissions from the customer-info query on Catalyst when the BC login flag is on', async () => {
+    vi.spyOn(basicConfig, 'isBigCommercePlatform').mockReturnValue(false);
+
+    mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
+
+    vi.spyOn(b2bService, 'getB2BCompanyUserInfo').mockResolvedValue({
+      customerInfo: {
+        userType: UserTypes.MULTIPLE_B2C,
+        userInfo: { role: CustomerRole.SENIOR_BUYER, id: 456, companyRoleName: 'Senior Buyer' },
+        permissions: QUERY_PERMISSIONS,
+      },
+    } as never);
+
+    await getCurrentCustomerInfo();
+
+    expect(b2bService.getB2BCompanyUserInfo).toHaveBeenCalledWith(true);
+    expect(b2bService.b2bAuthorization).not.toHaveBeenCalled();
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
   });
 
   it('sources permissions from b2bAuthorization when the BC login flag is on', async () => {
