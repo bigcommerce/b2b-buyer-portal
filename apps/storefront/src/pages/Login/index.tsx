@@ -6,7 +6,7 @@ import { B3Card } from '@/components/B3Card';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useShouldApplyFeatureFlagOnBigCommerce } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -52,7 +52,9 @@ function Login(props: PageProps) {
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
 
-  const useBcLoginAndAuthorisation = useFeatureFlag('PROJECT-7920.use_bc_login_and_authorisation');
+  const isBcLoginAndAuthorisation = useShouldApplyFeatureFlagOnBigCommerce(
+    'PROJECT-7920.use_bc_login_and_authorisation',
+  );
 
   const quoteDetailToCheckoutUrl = useAppSelector(
     ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
@@ -208,7 +210,7 @@ function Login(props: PageProps) {
     await finishLoginAndNavigate(B2BToken);
   };
 
-  // Legacy flow (useBcLoginAndAuthorisation = false): the B2B login mutation
+  // Legacy flow (isBcLoginAndAuthorisation = false): the B2B login mutation
   // returns the B2B token and a storefront login token in a single call.
   const loginWithLegacyB2BMutation = async (data: LoginConfig) => {
     const { token, storefrontLoginToken, errors } = await performB2BLogin(data);
@@ -251,7 +253,7 @@ function Login(props: PageProps) {
         return;
       }
 
-      if (useBcLoginAndAuthorisation) {
+      if (isBcLoginAndAuthorisation) {
         await loginWithBcAuthorization(data.email, bcErrors);
       } else {
         await loginWithLegacyB2BMutation(data);
@@ -261,7 +263,7 @@ function Login(props: PageProps) {
         snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
         await logout({ showLogoutBanner: false });
       } else if (
-        useBcLoginAndAuthorisation &&
+        isBcLoginAndAuthorisation &&
         error instanceof Error &&
         error.message === 'Operation cannot be performed as the storefront channel is not live'
       ) {

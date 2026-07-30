@@ -11,6 +11,13 @@ import { CompanyError } from '@/utils/companyUtils';
 import b2bLogger from './b3Logger';
 import { ensureBcGraphqlToken, getCurrentCustomerInfo } from './loginInfo';
 
+const platformMock = vi.hoisted(() => ({ isBigCommercePlatform: vi.fn(() => true) }));
+
+vi.mock('./basicConfig', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./basicConfig')>()),
+  isBigCommercePlatform: platformMock.isBigCommercePlatform,
+}));
+
 const { server } = startMockServer();
 
 const BC_AUTH_FLAG = 'PROJECT-7920.use_bc_login_and_authorisation';
@@ -68,6 +75,7 @@ const stubServices = () => {
 
 describe('getCurrentCustomerInfo permissions source', () => {
   beforeEach(() => {
+    platformMock.isBigCommercePlatform.mockReturnValue(true);
     vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
     vi.spyOn(b2bLogger, 'error').mockImplementation(() => undefined);
     stubServices();
@@ -176,6 +184,57 @@ describe('getCurrentCustomerInfo company error during token exchange', () => {
     await expect(getCurrentCustomerInfo()).rejects.toBeInstanceOf(CompanyError);
 
     expect(snackbar.error).not.toHaveBeenCalled();
+  });
+});
+
+describe('getCurrentCustomerInfo when the platform is not bigcommerce', () => {
+  beforeEach(() => {
+    platformMock.isBigCommercePlatform.mockReturnValue(false);
+    vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
+    vi.spyOn(b2bLogger, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    stubServices();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('sources permissions from the customer-info query even when the BC login flag is on', async () => {
+    mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
+
+    vi.spyOn(b2bService, 'getB2BCompanyUserInfo').mockResolvedValue({
+      customerInfo: {
+        userType: UserTypes.MULTIPLE_B2C,
+        userInfo: { role: CustomerRole.SENIOR_BUYER, id: 456, companyRoleName: 'Senior Buyer' },
+        permissions: QUERY_PERMISSIONS,
+      },
+    } as never);
+
+    await getCurrentCustomerInfo();
+
+    expect(b2bService.getB2BCompanyUserInfo).toHaveBeenCalledWith(false);
+    expect(b2bService.b2bAuthorization).not.toHaveBeenCalled();
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
+  });
+
+  it('requests legacy auth fields during JWT init even when the BC login flag is on', async () => {
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: { tokens: { B2BToken: '', currentCustomerJWT: '' } },
+      global: { featureFlags: { [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true } },
+    } as unknown as ReturnType<typeof store.getState>);
+
+    const getB2BTokenSpy = vi.spyOn(b2bService, 'getB2BToken').mockResolvedValue({
+      authorization: {
+        result: { token: 'b2b-token', loginType: 1, permissions: QUERY_PERMISSIONS },
+      },
+    } as never);
+    vi.spyOn(bcService, 'getCurrentCustomerJWT').mockResolvedValue('new-jwt');
+
+    await getCurrentCustomerInfo();
+
+    expect(getB2BTokenSpy).toHaveBeenCalledWith('new-jwt', expect.any(Number), true);
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(QUERY_PERMISSIONS));
   });
 });
 

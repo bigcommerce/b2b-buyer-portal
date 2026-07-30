@@ -1,3 +1,4 @@
+import { shouldApplyFeatureFlagOnBigCommerce } from '@/hooks/useFeatureFlag';
 import {
   b2bAuthorization,
   endUserMasqueradingCompany,
@@ -216,8 +217,10 @@ const loginWithCurrentCustomerJWT = async () => {
    * getB2BToken which fields to request and only read/dispatch them when the
    * flag is off.
    */
-  const useBcLoginAndAuthorisation =
-    store.getState().global.featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+  const useBcLoginAndAuthorisation = shouldApplyFeatureFlagOnBigCommerce(
+    store.getState().global.featureFlags,
+    'PROJECT-7920.use_bc_login_and_authorisation',
+  );
 
   const data = await getB2BToken(currentCustomerJWT, channelId, !useBcLoginAndAuthorisation).catch(
     (error) => {
@@ -276,8 +279,10 @@ export const getCurrentCustomerInfo = async (
 
   try {
     const { featureFlags } = store.getState().global;
-    const useBcLoginAndAuthorisation =
-      featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+    const useBcLoginAndAuthorisation = shouldApplyFeatureFlagOnBigCommerce(
+      featureFlags,
+      'PROJECT-7920.use_bc_login_and_authorisation',
+    );
 
     const data = await getCustomerInfo();
 

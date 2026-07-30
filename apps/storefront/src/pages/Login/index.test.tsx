@@ -28,6 +28,13 @@ vi.mock('./useLogout', () => ({
 
 vi.mock('@/utils/loginInfo');
 
+const platformMock = vi.hoisted(() => ({ isBigCommercePlatform: vi.fn(() => true) }));
+
+vi.mock('@/utils/basicConfig', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/basicConfig')>()),
+  isBigCommercePlatform: platformMock.isBigCommercePlatform,
+}));
+
 // The BC-first login flow logs failures via b2bLogger (console.error), which
 // fails the suite under CI's fail-on-console rule — mock it out.
 vi.mock('@/utils/b3Logger');
@@ -51,6 +58,7 @@ const renderLoginPage = (options: Parameters<typeof renderWithProviders>[1] = {}
 
 describe('LoginPage', () => {
   beforeEach(() => {
+    platformMock.isBigCommercePlatform.mockReturnValue(true);
     vi.spyOn(snackbar, 'error');
   });
 
@@ -335,6 +343,43 @@ describe('LoginPage', () => {
         return utils;
       })();
     };
+
+    it('falls back to the legacy B2B login mutation when the platform is not bigcommerce even if the flag is on', async () => {
+      platformMock.isBigCommercePlatform.mockReturnValue(false);
+
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: {
+                result: {
+                  storefrontLoginToken: '456',
+                  token: '123',
+                  permissions: [{ code: '1', permissionLevel: 1 }],
+                },
+              },
+            },
+          }),
+        ),
+
+        // If the test passes without hitting this URL, it means the legacy B2B login mutation was used.
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt must not be requested when the platform is not bigcommerce');
+        }),
+      );
+
+      vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+        userType: 5,
+        role: 2,
+        companyRoleName: 'Junior Buyer',
+      });
+
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+      });
+    });
 
     it('stops at BC login and shows the incorrect-account error when credentials are invalid', async () => {
       // BC returns invalid-credentials as HTTP 200 with a populated `errors` array.
