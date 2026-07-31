@@ -2,7 +2,7 @@ import { createBCCompanyUser } from '@/shared/service/b2b';
 import { channelId, storeHash } from '@/utils/basicConfig';
 import { deCodeField } from '@/utils/registerUtils';
 
-import type { RegisterFields } from '../../../types';
+import { RegisterAccountType, type RegisterFields } from '../../../types';
 
 interface CreateCustomerContext {
   emailMarketingNewsletter?: boolean;
@@ -62,7 +62,7 @@ export function createCustomer(
   bcFields.origin_channel_id = channelId;
   bcFields.channel_ids = [channelId];
 
-  if (accountType === '2') {
+  if (accountType === RegisterAccountType.PERSONAL) {
     const addresses: CustomFieldItems = {};
 
     const getBCAddressField = addressBasicList.filter((field: RegisterFields) => !field.custom);
