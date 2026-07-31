@@ -26,7 +26,6 @@ interface QuoteItemCardProps {
   goToDetail: (val: ListItem, status: number) => void;
   item: ListItem;
   currenciesMap: Record<string, DisplayCurrency>;
-  isCurrencySymbolPlacementFixEnabled: boolean;
 }
 
 const Flex = styled('div')({
@@ -37,7 +36,7 @@ const Flex = styled('div')({
 });
 
 export function QuoteItemCard(props: QuoteItemCardProps) {
-  const { item, goToDetail, currenciesMap, isCurrencySymbolPlacementFixEnabled } = props;
+  const { item, goToDetail, currenciesMap } = props;
   const theme = useTheme();
   const b3Lang = useB3Lang();
 
@@ -49,15 +48,13 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       return b3Lang('quoteDraft.quoteSummary.tbd');
     }
     const currencyCode = currency?.currencyCode;
-    const effectiveCurrency =
-      (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
-      currency;
+    const effectiveCurrency = (currencyCode && currenciesMap[currencyCode]) || currency;
     return currencyFormatConvert(Number(totalAmount), {
       currency: effectiveCurrency,
       isConversionRate: false,
       useCurrentCurrency: !!effectiveCurrency,
     });
-  }, [item, isCurrencySymbolPlacementFixEnabled, currenciesMap, b3Lang]);
+  }, [item, currenciesMap, b3Lang]);
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {

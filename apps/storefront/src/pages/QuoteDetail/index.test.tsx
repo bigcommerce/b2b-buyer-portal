@@ -1564,7 +1564,7 @@ describe('when the user is a B2B customer', () => {
     });
   });
 
-  describe('fix_quote_currency_symbol_placement feature flag', () => {
+  describe('currency symbol placement', () => {
     const woolSock = buildQuoteProductWith({
       productName: 'Wool Socks',
       quantity: 3,
@@ -1634,33 +1634,13 @@ describe('when the user is a B2B customer', () => {
       vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     });
 
-    it('uses the saved quote currency placement when the flag is disabled', async () => {
+    it('uses the current BC currency placement for quote items and summary', async () => {
       renderWithProviders(<QuoteDetail />, {
         preloadedState: {
           ...preloadedState,
           storeConfigs: storeConfigsWithUpdatedEurPlacement,
           global: buildGlobalStateWith({
             backorderEnabled: false,
-            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': false },
-          }),
-        },
-      });
-
-      const row = (await screen.findByText('Wool Socks')).closest('tr')!;
-      expect(within(row).getByRole('cell', { name: '49.00€' })).toBeInTheDocument();
-
-      const summary = screen.getByTestId('quote-summary');
-      expect(within(summary).getByText('200.00€')).toBeInTheDocument();
-    });
-
-    it('uses the current BC currency placement when the flag is enabled', async () => {
-      renderWithProviders(<QuoteDetail />, {
-        preloadedState: {
-          ...preloadedState,
-          storeConfigs: storeConfigsWithUpdatedEurPlacement,
-          global: buildGlobalStateWith({
-            backorderEnabled: false,
-            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
           }),
         },
       });
@@ -1672,7 +1652,7 @@ describe('when the user is a B2B customer', () => {
       expect(within(summary).getByText('€200.00')).toBeInTheDocument();
     });
 
-    it('places the token on the left when BC config has uppercase token_location LEFT and flag is enabled', async () => {
+    it('places the token on the left when BC config has uppercase token_location LEFT', async () => {
       const eurWithUppercaseLeft = JSON.parse(
         JSON.stringify({ ...eurOnLeftInBcConfig, token_location: 'LEFT' }),
       );
@@ -1693,7 +1673,6 @@ describe('when the user is a B2B customer', () => {
           },
           global: buildGlobalStateWith({
             backorderEnabled: false,
-            featureFlags: { 'B2B-3876.fix_quote_currency_symbol_placement': true },
           }),
         },
       });

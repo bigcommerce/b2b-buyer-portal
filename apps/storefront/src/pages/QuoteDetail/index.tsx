@@ -276,9 +276,6 @@ function QuoteDetail() {
 
   const b3Lang = useB3Lang();
 
-  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
-    'B2B-3876.fix_quote_currency_symbol_placement',
-  );
   const isBackorderMessagingEnabled = useFeatureFlag(
     'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
   );
@@ -826,12 +823,12 @@ function QuoteDetail() {
   }, [quoteDetail]);
 
   const displayCurrency = useMemo(() => {
-    if (isCurrencySymbolPlacementFixEnabled && quoteDetail.currency?.currencyCode) {
+    if (quoteDetail.currency?.currencyCode) {
       const currencySnapshot = currenciesMap[quoteDetail.currency.currencyCode];
       if (currencySnapshot) return currencySnapshot;
     }
     return quoteDetail.currency;
-  }, [isCurrencySymbolPlacementFixEnabled, quoteDetail.currency, currenciesMap]);
+  }, [quoteDetail.currency, currenciesMap]);
 
   useScrollBar(false);
 
