@@ -36,10 +36,6 @@ export const featureFlags = [
     name: 'b2bMultiLanguage',
   },
   {
-    key: 'B2B-3876.fix_quote_currency_symbol_placement',
-    name: 'fixQuoteCurrencySymbolPlacement',
-  },
-  {
     key: 'PROJECT-7920.use_bc_account_settings',
     name: 'useBcAccountSettings',
   },

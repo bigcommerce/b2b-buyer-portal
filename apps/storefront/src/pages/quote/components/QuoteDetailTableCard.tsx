@@ -4,7 +4,6 @@ import BackorderMessage from '@/components/BackorderMessage';
 import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
@@ -53,9 +52,6 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     historyByProductId,
   } = props;
   const b3Lang = useB3Lang();
-  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
-    'B2B-3876.fix_quote_currency_symbol_placement',
-  );
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
@@ -206,7 +202,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 {`${showPrice(
                   currencyFormatConvert(price, {
                     currency,
-                    useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
+                    useCurrentCurrency: true,
                   }),
                   quoteTableItem,
                 )}`}
@@ -221,7 +217,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               {`${showPrice(
                 currencyFormatConvert(offeredPrice, {
                   currency,
-                  useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
+                  useCurrentCurrency: true,
                 }),
                 quoteTableItem,
               )}`}
@@ -252,7 +248,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 {`${showPrice(
                   currencyFormatConvert(total, {
                     currency,
-                    useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
+                    useCurrentCurrency: true,
                   }),
                   quoteTableItem,
                 )}`}
@@ -267,7 +263,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               {`${showPrice(
                 currencyFormatConvert(totalWithDiscount, {
                   currency,
-                  useCurrentCurrency: isCurrencySymbolPlacementFixEnabled,
+                  useCurrentCurrency: true,
                 }),
                 quoteTableItem,
               )}`}

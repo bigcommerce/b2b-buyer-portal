@@ -189,7 +189,6 @@ function useData() {
 
 const useColumnList = (
   currenciesMap: Record<string, DisplayCurrency>,
-  isCurrencySymbolPlacementFixEnabled: boolean,
 ): Array<TableColumnItem<ListItem>> => {
   const b3Lang = useB3Lang();
 
@@ -200,16 +199,14 @@ const useColumnList = (
         return b3Lang('quoteDraft.quoteSummary.tbd');
       }
       const currencyCode = currency?.currencyCode;
-      const effectiveCurrency =
-        (isCurrencySymbolPlacementFixEnabled && currencyCode && currenciesMap[currencyCode]) ||
-        currency;
+      const effectiveCurrency = (currencyCode && currenciesMap[currencyCode]) || currency;
       return currencyFormatConvert(Number(totalAmount), {
         currency: effectiveCurrency,
         isConversionRate: false,
         useCurrentCurrency: !!effectiveCurrency,
       });
     },
-    [isCurrencySymbolPlacementFixEnabled, currenciesMap, b3Lang],
+    [currenciesMap, b3Lang],
   );
 
   return useMemo(
@@ -280,11 +277,8 @@ const useColumnList = (
 function QuotesList() {
   const { getAvailableFilters, draftQuoteListLength, customer, getQuotesList, currenciesMap } =
     useData();
-  const fixQuoteCurrencySymbolPlacement = useFeatureFlag(
-    'B2B-3876.fix_quote_currency_symbol_placement',
-  );
   const isTbdPriceEnabled = useFeatureFlag('B2B-4089.use_tbd_price_on_quotes_list');
-  const columns = useColumnList(currenciesMap, fixQuoteCurrencySymbolPlacement);
+  const columns = useColumnList(currenciesMap);
 
   const initSearch = {
     q: '',
@@ -464,12 +458,7 @@ function QuotesList() {
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
           }
           renderItem={(row) => (
-            <QuoteItemCard
-              item={row}
-              goToDetail={goToDetail}
-              currenciesMap={currenciesMap}
-              isCurrencySymbolPlacementFixEnabled={fixQuoteCurrencySymbolPlacement}
-            />
+            <QuoteItemCard item={row} goToDetail={goToDetail} currenciesMap={currenciesMap} />
           )}
           onClickRow={(row) => {
             goToDetail(row, Number(row.status));

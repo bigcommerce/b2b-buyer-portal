@@ -43,9 +43,6 @@ export default function QuoteDetailSummary({
   const isBackorderMessagingEnabled = useFeatureFlag(
     'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
   );
-  const isCurrencySymbolPlacementFixEnabled = useFeatureFlag(
-    'B2B-3876.fix_quote_currency_symbol_placement',
-  );
   const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
@@ -57,9 +54,7 @@ export default function QuoteDetailSummary({
     return showInclusiveTaxPrice ? price + quoteDetailTax : price;
   };
 
-  const effectiveCurrency = isCurrencySymbolPlacementFixEnabled
-    ? (currency ?? quoteDetail.currency)
-    : quoteDetail.currency;
+  const effectiveCurrency = currency ?? quoteDetail.currency;
 
   const priceFormat = (price: number) =>
     currencyFormatConvert(price, {
