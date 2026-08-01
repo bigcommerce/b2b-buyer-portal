@@ -42,7 +42,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
   const columnErrorsItems: TableColumnItem<ListItem>[] = [
     {
       key: 'sku',
-      title: 'SKU',
+      title: b3Lang('global.bulkUpload.columnSku'),
       width: '25%',
       render: (row) => (
         <Typography
@@ -56,7 +56,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     },
     {
       key: 'qty',
-      title: 'Qty',
+      title: b3Lang('global.bulkUpload.columnQty'),
       width: '20%',
       render: (row) => (
         <Typography
@@ -70,7 +70,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     },
     {
       key: 'row',
-      title: 'Row',
+      title: b3Lang('global.bulkUpload.columnRow'),
       width: '20%',
       render: (row) => (
         <Typography
@@ -84,7 +84,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     },
     {
       key: 'error',
-      title: 'Error',
+      title: b3Lang('global.bulkUpload.columnError'),
       width: '35%',
       render: (row) => (
         <Typography
@@ -101,7 +101,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
   const columnValidItems: TableColumnItem<ListItem>[] = [
     {
       key: 'sku',
-      title: 'SKU',
+      title: b3Lang('global.bulkUpload.columnSku'),
       width: '50%',
       render: (row) => (
         <Typography
@@ -115,7 +115,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     },
     {
       key: 'qty',
-      title: 'Qty',
+      title: b3Lang('global.bulkUpload.columnQty'),
       width: '50%',
       render: (row) => (
         <Typography
@@ -225,7 +225,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
               fontSize: '14px',
             }}
           >
-            Remove
+            {b3Lang('global.bulkUpload.remove')}
           </MenuItem>
         </Menu>
       </Box>
@@ -244,13 +244,21 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             {errorProduct.length > 0 && (
               <Tab
                 value="error"
-                label={errorProduct.length ? `Errors (${errorProduct.length})` : 'Errors'}
+                label={
+                  errorProduct.length
+                    ? `${b3Lang('global.bulkUpload.tabErrors')} (${errorProduct.length})`
+                    : b3Lang('global.bulkUpload.tabErrors')
+                }
               />
             )}
             {validProduct.length > 0 && (
               <Tab
                 value="valid"
-                label={validProduct.length ? `Valid (${validProduct.length})` : 'Valid'}
+                label={
+                  validProduct.length
+                    ? `${b3Lang('global.bulkUpload.tabValid')} (${validProduct.length})`
+                    : b3Lang('global.bulkUpload.tabValid')
+                }
               />
             )}
           </Tabs>
@@ -262,9 +270,9 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             rowsPerPageOptions={[10, 20, 50]}
             showBorder={!isMobile}
             getRequestList={getProductInfo}
-            labelRowsPerPage="Products per page:"
+            labelRowsPerPage={b3Lang('global.bulkUpload.productsPerPage')}
             itemIsMobileSpacing={0}
-            noDataText="No product"
+            noDataText={b3Lang('global.bulkUpload.noProduct')}
             tableKey="row"
             searchParams={{
               activeTab,
