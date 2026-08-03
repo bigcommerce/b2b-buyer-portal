@@ -14,12 +14,14 @@ import {
   addProductToBcShoppingList,
   addProductToShoppingList,
   getVariantInfoBySkus,
+  searchProducts,
 } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
+  type ProductSearch,
   QUOTE_VALIDATION_ERROR_CODES,
 } from '@/shared/service/b2b/graphql/product';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
@@ -32,6 +34,7 @@ import {
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
 import getReturnFormFields from '../shared/config';
+import { getOrderPicklistSelections } from '../shared/getOrderPicklistSelections';
 
 import CreateShoppingList from './CreateShoppingList';
 import OrderCheckboxProduct from './OrderCheckboxProduct';
@@ -75,6 +78,18 @@ const getXsrfToken = (): string | undefined => {
   return decodeURIComponent(token);
 };
 
+const indexVariantRowsBySku = (
+  rows: CatalogQuickVariantSku[],
+): Record<string, CatalogQuickVariantSku> => {
+  const bySku: Record<string, CatalogQuickVariantSku> = {};
+  rows.forEach((row) => {
+    if (row.variantSku) {
+      bySku[row.variantSku.toUpperCase()] = row;
+    }
+  });
+  return bySku;
+};
+
 const validateProducts = async (products: EditableProductItem[]) => {
   return rawValidateProducts(
     products.map((product) => ({
@@ -107,11 +122,21 @@ export default function OrderDialog({
   const navigate = useNavigate();
   const { isBackorderMessagingContextEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
+  const backorderUiEnabled =
+    isReorderAtsEnabled &&
+    hasAnyBackorderDisplay &&
+    (type === 'reOrder' || type === 'shoppingList');
   const isB2BUser = useAppSelector(isB2BUserSelector);
+  const { currency_code: activeCurrencyCode } = useAppSelector(activeCurrencyInfoSelector);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([]);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
+  const [picklistProductsById, setPicklistProductsById] = useState<Record<number, ProductSearch>>(
+    {},
+  );
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [checkedArr, setCheckedArr] = useState<number[]>([]);
   const [returnArr, setReturnArr] = useState<ReturnListProps[]>([]);
@@ -511,6 +536,8 @@ export default function OrderDialog({
   useEffect(() => {
     if (!open) {
       setVariantInfoList([]);
+      setPicklistProductsById({});
+      setIsRequestLoading(false);
       return () => {};
     }
 
@@ -522,31 +549,83 @@ export default function OrderDialog({
     );
     setCheckedArr([]);
     setVariantInfoList([]);
+    setPicklistProductsById({});
 
     let cancelled = false;
 
     setReorderValidationBanner(false);
 
-    const getVariantInfoByList = async () => {
+    const loadInventory = async () => {
       const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
 
       const visibleSkus = visibleProducts.map((product) => product.sku);
 
-      if (visibleSkus.length === 0) return;
+      if (visibleSkus.length === 0) {
+        setIsRequestLoading(false);
+        return;
+      }
 
-      const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
+      setIsRequestLoading(true);
 
-      if (!cancelled) {
-        setVariantInfoList(nextVariantInfoList);
+      try {
+        const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
+
+        const nextPicklistProductsById: Record<number, ProductSearch> = {};
+        if (backorderUiEnabled) {
+          const variantRowsBySku = indexVariantRowsBySku(nextVariantInfoList);
+
+          const picklistProductIds = [
+            ...new Set(
+              visibleProducts.flatMap((product) =>
+                getOrderPicklistSelections(product, variantRowsBySku).map(
+                  (selection) => selection.productId,
+                ),
+              ),
+            ),
+          ];
+
+          if (picklistProductIds.length > 0) {
+            try {
+              const { productsSearch = [] } = await searchProducts({
+                productIds: picklistProductIds,
+                currencyCode: activeCurrencyCode,
+                companyId: companyInfoId,
+                customerGroupId,
+              });
+              productsSearch.forEach((product: ProductSearch) => {
+                nextPicklistProductsById[Number(product.id)] = product;
+              });
+            } catch (error) {
+              b2bLogger.error(error);
+            }
+          }
+        }
+
+        if (!cancelled) {
+          setVariantInfoList(nextVariantInfoList);
+          setPicklistProductsById(nextPicklistProductsById);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsRequestLoading(false);
+        }
       }
     };
 
-    getVariantInfoByList();
+    loadInventory();
 
     return () => {
       cancelled = true;
     };
-  }, [isB2BUser, open, products]);
+  }, [
+    isB2BUser,
+    open,
+    products,
+    activeCurrencyCode,
+    companyInfoId,
+    customerGroupId,
+    backorderUiEnabled,
+  ]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
     if (type === 'reOrder') {
@@ -595,13 +674,10 @@ export default function OrderDialog({
             textAlign={isMobile ? 'left' : 'right'}
             type={type}
             catalogInventoryBySku={catalogInventoryBySku}
-            backorderUiEnabled={
-              isReorderAtsEnabled &&
-              hasAnyBackorderDisplay &&
-              (type === 'reOrder' || type === 'shoppingList')
-            }
+            backorderUiEnabled={backorderUiEnabled}
             showReorderAtsHelper={type === 'reOrder' && isReorderAtsEnabled}
             currencyCode={currencyCode}
+            picklistProductsById={picklistProductsById}
           />
 
           {type === 'return' && (
