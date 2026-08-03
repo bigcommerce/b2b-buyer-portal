@@ -2,11 +2,8 @@ import { useCallback } from 'react';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
-import { bcLogoutLogin } from '@/shared/service/bc';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
-import b2bLogger from '@/utils/b3Logger';
-import { ensureBcGraphqlToken } from '@/utils/loginInfo';
-import { logoutSession } from '@/utils/logoutSession';
+import { performStorefrontLogout } from '@/utils/performStorefrontLogout';
 
 const useEndMasquerade = () => {
   const isMasquerading = useAppSelector(
@@ -45,28 +42,9 @@ export const useLogout = () => {
 
   const logout = useCallback(
     async ({ showLogoutBanner = true }: LogoutOptions) => {
-      try {
-        const { result } = (await bcLogoutLogin()).data.logout;
-
-        if (result !== 'success') {
-          return;
-        }
-
-        await Promise.all([endCompanyMasquerading(), endMasquerade()]);
-      } catch (e) {
-        b2bLogger.error(e);
-      } finally {
-        // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-        window.sessionStorage.clear();
-        logoutSession();
-        try {
-          await ensureBcGraphqlToken();
-        } catch (e) {
-          b2bLogger.error(e);
-        }
-        if (showLogoutBanner) {
-          dispatchEvent('on-logout');
-        }
+      await performStorefrontLogout(() => Promise.all([endCompanyMasquerading(), endMasquerade()]));
+      if (showLogoutBanner) {
+        dispatchEvent('on-logout');
       }
     },
     [endCompanyMasquerading, endMasquerade],

@@ -1252,6 +1252,7 @@ describe('Registered Page', () => {
       });
       expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
       expect(bcGraphqlLoginModule.bcLogoutLogin).toHaveBeenCalledTimes(1);
+      expect(loginInfoModule.ensureBcGraphqlToken).toHaveBeenCalledTimes(2);
       expect(
         screen.getByText(
           'Your business account is pending approval. You will gain access to business account features after account approval.',

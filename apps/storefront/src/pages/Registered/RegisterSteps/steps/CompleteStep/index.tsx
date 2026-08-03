@@ -19,13 +19,14 @@ import { CompanyStatus } from '@/types/company';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId, isBigCommercePlatform, storeHash } from '@/utils/basicConfig';
 import { ensureBcGraphqlToken } from '@/utils/loginInfo';
+import { performStorefrontLogout } from '@/utils/performStorefrontLogout';
 
 import { RegisteredContext } from '../../../Context';
 import { RegisterFields } from '../../../types';
 import { PrimaryButton } from '../../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../../styled';
 
-import { loginAndGetBcCustomer, logoutBcCustomer } from './bcHelpers';
+import { loginAndGetBcCustomer } from './bcHelpers';
 import { createCompany } from './createCompany';
 import { createCustomer } from './createCustomer';
 import { registerCompany } from './registerCompany';
@@ -309,7 +310,7 @@ export default function CompleteStep(props: CompleteStepProps) {
               isAutoApproval = registerCompanyStatus === RegisterCompanyStatus.APPROVED;
 
               if (!isAutoApproval) {
-                await logoutBcCustomer();
+                await performStorefrontLogout();
               }
             } else {
               const fileList = await getFileUrl(attachmentsList || []);
