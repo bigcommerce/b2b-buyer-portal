@@ -11,11 +11,12 @@ import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
-import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
+import { getBCPrice, setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields, ProductsProps } from '@/utils/b3Product/shared/config';
 import {
   buildVariantSkuDependencyKey,
@@ -170,6 +171,9 @@ export default function ReAddToCart({
   const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
   const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const isTaxInclusivePriceFixEnabled = useFeatureFlag(
+    'B2B-3828.fix_shopping_list_tax_inclusive_price_display',
+  );
 
   const textAlign = isMobile ? 'left' : 'right';
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
@@ -380,9 +384,12 @@ export default function ReAddToCart({
                   optionList,
                   productsSearch,
                   basePrice,
+                  taxPrice = 0,
                 } = product.node;
 
-                const price = Number(basePrice);
+                const price = isTaxInclusivePriceFixEnabled
+                  ? getBCPrice(Number(basePrice), Number(taxPrice))
+                  : Number(basePrice);
                 const total = (price * (quantity ? Number(quantity) : 0)).toFixed(decimalPlaces);
 
                 const newProduct: any = {
