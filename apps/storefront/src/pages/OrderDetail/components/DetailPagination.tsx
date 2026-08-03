@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   NavigateBefore as NavigateBeforeIcon,
   NavigateNext as NavigateNextIcon,
@@ -57,6 +57,7 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
   });
 
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobile] = useMobile();
 
   let currentIndex = 0;
@@ -142,14 +143,24 @@ export function DetailPagination({ onChange, color }: DetailPageProps) {
 
   if (JSON.stringify(searchParams) === '{}') return null;
 
+  const handlePageChange = (nextListIndex: number, nextOrderId: number | string) => {
+    setListIndex(nextListIndex);
+    onChange(nextOrderId);
+    navigate(`/orderDetail/${nextOrderId}`, {
+      replace: true,
+      state: {
+        ...(location.state as LocationState),
+        currentIndex: nextListIndex,
+      },
+    });
+  };
+
   const handleBeforePage = () => {
-    setListIndex(listIndex - 1);
-    onChange(rightLeftSide.leftId);
+    handlePageChange(listIndex - 1, rightLeftSide.leftId);
   };
 
   const handleNextPage = () => {
-    setListIndex(listIndex + 1);
-    onChange(rightLeftSide.rightId);
+    handlePageChange(listIndex + 1, rightLeftSide.rightId);
   };
   const index = listIndex + 1;
 
