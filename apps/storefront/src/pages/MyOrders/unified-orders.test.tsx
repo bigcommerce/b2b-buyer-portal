@@ -362,6 +362,44 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(headerTexts).toContain('Company');
     });
 
+    // Sorting is not available on customer.orders — the agreed schema puts sortBy on the
+    // company path only, and the upstream endpoint has no sort parameter. A header that
+    // still reports aria-sort tells the user the list sorted when it did not.
+    it('renders My Orders column headers as non-sortable when unified orders is enabled', async () => {
+      server.use(
+        graphql.query('GetCustomerOrders', () =>
+          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      expect(await screen.findByRole('columnheader', { name: 'Order' })).toBeInTheDocument();
+      screen.getAllByRole('columnheader').forEach((header) => {
+        expect(header).not.toHaveAttribute('aria-sort');
+        expect(header.querySelector('.MuiTableSortLabel-root')).toBeNull();
+      });
+    });
+
+    it('does not send sortBy on the customer orders query', async () => {
+      let capturedQuery = '';
+      let capturedVariables: Record<string, unknown> = {};
+
+      server.use(
+        graphql.query('GetCustomerOrders', ({ query, variables }) => {
+          capturedQuery = query;
+          capturedVariables = variables;
+          return HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+        }),
+      );
+
+      renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+      await waitFor(() => expect(capturedQuery).not.toBe(''));
+      expect(capturedQuery).not.toContain('sortBy');
+      expect(capturedVariables).not.toHaveProperty('sortBy');
+    });
+
     // OrdersFiltersInput has no `search`, and the company selector's filter field was
     // removed. A visible control that cannot filter is worse than no control.
     it('renders neither the search box nor the company selector on the unified customer path', async () => {
