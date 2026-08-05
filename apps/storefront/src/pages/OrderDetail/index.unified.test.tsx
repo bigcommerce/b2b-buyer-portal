@@ -268,6 +268,31 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByText('Pending')).toBeVisible();
   });
 
+  // Same casing trap as the list surfaces: the detail header looks the status up twice,
+  // once for colour and once for the merchant custom label, both by system label.
+  it('renders the status tag when the resolver returns a sentence-case label', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  entityId: 6696,
+                  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    await renderOrderDetails();
+
+    expect(await screen.findByText('Awaiting Fulfillment')).toBeInTheDocument();
+  });
+
   it('can navigate back to the orders listing page', async () => {
     const view = await renderOrderDetails();
 
