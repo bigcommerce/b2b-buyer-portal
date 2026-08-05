@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import getTranslation from '@/shared/service/b2b/api/translation';
+import { getMultiLanguageEnabledCache } from '@/utils/multiLanguageFlagCache';
 
 import type { AppDispatch, RootState } from '.';
 
@@ -32,8 +33,11 @@ interface GetPageTranslationResponse {
   multiLanguageEnabled: boolean;
 }
 
+// Feature flags are populated asynchronously by setStorefrontConfig, after
+// B3StoreContainer has already dispatched getGlobalTranslations, so fall back
+// to the value cached by the previous page load while they are still missing.
 const isMultiLanguageEnabled = (state: RootState) =>
-  state.global.featureFlags['LOCAL-3191.B2B_multi_language'] ?? false;
+  state.global.featureFlags['LOCAL-3191.B2B_multi_language'] ?? getMultiLanguageEnabledCache();
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
