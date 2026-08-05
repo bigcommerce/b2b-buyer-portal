@@ -67,4 +67,28 @@ describe('mapSfGqlOrderToListItem', () => {
 
     expect(item.cursor).toBe('cursor-abc');
   });
+
+  // The live resolver returns a sentence-case label. `status` feeds getOrderStatus and
+  // the systemLabel match, both keyed in title case, so it must come from the enum.
+  it('derives status from the enum value, not the display label', () => {
+    const order: SfGqlOrder = {
+      ...baseOrder,
+      status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
+    };
+
+    const result = mapSfGqlOrderToListItem(order);
+
+    expect(result.status).toBe('Awaiting Fulfillment');
+  });
+
+  it('keeps the merchant-facing label as the display text', () => {
+    const order: SfGqlOrder = {
+      ...baseOrder,
+      status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
+    };
+
+    const result = mapSfGqlOrderToListItem(order);
+
+    expect(result.statusText).toBe('Awaiting fulfillment');
+  });
 });
