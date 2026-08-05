@@ -5,6 +5,7 @@ import { OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 // schema doesn't expose one yet, so we depend on the legacy type here.
 import { OrderStatusItem } from '@/types';
 
+import { systemLabelToOrderStatusValue } from './shared/orderStatusValue';
 import {
   getCustomerOrdersInitFilter,
   normalizeString,
@@ -64,19 +65,21 @@ export const useCustomerOrdersState = ({
   };
 
   const handleFilterChange = (value: AppliedFilters) => {
-    let currentStatus = normalizeString(value.orderStatus);
-    if (currentStatus) {
-      const originalStatus = orderStatuses.find(
-        (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
-      );
-      // Drop the filter on miss — never send a display label as the API status code.
-      currentStatus = originalStatus?.systemLabel || undefined;
-    }
+    const selected = normalizeString(value.orderStatus);
+    // Resolve the display label to its systemLabel, then to the OrderStatusValue enum
+    // member the schema requires. Drop the filter on either miss — sending a display
+    // string into an enum argument is rejected at variable coercion.
+    const matched = selected
+      ? orderStatuses.find(
+          (status) => status.customLabel === selected || status.systemLabel === selected,
+        )
+      : undefined;
+    const status = matched ? systemLabelToOrderStatusValue(matched.systemLabel) : undefined;
+
     pagination.resetPagination();
     setFilters((prev) => ({
       ...prev,
-      companyName: normalizeString(value.company),
-      status: currentStatus,
+      status,
       dateRange: packDateRange(value.startValue, value.endValue),
     }));
   };

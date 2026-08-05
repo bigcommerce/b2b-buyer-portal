@@ -284,6 +284,7 @@ export interface CompanyOrdersFiltersInput {
  * Base: status, dateRange. Extension: search, companyName, companyIds.
  */
 export interface OrdersFiltersInput {
+  // OrderStatusValue enum member (e.g. 'AWAITING_FULFILLMENT'), not a display label.
   status?: string;
   dateRange?: OrderDateRangeFilterInput;
   search?: string;

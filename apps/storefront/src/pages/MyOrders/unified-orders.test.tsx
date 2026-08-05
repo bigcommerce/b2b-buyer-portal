@@ -524,7 +524,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
             .calledWith(
               expect.objectContaining({
                 filters: expect.objectContaining({
-                  status: 'Pending',
+                  status: 'PENDING',
                   dateRange: { from: '2022-11-15', to: '2022-11-26' },
                 }),
               }),
@@ -595,7 +595,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        it('resolves custom status label to systemLabel before sending', async () => {
+        it('resolves custom status label to the OrderStatusValue enum before sending', async () => {
           const getOrders = vi
             .fn()
             .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
@@ -627,7 +627,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           when(getOrders)
             .calledWith(
               expect.objectContaining({
-                filters: expect.objectContaining({ status: 'Pending' }),
+                filters: expect.objectContaining({ status: 'PENDING' }),
               }),
             )
             .thenReturn(filteredOrderResponse(66996));
@@ -638,6 +638,59 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
           await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
           await userEvent.click(screen.getByRole('option', { name: 'Awaiting' }));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          await waitFor(() => {
+            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
+          });
+        });
+
+        // OrdersFiltersInput.status is an enum on the customer path and [String!] on the
+        // company path. Sending the display-facing system label 400s at coercion.
+        it('sends the OrderStatusValue enum member when a status filter is applied', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrderStatuses', () =>
+              HttpResponse.json(
+                buildLegacyOrderStatusesResponseWith({
+                  data: {
+                    bcOrderStatuses: [
+                      buildLegacyOrderStatusWith({
+                        systemLabel: 'Awaiting Fulfillment',
+                        customLabel: 'Being packed',
+                      }),
+                    ],
+                  },
+                }),
+              ),
+            ),
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          when(getOrders)
+            .calledWith(
+              expect.objectContaining({
+                filters: expect.objectContaining({ status: 'AWAITING_FULFILLMENT' }),
+              }),
+            )
+            .thenReturn(filteredOrderResponse(66996));
+
+          await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+          const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+          await userEvent.click(within(dialog).getByRole('combobox', { name: 'Order status' }));
+          await userEvent.click(screen.getByRole('option', { name: 'Being packed' }));
 
           await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
@@ -713,7 +766,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
             .calledWith(
               expect.objectContaining({
                 filters: expect.objectContaining({
-                  status: 'Pending',
+                  status: 'PENDING',
                   dateRange: { from: '2022-11-15', to: '2022-11-26' },
                 }),
               }),
@@ -784,7 +837,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        it('resolves custom status label to systemLabel before sending', async () => {
+        it('resolves custom status label to the OrderStatusValue enum before sending', async () => {
           const getOrders = vi
             .fn()
             .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
@@ -816,7 +869,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           when(getOrders)
             .calledWith(
               expect.objectContaining({
-                filters: expect.objectContaining({ status: 'Pending' }),
+                filters: expect.objectContaining({ status: 'PENDING' }),
               }),
             )
             .thenReturn(filteredOrderResponse(66996));
