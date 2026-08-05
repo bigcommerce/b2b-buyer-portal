@@ -13,7 +13,7 @@ import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import B3Spin from '@/components/spin/B3Spin';
-import { SHOW_USER_NAME } from '@/constants/featureFlags';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
@@ -49,12 +49,13 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer, currentUserName }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+  const showUserName = useFeatureFlag('B2B-2219.fix_buyer_portal_quote_message_sender_name');
 
   // B2B-2219: the buyer-side label backend returns is the quote's contact
   // name, not the actual sender, so prefer the logged-in user's own name
   // for messages on their side of the thread. Sales-rep labels are untouched.
   const label =
-    msg?.role && isCustomer && SHOW_USER_NAME && currentUserName ? currentUserName : msg?.role;
+    msg?.role && isCustomer && showUserName && currentUserName ? currentUserName : msg?.role;
 
   return (
     <Box

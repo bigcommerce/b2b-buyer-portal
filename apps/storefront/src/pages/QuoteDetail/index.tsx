@@ -982,7 +982,7 @@ function QuoteDetail() {
                 status={quoteDetail.status}
                 isB2BUser={isB2BUser}
                 email={emailAddress || ''}
-                currentUserName={`${firstName} ${lastName}`.trim()}
+                currentUserName={isAgenting ? undefined : `${firstName} ${lastName}`.trim()}
                 msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
