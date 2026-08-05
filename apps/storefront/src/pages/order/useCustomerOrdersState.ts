@@ -36,7 +36,6 @@ export interface UseCustomerOrdersStateResult
   extends UseUnifiedOrdersPaginationResult,
     UseUnifiedOrderSortingResult<BaseSortableColumnKey> {
   filters: OrdersFiltersInput;
-  handleSearchChange: (key: string, value: string) => void;
   handleFilterChange: (value: AppliedFilters) => void;
 }
 
@@ -47,12 +46,6 @@ export const useCustomerOrdersState = ({
 
   const pagination = useUnifiedOrdersPagination();
   const sorting = useUnifiedOrderSorting(BASE_SORT_MAP, pagination.resetPagination, 'orderId');
-
-  const handleSearchChange = (key: string, value: string) => {
-    if (key !== 'search') return;
-    pagination.resetPagination();
-    setFilters((prev) => ({ ...prev, search: value || undefined }));
-  };
 
   const handleFilterChange = (value: AppliedFilters) => {
     const selected = normalizeString(value.orderStatus);
@@ -78,7 +71,6 @@ export const useCustomerOrdersState = ({
     ...pagination,
     ...sorting,
     filters,
-    handleSearchChange,
     handleFilterChange,
   };
 };

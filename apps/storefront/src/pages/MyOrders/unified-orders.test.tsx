@@ -400,9 +400,11 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(capturedVariables).not.toHaveProperty('sortBy');
     });
 
-    // OrdersFiltersInput has no `search`, and the company selector's filter field was
-    // removed. A visible control that cannot filter is worse than no control.
-    it('renders neither the search box nor the company selector on the unified customer path', async () => {
+    // Search is kept visible even though it's a no-op: it's deferred to its own ticket,
+    // not permanently unsupported, so the UI stays unchanged for now (see B2B-5420). The
+    // company-hierarchy selector stays hidden — that field is permanently absent from
+    // OrdersFiltersInput (B2B-5421), so there's no query for it to ever start filtering.
+    it('renders the search box but not the company selector on the unified customer path', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
           HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
@@ -422,8 +424,39 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       expect(await screen.findByRole('table')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('Search')).toBeInTheDocument();
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
+    });
+
+    // A super admin who isn't currently agenting hits a different branch of
+    // getFilterMoreData's role/agenting checks than CustomerRole.ADMIN does, and that
+    // branch used to leave the "Company" more-filter field visible even though the
+    // customer path's filter state has nowhere to send it — the exact visible-but-inert
+    // defect this fixes for the company more-filter field.
+    it('renders no Company field in more filters for a super admin who is not agenting', async () => {
+      server.use(
+        graphql.query('GetCustomerOrders', () =>
+          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<MyOrders />, {
+        preloadedState: {
+          ...b2bStateWithFlag(flagOn),
+          company: buildCompanyStateWith({
+            customer: { role: CustomerRole.SUPER_ADMIN, userType: UserTypes.MULTIPLE_B2C },
+            companyInfo: { id: '123', companyName: 'Test Corp', status: CompanyStatus.APPROVED },
+          }),
+        },
+      });
+
+      expect(await screen.findByRole('table')).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      expect(within(dialog).queryByRole('textbox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
     it("displays the order's own currency via formattedV2, ignoring the store's currency settings", async () => {
@@ -523,36 +556,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       describe('as a B2C customer', () => {
-        it('filters by search input', async () => {
-          const getOrders = vi
-            .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
-
-          server.use(
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
-          );
-
-          renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
-
-          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-          when(getOrders)
-            .calledWith(
-              expect.objectContaining({
-                filters: expect.objectContaining({ search: '66996' }),
-              }),
-            )
-            .thenReturn(filteredOrderResponse(66996));
-
-          await userEvent.type(screen.getByPlaceholderText(/Search/), '66996');
-
-          await waitFor(() => {
-            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
-          });
-        });
-
         it('filters by status and date together', async () => {
           vi.setSystemTime(new Date('21 November 2022'));
 
@@ -765,36 +768,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       describe('as a B2B customer', () => {
-        it('filters by search input', async () => {
-          const getOrders = vi
-            .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
-
-          server.use(
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
-          );
-
-          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
-
-          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-          when(getOrders)
-            .calledWith(
-              expect.objectContaining({
-                filters: expect.objectContaining({ search: '66996' }),
-              }),
-            )
-            .thenReturn(filteredOrderResponse(66996));
-
-          await userEvent.type(screen.getByPlaceholderText(/Search/), '66996');
-
-          await waitFor(() => {
-            expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
-          });
-        });
-
         it('filters by status and date together', async () => {
           vi.setSystemTime(new Date('21 November 2022'));
 
@@ -1090,68 +1063,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
         await userEvent.click(screen.getByRole('button', { name: /previous page/ }));
         await waitFor(() => {
           expect(screen.getByRole('row', { name: /1001/ })).toBeInTheDocument();
-        });
-      });
-
-      it('resets cursor pagination when search filter changes', async () => {
-        const page1Response = buildPagedResponse([{ entityId: 1001 }], {
-          hasNextPage: true,
-          hasPreviousPage: false,
-          startCursor: 'cursor-1001',
-          endCursor: 'cursor-1001',
-        });
-
-        const getOrders = vi.fn().mockReturnValue(page1Response);
-
-        // Page 2
-        when(getOrders)
-          .calledWith(expect.objectContaining({ after: 'cursor-1001' }))
-          .thenReturn(
-            buildPagedResponse([{ entityId: 2001 }], {
-              hasNextPage: false,
-              hasPreviousPage: true,
-              startCursor: 'cursor-2001',
-              endCursor: 'cursor-2001',
-            }),
-          );
-
-        // After search — cursor reset, search filter applied
-        when(getOrders)
-          .calledWith(
-            expect.objectContaining({
-              filters: expect.objectContaining({ search: 'test' }),
-            }),
-          )
-          .thenReturn(
-            buildPagedResponse([{ entityId: 3001 }], {
-              hasNextPage: false,
-              hasPreviousPage: false,
-              startCursor: 'cursor-3001',
-              endCursor: 'cursor-3001',
-            }),
-          );
-
-        server.use(
-          graphql.query('GetCustomerOrders', ({ variables }) =>
-            HttpResponse.json(getOrders(variables)),
-          ),
-        );
-
-        renderWithProviders(<MyOrders />, { preloadedState: b2cStateWithFlag(flagOn) });
-
-        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
-
-        // Navigate to page 2
-        await userEvent.click(screen.getByRole('button', { name: /next page/ }));
-        await waitFor(() => {
-          expect(screen.getByRole('row', { name: /2001/ })).toBeInTheDocument();
-        });
-
-        // Type in search — should reset pagination back to page 1
-        await userEvent.type(screen.getByPlaceholderText(/Search/), 'test');
-
-        await waitFor(() => {
-          expect(screen.getByRole('row', { name: /3001/ })).toBeInTheDocument();
         });
       });
 
