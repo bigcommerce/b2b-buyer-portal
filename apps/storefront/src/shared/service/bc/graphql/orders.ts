@@ -280,16 +280,16 @@ export interface CompanyOrdersFiltersInput {
 }
 
 /**
- * SF GQL OrdersFiltersInput (base) + B2B extension fields.
- * Base: status, dateRange. Extension: search, companyName, companyIds.
+ * Filters for customer.orders, matching what the server currently accepts.
+ * companyName and companyIds are permanently absent: the agreed schema gist specified
+ * them, but the deployed server never implemented them and the gist is being amended
+ * to match (B2B-5421). search is a genuine, temporary omission — it's deferred to its
+ * own ticket and should be restored here once that ticket ships.
  */
 export interface OrdersFiltersInput {
-  // OrderStatusValue enum member (e.g. 'AWAITING_FULFILLMENT'), not a display label.
+  /** An OrderStatusValue enum member, e.g. AWAITING_FULFILLMENT — not a display label. */
   status?: string;
   dateRange?: OrderDateRangeFilterInput;
-  search?: string;
-  companyName?: string;
-  companyIds?: string[];
 }
 
 export interface CustomerWithOrdersFiltersInput {

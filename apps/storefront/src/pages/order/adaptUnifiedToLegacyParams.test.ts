@@ -15,25 +15,25 @@ const baseArgs: AdaptUnifiedToLegacyFilterParamsArgs = {
 
 describe('adaptUnifiedToLegacyFilterParams', () => {
   describe('filterData', () => {
-    it('maps all unified filter fields to the legacy shape', () => {
+    it('maps status and dateRange to the legacy shape', () => {
+      // search/companyName/companyIds are no longer part of the customer-path
+      // OrdersFiltersInput (B2B-5420) — q/companyName always default and companyIds
+      // is driven solely by isB2BUser (see the dedicated tests below).
       const { filterData } = adaptUnifiedToLegacyFilterParams({
         ...baseArgs,
         filters: {
-          search: 'widget',
           status: 'AWAITING_FULFILLMENT',
           dateRange: { from: '2026-01-01', to: '2026-02-01' },
-          companyName: 'Acme',
-          companyIds: ['1', '2', '3'],
         },
       });
 
       expect(filterData).toEqual({
-        q: 'widget',
+        q: '',
         statusCode: 'AWAITING_FULFILLMENT',
         beginDateAt: '2026-01-01',
         endDateAt: '2026-02-01',
-        companyName: 'Acme',
-        companyIds: [1, 2, 3],
+        companyName: '',
+        companyIds: undefined,
         isShowMy: undefined,
       });
     });
@@ -76,15 +76,6 @@ describe('adaptUnifiedToLegacyFilterParams', () => {
 
       expect(filterData.beginDateAt).toBe('2026-01-01');
       expect(filterData.endDateAt).toBeNull();
-    });
-
-    it('converts companyIds from strings to numbers', () => {
-      const { filterData } = adaptUnifiedToLegacyFilterParams({
-        ...baseArgs,
-        filters: { companyIds: ['10', '20'] },
-      });
-
-      expect(filterData.companyIds).toEqual([10, 20]);
     });
 
     it('leaves companyIds undefined when not provided for non-B2B users', () => {
