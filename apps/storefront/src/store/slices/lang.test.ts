@@ -49,6 +49,20 @@ describe('lang slice translation storage', () => {
       expect(state.fetchedPages).toEqual(['global']);
     });
 
+    it('drops every global phrase when the merchant cleared them all', () => {
+      // Once no global phrase is customised the endpoint answers
+      // {"message": {}}; persisted values must not survive that.
+      const action = getGlobalTranslations.fulfilled(
+        { globalTranslations: {}, newVersion: 2, multiLanguageEnabled: true },
+        'requestId',
+        { channelId: 1, newVersion: 2 },
+      );
+
+      const state = reducer(staleState, action);
+
+      expect(state.translations).toEqual({ 'login.loginText.signInHeader': '!!=Sign in' });
+    });
+
     it('keeps the legacy merge behavior when multi-language is disabled', () => {
       const action = getGlobalTranslations.fulfilled(
         {
