@@ -120,9 +120,7 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   company: null,
   placedBy: null,
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 }));
 
 const buildOrderDetailResponseWith = builder<GetOrderDetailResponse>(() => ({
@@ -261,6 +259,29 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     return view;
   }
 
+  // Image.url takes a required width argument.
+  it('requests the line item image with an explicit width', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({ entityId: 6696 }),
+              },
+            },
+          }),
+        );
+      }),
+    );
+
+    await renderOrderDetails();
+
+    expect(capturedQuery).toContain('url(width: 80)');
+  });
+
   // OrderHistoryEvent exposes statusLabel; `status` and `createdBy` do not exist on it.
   it('requests statusLabel on history and never createdBy', async () => {
     let capturedQuery = '';
@@ -284,6 +305,32 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(capturedQuery).toContain('statusLabel');
     expect(capturedQuery).not.toMatch(/history\s*\{[^}]*\bstatus\b\s/);
     expect(capturedQuery).not.toContain('createdBy');
+  });
+
+  // These three are selected and never read. returnableQuantity additionally 500s, and
+  // being non-null it nulls the entire consignments tree with it.
+  it('does not select fields the UI never reads', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({ entityId: 6696 }),
+              },
+            },
+          }),
+        );
+      }),
+    );
+
+    await renderOrderDetails();
+
+    expect(capturedQuery).not.toContain('returnableQuantity');
+    expect(capturedQuery).not.toContain('quote');
+    expect(capturedQuery).not.toContain('extraFields');
   });
 
   it('renders the order header', async () => {
@@ -662,7 +709,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: { url: 'https://example.com/widget.jpg' },
                           baseCatalogProduct: { path: '/widget/' },
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -690,7 +736,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Credit Card' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Credit Card' } }] },
         ...overrides,
       });
     }
@@ -784,7 +830,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -866,7 +911,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 25 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -909,7 +953,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -973,7 +1016,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 125 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1053,7 +1095,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                       {
@@ -1070,7 +1111,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1169,7 +1209,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1181,7 +1220,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Visa ending in 1234' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Visa ending in 1234' } }] },
       });
 
       server.use(
@@ -1206,6 +1245,35 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
       expect(screen.getByText(/Paid in full/)).toBeVisible();
       expect(screen.getByText(/Visa ending in 1234/)).toBeVisible();
+    });
+
+    // payments is a PaymentsConnection and Payment exposes paymentMethodName.
+    it('renders the payment method from the payments connection', async () => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    payments: { edges: [{ node: { paymentMethodName: 'Purchase Order' } }] },
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByText(/Purchase Order/)).toBeInTheDocument();
     });
 
     it('renders payment details for a Purchase Order', async () => {
@@ -1251,7 +1319,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1263,7 +1330,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Purchase Order' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Purchase Order' } }] },
       });
 
       server.use(
@@ -1295,7 +1362,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         reference: null,
         orderedAt: { utc: '2026-05-01T12:00:00Z' },
         status: { value: 'AWAITING_PAYMENT', label: 'Awaiting Payment' },
-        payments: [{ description: 'Cash on delivery' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Cash on delivery' } }] },
       });
 
       server.use(
@@ -1410,19 +1477,14 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       }>,
       physicalConsignment?: Order['consignments'],
     ) {
-      const downloads = {
-        edges: [
-          {
-            cursor: 'dc1',
-            node: {
-              entityId: 9001,
-              lineItems: {
-                edges: digitalItems.map((item) => ({ node: item })),
-              },
-            },
+      const downloads = [
+        {
+          recipientEmail: 'buyer@example.com',
+          lineItems: {
+            edges: digitalItems.map((item) => ({ node: item })),
           },
-        ],
-      };
+        },
+      ];
 
       const shipping = physicalConsignment?.shipping ?? { edges: [] };
 
@@ -1499,6 +1561,55 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByText('Scare Floor Operations Manual (eBook)')).toBeVisible();
       expect(screen.getByText('112')).toBeVisible();
       expect(screen.getByText('Format: ePub')).toBeVisible();
+    });
+
+    // downloads is [OrderDownloadConsignment!]!, unlike its sibling `shipping`.
+    it('selects downloads as a plain list and renders its digital products', async () => {
+      let capturedQuery = '';
+      server.use(
+        graphql.query('GetOrderDetail', ({ query }) => {
+          capturedQuery = query;
+          return HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    entityId: 6696,
+                    consignments: {
+                      shipping: { edges: [] },
+                      downloads: [
+                        {
+                          recipientEmail: 'buyer@example.com',
+                          lineItems: {
+                            edges: [
+                              {
+                                node: {
+                                  entityId: 5001,
+                                  productEntityId: 3001,
+                                  name: 'Ebook',
+                                  quantity: 1,
+                                  productOptions: [],
+                                  subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+                                  subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  }),
+                },
+              },
+            }),
+          );
+        }),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByText('Ebook')).toBeInTheDocument();
+      expect(capturedQuery).not.toMatch(/downloads\s*\{\s*edges/);
     });
 
     it('displays the view files link for digital products in an order', async () => {
@@ -1613,7 +1724,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: 200 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     },
                   ],
@@ -1623,31 +1733,26 @@ describe('Order detail path with unified SF GQL flag ON', () => {
             },
           ],
         },
-        downloads: {
-          edges: [
-            {
-              cursor: 'dc1',
-              node: {
-                entityId: 9001,
-                lineItems: {
-                  edges: [
-                    {
-                      node: {
-                        entityId: 5001,
-                        productEntityId: 3002,
-                        name: 'How to meow',
-                        quantity: 1,
-                        productOptions: [],
-                        subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
-                        subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
-                      },
-                    },
-                  ],
+        downloads: [
+          {
+            recipientEmail: 'buyer@example.com',
+            lineItems: {
+              edges: [
+                {
+                  node: {
+                    entityId: 5001,
+                    productEntityId: 3002,
+                    name: 'How to meow',
+                    quantity: 1,
+                    productOptions: [],
+                    subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+                    subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
+                  },
                 },
-              },
+              ],
             },
-          ],
-        },
+          },
+        ],
       };
 
       const orderWithBoth = buildUnifiedOrderWith({
@@ -1732,7 +1837,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -2158,7 +2262,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -2822,7 +2925,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },

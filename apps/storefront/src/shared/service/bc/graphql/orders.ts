@@ -60,7 +60,6 @@ export interface OrderLineItem {
   subTotalSalePrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
-  returnableQuantity: number;
 }
 
 export interface OrderShipmentTracking {
@@ -102,15 +101,16 @@ export interface OrderDigitalLineItem {
   subTotalSalePrice: Money;
 }
 
-/** Projects OrderDownloadConsignment. */
+/** Projects OrderDownloadConsignment — a plain list element, not a connection node. */
 export interface DownloadConsignment {
-  entityId: number;
+  recipientEmail: string;
   lineItems: { edges: Array<{ node: OrderDigitalLineItem }> };
 }
 
 export interface OrderConsignments {
   shipping: { edges: Array<{ cursor: string; node: ShippingConsignment }> };
-  downloads: { edges: Array<{ cursor: string; node: DownloadConsignment }> } | null;
+  /** A list in the schema, unlike `shipping`. */
+  downloads: DownloadConsignment[] | null;
 }
 
 /** Nested inside OrderDiscounts.couponDiscounts. */
@@ -163,21 +163,12 @@ export interface OrderHistoryEvent {
   createdAt: string;
 }
 
-export interface OrderQuote {
-  id: string;
-}
-
 export interface OrderInvoice {
   id: string;
 }
 
-export interface ExtraFieldValue {
-  name: string;
-  value: string;
-}
-
 export interface OrderPaymentInfo {
-  description: string;
+  paymentMethodName: string;
 }
 
 // ===========================================================================
@@ -209,7 +200,7 @@ export interface Order {
   consignments: OrderConsignments | null;
 
   // Payments (only on OrderWithPayments via site.order detail query)
-  payments?: OrderPaymentInfo[];
+  payments?: { edges: Array<{ node: OrderPaymentInfo }> } | null;
 
   // B2B extensions (null for B2C orders)
   reference: string | null;
@@ -217,9 +208,7 @@ export interface Order {
   company: OrderCompany | null;
   placedBy: OrderPlacedBy | null;
   history: OrderHistoryEvent[];
-  quote: OrderQuote | null;
   invoice: OrderInvoice | null;
-  extraFields: ExtraFieldValue[];
 }
 
 // ===========================================================================
@@ -389,12 +378,11 @@ const orderLineItemFields = `entityId
         ${moneyFields}
       }
       image {
-        url
+        url(width: 80)
       }
       baseCatalogProduct {
         path
-      }
-      returnableQuantity`;
+      }`;
 
 const orderShipmentFields = `entityId
       shippedAt {
@@ -449,28 +437,23 @@ const orderConsignmentsFields = `consignments {
       }
     }
     downloads {
-      edges {
-        cursor
-        node {
-          entityId
-          lineItems {
-            edges {
-              node {
-                entityId
-                productEntityId
-                name
-                quantity
-                productOptions {
-                  name
-                  value
-                }
-                subTotalListPrice {
-                  ${moneyFields}
-                }
-                subTotalSalePrice {
-                  ${moneyFields}
-                }
-              }
+      recipientEmail
+      lineItems {
+        edges {
+          node {
+            entityId
+            productEntityId
+            name
+            quantity
+            productOptions {
+              name
+              value
+            }
+            subTotalListPrice {
+              ${moneyFields}
+            }
+            subTotalSalePrice {
+              ${moneyFields}
             }
           }
         }
@@ -540,15 +523,8 @@ const orderB2BFields = `reference
     source
     createdAt
   }
-  quote {
-    id
-  }
   invoice {
     id
-  }
-  extraFields {
-    name
-    value
   }`;
 
 /** Lightweight fields for order list views. */
@@ -619,7 +595,15 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  * My Orders (customer-scoped, B2B + B2C). Entry: customer.orders.
  * B2B fields auto-populate for B2B users, null for B2C.
  *
- * Note: OrdersConnection lacks collectionInfo; add once SF GQL team ships it.
+ * collectionInfo is deliberately not selected. The field exists on OrdersConnection,
+ * but the customer resolver returns totalItems: null (only the company resolver
+ * populates it), and selecting it raises no error — so a null total would look like
+ * working code.
+ *
+ * There is no total to fetch: the upstream storefront orders endpoint returns cursors
+ * and hasNext/hasPrevious with no count. My Orders keeps totalCount: -1, which
+ * order/table/B3Table renders as a range without a total. This is the intended
+ * contract, not a placeholder — do not "fix" it. See B2B-5421.
  */
 const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
@@ -673,7 +657,11 @@ const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
       ${orderConsignmentsFields}
       ${orderB2BFields}
       payments {
-        description
+        edges {
+          node {
+            paymentMethodName
+          }
+        }
       }
     }
   }

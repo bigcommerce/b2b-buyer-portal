@@ -266,10 +266,10 @@ function gatherAllProducts(order: Order): OrderProductItem[] {
     edge.node.lineItems.edges.map((le) => convertLineItemToProduct(le.node, edge.node.entityId)),
   );
 
-  const digital = (order.consignments?.downloads?.edges ?? []).flatMap((edge) =>
-    edge.node.lineItems.edges.map((le) =>
-      convertDigitalLineItemToProduct(le.node, edge.node.entityId),
-    ),
+  // OrderDownloadConsignment has no entityId, and digital items have no shipping
+  // address, so there is no consignment address id to carry.
+  const digital = (order.consignments?.downloads ?? []).flatMap((consignment) =>
+    consignment.lineItems.edges.map((le) => convertDigitalLineItemToProduct(le.node, 0)),
   );
 
   return [...physical, ...digital];
@@ -434,7 +434,7 @@ function buildPayment(order: Order): OrderPayment {
   return {
     dateCreateAt: String(dateCreateAt),
     billingAddress: convertAddress(order.billingAddress),
-    paymentMethod: order.payments?.[0]?.description ?? '',
+    paymentMethod: order.payments?.edges?.[0]?.node.paymentMethodName ?? '',
     updatedAt: order.updatedAt.utc,
   };
 }
@@ -507,9 +507,9 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    canReturn: (order.consignments?.shipping?.edges ?? []).some((edge) =>
-      edge.node.lineItems.edges.some((le) => le.node.returnableQuantity > 0),
-    ),
+    // returnableQuantity is not selected: it only fed the Return button, which is
+    // hidden unconditionally under BUN-1417, and the field 500s on the server.
+    canReturn: false,
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
     invoiceId: order.invoice ? Number(order.invoice.id) : 0,
