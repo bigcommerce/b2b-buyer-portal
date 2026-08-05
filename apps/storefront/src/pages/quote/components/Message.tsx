@@ -13,6 +13,7 @@ import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import B3Spin from '@/components/spin/B3Spin';
+import { SHOW_USER_NAME } from '@/constants/featureFlags';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
@@ -36,16 +37,25 @@ interface MsgsProps {
   email: string;
   isB2BUser: boolean;
   status: number;
+  currentUserName?: string;
 }
 
 interface CustomerMessageProps {
   msg: MessageProps;
   isEndMessage?: boolean;
   isCustomer?: boolean;
+  currentUserName?: string;
 }
 
-function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
+function ChatMessage({ msg, isEndMessage, isCustomer, currentUserName }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+
+  // B2B-2219: the buyer-side label backend returns is the quote's contact
+  // name, not the actual sender, so prefer the logged-in user's own name
+  // for messages on their side of the thread. Sales-rep labels are untouched.
+  const label =
+    msg?.role && isCustomer && SHOW_USER_NAME && currentUserName ? currentUserName : msg?.role;
+
   return (
     <Box
       sx={{
@@ -55,7 +65,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
         paddingTop: '5px',
       }}
     >
-      {msg?.role && (
+      {label && (
         <Box
           sx={{
             height: '14px',
@@ -66,7 +76,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             color: 'rgba(0, 0, 0, 0.38)',
           }}
         >
-          {msg.role}
+          {label}
         </Box>
       )}
       {msg?.message && (
@@ -134,7 +144,7 @@ function DateMessage({ msg }: DateMessageProps) {
   );
 }
 
-function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
+function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsProps) {
   const { dispatch: globalDispatch } = useContext(GlobalContext);
 
   const theme = useTheme();
@@ -367,6 +377,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                     msg={item}
                     isEndMessage={index === messages.length - 1}
                     isCustomer={!!item.isCustomer}
+                    currentUserName={currentUserName}
                   />
                   {item.date && <DateMessage msg={item} />}
                 </Box>
