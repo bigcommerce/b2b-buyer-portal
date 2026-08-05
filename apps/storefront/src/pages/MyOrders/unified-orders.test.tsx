@@ -887,6 +887,31 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
             expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
           });
         });
+
+        // OrdersFiltersInput has only status and dateRange. companyIds was filtering a
+        // customer-scoped list by the customer's own company — a no-op that 400s.
+        it('never sends companyIds or companyName on the customer path', async () => {
+          const getOrders = vi
+            .fn()
+            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+
+          server.use(
+            graphql.query('GetCustomerOrders', ({ variables }) =>
+              HttpResponse.json(getOrders(variables)),
+            ),
+          );
+
+          renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
+
+          await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+          expect(getOrders).toHaveBeenCalled();
+          getOrders.mock.calls.forEach(([variables]) => {
+            const filters = (variables as { filters?: Record<string, unknown> }).filters ?? {};
+            expect(filters).not.toHaveProperty('companyIds');
+            expect(filters).not.toHaveProperty('companyName');
+          });
+        });
       });
     });
 
