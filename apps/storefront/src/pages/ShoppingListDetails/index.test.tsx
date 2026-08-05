@@ -4517,4 +4517,257 @@ describe('when backorder messaging is enabled in choose options dialog', () => {
       within(chooseOptionsDialog).queryByText('will be backordered', { exact: false }),
     ).not.toBeInTheDocument();
   });
+
+  it('shows the picklist child backorder details when the selected modifier option is backordered', async () => {
+    const modifierId = 70;
+    const optionValueId = 501;
+    const picklistProductId = 70000;
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const listProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Existing list item',
+        productId: 8000,
+        variantSku: 'LIST-SKU-001',
+        quantity: 1,
+        basePrice: '10.00',
+      },
+    });
+
+    const variant = buildSearchB2BProductVariantWith({
+      variant_id: variantId,
+      product_id: productId,
+      sku: variantSku,
+      purchasing_disabled: false,
+      option_values: [],
+      bc_calculated_price: {
+        tax_exclusive: 50,
+        tax_inclusive: 55,
+        as_entered: 50,
+        entered_inclusive: false,
+      },
+    });
+
+    const searchProduct = buildSearchB2BProductWith({
+      id: productId,
+      name: 'Fog Towel',
+      sku: 'TOWEL-BASE',
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [variant],
+      modifiers: [
+        {
+          id: modifierId,
+          type: 'product_list',
+          display_name: 'Pickly Picky',
+          option_values: [
+            {
+              id: optionValueId,
+              label: 'Mining Pick',
+              is_default: true,
+              option_id: modifierId,
+              value_data: { product_id: picklistProductId },
+            },
+          ],
+        },
+      ],
+    });
+
+    const picklistChildProduct = buildSearchB2BProductWith({
+      id: picklistProductId,
+      inventoryTracking: 'product',
+      availableToSell: 20,
+      unlimitedBackorder: false,
+      totalOnHand: 1,
+      backorderMessage: 'Backorders Schmackorders',
+      variants: [],
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [listProductEdge] },
+          status: 0,
+          grandTotal: '10.00',
+          totalTax: '0',
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        if (/productIds: \[\d/.test(query)) {
+          return HttpResponse.json({ data: { productsSearch: [picklistChildProduct] } });
+        }
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [searchProduct] } }),
+        );
+      }),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const chooseOptionsDialog = await openChooseOptionsDialog();
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await within(chooseOptionsDialog).findByText('Pickly Picky');
+
+    await userEvent.type(quantityInput, '7', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(await within(chooseOptionsDialog).findByText('Pickly Picky:')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('1 ready to ship')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('6 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('Backorders Schmackorders')).toBeVisible();
+  });
+
+  it('updates the picklist backorder information when a different modifier option is selected', async () => {
+    const modifierId = 70;
+    const miningPickOptionValueId = 501;
+    const icePickOptionValueId = 502;
+    const miningPickProductId = 70000;
+    const icePickProductId = 70001;
+
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const listProductEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'Existing list item',
+        productId: 8000,
+        variantSku: 'LIST-SKU-001',
+        quantity: 1,
+        basePrice: '10.00',
+      },
+    });
+
+    const variant = buildSearchB2BProductVariantWith({
+      variant_id: variantId,
+      product_id: productId,
+      sku: variantSku,
+      purchasing_disabled: false,
+      option_values: [],
+      bc_calculated_price: {
+        tax_exclusive: 50,
+        tax_inclusive: 55,
+        as_entered: 50,
+        entered_inclusive: false,
+      },
+    });
+
+    const searchProduct = buildSearchB2BProductWith({
+      id: productId,
+      name: 'Fog Towel',
+      sku: 'TOWEL-BASE',
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [variant],
+      modifiers: [
+        {
+          id: modifierId,
+          type: 'product_list',
+          display_name: 'Pickly Picky',
+          option_values: [
+            {
+              id: miningPickOptionValueId,
+              label: 'Mining Pick',
+              is_default: true,
+              option_id: modifierId,
+              value_data: { product_id: miningPickProductId },
+            },
+            {
+              id: icePickOptionValueId,
+              label: 'Ice Pick',
+              is_default: false,
+              option_id: modifierId,
+              value_data: { product_id: icePickProductId },
+            },
+          ],
+        },
+      ],
+    });
+
+    const miningPickChildProduct = buildSearchB2BProductWith({
+      id: miningPickProductId,
+      inventoryTracking: 'product',
+      availableToSell: 20,
+      unlimitedBackorder: false,
+      totalOnHand: 1,
+      backorderMessage: 'Restocks in 3 weeks',
+      variants: [],
+    });
+
+    const icePickChildProduct = buildSearchB2BProductWith({
+      id: icePickProductId,
+      inventoryTracking: 'product',
+      availableToSell: 20,
+      unlimitedBackorder: false,
+      totalOnHand: 2,
+      backorderMessage: 'Restocks in 6 weeks',
+      variants: [],
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [listProductEdge] },
+          status: 0,
+          grandTotal: '10.00',
+          totalTax: '0',
+        },
+      },
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', ({ query }) => {
+        if (/productIds: \[\d/.test(query)) {
+          return HttpResponse.json({
+            data: { productsSearch: [miningPickChildProduct, icePickChildProduct] },
+          });
+        }
+
+        return HttpResponse.json(
+          buildSearchProductsResponseWith({ data: { productsSearch: [searchProduct] } }),
+        );
+      }),
+    );
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    const chooseOptionsDialog = await openChooseOptionsDialog();
+    const quantityInput = within(chooseOptionsDialog).getByRole('spinbutton');
+
+    await within(chooseOptionsDialog).findByText('Pickly Picky');
+
+    await userEvent.type(quantityInput, '7', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(await within(chooseOptionsDialog).findByText('6 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('Restocks in 3 weeks')).toBeVisible();
+    expect(within(chooseOptionsDialog).queryByText('Restocks in 6 weeks')).not.toBeInTheDocument();
+
+    await userEvent.click(within(chooseOptionsDialog).getByRole('radio', { name: 'Ice Pick' }));
+
+    expect(await within(chooseOptionsDialog).findByText('Restocks in 6 weeks')).toBeVisible();
+    expect(within(chooseOptionsDialog).getByText('5 will be backordered')).toBeVisible();
+    expect(within(chooseOptionsDialog).queryByText('Restocks in 3 weeks')).not.toBeInTheDocument();
+    expect(
+      within(chooseOptionsDialog).queryByText('6 will be backordered'),
+    ).not.toBeInTheDocument();
+  });
 });
