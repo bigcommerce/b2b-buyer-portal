@@ -50,7 +50,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   entityId: faker.number.int({ min: 1000, max: 99999 }),
   orderedAt: { utc: faker.date.past().toISOString() },
   updatedAt: { utc: faker.date.past().toISOString() },
-  status: { value: 'PENDING', label: 'Pending' },
+  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
   billingAddress: {
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -87,9 +87,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   company: { entityId: faker.number.int({ min: 1, max: 999 }), name: faker.company.name() },
   placedBy: buildPlacedByWith('WHATEVER_VALUES'),
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 }));
 
 const buildCompanyOrdersResponseWith = builder<GetCompanyOrdersResponse>(() => {

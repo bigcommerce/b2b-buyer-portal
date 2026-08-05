@@ -9,7 +9,7 @@ const baseOrder: SfGqlOrder = {
   entityId: 90909,
   orderedAt: { utc: '2026-01-01T00:00:00Z' },
   updatedAt: { utc: '2026-01-01T00:00:00Z' },
-  status: { value: 'PENDING', label: 'Pending' },
+  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
   billingAddress: {
     firstName: null,
     lastName: null,
