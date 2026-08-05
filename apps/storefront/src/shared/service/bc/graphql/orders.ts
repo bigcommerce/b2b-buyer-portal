@@ -157,9 +157,9 @@ export enum OrderHistoryEventType {
 export interface OrderHistoryEvent {
   id: string;
   eventType: OrderHistoryEventType;
-  status: string;
+  /** Title-case status label for the event, e.g. "Awaiting Fulfillment". */
+  statusLabel: string;
   source: string | null;
-  createdBy: OrderPlacedBy | null;
   createdAt: string;
 }
 
@@ -534,14 +534,8 @@ const orderB2BFields = `reference
   history {
     id
     eventType
-    status
+    statusLabel
     source
-    createdBy {
-      entityId
-      firstName
-      lastName
-      email
-    }
     createdAt
   }
   quote {
