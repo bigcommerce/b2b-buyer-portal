@@ -434,7 +434,7 @@ function buildPayment(order: Order): OrderPayment {
   return {
     dateCreateAt: String(dateCreateAt),
     billingAddress: convertAddress(order.billingAddress),
-    paymentMethod: order.payments?.[0]?.description ?? '',
+    paymentMethod: order.payments?.edges?.[0]?.node.paymentMethodName ?? '',
     updatedAt: order.updatedAt.utc,
   };
 }

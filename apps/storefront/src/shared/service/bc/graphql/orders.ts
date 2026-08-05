@@ -178,7 +178,7 @@ export interface ExtraFieldValue {
 }
 
 export interface OrderPaymentInfo {
-  description: string;
+  paymentMethodName: string;
 }
 
 // ===========================================================================
@@ -210,7 +210,7 @@ export interface Order {
   consignments: OrderConsignments | null;
 
   // Payments (only on OrderWithPayments via site.order detail query)
-  payments?: OrderPaymentInfo[];
+  payments?: { edges: Array<{ node: OrderPaymentInfo }> } | null;
 
   // B2B extensions (null for B2C orders)
   reference: string | null;
@@ -669,7 +669,11 @@ const GET_ORDER_DETAIL = `query GetOrderDetail($entityId: Int!) {
       ${orderConsignmentsFields}
       ${orderB2BFields}
       payments {
-        description
+        edges {
+          node {
+            paymentMethodName
+          }
+        }
       }
     }
   }

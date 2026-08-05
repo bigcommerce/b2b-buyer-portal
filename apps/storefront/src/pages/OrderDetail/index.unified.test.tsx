@@ -713,7 +713,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Credit Card' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Credit Card' } }] },
         ...overrides,
       });
     }
@@ -1204,7 +1204,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Visa ending in 1234' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Visa ending in 1234' } }] },
       });
 
       server.use(
@@ -1229,6 +1229,35 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByRole('heading', { name: 'Payment' })).toBeVisible();
       expect(screen.getByText(/Paid in full/)).toBeVisible();
       expect(screen.getByText(/Visa ending in 1234/)).toBeVisible();
+    });
+
+    // payments is a PaymentsConnection and Payment exposes paymentMethodName.
+    it('renders the payment method from the payments connection', async () => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    payments: { edges: [{ node: { paymentMethodName: 'Purchase Order' } }] },
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByText(/Purchase Order/)).toBeInTheDocument();
     });
 
     it('renders payment details for a Purchase Order', async () => {
@@ -1286,7 +1315,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           },
           downloads: null,
         },
-        payments: [{ description: 'Purchase Order' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Purchase Order' } }] },
       });
 
       server.use(
@@ -1318,7 +1347,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         reference: null,
         orderedAt: { utc: '2026-05-01T12:00:00Z' },
         status: { value: 'AWAITING_PAYMENT', label: 'Awaiting Payment' },
-        payments: [{ description: 'Cash on delivery' }],
+        payments: { edges: [{ node: { paymentMethodName: 'Cash on delivery' } }] },
       });
 
       server.use(
