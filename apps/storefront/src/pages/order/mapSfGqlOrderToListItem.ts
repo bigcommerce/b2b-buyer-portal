@@ -1,5 +1,6 @@
 import type { Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
 import type { CompanyInfoTypes } from '@/types/invoice';
+
 import { orderStatusValueToSystemLabel } from './shared/orderStatusValue';
 
 export interface ListItem {
