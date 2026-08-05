@@ -593,7 +593,15 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  * My Orders (customer-scoped, B2B + B2C). Entry: customer.orders.
  * B2B fields auto-populate for B2B users, null for B2C.
  *
- * Note: OrdersConnection lacks collectionInfo; add once SF GQL team ships it.
+ * collectionInfo is deliberately not selected. The field exists on OrdersConnection,
+ * but the customer resolver returns totalItems: null (only the company resolver
+ * populates it), and selecting it raises no error — so a null total would look like
+ * working code.
+ *
+ * There is no total to fetch: the upstream storefront orders endpoint returns cursors
+ * and hasNext/hasPrevious with no count. My Orders keeps totalCount: -1, which
+ * order/table/B3Table renders as a range without a total. This is the intended
+ * contract, not a placeholder — do not "fix" it. See B2B-5421.
  */
 const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
