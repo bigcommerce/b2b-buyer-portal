@@ -32,7 +32,7 @@ function PicklistSelectionBackorderMessage({
 
   return (
     <Box sx={{ mt: 1, width: '100%' }}>
-      <Typography sx={{ color: '#616161', typography: 'body2' }}>
+      <Typography sx={{ color: '#616161', typography: 'body2', fontWeight: 600 }}>
         {`${selection.displayName}:`}
       </Typography>
       <BackorderMessage

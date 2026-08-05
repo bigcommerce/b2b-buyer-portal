@@ -357,7 +357,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                       alignSelf: qtyStackAlignItems,
                     }}
                   >
-                    <Typography sx={{ color: '#616161', typography: 'body2' }}>
+                    <Typography sx={{ color: '#616161', typography: 'body2', fontWeight: 600 }}>
                       {`${selection.displayName}:`}
                     </Typography>
                     <BackorderMessage

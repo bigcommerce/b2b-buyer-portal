@@ -16,6 +16,7 @@ import isEqual from 'lodash-es/isEqual';
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import B3Spin from '@/components/spin/B3Spin';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
@@ -35,7 +36,12 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { snackbar } from '@/utils/b3Tip';
 import { Base64 } from '@/utils/base64';
-import { getCatalogInventorySku } from '@/utils/catalogBackorderDisplay';
+import {
+  catalogListHasPicklistBackorderedItemsForDisplay,
+  getCatalogInventorySku,
+  getProductDetailsForPicklistSelections,
+} from '@/utils/catalogBackorderDisplay';
+import { getPicklistOptionSelectionsFromForm } from '@/utils/getPicklistOptionSelectionsFromForm';
 
 import { AllOptionProps, ShoppingListProductItem, SimpleObject, Variant } from '../../../types';
 import {
@@ -444,6 +450,19 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     [formFields],
   );
 
+  const picklistSelections =
+    backorderUiEnabled && product?.modifiers?.length
+      ? getProductDetailsForPicklistSelections({
+          optionSelections: getPicklistOptionSelectionsFromForm(formFields, formValues),
+          productsSearch: { modifiers: product.modifiers },
+        })
+      : [];
+
+  const hasPicklistBackorderToDisplay = catalogListHasPicklistBackorderedItemsForDisplay(
+    [{ qty: Number(quantity) || 0, selections: picklistSelections }],
+    additionalProducts,
+  );
+
   useEffect(() => {
     if (cache?.current && isEqual(cache?.current, formValues)) {
       return;
@@ -657,7 +676,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                         fullWidth
                         error={Boolean(qtyHelperText)}
                       />
-                      {(qtyHelperText || backorderFields) && (
+                      {(qtyHelperText || backorderFields || hasPicklistBackorderToDisplay) && (
                         <Box
                           sx={{
                             width: 'max-content',
@@ -683,6 +702,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                               visible
                             />
                           )}
+                          <PicklistBackorderMessages
+                            selections={picklistSelections}
+                            picklistProductsById={additionalProducts}
+                            qty={Number(quantity) || 0}
+                            visible
+                            backorderUiEnabled={backorderUiEnabled}
+                          />
                         </Box>
                       )}
                     </Box>
