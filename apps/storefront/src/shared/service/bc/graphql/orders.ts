@@ -157,9 +157,9 @@ export enum OrderHistoryEventType {
 export interface OrderHistoryEvent {
   id: string;
   eventType: OrderHistoryEventType;
-  status: string;
+  /** Title-case status label for the event, e.g. "Awaiting Fulfillment". */
+  statusLabel: string;
   source: string | null;
-  createdBy: OrderPlacedBy | null;
   createdAt: string;
 }
 
@@ -284,6 +284,7 @@ export interface CompanyOrdersFiltersInput {
  * Base: status, dateRange. Extension: search, companyName, companyIds.
  */
 export interface OrdersFiltersInput {
+  // OrderStatusValue enum member (e.g. 'AWAITING_FULFILLMENT'), not a display label.
   status?: string;
   dateRange?: OrderDateRangeFilterInput;
   search?: string;
@@ -535,14 +536,8 @@ const orderB2BFields = `reference
   history {
     id
     eventType
-    status
+    statusLabel
     source
-    createdBy {
-      entityId
-      firstName
-      lastName
-      email
-    }
     createdAt
   }
   quote {

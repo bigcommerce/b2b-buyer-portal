@@ -1,4 +1,5 @@
 import type { LangFormatFunction } from '@/lib/lang';
+import { orderStatusValueToSystemLabel } from '@/pages/order/shared/orderStatusValue';
 import type {
   Money,
   Order,
@@ -111,7 +112,7 @@ function mapHistoryEvents(history: Order['history']): OrderHistoryItem[] {
   return history.map((e) => ({
     id: Number(e.id),
     eventType: toNumericEventType(e.eventType),
-    status: e.status,
+    status: e.statusLabel,
     createdAt: Math.floor(new Date(e.createdAt).getTime() / 1000),
   }));
 }
@@ -489,7 +490,7 @@ export function convertOrderDetail(
 
   return {
     orderId: order.entityId,
-    status: order.status.label,
+    status: orderStatusValueToSystemLabel(order.status.value),
     statusCode: order.status.value ?? '',
     customStatus: '',
     poNumber: order.poNumber ?? '',

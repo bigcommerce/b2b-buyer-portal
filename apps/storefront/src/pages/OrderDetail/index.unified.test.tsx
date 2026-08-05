@@ -261,11 +261,61 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     return view;
   }
 
+  // OrderHistoryEvent exposes statusLabel; `status` and `createdBy` do not exist on it.
+  it('requests statusLabel on history and never createdBy', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({ entityId: 6696 }),
+              },
+            },
+          }),
+        );
+      }),
+    );
+
+    await renderOrderDetails();
+
+    expect(capturedQuery).toContain('statusLabel');
+    expect(capturedQuery).not.toMatch(/history\s*\{[^}]*\bstatus\b\s/);
+    expect(capturedQuery).not.toContain('createdBy');
+  });
+
   it('renders the order header', async () => {
     await renderOrderDetails();
 
     expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
     expect(screen.getByText('Pending')).toBeVisible();
+  });
+
+  // Same casing trap as the list surfaces: the detail header looks the status up twice,
+  // once for colour and once for the merchant custom label, both by system label.
+  it('renders the status tag when the resolver returns a sentence-case label', async () => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  entityId: 6696,
+                  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    await renderOrderDetails();
+
+    expect(await screen.findByText('Awaiting Fulfillment')).toBeInTheDocument();
   });
 
   it('can navigate back to the orders listing page', async () => {
@@ -1289,17 +1339,15 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                       {
                         id: '1',
                         eventType: OrderHistoryEventType.ORDER_CREATED,
-                        status: 'Pending',
+                        statusLabel: 'Pending',
                         source: null,
-                        createdBy: null,
                         createdAt: '2025-05-01T03:44:00.000Z',
                       },
                       {
                         id: '2',
                         eventType: OrderHistoryEventType.ORDER_UPDATED,
-                        status: 'Shipped',
+                        statusLabel: 'Shipped',
                         source: null,
-                        createdBy: null,
                         createdAt: '2025-05-04T07:22:00.000Z',
                       },
                     ],
