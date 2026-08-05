@@ -266,10 +266,10 @@ function gatherAllProducts(order: Order): OrderProductItem[] {
     edge.node.lineItems.edges.map((le) => convertLineItemToProduct(le.node, edge.node.entityId)),
   );
 
-  const digital = (order.consignments?.downloads?.edges ?? []).flatMap((edge) =>
-    edge.node.lineItems.edges.map((le) =>
-      convertDigitalLineItemToProduct(le.node, edge.node.entityId),
-    ),
+  // OrderDownloadConsignment has no entityId, and digital items have no shipping
+  // address, so there is no consignment address id to carry.
+  const digital = (order.consignments?.downloads ?? []).flatMap((consignment) =>
+    consignment.lineItems.edges.map((le) => convertDigitalLineItemToProduct(le.node, 0)),
   );
 
   return [...physical, ...digital];

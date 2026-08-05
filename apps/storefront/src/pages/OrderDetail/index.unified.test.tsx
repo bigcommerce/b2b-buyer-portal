@@ -1410,19 +1410,14 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       }>,
       physicalConsignment?: Order['consignments'],
     ) {
-      const downloads = {
-        edges: [
-          {
-            cursor: 'dc1',
-            node: {
-              entityId: 9001,
-              lineItems: {
-                edges: digitalItems.map((item) => ({ node: item })),
-              },
-            },
+      const downloads = [
+        {
+          recipientEmail: 'buyer@example.com',
+          lineItems: {
+            edges: digitalItems.map((item) => ({ node: item })),
           },
-        ],
-      };
+        },
+      ];
 
       const shipping = physicalConsignment?.shipping ?? { edges: [] };
 
@@ -1499,6 +1494,55 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByText('Scare Floor Operations Manual (eBook)')).toBeVisible();
       expect(screen.getByText('112')).toBeVisible();
       expect(screen.getByText('Format: ePub')).toBeVisible();
+    });
+
+    // downloads is [OrderDownloadConsignment!]!, unlike its sibling `shipping`.
+    it('selects downloads as a plain list and renders its digital products', async () => {
+      let capturedQuery = '';
+      server.use(
+        graphql.query('GetOrderDetail', ({ query }) => {
+          capturedQuery = query;
+          return HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    entityId: 6696,
+                    consignments: {
+                      shipping: { edges: [] },
+                      downloads: [
+                        {
+                          recipientEmail: 'buyer@example.com',
+                          lineItems: {
+                            edges: [
+                              {
+                                node: {
+                                  entityId: 5001,
+                                  productEntityId: 3001,
+                                  name: 'Ebook',
+                                  quantity: 1,
+                                  productOptions: [],
+                                  subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+                                  subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  }),
+                },
+              },
+            }),
+          );
+        }),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByText('Ebook')).toBeInTheDocument();
+      expect(capturedQuery).not.toMatch(/downloads\s*\{\s*edges/);
     });
 
     it('displays the view files link for digital products in an order', async () => {
@@ -1623,31 +1667,26 @@ describe('Order detail path with unified SF GQL flag ON', () => {
             },
           ],
         },
-        downloads: {
-          edges: [
-            {
-              cursor: 'dc1',
-              node: {
-                entityId: 9001,
-                lineItems: {
-                  edges: [
-                    {
-                      node: {
-                        entityId: 5001,
-                        productEntityId: 3002,
-                        name: 'How to meow',
-                        quantity: 1,
-                        productOptions: [],
-                        subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
-                        subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
-                      },
-                    },
-                  ],
+        downloads: [
+          {
+            recipientEmail: 'buyer@example.com',
+            lineItems: {
+              edges: [
+                {
+                  node: {
+                    entityId: 5001,
+                    productEntityId: 3002,
+                    name: 'How to meow',
+                    quantity: 1,
+                    productOptions: [],
+                    subTotalListPrice: buildSfGqlMoneyWith({ value: 10 }),
+                    subTotalSalePrice: buildSfGqlMoneyWith({ value: 10 }),
+                  },
                 },
-              },
+              ],
             },
-          ],
-        },
+          },
+        ],
       };
 
       const orderWithBoth = buildUnifiedOrderWith({

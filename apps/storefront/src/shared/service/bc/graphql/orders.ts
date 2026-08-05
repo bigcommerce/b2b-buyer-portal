@@ -102,15 +102,16 @@ export interface OrderDigitalLineItem {
   subTotalSalePrice: Money;
 }
 
-/** Projects OrderDownloadConsignment. */
+/** Projects OrderDownloadConsignment — a plain list element, not a connection node. */
 export interface DownloadConsignment {
-  entityId: number;
+  recipientEmail: string;
   lineItems: { edges: Array<{ node: OrderDigitalLineItem }> };
 }
 
 export interface OrderConsignments {
   shipping: { edges: Array<{ cursor: string; node: ShippingConsignment }> };
-  downloads: { edges: Array<{ cursor: string; node: DownloadConsignment }> } | null;
+  /** A list in the schema, unlike `shipping`. */
+  downloads: DownloadConsignment[] | null;
 }
 
 /** Nested inside OrderDiscounts.couponDiscounts. */
@@ -447,28 +448,23 @@ const orderConsignmentsFields = `consignments {
       }
     }
     downloads {
-      edges {
-        cursor
-        node {
-          entityId
-          lineItems {
-            edges {
-              node {
-                entityId
-                productEntityId
-                name
-                quantity
-                productOptions {
-                  name
-                  value
-                }
-                subTotalListPrice {
-                  ${moneyFields}
-                }
-                subTotalSalePrice {
-                  ${moneyFields}
-                }
-              }
+      recipientEmail
+      lineItems {
+        edges {
+          node {
+            entityId
+            productEntityId
+            name
+            quantity
+            productOptions {
+              name
+              value
+            }
+            subTotalListPrice {
+              ${moneyFields}
+            }
+            subTotalSalePrice {
+              ${moneyFields}
             }
           }
         }
