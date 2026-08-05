@@ -121,7 +121,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     orderStatuses: getOrderStatuses,
   });
   const customerFilterState = useCustomerOrdersState({
-    companyId: selectedCompanyId,
     orderStatuses: getOrderStatuses,
   });
   const companyFilterState = useCompanyOrdersState({
@@ -136,13 +135,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return legacyFilterState;
   };
 
-  const {
-    activeSort,
-    handleSearchChange,
-    handleFilterChange,
-    handleCompanyIdsChange,
-    handleSetOrderBy,
-  } = getActiveFilterState();
+  const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
+
+  // The customer hook has no search or company-hierarchy filter, so resolve these
+  // directly from the company/legacy state rather than through the union above.
+  const handleSearchChange = isUnifiedCompanyPath
+    ? companyFilterState.handleSearchChange
+    : legacyFilterState.handleSearchChange;
+
+  const handleCompanyIdsChange = isUnifiedCompanyPath
+    ? companyFilterState.handleCompanyIdsChange
+    : legacyFilterState.handleCompanyIdsChange;
 
   const getFilterDataAndOrderBy = () => {
     if (isUnifiedCompanyPath) {
@@ -475,12 +478,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             },
           }}
         >
-          {isEnabledCompanyHierarchy && (
+          {isEnabledCompanyHierarchy && !isUnifiedCustomerPath && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleCompanyIdsChange} />
             </Box>
           )}
           <B3Filter
+            showSearch={!isUnifiedCustomerPath}
             startPicker={{
               isEnabled: true,
               label: b3Lang('orders.from'),
