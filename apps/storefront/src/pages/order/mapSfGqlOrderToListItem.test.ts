@@ -49,9 +49,7 @@ const baseOrder: SfGqlOrder = {
   company: null,
   placedBy: null,
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 };
 
 describe('mapSfGqlOrderToListItem', () => {

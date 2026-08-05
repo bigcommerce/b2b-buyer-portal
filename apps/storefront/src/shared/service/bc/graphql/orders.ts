@@ -60,7 +60,6 @@ export interface OrderLineItem {
   subTotalSalePrice: Money;
   image: { url: string } | null;
   baseCatalogProduct: { path: string } | null;
-  returnableQuantity: number;
 }
 
 export interface OrderShipmentTracking {
@@ -164,17 +163,8 @@ export interface OrderHistoryEvent {
   createdAt: string;
 }
 
-export interface OrderQuote {
-  id: string;
-}
-
 export interface OrderInvoice {
   id: string;
-}
-
-export interface ExtraFieldValue {
-  name: string;
-  value: string;
 }
 
 export interface OrderPaymentInfo {
@@ -218,9 +208,7 @@ export interface Order {
   company: OrderCompany | null;
   placedBy: OrderPlacedBy | null;
   history: OrderHistoryEvent[];
-  quote: OrderQuote | null;
   invoice: OrderInvoice | null;
-  extraFields: ExtraFieldValue[];
 }
 
 // ===========================================================================
@@ -392,8 +380,7 @@ const orderLineItemFields = `entityId
       }
       baseCatalogProduct {
         path
-      }
-      returnableQuantity`;
+      }`;
 
 const orderShipmentFields = `entityId
       shippedAt {
@@ -534,15 +521,8 @@ const orderB2BFields = `reference
     source
     createdAt
   }
-  quote {
-    id
-  }
   invoice {
     id
-  }
-  extraFields {
-    name
-    value
   }`;
 
 /** Lightweight fields for order list views. */

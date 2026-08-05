@@ -507,9 +507,9 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    canReturn: (order.consignments?.shipping?.edges ?? []).some((edge) =>
-      edge.node.lineItems.edges.some((le) => le.node.returnableQuantity > 0),
-    ),
+    // returnableQuantity is not selected: it only fed the Return button, which is
+    // hidden unconditionally under BUN-1417, and the field 500s on the server.
+    canReturn: false,
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
     invoiceId: order.invoice ? Number(order.invoice.id) : 0,

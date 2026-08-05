@@ -120,9 +120,7 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   company: null,
   placedBy: null,
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 }));
 
 const buildOrderDetailResponseWith = builder<GetOrderDetailResponse>(() => ({
@@ -307,6 +305,32 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(capturedQuery).toContain('statusLabel');
     expect(capturedQuery).not.toMatch(/history\s*\{[^}]*\bstatus\b\s/);
     expect(capturedQuery).not.toContain('createdBy');
+  });
+
+  // These three are selected and never read. returnableQuantity additionally 500s, and
+  // being non-null it nulls the entire consignments tree with it.
+  it('does not select fields the UI never reads', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({ entityId: 6696 }),
+              },
+            },
+          }),
+        );
+      }),
+    );
+
+    await renderOrderDetails();
+
+    expect(capturedQuery).not.toContain('returnableQuantity');
+    expect(capturedQuery).not.toContain('quote');
+    expect(capturedQuery).not.toContain('extraFields');
   });
 
   it('renders the order header', async () => {
@@ -685,7 +709,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: { url: 'https://example.com/widget.jpg' },
                           baseCatalogProduct: { path: '/widget/' },
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -807,7 +830,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -889,7 +911,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 25 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -932,7 +953,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 50 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -996,7 +1016,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 125 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1076,7 +1095,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 75 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                       {
@@ -1093,7 +1111,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1192,7 +1209,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1303,7 +1319,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                           subTotalSalePrice: buildSfGqlMoneyWith({ value: 100 }),
                           image: null,
                           baseCatalogProduct: null,
-                          returnableQuantity: 0,
                         },
                       },
                     ],
@@ -1709,7 +1724,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: 200 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     },
                   ],
@@ -1823,7 +1837,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -2249,7 +2262,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },
@@ -2913,7 +2925,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
                         subTotalSalePrice: buildSfGqlMoneyWith({ value: p.quantity * 10 }),
                         image: null,
                         baseCatalogProduct: null,
-                        returnableQuantity: 0,
                       },
                     })),
                   },
