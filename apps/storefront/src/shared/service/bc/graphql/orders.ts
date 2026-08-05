@@ -388,7 +388,7 @@ const orderLineItemFields = `entityId
         ${moneyFields}
       }
       image {
-        url
+        url(width: 80)
       }
       baseCatalogProduct {
         path

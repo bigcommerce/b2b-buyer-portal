@@ -261,6 +261,29 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     return view;
   }
 
+  // Image.url takes a required width argument.
+  it('requests the line item image with an explicit width', async () => {
+    let capturedQuery = '';
+    server.use(
+      graphql.query('GetOrderDetail', ({ query }) => {
+        capturedQuery = query;
+        return HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({ entityId: 6696 }),
+              },
+            },
+          }),
+        );
+      }),
+    );
+
+    await renderOrderDetails();
+
+    expect(capturedQuery).toContain('url(width: 80)');
+  });
+
   // OrderHistoryEvent exposes statusLabel; `status` and `createdBy` do not exist on it.
   it('requests statusLabel on history and never createdBy', async () => {
     let capturedQuery = '';
