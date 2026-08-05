@@ -83,7 +83,7 @@ const buildUnifiedOrderWith = builder<Order>(() => ({
   entityId: faker.number.int({ min: 1000, max: 99999 }),
   orderedAt: { utc: faker.date.past().toISOString() },
   updatedAt: { utc: faker.date.past().toISOString() },
-  status: { value: 'PENDING', label: 'Pending' },
+  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
   billingAddress: {
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
