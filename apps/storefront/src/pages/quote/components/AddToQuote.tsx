@@ -9,7 +9,6 @@ import CustomButton from '@/components/button/CustomButton';
 import { B3Upload } from '@/components/upload/B3Upload';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
