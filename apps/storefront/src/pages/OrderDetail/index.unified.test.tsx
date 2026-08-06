@@ -216,7 +216,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
               site: {
                 order: buildUnifiedOrderWith({
                   entityId: 6696,
-                  status: { value: 'PENDING', label: 'Pending' },
+                  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
                   reference: '',
                 }),
               },
@@ -229,7 +229,10 @@ describe('Order detail path with unified SF GQL flag ON', () => {
           buildCustomerOrderStatusesWith({
             data: {
               bcOrderStatuses: [
-                buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'Pending' }),
+                buildOrderStatusWith({
+                  systemLabel: 'Awaiting Fulfillment',
+                  customLabel: 'Awaiting Fulfillment',
+                }),
                 buildOrderStatusWith('WHATEVER_VALUES'),
               ],
             },
@@ -337,7 +340,7 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     await renderOrderDetails();
 
     expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
-    expect(screen.getByText('Pending')).toBeVisible();
+    expect(screen.getByText('Awaiting Fulfillment')).toBeVisible();
   });
 
   // Same casing trap as the list surfaces: the detail header looks the status up twice,

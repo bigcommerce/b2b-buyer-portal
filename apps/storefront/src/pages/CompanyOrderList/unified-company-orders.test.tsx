@@ -87,9 +87,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   company: { entityId: faker.number.int({ min: 1, max: 999 }), name: faker.company.name() },
   placedBy: buildPlacedByWith('WHATEVER_VALUES'),
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 }));
 
 const buildCompanyOrdersResponseWith = builder<GetCompanyOrdersResponse>(() => {
