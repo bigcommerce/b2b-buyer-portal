@@ -372,11 +372,21 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
       expect(await screen.findByRole('columnheader', { name: 'Order' })).toBeInTheDocument();
-      expect(
-        screen
-          .getByRole('columnheader', { name: 'Order' })
-          .querySelector('.MuiTableSortLabel-root'),
-      ).not.toBeNull();
+
+      // All five base-sortable columns (placedBy is company-only and hidden on My Orders) —
+      // checking only one would let a partial revert (e.g. just `orderId` flipped back) pass.
+      const sortableColumnNames = [
+        'Order',
+        'PO / Reference',
+        'Grand total',
+        'Order status',
+        'Created on',
+      ];
+      sortableColumnNames.forEach((name) => {
+        expect(
+          screen.getByRole('columnheader', { name }).querySelector('.MuiTableSortLabel-root'),
+        ).not.toBeNull();
+      });
     });
 
     it('sends sortBy on the customer orders query and re-fetches on header click', async () => {
@@ -393,6 +403,12 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
       const orderHeader = await screen.findByRole('columnheader', { name: 'Order' });
       await waitFor(() => expect(requests.length).toBeGreaterThan(0));
+      // GET_CUSTOMER_ORDERS is a static string, so asserting the query text contains
+      // 'sortBy' is true of every request — it proves the argument exists on the query,
+      // not that clicking the header changed anything. The real proof is that the sortBy
+      // *value* sent for this same column differs between the pre-click and post-click
+      // requests (toggling asc/desc), which only happens if the click actually re-sorted.
+      const firstRequestSortBy = requests[0].variables.sortBy;
 
       await userEvent.click(within(orderHeader).getByRole('button'));
 
@@ -400,6 +416,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       const lastRequest = requests[requests.length - 1];
       expect(lastRequest.query).toContain('sortBy');
       expect(lastRequest.variables).toHaveProperty('sortBy');
+      expect(lastRequest.variables.sortBy).not.toEqual(firstRequestSortBy);
     });
 
     // Search is kept visible even though it's a no-op: it's deferred to its own ticket,
