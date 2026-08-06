@@ -9,7 +9,6 @@ import CustomButton from '@/components/button/CustomButton';
 import { B3Upload } from '@/components/upload/B3Upload';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -40,10 +39,6 @@ export default function AddToQuote(props: AddToListProps) {
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const b3Lang = useB3Lang();
-
-  const breakProductSearchesIntoChunks = useFeatureFlag(
-    'B2B-4231.chunk_product_searches_in_csv_upload',
-  );
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) =>
     products.map((product) => {
@@ -188,30 +183,23 @@ export default function AddToQuote(props: AddToListProps) {
       });
 
       let productsSearch: Product[] = [];
-      if (breakProductSearchesIntoChunks) {
-        // TODO(B2B-4256): SearchProducts will only return 50 products at a time.
-        const chunkedProductIds = chunk(productIds, 50);
-        // Search with batches and await all.
-        const chunkedProductSearches = await Promise.all(
-          chunkedProductIds.map((chunkOfProductIds) =>
-            searchProducts({
-              productIds: chunkOfProductIds,
-              companyId,
-              customerGroupId,
-            }),
-          ),
-        );
-        productsSearch = chunkedProductSearches.flatMap(
-          (result) => result.productsSearch,
-        ) as Product[];
-      } else {
-        const { productsSearch: ps } = await searchProducts({
-          productIds,
-          companyId,
-          customerGroupId,
-        });
-        productsSearch = ps;
-      }
+      // TODO(B2B-4256): SearchProducts will only return 50 products at a time.
+      const chunkedProductIds = chunk(productIds, 50);
+      // Search with batches and await all.
+      const chunkedProductSearches = await Promise.all(
+        // A PR suggestion during FF removal is to set a concurrency limit on in-flight requests,
+        // since the CSV size is not currently limited.
+        chunkedProductIds.map((chunkOfProductIds) =>
+          searchProducts({
+            productIds: chunkOfProductIds,
+            companyId,
+            customerGroupId,
+          }),
+        ),
+      );
+      productsSearch = chunkedProductSearches.flatMap(
+        (result) => result.productsSearch,
+      ) as Product[];
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
 
