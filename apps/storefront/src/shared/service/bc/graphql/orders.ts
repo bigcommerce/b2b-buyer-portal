@@ -270,8 +270,10 @@ export interface CompanyOrdersFiltersInput {
 
 /**
  * Filters for customer.orders, matching what the server currently accepts.
- * The agreed schema also extends this input with search, companyName and companyIds;
- * none is implemented yet, so they are deliberately absent here rather than optional.
+ * companyName and companyIds are permanently absent: the agreed schema gist specified
+ * them, but the deployed server never implemented them and the gist is being amended
+ * to match (B2B-5421). search is a genuine, temporary omission — it's deferred to its
+ * own ticket and should be restored here once that ticket ships.
  */
 export interface OrdersFiltersInput {
   /** An OrderStatusValue enum member, e.g. AWAITING_FULFILLMENT — not a display label. */
