@@ -482,7 +482,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             </Box>
           )}
           <B3Filter
-            showSearch={!isUnifiedCustomerPath}
             filterMoreInfo={
               // The customer filter state has no field to send a company filter to, so
               // it's hidden here to avoid a visible-but-inert control — see B2B-5420.

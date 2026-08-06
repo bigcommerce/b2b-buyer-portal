@@ -398,9 +398,11 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(capturedVariables).not.toHaveProperty('sortBy');
     });
 
-    // OrdersFiltersInput has no `search`, and the company selector's filter field was
-    // removed. A visible control that cannot filter is worse than no control.
-    it('renders neither the search box nor the company selector on the unified customer path', async () => {
+    // Search is kept visible even though it's a no-op: it's deferred to its own ticket,
+    // not permanently unsupported, so the UI stays unchanged for now (see B2B-5420). The
+    // company-hierarchy selector stays hidden — that field is permanently absent from
+    // OrdersFiltersInput (B2B-5421), so there's no query for it to ever start filtering.
+    it('renders the search box but not the company selector on the unified customer path', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
           HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
@@ -420,7 +422,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       expect(await screen.findByRole('table')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('Search')).toBeInTheDocument();
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
@@ -428,7 +430,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
     // getFilterMoreData's role/agenting checks than CustomerRole.ADMIN does, and that
     // branch used to leave the "Company" more-filter field visible even though the
     // customer path's filter state has nowhere to send it — the exact visible-but-inert
-    // defect this whole area of the plan fixed for the search box and company selector.
+    // defect this fixes for the company more-filter field.
     it('renders no Company field in more filters for a super admin who is not agenting', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
