@@ -906,14 +906,15 @@ type RegistrationData = {
   accountType: string;
   contactInfo: Record<string, string | boolean>;
   businessDetails?: Record<string, string>;
+  /** Files dropped onto the `field_attachments` dropzone in the Business Details step. */
+  attachments?: File[];
   address: Record<string, string>;
   password: Record<string, string>;
-  attachment?: File;
 };
 
 async function completeRegistration(
   user: ReturnType<typeof renderWithProviders>['user'],
-  { accountType, contactInfo, businessDetails, address, password, attachment }: RegistrationData,
+  { accountType, contactInfo, businessDetails, attachments, address, password }: RegistrationData,
 ) {
   // Step 1: Account type selection
   await user.click(screen.getByLabelText(accountType));
@@ -962,13 +963,14 @@ async function completeRegistration(
         businessDetails['Company Phone Number'] as string,
       );
     }
-    if (attachment) {
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-      if (!fileInput) {
-        throw new Error('Attachments file input not found');
-      }
-      await user.upload(fileInput, attachment);
-      await screen.findByText(attachment.name);
+    if (attachments?.length) {
+      // The `field_attachments` dropzone renders a bare file input with no accessible name.
+      const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!fileInput) throw new Error('Expected an attachments file input in Business Details');
+      await user.upload(fileInput, attachments);
+      // The dropzone reads each file asynchronously before it calls `setValue`, so wait for
+      // the previews to render — otherwise Continue can fire before the field is populated.
+      await Promise.all(attachments.map((file) => screen.findByText(file.name)));
     }
     await user.click(screen.getByRole('button', { name: 'Continue' }));
   }
@@ -1133,6 +1135,61 @@ describe('Registered Page', () => {
     });
   });
 
+  it('does not register and flags both password fields when the passwords do not match', async () => {
+    const { user } = renderWithProviders(
+      <RegisteredProvider>
+        <Registered setOpenPage={vi.fn()} />
+      </RegisteredProvider>,
+      { preloadedState: preloadedStateB2bCompanyCreate },
+    );
+
+    await completeRegistration(user, {
+      ...mockRegistrationData.b2c,
+      businessDetails: undefined,
+      password: {
+        'Create Password': 'Password123',
+        'Confirm Password': 'DifferentPassword456',
+      },
+    });
+
+    // The error is set on both `confirmPassword` and `password`, so it renders twice.
+    expect(await screen.findAllByText('Your passwords do not match.')).toHaveLength(2);
+
+    // Submission is aborted before any account is created.
+    expect(b2bService.createBCCompanyUser).not.toHaveBeenCalled();
+    expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+    expect(companyGraphqlModule.registerCompany).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('heading', { name: 'Registration complete!' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('blocks submission with a missing-captcha message when storefront captcha is unsolved', async () => {
+    vi.spyOn(recaptchaModule, 'getStorefrontToken').mockResolvedValue({
+      isEnabledOnStorefront: true,
+      siteKey: 'test-site-key',
+    });
+
+    const { user } = renderWithProviders(
+      <RegisteredProvider>
+        <Registered setOpenPage={vi.fn()} />
+      </RegisteredProvider>,
+      { preloadedState: preloadedStateB2bCompanyCreate },
+    );
+
+    await completeRegistration(user, { ...mockRegistrationData.b2c, businessDetails: undefined });
+
+    expect(
+      await screen.findByText('The captcha you entered is incorrect. Please try again.'),
+    ).toBeVisible();
+
+    // Submission is aborted before any account is created.
+    expect(b2bService.createBCCompanyUser).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('heading', { name: 'Registration complete!' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders and completes Business (B2B) registration flow with auto approval', async () => {
     const { navigation, user } = renderWithProviders(
       <RegisteredProvider>
@@ -1159,6 +1216,73 @@ describe('Registered Page', () => {
     // Expect /orders because companyAutoApproval.enabled is true (default from CustomStyleContext)
     await waitFor(() => {
       expect(navigation).toHaveBeenCalledWith(expect.stringMatching(/\/orders/i));
+    });
+  });
+
+  describe('company attachments (field_attachments)', () => {
+    const buildAttachment = (name = 'company-registration.pdf') =>
+      new File(['dummy-attachment-content'], name, { type: 'application/pdf' });
+
+    it('uploads attached files and forwards the normalised file list to companyCreate', async () => {
+      vi.spyOn(b2bService, 'uploadB2BFile').mockResolvedValue({
+        code: 200,
+        data: { id: 99, fileName: 'company-registration.pdf', fileSize: 1024 },
+      });
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        { preloadedState: preloadedStateB2bCompanyCreate },
+      );
+
+      await completeRegistration(user, {
+        ...mockRegistrationData.b2b,
+        attachments: [buildAttachment()],
+      });
+
+      expect(b2bService.uploadB2BFile).toHaveBeenCalledTimes(1);
+      expect(b2bService.uploadB2BFile).toHaveBeenCalledWith({
+        file: expect.objectContaining({ name: 'company-registration.pdf' }),
+        type: 'companyAttachedFile',
+      });
+
+      // `fileSize` is coerced to a string before the list is handed to companyCreate.
+      expect(b2bService.createB2BCompanyUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fileList: [{ id: 99, fileName: 'company-registration.pdf', fileSize: '1024' }],
+        }),
+      );
+      expect(screen.getByRole('heading', { name: 'Application submitted' })).toBeVisible();
+    });
+
+    it('does not create the company when an attachment upload fails', async () => {
+      vi.spyOn(b2bService, 'uploadB2BFile').mockResolvedValue({
+        code: 500,
+        data: { errMsg: 'Attachment rejected by storage' },
+      });
+
+      const { user } = renderWithProviders(
+        <RegisteredProvider>
+          <Registered setOpenPage={vi.fn()} />
+        </RegisteredProvider>,
+        { preloadedState: preloadedStateB2bCompanyCreate },
+      );
+
+      await completeRegistration(user, {
+        ...mockRegistrationData.b2b,
+        attachments: [buildAttachment()],
+      });
+
+      expect(await screen.findByText('Attachment rejected by storage')).toBeVisible();
+
+      // Uploads now run after customer creation (B2B-5230), so the customer is already
+      // created by the time the upload fails; only the company-creation step is skipped.
+      expect(b2bService.createBCCompanyUser).toHaveBeenCalledTimes(1);
+      expect(b2bService.createB2BCompanyUser).not.toHaveBeenCalled();
+      expect(
+        screen.queryByRole('heading', { name: 'Application submitted' }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -1392,9 +1516,11 @@ describe('Registered Page', () => {
 
       await completeRegistration(user, {
         ...mockRegistrationData.b2b,
-        attachment: new File(['dummy-file-contents'], uploadedFile.fileName, {
-          type: uploadedFile.fileType,
-        }),
+        attachments: [
+          new File(['dummy-file-contents'], uploadedFile.fileName, {
+            type: uploadedFile.fileType,
+          }),
+        ],
       });
 
       await waitFor(() => {
