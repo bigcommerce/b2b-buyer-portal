@@ -424,6 +424,37 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
+    // A super admin who isn't currently agenting hits a different branch of
+    // getFilterMoreData's role/agenting checks than CustomerRole.ADMIN does, and that
+    // branch used to leave the "Company" more-filter field visible even though the
+    // customer path's filter state has nowhere to send it — the exact visible-but-inert
+    // defect this whole area of the plan fixed for the search box and company selector.
+    it('renders no Company field in more filters for a super admin who is not agenting', async () => {
+      server.use(
+        graphql.query('GetCustomerOrders', () =>
+          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      renderWithProviders(<MyOrders />, {
+        preloadedState: {
+          ...b2bStateWithFlag(flagOn),
+          company: buildCompanyStateWith({
+            customer: { role: CustomerRole.SUPER_ADMIN, userType: UserTypes.MULTIPLE_B2C },
+            companyInfo: { id: '123', companyName: 'Test Corp', status: CompanyStatus.APPROVED },
+          }),
+        },
+      });
+
+      expect(await screen.findByRole('table')).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: /edit/ }));
+
+      const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+      expect(within(dialog).queryByRole('textbox', { name: /compan/i })).not.toBeInTheDocument();
+    });
+
     it("displays the order's own currency via formattedV2, ignoring the store's currency settings", async () => {
       const order = buildSfGqlOrderWith({
         entityId: 90909,

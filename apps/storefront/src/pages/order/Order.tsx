@@ -483,6 +483,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           )}
           <B3Filter
             showSearch={!isUnifiedCustomerPath}
+            filterMoreInfo={
+              // The customer filter state has no field to send a company filter to, so
+              // it's hidden here to avoid a visible-but-inert control — see B2B-5420.
+              isUnifiedCustomerPath
+                ? filterMoreInfo.filter((item) => item.name !== 'company')
+                : filterMoreInfo
+            }
             startPicker={{
               isEnabled: true,
               label: b3Lang('orders.from'),
@@ -495,7 +502,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               defaultValue: filterData?.endDateAt || null,
               pickerKey: 'end',
             }}
-            filterMoreInfo={filterMoreInfo}
             handleChange={handleSearchChange}
             handleFilterChange={handleFilterChange}
             pcTotalWidth="100%"
