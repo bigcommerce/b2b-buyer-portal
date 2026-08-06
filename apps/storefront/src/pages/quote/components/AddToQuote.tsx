@@ -187,6 +187,8 @@ export default function AddToQuote(props: AddToListProps) {
       const chunkedProductIds = chunk(productIds, 50);
       // Search with batches and await all.
       const chunkedProductSearches = await Promise.all(
+        // A PR suggestion during FF removal is to set a concurrency limit on in-flight requests,
+        // since the CSV size is not currently limited.
         chunkedProductIds.map((chunkOfProductIds) =>
           searchProducts({
             productIds: chunkOfProductIds,
