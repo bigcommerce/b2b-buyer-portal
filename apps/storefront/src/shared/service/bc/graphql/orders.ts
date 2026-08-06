@@ -607,6 +607,7 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  */
 const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
+  $sortBy: OrdersSortInput
   $first: Int
   $after: String
   $last: Int
@@ -615,6 +616,7 @@ const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   customer {
     orders(
       filters: $filters
+      sortBy: $sortBy
       first: $first
       after: $after
       last: $last
@@ -722,6 +724,7 @@ export async function getCompanyOrders(variables: {
 /** My Orders — customer-scoped, unified for B2B and B2C. */
 export async function getCustomerOrders(variables: {
   filters?: OrdersFiltersInput;
+  sortBy?: OrdersSortInput;
   first?: number;
   after?: string;
   last?: number;

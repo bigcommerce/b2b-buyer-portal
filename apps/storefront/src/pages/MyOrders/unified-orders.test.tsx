@@ -360,10 +360,9 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(headerTexts).toContain('Company');
     });
 
-    // Sorting is not available on customer.orders — the agreed schema puts sortBy on the
-    // company path only, and the upstream endpoint has no sort parameter. A header that
-    // still reports aria-sort tells the user the list sorted when it did not.
-    it('renders My Orders column headers as non-sortable when unified orders is enabled', async () => {
+    // customer.orders now accepts sortBy (B2B-5421) — the headers should behave exactly
+    // like Company Orders and legacy My Orders, not report a sort that never happens.
+    it('renders My Orders column headers as sortable when unified orders is enabled', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
           HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
@@ -373,29 +372,34 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
       expect(await screen.findByRole('columnheader', { name: 'Order' })).toBeInTheDocument();
-      screen.getAllByRole('columnheader').forEach((header) => {
-        expect(header).not.toHaveAttribute('aria-sort');
-        expect(header.querySelector('.MuiTableSortLabel-root')).toBeNull();
-      });
+      expect(
+        screen
+          .getByRole('columnheader', { name: 'Order' })
+          .querySelector('.MuiTableSortLabel-root'),
+      ).not.toBeNull();
     });
 
-    it('does not send sortBy on the customer orders query', async () => {
-      let capturedQuery = '';
-      let capturedVariables: Record<string, unknown> = {};
+    it('sends sortBy on the customer orders query and re-fetches on header click', async () => {
+      const requests: { query: string; variables: Record<string, unknown> }[] = [];
 
       server.use(
         graphql.query('GetCustomerOrders', ({ query, variables }) => {
-          capturedQuery = query;
-          capturedVariables = variables;
+          requests.push({ query, variables });
           return HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
         }),
       );
 
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
-      await waitFor(() => expect(capturedQuery).not.toBe(''));
-      expect(capturedQuery).not.toContain('sortBy');
-      expect(capturedVariables).not.toHaveProperty('sortBy');
+      const orderHeader = await screen.findByRole('columnheader', { name: 'Order' });
+      await waitFor(() => expect(requests.length).toBeGreaterThan(0));
+
+      await userEvent.click(within(orderHeader).getByRole('button'));
+
+      await waitFor(() => expect(requests.length).toBeGreaterThan(1));
+      const lastRequest = requests[requests.length - 1];
+      expect(lastRequest.query).toContain('sortBy');
+      expect(lastRequest.variables).toHaveProperty('sortBy');
     });
 
     // Search is kept visible even though it's a no-op: it's deferred to its own ticket,
@@ -422,7 +426,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       expect(await screen.findByRole('table')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Search')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
