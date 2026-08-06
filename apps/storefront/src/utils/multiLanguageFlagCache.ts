@@ -19,11 +19,7 @@
 const MULTI_LANGUAGE_STORAGE_KEY = 'b2b-multi-language-enabled';
 
 export const setMultiLanguageEnabledCache = (enabled: boolean) => {
-  try {
-    localStorage.setItem(MULTI_LANGUAGE_STORAGE_KEY, String(enabled));
-  } catch {
-    // ignore: persistence is best-effort
-  }
+  localStorage.setItem(MULTI_LANGUAGE_STORAGE_KEY, String(enabled));
 };
 
 export const getMultiLanguageEnabledCache = (): boolean => {

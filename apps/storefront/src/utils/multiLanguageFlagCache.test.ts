@@ -24,14 +24,9 @@ describe('multi-language feature flag cache', () => {
     const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('storage disabled');
     });
-    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('storage disabled');
-    });
 
-    expect(() => setMultiLanguageEnabledCache(true)).not.toThrow();
     expect(getMultiLanguageEnabledCache()).toBe(false);
 
     getItem.mockRestore();
-    setItem.mockRestore();
   });
 });
