@@ -34,7 +34,7 @@ import {
   catalogListHasPicklistBackorderedItemsForDisplay,
   getProductDetailsForPicklistSelections,
 } from '@/utils/catalogBackorderDisplay';
-import { parseAttributeOptionId } from '@/utils/parseAttributeOptionId';
+import { getPicklistOptionSelectionsFromForm } from '@/utils/getPicklistOptionSelectionsFromForm';
 
 const Flex = styled('div')({
   display: 'flex',
@@ -372,12 +372,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const picklistSelections =
     backorderUiEnabled && product?.modifiers?.length
       ? getProductDetailsForPicklistSelections({
-          optionSelections: getOptionList(formValues).flatMap(({ optionId, optionValue }) => {
-            const parsedOptionId = parseAttributeOptionId(optionId);
-            return parsedOptionId === null
-              ? []
-              : [{ option_id: parsedOptionId, value_id: Number(optionValue) }];
-          }),
+          optionSelections: getPicklistOptionSelectionsFromForm(formFields, formValues),
           productsSearch: { modifiers: product.modifiers },
         })
       : [];
