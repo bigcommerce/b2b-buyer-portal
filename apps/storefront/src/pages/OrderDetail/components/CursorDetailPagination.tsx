@@ -99,7 +99,6 @@ async function fetchAdjacentPage(
   const result = await getCustomerOrders({
     ...paginationArgs,
     filters: filters as OrdersFiltersInput,
-    sortBy,
   });
   const orders = result.data?.customer?.orders;
   if (!orders) throw new Error('Unexpected API response: orders missing');

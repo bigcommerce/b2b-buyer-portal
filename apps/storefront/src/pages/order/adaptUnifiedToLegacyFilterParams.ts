@@ -29,13 +29,13 @@ export const adaptUnifiedToLegacyFilterParams = ({
   orderBy: string;
 } => ({
   filterData: {
-    q: filters.search ?? '',
+    q: '',
     statusCode: filters.status ?? '',
     beginDateAt: filters.dateRange?.from ?? null,
     endDateAt: filters.dateRange?.to ?? null,
-    companyName: filters.companyName ?? '',
+    companyName: '',
     // Legacy emits `companyIds: []` for "All"; restore that for B2B users.
-    companyIds: filters.companyIds?.map(Number) ?? (isB2BUser ? [] : undefined),
+    companyIds: isB2BUser ? [] : undefined,
     isShowMy: isB2BUser ? 1 : undefined,
   },
   orderBy: activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key],
