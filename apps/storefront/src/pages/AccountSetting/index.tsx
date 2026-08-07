@@ -1,16 +1,17 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import CustomButton from '@/components/button/CustomButton';
+import { Captcha } from '@/components/captcha/Captcha';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
+import { useStorefrontCaptcha } from '@/hooks/useStorefrontCaptcha';
 import { useB3Lang } from '@/lib/lang';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
@@ -19,27 +20,25 @@ import {
   getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
-  updateB2BAccountSettings,
-  updateBCAccountSettings,
 } from '@/shared/service/b2b';
-import { getCompanyUserDetails, getCustomerDetails } from '@/shared/service/bc';
+import {
+  getCompanyUserDetails,
+  getCustomerDetails,
+  getCustomerFormFieldDefinitions,
+} from '@/shared/service/bc';
+import { CustomerFormFieldDefinition } from '@/shared/service/bc/graphql/accountSetting';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole, UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage } from '@/utils/b3Storage';
+import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 import { channelId, isCatalystPlatform } from '@/utils/basicConfig';
-import { deCodeField, getAccountFormFields } from '@/utils/registerUtils';
+import { getAccountFormFields } from '@/utils/registerUtils';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
 import { UpgradeBanner } from './UpgradeBanner';
-import {
-  b2bSubmitDataProcessing,
-  bcSubmitDataProcessing,
-  initB2BInfo,
-  initBcInfo,
-  mapUserToAccountInfo,
-} from './utils';
+import { useAccountSettingsSubmit } from './useAccountSettingsSubmit';
+import { initB2BInfo, initBcInfo, mapUserToAccountInfo } from './utils';
 
 function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -136,17 +135,35 @@ function AccountSetting() {
   const dedupeStorefrontConfigFetchCalls = useFeatureFlag(
     'B2B-5309.dedupe_storefront_config_fetch_calls',
   );
-  const [isMobile] = useMobile();
 
-  const navigate = useNavigate();
+  // BC customers update via customer.updateCustomer, which needs a reCaptcha token
+  // when reCaptcha is enabled on the storefront.
+  const isCustomerUpdate = useBcAccountSettings && isBCUser;
+
+  const [isMobile] = useMobile();
 
   const [accountInfoFormFields, setAccountInfoFormFields] = useState<Partial<Fields>[]>([]);
   const [decryptionFields, setDecryptionFields] = useState<Partial<Fields>[]>([]);
   const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [accountSettings, setAccountSettings] = useState<any>({});
+  const [customerFormFieldDefs, setCustomerFormFieldDefs] = useState<CustomerFormFieldDefinition[]>(
+    [],
+  );
+  const [captchaToken, setCaptchaToken] = useState<string>('');
+  const [captchaKey, setCaptchaKey] = useState(0);
   const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  const resetCaptcha = useCallback(() => {
+    setCaptchaToken('');
+    setCaptchaKey((key) => key + 1);
+  }, []);
   const skipNextInitRef = useRef(false);
+
+  // BC customer.updateCustomer needs a reCaptcha token when reCaptcha is enabled on the
+  // storefront; load that config (shared with the forgot-password flow).
+  const { isCaptchaEnabled, captchaSiteKey, isCaptchaConfigLoading } =
+    useStorefrontCaptcha(isCustomerUpdate);
 
   useEffect(() => {
     const init = async () => {
@@ -174,17 +191,48 @@ function AccountSetting() {
         const additionalInformation = (accountFormFields?.additionalInformation ??
           []) as Partial<Fields>[];
 
+        // Store the customer form-field definitions (option entityIds for choice fields),
+        // surfacing — not swallowing — a failed fetch since it's what blocks choice fields.
+        const applyFormFieldDefinitions = (
+          definitions: Awaited<ReturnType<typeof getCustomerFormFieldDefinitions>> | undefined,
+        ) => {
+          if (definitions?.errors?.length) {
+            b2bLogger.error(
+              `Customer form-field definitions unavailable: ${definitions.errors[0]?.message}`,
+            );
+          }
+          setCustomerFormFieldDefs(definitions?.data?.site?.settings?.formFields?.customer ?? []);
+        };
+
         let accountSettings;
         if (useBcAccountSettings) {
+          // Definitions supply choice option ids AND the entityId fallback (by label) for any
+          // custom field whose fieldId isn't `field_<id>`, so fetch them whenever the form has
+          // any custom field — not only choice fields.
+          const needsDefinitions = [...contactInformation, ...additionalInformation].some(
+            (item) => item.custom,
+          );
+          const definitionsPromise = needsDefinitions
+            ? getCustomerFormFieldDefinitions()
+            : Promise.resolve(undefined);
+
           let userData;
           if (isBCUser) {
-            const response = await getCustomerDetails();
+            const [response, definitions] = await Promise.all([
+              getCustomerDetails(),
+              definitionsPromise,
+            ]);
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.customer;
+            applyFormFieldDefinitions(definitions);
           } else {
-            const response = await getCompanyUserDetails();
+            const [response, definitions] = await Promise.all([
+              getCompanyUserDetails(),
+              definitionsPromise,
+            ]);
             if (response.errors?.length) throw new Error(response.errors[0]?.message);
             userData = response.data?.company?.companyUser;
+            applyFormFieldDefinitions(definitions);
           }
 
           if (!userData) throw new Error('Account settings response did not include a user');
@@ -246,91 +294,28 @@ function AccountSetting() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFinishUpdate, useBcAccountSettings]);
 
-  const handleGetUserExtraFields = (
-    data: CustomFieldItems,
-    accountInfoFormFields: Partial<Fields>[],
-  ) => {
-    const userExtraFields = accountInfoFormFields.filter(
-      (item: CustomFieldItems) => item.custom && item.groupId === 1,
-    );
-    return userExtraFields.map((item: CustomFieldItems) => ({
-      fieldName: deCodeField(item?.name || ''),
-      fieldValue: data[item.name],
-    }));
-  };
-
-  const handleAddUserClick = () => {
-    handleSubmit(async (data: CustomFieldItems) => {
-      setLoading(true);
-
-      try {
-        const isValid = await validateEmailValue(data.email);
-
-        if (!isValid) {
-          setError('email', {
-            type: 'custom',
-            message: b3Lang('accountSettings.notification.emailExists'),
-          });
-        }
-
-        const emailFlag = emailValidation(data);
-
-        if (!emailFlag) {
-          snackbar.error(b3Lang('accountSettings.notification.updateEmailPassword'));
-        }
-
-        const passwordFlag = passwordValidation(data);
-
-        if (!passwordFlag) {
-          setError('confirmPassword', {
-            type: 'manual',
-            message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-          });
-          setError('password', {
-            type: 'manual',
-            message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-          });
-        }
-
-        if (isValid && emailFlag && passwordFlag) {
-          const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
-          const payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
-
-          if (payload) {
-            if (!isBCUser) {
-              payload.companyId = companyId;
-              payload.extraFields = handleGetUserExtraFields(data, accountInfoFormFields);
-            }
-
-            if (payload.newPassword === '' && payload.confirmPassword === '') {
-              delete payload.newPassword;
-              delete payload.confirmPassword;
-            }
-          }
-
-          if (!payload) {
-            snackbar.success(b3Lang('accountSettings.notification.noEdits'));
-            return;
-          }
-
-          const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
-          await requestFn(payload);
-
-          if (
-            (data.password && data.currentPassword) ||
-            customer.emailAddress !== trim(data.email)
-          ) {
-            navigate('/login?loginFlag=loggedOutLogin');
-          } else {
-            B3SStorage.clear();
-            setIsFinishUpdate(true);
-          }
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-  };
+  const { handleAddUserClick } = useAccountSettingsSubmit({
+    isBCUser,
+    useBcAccountSettings,
+    companyId,
+    customer,
+    accountSettings,
+    decryptionFields,
+    extraFields,
+    accountInfoFormFields,
+    customerFormFieldDefs,
+    captchaToken,
+    resetCaptcha,
+    isCaptchaEnabled,
+    isCaptchaConfigLoading,
+    validateEmailValue,
+    emailValidation,
+    passwordValidation,
+    handleSubmit,
+    setError,
+    setLoading,
+    setIsFinishUpdate,
+  });
 
   const translatedFields = useMemo(() => {
     const fieldTranslations: Record<string, string> = {
@@ -386,6 +371,17 @@ function AccountSetting() {
             getValues={getValues}
             setValue={setValue}
           />
+
+          {isCustomerUpdate && isCaptchaEnabled && (
+            <Box sx={{ mt: '20px' }}>
+              <Captcha
+                key={captchaKey}
+                siteKey={captchaSiteKey}
+                size="normal"
+                handleGetKey={setCaptchaToken}
+              />
+            </Box>
+          )}
 
           <CustomButton
             sx={{
