@@ -44,18 +44,10 @@ interface CustomerMessageProps {
   msg: MessageProps;
   isEndMessage?: boolean;
   isCustomer?: boolean;
-  currentUserName?: string;
 }
 
-function ChatMessage({ msg, isEndMessage, isCustomer, currentUserName }: CustomerMessageProps) {
+function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
-  const showUserName = useFeatureFlag('B2B-2219.fix_buyer_portal_quote_message_sender_name');
-
-  // B2B-2219: the buyer-side label backend returns is the quote's contact
-  // name, not the actual sender, so prefer the logged-in user's own name
-  // for messages on their side of the thread. Sales-rep labels are untouched.
-  const label =
-    msg?.role && isCustomer && showUserName && currentUserName ? currentUserName : msg?.role;
 
   return (
     <Box
@@ -66,7 +58,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer, currentUserName }: Custome
         paddingTop: '5px',
       }}
     >
-      {label && (
+      {msg?.role && (
         <Box
           sx={{
             height: '14px',
@@ -77,7 +69,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer, currentUserName }: Custome
             color: 'rgba(0, 0, 0, 0.38)',
           }}
         >
-          {label}
+          {msg.role}
         </Box>
       )}
       {msg?.message && (
@@ -145,12 +137,25 @@ function DateMessage({ msg }: DateMessageProps) {
   );
 }
 
+function withResolvedSenderNames(
+  messages: MessageProps[],
+  showUserName: boolean,
+  currentUserName?: string,
+): MessageProps[] {
+  if (!showUserName || !currentUserName) return messages;
+
+  return messages.map((message) =>
+    message.role && message.isCustomer ? { ...message, role: currentUserName } : message,
+  );
+}
+
 function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsProps) {
   const { dispatch: globalDispatch } = useContext(GlobalContext);
 
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
   const b3Lang = useB3Lang();
+  const showUserName = useFeatureFlag('B2B-2219.fix_buyer_portal_quote_message_sender_name');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const changeReadRef = useRef(0);
@@ -258,6 +263,11 @@ function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsPr
     // disabling this rule as b3Lang will cause rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [primaryColor, read],
+  );
+
+  const displayMessages = useMemo(
+    () => withResolvedSenderNames(messages, showUserName, currentUserName),
+    [messages, showUserName, currentUserName],
   );
 
   useEffect(() => {
@@ -372,13 +382,12 @@ function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsPr
                 },
               }}
             >
-              {messages.map((item: MessageProps, index: number) => (
+              {displayMessages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
                   <ChatMessage
                     msg={item}
-                    isEndMessage={index === messages.length - 1}
+                    isEndMessage={index === displayMessages.length - 1}
                     isCustomer={!!item.isCustomer}
-                    currentUserName={currentUserName}
                   />
                   {item.date && <DateMessage msg={item} />}
                 </Box>

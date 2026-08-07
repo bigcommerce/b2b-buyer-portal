@@ -839,6 +839,11 @@ function QuoteDetail() {
     return quoteDetail.currency;
   }, [isCurrencySymbolPlacementFixEnabled, quoteDetail.currency, currenciesMap]);
 
+  const currentUserName = useMemo(
+    () => (isAgenting ? undefined : `${firstName} ${lastName}`.trim()),
+    [isAgenting, firstName, lastName],
+  );
+
   useScrollBar(false);
 
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
@@ -982,7 +987,7 @@ function QuoteDetail() {
                 status={quoteDetail.status}
                 isB2BUser={isB2BUser}
                 email={emailAddress || ''}
-                currentUserName={isAgenting ? undefined : `${firstName} ${lastName}`.trim()}
+                currentUserName={currentUserName}
                 msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
