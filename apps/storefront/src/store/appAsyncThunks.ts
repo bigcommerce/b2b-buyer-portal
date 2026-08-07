@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import getTranslation from '@/shared/service/b2b/api/translation';
+import { getMultiLanguageEnabledCache } from '@/utils/multiLanguageFlagCache';
 
 import type { AppDispatch, RootState } from '.';
 
@@ -17,6 +18,7 @@ interface GetGlobalTranslationsParams {
 interface GetGlobalTranslationResponse {
   globalTranslations: Record<string, string>;
   newVersion: number;
+  multiLanguageEnabled: boolean;
 }
 
 interface GetPageTranslationsParams {
@@ -28,7 +30,14 @@ interface GetPageTranslationResponse {
   pageTranslations: Record<string, string>;
   page: string;
   fetchedDependencyPages: string[];
+  multiLanguageEnabled: boolean;
 }
+
+// Feature flags are populated asynchronously by setStorefrontConfig, after
+// B3StoreContainer has already dispatched getGlobalTranslations, so fall back
+// to the value cached by the previous page load while they are still missing.
+const isMultiLanguageEnabled = (state: RootState) =>
+  state.global.featureFlags['LOCAL-3191.B2B_multi_language'] ?? getMultiLanguageEnabledCache();
 
 const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
@@ -47,14 +56,18 @@ export const getGlobalTranslations = createAppAsyncThunk<
   GetGlobalTranslationsParams
 >(
   'lang/getGlobalTranslations',
-  async ({ channelId, newVersion }, { rejectWithValue }) => {
+  async ({ channelId, newVersion }, { rejectWithValue, getState }) => {
     const { message } = await getTranslation({ channelId, page: 'global' });
 
     if (typeof message === 'string') {
       return rejectWithValue(message);
     }
 
-    return { globalTranslations: message, newVersion };
+    return {
+      globalTranslations: message,
+      newVersion,
+      multiLanguageEnabled: isMultiLanguageEnabled(getState()),
+    };
   },
   {
     condition: ({ newVersion }, { getState }) => {
@@ -105,7 +118,12 @@ export const getPageTranslations = createAppAsyncThunk<
       ...successfulDeps.map((d) => d.translations),
     );
 
-    return { pageTranslations, page, fetchedDependencyPages: successfulDeps.map((d) => d.page) };
+    return {
+      pageTranslations,
+      page,
+      fetchedDependencyPages: successfulDeps.map((d) => d.page),
+      multiLanguageEnabled: isMultiLanguageEnabled(getState()),
+    };
   },
   {
     condition: ({ page: pageKey }, { getState }) => {

@@ -30,6 +30,7 @@ import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage } from '@/utils/b3Storage';
 import { channelId } from '@/utils/basicConfig';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
+import { setMultiLanguageEnabledCache } from '@/utils/multiLanguageFlagCache';
 import { setNativeLinkInterceptionEnabled } from '@/utils/nativeStorefrontLinks';
 import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
@@ -311,6 +312,12 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   // (see nativeStorefrontLinks.ts for the rest of the caching bridge to remove).
   setNativeLinkInterceptionEnabled(
     store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
+  );
+
+  // Same rationale, for the multi-language flag read by the translation thunks:
+  // B3StoreContainer dispatches them before these flags land.
+  setMultiLanguageEnabledCache(
+    store.getState().global.featureFlags['LOCAL-3191.B2B_multi_language'] ?? false,
   );
 
   dispatchGlobal({
