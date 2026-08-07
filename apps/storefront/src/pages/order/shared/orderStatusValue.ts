@@ -30,7 +30,7 @@ export const ORDER_STATUS_SYSTEM_LABELS = {
   SHIPPED: 'Shipped',
 } as const;
 
-export type OrderStatusValueKey = keyof typeof ORDER_STATUS_SYSTEM_LABELS;
+type OrderStatusValueKey = keyof typeof ORDER_STATUS_SYSTEM_LABELS;
 
 const SYSTEM_LABEL_TO_VALUE: Record<string, string> = Object.fromEntries(
   Object.entries(ORDER_STATUS_SYSTEM_LABELS).map(([value, systemLabel]) => [systemLabel, value]),
