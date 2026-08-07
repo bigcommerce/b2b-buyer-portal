@@ -117,6 +117,8 @@ function useData() {
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
+  const firstName = useAppSelector(({ company }) => company.customer.firstName);
+  const lastName = useAppSelector(({ company }) => company.customer.lastName);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
@@ -183,6 +185,8 @@ function useData() {
     quoteConfig,
     role,
     emailAddress,
+    firstName,
+    lastName,
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
@@ -261,6 +265,8 @@ function QuoteDetail() {
     quoteConfig,
     role,
     emailAddress,
+    firstName,
+    lastName,
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
@@ -830,6 +836,11 @@ function QuoteDetail() {
     return quoteDetail.currency;
   }, [quoteDetail.currency, currenciesMap]);
 
+  const currentUserName = useMemo(
+    () => (isAgenting ? undefined : `${firstName} ${lastName}`.trim()),
+    [isAgenting, firstName, lastName],
+  );
+
   useScrollBar(false);
 
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
@@ -973,6 +984,7 @@ function QuoteDetail() {
                 status={quoteDetail.status}
                 isB2BUser={isB2BUser}
                 email={emailAddress || ''}
+                currentUserName={currentUserName}
                 msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
