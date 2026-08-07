@@ -172,7 +172,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
     hasAnyBackorderDisplay,
   } = useBackorderStorefrontMessaging();
 
-  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+  const [showBackorderDetails, setShowBackorderDetails] = useState(true);
 
   const draftQuoteBackorderContextEnabled =
     isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
