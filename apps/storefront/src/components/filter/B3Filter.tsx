@@ -62,8 +62,6 @@ interface B3FilterProps<T, Y> {
   pcContainerWidth?: string;
   pcSearchContainerWidth?: string;
   pcTotalWidth?: string;
-  /** Hide the search input for surfaces whose backend has no search filter. */
-  showSearch?: boolean;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -82,7 +80,6 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     pcContainerWidth = '29rem',
     pcSearchContainerWidth = '60%',
     pcTotalWidth = 'unset',
-    showSearch = true,
   } = props;
 
   const [isMobile] = useMobile();
@@ -121,13 +118,11 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               alignItems: 'center',
             }}
           >
-            {showSearch && (
-              <B3FilterSearch
-                handleChange={handleSearchChange}
-                w={pcSearchContainerWidth}
-                searchValue={searchValue}
-              />
-            )}
+            <B3FilterSearch
+              handleChange={handleSearchChange}
+              w={pcSearchContainerWidth}
+              searchValue={searchValue}
+            />
             {showB3FilterMoreIcon && (
               <B3FilterMore
                 startPicker={startPicker}
@@ -198,9 +193,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               justifyContent: 'space-between',
             }}
           >
-            {showSearch && (
-              <B3FilterSearch handleChange={handleSearchChange} w="90%" searchValue={searchValue} />
-            )}
+            <B3FilterSearch handleChange={handleSearchChange} w="90%" searchValue={searchValue} />
             <B3FilterMore
               startPicker={startPicker}
               endPicker={endPicker}
