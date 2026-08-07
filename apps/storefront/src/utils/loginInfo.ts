@@ -35,7 +35,7 @@ import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } 
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
-import { channelId, storeHash } from './basicConfig';
+import { channelId, isBigCommercePlatform, storeHash } from './basicConfig';
 import { getAccountHierarchyIsEnabled } from './storefrontConfig';
 
 const getLoginTokenInfo = () => {
@@ -378,7 +378,10 @@ export const getCurrentCustomerInfo = async (
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
 
-      if (useBcLoginAndAuthorisation) {
+      const useBcAuthorizationForPermissions =
+        useBcLoginAndAuthorisation && isBigCommercePlatform();
+
+      if (useBcAuthorizationForPermissions) {
         let { currentCustomerJWT } = store.getState().company.tokens;
         if (!currentCustomerJWT) {
           currentCustomerJWT =
