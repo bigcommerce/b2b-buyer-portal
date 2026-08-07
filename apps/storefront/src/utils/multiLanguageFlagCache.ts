@@ -19,7 +19,12 @@
 const MULTI_LANGUAGE_STORAGE_KEY = 'b2b-multi-language-enabled';
 
 export const setMultiLanguageEnabledCache = (enabled: boolean) => {
-  localStorage.setItem(MULTI_LANGUAGE_STORAGE_KEY, String(enabled));
+  try {
+    localStorage.setItem(MULTI_LANGUAGE_STORAGE_KEY, String(enabled));
+  } catch {
+    // localStorage can throw (e.g. Safari private mode, storage disabled).
+    // Caching is best-effort here, so a write failure must not break getStoreConfigs.
+  }
 };
 
 export const getMultiLanguageEnabledCache = (): boolean => {
