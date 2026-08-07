@@ -272,7 +272,7 @@ export interface CompanyOrdersFiltersInput {
  * Filters for customer.orders, matching what the server currently accepts.
  * companyName and companyIds are permanently absent: the agreed schema gist specified
  * them, but the deployed server never implemented them and the gist is being amended
- * to match (B2B-5421). search is a genuine, temporary omission — it's deferred to its
+ * to match. search is a genuine, temporary omission — it's deferred to its
  * own ticket and should be restored here once that ticket ships.
  */
 export interface OrdersFiltersInput {
@@ -603,7 +603,7 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  * There is no total to fetch: the upstream storefront orders endpoint returns cursors
  * and hasNext/hasPrevious with no count. My Orders keeps totalCount: -1, which
  * order/table/B3Table renders as a range without a total. This is the intended
- * contract, not a placeholder — do not "fix" it. See B2B-5421.
+ * contract, not a placeholder — do not "fix" it.
  */
 const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput

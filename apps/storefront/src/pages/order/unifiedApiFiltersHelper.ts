@@ -14,9 +14,9 @@ export const getCompanyOrdersInitFilter = (companyId: number): CompanyOrdersFilt
 
 // companyName and companyIds are permanently dropped from this input — the agreed
 // schema gist specified them for customer.orders, but the deployed server never
-// implemented them and the gist is being amended to match (B2B-5421). The company
+// implemented them and the gist is being amended to match. The company
 // selector is hidden on My Orders for the same reason (see Order.tsx).
-// WORKAROUND (B2B-5420): search is the one field still genuinely pending — it's
+// WORKAROUND: search is the one field still genuinely pending — it's
 // deferred to its own ticket and hidden in the UI until it lands. Restore it here
 // once that ticket ships.
 export const getCustomerOrdersInitFilter = (): OrdersFiltersInput => ({
