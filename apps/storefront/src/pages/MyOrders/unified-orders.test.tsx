@@ -422,7 +422,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       });
 
       expect(await screen.findByRole('table')).toBeInTheDocument();
-      expect(screen.queryByPlaceholderText('Search')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
