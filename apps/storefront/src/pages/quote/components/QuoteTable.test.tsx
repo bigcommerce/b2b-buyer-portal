@@ -152,7 +152,7 @@ const withBackorderContextAndMessaging = (featureEnabled: boolean) => ({
 });
 
 describe('QuoteTable backorder messaging', () => {
-  it('shows the backorder details toggle when items are backordered for display and messaging is enabled', () => {
+  it('shows the backorder details toggle checked by default when items are backordered for display and messaging is enabled', () => {
     const updateSummary = vi.fn();
     renderWithProviders(
       <QuoteTable total={1} items={[lineItemWithBackorder]} updateSummary={updateSummary} />,
@@ -160,6 +160,7 @@ describe('QuoteTable backorder messaging', () => {
     );
 
     expect(screen.getByText('Backorder details')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Backorder details' })).toBeChecked();
   });
 
   it('hides the backorder details toggle when storefront backorder messaging is disabled, even with backordered items', () => {
@@ -172,7 +173,21 @@ describe('QuoteTable backorder messaging', () => {
     expect(screen.queryByText('Backorder details')).not.toBeInTheDocument();
   });
 
-  it('fetches picklist child products and shows their backorder message when the toggle is on', async () => {
+  it('hides backorder messages when the toggle is turned off', async () => {
+    const updateSummary = vi.fn();
+    renderWithProviders(
+      <QuoteTable total={1} items={[lineItemWithBackorder]} updateSummary={updateSummary} />,
+      withBackorderContextAndMessaging(true),
+    );
+
+    expect(screen.getByText('7 will be backordered')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Backorder details' }));
+
+    expect(screen.queryByText('7 will be backordered')).not.toBeInTheDocument();
+  });
+
+  it('fetches picklist child products and shows their backorder message by default', async () => {
     vi.mocked(searchProducts).mockResolvedValue({
       productsSearch: [
         {
@@ -193,11 +208,9 @@ describe('QuoteTable backorder messaging', () => {
       withPicklistMessagingEnabled,
     );
 
-    const toggle = await screen.findByText('Backorder details');
-
-    expect(searchProducts).toHaveBeenCalledWith(expect.objectContaining({ productIds: [555] }));
-
-    await userEvent.click(toggle);
+    await waitFor(() => {
+      expect(searchProducts).toHaveBeenCalledWith(expect.objectContaining({ productIds: [555] }));
+    });
 
     await waitFor(() => {
       expect(screen.getByText('PickleFest:')).toBeVisible();
@@ -229,9 +242,6 @@ describe('QuoteTable backorder messaging', () => {
       />,
       withPicklistMessagingEnabled,
     );
-
-    const toggle = await screen.findByText('Backorder details');
-    await userEvent.click(toggle);
 
     await waitFor(() => {
       expect(screen.getByText('Ice Pick ships in 3 weeks')).toBeVisible();
@@ -272,13 +282,11 @@ describe('QuoteTable backorder messaging', () => {
       withPicklistMessagingEnabled,
     );
 
-    const toggle = await screen.findByText('Backorder details');
-
-    expect(searchProducts).toHaveBeenCalledWith(
-      expect.objectContaining({ productIds: expect.arrayContaining([999, 555]) }),
-    );
-
-    await userEvent.click(toggle);
+    await waitFor(() => {
+      expect(searchProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ productIds: expect.arrayContaining([999, 555]) }),
+      );
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Kit ships next week')).toBeVisible();
