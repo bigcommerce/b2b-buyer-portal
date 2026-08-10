@@ -35,6 +35,9 @@ interface BcFormFieldsProps {
   // The react-hook-form registered field name (Fields['name']), carried through so an
   // unsendable field can be traced back to the control that should show the error.
   formName?: string;
+  // Carried through from Fields['required'] so a required field is resent even when
+  // unchanged — BC revalidates every required custom field on each update call.
+  required?: boolean;
 }
 
 export interface ParamProps {

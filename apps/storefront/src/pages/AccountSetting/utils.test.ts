@@ -134,6 +134,24 @@ describe('initB2BInfo', () => {
     expect(result.default).toBe('');
   });
 
+  it('keeps the incoming placeholder for an unset date field when useBcAccountSettings is false', () => {
+    const additionalInformation = [
+      field({ bcLabel: 'DOB', label: 'DOB', fieldType: 'date', default: '2026-07-29' }),
+    ];
+
+    const [result] = initB2BInfo({ formFields: [] }, [], [], additionalInformation, false);
+
+    expect(result.default).toBe('2026-07-29');
+  });
+
+  it('does not fall back to matching by label when useBcAccountSettings is false', () => {
+    const additionalInformation = [field({ label: 'Newsletter' })];
+
+    const [result] = initB2BInfo(accountInfo, [], [], additionalInformation, false);
+
+    expect(result.default).toBeUndefined();
+  });
+
   it('handles missing extraFields and formFields without throwing', () => {
     const contactInformation = [field({ name: firstNameField })];
 
@@ -183,6 +201,24 @@ describe('initBcInfo', () => {
     const [result] = initBcInfo({ formFields: [] }, [], additionalInformation);
 
     expect(result.default).toBe('');
+  });
+
+  it('keeps the incoming placeholder for an unset date field when useBcAccountSettings is false', () => {
+    const additionalInformation = [
+      field({ bcLabel: 'DOB', label: 'DOB', fieldType: 'date', default: '2026-07-29' }),
+    ];
+
+    const [result] = initBcInfo({ formFields: [] }, [], additionalInformation, false);
+
+    expect(result.default).toBe('2026-07-29');
+  });
+
+  it('does not fall back to matching by label when useBcAccountSettings is false', () => {
+    const additionalInformation = [field({ label: 'Newsletter' })];
+
+    const [result] = initBcInfo(accountInfo, [], additionalInformation, false);
+
+    expect(result.default).toBeUndefined();
   });
 
   it('keeps a stored date default for additional information fields', () => {
@@ -304,6 +340,44 @@ describe('bcSubmitDataProcessing', () => {
     const result = bcSubmitDataProcessing(data, accountInfo, decryptionFields, []);
 
     expect(result).toMatchObject({ firstName: 'Grace', company: 'New Co' });
+  });
+
+  it('omits unchanged contact fields from the payload by default (native path)', () => {
+    const data = {
+      [firstNameField]: 'Grace',
+      [lastNameField]: 'Lovelace',
+      [phoneField]: '5551234',
+      [emailField]: 'ada@example.com',
+      [companyField]: 'Analytical Engines',
+    };
+
+    const result = bcSubmitDataProcessing(data, accountInfo, decryptionFields, []);
+
+    expect(result).toMatchObject({ firstName: 'Grace' });
+    expect(result).not.toHaveProperty('lastName');
+    expect(result).not.toHaveProperty('phoneNumber');
+    expect(result).not.toHaveProperty('email');
+    expect(result).not.toHaveProperty('company');
+  });
+
+  it('always includes unchanged contact fields when useBcAccountSettings is false (legacy payload shape)', () => {
+    const data = {
+      [firstNameField]: 'Grace',
+      [lastNameField]: 'Lovelace',
+      [phoneField]: '5551234',
+      [emailField]: 'ada@example.com',
+      [companyField]: 'Analytical Engines',
+    };
+
+    const result = bcSubmitDataProcessing(data, accountInfo, decryptionFields, [], false);
+
+    expect(result).toMatchObject({
+      firstName: 'Grace',
+      lastName: 'Lovelace',
+      phoneNumber: '5551234',
+      email: 'ada@example.com',
+      company: 'Analytical Engines',
+    });
   });
 
   it('pushes form-field changes and maps password to newPassword', () => {
@@ -802,6 +876,32 @@ describe('collectChangedFormFields', () => {
 
     expect(result.fieldEntityId).toBe(26);
   });
+
+  it('keeps a required field unchanged — BC revalidates required fields on every update', () => {
+    const requiredFields = [
+      field({
+        name: 'field_26',
+        bcLabel: 'Age',
+        fieldType: 'number',
+        fieldId: 'field_26',
+        custom: true,
+        required: true,
+      }),
+    ];
+
+    expect(
+      collectChangedFormFields({ field_26: 25 }, requiredFields, [{ name: 'Age', value: 25 }]),
+    ).toEqual([
+      {
+        name: 'Age',
+        value: 25,
+        fieldType: 'number',
+        fieldEntityId: 26,
+        formName: 'field_26',
+        required: true,
+      },
+    ]);
+  });
 });
 
 describe('collectChangedExtraFields', () => {
@@ -826,5 +926,20 @@ describe('collectChangedExtraFields', () => {
     expect(
       collectChangedExtraFields(data, fields, [{ fieldName: 'nickname', fieldValue: 'AT' }]),
     ).toEqual([]);
+  });
+
+  it('keeps a required extra field unchanged — BC revalidates required fields on every update', () => {
+    const requiredFields = [
+      field({ name: nicknameField, fieldType: 'text', custom: true, groupId: 1, required: true }),
+    ];
+    const data = { [nicknameField]: 'AT' };
+
+    expect(
+      collectChangedExtraFields(data, requiredFields, [
+        { fieldName: 'nickname', fieldValue: 'AT' },
+      ]),
+    ).toEqual([
+      { name: 'nickname', value: 'AT', fieldType: 'text', formName: nicknameField, required: true },
+    ]);
   });
 });

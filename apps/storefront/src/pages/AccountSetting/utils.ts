@@ -44,6 +44,7 @@ export const initB2BInfo = (
   contactInformation: Partial<Fields>[],
   accountB2BFormFields: Partial<Fields>[],
   additionalInformation: Partial<Fields>[],
+  useBcAccountSettings: boolean = true,
 ) => {
   const extraFields = accountSettings?.extraFields || [];
   contactInformation.forEach((item: Partial<Fields>) => {
@@ -72,22 +73,28 @@ export const initB2BInfo = (
       );
 
       if (currentField) {
-        applyStoredCustomFieldDefault(currentField, extraField.fieldValue);
+        if (useBcAccountSettings) {
+          applyStoredCustomFieldDefault(currentField, extraField.fieldValue);
+        } else {
+          currentField.default = extraField.fieldValue;
+        }
       }
     });
   }
 
   // Custom contact fields with no stored extra value still inherit registerUtils' today
   // placeholder for date fields — clear those so unrelated saves aren't treated as edits.
-  contactInformation.forEach((item) => {
-    if (!item.custom || item.fieldType !== 'date') return;
-    const extraField = extraFields.find(
-      (field: CustomFieldItems) => deCodeField(item?.name || '') === field.fieldName,
-    );
-    if (!extraField) {
-      applyStoredCustomFieldDefault(item, undefined);
-    }
-  });
+  if (useBcAccountSettings) {
+    contactInformation.forEach((item) => {
+      if (!item.custom || item.fieldType !== 'date') return;
+      const extraField = extraFields.find(
+        (field: CustomFieldItems) => deCodeField(item?.name || '') === field.fieldName,
+      );
+      if (!extraField) {
+        applyStoredCustomFieldDefault(item, undefined);
+      }
+    });
+  }
 
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item;
@@ -102,9 +109,14 @@ export const initB2BInfo = (
 
   additionalInformation.forEach((item: Partial<Fields>) => {
     const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
+      (field: Partial<Fields>) =>
+        field.name === (useBcAccountSettings ? item.bcLabel || item.label : item.bcLabel),
     );
-    applyStoredCustomFieldDefault(item, formFields?.value);
+    if (useBcAccountSettings) {
+      applyStoredCustomFieldDefault(item, formFields?.value);
+    } else if (formFields) {
+      item.default = formFields.value;
+    }
   });
 
   return [...contactInformation, ...accountB2BFormFields, ...additionalInformation];
@@ -114,6 +126,7 @@ export const initBcInfo = (
   accountSettings: any,
   contactInformation: Partial<Fields>[],
   additionalInformation: Partial<Fields>[],
+  useBcAccountSettings: boolean = true,
 ) => {
   contactInformation.forEach((item: Partial<Fields>) => {
     const contactInfoItem = item;
@@ -137,9 +150,14 @@ export const initBcInfo = (
 
   additionalInformation.forEach((item: Partial<Fields>) => {
     const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === (item.bcLabel || item.label),
+      (field: Partial<Fields>) =>
+        field.name === (useBcAccountSettings ? item.bcLabel || item.label : item.bcLabel),
     );
-    applyStoredCustomFieldDefault(item, formFields?.value);
+    if (useBcAccountSettings) {
+      applyStoredCustomFieldDefault(item, formFields?.value);
+    } else if (formFields) {
+      item.default = formFields.value;
+    }
   });
 
   return [...contactInformation, ...additionalInformation];
@@ -240,6 +258,7 @@ export const bcSubmitDataProcessing = (
   accountSettings: any,
   decryptionFields: Partial<Fields>[],
   extraFields: Partial<Fields>[],
+  useBcAccountSettings: boolean = true,
 ) => {
   const param: Partial<ParamProps> = {};
   param.formFields = [];
@@ -249,31 +268,30 @@ export const bcSubmitDataProcessing = (
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
         flag = false;
-        if (
-          deCodeField(item.name) === 'first_name' &&
-          accountSettings.firstName !== data[item.name]
-        ) {
-          pristine = false;
-          param.firstName = data[item.name];
+        if (deCodeField(item.name) === 'first_name') {
+          const changed = accountSettings.firstName !== data[item.name];
+          if (changed) pristine = false;
+          if (changed || !useBcAccountSettings) param.firstName = data[item.name];
         }
-        if (
-          deCodeField(item.name) === 'last_name' &&
-          accountSettings.lastName !== data[item.name]
-        ) {
-          pristine = false;
-          param.lastName = data[item.name];
+        if (deCodeField(item.name) === 'last_name') {
+          const changed = accountSettings.lastName !== data[item.name];
+          if (changed) pristine = false;
+          if (changed || !useBcAccountSettings) param.lastName = data[item.name];
         }
-        if (deCodeField(item.name) === 'phone' && accountSettings.phoneNumber !== data[item.name]) {
-          pristine = false;
-          param.phoneNumber = data[item.name];
+        if (deCodeField(item.name) === 'phone') {
+          const changed = accountSettings.phoneNumber !== data[item.name];
+          if (changed) pristine = false;
+          if (changed || !useBcAccountSettings) param.phoneNumber = data[item.name];
         }
-        if (deCodeField(item.name) === 'email' && accountSettings.email !== data[item.name]) {
-          pristine = false;
-          param.email = data[item.name];
+        if (deCodeField(item.name) === 'email') {
+          const changed = accountSettings.email !== data[item.name];
+          if (changed) pristine = false;
+          if (changed || !useBcAccountSettings) param.email = data[item.name];
         }
-        if (deCodeField(item.name) === 'company' && accountSettings.company !== data[item.name]) {
-          pristine = false;
-          param.company = data[item.name];
+        if (deCodeField(item.name) === 'company') {
+          const changed = accountSettings.company !== data[item.name];
+          if (changed) pristine = false;
+          if (changed || !useBcAccountSettings) param.company = data[item.name];
         }
       }
     });
@@ -469,6 +487,9 @@ type ExtraFieldEntry = {
   // The react-hook-form registered name, carried through so an unsendable field can be
   // traced back to the control it belongs to (for a field-level error).
   formName?: string;
+  // Carried through so a required field is resent even when unchanged — see
+  // collectChangedFormFields.
+  required?: boolean;
 };
 
 // Builds the name-keyed CompanyUserExtraFieldsInput from changed company-user extra fields.
@@ -574,11 +595,13 @@ const isValueChanged = (
 };
 
 // Collects the custom form fields for the native SF GQL updates straight from the form
-// values and returns only the ones that actually CHANGED from their stored original. The
-// form registers each field under `name` (the submit processor's fieldId capture misses
-// them), so read data[item.name]; the entityId the mutations need comes from the `field_<id>`
-// fieldId, falling back to the form-field definitions (matched by label) when the fieldId
-// isn't in that shape.
+// values. Returns the ones that actually CHANGED from their stored original, plus any
+// required field regardless of change — BC revalidates every required custom field on each
+// update call, so an unchanged required field must still be resent or the save is rejected
+// as if that field were missing. The form registers each field under `name` (the submit
+// processor's fieldId capture misses them), so read data[item.name]; the entityId the
+// mutations need comes from the `field_<id>` fieldId, falling back to the form-field
+// definitions (matched by label) when the fieldId isn't in that shape.
 export function collectChangedFormFields(
   data: CustomFieldItems,
   accountInfoFormFields: Partial<Fields>[],
@@ -601,9 +624,11 @@ export function collectChangedFormFields(
         // The react-hook-form registered name, carried through so an unsendable field can be
         // traced back to the control it belongs to (for a field-level error).
         formName: item.name,
+        required: item.required,
       };
     })
     .filter((formField) => {
+      if (formField.required) return true;
       const original = originalFormFields.find((item) => item.name === formField.name);
       return isValueChanged(original?.value, formField.value, formField.fieldType);
     });
@@ -612,7 +637,9 @@ export function collectChangedFormFields(
 // Collects the company-user extra fields that changed — the name-keyed custom fields in the
 // contact group (groupId 1), matched from the read's extraFields. Unlike form fields these
 // need no entityId or definitions (the mutation keys them by name), so they work through the
-// proxy. Returns {name, value, fieldType} entries keyed by the decoded field name.
+// proxy. Also keeps any required field regardless of change, matching collectChangedFormFields
+// — BC revalidates required custom fields on every update, so an unchanged required field must
+// still be resent. Returns {name, value, fieldType} entries keyed by the decoded field name.
 export function collectChangedExtraFields(
   data: CustomFieldItems,
   accountInfoFormFields: Partial<Fields>[],
@@ -625,8 +652,10 @@ export function collectChangedExtraFields(
       value: data[item.name || ''],
       fieldType: item.fieldType,
       formName: item.name,
+      required: item.required,
     }))
     .filter((extraField) => {
+      if (extraField.required) return true;
       const original = originalExtraFields.find((item) => item.fieldName === extraField.name);
       return isValueChanged(original?.fieldValue, extraField.value);
     });
