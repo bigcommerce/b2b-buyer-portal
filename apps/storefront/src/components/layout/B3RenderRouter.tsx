@@ -7,7 +7,7 @@ import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobalContext } from '@/shared/global';
 import { RouteItem } from '@/shared/routeList';
 import { firstLevelRouting, getAllowedRoutes } from '@/shared/routes';
-import { getPageTranslations, useAppDispatch } from '@/store';
+import { getPageTranslations, useAppDispatch, useAppSelector } from '@/store';
 import { channelId } from '@/utils/basicConfig';
 
 import Loading from '../loading/Loading';
@@ -27,6 +27,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const translationVersion = useAppSelector(({ lang }) => lang.translationVersion);
 
   useEffect(() => {
     if (openUrl === '/dashboard') {
@@ -52,8 +53,13 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
       );
     },
     // ignore dispatch
+    //
+    // translationVersion: when a global refetch bumps the version it also
+    // resets fetchedPages, and on load the dispatch above may already have
+    // been cancelled against the stale persisted fetchedPages. Re-running the
+    // effect refetches the page the user is currently on.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [globalState.multiStorefrontEnabled, location.pathname],
+    [globalState.multiStorefrontEnabled, location.pathname, translationVersion],
   );
 
   return (
