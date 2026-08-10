@@ -6,6 +6,7 @@ import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { useMobile } from '@/hooks/useMobile';
+import { useB3Lang } from '@/lib/lang';
 import { ValidProductItem } from '@/pages/QuickOrder/components/ValidProduct';
 import {
   B2BProductsBulkUploadCSV,
@@ -61,11 +62,12 @@ const FileUploadContainer = styled(Box)({
 });
 
 export function B3Upload(props: B3UploadProps) {
+  const b3Lang = useB3Lang();
   const {
     isOpen,
     setIsOpen,
-    bulkUploadTitle = 'Bulk upload',
-    addBtnText = 'add to list',
+    bulkUploadTitle = b3Lang('global.B3Upload.title'),
+    addBtnText = b3Lang('global.B3Upload.addBtnText'),
     handleAddToList = async () => {},
     setProductData = () => {},
     isLoading = false,
@@ -110,13 +112,13 @@ export function B3Upload(props: B3UploadProps) {
     let message = '';
 
     if (!isAcceptedFileType) {
-      message = "Table structure is wrong. Please download sample and follow it's structure.";
+      message = b3Lang('global.B3Upload.tableStructureError');
       setFileErrorText(message);
       return message;
     }
 
     if (size > maxFileSize) {
-      message = 'Maximum file size 50MB';
+      message = b3Lang('global.B3Upload.maxFileSize');
       setFileErrorText(message);
       return message;
     }
@@ -125,7 +127,7 @@ export function B3Upload(props: B3UploadProps) {
   };
 
   const getFileLimitExceedMessage = () => {
-    const message = 'Only one file can be uploaded at a time.';
+    const message = b3Lang('global.B3Upload.oneFileOnly');
 
     setFileErrorText(message);
 
@@ -180,7 +182,7 @@ export function B3Upload(props: B3UploadProps) {
             for (let i = 1; i < EmptyData.length; i += 1) {
               const signleRow = EmptyData[i].split(',');
               if (signleRow.length > columns) {
-                error = 'Please use the template file provided.';
+                error = b3Lang('global.B3Upload.useTemplate');
               }
             }
           }
@@ -279,7 +281,7 @@ export function B3Upload(props: B3UploadProps) {
                 color: '#5E637A',
               }}
             >
-              Drag & drop file here
+              {b3Lang('global.B3Upload.dragAndDrop')}
             </Box>
           </Grid>
         </div>
@@ -301,7 +303,7 @@ export function B3Upload(props: B3UploadProps) {
               whiteSpace: 'nowrap',
             }}
           >
-            File types: CSV, maximum size: 50MB.
+            {b3Lang('global.B3Upload.fileTypes')}
           </Box>
           <Box
             sx={{
@@ -319,14 +321,14 @@ export function B3Upload(props: B3UploadProps) {
                 pointerEvents: 'auto',
               }}
             >
-              Download sample
+              {b3Lang('global.B3Upload.downloadSample')}
             </Link>
           </Box>
         </Grid>
 
         <Grid display="flex" justifyContent="center" xs={12}>
           <CustomButton variant="outlined" onClick={openFile} sx={{ pointerEvents: 'auto' }}>
-            Upload file
+            {b3Lang('global.B3Upload.uploadFile')}
           </CustomButton>
         </Grid>
       </Grid>
@@ -344,7 +346,7 @@ export function B3Upload(props: B3UploadProps) {
       title={bulkUploadTitle}
       maxWidth="lg"
       rightSizeBtn={addBtnText}
-      leftSizeBtn="cancel"
+      leftSizeBtn={b3Lang('global.B3Upload.cancel')}
       handleLeftClick={() => {
         setStep('init');
         setIsOpen(false);
