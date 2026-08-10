@@ -11,7 +11,7 @@ import { getIsStateRequired } from '@/utils/b2bGetIsStateRequired';
 
 import { Country, State, validateExtraFields } from '../../config';
 import { RegisteredContext } from '../../Context';
-import { RegisterFields } from '../../types';
+import { RegisterAccountType, type RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../styled';
 
@@ -36,7 +36,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   const [errorMessage, setErrorMessage] = useState('');
 
   const {
-    accountType = '1',
+    accountType = RegisterAccountType.BUSINESS,
     companyInformation = [],
     companyAttachment = [],
     addressBasicFields = [],
@@ -55,10 +55,13 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   } = useForm({
     mode: 'all',
   });
-  const businessDetailsName = accountType === '1' ? companyInformation[0]?.groupName : '';
+  const businessDetailsName =
+    accountType === RegisterAccountType.BUSINESS ? companyInformation[0]?.groupName : '';
 
-  const addressBasicName = accountType === '1' ? 'addressBasicFields' : 'bcAddressBasicFields';
-  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
+  const addressBasicName =
+    accountType === RegisterAccountType.BUSINESS ? 'addressBasicFields' : 'bcAddressBasicFields';
+  const addressBasicList =
+    accountType === RegisterAccountType.BUSINESS ? addressBasicFields : bcAddressBasicFields;
 
   const addressName = addressBasicList[0]?.groupName || '';
 
@@ -177,7 +180,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
   };
 
   const handleValidateAttachmentFiles = () => {
-    if (accountType === '1') {
+    if (accountType === RegisterAccountType.BUSINESS) {
       const formData = getValues();
       const attachmentsFilesFiled = companyInformation.find(
         (info) => info.fieldId === 'field_attachments',
@@ -209,7 +212,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
       if (hasAttachmentsFilesError) return;
       showLoading(true);
       try {
-        if (accountType === '1') {
+        if (accountType === RegisterAccountType.BUSINESS) {
           await Promise.all([
             validateExtraFields({
               fields: companyInformation,
@@ -270,7 +273,7 @@ export default function DetailStep({ handleBack, handleNext }: DetailStepProps) 
           <TipContent>{errorMessage}</TipContent>
         </Alert>
       )}
-      {accountType === '1' ? (
+      {accountType === RegisterAccountType.BUSINESS ? (
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm

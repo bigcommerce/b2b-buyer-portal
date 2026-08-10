@@ -18,7 +18,7 @@ import { channelId } from '@/utils/basicConfig';
 
 import { emailError } from '../../config';
 import { RegisteredContext } from '../../Context';
-import { RegisterFields } from '../../types';
+import { RegisterAccountType, type RegisterFields } from '../../types';
 import { PrimaryButton } from '../PrimaryButton';
 import { InformationFourLabels, TipContent } from '../styled';
 
@@ -62,13 +62,18 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
     mode: 'onSubmit',
   });
 
-  const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation';
+  const additionName =
+    accountType === RegisterAccountType.BUSINESS
+      ? 'additionalInformation'
+      : 'bcAdditionalInformation';
   const additionalInfo: RegisterFields[] =
-    accountType === '1' ? additionalInformation || [] : bcAdditionalInformation || [];
+    accountType === RegisterAccountType.BUSINESS
+      ? additionalInformation || []
+      : bcAdditionalInformation || [];
 
   const newContactInformation = contactInformation?.map((contactInfo: RegisterFields) => {
     const info = contactInfo;
-    if (contactInfo.fieldId === 'field_email' && accountType === '1') {
+    if (contactInfo.fieldId === 'field_email' && accountType === RegisterAccountType.BUSINESS) {
       info.isTip = true;
       info.tipText = b3Lang('register.tip.emailSignIn');
     }
@@ -77,8 +82,13 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
   });
 
   const contactInfo: RegisterFields[] =
-    accountType === '1' ? (newContactInformation ?? []) : bcContactInformation || [];
-  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields';
+    accountType === RegisterAccountType.BUSINESS
+      ? (newContactInformation ?? [])
+      : bcContactInformation || [];
+  const contactName =
+    accountType === RegisterAccountType.BUSINESS
+      ? 'contactInformation'
+      : 'bcContactInformationFields';
 
   const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : '';
 
@@ -107,7 +117,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
     'email';
 
   const validateEmailValue = async (email: string) => {
-    const isRegisterAsB2BUser = accountType === '1';
+    const isRegisterAsB2BUser = accountType === RegisterAccountType.BUSINESS;
     try {
       showLoading(true);
       const {
@@ -160,7 +170,7 @@ export default function AccountStep({ handleNext }: AccountStepProps) {
 
       try {
         showLoading(true);
-        if (accountType === '1') {
+        if (accountType === RegisterAccountType.BUSINESS) {
           const extraCompanyUserInformation = newContactInfo.filter(
             (item: RegisterFields) => !!item.custom,
           );
