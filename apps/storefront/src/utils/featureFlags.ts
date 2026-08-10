@@ -63,6 +63,10 @@ export const featureFlags = [
     key: 'B2B-5309.dedupe_storefront_config_fetch_calls',
     name: 'dedupeStorefrontConfigFetchCalls',
   },
+  {
+    key: 'B2B-3828.fix_shopping_list_tax_inclusive_price_display',
+    name: 'fixShoppingListTaxInclusivePriceDisplay',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
