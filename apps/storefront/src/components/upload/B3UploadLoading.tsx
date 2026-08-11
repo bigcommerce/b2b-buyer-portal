@@ -3,6 +3,8 @@ import { Box } from '@mui/material';
 import CircularProgress, { CircularProgressProps } from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 
+import { useB3Lang } from '@/lib/lang';
+
 function CircularProgressWithLabel(props: CircularProgressProps & { value: number }) {
   return (
     <Box
@@ -38,6 +40,7 @@ interface B3UploadLoadingProps {
 
 export default function B3UploadLoading(props: B3UploadLoadingProps) {
   const { step } = props;
+  const b3Lang = useB3Lang();
   const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function B3UploadLoading(props: B3UploadLoadingProps) {
           mt: '10px',
         }}
       >
-        Uploading file...
+        {b3Lang('global.B3Upload.uploadingFile')}
       </Box>
     </Box>
   );
