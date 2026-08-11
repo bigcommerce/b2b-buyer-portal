@@ -13,7 +13,6 @@ import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import B3Spin from '@/components/spin/B3Spin';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
@@ -37,7 +36,6 @@ interface MsgsProps {
   email: string;
   isB2BUser: boolean;
   status: number;
-  currentUserName?: string;
 }
 
 interface CustomerMessageProps {
@@ -48,7 +46,6 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
-
   return (
     <Box
       sx={{
@@ -137,25 +134,12 @@ function DateMessage({ msg }: DateMessageProps) {
   );
 }
 
-function withResolvedSenderNames(
-  messages: MessageProps[],
-  showUserName: boolean,
-  currentUserName?: string,
-): MessageProps[] {
-  if (!showUserName || !currentUserName) return messages;
-
-  return messages.map((message) =>
-    message.role && message.isCustomer ? { ...message, role: currentUserName } : message,
-  );
-}
-
-function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsProps) {
+function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const { dispatch: globalDispatch } = useContext(GlobalContext);
 
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
   const b3Lang = useB3Lang();
-  const showUserName = useFeatureFlag('B2B-2219.fix_buyer_portal_quote_message_sender_name');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const changeReadRef = useRef(0);
@@ -263,11 +247,6 @@ function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsPr
     // disabling this rule as b3Lang will cause rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [primaryColor, read],
-  );
-
-  const displayMessages = useMemo(
-    () => withResolvedSenderNames(messages, showUserName, currentUserName),
-    [messages, showUserName, currentUserName],
   );
 
   useEffect(() => {
@@ -382,11 +361,11 @@ function Message({ msgs, id, isB2BUser, email, status, currentUserName }: MsgsPr
                 },
               }}
             >
-              {displayMessages.map((item: MessageProps, index: number) => (
+              {messages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
                   <ChatMessage
                     msg={item}
-                    isEndMessage={index === displayMessages.length - 1}
+                    isEndMessage={index === messages.length - 1}
                     isCustomer={!!item.isCustomer}
                   />
                   {item.date && <DateMessage msg={item} />}
