@@ -16,7 +16,7 @@ import { getStoreConfigs } from '@/utils/storefrontConfig';
 
 import { b2bAddressRequiredFields, companyAttachmentsFields } from '../config';
 import { RegisteredContext } from '../Context';
-import { RegisterFields } from '../types';
+import { RegisterAccountType, type RegisterFields } from '../types';
 
 import RegisterContent from './RegisterContent';
 import RegisterStep from './RegisterStep';
@@ -124,7 +124,9 @@ export function RegisterSteps({ backgroundColor, handleFinish }: RegisterStepsPr
           dispatch({
             type: 'all',
             payload: {
-              accountType: accountB2cEnabledInfo ? '2' : '1',
+              accountType: accountB2cEnabledInfo
+                ? RegisterAccountType.PERSONAL
+                : RegisterAccountType.BUSINESS,
               isLoading: false,
               contactInformation: [
                 ...(b2bAccountFormFields.contactInformation || []),

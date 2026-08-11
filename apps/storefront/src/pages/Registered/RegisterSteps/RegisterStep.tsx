@@ -7,6 +7,7 @@ import { useB3Lang } from '@/lib/lang';
 
 import { steps } from '../config';
 import { RegisteredContext } from '../Context';
+import { RegisterAccountType } from '../types';
 
 interface RegisterStepProps {
   children: ReactNode;
@@ -28,7 +29,9 @@ export default function RegisterStep(props: RegisterStepProps) {
   const pageTitle = useMemo(() => {
     return submitSuccess
       ? b3Lang(
-          accountType === '1' ? 'register.title.registerComplete' : 'register.title.accountCreated',
+          accountType === RegisterAccountType.BUSINESS
+            ? 'register.title.registerComplete'
+            : 'register.title.accountCreated',
         )
       : b3Lang('register.title.accountRegister');
   }, [submitSuccess, accountType, b3Lang]);

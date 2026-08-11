@@ -7,7 +7,7 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { Country, State } from '@/pages/Registered/config';
 import { RegisteredContext } from '@/pages/Registered/Context';
-import type { RegisterFields } from '@/pages/Registered/types';
+import { RegisterAccountType, type RegisterFields } from '@/pages/Registered/types';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -398,7 +398,7 @@ export function useRegistrationForm({ onRegistrationSuccess }: UseRegistrationFo
           dispatch({
             type: 'all',
             payload: {
-              accountType: '1',
+              accountType: RegisterAccountType.BUSINESS,
             },
           });
           await getCurrentCustomerInfo();
