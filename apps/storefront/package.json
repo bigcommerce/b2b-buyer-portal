@@ -96,7 +96,7 @@
     "terser": "^5.46.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.2",
-    "vitest": "^3.2.4",
+    "vitest": "^3.2.6",
     "vitest-fail-on-console": "^0.9.0",
     "vitest-location-mock": "^1.0.4",
     "vitest-when": "^0.10.0"
