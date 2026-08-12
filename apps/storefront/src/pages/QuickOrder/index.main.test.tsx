@@ -5458,7 +5458,31 @@ describe('when backorder messaging is enabled on purchased products', () => {
     return { orderedProduct };
   };
 
-  it('shows backorder lines when toggle is on and qty exceeds on hand', async () => {
+  it('shows backorder lines by default when qty exceeds on hand', async () => {
+    setupPurchasedProductsTable();
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
+
+    await waitFor(() => {
+      expect(screen.getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(screen.getByText('2 will be backordered')).toBeVisible();
+    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('hides backorder lines when toggle is turned off', async () => {
     setupPurchasedProductsTable();
 
     renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
@@ -5474,31 +5498,10 @@ describe('when backorder messaging is enabled on purchased products', () => {
     });
 
     const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    expect(backorderToggle).toBeChecked();
+    expect(await screen.findByText('2 will be backordered')).toBeVisible();
+
     await userEvent.click(backorderToggle);
-
-    await waitFor(() => {
-      expect(screen.getByText('2 ready to ship')).toBeVisible();
-    });
-    expect(screen.getByText('2 will be backordered')).toBeVisible();
-    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
-  });
-
-  it('hides backorder lines when toggle is off', async () => {
-    setupPurchasedProductsTable();
-
-    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
-
-    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
-
-    const table = screen.getByRole('table');
-    const quantityInput = within(table).getByRole('spinbutton');
-
-    await userEvent.type(quantityInput, '10', {
-      initialSelectionStart: 0,
-      initialSelectionEnd: Infinity,
-    });
-
-    await screen.findByRole('checkbox', { name: /Backorder details/i });
 
     expect(screen.queryByText('2 ready to ship')).not.toBeInTheDocument();
     expect(screen.queryByText('2 will be backordered')).not.toBeInTheDocument();
@@ -5570,7 +5573,32 @@ describe('when backorder messaging is enabled on purchased products', () => {
     expect(screen.queryByText('will be backordered', { exact: false })).not.toBeInTheDocument();
   });
 
-  it('shows a labeled picklist backorder block when toggle is on and qty exceeds picklist on hand', async () => {
+  it('shows a labeled picklist backorder block by default when qty exceeds picklist on hand', async () => {
+    setupPurchasedProductsTableWithPicklist();
+
+    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
+
+    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bundle option 1:')).toBeVisible();
+    });
+    expect(screen.getByText('9 ready to ship')).toBeVisible();
+    expect(screen.getByText('1 will be backordered')).toBeVisible();
+    expect(screen.getByText('Picklist lead time: 6 weeks')).toBeVisible();
+  });
+
+  it('hides the picklist backorder block when toggle is turned off', async () => {
     setupPurchasedProductsTableWithPicklist();
 
     renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
@@ -5586,32 +5614,10 @@ describe('when backorder messaging is enabled on purchased products', () => {
     });
 
     const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    expect(backorderToggle).toBeChecked();
+    expect(await screen.findByText('Bundle option 1:')).toBeVisible();
+
     await userEvent.click(backorderToggle);
-
-    await waitFor(() => {
-      expect(screen.getByText('Bundle option 1:')).toBeVisible();
-    });
-    expect(screen.getByText('9 ready to ship')).toBeVisible();
-    expect(screen.getByText('1 will be backordered')).toBeVisible();
-    expect(screen.getByText('Picklist lead time: 6 weeks')).toBeVisible();
-  });
-
-  it('hides the picklist backorder block when toggle is off', async () => {
-    setupPurchasedProductsTableWithPicklist();
-
-    renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
-
-    expect(await screen.findByText('Laugh Canister')).toBeInTheDocument();
-
-    const table = screen.getByRole('table');
-    const quantityInput = within(table).getByRole('spinbutton');
-
-    await userEvent.type(quantityInput, '10', {
-      initialSelectionStart: 0,
-      initialSelectionEnd: Infinity,
-    });
-
-    await screen.findByRole('checkbox', { name: /Backorder details/i });
 
     expect(screen.queryByText('Bundle option 1:')).not.toBeInTheDocument();
     expect(screen.queryByText('Picklist lead time: 6 weeks')).not.toBeInTheDocument();
@@ -5622,7 +5628,7 @@ describe('when backorder messaging is enabled on purchased products', () => {
       vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
     });
 
-    it('shows backorder lines in the card view when toggle is on and qty exceeds on hand', async () => {
+    it('shows backorder lines in the card view by default when qty exceeds on hand', async () => {
       setupPurchasedProductsTable();
 
       renderWithProviders(<QuickOrder />, { preloadedState: backorderPreloadedState });
@@ -5641,8 +5647,7 @@ describe('when backorder messaging is enabled on purchased products', () => {
         initialSelectionEnd: Infinity,
       });
 
-      const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
-      await userEvent.click(backorderToggle);
+      expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
 
       await waitFor(() => {
         expect(screen.getByText('2 ready to ship')).toBeVisible();

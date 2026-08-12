@@ -211,7 +211,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [priceHidden, setPriceHidden] = useState<boolean>(false);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
   const fetchedInventorySkusRef = useRef<Set<string>>(new Set());
-  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+  const [showBackorderDetails, setShowBackorderDetails] = useState(true);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
   const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
