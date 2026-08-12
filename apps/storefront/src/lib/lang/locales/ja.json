@@ -164,7 +164,7 @@
   "orders.status.manualVerificationRequired": "手動検証が必要",
   "orders.status.disputed": "係争中",
   "orders.status.partiallyRefunded": "一部返金",
-  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
+  "invoice.noDataText": "請求書が見つかりません。請求書IDについては、完全な番号、または最初の桁か最後の桁を入力してください。",
   "invoice.exportCsvText": "すべてをCSV形式でエクスポート",
   "invoice.exportSelectedAsCsv": "エクスポート形式はCSVです",
   "invoice.exportFilteredAsCsv": "フィルタリングされたデータをCSV形式でエクスポート",

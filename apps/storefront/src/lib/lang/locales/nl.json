@@ -164,7 +164,7 @@
   "orders.status.manualVerificationRequired": "Handmatige verificatie vereist",
   "orders.status.disputed": "Betwist",
   "orders.status.partiallyRefunded": "gedeeltelijk terugbetaald",
-  "invoice.noDataText": "No invoices found. For Invoice ID, enter the full number, or the first or last digits.",
+  "invoice.noDataText": "Geen facturen gevonden. Voer voor het factuur-ID het volledige nummer in, of de eerste of laatste cijfers.",
   "invoice.exportCsvText": "Alles exporteren als csv",
   "invoice.exportSelectedAsCsv": "Geselecteerde exporteren als CSV",
   "invoice.exportFilteredAsCsv": "Gefilterde resultaten exporteren als CSV",
