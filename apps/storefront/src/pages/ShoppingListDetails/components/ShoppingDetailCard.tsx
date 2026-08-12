@@ -3,13 +3,17 @@ import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
-import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
+import type { CatalogQuickVariantSku, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
-import { getCatalogProductRowDisplayState } from '@/utils/catalogBackorderDisplay';
+import {
+  getCatalogProductRowDisplayState,
+  getPicklistSelectionsFromStoredOptions,
+} from '@/utils/catalogBackorderDisplay';
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';
 
@@ -30,6 +34,7 @@ interface ShoppingDetailCardProps {
   showPrice: (price: string, row: CustomFieldItems) => string | number;
   b2bAndBcShoppingListActionsPermissions: boolean;
   inventoryBySku?: Record<string, CatalogQuickVariantSku>;
+  picklistProductsById?: Record<number, ProductSearch>;
   backorderUiEnabled?: boolean;
   showBackorderDetails?: boolean;
 }
@@ -59,6 +64,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     showPrice,
     b2bAndBcShoppingListActionsPermissions,
     inventoryBySku = {},
+    picklistProductsById = {},
     backorderUiEnabled = false,
     showBackorderDetails = false,
   } = props;
@@ -106,6 +112,11 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     inventoryRow,
     backorderUiEnabled,
     formatOnlyAvailable: () => '',
+  });
+
+  const picklistSelections = getPicklistSelectionsFromStoredOptions({
+    options: optionList,
+    productsSearch,
   });
 
   return (
@@ -242,6 +253,13 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               />
             </Box>
           )}
+          <PicklistBackorderMessages
+            selections={picklistSelections}
+            picklistProductsById={picklistProductsById}
+            qty={Number(quantity) || 0}
+            visible={showBackorderDetails}
+            backorderUiEnabled={backorderUiEnabled}
+          />
           <Typography
             sx={{
               color: '#212121',

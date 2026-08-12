@@ -10,12 +10,12 @@ import { useAppSelector } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
-import type { PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
-
 import {
-  getQuoteBackorderDisplayFields,
-  getQuotePicklistSelections,
-} from '../utils/getQuoteBackorderDisplayFields';
+  getPicklistSelectionsFromStoredOptions,
+  type PicklistBackorderHistoryChild,
+} from '@/utils/catalogBackorderDisplay';
+
+import { getQuoteBackorderDisplayFields } from '../utils/getQuoteBackorderDisplayFields';
 
 interface QuoteTableCardProps {
   item: any;
@@ -76,7 +76,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     hasAnyBackorderDisplay &&
     shouldDisplayBackorderInformation;
   const picklistSelections = backorderContextEnabled
-    ? getQuotePicklistSelections(quoteTableItem)
+    ? getPicklistSelectionsFromStoredOptions(quoteTableItem)
     : [];
 
   const taxRate = getTaxRate(variants);

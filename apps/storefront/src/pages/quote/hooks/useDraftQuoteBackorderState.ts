@@ -5,12 +5,12 @@ import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { QuoteItem } from '@/types/quotes';
 import {
   catalogListHasPicklistBackorderedItemsForDisplay,
+  getPicklistSelectionsFromStoredOptions,
   type PicklistSelection,
 } from '@/utils/catalogBackorderDisplay';
 
 import {
   getDraftBackorderDisplayFields,
-  getQuotePicklistSelections,
   resolveDraftLineProductId,
 } from '../utils/getQuoteBackorderDisplayFields';
 
@@ -45,7 +45,7 @@ export function useDraftQuoteBackorderState({
       ? items.map((item) => ({
           id: String(item.node.id),
           qty: Number(item.node.quantity) || 0,
-          selections: getQuotePicklistSelections(item.node),
+          selections: getPicklistSelectionsFromStoredOptions(item.node),
         }))
       : [];
 

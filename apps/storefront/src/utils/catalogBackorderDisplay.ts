@@ -3,6 +3,7 @@ import type { Variant } from '@/types/products';
 import type { ShoppingListProductItem } from '@/types/shoppingList';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 import { getBackorderDisplayFieldsFromOnHand } from '@/utils/backorderDisplayFromInventory';
+import { parseAttributeOptionId } from '@/utils/parseAttributeOptionId';
 
 export function buildVariantSkuDependencyKey(skus: readonly (string | undefined | null)[]): string {
   return [...new Set(skus.filter((sku): sku is string => Boolean(sku)))].sort().join('|');
@@ -204,7 +205,7 @@ interface PicklistModifier {
   option_values?: Array<{ id: number; value_data?: { product_id?: number } | null }> | null;
 }
 
-export interface PicklistSelectionSource {
+interface PicklistSelectionSource {
   optionSelections?: Array<{ option_id: number; value_id: number }> | null;
   productsSearch?: { modifiers?: PicklistModifier[] | null } | null;
 }
@@ -249,6 +250,89 @@ export function getProductDetailsForPicklistSelections(
         productId,
       },
     ];
+  });
+}
+
+interface StoredOptionEntry {
+  option_id?: number | string;
+  optionId?: number | string;
+  option_value?: number | string;
+  optionValue?: number | string;
+}
+
+function toStoredOptionSelection(
+  rawId: number | string | undefined,
+  rawValue: number | string | undefined,
+): { option_id: number; value_id: number } | null {
+  if (rawId == null || rawValue == null) {
+    return null;
+  }
+
+  const optionId = parseAttributeOptionId(rawId);
+  const valueId = Number(rawValue);
+  if (optionId === null || Number.isNaN(valueId)) {
+    return null;
+  }
+
+  return { option_id: optionId, value_id: valueId };
+}
+
+// Entries come from persisted/API data that callers may hand over unvalidated, so skip anything
+// that isn't an object rather than reading properties off it.
+function storedOptionEntriesToSelections(
+  entries: readonly unknown[],
+): Array<{ option_id: number; value_id: number }> {
+  return entries.flatMap((item) => {
+    if (item === null || typeof item !== 'object') {
+      return [];
+    }
+
+    const entry = item as StoredOptionEntry;
+    const selection = toStoredOptionSelection(
+      entry.option_id ?? entry.optionId,
+      entry.option_value ?? entry.optionValue,
+    );
+    return selection ? [selection] : [];
+  });
+}
+
+function parseStoredOptionList(
+  optionList: string | null | undefined,
+): Array<{ option_id: number; value_id: number }> {
+  if (!optionList) {
+    return [];
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(optionList);
+  } catch {
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  return storedOptionEntriesToSelections(parsed);
+}
+
+export interface StoredPicklistOptionRow {
+  optionList?: string | null;
+  options?: StoredOptionEntry[] | null;
+  productsSearch?: PicklistSelectionSource['productsSearch'];
+}
+
+export function getPicklistSelectionsFromStoredOptions(
+  row: StoredPicklistOptionRow,
+): PicklistSelection[] {
+  const optionSelections = row.options?.length
+    ? storedOptionEntriesToSelections(row.options)
+    : parseStoredOptionList(row.optionList);
+
+  return getProductDetailsForPicklistSelections({
+    optionSelections,
+    productsSearch: row.productsSearch,
   });
 }
 

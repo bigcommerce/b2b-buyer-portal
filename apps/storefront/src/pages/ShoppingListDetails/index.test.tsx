@@ -3661,6 +3661,227 @@ describe('when backorder messaging is enabled on shopping list products', () => 
   });
 });
 
+describe('when a shopping list product is a picklist with a backordered child', () => {
+  const parentVariantSku = 'SL-PICK-PARENT';
+  const parentProductId = 73737;
+  const modifierId = 70;
+  const optionValueId = 501;
+  const picklistProductId = 70000;
+
+  const backorderPreloadedState = {
+    company: b2bCompanyWithShoppingListPermissions,
+    global: buildGlobalStateWith({
+      backorderEnabled: true,
+      backorderDisplaySettings: {
+        showQuantityOnBackorder: true,
+        showQuantityOnHand: true,
+        showBackorderMessage: true,
+        showDefaultShippingExpectationPrompt: false,
+        defaultShippingExpectationPrompt: '',
+      },
+      featureFlags: {
+        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+      },
+    }),
+  };
+
+  const setupPicklistShoppingList = ({
+    parentTotalOnHand = 20,
+    childTotalOnHand = 3,
+  }: { parentTotalOnHand?: number; childTotalOnHand?: number } = {}) => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+    const productEdge = buildShoppingListProductEdgeWith({
+      node: {
+        productName: 'PICKLE KIT',
+        productId: parentProductId,
+        variantSku: parentVariantSku,
+        quantity: 7,
+        basePrice: '22.00',
+        optionList: JSON.stringify([
+          { option_id: `attribute[${modifierId}]`, option_value: `${optionValueId}` },
+        ]),
+      },
+    });
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: { totalCount: 1, edges: [productEdge] },
+          status: 0,
+          grandTotal: '154.00',
+          totalTax: '0',
+        },
+      },
+    });
+
+    const parentProduct = buildSearchB2BProductWith({
+      id: parentProductId,
+      name: 'PICKLE KIT',
+      sku: 'PK',
+      optionsV3: [],
+      isPriceHidden: false,
+      variants: [],
+      modifiers: [
+        {
+          id: modifierId,
+          type: 'product_list',
+          display_name: 'Pickly Picky',
+          option_values: [
+            {
+              id: optionValueId,
+              label: 'Mining Pick',
+              is_default: true,
+              option_id: modifierId,
+              value_data: { product_id: picklistProductId },
+            },
+          ],
+        },
+      ],
+    });
+
+    const picklistChildProduct = buildSearchB2BProductWith({
+      id: picklistProductId,
+      name: 'Mining Pick',
+      inventoryTracking: 'product',
+      availableToSell: 20,
+      unlimitedBackorder: false,
+      totalOnHand: childTotalOnHand,
+      backorderMessage: 'Backorders Schmackorders',
+      variants: [],
+    });
+
+    const parentVariantInfo = buildVariantInfoWith({
+      variantSku: parentVariantSku,
+      inventoryTracking: 'product',
+      availableToSell: 20,
+      unlimitedBackorder: false,
+      totalOnHand: parentTotalOnHand,
+      backorderMessage: 'Parent lead time: 2-4 weeks',
+    });
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', () => HttpResponse.json(shoppingListResponse)),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(
+          buildSearchProductsResponseWith({
+            data: { productsSearch: [parentProduct, picklistChildProduct] },
+          }),
+        ),
+      ),
+      graphql.query('GetVariantInfoBySkus', () =>
+        HttpResponse.json(
+          buildVariantInfoResponseWith({ data: { variantSku: [parentVariantInfo] } }),
+        ),
+      ),
+    );
+  };
+
+  it('shows the picklist child backorder lines by default', async () => {
+    setupPicklistShoppingList();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('PICKLE KIT')).toBeVisible();
+
+    expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
+
+    expect(await screen.findByText('Pickly Picky:')).toBeVisible();
+    expect(screen.getByText('3 ready to ship')).toBeVisible();
+    expect(screen.getByText('4 will be backordered')).toBeVisible();
+    expect(screen.getByText('Backorders Schmackorders')).toBeVisible();
+  });
+
+  it('hides the picklist child backorder lines when the toggle is turned off', async () => {
+    setupPicklistShoppingList();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('PICKLE KIT')).toBeVisible();
+
+    const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    expect(backorderToggle).toBeChecked();
+    expect(await screen.findByText('Pickly Picky:')).toBeVisible();
+
+    await userEvent.click(backorderToggle);
+
+    expect(screen.queryByText('Pickly Picky:')).toBeNull();
+    expect(screen.queryByText('4 will be backordered')).toBeNull();
+    expect(screen.queryByText('Backorders Schmackorders')).toBeNull();
+  });
+
+  it('shows both the parent and the child backorder lines when both are backordered', async () => {
+    setupPicklistShoppingList({ parentTotalOnHand: 3 });
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('PICKLE KIT')).toBeVisible();
+
+    await screen.findByText('Pickly Picky:');
+    expect(screen.getAllByText('3 ready to ship')).toHaveLength(2);
+    expect(screen.getAllByText('4 will be backordered')).toHaveLength(2);
+    expect(screen.getByText('Parent lead time: 2-4 weeks')).toBeVisible();
+    expect(screen.getByText('Backorders Schmackorders')).toBeVisible();
+  });
+
+  it('hides the picklist child backorder lines when messaging is disabled', async () => {
+    setupPicklistShoppingList();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('PICKLE KIT')).toBeVisible();
+
+    expect(screen.queryByRole('checkbox', { name: /Backorder details/i })).toBeNull();
+    expect(screen.queryByText('Pickly Picky:')).toBeNull();
+    expect(screen.queryByText('Backorders Schmackorders')).toBeNull();
+  });
+
+  describe('on mobile', () => {
+    beforeEach(() => {
+      vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
+    });
+
+    it('shows the picklist child backorder lines in the card view by default', async () => {
+      setupPicklistShoppingList();
+
+      renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+        preloadedState: backorderPreloadedState,
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      expect(await screen.findByText('PICKLE KIT')).toBeVisible();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('table')).toBeNull();
+      });
+
+      expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
+
+      expect(await screen.findByText('Pickly Picky:')).toBeVisible();
+      expect(screen.getByText('3 ready to ship')).toBeVisible();
+      expect(screen.getByText('4 will be backordered')).toBeVisible();
+      expect(screen.getByText('Backorders Schmackorders')).toBeVisible();
+    });
+  });
+});
+
 describe('when backorder messaging is enabled in add to list search modal', () => {
   const variantSku = 'SL-SEARCH-123';
   const productName = 'Cast Iron Skillet';

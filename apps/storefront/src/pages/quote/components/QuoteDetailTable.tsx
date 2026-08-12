@@ -10,12 +10,14 @@ import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
-import { type PicklistBackorderHistoryChild } from '@/utils/catalogBackorderDisplay';
+import {
+  getPicklistSelectionsFromStoredOptions,
+  type PicklistBackorderHistoryChild,
+} from '@/utils/catalogBackorderDisplay';
 
 import { useQuoteDetailBackorderState } from '../hooks/useQuoteDetailBackorderState';
 import {
   getQuoteBackorderDisplayFields,
-  getQuotePicklistSelections,
   getRowPicklistBackorderHistory,
 } from '../utils/getQuoteBackorderDisplayFields';
 
@@ -319,7 +321,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: b3Lang('quoteDetail.table.qty'),
       render: (row) => {
         const backorderFields = getQuoteBackorderDisplayFields(row);
-        const picklistSelections = backorderContextEnabled ? getQuotePicklistSelections(row) : [];
+        const picklistSelections = backorderContextEnabled
+          ? getPicklistSelectionsFromStoredOptions(row)
+          : [];
         const historyByProductId = isOrdered ? getRowPicklistBackorderHistory(row) : undefined;
 
         return (
