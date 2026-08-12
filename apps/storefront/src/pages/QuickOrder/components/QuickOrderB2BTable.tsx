@@ -147,7 +147,7 @@ function QuickOrderTable({
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
-  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+  const [showBackorderDetails, setShowBackorderDetails] = useState(true);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
   const [isMobile] = useMobile();

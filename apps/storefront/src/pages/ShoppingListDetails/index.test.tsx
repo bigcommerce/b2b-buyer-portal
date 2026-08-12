@@ -3485,7 +3485,35 @@ describe('when backorder messaging is enabled on shopping list products', () => 
     );
   };
 
-  it('shows backorder lines when toggle is on and qty exceeds on hand', async () => {
+  it('shows backorder lines by default when qty exceeds on hand', async () => {
+    setupShoppingListTable();
+
+    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: backorderPreloadedState,
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
+
+    const table = screen.getByRole('table');
+    const quantityInput = within(table).getByRole('spinbutton');
+
+    await userEvent.type(quantityInput, '10', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: Infinity,
+    });
+
+    expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
+
+    await waitFor(() => {
+      expect(screen.getByText('2 ready to ship')).toBeVisible();
+    });
+    expect(screen.getByText('2 will be backordered')).toBeVisible();
+    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
+  });
+
+  it('hides backorder lines when toggle is turned off', async () => {
     setupShoppingListTable();
 
     renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -3505,35 +3533,10 @@ describe('when backorder messaging is enabled on shopping list products', () => 
     });
 
     const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
+    expect(backorderToggle).toBeChecked();
+    expect(await screen.findByText('2 will be backordered')).toBeVisible();
+
     await userEvent.click(backorderToggle);
-
-    await waitFor(() => {
-      expect(screen.getByText('2 ready to ship')).toBeVisible();
-    });
-    expect(screen.getByText('2 will be backordered')).toBeVisible();
-    expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
-  });
-
-  it('hides backorder lines when toggle is off', async () => {
-    setupShoppingListTable();
-
-    renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
-      preloadedState: backorderPreloadedState,
-    });
-
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
-
-    expect(await screen.findByText('Bistro Pro Literide Clog')).toBeInTheDocument();
-
-    const table = screen.getByRole('table');
-    const quantityInput = within(table).getByRole('spinbutton');
-
-    await userEvent.type(quantityInput, '10', {
-      initialSelectionStart: 0,
-      initialSelectionEnd: Infinity,
-    });
-
-    await screen.findByRole('checkbox', { name: /Backorder details/i });
 
     expect(screen.queryByText('2 ready to ship')).not.toBeInTheDocument();
     expect(screen.queryByText('2 will be backordered')).not.toBeInTheDocument();
@@ -3622,7 +3625,7 @@ describe('when backorder messaging is enabled on shopping list products', () => 
       vi.spyOn(document.body, 'clientWidth', 'get').mockReturnValue(500);
     });
 
-    it('shows backorder lines in the card view when toggle is on and qty exceeds on hand', async () => {
+    it('shows backorder lines in the card view by default when qty exceeds on hand', async () => {
       setupShoppingListTable();
 
       renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
@@ -3647,8 +3650,7 @@ describe('when backorder messaging is enabled on shopping list products', () => 
         initialSelectionEnd: Infinity,
       });
 
-      const backorderToggle = await screen.findByRole('checkbox', { name: /Backorder details/i });
-      await userEvent.click(backorderToggle);
+      expect(await screen.findByRole('checkbox', { name: /Backorder details/i })).toBeChecked();
 
       await waitFor(() => {
         expect(screen.getByText('2 ready to ship')).toBeVisible();
