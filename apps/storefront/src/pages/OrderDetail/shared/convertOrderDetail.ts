@@ -163,7 +163,7 @@ function buildOrderProduct(
     imageUrl: string;
   },
 ): OrderProductItem {
-  // Unit price from list price (per Jesse/Shayne decision — no unit price Money field exists)
+  // No unit price Money field exists on this type; derive it from list price.
   const unitListPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
   const formattedUnitPrice = String(unitListPrice);
   const formattedTotal = String(item.subTotalSalePrice.value);
@@ -173,10 +173,8 @@ function buildOrderProduct(
   return {
     id: item.entityId,
     product_id: item.productEntityId,
-    // Fallback to 0 when variantEntityId is null (gist: "null for legacy
-    // orders or products without variants"). BE is adding variantEntityId
-    // to OrderPhysicalLineItem — until deployed, reorder sends 0 (honest
-    // "no variant") rather than an unrelated ID. Behind FF, tracked in B2B-4787.
+    // variantEntityId is null for legacy orders or products without variants;
+    // 0 signals "no variant" rather than an unrelated real id.
     variant_id: physicalFields?.variantEntityId ?? 0,
     sku: physicalFields?.sku ?? '',
     name: item.name,
@@ -507,8 +505,8 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    // returnableQuantity is not selected: it only fed the Return button, which is
-    // hidden unconditionally under BUN-1417, and the field 500s on the server.
+    // returnableQuantity is not selected — the Return button that used it is
+    // hidden, and selecting the field 500s the server.
     canReturn: false,
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,

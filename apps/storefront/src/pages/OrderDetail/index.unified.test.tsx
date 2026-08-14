@@ -262,7 +262,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     return view;
   }
 
-  // Image.url takes a required width argument.
   it('requests the line item image with an explicit width', async () => {
     let capturedQuery = '';
     server.use(
@@ -285,7 +284,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(capturedQuery).toContain('url(width: 80)');
   });
 
-  // OrderHistoryEvent exposes statusLabel; `status` and `createdBy` do not exist on it.
   it('requests statusLabel on history and never createdBy', async () => {
     let capturedQuery = '';
     server.use(
@@ -310,8 +308,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(capturedQuery).not.toContain('createdBy');
   });
 
-  // These three are selected and never read. returnableQuantity additionally 500s, and
-  // being non-null it nulls the entire consignments tree with it.
   it('does not select fields the UI never reads', async () => {
     let capturedQuery = '';
     server.use(
@@ -343,8 +339,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     expect(screen.getByText('Awaiting Fulfillment')).toBeVisible();
   });
 
-  // Same casing trap as the list surfaces: the detail header looks the status up twice,
-  // once for colour and once for the merchant custom label, both by system label.
   it('renders the status tag when the resolver returns a sentence-case label', async () => {
     server.use(
       graphql.query('GetOrderDetail', () =>
@@ -1250,7 +1244,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByText(/Visa ending in 1234/)).toBeVisible();
     });
 
-    // payments is a PaymentsConnection and Payment exposes paymentMethodName.
     it('renders the payment method from the payments connection', async () => {
       server.use(
         graphql.query('GetOrderDetail', () =>
@@ -1566,7 +1559,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       expect(screen.getByText('Format: ePub')).toBeVisible();
     });
 
-    // downloads is [OrderDownloadConsignment!]!, unlike its sibling `shipping`.
     it('selects downloads as a plain list and renders its digital products', async () => {
       let capturedQuery = '';
       server.use(

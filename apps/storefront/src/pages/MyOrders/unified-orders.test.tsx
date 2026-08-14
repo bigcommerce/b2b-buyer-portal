@@ -360,9 +360,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(headerTexts).toContain('Company');
     });
 
-    // Sorting is not available on customer.orders — the agreed schema puts sortBy on the
-    // company path only, and the upstream endpoint has no sort parameter. A header that
-    // still reports aria-sort tells the user the list sorted when it did not.
     it('renders My Orders column headers as non-sortable when unified orders is enabled', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
@@ -398,10 +395,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(capturedVariables).not.toHaveProperty('sortBy');
     });
 
-    // Search is kept visible even though it's a no-op: it's deferred to its own ticket,
-    // not permanently unsupported, so the UI stays unchanged for now (see B2B-5420). The
-    // company-hierarchy selector stays hidden — that field is permanently absent from
-    // OrdersFiltersInput (B2B-5421), so there's no query for it to ever start filtering.
     it('renders the search box but not the company selector on the unified customer path', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
@@ -426,11 +419,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
-    // A super admin who isn't currently agenting hits a different branch of
-    // getFilterMoreData's role/agenting checks than CustomerRole.ADMIN does, and that
-    // branch used to leave the "Company" more-filter field visible even though the
-    // customer path's filter state has nowhere to send it — the exact visible-but-inert
-    // defect this fixes for the company more-filter field.
     it('renders no Company field in more filters for a super admin who is not agenting', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
@@ -711,8 +699,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        // OrdersFiltersInput.status is an enum on the customer path and [String!] on the
-        // company path. Sending the display-facing system label 400s at coercion.
         it('sends the OrderStatusValue enum member when a status filter is applied', async () => {
           const getOrders = vi
             .fn()
@@ -923,8 +909,6 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        // OrdersFiltersInput has only status and dateRange. companyIds was filtering a
-        // customer-scoped list by the customer's own company — a no-op that 400s.
         it('never sends companyIds or companyName on the customer path', async () => {
           const getOrders = vi
             .fn()
