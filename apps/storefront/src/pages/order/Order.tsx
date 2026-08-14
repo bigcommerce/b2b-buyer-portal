@@ -137,15 +137,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
 
-  // The customer hook has no search or company-hierarchy filter, so resolve these
-  // directly from the company/legacy state rather than through the union above.
-  const handleSearchChange = isUnifiedCompanyPath
-    ? companyFilterState.handleSearchChange
-    : legacyFilterState.handleSearchChange;
+  const getSearchAndCompanyFilterState = () =>
+    isUnifiedCompanyPath ? companyFilterState : legacyFilterState;
 
-  const handleCompanyIdsChange = isUnifiedCompanyPath
-    ? companyFilterState.handleCompanyIdsChange
-    : legacyFilterState.handleCompanyIdsChange;
+  const { handleSearchChange, handleCompanyIdsChange } = getSearchAndCompanyFilterState();
 
   const getFilterDataAndOrderBy = () => {
     if (isUnifiedCompanyPath) {
@@ -461,6 +456,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     ? (item: ListItem) => goToDetail(item, listItems)
     : legacyGoToDetail;
 
+  const filterMoreInfoWithoutInertCompanyControl = filterMoreInfo.filter(
+    (item) => item.name !== 'company',
+  );
+
   return (
     <B3Spin isSpinning={isFetching}>
       <Box
@@ -491,11 +490,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           )}
           <B3Filter
             filterMoreInfo={
-              // The customer filter state has no field to send a company filter to, so
-              // it's hidden here to avoid a visible-but-inert control
-              isUnifiedCustomerPath
-                ? filterMoreInfo.filter((item) => item.name !== 'company')
-                : filterMoreInfo
+              isUnifiedCustomerPath ? filterMoreInfoWithoutInertCompanyControl : filterMoreInfo
             }
             startPicker={{
               isEnabled: true,
