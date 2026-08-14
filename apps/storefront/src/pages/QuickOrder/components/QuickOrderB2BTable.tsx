@@ -521,7 +521,7 @@ function QuickOrderTable({
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-end',
+              alignItems: 'flex-start',
               width: '100%',
             }}
           >
@@ -529,6 +529,9 @@ function QuickOrderTable({
               size="small"
               type="number"
               variant="filled"
+              sx={{
+                width: '100%',
+              }}
               value={qty}
               inputProps={{
                 inputMode: 'numeric',
@@ -539,7 +542,7 @@ function QuickOrderTable({
               }}
             />
             {backorderFields && (
-              <Box sx={{ mt: 1, width: '100%', textAlign: 'right' }}>
+              <Box sx={{ mt: 1, width: '100%', textAlign: 'left' }}>
                 <BackorderMessage
                   totalOnHand={backorderFields.totalOnHand}
                   quantityBackordered={backorderFields.quantityBackordered}
@@ -549,7 +552,7 @@ function QuickOrderTable({
               </Box>
             )}
             {picklistSelections.length > 0 && (
-              <Box sx={{ width: '100%', textAlign: 'right' }}>
+              <Box sx={{ width: '100%', textAlign: 'left' }}>
                 <PicklistBackorderMessages
                   selections={picklistSelections}
                   picklistProductsById={picklistProductsById}
@@ -564,7 +567,7 @@ function QuickOrderTable({
       },
       width: backorderUiEnabled ? '18%' : '15%',
       style: {
-        textAlign: 'right',
+        textAlign: 'left',
       },
     },
     {

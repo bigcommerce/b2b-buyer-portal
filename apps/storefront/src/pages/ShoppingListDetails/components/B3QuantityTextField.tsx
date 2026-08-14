@@ -7,7 +7,7 @@ import { useB3Lang } from '@/lib/lang';
 
 const StyledNumberNoTopTextField = styled(TextField)(() => ({
   '& input': {
-    paddingRight: '6px',
+    paddingRight: '0.375rem',
   },
 }));
 
@@ -32,7 +32,7 @@ export function B3QuantityTextField({
   const [isMobile] = useMobile();
 
   const sx = {
-    width: isMobile ? '110px' : '72px',
+    width: isMobile ? '6.875rem' : '100%',
     '& .MuiFormHelperText-root': {
       marginLeft: '0',
       marginRight: '0',

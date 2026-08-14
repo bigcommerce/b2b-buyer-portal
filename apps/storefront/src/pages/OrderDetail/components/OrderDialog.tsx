@@ -671,7 +671,6 @@ export default function OrderDialog({
             checkedArr={checkedArr}
             setCheckedArr={setCheckedArr}
             setReturnArr={setReturnArr}
-            textAlign={isMobile ? 'left' : 'right'}
             type={type}
             catalogInventoryBySku={catalogInventoryBySku}
             backorderUiEnabled={backorderUiEnabled}

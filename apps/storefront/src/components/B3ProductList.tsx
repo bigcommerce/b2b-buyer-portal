@@ -16,6 +16,7 @@ import {
   getCatalogProductRowDisplayState,
   productRequiresChooseOptionsBeforeAdd,
 } from '@/utils/catalogBackorderDisplay';
+import { getProductListColumnAlignments } from '@/utils/getProductListColumnAlignments';
 
 import { MoneyFormat, ProductItem } from '../types';
 
@@ -122,6 +123,7 @@ interface BackorderLayoutStyles {
   qtyColumn: ProductListItemStyle['qty'];
   qtyColumnSx: FlexItemProps['sx'];
   numericColumn: ProductListItemStyle['default'];
+  priceColumnSx: FlexItemProps['sx'];
   productColumnPadding: string;
   productColumnSx: FlexItemProps['sx'];
 }
@@ -135,13 +137,28 @@ function getBackorderLayoutStyles(
   if (isMobile) {
     productColumnPadding = '0';
   } else if (desktopBackorderLayoutEnabled) {
-    productColumnPadding = '0 16px 0 0';
+    productColumnPadding = '0 1rem 0 0';
   }
+
+  const desktopPriceQtyGapSx = isMobile
+    ? undefined
+    : {
+        paddingRight: '1rem',
+      };
+  const desktopQtyGapSx = isMobile
+    ? undefined
+    : {
+        paddingLeft: '1rem',
+      };
 
   return {
     qtyColumn: desktopBackorderLayoutEnabled ? { width: '16%' } : itemStyle.qty,
-    qtyColumnSx: desktopBackorderLayoutEnabled ? { minWidth: '140px' } : undefined,
+    qtyColumnSx: {
+      ...(desktopBackorderLayoutEnabled ? { minWidth: '8.75rem' } : {}),
+      ...desktopQtyGapSx,
+    },
     numericColumn: desktopBackorderLayoutEnabled ? { width: '12%' } : itemStyle.default,
+    priceColumnSx: desktopPriceQtyGapSx,
     productColumnPadding,
     productColumnSx: desktopBackorderLayoutEnabled ? { flex: '1 1 42%', minWidth: 0 } : undefined,
   };
@@ -162,7 +179,6 @@ interface ProductProps<T extends ProductItem = ProductItem> {
   selectAllText?: string;
   totalText?: string;
   canToProduct?: boolean;
-  textAlign?: string;
   type?: string;
   getCurrentProductUrls?: (productId: number | undefined) => void;
   catalogBackorderUiEnabled?: boolean;
@@ -182,7 +198,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     products,
     renderAction,
     quantityKey = 'quantity',
-    actionWidth = '100px',
+    actionWidth = '6.25rem',
     quantityEditable = false,
     onProductQuantityChange = noop,
     showCheckbox = false,
@@ -190,7 +206,6 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     selectAllText = 'Select all products',
     totalText = 'Total',
     canToProduct = false,
-    textAlign = 'left',
     money,
     currencyCode,
     type,
@@ -206,7 +221,12 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
-  const quantityStackItemsAlignment = textAlign === 'right' ? 'flex-end' : 'flex-start';
+  const {
+    qtyTextAlign,
+    numericTextAlign,
+    qtyStackItemsAlignment: quantityStackItemsAlignment,
+    numericStackItemsAlignment,
+  } = getProductListColumnAlignments(isMobile);
 
   const getQuantity = (product: any) => parseInt(product[quantityKey]?.toString() || '', 10) || '';
 
@@ -277,6 +297,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
     qtyColumn: desktopQtyColumnStyle,
     qtyColumnSx: desktopQtyColumnExtraSx,
     numericColumn: desktopNumericColumnStyle,
+    priceColumnSx: desktopPriceColumnExtraSx,
     productColumnPadding: desktopProductColumnPadding,
     productColumnSx: desktopProductColumnSx,
   } = getBackorderLayoutStyles(backorderLayoutEnabled && !isMobile, isMobile, itemStyle);
@@ -312,17 +333,21 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
           <FlexItem padding={desktopProductColumnPadding} sx={desktopProductColumnSx}>
             <ProductHead>{b3Lang('global.searchProduct.product')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...desktopNumericColumnStyle}>
+          <FlexItem
+            textAlignLocation={numericTextAlign}
+            {...desktopNumericColumnStyle}
+            sx={desktopPriceColumnExtraSx}
+          >
             <ProductHead>{b3Lang('global.searchProduct.price')}</ProductHead>
           </FlexItem>
           <FlexItem
-            textAlignLocation={textAlign}
+            textAlignLocation={qtyTextAlign}
             {...desktopQtyColumnStyle}
             sx={desktopQtyColumnExtraSx}
           >
             <ProductHead>{b3Lang('global.searchProduct.qty')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...desktopNumericColumnStyle}>
+          <FlexItem textAlignLocation={numericTextAlign} {...desktopNumericColumnStyle}>
             <ProductHead>{b3Lang('global.searchProduct.total')}</ProductHead>
           </FlexItem>
           {renderAction && (
@@ -443,26 +468,28 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
           priceValue: number,
           priceDiscountedValue: number,
           preFormatted?: string,
+          columnSx?: FlexItemProps['sx'],
         ) => {
           return (
             <FlexItem
-              textAlignLocation={textAlign}
-              padding={quantityEditable ? '10px 0 0' : ''}
+              textAlignLocation={numericTextAlign}
+              padding={quantityEditable ? '0.625rem 0 0' : ''}
               {...desktopNumericColumnStyle}
-              sx={
-                isMobile
+              sx={{
+                ...columnSx,
+                ...(isMobile
                   ? {
                       fontSize: '14px',
                     }
-                  : {}
-              }
+                  : {}),
+              }}
             >
               <Box
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  justifyContent: textAlign === 'right' ? 'flex-end' : 'flex-start',
+                  alignItems: numericStackItemsAlignment,
+                  justifyContent: numericStackItemsAlignment,
                 }}
               >
                 <Box
@@ -551,9 +578,15 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
               </Box>
             </FlexItem>
 
-            {renderPrice('Price', productPrice, discountedPrice, safeFormattedPrice)}
+            {renderPrice(
+              'Price',
+              productPrice,
+              discountedPrice,
+              safeFormattedPrice,
+              desktopPriceColumnExtraSx,
+            )}
             <FlexItem
-              textAlignLocation={textAlign}
+              textAlignLocation={qtyTextAlign}
               {...desktopQtyColumnStyle}
               sx={{
                 ...desktopQtyColumnExtraSx,
@@ -586,7 +619,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                     onBlur={handleNumberInputBlur(product)}
                     size="small"
                     sx={{
-                      width: isMobile ? '110px' : '72px',
+                      width: isMobile ? '6.875rem' : '100%',
                       '& .MuiFormHelperText-root': {
                         marginLeft: '0',
                         marginRight: '0',
@@ -602,7 +635,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                         width: '100%',
                         maxWidth: '100%',
                         minWidth: 0,
-                        textAlign,
+                        textAlign: qtyTextAlign,
                         alignSelf: quantityStackItemsAlignment,
                       }}
                     >
@@ -625,7 +658,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                     sx={{
                       mt: 1,
                       width: '100%',
-                      textAlign,
+                      textAlign: qtyTextAlign,
                       alignSelf: quantityStackItemsAlignment,
                     }}
                   >
