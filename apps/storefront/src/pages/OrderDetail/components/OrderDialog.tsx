@@ -465,31 +465,30 @@ export default function OrderDialog({
   const handleShoppingConfirm = async (id: string) => {
     setIsRequestLoading(true);
     try {
-      const items = editableProducts.map((product) => {
-        const {
-          id: lineItemId,
-          product_id: productId,
-          variant_id: variantId,
-          editQuantity,
-          product_options: productOptions,
-        } = product;
+      const params = editableProducts
+        .filter((product) => checkedArr.includes(product.id))
+        .map((product) => {
+          const {
+            product_id: productId,
+            variant_id: variantId,
+            editQuantity,
+            product_options: productOptions,
+          } = product;
 
-        return {
-          lineItemId,
-          productId: Number(productId),
-          variantId,
-          quantity: Number(editQuantity),
-          optionList: productOptions.map((option) => {
-            const { product_option_id: optionId, value: optionValue } = option;
+          return {
+            productId: Number(productId),
+            variantId,
+            quantity: Number(editQuantity),
+            optionList: productOptions.map((option) => {
+              const { product_option_id: optionId, value: optionValue } = option;
 
-            return {
-              optionId: `attribute[${optionId}]`,
-              optionValue,
-            };
-          }),
-        };
-      });
-      const params = items.filter((item) => checkedArr.includes(item.lineItemId));
+              return {
+                optionId: `attribute[${optionId}]`,
+                optionValue,
+              };
+            }),
+          };
+        });
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
