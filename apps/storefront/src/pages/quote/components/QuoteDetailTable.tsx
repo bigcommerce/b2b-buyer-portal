@@ -98,7 +98,7 @@ const StyledQuoteTableContainer = styled('div')(() => ({
         verticalAlign: 'inherit',
       },
     },
-    '& tr: hover': {
+    '& tr:hover': {
       '& #shoppingList-actionList': {
         opacity: 1,
       },

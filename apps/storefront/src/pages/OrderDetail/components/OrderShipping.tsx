@@ -6,7 +6,6 @@ import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components/B3ProductList';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 
@@ -27,8 +26,6 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
     state: { shippings = [], addressLabelPermission, money, currencyCode },
   } = useContext(OrderDetailsContext);
-
-  const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
 
@@ -192,7 +189,6 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                     currencyCode={currencyCode}
                     totalText="Total"
                     canToProduct={isCurrentCompany}
-                    textAlign="right"
                   />
                 </Fragment>
               ) : null,
@@ -217,7 +213,6 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
                   currencyCode={currencyCode}
                   totalText="Total"
                   canToProduct={isCurrentCompany}
-                  textAlign={isMobile ? 'left' : 'right'}
                   backorderFieldsForProduct={
                     showOrderBackorder ? backorderFieldsForProduct : undefined
                   }

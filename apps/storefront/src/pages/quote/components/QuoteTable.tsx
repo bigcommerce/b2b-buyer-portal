@@ -44,11 +44,8 @@ const StyledQuoteTableContainer = styled('div')(() => ({
       '& td': {
         verticalAlign: 'top',
       },
-      '& td: first-of-type': {
-        verticalAlign: 'inherit',
-      },
     },
-    '& tr: hover': {
+    '& tr:hover': {
       '& #shoppingList-actionList': {
         opacity: 1,
       },
@@ -453,10 +450,10 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                 handleCheckProductQty(row, Number(e.target.value));
               }}
               sx={{
-                width: '75%',
+                width: '100%',
                 '& input': {
-                  paddingTop: '12px',
-                  paddingRight: '6px',
+                  paddingTop: '0.75rem',
+                  paddingRight: '0.375rem',
                 },
               }}
             />
@@ -484,7 +481,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
       },
       width: '15%',
       style: {
-        textAlign: 'right',
+        textAlign: 'left',
       },
     },
     {

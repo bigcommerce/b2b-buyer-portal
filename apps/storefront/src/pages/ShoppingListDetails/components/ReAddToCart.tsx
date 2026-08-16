@@ -21,6 +21,7 @@ import {
   buildVariantSkuDependencyKey,
   getCatalogBackorderFieldsForVariantSku,
 } from '@/utils/catalogBackorderDisplay';
+import { getProductListColumnAlignments } from '@/utils/getProductListColumnAlignments';
 
 import { B3QuantityTextField } from './B3QuantityTextField';
 
@@ -171,11 +172,11 @@ export default function ReAddToCart({
     useBackorderStorefrontMessaging();
   const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
 
-  const textAlign = isMobile ? 'left' : 'right';
+  const { qtyTextAlign, numericTextAlign, qtyStackItemsAlignment } =
+    getProductListColumnAlignments(isMobile);
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
-  const qtyStackAlignItems = textAlign === 'right' ? 'flex-end' : 'flex-start';
   const desktopQtyColumnStyle =
-    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '160px' } : itemStyle.default;
+    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '10rem' } : itemStyle.default;
 
   const [internalProducts, setInternalProducts] = useState<ProductsProps[]>([]);
 
@@ -348,19 +349,21 @@ export default function ReAddToCart({
                   <FlexItem>
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.product')}</ProductHead>
                   </FlexItem>
-                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                  <FlexItem
+                    {...itemStyle.default}
+                    textAlignLocation={numericTextAlign}
+                    {...(!isMobile ? { padding: '0 1rem 0 0' } : {})}
+                  >
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.price')}</ProductHead>
                   </FlexItem>
                   <FlexItem
-                    sx={{
-                      justifyContent: 'center',
-                    }}
                     {...desktopQtyColumnStyle}
-                    textAlignLocation={textAlign}
+                    textAlignLocation={qtyTextAlign}
+                    {...(!isMobile ? { padding: '0 0 0 1rem' } : {})}
                   >
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.quantity')}</ProductHead>
                   </FlexItem>
-                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                  <FlexItem {...itemStyle.default} textAlignLocation={numericTextAlign}>
                     <ProductHead>{b3Lang('shoppingList.reAddToCart.total')}</ProductHead>
                   </FlexItem>
                   <FlexItem {...itemStyle.delete}>
@@ -436,16 +439,24 @@ export default function ReAddToCart({
                           ))}
                       </Box>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <FlexItem
+                      {...itemStyle.default}
+                      textAlignLocation={numericTextAlign}
+                      {...(!isMobile ? { padding: '0 1rem 0 0' } : {})}
+                    >
                       {isMobile && <span>Price: </span>}
                       {currencyFormat(price)}
                     </FlexItem>
-                    <FlexItem {...desktopQtyColumnStyle} textAlignLocation={textAlign}>
+                    <FlexItem
+                      {...desktopQtyColumnStyle}
+                      textAlignLocation={qtyTextAlign}
+                      {...(!isMobile ? { padding: '0 0 0 1rem' } : {})}
+                    >
                       <Box
                         sx={{
                           display: 'flex',
                           flexDirection: 'column',
-                          alignItems: qtyStackAlignItems,
+                          alignItems: qtyStackItemsAlignment,
                           width: '100%',
                           maxWidth: '100%',
                           minWidth: 0,
@@ -468,8 +479,8 @@ export default function ReAddToCart({
                               width: '100%',
                               maxWidth: '100%',
                               minWidth: 0,
-                              textAlign,
-                              alignSelf: qtyStackAlignItems,
+                              textAlign: qtyTextAlign,
+                              alignSelf: qtyStackItemsAlignment,
                             }}
                           >
                             <BackorderMessage
@@ -482,7 +493,7 @@ export default function ReAddToCart({
                         )}
                       </Box>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <FlexItem {...itemStyle.default} textAlignLocation={numericTextAlign}>
                       {isMobile && <div>Total: </div>}
                       {currencyFormat(total)}
                     </FlexItem>

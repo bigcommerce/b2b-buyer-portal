@@ -14,6 +14,7 @@ import {
   getCatalogProductRowDisplayState,
   type PicklistSelection,
 } from '@/utils/catalogBackorderDisplay';
+import { getProductListColumnAlignments } from '@/utils/getProductListColumnAlignments';
 
 import { EditableProductItem, OrderProductOption } from '../../../types';
 import { formatCurrency } from '../shared/convertOrderDetail';
@@ -39,7 +40,6 @@ interface OrderCheckboxProductProps {
   checkedArr?: number[];
   setCheckedArr?: (items: number[]) => void;
   setReturnArr?: (items: ReturnListProps[]) => void;
-  textAlign?: string;
   type?: string;
   catalogInventoryBySku?: Record<string, CatalogQuickVariantSku>;
   backorderUiEnabled?: boolean;
@@ -76,7 +76,6 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     checkedArr = [],
     setCheckedArr = () => {},
     setReturnArr = () => {},
-    textAlign = 'left',
     type,
     catalogInventoryBySku,
     backorderUiEnabled = false,
@@ -104,9 +103,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   };
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
-  const qtyStackAlignItems = textAlign === 'right' ? 'flex-end' : 'flex-start';
+  const { qtyTextAlign, numericTextAlign, qtyStackItemsAlignment } =
+    getProductListColumnAlignments(isMobile);
   const desktopQtyColumnStyle =
-    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '160px' } : itemStyle.default;
+    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '10rem' } : itemStyle.default;
 
   const handleSelectAllChange = () => {
     if (checkedArr.length === products.length) {
@@ -208,13 +208,21 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           <FlexItem>
             <ProductHead>{b3Lang('orderDetail.reorder.product')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
+          <FlexItem
+            textAlignLocation={numericTextAlign}
+            {...itemStyle.default}
+            padding={isMobile ? undefined : '0 1rem 0 0'}
+          >
             <ProductHead>{b3Lang('orderDetail.reorder.price')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...desktopQtyColumnStyle}>
+          <FlexItem
+            textAlignLocation={qtyTextAlign}
+            {...desktopQtyColumnStyle}
+            padding={isMobile ? undefined : '0 0 0 1rem'}
+          >
             <ProductHead>{b3Lang('orderDetail.reorder.qty')}</ProductHead>
           </FlexItem>
-          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
+          <FlexItem textAlignLocation={numericTextAlign} {...itemStyle.default}>
             <ProductHead>{b3Lang('orderDetail.reorder.total')}</ProductHead>
           </FlexItem>
         </Flex>
@@ -287,20 +295,24 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                 ))}
               </Box>
             </FlexItem>
-            <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+            <FlexItem
+              textAlignLocation={numericTextAlign}
+              padding={isMobile ? '0.625rem 0 0' : '0.625rem 1rem 0 0'}
+              {...itemStyle.default}
+            >
               {isMobile && <span>{b3Lang('orderDetail.reorder.price')} </span>}
               {product.formattedPrice || formatPrice(product.base_price)}
             </FlexItem>
             <FlexItem
-              textAlignLocation={textAlign}
-              padding={isMobile ? undefined : '10px 0 0'}
+              textAlignLocation={qtyTextAlign}
+              padding={isMobile ? undefined : '0.625rem 0 0 1rem'}
               {...desktopQtyColumnStyle}
             >
               <Box
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: qtyStackAlignItems,
+                  alignItems: qtyStackItemsAlignment,
                   width: '100%',
                   maxWidth: '100%',
                   minWidth: 0,
@@ -317,7 +329,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                   onBlur={handleNumberInputBlur(product)}
                   size="small"
                   sx={{
-                    width: isMobile ? '60%' : '80px',
+                    width: isMobile ? '60%' : '100%',
                     '& .MuiFormHelperText-root': {
                       marginLeft: '0',
                       marginRight: '0',
@@ -333,8 +345,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                       width: '100%',
                       maxWidth: '100%',
                       minWidth: 0,
-                      textAlign,
-                      alignSelf: qtyStackAlignItems,
+                      textAlign: qtyTextAlign,
+                      alignSelf: qtyStackItemsAlignment,
                     }}
                   >
                     <BackorderMessage
@@ -353,8 +365,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                       width: '100%',
                       maxWidth: '100%',
                       minWidth: 0,
-                      textAlign,
-                      alignSelf: qtyStackAlignItems,
+                      textAlign: qtyTextAlign,
+                      alignSelf: qtyStackItemsAlignment,
                     }}
                   >
                     <Typography sx={{ color: '#616161', typography: 'body2', fontWeight: 600 }}>
@@ -370,7 +382,11 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
                 ))}
               </Box>
             </FlexItem>
-            <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+            <FlexItem
+              textAlignLocation={numericTextAlign}
+              padding="0.625rem 0 0"
+              {...itemStyle.default}
+            >
               {isMobile && <span>{b3Lang('orderDetail.reorder.total')} </span>}
               {formatPrice(getProductTotals(getProductQuantity(product), product.base_price))}
             </FlexItem>

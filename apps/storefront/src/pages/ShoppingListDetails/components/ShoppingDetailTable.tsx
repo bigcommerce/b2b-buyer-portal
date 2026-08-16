@@ -129,7 +129,7 @@ const StyledShoppingListTableContainer = styled('div')(() => ({
         paddingTop: '25px',
       },
     },
-    '& tr: hover': {
+    '& tr:hover': {
       '& #shoppingList-actionList': {
         opacity: 1,
       },
@@ -673,7 +673,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-end',
+              alignItems: 'flex-start',
               width: '100%',
             }}
           >
@@ -682,7 +682,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
               type="number"
               variant="filled"
               sx={{
-                width: '72px',
+                width: '100%',
               }}
               disabled={
                 b2bAndBcShoppingListActionsPermissions ? isReadForApprove || isJuniorApprove : true
@@ -700,7 +700,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
               }}
             />
             {backorderFields && (
-              <Box sx={{ mt: 1, width: '100%', textAlign: 'right' }}>
+              <Box sx={{ mt: 1, width: '100%', textAlign: 'left' }}>
                 <BackorderMessage
                   totalOnHand={backorderFields.totalOnHand}
                   quantityBackordered={backorderFields.quantityBackordered}
@@ -714,7 +714,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       },
       width: backorderUiEnabled ? '18%' : '15%',
       style: {
-        textAlign: 'right',
+        textAlign: 'left',
       },
       isSortable: true,
     },

@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { B3ProductList } from '@/components/B3ProductList';
-import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 
 import { Address, OrderProductItem } from '../../../types';
@@ -26,8 +25,6 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
       currencyCode,
     },
   } = useContext(OrderDetailsContext);
-
-  const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
 
@@ -152,7 +149,6 @@ export function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
             }
             totalText="Total"
             canToProduct={isCurrentCompany}
-            textAlign={isMobile ? 'left' : 'right'}
             money={money}
             currencyCode={currencyCode}
             getCurrentProductUrls={getCurrentProductUrls}

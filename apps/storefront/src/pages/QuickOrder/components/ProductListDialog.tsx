@@ -220,7 +220,6 @@ export default function ProductListDialog(props: ProductListDialogProps) {
               products={productList}
               quantityEditable
               type="quickOrder"
-              textAlign={isMobile ? 'left' : 'right'}
               canToProduct
               catalogBackorderUiEnabled={backorderUiEnabled}
               catalogInventoryBySku={inventoryBySku}
