@@ -25,14 +25,14 @@ const baseProps: MessageComponentProps = {
 const ownerMessage = {
   date: 1_700_000_000,
   message: 'Hi, I need help with this quote',
-  role: 'Customer: Gary Kumar',
+  role: 'Contact: Quote Owner',
   read: 1,
 };
 
 const otherUserMessage = {
   date: 1_700_000_010,
   message: 'Can we get a discount?',
-  role: 'Customer: Alice Tester',
+  role: 'Customer: Jane Buyer',
   read: 1,
 };
 
@@ -75,8 +75,8 @@ describe('Message per-sender attribution (flag enabled)', () => {
       withSenderNameFlag(true),
     );
 
-    expect(screen.getByText('Customer: Gary Kumar')).toBeVisible();
-    expect(screen.getByText('Customer: Alice Tester')).toBeVisible();
+    expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
+    expect(screen.getByText('Customer: Jane Buyer')).toBeVisible();
   });
 
   it('does not repeat the label for consecutive messages from the same sender', async () => {
@@ -91,7 +91,7 @@ describe('Message per-sender attribution (flag enabled)', () => {
       withSenderNameFlag(true),
     );
 
-    const labels = screen.getAllByText('Customer: Gary Kumar');
+    const labels = screen.getAllByText('Contact: Quote Owner');
     expect(labels).toHaveLength(1);
   });
 
@@ -118,8 +118,8 @@ describe('Message sender grouping (flag off / default)', () => {
       withSenderNameFlag(false),
     );
 
-    expect(screen.getByText('Customer: Gary Kumar')).toBeVisible();
-    expect(screen.queryByText('Customer: Alice Tester')).toBeNull();
+    expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
+    expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 
   it('keeps the old behavior when the flag has never been set', async () => {
@@ -128,7 +128,7 @@ describe('Message sender grouping (flag off / default)', () => {
       msgs: [ownerMessage, otherUserMessage],
     });
 
-    expect(screen.getByText('Customer: Gary Kumar')).toBeVisible();
-    expect(screen.queryByText('Customer: Alice Tester')).toBeNull();
+    expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
+    expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 });
