@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import {
-  buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -22,7 +21,7 @@ import { when } from 'vitest-when';
 
 import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { CompanyStatus, UserTypes } from '@/types';
 
 import QuoteDetail from './index';
 
@@ -1686,4 +1685,3 @@ describe('when the user is a B2B customer', () => {
     });
   });
 });
-
