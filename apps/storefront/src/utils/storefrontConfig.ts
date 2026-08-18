@@ -350,7 +350,10 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const { featureFlags } = store.getState().global;
   const useCombinedQuery = featureFlags['B2B-3817.disable_masquerading_cleanup_on_login'] ?? false;
 
-  if (featureFlags['LOCAL-3191.B2B_multi_language']) {
+  if (
+    featureFlags['LOCAL-3191.B2B_multi_language'] ||
+    featureFlags['LOCAL-3280.B2B_email_multi_language']
+  ) {
     getLocales()
       .then((res) => store.dispatch(setLocales(res.data.site.settings.locales)))
       .catch(() => {});

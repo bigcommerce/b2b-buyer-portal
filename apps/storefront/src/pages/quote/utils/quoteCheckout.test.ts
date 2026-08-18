@@ -11,7 +11,10 @@ import { handleQuoteCheckout, QUOTE_BACKORDER_CHANGE_STORAGE_KEY } from './quote
 vi.mock('@/store', () => ({
   store: {
     dispatch: vi.fn(),
-    getState: vi.fn(() => ({ company: { tokens: { B2BToken: 'test-token' } } })),
+    getState: vi.fn(() => ({
+      company: { tokens: { B2BToken: 'test-token' } },
+      global: { locales: [], featureFlags: {} },
+    })),
   },
   setQuoteDetailToCheckoutUrl: vi.fn((payload) => ({
     type: 'setQuoteDetailToCheckoutUrl',

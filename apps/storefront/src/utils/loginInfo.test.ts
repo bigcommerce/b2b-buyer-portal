@@ -214,7 +214,8 @@ describe('ensureBcGraphqlToken', () => {
   it('coalesces concurrent storefront token requests into one network call', async () => {
     vi.spyOn(store, 'getState').mockReturnValue({
       company: { tokens: { B2BToken: '', bcGraphqlToken: '' } },
-    } as ReturnType<typeof store.getState>);
+      global: { locales: [], featureFlags: {} },
+    } as unknown as ReturnType<typeof store.getState>);
 
     let requestCount = 0;
     server.use(
@@ -233,7 +234,8 @@ describe('ensureBcGraphqlToken', () => {
   it('resets the in-flight state after a failed fetch, allowing a retry', async () => {
     vi.spyOn(store, 'getState').mockReturnValue({
       company: { tokens: { B2BToken: '', bcGraphqlToken: '' } },
-    } as ReturnType<typeof store.getState>);
+      global: { locales: [], featureFlags: {} },
+    } as unknown as ReturnType<typeof store.getState>);
 
     let callCount = 0;
     server.use(

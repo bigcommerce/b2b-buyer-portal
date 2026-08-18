@@ -36,6 +36,10 @@ export const featureFlags = [
     name: 'b2bMultiLanguage',
   },
   {
+    key: 'LOCAL-3280.B2B_email_multi_language',
+    name: 'b2bEmailMultiLanguage',
+  },
+  {
     key: 'PROJECT-7920.use_bc_account_settings',
     name: 'useBcAccountSettings',
   },

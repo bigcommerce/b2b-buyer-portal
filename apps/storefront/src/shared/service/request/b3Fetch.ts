@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 
+import { getStorefrontLanguageCode } from '@/lib/lang/getStorefrontLanguageCode';
 import { store } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 import { BigCommerceStorefrontAPIBaseURL, channelId, storeHash } from '@/utils/basicConfig';
@@ -98,9 +99,15 @@ const B3Request = {
     suppressSnackbar = false,
   ): Promise<T extends DataWrapper ? T['data'] : T> {
     const { B2BToken } = store.getState().company.tokens;
-    const config = {
+    const locale = getStorefrontLanguageCode();
+
+    const config: Record<string, string> = {
       Authorization: `Bearer  ${B2BToken}`,
     };
+
+    if (locale) {
+      config['Accept-Language'] = locale;
+    }
 
     return graphqlRequest(RequestType.B2BGraphql, data, config).then((value: B2bGQLResponse) => {
       const error = value.errors?.[0];
@@ -145,9 +152,16 @@ const B3Request = {
    */
   graphqlBC: function post<T = any>(data: GQLRequest): Promise<T> {
     const { bcGraphqlToken } = store.getState().company.tokens;
-    const config = {
+    const locale = getStorefrontLanguageCode();
+
+    const config: Record<string, string> = {
       Authorization: `Bearer  ${bcGraphqlToken}`,
     };
+
+    if (locale) {
+      config['Accept-Language'] = locale;
+    }
+
     return graphqlRequest(RequestType.BCGraphql, data, config);
   },
   /**
