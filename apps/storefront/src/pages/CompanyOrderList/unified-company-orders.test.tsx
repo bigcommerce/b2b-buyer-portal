@@ -50,7 +50,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   entityId: faker.number.int({ min: 1000, max: 99999 }),
   orderedAt: { utc: faker.date.past().toISOString() },
   updatedAt: { utc: faker.date.past().toISOString() },
-  status: { value: 'PENDING', label: 'Pending' },
+  status: { value: 'AWAITING_FULFILLMENT', label: 'Awaiting fulfillment' },
   billingAddress: {
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -87,9 +87,7 @@ const buildSfGqlOrderWith = builder<Order>(() => ({
   company: { entityId: faker.number.int({ min: 1, max: 999 }), name: faker.company.name() },
   placedBy: buildPlacedByWith('WHATEVER_VALUES'),
   history: [],
-  quote: null,
   invoice: null,
-  extraFields: [],
 }));
 
 const buildCompanyOrdersResponseWith = builder<GetCompanyOrdersResponse>(() => {
@@ -610,14 +608,10 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         );
       });
 
-      it('uses PLACED_BY_Z_TO_A when first activating the Placed by column', async () => {
-        const getOrders = vi
-          .fn()
-          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
-
+      it('does not allow sorting by the Placed by column (backend support incomplete)', async () => {
         server.use(
-          graphql.query('GetCompanyOrders', ({ variables }) =>
-            HttpResponse.json(getOrders(variables)),
+          graphql.query('GetCompanyOrders', () =>
+            HttpResponse.json(buildCompanyOrdersResponseWith('WHATEVER_VALUES')),
           ),
         );
 
@@ -625,19 +619,9 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
 
         await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
-        when(getOrders)
-          .calledWith(expect.objectContaining({ sortBy: OrdersSortInput.PLACED_BY_Z_TO_A }))
-          .thenReturn(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
-
-        await userEvent.click(
-          within(screen.getByRole('columnheader', { name: 'Placed by' })).getByRole('button'),
-        );
-
-        await waitFor(() => {
-          expect(getOrders).toHaveBeenCalledWith(
-            expect.objectContaining({ sortBy: OrdersSortInput.PLACED_BY_Z_TO_A }),
-          );
-        });
+        expect(
+          within(screen.getByRole('columnheader', { name: 'Placed by' })).queryByRole('button'),
+        ).not.toBeInTheDocument();
       });
 
       it('clears cursor variables when sort changes after paging forward', async () => {

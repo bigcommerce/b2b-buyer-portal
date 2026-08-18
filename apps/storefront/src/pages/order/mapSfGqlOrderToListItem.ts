@@ -1,6 +1,8 @@
 import type { Order as SfGqlOrder } from '@/shared/service/bc/graphql/orders';
 import type { CompanyInfoTypes } from '@/types/invoice';
 
+import { orderStatusValueToSystemLabel } from './shared/orderStatusValue';
+
 export interface ListItem {
   firstName: string;
   lastName: string;
@@ -23,7 +25,7 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): Lis
   poNumber: order.poNumber || '',
   totalIncTax: String(order.totalIncTax.value),
   formattedTotalIncTax: order.totalIncTax.formattedV2,
-  status: order.status.label,
+  status: orderStatusValueToSystemLabel(order.status.value),
   statusText: order.status.label,
   createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),
   firstName: order.placedBy?.firstName || '',

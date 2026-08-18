@@ -19,7 +19,7 @@ export function usePlacedByUsers({ enabled, companyIds }: UsePlacedByUsersArgs):
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       getCustomersWithOrders({
         filters: companyIds ? { companyIds } : undefined,
-        first: 100,
+        first: 50,
         after: pageParam,
       }),
     initialPageParam: undefined as string | undefined,
