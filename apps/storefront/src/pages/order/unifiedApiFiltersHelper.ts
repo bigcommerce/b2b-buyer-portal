@@ -12,15 +12,10 @@ export const getCompanyOrdersInitFilter = (companyId: number): CompanyOrdersFilt
   companyIds: companyId ? [String(companyId)] : undefined,
 });
 
-export const getCustomerOrdersInitFilter = (companyId: number): OrdersFiltersInput => {
-  return {
-    status: undefined,
-    dateRange: undefined,
-    search: undefined,
-    companyName: undefined,
-    companyIds: companyId ? [String(companyId)] : undefined,
-  };
-};
+export const getCustomerOrdersInitFilter = (): OrdersFiltersInput => ({
+  status: undefined,
+  dateRange: undefined,
+});
 
 export const normalizeString = (value: string | number | null | undefined): string | undefined => {
   if (value === null || value === undefined) return undefined;

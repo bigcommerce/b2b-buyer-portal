@@ -1,4 +1,5 @@
 import type { LangFormatFunction } from '@/lib/lang';
+import { orderStatusValueToSystemLabel } from '@/pages/order/shared/orderStatusValue';
 import type {
   Money,
   Order,
@@ -111,7 +112,7 @@ function mapHistoryEvents(history: Order['history']): OrderHistoryItem[] {
   return history.map((e) => ({
     id: Number(e.id),
     eventType: toNumericEventType(e.eventType),
-    status: e.status,
+    status: e.statusLabel,
     createdAt: Math.floor(new Date(e.createdAt).getTime() / 1000),
   }));
 }
@@ -162,7 +163,7 @@ function buildOrderProduct(
     imageUrl: string;
   },
 ): OrderProductItem {
-  // Unit price from list price (per Jesse/Shayne decision — no unit price Money field exists)
+  // No unit price Money field exists on this type; derive it from list price.
   const unitListPrice = item.quantity > 0 ? item.subTotalListPrice.value / item.quantity : 0;
   const formattedUnitPrice = String(unitListPrice);
   const formattedTotal = String(item.subTotalSalePrice.value);
@@ -172,10 +173,8 @@ function buildOrderProduct(
   return {
     id: item.entityId,
     product_id: item.productEntityId,
-    // Fallback to 0 when variantEntityId is null (gist: "null for legacy
-    // orders or products without variants"). BE is adding variantEntityId
-    // to OrderPhysicalLineItem — until deployed, reorder sends 0 (honest
-    // "no variant") rather than an unrelated ID. Behind FF, tracked in B2B-4787.
+    // variantEntityId is null for legacy orders or products without variants;
+    // 0 signals "no variant" rather than an unrelated real id.
     variant_id: physicalFields?.variantEntityId ?? 0,
     sku: physicalFields?.sku ?? '',
     name: item.name,
@@ -265,10 +264,10 @@ function gatherAllProducts(order: Order): OrderProductItem[] {
     edge.node.lineItems.edges.map((le) => convertLineItemToProduct(le.node, edge.node.entityId)),
   );
 
-  const digital = (order.consignments?.downloads?.edges ?? []).flatMap((edge) =>
-    edge.node.lineItems.edges.map((le) =>
-      convertDigitalLineItemToProduct(le.node, edge.node.entityId),
-    ),
+  // OrderDownloadConsignment has no entityId, and digital items have no shipping
+  // address, so there is no consignment address id to carry.
+  const digital = (order.consignments?.downloads ?? []).flatMap((consignment) =>
+    consignment.lineItems.edges.map((le) => convertDigitalLineItemToProduct(le.node, 0)),
   );
 
   return [...physical, ...digital];
@@ -433,7 +432,7 @@ function buildPayment(order: Order): OrderPayment {
   return {
     dateCreateAt: String(dateCreateAt),
     billingAddress: convertAddress(order.billingAddress),
-    paymentMethod: order.payments?.[0]?.description ?? '',
+    paymentMethod: order.payments?.edges?.[0]?.node.paymentMethodName ?? '',
     updatedAt: order.updatedAt.utc,
   };
 }
@@ -489,7 +488,7 @@ export function convertOrderDetail(
 
   return {
     orderId: order.entityId,
-    status: order.status.label,
+    status: orderStatusValueToSystemLabel(order.status.value),
     statusCode: order.status.value ?? '',
     customStatus: '',
     poNumber: order.poNumber ?? '',
@@ -506,9 +505,9 @@ export function convertOrderDetail(
     products,
     digitalProducts,
     billingAddress: convertAddress(order.billingAddress),
-    canReturn: (order.consignments?.shipping?.edges ?? []).some((edge) =>
-      edge.node.lineItems.edges.some((le) => le.node.returnableQuantity > 0),
-    ),
+    // returnableQuantity is not selected — the Return button that used it is
+    // hidden, and selecting the field 500s the server.
+    canReturn: false,
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
     invoiceId: order.invoice ? Number(order.invoice.id) : 0,

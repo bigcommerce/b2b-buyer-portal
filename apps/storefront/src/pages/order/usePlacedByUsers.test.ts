@@ -83,7 +83,7 @@ describe('usePlacedByUsers', () => {
     expect(mockGetCustomersWithOrders).toHaveBeenCalledTimes(1);
     expect(mockGetCustomersWithOrders).toHaveBeenCalledWith({
       filters: undefined,
-      first: 100,
+      first: 50,
       after: undefined,
     });
   });
@@ -105,7 +105,7 @@ describe('usePlacedByUsers', () => {
     expect(mockGetCustomersWithOrders).toHaveBeenCalledTimes(2);
     expect(mockGetCustomersWithOrders).toHaveBeenLastCalledWith({
       filters: undefined,
-      first: 100,
+      first: 50,
       after: 'cursor-2',
     });
   });
@@ -121,7 +121,7 @@ describe('usePlacedByUsers', () => {
     await waitFor(() => expect(result.current).toHaveLength(1));
     expect(mockGetCustomersWithOrders).toHaveBeenCalledWith({
       filters: { companyIds: ['10', '20'] },
-      first: 100,
+      first: 50,
       after: undefined,
     });
   });

@@ -121,7 +121,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     orderStatuses: getOrderStatuses,
   });
   const customerFilterState = useCustomerOrdersState({
-    companyId: selectedCompanyId,
     orderStatuses: getOrderStatuses,
   });
   const companyFilterState = useCompanyOrdersState({
@@ -136,13 +135,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return legacyFilterState;
   };
 
-  const {
-    activeSort,
-    handleSearchChange,
-    handleFilterChange,
-    handleCompanyIdsChange,
-    handleSetOrderBy,
-  } = getActiveFilterState();
+  const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
+
+  const getSearchAndCompanyFilterState = () =>
+    isUnifiedCompanyPath ? companyFilterState : legacyFilterState;
+
+  const { handleSearchChange, handleCompanyIdsChange } = getSearchAndCompanyFilterState();
 
   const getFilterDataAndOrderBy = () => {
     if (isUnifiedCompanyPath) {
@@ -218,7 +216,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     last?: number;
     before?: string;
     filters: OrdersFiltersInput;
-    sortBy: OrdersSortInput;
   }): Promise<{
     edges: ListItem[];
     totalCount: number;
@@ -324,7 +321,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         key: 'orderId',
         title: b3Lang('orders.order'),
         width: '10%',
-        isSortable: true,
+        isSortable: !isUnifiedCustomerPath,
         render: ({ orderId }) => orderId,
       },
       {
@@ -342,7 +339,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         title: b3Lang('orders.poReference'),
         render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
         width: '10%',
-        isSortable: true,
+        isSortable: !isUnifiedCustomerPath,
       },
       {
         key: 'totalIncTax',
@@ -355,21 +352,22 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         },
         align: 'right',
         width: '8%',
-        isSortable: true,
+        isSortable: !isUnifiedCustomerPath,
       },
       {
         key: 'status',
         title: b3Lang('orders.orderStatus'),
         render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
         width: '10%',
-        isSortable: true,
+        isSortable: !isUnifiedCustomerPath,
       },
       {
         key: 'placedBy',
         title: b3Lang('orders.placedBy'),
         render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
         width: '10%',
-        isSortable: true,
+        // Placed-by sort is disabled under the unified flag — backend support is incomplete.
+        isSortable: !isUnifiedOrders,
         hidden: !isB2BUser || isSuperAdminNotAgenting || !isCompanyOrder,
       },
       {
@@ -377,10 +375,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         title: b3Lang('orders.createdOn'),
         render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
         width: '10%',
-        isSortable: true,
+        isSortable: !isUnifiedCustomerPath,
       },
     ],
-    [b3Lang, isB2BUser, isSuperAdminNotAgenting, isCompanyOrder],
+    [
+      b3Lang,
+      isB2BUser,
+      isSuperAdminNotAgenting,
+      isCompanyOrder,
+      isUnifiedCustomerPath,
+      isUnifiedOrders,
+    ],
   );
 
   const unifiedState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
@@ -417,7 +422,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       return fetchUnifiedOrders({
         ...customerFilterState.paginationVariables,
         filters: customerFilterState.filters,
-        sortBy: customerFilterState.sortBy,
       });
     }
     return fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy });
@@ -452,6 +456,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     ? (item: ListItem) => goToDetail(item, listItems)
     : legacyGoToDetail;
 
+  const filterMoreInfoWithoutInertCompanyControl = filterMoreInfo.filter(
+    (item) => item.name !== 'company',
+  );
+
   return (
     <B3Spin isSpinning={isFetching}>
       <Box
@@ -475,12 +483,15 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             },
           }}
         >
-          {isEnabledCompanyHierarchy && (
+          {isEnabledCompanyHierarchy && !isUnifiedCustomerPath && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleCompanyIdsChange} />
             </Box>
           )}
           <B3Filter
+            filterMoreInfo={
+              isUnifiedCustomerPath ? filterMoreInfoWithoutInertCompanyControl : filterMoreInfo
+            }
             startPicker={{
               isEnabled: true,
               label: b3Lang('orders.from'),
@@ -493,7 +504,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               defaultValue: filterData?.endDateAt || null,
               pickerKey: 'end',
             }}
-            filterMoreInfo={filterMoreInfo}
             handleChange={handleSearchChange}
             handleFilterChange={handleFilterChange}
             pcTotalWidth="100%"
@@ -529,7 +539,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           onClickRow={navigateToOrderDetail}
           sortDirection={activeSort.dir}
           sortByFn={handleSetOrderBy}
-          orderBy={activeSort.key}
+          orderBy={isUnifiedCustomerPath ? undefined : activeSort.key}
         />
       </Box>
     </B3Spin>
