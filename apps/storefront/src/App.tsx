@@ -66,7 +66,7 @@ export default function App() {
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
-  const hasInitialized = useRef(false);
+  const isInitRunning = useRef(false);
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -171,8 +171,8 @@ export default function App() {
     loginAndRegister();
 
     // getCompanyInfo() below can change isB2BUser mid-run and retrigger this effect.
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
+    if (isInitRunning.current) return;
+    isInitRunning.current = true;
 
     const init = async () => {
       try {
@@ -268,6 +268,8 @@ export default function App() {
             isPageComplete: true,
           }),
         );
+      } finally {
+        isInitRunning.current = false;
       }
     };
 
