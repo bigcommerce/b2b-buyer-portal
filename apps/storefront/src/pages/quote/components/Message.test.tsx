@@ -14,22 +14,30 @@ vi.mock('@/shared/service/b2b', async (importOriginal) => ({
 
 const mockedUpdateQuote = vi.mocked(updateQuote);
 
-const baseProps: Omit<MessageComponentProps, 'msgs' | 'currentUserName'> = {
+const baseProps: MessageComponentProps = {
   id: 1,
   status: 0,
   isB2BUser: false,
   email: 'buyer@example.com',
+  msgs: [],
 };
 
-const customerMessage = {
+const ownerMessage = {
   date: 1_700_000_000,
   message: 'Hi, I need help with this quote',
   role: 'Contact: Quote Owner',
   read: 1,
 };
 
-const salesRepMessage = {
+const otherUserMessage = {
   date: 1_700_000_010,
+  message: 'Can we get a discount?',
+  role: 'Customer: Jane Buyer',
+  read: 1,
+};
+
+const salesRepMessage = {
+  date: 1_700_000_020,
   message: 'Sure, one moment',
   role: 'Sales rep: Bob Rep',
   read: 1,
@@ -54,47 +62,42 @@ async function renderAndExpand(
   return view;
 }
 
-describe('Message sender name (B2B-2219.fix_buyer_portal_quote_message_sender_name enabled)', () => {
+describe('Message per-sender attribution (flag enabled)', () => {
   beforeEach(() => {
     mockedUpdateQuote.mockResolvedValue({
       quoteUpdate: { quote: { trackingHistory: [] } },
     });
   });
 
-  it("shows the logged-in user's own name instead of the quote contact for the buyer's messages", async () => {
+  it('shows a separate label when a different customer sends a message', async () => {
     await renderAndExpand(
-      {
-        ...baseProps,
-        msgs: [customerMessage],
-        currentUserName: 'Jane Buyer',
-      },
-      withSenderNameFlag(true),
-    );
-
-    expect(screen.getByText('Jane Buyer')).toBeVisible();
-    expect(screen.queryByText('Contact: Quote Owner')).toBeNull();
-  });
-
-  it('falls back to the original backend-provided label when no current user name is available', async () => {
-    await renderAndExpand(
-      {
-        ...baseProps,
-        msgs: [customerMessage],
-        currentUserName: '',
-      },
+      { ...baseProps, msgs: [ownerMessage, otherUserMessage] },
       withSenderNameFlag(true),
     );
 
     expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
+    expect(screen.getByText('Customer: Jane Buyer')).toBeVisible();
+  });
+
+  it('does not repeat the label for consecutive messages from the same sender', async () => {
+    const secondOwnerMessage = {
+      ...ownerMessage,
+      date: 1_700_000_005,
+      message: 'Following up on this',
+    };
+
+    await renderAndExpand(
+      { ...baseProps, msgs: [ownerMessage, secondOwnerMessage] },
+      withSenderNameFlag(true),
+    );
+
+    const labels = screen.getAllByText('Contact: Quote Owner');
+    expect(labels).toHaveLength(1);
   });
 
   it('leaves the sales rep label untouched', async () => {
     await renderAndExpand(
-      {
-        ...baseProps,
-        msgs: [customerMessage, salesRepMessage],
-        currentUserName: 'Jane Buyer',
-      },
+      { ...baseProps, msgs: [ownerMessage, salesRepMessage] },
       withSenderNameFlag(true),
     );
 
@@ -102,35 +105,30 @@ describe('Message sender name (B2B-2219.fix_buyer_portal_quote_message_sender_na
   });
 });
 
-describe('Message sender name (flag off, including the default/unset state)', () => {
+describe('Message sender grouping (flag off / default)', () => {
   beforeEach(() => {
     mockedUpdateQuote.mockResolvedValue({
       quoteUpdate: { quote: { trackingHistory: [] } },
     });
   });
 
-  it('keeps the original backend-provided label even when a current user name is available', async () => {
+  it('groups consecutive customer messages under one label (old behavior)', async () => {
     await renderAndExpand(
-      {
-        ...baseProps,
-        msgs: [customerMessage],
-        currentUserName: 'Jane Buyer',
-      },
+      { ...baseProps, msgs: [ownerMessage, otherUserMessage] },
       withSenderNameFlag(false),
     );
 
     expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
-    expect(screen.queryByText('Jane Buyer')).toBeNull();
+    expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 
-  it('keeps the original backend-provided label when the flag has never been set (default state)', async () => {
+  it('keeps the old behavior when the flag has never been set', async () => {
     await renderAndExpand({
       ...baseProps,
-      msgs: [customerMessage],
-      currentUserName: 'Jane Buyer',
+      msgs: [ownerMessage, otherUserMessage],
     });
 
     expect(screen.getByText('Contact: Quote Owner')).toBeVisible();
-    expect(screen.queryByText('Jane Buyer')).toBeNull();
+    expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 });

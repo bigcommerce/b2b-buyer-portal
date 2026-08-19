@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import {
-  buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -22,7 +21,7 @@ import { when } from 'vitest-when';
 
 import { B2BProducts, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { B2BQuoteDetail, QuoteExtraFieldsConfig } from '@/shared/service/b2b/graphql/quote';
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { CompanyStatus, UserTypes } from '@/types';
 
 import QuoteDetail from './index';
 
@@ -1684,84 +1683,5 @@ describe('when the user is a B2B customer', () => {
       const summary = screen.getByTestId('quote-summary');
       expect(within(summary).getByText('€200.00')).toBeInTheDocument();
     });
-  });
-});
-
-describe('B2B-2219 buyer-side quote message sender name while a sales rep is agenting', () => {
-  const agentingSalesRep = buildCompanyStateWith({
-    companyInfo: { status: CompanyStatus.APPROVED },
-    customer: {
-      userType: UserTypes.MULTIPLE_B2C,
-      role: CustomerRole.SUPER_ADMIN,
-      firstName: 'Sam',
-      lastName: 'Rep',
-    },
-  });
-
-  const quoteWithBuyerMessage = buildQuoteWith({
-    data: {
-      quote: {
-        id: '272989',
-        trackingHistory: [
-          {
-            date: getUnixTime(new Date('1 January 2025')),
-            read: true,
-            role: 'Contact: Quote Owner',
-            message: 'Hi, I need help with this quote',
-          },
-        ],
-      },
-    },
-  });
-
-  const preloadedStateFor = (isAgenting: boolean) => ({
-    company: agentingSalesRep,
-    storeInfo: buildStoreInfoStateWith('WHATEVER_VALUES'),
-    global: buildGlobalStateWith({
-      backorderEnabled: false,
-      featureFlags: {
-        'B2B-2219.fix_buyer_portal_quote_message_sender_name': true,
-      },
-    }),
-    b2bFeatures: buildB2BFeaturesStateWith({
-      masqueradeCompany: {
-        id: isAgenting ? 1 : 0,
-        isAgenting,
-        companyName: isAgenting ? 'Acme Inc' : '',
-        customerGroupId: 0,
-      },
-    }),
-  });
-
-  beforeEach(() => {
-    server.use(
-      graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quoteWithBuyerMessage)),
-      graphql.query('SearchProducts', () =>
-        HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
-      ),
-      graphql.query('getQuoteExtraFields', () =>
-        HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
-      ),
-    );
-
-    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
-  });
-
-  it("keeps the quote contact's label instead of the rep's own name while agenting", async () => {
-    renderWithProviders(<QuoteDetail />, { preloadedState: preloadedStateFor(true) });
-
-    await userEvent.click(await screen.findByText('Message'));
-
-    expect(await screen.findByText('Contact: Quote Owner')).toBeVisible();
-    expect(screen.queryByText('Sam Rep')).toBeNull();
-  });
-
-  it("shows the rep's own name on their own buyer-side messages when not agenting", async () => {
-    renderWithProviders(<QuoteDetail />, { preloadedState: preloadedStateFor(false) });
-
-    await userEvent.click(await screen.findByText('Message'));
-
-    expect(await screen.findByText('Sam Rep')).toBeVisible();
-    expect(screen.queryByText('Contact: Quote Owner')).toBeNull();
   });
 });
