@@ -315,6 +315,34 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
     });
   });
 
+  it('uses the order snapshot when useOrderSnapshot is set', () => {
+    const row = {
+      quantity: 8,
+      variantSku: 'V1',
+      totalOnHand: 5,
+      quantityBackordered: 3,
+      backorderMessage: 'Ships in 2 weeks',
+      productsSearch: {
+        inventoryTracking: 'product',
+        totalOnHand: 0,
+        availableToSell: 7,
+        backorderMessage: 'Live message',
+        unlimitedBackorder: false,
+      },
+    };
+
+    expect(getQuoteBackorderDisplayFields(row)).toEqual({
+      totalOnHand: 5,
+      quantityBackordered: 2,
+      backorderMessage: 'Ships in 2 weeks',
+    });
+    expect(getQuoteBackorderDisplayFields(row, { useOrderSnapshot: true })).toEqual({
+      totalOnHand: 5,
+      quantityBackordered: 3,
+      backorderMessage: 'Ships in 2 weeks',
+    });
+  });
+
   it('prefers API history totalOnHand and backorderMessage over productsSearch values', () => {
     const row = {
       quantity: 10,
@@ -450,6 +478,24 @@ describe('quoteDetailListHasBackorderedItemsForDisplay', () => {
     };
 
     expect(quoteDetailListHasBackorderedItemsForDisplay([row])).toBe(true);
+  });
+
+  it('uses the order snapshot when useOrderSnapshot is set', () => {
+    const row = {
+      quantity: 8,
+      variantSku: 'V1',
+      totalOnHand: 5,
+      quantityBackordered: 3,
+      productsSearch: {
+        inventoryTracking: 'product',
+        availableToSell: 7,
+        unlimitedBackorder: false,
+      },
+    };
+
+    expect(quoteDetailListHasBackorderedItemsForDisplay([row], { useOrderSnapshot: true })).toBe(
+      true,
+    );
   });
 });
 

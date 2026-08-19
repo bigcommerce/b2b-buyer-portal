@@ -315,7 +315,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Qty',
       title: b3Lang('quoteDetail.table.qty'),
       render: (row) => {
-        const backorderFields = getQuoteBackorderDisplayFields(row);
+        const backorderFields = getQuoteBackorderDisplayFields(row, {
+          useOrderSnapshot: isOrdered,
+        });
         const picklistSelections = backorderContextEnabled
           ? getPicklistSelectionsFromStoredOptions(row)
           : [];
@@ -477,6 +479,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             showBackorderDetails={showBackorderDetails}
             picklistProductsById={picklistProductsById}
             historyByProductId={isOrdered ? getRowPicklistBackorderHistory(row) : undefined}
+            useOrderSnapshot={isOrdered}
           />
         )}
       />

@@ -28,6 +28,7 @@ interface QuoteTableCardProps {
   showBackorderDetails?: boolean;
   picklistProductsById?: Record<number, ProductSearch>;
   historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
+  useOrderSnapshot?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -48,6 +49,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     showBackorderDetails = false,
     picklistProductsById = {},
     historyByProductId,
+    useOrderSnapshot = false,
   } = props;
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
@@ -68,7 +70,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     productsSearch: { productUrl, variants = [] },
   } = quoteTableItem;
 
-  const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem);
+  const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem, { useOrderSnapshot });
   const backorderContextEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
   const picklistSelections = backorderContextEnabled
     ? getPicklistSelectionsFromStoredOptions(quoteTableItem)
