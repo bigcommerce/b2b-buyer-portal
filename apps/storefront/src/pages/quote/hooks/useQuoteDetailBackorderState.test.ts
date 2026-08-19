@@ -15,10 +15,6 @@ vi.mock('@/hooks/useBackorderStorefrontMessaging', () => ({
   useBackorderStorefrontMessaging: () => messaging,
 }));
 
-vi.mock('@/hooks/useFeatureFlag', () => ({
-  useFeatureFlag: () => false,
-}));
-
 const picklistModifier = {
   id: 100,
   type: 'product_list',
@@ -120,6 +116,7 @@ describe('useQuoteDetailBackorderState', () => {
     const { result } = renderState([orderedRowWithSnapshotChild], QuoteStatus.ORDERED);
 
     expect(result.result.current.isOrdered).toBe(true);
+    expect(result.result.current.backorderContextEnabled).toBe(true);
     expect(result.result.current.hasBackorderedItems).toBe(true);
     expect(b2bService.searchProducts).not.toHaveBeenCalled();
   });

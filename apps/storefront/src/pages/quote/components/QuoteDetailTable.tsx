@@ -125,13 +125,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     status,
   } = props;
 
-  const {
-    isOrdered,
-    shouldDisplayBackorderInformation,
-    backorderContextEnabled,
-    picklistProductsById,
-    hasBackorderedItems,
-  } = useQuoteDetailBackorderState(productList, status);
+  const { isOrdered, backorderContextEnabled, picklistProductsById, hasBackorderedItems } =
+    useQuoteDetailBackorderState(productList, status);
 
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
@@ -476,7 +471,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
             showBackorderDetails={showBackorderDetails}
-            shouldDisplayBackorderInformation={shouldDisplayBackorderInformation}
             picklistProductsById={picklistProductsById}
             historyByProductId={isOrdered ? getRowPicklistBackorderHistory(row) : undefined}
           />
