@@ -50,7 +50,9 @@ export function useQuoteDetailBackorderState(
 
   const hasBackorderedItems = useMemo(
     () =>
-      quoteDetailListHasBackorderedItemsForDisplay(productList) ||
+      quoteDetailListHasBackorderedItemsForDisplay(productList, {
+        useOrderSnapshot: isOrdered,
+      }) ||
       (isOrdered
         ? quoteDetailListHasPicklistBackorderHistory(productList)
         : catalogListHasPicklistBackorderedItemsForDisplay(
