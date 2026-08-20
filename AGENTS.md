@@ -324,8 +324,8 @@ src/
 
 Core principle: *"The more your tests resemble the way your software is used, the more confidence they can give you."*
 
-1. **Query by accessibility role first** - Use `getByRole`, `getByLabelText`, `getByText`. Prefer the `name` option with `getByRole` (e.g. `getByRole('button', { name: /submit/i })`). Never use `getByTestId` or `container.querySelector`.
-2. **Use `userEvent` for all interactions** - Never `fireEvent`. Import `userEvent` from `tests/test-utils`. With fake timers use `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })`.
+1. **Query by accessibility role first** - Use `getByRole`, `getByLabelText`, `getByText`. Prefer the `name` option with `getByRole` (e.g. `getByRole('button', { name: /submit/i })`). Avoid `getByTestId` or `container.querySelector` except when no accessible query is feasible (e.g. non-interactive icons, SVG-only elements, or DOM nodes without discernible text/roles).
+2. **Prefer `userEvent` for interactions** - Use `userEvent` instead of `fireEvent` for typical user flows. Reserve `fireEvent` for edge cases that `userEvent` cannot handle (e.g. file input events or low-level `MessageEvent` workarounds). Import `userEvent` from `tests/test-utils`. With fake timers use `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })`.
 3. **Use `screen` for queries** - Do not rely on destructured queries from `render()`; query from `screen` so assertions stay resilient to re-renders.
 4. **Prefer `findBy*` for async appearance** - When waiting for something to appear, use `await screen.findByRole(...)` (or other `findBy*`) instead of `getBy*` inside `waitFor`; it is simpler and uses the same timeout.
 5. **Single assertion per `waitFor`** - When using `waitFor`, put only one assertion inside the callback; follow-up assertions go outside the block.
