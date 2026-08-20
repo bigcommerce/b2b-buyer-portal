@@ -100,6 +100,24 @@ describe('initializeApp', () => {
     expect(result).toEqual({ completed: true });
   });
 
+  it('clears the invoice cart after a fresh login resolves the customer id', async () => {
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      role: CustomerRole.SENIOR_BUYER,
+      userType: UserTypes.MULTIPLE_B2C,
+    } as never);
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: {
+        customer: { id: 123, role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: { status: CompanyStatus.APPROVED },
+      },
+      global: { featureFlags: {} },
+    } as unknown as ReturnType<typeof store.getState>);
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    expect(clearInvoiceCart).toHaveBeenCalled();
+  });
+
   it('does not resolve customer identity when a customerId is already present', async () => {
     const result = await initializeApp({ ...baseParams(), customerId: 123 });
 

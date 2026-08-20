@@ -20,7 +20,7 @@ import { shouldOpenAllowedPageOnInit } from './nativeStorefrontLinks';
 import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './storefrontConfig';
 import { getStoreSettings } from './storefrontSettings';
 
-export interface InitializeAppParams {
+interface InitializeAppParams {
   customerId: number | string;
   role: number | string;
   b2bId?: number;
@@ -34,7 +34,7 @@ export interface InitializeAppParams {
   storeDispatch: AppDispatch;
 }
 
-export interface InitializeAppResult {
+interface InitializeAppResult {
   // false signals the caller should allow a future dep change to retry init
   completed: boolean;
 }
@@ -82,6 +82,7 @@ export const initializeApp = async ({
     // Resolve customer identity and permissions before running the permission-gated
     // config fetch below, so it sees permissions from this login rather than stale
     // (unset) ones.
+    let resolvedCustomerId = customerId;
     if (!customerId) {
       const info = await getCurrentCustomerInfo().catch((error) => {
         if (isCompanyError(error)) {
@@ -90,6 +91,8 @@ export const initializeApp = async ({
       });
       if (info) {
         userInfo.role = info?.role;
+        // getCurrentCustomerInfo dispatches the resolved id to redux rather than returning it
+        resolvedCustomerId = store.getState().company.customer.id;
       }
     }
 
@@ -132,7 +135,7 @@ export const initializeApp = async ({
       showPageMask(false);
     }
 
-    if (customerId) {
+    if (resolvedCustomerId) {
       clearInvoiceCart();
     }
 
