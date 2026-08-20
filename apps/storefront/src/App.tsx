@@ -66,7 +66,6 @@ export default function App() {
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
-  const hasInitialized = useRef(false);
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -169,11 +168,6 @@ export default function App() {
   useEffect(() => {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
-
-    // getCompanyInfo() below can change isB2BUser mid-run and retrigger this effect.
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
     const init = async () => {
       try {
         // Verify BC session is still valid when we have a rehydrated customerId.
@@ -184,8 +178,6 @@ export default function App() {
           if (!isBcLogin) {
             logoutSession();
             showPageMask(false);
-            // didn't actually initialize; let the retriggered run (now a guest) finish it
-            hasInitialized.current = false;
             return;
           }
         }
@@ -265,8 +257,6 @@ export default function App() {
       } catch (e) {
         b2bLogger.error(e);
         showPageMask(false);
-        // didn't actually initialize; let a future dep change retry it
-        hasInitialized.current = false;
         storeDispatch(
           setGlobalCommonState({
             isPageComplete: true,
@@ -280,7 +270,7 @@ export default function App() {
     // due they are functions that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b2bId, customerId, emailAddress, isAgenting, role]);
+  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
@@ -321,11 +311,12 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    if (isPageComplete) {
+    if (isOpen) {
       showPageMask(false);
     }
+    // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageComplete]);
+  }, [isOpen]);
 
   // Remove the pre-mount login mask only once initialization has finished. The
   // mask sits just below the iframe, so keeping it until init completes is
