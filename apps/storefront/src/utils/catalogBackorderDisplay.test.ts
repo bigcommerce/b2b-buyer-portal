@@ -15,10 +15,12 @@ import {
   getCatalogInventorySku,
   getCatalogProductRowDisplayState,
   getPicklistBackorderHistoryFields,
+  getPicklistSelectionsFromStoredOptions,
   getProductDetailsForPicklistSelections,
   productRequiresChooseOptionsBeforeAdd,
   quantityExceedsAvailableToSell,
   shouldBlockQuoteAtsAdd,
+  type StoredPicklistOptionRow,
 } from './catalogBackorderDisplay';
 
 describe('catalogBackorderDisplay', () => {
@@ -544,6 +546,117 @@ describe('catalogBackorderDisplay', () => {
       ).toEqual([
         { modifierId: 100, displayName: 'Bundle option 1', productId: 555 },
         { modifierId: 101, displayName: 'Bundle option 2', productId: 666 },
+      ]);
+    });
+  });
+
+  describe('getPicklistSelectionsFromStoredOptions', () => {
+    const picklistModifier = {
+      id: 100,
+      type: 'product_list',
+      display_name: 'Pick a pickle',
+      option_values: [{ id: 200, value_data: { product_id: 555 } }],
+    };
+
+    const buildRow = (optionList: string): StoredPicklistOptionRow => ({
+      optionList,
+      productsSearch: { modifiers: [picklistModifier] },
+    });
+
+    it('resolves a selection from a camelCase attribute-keyed optionList', () => {
+      const optionList = JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]);
+
+      expect(getPicklistSelectionsFromStoredOptions(buildRow(optionList))).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('resolves a selection from snake_case option_id/option_value entries', () => {
+      const optionList = JSON.stringify([{ option_id: 100, option_value: 200 }]);
+
+      expect(getPicklistSelectionsFromStoredOptions(buildRow(optionList))).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('resolves a selection from a structured options array', () => {
+      const row: StoredPicklistOptionRow = {
+        options: [{ optionId: 100, optionValue: 200 }],
+        productsSearch: { modifiers: [picklistModifier] },
+      };
+
+      expect(getPicklistSelectionsFromStoredOptions(row)).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('resolves a selection from snake_case option_id/option_value options', () => {
+      const row: StoredPicklistOptionRow = {
+        options: [{ option_id: 100, option_value: 200 }],
+        productsSearch: { modifiers: [picklistModifier] },
+      };
+
+      expect(getPicklistSelectionsFromStoredOptions(row)).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('prefers the options array when a leftover optionList is also present', () => {
+      const row: StoredPicklistOptionRow = {
+        options: [{ optionId: 100, optionValue: 200 }],
+        optionList: '[]',
+        productsSearch: { modifiers: [picklistModifier] },
+      };
+
+      expect(getPicklistSelectionsFromStoredOptions(row)).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('returns an empty array when the modifier is not a picklist', () => {
+      const optionList = JSON.stringify([{ optionId: 'attribute[100]', optionValue: '200' }]);
+      const row: StoredPicklistOptionRow = {
+        optionList,
+        productsSearch: { modifiers: [{ ...picklistModifier, type: 'dropdown' }] },
+      };
+
+      expect(getPicklistSelectionsFromStoredOptions(row)).toEqual([]);
+    });
+
+    it('returns an empty array when optionList is empty', () => {
+      expect(getPicklistSelectionsFromStoredOptions(buildRow('[]'))).toEqual([]);
+    });
+
+    it('returns an empty array when optionList is not valid JSON', () => {
+      expect(getPicklistSelectionsFromStoredOptions(buildRow('not json'))).toEqual([]);
+    });
+
+    it('skips null and primitive entries without throwing on a malformed options array', () => {
+      const row = {
+        options: [
+          null,
+          'x',
+          42,
+          { optionId: 100, optionValue: 200 },
+        ] as StoredPicklistOptionRow['options'],
+        productsSearch: { modifiers: [picklistModifier] },
+      };
+
+      expect(getPicklistSelectionsFromStoredOptions(row)).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
+      ]);
+    });
+
+    it('skips null and primitive entries without throwing on a malformed optionList', () => {
+      const optionList = JSON.stringify([
+        null,
+        'x',
+        42,
+        { optionId: 'attribute[100]', optionValue: '200' },
+      ]);
+
+      expect(getPicklistSelectionsFromStoredOptions(buildRow(optionList))).toEqual([
+        { modifierId: 100, displayName: 'Pick a pickle', productId: 555 },
       ]);
     });
   });

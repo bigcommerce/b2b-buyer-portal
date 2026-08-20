@@ -15,6 +15,7 @@ import { Box, FormControlLabel, Grid, styled, Switch, TextField, Typography } fr
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import BackorderMessage from '@/components/BackorderMessage';
+import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import {
   B3PaginationTable,
   GetRequestList,
@@ -24,6 +25,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
+import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
@@ -39,7 +41,9 @@ import { getProductOptionsFields, ProductsProps } from '@/utils/b3Product/shared
 import { snackbar } from '@/utils/b3Tip';
 import {
   catalogListHasBackorderedItemsForDisplay,
+  catalogListHasPicklistBackorderedItemsForDisplay,
   getCatalogProductRowDisplayState,
+  getPicklistSelectionsFromStoredOptions,
 } from '@/utils/catalogBackorderDisplay';
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch';
@@ -223,6 +227,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   } = useBackorderStorefrontMessaging();
   const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
 
+  const [picklistProductIds, setPicklistProductIds] = useState<number[]>([]);
+  const picklistProductsById = usePicklistInventory(picklistProductIds);
+
   const inventoryBySku = useMemo(() => {
     const map: Record<string, CatalogQuickVariantSku> = {};
     variantInfoList.forEach((row) => {
@@ -269,10 +276,19 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       variantSku: node.variantSku,
     }));
 
-    return catalogListHasBackorderedItemsForDisplay(items, inventoryBySku);
+    if (catalogListHasBackorderedItemsForDisplay(items, inventoryBySku)) {
+      return true;
+    }
+
+    const picklistRows = cacheList.map(({ node }) => ({
+      qty: Number(node.quantity) || 0,
+      selections: getPicklistSelectionsFromStoredOptions(node),
+    }));
+
+    return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
     // tableDataVersion drives re-evaluation when list or qty changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inventoryBySku, isBackorderMessagingEnabled, tableDataVersion]);
+  }, [inventoryBySku, picklistProductsById, isBackorderMessagingEnabled, tableDataVersion]);
 
   const showBackorderToggle = backorderUiEnabled && hasBackorderedItems;
 
@@ -290,12 +306,24 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       const result = await getShoppingListDetails(params);
       const listProducts = result?.edges as ListItemProps[] | undefined;
 
-      if (backorderUiEnabled && listProducts?.length) {
+      if (!backorderUiEnabled) {
+        setPicklistProductIds((prev) => (prev.length === 0 ? prev : []));
+      } else if (listProducts?.length) {
         const skus = listProducts
           .map((item) => item.node.variantSku)
           .filter((sku): sku is string => Boolean(sku));
         fetchInventoryForSkus(skus).catch(() => {
           // Inventory fetch failure should not block the product list
+        });
+
+        const pagePicklistProductIds = listProducts.flatMap((item) =>
+          getPicklistSelectionsFromStoredOptions(item.node).map((selection) => selection.productId),
+        );
+        setPicklistProductIds((prev) => {
+          const merged = [...new Set([...prev, ...pagePicklistProductIds])];
+          // The merge is a union of two deduplicated sets, so an unchanged length means no new
+          // ids — keep the old reference so pages without picklists don't force a re-render.
+          return merged.length === prev.length ? prev : merged;
         });
       }
 
@@ -668,6 +696,8 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
           formatOnlyAvailable: () => '',
         });
 
+        const picklistSelections = getPicklistSelectionsFromStoredOptions(row);
+
         return (
           <Box
             sx={{
@@ -706,6 +736,17 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                   quantityBackordered={backorderFields.quantityBackordered}
                   backorderMessage={backorderFields.backorderMessage}
                   visible={showBackorderDetails}
+                />
+              </Box>
+            )}
+            {picklistSelections.length > 0 && (
+              <Box sx={{ width: '100%', textAlign: 'left' }}>
+                <PicklistBackorderMessages
+                  selections={picklistSelections}
+                  picklistProductsById={picklistProductsById}
+                  qty={Number(row.quantity) || 0}
+                  visible={showBackorderDetails}
+                  backorderUiEnabled={backorderUiEnabled}
                 />
               </Box>
             )}
@@ -938,6 +979,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             isReadForApprove={isReadForApprove || isJuniorApprove}
             b2bAndBcShoppingListActionsPermissions={b2bAndBcShoppingListActionsPermissions}
             inventoryBySku={inventoryBySku}
+            picklistProductsById={picklistProductsById}
             backorderUiEnabled={backorderUiEnabled}
             showBackorderDetails={showBackorderDetails}
           />

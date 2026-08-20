@@ -5,16 +5,19 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { QuoteStatus } from '@/shared/service/b2b/graphql/quote';
-import { catalogListHasPicklistBackorderedItemsForDisplay } from '@/utils/catalogBackorderDisplay';
+import {
+  catalogListHasPicklistBackorderedItemsForDisplay,
+  getPicklistSelectionsFromStoredOptions,
+  type StoredPicklistOptionRow,
+} from '@/utils/catalogBackorderDisplay';
 
 import {
-  getQuotePicklistSelections,
   type QuoteBackorderRow,
   quoteDetailListHasBackorderedItemsForDisplay,
   quoteDetailListHasPicklistBackorderHistory,
 } from '../utils/getQuoteBackorderDisplayFields';
 
-type QuoteDetailBackorderRow = QuoteBackorderRow & Parameters<typeof getQuotePicklistSelections>[0];
+type QuoteDetailBackorderRow = QuoteBackorderRow & StoredPicklistOptionRow;
 
 interface QuoteDetailBackorderState {
   isOrdered: boolean;
@@ -47,7 +50,7 @@ export function useQuoteDetailBackorderState(
     () =>
       backorderContextEnabled && !isOrdered
         ? productList.flatMap((row) =>
-            getQuotePicklistSelections(row).map((selection) => selection.productId),
+            getPicklistSelectionsFromStoredOptions(row).map((selection) => selection.productId),
           )
         : [],
     [productList, backorderContextEnabled, isOrdered],
@@ -62,7 +65,7 @@ export function useQuoteDetailBackorderState(
         : catalogListHasPicklistBackorderedItemsForDisplay(
             productList.map((row) => ({
               qty: Number(row.quantity) || 0,
-              selections: getQuotePicklistSelections(row),
+              selections: getPicklistSelectionsFromStoredOptions(row),
             })),
             picklistProductsById,
           )),
