@@ -26,7 +26,6 @@ interface QuoteTableCardProps {
   displayDiscount: boolean;
   currency: CurrencyProps | DisplayCurrency;
   showBackorderDetails?: boolean;
-  shouldDisplayBackorderInformation?: boolean;
   picklistProductsById?: Record<number, ProductSearch>;
   historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
 }
@@ -47,7 +46,6 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     currency,
     displayDiscount,
     showBackorderDetails = false,
-    shouldDisplayBackorderInformation = true,
     picklistProductsById = {},
     historyByProductId,
   } = props;
@@ -71,10 +69,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem;
 
   const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem);
-  const backorderContextEnabled =
-    isBackorderMessagingContextEnabled &&
-    hasAnyBackorderDisplay &&
-    shouldDisplayBackorderInformation;
+  const backorderContextEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
   const picklistSelections = backorderContextEnabled
     ? getPicklistSelectionsFromStoredOptions(quoteTableItem)
     : [];
@@ -165,17 +160,14 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderMessagingContextEnabled &&
-            hasAnyBackorderDisplay &&
-            shouldDisplayBackorderInformation &&
-            backorderFields && (
-              <BackorderMessage
-                totalOnHand={backorderFields.totalOnHand}
-                quantityBackordered={backorderFields.quantityBackordered}
-                backorderMessage={backorderFields.backorderMessage}
-                visible={showBackorderDetails}
-              />
-            )}
+          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && backorderFields && (
+            <BackorderMessage
+              totalOnHand={backorderFields.totalOnHand}
+              quantityBackordered={backorderFields.quantityBackordered}
+              backorderMessage={backorderFields.backorderMessage}
+              visible={showBackorderDetails}
+            />
+          )}
           {picklistSelections.length > 0 && (
             <PicklistBackorderMessages
               selections={picklistSelections}

@@ -56,10 +56,6 @@ export const featureFlags = [
     name: 'useTbdPriceOnQuotesList',
   },
   {
-    key: 'BACK-593.surface_order_backorder_info_on_quotes',
-    name: 'surfaceOrderBackorderInfoOnQuotes',
-  },
-  {
     key: 'B2B-4912.buyer_portal_native_link_interception',
     name: 'buyerPortalNativeLinkInterception',
   },
