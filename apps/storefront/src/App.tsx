@@ -12,37 +12,27 @@ import { ThemeFrame } from '@/components/ThemeFrame';
 import HeadlessController from '@/HeadlessController';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { useB3AppOpen } from '@/hooks/useB3AppOpen';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSetOpen } from '@/hooks/useSetOpen';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { gotoAllowedAppPage } from '@/shared/routes';
-import { setChannelStoreType } from '@/shared/service/b2b';
 import { openPageByClick, removeBCMenus } from '@/utils/b3AccountItem';
 import { handleHideRegisterPage } from '@/utils/b3HideRegister';
 import { hideStorefrontElement } from '@/utils/b3HideStorefrontElement';
 import { getQuoteEnabled } from '@/utils/b3Init';
-import { shouldOpenAllowedPageOnInit } from '@/utils/nativeStorefrontLinks';
-import { resolveInitNavigation } from '@/utils/resolveInitNavigation';
 
-import b2bVerifyBcLoginStatus from './utils/b2bVerifyBcLoginStatus';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
-import clearInvoiceCart from './utils/b3ClearCart';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
-import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
-import { isCompanyError } from './utils/companyUtils';
-import { ensureBcGraphqlToken, getCompanyInfo, getCurrentCustomerInfo } from './utils/loginInfo';
-import { logoutSession } from './utils/logoutSession';
+import { initializeApp } from './utils/initializeApp';
+import { legacyInitializeApp } from './utils/legacyInitializeApp';
 import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
-import { getGlobalStoreTax, getStoreConfigs, setStorefrontConfig } from './utils/storefrontConfig';
-import { getStoreSettings } from './utils/storefrontSettings';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
 import {
   isB2BUserSelector,
   rolePermissionSelector,
   setGlobalCommonState,
   setOpenPageReducer,
-  store,
   useAppDispatch,
   useAppSelector,
 } from './store';
@@ -66,6 +56,9 @@ export default function App() {
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
+  const initializedCustomerId = useRef<number | string | null>(null);
+  // Temporary rollout gate for B2B-5366; see legacyInitializeApp.ts for removal steps.
+  const useNewInitFlow = useFeatureFlag('B2B-5366.prevent_premature_orders_redirect');
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -168,107 +161,52 @@ export default function App() {
   useEffect(() => {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
+
+    if (!useNewInitFlow) {
+      legacyInitializeApp({
+        customerId,
+        role,
+        b2bId,
+        isAgenting,
+        pathname,
+        search,
+        gotoPage,
+        showPageMask,
+        dispatch,
+        styleDispatch,
+        storeDispatch,
+      });
+      return;
+    }
+
+    // initializeApp() can resolve and dispatch a new customerId itself (guest -> logged in),
+    // retriggering this effect for an identity it already handled; skip only that case.
+    if (initializedCustomerId.current === customerId) return;
+    initializedCustomerId.current = customerId;
+
     const init = async () => {
-      try {
-        // Verify BC session is still valid when we have a rehydrated customerId.
-        // Handles forced logouts (e.g., user logged in from another browser causing
-        // BC to invalidate this session and redirect to the login page).
-        if (customerId) {
-          const isBcLogin = await b2bVerifyBcLoginStatus();
-          if (!isBcLogin) {
-            logoutSession();
-            showPageMask(false);
-            return;
-          }
-        }
-
-        await ensureBcGraphqlToken();
-
-        setChannelStoreType();
-
-        // load the store config before fetching other data
-        // as some fetches depend on the store config or feature flags being present
-        await getStoreConfigs(styleDispatch, dispatch);
-
-        await Promise.allSettled([
-          getGlobalStoreTax(),
-          setStorefrontConfig(dispatch),
-          getStoreSettings(),
-          getCompanyInfo(role, b2bId),
-        ]);
-
-        const userInfo = {
-          role: Number(role),
-          isAgenting,
-        };
-        let companyLoginFlag: string | null = null;
-        if (!customerId) {
-          const info = await getCurrentCustomerInfo().catch((error) => {
-            if (isCompanyError(error)) {
-              companyLoginFlag = error.reason;
-            }
-          });
-          if (info) {
-            userInfo.role = info?.role;
-          }
-        }
-
-        const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
-          ? b2bJumpPath(Number(userInfo.role))
-          : PATH_ROUTES.ORDERS;
-
-        // background login enter judgment and refresh
-        const nativeLinkInterceptionEnabled =
-          store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ??
-          false;
-        const shouldOpenAllowedPage = nativeLinkInterceptionEnabled
-          ? shouldOpenAllowedPageOnInit({ pathname, hash: window.location.hash, customerId })
-          : !pathname.includes('checkout') && !(!!customerId && !window.location.hash);
-        const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
-
-        const initNavigation = resolveInitNavigation({
-          companyLoginFlag,
-          shouldOpenAllowedPage,
-          isAccountPageWithoutHash,
-          pathname,
-          search,
-          role: Number(userInfo.role),
-          isAgenting,
-          authorizedPages: resolvedAuthorizedPages,
-        });
-
-        if (initNavigation.type === 'goto') {
-          gotoPage(initNavigation.url);
-        } else if (initNavigation.type === 'allowedAppPage') {
-          await gotoAllowedAppPage(Number(userInfo.role), gotoPage, isAccountPageWithoutHash);
-        } else {
-          showPageMask(false);
-        }
-
-        if (customerId) {
-          clearInvoiceCart();
-        }
-
-        storeDispatch(
-          setGlobalCommonState({
-            isPageComplete: true,
-          }),
-        );
-      } catch (e) {
-        b2bLogger.error(e);
-        showPageMask(false);
-        storeDispatch(
-          setGlobalCommonState({
-            isPageComplete: true,
-          }),
-        );
-      }
+      const { completed, resolvedCustomerId } = await initializeApp({
+        customerId,
+        role,
+        b2bId,
+        isAgenting,
+        pathname,
+        search,
+        gotoPage,
+        showPageMask,
+        dispatch,
+        styleDispatch,
+        storeDispatch,
+      });
+      // didn't actually (fully) initialize; let a future dep change retry it
+      initializedCustomerId.current = completed ? (resolvedCustomerId ?? null) : null;
     };
 
     init();
     // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
     // due they are functions that do not depend on any reactive value
     // ignore href because is not a reactive value
+    // useNewInitFlow excluded: as a dep it'd re-run init the instant the flag first loads
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
 
@@ -311,12 +249,11 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isPageComplete) {
       showPageMask(false);
     }
-    // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isPageComplete]);
 
   // Remove the pre-mount login mask only once initialization has finished. The
   // mask sits just below the iframe, so keeping it until init completes is
