@@ -71,6 +71,10 @@ export const featureFlags = [
     key: 'B2B-2219.fix_buyer_portal_quote_message_sender_name',
     name: 'fixBuyerPortalQuoteMessageSenderName',
   },
+  {
+    key: 'B2B-5366.prevent_premature_orders_redirect',
+    name: 'preventPrematureOrdersRedirect',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

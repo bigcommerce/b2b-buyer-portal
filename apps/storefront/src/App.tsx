@@ -12,6 +12,7 @@ import { ThemeFrame } from '@/components/ThemeFrame';
 import HeadlessController from '@/HeadlessController';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { useB3AppOpen } from '@/hooks/useB3AppOpen';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSetOpen } from '@/hooks/useSetOpen';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -24,6 +25,7 @@ import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import { isUserGotoLogin } from './utils/b3logout';
 import { initializeApp } from './utils/initializeApp';
+import { legacyInitializeApp } from './utils/legacyInitializeApp';
 import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { CHECKOUT_URL, PATH_ROUTES } from './constants';
 import {
@@ -55,6 +57,8 @@ export default function App() {
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
   const initializedCustomerId = useRef<number | string | null>(null);
+  // Temporary rollout gate for B2B-5366; see legacyInitializeApp.ts for removal steps.
+  const useNewInitFlow = useFeatureFlag('B2B-5366.prevent_premature_orders_redirect');
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -158,6 +162,23 @@ export default function App() {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
 
+    if (!useNewInitFlow) {
+      legacyInitializeApp({
+        customerId,
+        role,
+        b2bId,
+        isAgenting,
+        pathname,
+        search,
+        gotoPage,
+        showPageMask,
+        dispatch,
+        styleDispatch,
+        storeDispatch,
+      });
+      return;
+    }
+
     // initializeApp() can resolve and dispatch a new customerId itself (guest -> logged in),
     // retriggering this effect for an identity it already handled; skip only that case.
     if (initializedCustomerId.current === customerId) return;
@@ -185,8 +206,9 @@ export default function App() {
     // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
     // due they are functions that do not depend on any reactive value
     // ignore href because is not a reactive value
+    // useNewInitFlow excluded: as a dep it'd re-run init the instant the flag first loads
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b2bId, customerId, emailAddress, isAgenting, role]);
+  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
