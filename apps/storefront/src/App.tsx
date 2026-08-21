@@ -54,7 +54,7 @@ export default function App() {
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
-  const hasInitialized = useRef(false);
+  const initializedCustomerId = useRef<number | string | null>(null);
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -158,12 +158,13 @@ export default function App() {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
 
-    // initializeApp() can change isB2BUser mid-run and retrigger this effect.
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
+    // initializeApp() can resolve and dispatch a new customerId itself (guest -> logged in),
+    // retriggering this effect for an identity it already handled; skip only that case.
+    if (initializedCustomerId.current === customerId) return;
+    initializedCustomerId.current = customerId;
 
     const init = async () => {
-      const { completed } = await initializeApp({
+      const { completed, resolvedCustomerId } = await initializeApp({
         customerId,
         role,
         b2bId,
@@ -177,7 +178,7 @@ export default function App() {
         storeDispatch,
       });
       // didn't actually (fully) initialize; let a future dep change retry it
-      hasInitialized.current = completed;
+      initializedCustomerId.current = completed ? (resolvedCustomerId ?? null) : null;
     };
 
     init();

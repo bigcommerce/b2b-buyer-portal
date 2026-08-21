@@ -118,12 +118,33 @@ describe('initializeApp', () => {
     expect(clearInvoiceCart).toHaveBeenCalled();
   });
 
+  it('returns the internally-resolved customerId, not the empty param, on a fresh login', async () => {
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      role: CustomerRole.SENIOR_BUYER,
+      userType: UserTypes.MULTIPLE_B2C,
+    } as never);
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: {
+        customer: { id: 123, role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: { status: CompanyStatus.APPROVED },
+      },
+      global: { featureFlags: {} },
+    } as unknown as ReturnType<typeof store.getState>);
+
+    const result = await initializeApp({ ...baseParams(), customerId: '' });
+
+    // App.tsx's init guard compares this against the live customerId to decide
+    // whether a later login/logout should retrigger init, so it must reflect
+    // what actually got dispatched, not the stale param.
+    expect(result).toEqual({ completed: true, resolvedCustomerId: 123 });
+  });
+
   it('does not resolve customer identity when a customerId is already present', async () => {
     const result = await initializeApp({ ...baseParams(), customerId: 123 });
 
     expect(getCurrentCustomerInfo).not.toHaveBeenCalled();
     expect(clearInvoiceCart).toHaveBeenCalled();
-    expect(result).toEqual({ completed: true });
+    expect(result).toEqual({ completed: true, resolvedCustomerId: 123 });
   });
 
   it('logs out and reports incomplete when the rehydrated BC session is no longer valid', async () => {

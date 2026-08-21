@@ -37,6 +37,8 @@ interface InitializeAppParams {
 interface InitializeAppResult {
   // false signals the caller should allow a future dep change to retry init
   completed: boolean;
+  // customerId actually initialized for; can differ from the param (guest -> logged in)
+  resolvedCustomerId?: number | string;
 }
 
 export const initializeApp = async ({
@@ -79,9 +81,8 @@ export const initializeApp = async ({
     };
     let companyLoginFlag: string | null = null;
 
-    // Resolve customer identity and permissions before running the permission-gated
-    // config fetch below, so it sees permissions from this login rather than stale
-    // (unset) ones.
+    // Resolve identity before the permission-gated fetches below so they see this
+    // login's permissions instead of stale/unset ones.
     let resolvedCustomerId = customerId;
     if (!customerId) {
       const info = await getCurrentCustomerInfo().catch((error) => {
@@ -145,7 +146,7 @@ export const initializeApp = async ({
       }),
     );
 
-    return { completed: true };
+    return { completed: true, resolvedCustomerId };
   } catch (e) {
     b2bLogger.error(e);
     showPageMask(false);
