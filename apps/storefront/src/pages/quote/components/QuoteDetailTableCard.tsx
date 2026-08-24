@@ -26,9 +26,9 @@ interface QuoteTableCardProps {
   displayDiscount: boolean;
   currency: CurrencyProps | DisplayCurrency;
   showBackorderDetails?: boolean;
-  shouldDisplayBackorderInformation?: boolean;
   picklistProductsById?: Record<number, ProductSearch>;
   historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
+  useOrderSnapshot?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -47,9 +47,9 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     currency,
     displayDiscount,
     showBackorderDetails = false,
-    shouldDisplayBackorderInformation = true,
     picklistProductsById = {},
     historyByProductId,
+    useOrderSnapshot = false,
   } = props;
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
@@ -70,11 +70,8 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     productsSearch: { productUrl, variants = [] },
   } = quoteTableItem;
 
-  const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem);
-  const backorderContextEnabled =
-    isBackorderMessagingContextEnabled &&
-    hasAnyBackorderDisplay &&
-    shouldDisplayBackorderInformation;
+  const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem, { useOrderSnapshot });
+  const backorderContextEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
   const picklistSelections = backorderContextEnabled
     ? getPicklistSelectionsFromStoredOptions(quoteTableItem)
     : [];
@@ -165,17 +162,14 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
-          {isBackorderMessagingContextEnabled &&
-            hasAnyBackorderDisplay &&
-            shouldDisplayBackorderInformation &&
-            backorderFields && (
-              <BackorderMessage
-                totalOnHand={backorderFields.totalOnHand}
-                quantityBackordered={backorderFields.quantityBackordered}
-                backorderMessage={backorderFields.backorderMessage}
-                visible={showBackorderDetails}
-              />
-            )}
+          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && backorderFields && (
+            <BackorderMessage
+              totalOnHand={backorderFields.totalOnHand}
+              quantityBackordered={backorderFields.quantityBackordered}
+              backorderMessage={backorderFields.backorderMessage}
+              visible={showBackorderDetails}
+            />
+          )}
           {picklistSelections.length > 0 && (
             <PicklistBackorderMessages
               selections={picklistSelections}

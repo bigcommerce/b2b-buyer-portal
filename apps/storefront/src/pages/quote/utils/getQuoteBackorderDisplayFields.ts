@@ -128,7 +128,12 @@ function getQuoteBackorderDisplayFieldsFromApi(
 
 export function getQuoteBackorderDisplayFields(
   row: QuoteBackorderRow,
+  options?: { useOrderSnapshot?: boolean },
 ): BackorderDisplayFields | null {
+  if (options?.useOrderSnapshot) {
+    return getQuoteBackorderDisplayFieldsFromApi(row);
+  }
+
   const tracking = getQuoteBackorderTracking(row);
   if (!tracking) {
     return getQuoteBackorderDisplayFieldsFromApi(row);
@@ -164,8 +169,9 @@ export function getDraftBackorderDisplayFields(
 
 export function quoteDetailListHasBackorderedItemsForDisplay(
   productList: QuoteBackorderRow[],
+  options?: { useOrderSnapshot?: boolean },
 ): boolean {
-  return productList.some((item) => Boolean(getQuoteBackorderDisplayFields(item)));
+  return productList.some((item) => Boolean(getQuoteBackorderDisplayFields(item, options)));
 }
 
 interface PicklistBackorderHistoryRow {
