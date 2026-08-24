@@ -12,7 +12,6 @@ import { ThemeFrame } from '@/components/ThemeFrame';
 import HeadlessController from '@/HeadlessController';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { useB3AppOpen } from '@/hooks/useB3AppOpen';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSetOpen } from '@/hooks/useSetOpen';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -24,6 +23,7 @@ import { getQuoteEnabled } from '@/utils/b3Init';
 import { b2bJumpPath } from './utils/b3CheckPermissions/b2bPermissionPath';
 import setDayjsLocale from './utils/b3DateFormat/setDayjsLocale';
 import { isUserGotoLogin } from './utils/b3logout';
+import { isPreventPrematureOrdersRedirectCached } from './utils/initFlowRolloutCache';
 import { initializeApp } from './utils/initializeApp';
 import { legacyInitializeApp } from './utils/legacyInitializeApp';
 import { removePreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
@@ -59,7 +59,10 @@ export default function App() {
   const initializedCustomerId = useRef<number | string | null>(null);
   const isInitializing = useRef(false);
   // Temporary rollout gate for B2B-5366; see legacyInitializeApp.ts for removal steps.
-  const useNewInitFlow = useFeatureFlag('B2B-5366.prevent_premature_orders_redirect');
+  // Read once from the cache bridge, not reactively (useFeatureFlag), so a flag
+  // load that happens mid-init can't retrigger this effect into the other branch
+  // while the first branch's call is still in flight — see initFlowRolloutCache.ts.
+  const useNewInitFlow = useRef(isPreventPrematureOrdersRedirectCached()).current;
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
@@ -210,7 +213,7 @@ export default function App() {
     // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
     // due they are functions that do not depend on any reactive value
     // ignore href because is not a reactive value
-    // useNewInitFlow excluded: as a dep it'd re-run init the instant the flag first loads
+    // useNewInitFlow excluded: it's a ref snapshot taken once at mount and never changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
 
