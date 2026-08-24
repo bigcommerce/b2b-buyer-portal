@@ -139,6 +139,30 @@ describe('initializeApp', () => {
     expect(result).toEqual({ completed: true, resolvedCustomerId: 123 });
   });
 
+  it('does not treat a freshly-resolved login as a guest when deciding whether to open the portal', async () => {
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      role: CustomerRole.SENIOR_BUYER,
+      userType: UserTypes.MULTIPLE_B2C,
+    } as never);
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: {
+        customer: { id: 123, role: CustomerRole.SENIOR_BUYER, userType: UserTypes.MULTIPLE_B2C },
+        companyInfo: { status: CompanyStatus.APPROVED },
+      },
+      global: { featureFlags: {} },
+    } as unknown as ReturnType<typeof store.getState>);
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, hash: '' },
+      writable: true,
+    });
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    expect(resolveInitNavigation).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldOpenAllowedPage: false }),
+    );
+  });
+
   it('does not resolve customer identity when a customerId is already present', async () => {
     const result = await initializeApp({ ...baseParams(), customerId: 123 });
 

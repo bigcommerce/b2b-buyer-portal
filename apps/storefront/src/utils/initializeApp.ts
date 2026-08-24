@@ -113,8 +113,12 @@ export const initializeApp = async ({
       store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ??
       false;
     const shouldOpenAllowedPage = nativeLinkInterceptionEnabled
-      ? shouldOpenAllowedPageOnInit({ pathname, hash: window.location.hash, customerId })
-      : !pathname.includes('checkout') && !(!!customerId && !window.location.hash);
+      ? shouldOpenAllowedPageOnInit({
+          pathname,
+          hash: window.location.hash,
+          customerId: resolvedCustomerId,
+        })
+      : !pathname.includes('checkout') && !(!!resolvedCustomerId && !window.location.hash);
     const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
 
     const initNavigation = resolveInitNavigation({
