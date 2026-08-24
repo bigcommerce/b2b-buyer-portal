@@ -159,10 +159,8 @@ export default function App() {
     storeDispatch(setOpenPageReducer(setOpenPage));
     loginAndRegister();
 
-    // initializeApp() can dispatch a resolved customerId (guest -> logged in) before it
-    // returns, retriggering this effect while the call is still in flight; isInitializing
-    // blocks that overlap. initializedCustomerId then skips the redux-catch-up refire once
-    // the call resolves for the identity it already handled.
+    // initializeApp() can dispatch a resolved customerId mid-call, retriggering this
+    // effect for the identity it's already handling; skip that self-retrigger.
     if (isInitializing.current || initializedCustomerId.current === customerId) return;
     isInitializing.current = true;
 
@@ -181,7 +179,6 @@ export default function App() {
         storeDispatch,
       });
       isInitializing.current = false;
-      // didn't actually (fully) initialize; let a future dep change retry it
       initializedCustomerId.current = completed ? (resolvedCustomerId ?? null) : null;
     };
 
