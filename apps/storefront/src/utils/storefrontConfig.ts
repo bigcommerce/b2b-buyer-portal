@@ -30,7 +30,6 @@ import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
 import { B3SStorage } from '@/utils/b3Storage';
 import { channelId } from '@/utils/basicConfig';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
-import { setPreventPrematureOrdersRedirectEnabled } from '@/utils/initFlowRolloutCache';
 import { setMultiLanguageEnabledCache } from '@/utils/multiLanguageFlagCache';
 import { setNativeLinkInterceptionEnabled } from '@/utils/nativeStorefrontLinks';
 import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
@@ -319,12 +318,6 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   // B3StoreContainer dispatches them before these flags land.
   setMultiLanguageEnabledCache(
     store.getState().global.featureFlags['LOCAL-3191.B2B_multi_language'] ?? false,
-  );
-
-  // Same rationale, for the init-flow rollout flag App.tsx reads once at mount
-  // (see initFlowRolloutCache.ts for why it can't be read reactively there).
-  setPreventPrematureOrdersRedirectEnabled(
-    store.getState().global.featureFlags['B2B-5366.prevent_premature_orders_redirect'] ?? false,
   );
 
   dispatchGlobal({
