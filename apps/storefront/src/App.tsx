@@ -210,7 +210,9 @@ export default function App() {
         },
       });
       setTimeout(() => {
-        window.b2b.initializationEnvironment.isInit = true;
+        if (!window.b2b.initializationEnvironment.isInit) {
+          window.b2b.initializationEnvironment.isInit = true;
+        }
       });
     }
     if (isB2BUser) hideStorefrontElement('dom.hideThemePayments');
