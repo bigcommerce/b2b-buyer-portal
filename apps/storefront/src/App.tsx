@@ -57,6 +57,7 @@ export default function App() {
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
   const isDefaultLoginStyling = useRef(shouldUseDefaultLoginStyling()).current;
   const initializedCustomerId = useRef<number | string | null>(null);
+  const isInitializing = useRef(false);
   // Temporary rollout gate for B2B-5366; see legacyInitializeApp.ts for removal steps.
   const useNewInitFlow = useFeatureFlag('B2B-5366.prevent_premature_orders_redirect');
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
@@ -179,10 +180,12 @@ export default function App() {
       return;
     }
 
-    // initializeApp() can resolve and dispatch a new customerId itself (guest -> logged in),
-    // retriggering this effect for an identity it already handled; skip only that case.
-    if (initializedCustomerId.current === customerId) return;
-    initializedCustomerId.current = customerId;
+    // initializeApp() can dispatch a resolved customerId (guest -> logged in) before it
+    // returns, retriggering this effect while the call is still in flight; isInitializing
+    // blocks that overlap. initializedCustomerId then skips the redux-catch-up refire once
+    // the call resolves for the identity it already handled.
+    if (isInitializing.current || initializedCustomerId.current === customerId) return;
+    isInitializing.current = true;
 
     const init = async () => {
       const { completed, resolvedCustomerId } = await initializeApp({
@@ -198,6 +201,7 @@ export default function App() {
         styleDispatch,
         storeDispatch,
       });
+      isInitializing.current = false;
       // didn't actually (fully) initialize; let a future dep change retry it
       initializedCustomerId.current = completed ? (resolvedCustomerId ?? null) : null;
     };
