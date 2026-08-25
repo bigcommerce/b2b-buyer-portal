@@ -63,7 +63,12 @@ window.b2b = {
     // and observe global flag to simulate click
     window.b2b.initializationEnvironment.isInitListener = () => {
       unbindLinks(nativeLinkInterceptionEnabled);
-      setTimeout(() => window.b2b.initializationEnvironment.clickedLinkElement?.click(), 0);
+      setTimeout(() => {
+        // consume once so later isInit assignments don't replay a stale click
+        const { clickedLinkElement } = window.b2b.initializationEnvironment;
+        window.b2b.initializationEnvironment.clickedLinkElement = undefined;
+        clickedLinkElement?.click();
+      }, 0);
     };
   }
 })();
