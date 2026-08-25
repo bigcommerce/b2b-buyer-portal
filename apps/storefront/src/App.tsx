@@ -187,7 +187,7 @@ export default function App() {
     // due they are functions that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
+  }, [b2bId, customerId, emailAddress, isAgenting, role]);
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {

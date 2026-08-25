@@ -59,6 +59,8 @@ const baseParams = () => ({
 });
 
 describe('initializeApp', () => {
+  const originalLocation = window.location;
+
   beforeEach(() => {
     mockState();
     vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
@@ -82,6 +84,7 @@ describe('initializeApp', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
   });
 
   it('calls getCurrentCustomerInfo before setStorefrontConfig on a fresh login', async () => {
