@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useMobile } from '@/hooks/useMobile';
+import { getHomeUrl } from '@/lib/lang/getHomeUrl';
 import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 
@@ -11,6 +12,7 @@ export default function B3CloseAppButton() {
   const [isMobile] = useMobile();
 
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);
+  const locales = useAppSelector(({ global }) => global.locales);
 
   const {
     state: { isCloseGotoBCHome },
@@ -19,7 +21,7 @@ export default function B3CloseAppButton() {
 
   const handleCloseForm = () => {
     if (isCloseGotoBCHome || window.location.search.includes('action=order_status')) {
-      window.location.href = '/';
+      window.location.href = getHomeUrl(locales);
     } else {
       navigate('/');
       setOpenPageFn?.({
