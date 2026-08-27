@@ -5,6 +5,8 @@ import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
 
 import B3Request from '../../request/b3Fetch';
 
+import { localizeProductSearchResults } from './localizedProductSearch';
+
 interface ProductPurchasable {
   productId: number;
   isProduct: boolean;
@@ -484,7 +486,22 @@ interface ValidateProductsResponse {
   };
 }
 
-export const searchProducts = (data: CustomFieldItems = {}) => {
+/**
+ * Product names, URLs and option labels come back from B2B GraphQL in the store's default language,
+ * so they are replaced with the shopper's language from the storefront GraphQL API. This is a no-op
+ * on the default locale and when multi-language is disabled.
+ */
+const withLocalizedText = async (response: CustomFieldItems) => {
+  const products = response?.productsSearch;
+
+  if (!Array.isArray(products)) {
+    return response;
+  }
+
+  return { ...response, productsSearch: await localizeProductSearchResults(products) };
+};
+
+export const searchProducts = async (data: CustomFieldItems = {}) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
   const { featureFlags } = store.getState().global;
@@ -495,7 +512,7 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
     featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
 
   if (separateQueryAndVariablesForProductSearches) {
-    return B3Request.graphqlB2B({
+    const response = await B3Request.graphqlB2B({
       query: getSearchProductsQuery(data, true),
       variables: {
         search: data?.search || '',
@@ -513,8 +530,11 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
         ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
       },
     });
+
+    return withLocalizedText(response);
   }
-  return B3Request.graphqlB2B({
+
+  const response = await B3Request.graphqlB2B({
     query: getSearchProductsQuery(
       {
         ...data,
@@ -523,6 +543,8 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
       false,
     ),
   });
+
+  return withLocalizedText(response);
 };
 
 export type ValidationTarget = 'QUOTE' | 'CART';
