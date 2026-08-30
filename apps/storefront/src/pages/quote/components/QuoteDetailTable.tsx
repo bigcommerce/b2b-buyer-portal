@@ -7,6 +7,7 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
@@ -195,7 +196,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                     location: { origin },
                   } = window;
                   if (productUrl) {
-                    window.location.href = `${origin}${productUrl}`;
+                    window.location.href = `${origin}${withActiveLocaleUrl(productUrl)}`;
                   }
                 }}
                 sx={{
