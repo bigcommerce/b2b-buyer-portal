@@ -2,7 +2,9 @@ import { useContext } from 'react';
 import { Box, ImageListItem } from '@mui/material';
 
 import { useMobile } from '@/hooks/useMobile';
+import { getHomeUrl } from '@/lib/lang/getHomeUrl';
 import { GlobalContext } from '@/shared/global';
+import { useAppSelector } from '@/store';
 
 export default function B3Logo() {
   const {
@@ -10,6 +12,7 @@ export default function B3Logo() {
   } = useContext(GlobalContext);
 
   const [isMobile] = useMobile();
+  const locales = useAppSelector(({ global }) => global.locales);
 
   return (
     <Box
@@ -52,7 +55,7 @@ export default function B3Logo() {
             },
           }}
           onClick={() => {
-            window.location.href = '/';
+            window.location.href = getHomeUrl(locales);
           }}
         >
           <img src={logo} alt="logo" />
