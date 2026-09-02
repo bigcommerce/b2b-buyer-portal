@@ -5,6 +5,7 @@ import BackorderMessage from '@/components/BackorderMessage';
 import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
@@ -128,7 +129,7 @@ function QuoteTableCard({
             color="#212121"
             onClick={() => {
               if (productUrl) {
-                window.location.href = `${window.location.origin}${productUrl}`;
+                window.location.href = `${window.location.origin}${withActiveLocaleUrl(productUrl)}`;
               }
             }}
             sx={{
