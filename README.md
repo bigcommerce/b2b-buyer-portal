@@ -58,6 +58,14 @@ If you do not have access to the B2B edition app please reach out to your accoun
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="b2bNav" src="public/images/b2bNav.png">
+
+To enable the Multi-storefront feature on your local dev store, follow [Enable MSF in local dev CDVM](https://docs.dev.bigcommerce.net/domains/b2b/setup/cdvm/msf.html) — it covers both the BC-side store config flags and the B2B-side Django Admin toggle.
+
+> Alternative to the Talisman steps in the guide above:
+> - Log in at https://store-{storeHash}.store.bcdev/admin/staff with staff credentials
+> - Go to https://store-{storeHash}.store.bcdev/manage/ninja/msf → click "Enable all"
+> - Raise AdditionalStorefronts/BaseStorefronts via https://store-{storeHash}.store.bcdev/tools/assetsmanager.php
+> - Control Panel → Channels tab → "Enable storefront seats" → create additional storefronts
   
 ### Step 3: Enable B2B on Your Channel
 
