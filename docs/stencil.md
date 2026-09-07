@@ -10,7 +10,7 @@
   - Delete the scripts: with the following names:
     - `B2BEdition Header Script`
     - `B2BEdition Footer Script`
-  - Add a the header script with the following values
+  - Add the header script with the following values
     - Name: `B2B Edition Header Script`
     - Location: `Header`
     - Pages: `All Pages`
@@ -36,7 +36,7 @@
 </script>
 <script type="module" src="http://localhost:3001/@vite/client"></script>
 ```
-  - Add a the footer script with the following values
+  - Add the footer script with the following values
     - Name: `B2B Edition Footer Script`
     - Location: `Footer`
     - Pages: `All Pages`
@@ -56,13 +56,13 @@
 ```
 
 3. Navigate to the B2B Edition App Dashboard and set the following values (not needed for single storefront):
-  - Global Config: In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
+  - Global Config: In B2B Edition App dashboard -> Settings -> Buyer Portal, set the Buyer Portal type to `Custom` for global config
 ![Buyer portal type global settings](../public/images/buyer-portal-type-settings-global.png)
-  - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
-![Buyer portal type channel settings](../public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
+  - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config; a channel left on its default inherits the global config
+![Buyer portal type channel settings](../public/images/buyer-portal-type-settings-channel.png)
 
 
-4. Visit the headless storefront and attempt to sign in.
+4. Visit the storefront and attempt to sign in.
 
 **FAQs:**
 - linters are not working: run `yarn prepare` first.

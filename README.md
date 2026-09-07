@@ -58,7 +58,7 @@ If you do not have access to the B2B edition app please reach out to your accoun
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="b2bNav" src="public/images/b2bNav.png">
-  
+
 ### Step 3: Enable B2B on Your Channel
 
 Choose the channel where you wish to enable B2B functionality. Initially, B2B features can be activated on a single channel only.
