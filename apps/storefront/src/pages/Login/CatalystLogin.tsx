@@ -49,9 +49,14 @@ export function CatalystLogin() {
   const loginFlag = searchParams.get('loginFlag');
 
   useEffect(() => {
+    // Hotfix (TRAC-837): give the async auth resolution more headroom before the
+    // fallback storefront-login redirect fires. On slower sessions the 3s window
+    // elapsed before the B2BToken/customer info resolved and navigated away,
+    // firing window.location.href='/login' and feeding the Catalyst
+    // /?section=orders <-> /#/login loop. 7s reduces that race.
     const timeout = setTimeout(() => {
       window.location.href = '/login';
-    }, 3000);
+    }, 7000);
 
     return () => {
       clearTimeout(timeout);
