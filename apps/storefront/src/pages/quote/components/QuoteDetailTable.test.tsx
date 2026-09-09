@@ -1,10 +1,4 @@
-import {
-  buildGlobalStateWith,
-  renderWithProviders,
-  screen,
-  userEvent,
-  waitFor,
-} from 'tests/test-utils';
+import { buildGlobalStateWith, renderWithProviders, screen, waitFor } from 'tests/test-utils';
 import { vi } from 'vitest';
 
 import { searchProducts } from '@/shared/service/b2b';
@@ -97,14 +91,11 @@ describe('QuoteDetailTable picklist backorders', () => {
     });
   });
 
-  it('fetches the picklist child product and shows its backorder message when the toggle is on', async () => {
+  it('fetches the picklist child product and shows its backorder message by default', async () => {
     renderTable(true);
 
-    const toggle = await screen.findByText('Backorder details');
-
+    expect(await screen.findByRole('checkbox', { name: 'Backorder details' })).toBeChecked();
     expect(searchProducts).toHaveBeenCalledWith(expect.objectContaining({ productIds: [555] }));
-
-    await userEvent.click(toggle);
 
     await waitFor(() => {
       expect(screen.getByText('PickleFest:')).toBeVisible();

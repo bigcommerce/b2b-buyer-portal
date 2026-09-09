@@ -1482,7 +1482,7 @@ describe('when the user is a B2B customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      expect(await screen.findByText(/backorder details/i)).toBeInTheDocument();
+      expect(await screen.findByRole('checkbox', { name: /backorder details/i })).toBeChecked();
     });
 
     it('does not show the toggle when backorders are disabled', async () => {
@@ -1528,7 +1528,7 @@ describe('when the user is a B2B customer', () => {
 
       await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
-      expect(await screen.findByText(/backorder details/i)).toBeInTheDocument();
+      expect(await screen.findByRole('checkbox', { name: /backorder details/i })).toBeChecked();
     });
   });
 
