@@ -144,7 +144,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     offset: 0,
   });
 
-  const [showBackorderDetails, setShowBackorderDetails] = useState(false);
+  const [showBackorderDetails, setShowBackorderDetails] = useState(true);
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
