@@ -12,10 +12,6 @@ export const featureFlags = [
     name: 'passWithModifiersToProductUpload',
   },
   {
-    key: 'B2B-4231.chunk_product_searches_in_csv_upload',
-    name: 'chunkProductSearchesInCsvUpload',
-  },
-  {
     key: 'B2B-3705.increase_graphql_limits_inline_with_platform_api',
     name: 'increaseGraphQLLimitsInlineWithPlatformApi',
   },
