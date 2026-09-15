@@ -10,6 +10,7 @@ import PaginationTable from '@/components/table/PaginationTable';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { LangFormatFunction, useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import { deleteProductFromDraftQuoteList, setDraftProduct, useAppDispatch } from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
@@ -343,7 +344,7 @@ function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
                 color="#212121"
                 onClick={() => {
                   if (productUrl) {
-                    window.location.href = `${window.location.origin}${productUrl}`;
+                    window.location.href = `${window.location.origin}${withActiveLocaleUrl(productUrl)}`;
                   }
                 }}
                 sx={{

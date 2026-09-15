@@ -7,6 +7,7 @@ import BackorderMessage from '@/components/BackorderMessage';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import type { CatalogQuickVariantSku } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { currencyFormat, ordersCurrencyFormat } from '@/utils/b3CurrencyFormat';
@@ -544,7 +545,7 @@ export function B3ProductList<T extends ProductItem>(props: ProductProps<T>) {
                       } = window;
 
                       if (product?.productUrl)
-                        window.location.href = `${origin}${product?.productUrl}`;
+                        window.location.href = `${origin}${withActiveLocaleUrl(product.productUrl)}`;
                     }
                   }}
                   sx={{

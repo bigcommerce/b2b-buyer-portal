@@ -6,6 +6,7 @@ import BackorderMessage from '@/components/BackorderMessage';
 import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import type { CatalogQuickVariantSku, ProductSearch } from '@/shared/service/b2b/graphql/product';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { currencyFormat } from '@/utils/b3CurrencyFormat';
@@ -155,7 +156,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 location: { origin },
               } = window;
 
-              window.location.href = `${origin}${productUrl}`;
+              window.location.href = `${origin}${withActiveLocaleUrl(productUrl)}`;
             }}
             sx={{
               cursor: 'pointer',

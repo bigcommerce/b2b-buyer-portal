@@ -5,6 +5,7 @@ import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import { type ProductSearch } from '@/shared/service/b2b/graphql/product';
 import { useAppSelector } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
@@ -125,7 +126,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               } = window;
 
               if (productUrl) {
-                window.location.href = `${origin}${productUrl}`;
+                window.location.href = `${origin}${withActiveLocaleUrl(productUrl)}`;
               }
             }}
             sx={{

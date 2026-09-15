@@ -28,6 +28,7 @@ import { useMobile } from '@/hooks/useMobile';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
+import { withActiveLocaleUrl } from '@/lib/lang/withActiveLocaleUrl';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
@@ -615,7 +616,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                     location: { origin },
                   } = window;
 
-                  window.location.href = `${origin}${row.productUrl}`;
+                  window.location.href = `${origin}${withActiveLocaleUrl(row.productUrl)}`;
                 }}
                 sx={{
                   cursor: 'pointer',
