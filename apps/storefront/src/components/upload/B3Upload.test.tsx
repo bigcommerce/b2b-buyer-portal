@@ -18,8 +18,6 @@ vi.mock('@/shared/service/b2b', async (importOriginal) => ({
   guestProductsBulkUploadCSV: vi.fn(),
 }));
 
-// The storefront's real channel is rarely 1 (the default channel) — this proves the
-// guest upload flow carries the actual channel through instead of silently dropping it.
 vi.mock('@/utils/basicConfig', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/utils/basicConfig')>()),
   channelId: 555,
