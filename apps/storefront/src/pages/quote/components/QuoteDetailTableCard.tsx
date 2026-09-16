@@ -1,3 +1,4 @@
+import { Warning as WarningIcon } from '@mui/icons-material';
 import { Box, CardContent, styled, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
@@ -15,7 +16,10 @@ import {
   type PicklistBackorderHistoryChild,
 } from '@/utils/catalogBackorderDisplay';
 
-import { getQuoteBackorderDisplayFields } from '../utils/getQuoteBackorderDisplayFields';
+import {
+  getQuoteBackorderDisplayFields,
+  getQuoteItemBackendAvailability,
+} from '../utils/getQuoteBackorderDisplayFields';
 
 interface QuoteTableCardProps {
   item: any;
@@ -29,6 +33,7 @@ interface QuoteTableCardProps {
   picklistProductsById?: Record<number, ProductSearch>;
   historyByProductId?: Record<number, PicklistBackorderHistoryChild>;
   useOrderSnapshot?: boolean;
+  showInsufficientStockWarning?: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -50,6 +55,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     picklistProductsById = {},
     historyByProductId,
     useOrderSnapshot = false,
+    showInsufficientStockWarning = false,
   } = props;
   const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
@@ -57,6 +63,15 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   );
   const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
+
+  const stockAvailability = showInsufficientStockWarning
+    ? getQuoteItemBackendAvailability(quoteTableItem)
+    : null;
+  const insufficientStockWarning = stockAvailability?.exceedsAvailableToSell
+    ? b3Lang('quoteDraft.quoteTable.outOfStock.tipWithAvailability', {
+        availableToSell: stockAvailability.availableToSell,
+      })
+    : null;
 
   const {
     basePrice,
@@ -162,6 +177,20 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
+          {insufficientStockWarning && (
+            <Box
+              sx={{
+                color: 'red',
+                mt: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                '& svg': { mr: '0.5rem' },
+              }}
+            >
+              <WarningIcon color="error" fontSize="small" />
+              {insufficientStockWarning}
+            </Box>
+          )}
           {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && backorderFields && (
             <BackorderMessage
               totalOnHand={backorderFields.totalOnHand}
