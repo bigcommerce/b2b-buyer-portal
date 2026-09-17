@@ -261,6 +261,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               saveFn,
               setOpenPage,
               registerEnabled,
+              b3Lang,
             });
           },
           addProducts: (shoppingListId, items) =>
