@@ -1,4 +1,5 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { Warning as WarningIcon } from '@mui/icons-material';
 import { Box, FormControlLabel, styled, Switch, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
@@ -6,7 +7,8 @@ import PicklistBackorderMessages from '@/components/PicklistBackorderMessages';
 import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
-import { useB3Lang } from '@/lib/lang';
+import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
@@ -18,7 +20,9 @@ import {
 import { useQuoteDetailBackorderState } from '../hooks/useQuoteDetailBackorderState';
 import {
   getQuoteBackorderDisplayFields,
+  getQuoteItemBackendAvailability,
   getRowPicklistBackorderHistory,
+  type QuoteBackorderRow,
 } from '../utils/getQuoteBackorderDisplayFields';
 
 import QuoteDetailTableCard from './QuoteDetailTableCard';
@@ -114,6 +118,19 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }));
 
+function getInsufficientStockWarning(
+  row: QuoteBackorderRow,
+  b3Lang: LangFormatFunction,
+): string | null {
+  const availability = getQuoteItemBackendAvailability(row);
+
+  return availability?.exceedsAvailableToSell
+    ? b3Lang('quoteDraft.quoteTable.outOfStock.tipWithAvailability', {
+        availableToSell: availability.availableToSell,
+      })
+    : null;
+}
+
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const b3Lang = useB3Lang();
   const {
@@ -129,6 +146,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
   const { isOrdered, backorderContextEnabled, picklistProductsById, hasBackorderedItems } =
     useQuoteDetailBackorderState(productList, status);
+  const { isBackorderEnabled } = useBackorderStorefrontMessaging();
+  const showInsufficientStockWarning = isBackorderEnabled && !isOrdered;
 
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
@@ -173,6 +192,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row: CustomFieldItems) => {
         const optionsValue = row.options;
         const productUrl = row.productsSearch?.productUrl;
+        const insufficientStockWarning = showInsufficientStockWarning
+          ? getInsufficientStockWarning(row as QuoteBackorderRow, b3Lang)
+          : null;
 
         return (
           <Box
@@ -239,6 +261,20 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   <span>Notes: </span>
                   {row.notes}
                 </Typography>
+              )}
+              {insufficientStockWarning && (
+                <Box
+                  sx={{
+                    color: 'red',
+                    mt: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& svg': { mr: '0.5rem' },
+                  }}
+                >
+                  <WarningIcon color="error" fontSize="small" />
+                  {insufficientStockWarning}
+                </Box>
               )}
             </Box>
           </Box>
@@ -480,6 +516,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             picklistProductsById={picklistProductsById}
             historyByProductId={isOrdered ? getRowPicklistBackorderHistory(row) : undefined}
             useOrderSnapshot={isOrdered}
+            showInsufficientStockWarning={showInsufficientStockWarning}
           />
         )}
       />

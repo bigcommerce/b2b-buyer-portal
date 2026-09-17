@@ -114,3 +114,78 @@ describe('QuoteDetailTable picklist backorders', () => {
     expect(searchProducts).not.toHaveBeenCalled();
   });
 });
+
+describe('QuoteDetailTable insufficient stock warning', () => {
+  // Real quote-line items don't carry a `variantSku` field — the variant SKU lives on `sku`.
+  const insufficientStockRow = {
+    id: 'item-cow-bl',
+    productId: 14,
+    productName: 'COW',
+    sku: 'COW-BL',
+    quantity: 4,
+    basePrice: 13,
+    offeredPrice: 13,
+    tax: 0,
+    optionList: '[]',
+    imageUrl: '',
+    options: [],
+    productsSearch: {
+      inventoryTracking: 'variant',
+      unlimitedBackorder: true,
+      variants: [{ sku: 'COW-BL', available_to_sell: 0, unlimited_backorder: false }],
+    },
+  };
+
+  const renderInsufficientStockTable = (status: number) =>
+    renderWithProviders(
+      <QuoteDetailTable
+        {...sharedProps}
+        status={status}
+        productList={[insufficientStockRow] as unknown as QuoteDetailTableProps['productList']}
+        getQuoteTableDetails={
+          (async () => ({
+            edges: [{ node: insufficientStockRow }],
+            totalCount: 1,
+          })) as unknown as QuoteDetailTableProps['getQuoteTableDetails']
+        }
+      />,
+      {
+        preloadedState: {
+          global: buildGlobalStateWith({
+            backorderEnabled: true,
+            backorderDisplaySettings: {
+              showQuantityOnBackorder: true,
+              showQuantityOnHand: true,
+              showBackorderMessage: true,
+              showDefaultShippingExpectationPrompt: false,
+              defaultShippingExpectationPrompt: '',
+            },
+            featureFlags: {
+              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
+            },
+          }),
+        },
+      },
+    );
+
+  beforeEach(() => {
+    vi.mocked(searchProducts).mockReset();
+    vi.mocked(searchProducts).mockResolvedValue({ productsSearch: [] });
+  });
+
+  it('shows the warning for an open quote whose variant SKU only exists on `sku`', async () => {
+    renderInsufficientStockTable(1);
+
+    await screen.findByText('COW');
+
+    expect(screen.getByText('Insufficient stock — none available')).toBeVisible();
+  });
+
+  it('hides the warning for an ordered quote', async () => {
+    renderInsufficientStockTable(4);
+
+    await screen.findByText('COW');
+
+    expect(screen.queryByText('Insufficient stock — none available')).toBeNull();
+  });
+});

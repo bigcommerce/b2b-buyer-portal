@@ -13,6 +13,7 @@ import {
 export interface QuoteBackorderRow {
   quantity: number | string;
   variantSku?: string;
+  sku?: string;
   totalOnHand?: number | null;
   backorderMessage?: string | null;
   quantityBackordered?: number | null;
@@ -33,6 +34,11 @@ type QuoteItemBackendAvailability = {
 
 type QuoteBackorderTracking = 'product' | 'variant';
 
+// Quote-line items don't always carry a `variantSku` field, the variant SKU often lives on `sku` instead.
+function resolveQuoteRowVariantSku(row: QuoteBackorderRow): string | undefined {
+  return row.variantSku || row.sku;
+}
+
 export function getQuoteItemBackendAvailability(
   row: QuoteBackorderRow,
 ): QuoteItemBackendAvailability | null {
@@ -44,7 +50,9 @@ export function getQuoteItemBackendAvailability(
   let { availableToSell } = product;
 
   if (product.inventoryTracking === 'variant' && product.variants) {
-    const currentVariant = product.variants.find(({ sku }) => sku === row.variantSku);
+    const currentVariant = product.variants.find(
+      ({ sku }) => sku === resolveQuoteRowVariantSku(row),
+    );
     if (currentVariant) {
       hasUnlimitedBackorder = Boolean(currentVariant.unlimited_backorder);
       availableToSell = currentVariant.available_to_sell;
@@ -81,7 +89,7 @@ function getQuoteBackorderTracking(row: QuoteBackorderRow): QuoteBackorderTracki
 }
 
 function findQuoteVariant(row: QuoteBackorderRow): Variant | undefined {
-  return row.productsSearch.variants?.find(({ sku }) => sku === row.variantSku);
+  return row.productsSearch.variants?.find(({ sku }) => sku === resolveQuoteRowVariantSku(row));
 }
 
 function getQuoteBackorderTotalOnHand(

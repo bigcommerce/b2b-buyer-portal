@@ -229,6 +229,26 @@ describe('getQuoteItemBackendAvailability', () => {
       quoteItemBackendAvailability?.exceedsAvailableToSell,
     );
   });
+
+  it('falls back to sku when variantSku is missing (real quote-line shape)', () => {
+    // Real quote-line items do not carry a `variantSku` field — the variant SKU lives on `sku`.
+    const row = {
+      quantity: 4,
+      sku: 'COW-BL',
+      productsSearch: {
+        inventoryTracking: 'variant',
+        variants: [
+          { sku: 'COW-RE', available_to_sell: 99, unlimited_backorder: true },
+          { sku: 'COW-BL', available_to_sell: 0, unlimited_backorder: false },
+        ],
+      },
+    } as QuoteBackorderRow;
+
+    expect(getQuoteItemBackendAvailability(row)).toEqual({
+      exceedsAvailableToSell: true,
+      availableToSell: 0,
+    });
+  });
 });
 
 describe('draftRowQuantityExceedsAvailableToSell', () => {
@@ -459,6 +479,26 @@ describe('getQuoteBackorderDisplayFields for quote detail rows', () => {
       totalOnHand: 2,
       quantityBackordered: 8,
       backorderMessage: 'History message',
+    });
+  });
+
+  it('suppresses the backorder-count message (in favor of the insufficient-stock warning) when variantSku is missing and the matched variant has no backorder capacity', () => {
+    const row = {
+      quantity: 4,
+      sku: 'COW-BL',
+      totalOnHand: 0,
+      backorderMessage: 'Backorders Schmackorders',
+      productsSearch: {
+        inventoryTracking: 'variant',
+        unlimitedBackorder: true,
+        variants: [{ sku: 'COW-BL', available_to_sell: 0, unlimited_backorder: false }],
+      },
+    } as QuoteBackorderRow;
+
+    expect(getQuoteBackorderDisplayFields(row)).toBeNull();
+    expect(getQuoteItemBackendAvailability(row)).toEqual({
+      exceedsAvailableToSell: true,
+      availableToSell: 0,
     });
   });
 });
