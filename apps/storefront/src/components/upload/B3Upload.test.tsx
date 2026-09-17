@@ -72,5 +72,7 @@ describe('B3Upload', () => {
         expect.objectContaining({ channelId: 555 }),
       );
     });
+
+    expect(mockedGuestProductsBulkUploadCSV).toHaveBeenCalledTimes(1);
   });
 });

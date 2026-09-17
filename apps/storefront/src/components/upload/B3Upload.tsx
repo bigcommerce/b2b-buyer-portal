@@ -14,7 +14,7 @@ import {
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b';
 import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
-import { Currency } from '@/types';
+import { Currency, CustomerRole } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
 import { channelId } from '@/utils/basicConfig';
 
@@ -145,7 +145,7 @@ export function B3Upload(props: B3UploadProps) {
 
       params.channelId = channelId;
       const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
-      const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
+      const BulkUploadCSV = role === CustomerRole.GUEST ? guestProductsBulkUploadCSV : uploadAction;
 
       const productUpload = await BulkUploadCSV(params);
 
