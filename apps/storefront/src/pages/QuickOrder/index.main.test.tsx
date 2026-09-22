@@ -4345,6 +4345,327 @@ describe('when backorder validation is enabled', () => {
       );
     });
 
+    it('skips products with a null sku from validateProducts instead of crashing', async () => {
+      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+        data: { orderedProducts: { totalCount: 0, edges: [] } },
+      });
+
+      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+      const csvUpload = vi.fn().mockReturnValue({
+        data: {
+          productUpload: buildCSVUploadWith({
+            result: {
+              validProduct: [
+                buildCSVProductWith({
+                  products: {
+                    productId: '1',
+                    variantId: 2,
+                    productName: 'Test Product 1',
+                    variantSku: 'TEST-SKU-123',
+                    option: [],
+                  },
+                  qty: '2',
+                  row: 1,
+                  sku: 'TEST-SKU-123',
+                }),
+                buildCSVProductWith({
+                  products: {
+                    productId: '3',
+                    variantId: 4,
+                    productName: 'Test Product 2',
+                    variantSku: 'TEST-SKU-456',
+                    option: [],
+                  },
+                  qty: '1',
+                  row: 2,
+                  sku: 'TEST-SKU-456',
+                }),
+              ],
+              errorProduct: [],
+              stockErrorFile: '',
+              stockErrorSkus: [],
+            },
+          }),
+        },
+      });
+
+      const productsValidation = vi.fn();
+
+      when(productsValidation)
+        .calledWith({
+          products: expect.arrayContaining([
+            expect.objectContaining({ productId: 1, variantId: 2, quantity: 2 }),
+            expect.objectContaining({ productId: 3, variantId: 4, quantity: 1 }),
+          ]),
+          target: 'CART',
+        })
+        .thenReturn({
+          data: {
+            validateProducts: {
+              isValid: true,
+              products: [
+                {
+                  errorCode: '',
+                  responseType: 'SUCCESS',
+                  message: '',
+                  product: {
+                    productId: 1,
+                    variantId: 2,
+                    quantity: 2,
+                    sku: 'TEST-SKU-123',
+                    availableToSell: 100,
+                    unlimitedBackorder: false,
+                  },
+                },
+                // Simulates the backend returning a product it couldn't find in the
+                // catalog (see B2B-5655): still SUCCESS, but with a null sku.
+                {
+                  errorCode: '',
+                  responseType: 'SUCCESS',
+                  message: '',
+                  product: {
+                    productId: 3,
+                    variantId: 4,
+                    quantity: 1,
+                    sku: null,
+                    availableToSell: 0,
+                    unlimitedBackorder: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
+      const getCart = vi.fn().mockReturnValue(buildGetCartWith({}));
+      const createCartSimple = vi.fn().mockReturnValue({
+        data: { cart: { createCart: { cart: { entityId: '12345' } } } },
+      });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', () =>
+          HttpResponse.json(getRecentlyOrderedProducts()),
+        ),
+        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(
+            buildAddCartLineItemsResponseWith({
+              data: {
+                cart: {
+                  addCartLineItems: {
+                    cart: {
+                      entityId: '12345',
+                    },
+                  },
+                },
+              },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+      await userEvent.click(bulkUploadButton);
+
+      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+
+      const csvContent = 'variant_sku,qty\nTEST-SKU-123,2\nTEST-SKU-456,1';
+      const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
+
+      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!dropzoneInput) {
+        throw new Error('File input not found');
+      }
+
+      await userEvent.upload(dropzoneInput, [file]);
+
+      await waitFor(() => {
+        expect(csvUpload).toHaveBeenCalled();
+      });
+
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add \d+ products to cart/i,
+      });
+      await userEvent.click(addToCartButton);
+
+      await waitFor(
+        () => {
+          expect(screen.getByText(/Products were added to cart/i)).toBeInTheDocument();
+        },
+        { timeout: 8000 },
+      );
+    });
+
+    it('shows the originally-uploaded sku in the error toast for a product not found in the catalog', async () => {
+      const getRecentlyOrderedProducts = vi.fn().mockReturnValue({
+        data: { orderedProducts: { totalCount: 0, edges: [] } },
+      });
+
+      const searchProducts = vi.fn().mockReturnValue({ data: { productsSearch: [] } });
+
+      const csvUpload = vi.fn().mockReturnValue({
+        data: {
+          productUpload: buildCSVUploadWith({
+            result: {
+              validProduct: [
+                buildCSVProductWith({
+                  products: {
+                    productId: '1',
+                    variantId: 2,
+                    productName: 'Test Product 1',
+                    variantSku: 'TEST-SKU-123',
+                    option: [],
+                  },
+                  qty: '2',
+                  row: 1,
+                  sku: 'TEST-SKU-123',
+                }),
+                buildCSVProductWith({
+                  products: {
+                    productId: '3',
+                    variantId: 4,
+                    productName: 'Test Product 2',
+                    variantSku: 'TEST-SKU-456',
+                    option: [],
+                  },
+                  qty: '1',
+                  row: 2,
+                  sku: 'TEST-SKU-456',
+                }),
+              ],
+              errorProduct: [],
+              stockErrorFile: '',
+              stockErrorSkus: [],
+            },
+          }),
+        },
+      });
+
+      const productsValidation = vi.fn();
+
+      when(productsValidation)
+        .calledWith({
+          products: expect.arrayContaining([
+            expect.objectContaining({ productId: 1, variantId: 2, quantity: 2 }),
+            expect.objectContaining({ productId: 3, variantId: 4, quantity: 1 }),
+          ]),
+          target: 'CART',
+        })
+        .thenReturn({
+          data: {
+            validateProducts: {
+              isValid: true,
+              products: [
+                {
+                  errorCode: '',
+                  responseType: 'SUCCESS',
+                  message: '',
+                  product: {
+                    productId: 1,
+                    variantId: 2,
+                    quantity: 2,
+                    sku: 'TEST-SKU-123',
+                    availableToSell: 100,
+                    unlimitedBackorder: false,
+                  },
+                },
+                // Backend couldn't find this product in the catalog (see B2B-5655):
+                // ERROR/OTHER with a null sku.
+                {
+                  errorCode: 'OTHER',
+                  responseType: 'ERROR',
+                  message: '',
+                  product: {
+                    productId: 3,
+                    variantId: 4,
+                    quantity: 1,
+                    sku: null,
+                    availableToSell: 0,
+                    unlimitedBackorder: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
+      const getCart = vi.fn().mockReturnValue(buildGetCartWith({}));
+      const createCartSimple = vi.fn().mockReturnValue({
+        data: { cart: { createCart: { cart: { entityId: '12345' } } } },
+      });
+
+      server.use(
+        graphql.query('RecentlyOrderedProducts', () =>
+          HttpResponse.json(getRecentlyOrderedProducts()),
+        ),
+        graphql.query('SearchProducts', () => HttpResponse.json(searchProducts())),
+        graphql.mutation('ProductUpload', () => HttpResponse.json(csvUpload())),
+        graphql.query('getCart', () => HttpResponse.json(getCart())),
+        graphql.query('ValidateProducts', ({ variables }) =>
+          HttpResponse.json(productsValidation(variables)),
+        ),
+        graphql.mutation('createCartSimple', () => HttpResponse.json(createCartSimple())),
+        graphql.mutation('addCartLineItemsTwo', () =>
+          HttpResponse.json(
+            buildAddCartLineItemsResponseWith({
+              data: {
+                cart: {
+                  addCartLineItems: {
+                    cart: {
+                      entityId: '12345',
+                    },
+                  },
+                },
+              },
+            }),
+          ),
+        ),
+      );
+
+      renderWithProviders(<QuickOrder />, { preloadedState: backorderEnabledState });
+
+      await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+      const bulkUploadButton = screen.getByRole('button', { name: /bulk upload csv/i });
+      await userEvent.click(bulkUploadButton);
+
+      const dialog = await screen.findByRole('dialog', { name: /bulk upload/i });
+
+      const csvContent = 'variant_sku,qty\nTEST-SKU-123,2\nTEST-SKU-456,1';
+      const file = new File([csvContent], 'products.csv', { type: 'text/csv' });
+
+      const dropzoneInput = dialog.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!dropzoneInput) {
+        throw new Error('File input not found');
+      }
+
+      await userEvent.upload(dropzoneInput, [file]);
+
+      await waitFor(() => {
+        expect(csvUpload).toHaveBeenCalled();
+      });
+
+      const addToCartButton = await screen.findByRole('button', {
+        name: /Add \d+ products to cart/i,
+      });
+      await userEvent.click(addToCartButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/TEST-SKU-456/)).toBeInTheDocument();
+      });
+    });
+
     it(
       'handles successful CSV upload and creates new cart when no existing cart',
       { timeout: 10000 },

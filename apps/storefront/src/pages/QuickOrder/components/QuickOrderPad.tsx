@@ -325,9 +325,18 @@ export default function QuickOrderPad() {
 
       if (otherErrorProducts.length > 0) {
         otherErrorProducts.forEach(({ product }) => {
+          // Catalog lookups for this product can fail (e.g. B2B-5655), leaving `product.sku`
+          // null - fall back to the sku the customer originally uploaded so the toast still
+          // identifies which product failed.
+          const originalProduct = validProduct.find(
+            (item) =>
+              Number(item.products?.productId) === product?.productId &&
+              Number(item.products?.variantId) === product?.variantId,
+          );
+
           snackbar.error(
             b3Lang('purchasedProducts.quickOrderPad.otherError', {
-              sku: product.sku,
+              sku: product.sku || originalProduct?.products?.variantSku || '',
             }),
           );
         });
@@ -339,7 +348,7 @@ export default function QuickOrderPad() {
       }, {});
 
       const cartLineItems = validationResult.products
-        .filter((product) => product?.responseType === 'SUCCESS')
+        .filter((product) => product?.responseType === 'SUCCESS' && product.product?.sku)
         .map((product) => {
           const validProduct = validProductMap[product.product.sku.toUpperCase()];
           if (!validProduct) {
