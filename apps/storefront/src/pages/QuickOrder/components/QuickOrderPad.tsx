@@ -325,9 +325,6 @@ export default function QuickOrderPad() {
 
       if (otherErrorProducts.length > 0) {
         otherErrorProducts.forEach(({ product }) => {
-          // Catalog lookups for this product can fail (e.g. B2B-5655), leaving `product.sku`
-          // null - fall back to the sku the customer originally uploaded so the toast still
-          // identifies which product failed.
           const originalProduct = validProduct.find(
             (item) =>
               Number(item.products?.productId) === product?.productId &&

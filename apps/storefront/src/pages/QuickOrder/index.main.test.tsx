@@ -4418,8 +4418,6 @@ describe('when backorder validation is enabled', () => {
                     unlimitedBackorder: false,
                   },
                 },
-                // Simulates the backend returning a product it couldn't find in the
-                // catalog (see B2B-5655): still SUCCESS, but with a null sku.
                 {
                   errorCode: '',
                   responseType: 'SUCCESS',
@@ -4580,8 +4578,6 @@ describe('when backorder validation is enabled', () => {
                     unlimitedBackorder: false,
                   },
                 },
-                // Backend couldn't find this product in the catalog (see B2B-5655):
-                // ERROR/OTHER with a null sku.
                 {
                   errorCode: 'OTHER',
                   responseType: 'ERROR',
