@@ -4534,7 +4534,7 @@ describe('when backorder validation is enabled', () => {
                     productId: '3',
                     variantId: 4,
                     productName: 'Test Product 2',
-                    variantSku: 'TEST-SKU-456',
+                    variantSku: 'CATALOG-SKU-456',
                     option: [],
                   },
                   qty: '1',
@@ -4660,6 +4660,7 @@ describe('when backorder validation is enabled', () => {
       await waitFor(() => {
         expect(screen.getByText(/TEST-SKU-456/)).toBeInTheDocument();
       });
+      expect(screen.queryByText(/CATALOG-SKU-456/)).not.toBeInTheDocument();
     });
 
     it(

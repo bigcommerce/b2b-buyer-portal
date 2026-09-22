@@ -324,16 +324,20 @@ export default function QuickOrderPad() {
       );
 
       if (otherErrorProducts.length > 0) {
+        const originalProductMap = validProduct.reduce<Record<string, ValidProductItem>>(
+          (acc, item) => {
+            acc[`${item.products?.productId}-${item.products?.variantId}`] = item;
+            return acc;
+          },
+          {},
+        );
+
         otherErrorProducts.forEach(({ product }) => {
-          const originalProduct = validProduct.find(
-            (item) =>
-              Number(item.products?.productId) === product?.productId &&
-              Number(item.products?.variantId) === product?.variantId,
-          );
+          const originalProduct = originalProductMap[`${product?.productId}-${product?.variantId}`];
 
           snackbar.error(
             b3Lang('purchasedProducts.quickOrderPad.otherError', {
-              sku: product.sku || originalProduct?.products?.variantSku || '',
+              sku: product.sku || originalProduct?.sku || '',
             }),
           );
         });
