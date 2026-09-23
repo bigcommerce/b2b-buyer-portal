@@ -490,7 +490,7 @@ export function convertOrderDetail(
     orderId: order.entityId,
     status: orderStatusValueToSystemLabel(order.status.value),
     statusCode: order.status.value ?? '',
-    customStatus: '',
+    customStatus: order.status.label,
     poNumber: order.poNumber ?? '',
     currencyCode: order.totalIncTax.currencyCode,
     // Explicitly clear money so stale MoneyFormat from a previous legacy order
