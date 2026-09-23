@@ -274,6 +274,17 @@ export default function QuickOrderPad() {
         target: 'CART',
       });
 
+      const originalProductMap = validProduct.reduce<Record<string, ValidProductItem>>(
+        (acc, item) => {
+          acc[`${item.products?.productId}-${item.products?.variantId}`] = item;
+          return acc;
+        },
+        {},
+      );
+
+      const getFallbackSku = (product: { productId: number; variantId: number; sku: string }) =>
+        product.sku || originalProductMap[`${product?.productId}-${product?.variantId}`]?.sku || '';
+
       const outOfStockProducts = validationResult.products.filter(
         (product) => product.errorCode === 'OOS',
       );
@@ -281,7 +292,7 @@ export default function QuickOrderPad() {
       if (outOfStockProducts.length > 0 && stockErrorFile) {
         snackbar.error(
           b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
-            outOfStock: outOfStockProducts.map(({ product }) => product.sku).join(','),
+            outOfStock: outOfStockProducts.map(({ product }) => getFallbackSku(product)).join(','),
           }),
           {
             action: {
@@ -296,7 +307,7 @@ export default function QuickOrderPad() {
         outOfStockProducts.forEach(({ product }) => {
           snackbar.error(
             b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
-              variantSku: product.sku,
+              variantSku: getFallbackSku(product),
             }),
             {
               description: b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
@@ -314,7 +325,9 @@ export default function QuickOrderPad() {
       if (nonPurchasableProducts.length > 0) {
         snackbar.error(
           b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
-            notPurchaseSku: nonPurchasableProducts.map(({ product }) => product.sku).join(','),
+            notPurchaseSku: nonPurchasableProducts
+              .map(({ product }) => getFallbackSku(product))
+              .join(','),
           }),
         );
       }
@@ -324,20 +337,10 @@ export default function QuickOrderPad() {
       );
 
       if (otherErrorProducts.length > 0) {
-        const originalProductMap = validProduct.reduce<Record<string, ValidProductItem>>(
-          (acc, item) => {
-            acc[`${item.products?.productId}-${item.products?.variantId}`] = item;
-            return acc;
-          },
-          {},
-        );
-
         otherErrorProducts.forEach(({ product }) => {
-          const originalProduct = originalProductMap[`${product?.productId}-${product?.variantId}`];
-
           snackbar.error(
             b3Lang('purchasedProducts.quickOrderPad.otherError', {
-              sku: product.sku || originalProduct?.sku || '',
+              sku: getFallbackSku(product),
             }),
           );
         });
