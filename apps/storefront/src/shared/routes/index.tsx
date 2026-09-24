@@ -153,6 +153,10 @@ const gotoAllowedAppPage = async (
     b2bLogger.error(err);
   }
 
+  if (window.location.hash !== hash) {
+    return;
+  }
+
   let url = hash.substring(1);
 
   if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
