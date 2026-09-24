@@ -22,7 +22,7 @@ import { currencyFormat, currencyFormatInfo } from '@/utils/b3CurrencyFormat';
 import { dateWithLocaleSupport, getUTCTimestamp } from '@/utils/b3DateFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
+import { getCorrespondingCurrency } from '@/utils/currencyUtils';
 
 import B3Filter from '../../components/filter/B3Filter';
 
@@ -660,6 +660,17 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { openBalance, id } = item;
         const currentCode = openBalance.code || 'USD';
+        const currency = getCorrespondingCurrency(currentCode);
+        const currencyToken = currency?.token || '$';
+        const isTokenOnRight = currency?.token_location?.toLowerCase() === 'right';
+        const currencyAdornment = (
+          <InputAdornment
+            position={isTokenOnRight ? 'end' : 'start'}
+            sx={{ padding: '8px 0', marginTop: '0 !important' }}
+          >
+            {currencyToken}
+          </InputAdornment>
+        );
         let valuePrice = openBalance.value;
         let disabled = true;
 
@@ -692,14 +703,8 @@ function Invoice() {
             variant="filled"
             value={valuePrice || ''}
             InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ padding: '8px 0', marginTop: '0 !important' }}
-                >
-                  {handleGetCorrespondingCurrencyToken(currentCode)}
-                </InputAdornment>
-              ),
+              startAdornment: isTokenOnRight ? undefined : currencyAdornment,
+              endAdornment: isTokenOnRight ? currencyAdornment : undefined,
             }}
             sx={{
               '& input': {
@@ -958,7 +963,6 @@ function Invoice() {
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
-              handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               decimalPlaces={decimalPlaces}
               addBottom={list.length - 1 === index}
               isCurrentCompany={Number(currentCompanyId) === Number(row.companyInfo.companyId)}

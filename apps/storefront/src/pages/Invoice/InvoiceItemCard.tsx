@@ -7,6 +7,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import { displayFormat } from '@/utils/b3DateFormat';
+import { getCorrespondingCurrency } from '@/utils/currencyUtils';
 
 import B3Pulldown from './components/B3Pulldown';
 import InvoiceStatus from './components/InvoiceStatus';
@@ -21,7 +22,6 @@ interface InvoiceItemCardProps {
   setInvoiceId: (id: string) => void;
   handleOpenHistoryModal: (bool: boolean) => void;
   selectedPay: CustomFieldItems | InvoiceListNode[];
-  handleGetCorrespondingCurrency: (code: string) => string;
   decimalPlaces: number;
   addBottom: boolean;
   isCurrentCompany: boolean;
@@ -45,7 +45,6 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     setInvoiceId,
     handleOpenHistoryModal,
     selectedPay = [],
-    handleGetCorrespondingCurrency,
     decimalPlaces,
     addBottom,
     isCurrentCompany,
@@ -56,7 +55,17 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
 
   const { id, status, dueDate, openBalance, companyInfo } = item;
   const currentCode = openBalance.code || 'USD';
-  const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode);
+  const currentCurrency = getCorrespondingCurrency(currentCode);
+  const currentCurrencyToken = currentCurrency?.token || '$';
+  const isTokenOnRight = currentCurrency?.token_location?.toLowerCase() === 'right';
+  const currencyAdornment = (
+    <InputAdornment
+      position={isTokenOnRight ? 'end' : 'start'}
+      sx={{ padding: '8px 0', marginTop: '0 !important' }}
+    >
+      {currentCurrencyToken}
+    </InputAdornment>
+  );
 
   let statusCode = item.status;
   if (status === 0 && currentDate > dueDate * 1000) {
@@ -154,14 +163,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             variant="filled"
             value={valuePrice}
             InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ padding: '8px 0', marginTop: '0 !important' }}
-                >
-                  {currentCurrencyToken || '$'}
-                </InputAdornment>
-              ),
+              startAdornment: isTokenOnRight ? undefined : currencyAdornment,
+              endAdornment: isTokenOnRight ? currencyAdornment : undefined,
             }}
             sx={{
               '& input': {
