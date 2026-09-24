@@ -1,8 +1,7 @@
-import { store } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
 
 import b2bLogger from './b3Logger';
-import { getActiveCurrencyInfo } from './currencyUtils';
+import { applyCurrencyToken, getActiveCurrencyInfo } from './currencyUtils';
 
 interface MoneyFormat {
   currency_location: 'left' | 'right';
@@ -28,18 +27,8 @@ export const currencyFormatInfo = () => {
 
 export const handleGetCorrespondingCurrency = (code: string, value: number) => {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo();
-  const { currencies } = store.getState().storeConfigs;
-  const { currencies: currencyArr } = currencies;
-  let token = '$';
-  const correspondingCurrency = currencyArr.find((currency) => currency.currency_code === code);
 
-  if (correspondingCurrency) {
-    token = correspondingCurrency.token;
-  }
-
-  const accountValue = `${token}${value.toFixed(decimalPlaces)}`;
-
-  return accountValue;
+  return applyCurrencyToken(code, value.toFixed(decimalPlaces));
 };
 
 export const ordersCurrencyFormat = (

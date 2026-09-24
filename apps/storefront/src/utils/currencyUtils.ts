@@ -3,17 +3,19 @@ import { Currency, DisplayCurrency } from '@/types';
 
 const getActiveCurrencyInfo = () => activeCurrencyInfoSelector(store.getState());
 
-const handleGetCorrespondingCurrencyToken = (code: string) => {
-  const correspondingCurrency = store
+const getCorrespondingCurrency = (code: string): Currency | undefined =>
+  store
     .getState()
     .storeConfigs.currencies.currencies.find((currency) => currency.currency_code === code);
-  let token = '$';
 
-  if (correspondingCurrency?.token) {
-    token = correspondingCurrency.token;
-  }
+// BC returns token_location as 'left'/'right', but casing varies ('LEFT'), so compare case-insensitively.
+const applyCurrencyToken = (code: string, formattedAmount: string): string => {
+  const currency = getCorrespondingCurrency(code);
+  const token = currency?.token || '$';
 
-  return token;
+  return currency?.token_location?.toLowerCase() === 'right'
+    ? `${formattedAmount}${token}`
+    : `${token}${formattedAmount}`;
 };
 
 const formatBcCurrencyToDisplayCurrency = (bcCurrency: Currency): DisplayCurrency => ({
@@ -34,7 +36,8 @@ const buildCurrenciesMap = (currencies: Currency[]): Record<string, DisplayCurre
 
 export {
   getActiveCurrencyInfo,
-  handleGetCorrespondingCurrencyToken,
+  getCorrespondingCurrency,
+  applyCurrencyToken,
   buildCurrenciesMap,
   formatBcCurrencyToDisplayCurrency,
 };

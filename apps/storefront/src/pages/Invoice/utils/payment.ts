@@ -5,7 +5,7 @@ import { BcCartData, InvoiceListNode } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { isBigCommercePlatform, isCatalystPlatform } from '@/utils/basicConfig';
-import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
+import { applyCurrencyToken } from '@/utils/currencyUtils';
 
 const getCheckoutUrlAndCart = async (params: BcCartData) => {
   const {
@@ -60,9 +60,8 @@ export const formatInvoiceBalanceAmount = (
   decimalPlaces: number,
 ) => {
   const amount = formattingNumericValues(Number(balance.value), decimalPlaces);
-  const token = handleGetCorrespondingCurrencyToken(balance.code || 'USD');
 
-  return `${token}${amount || 0}`;
+  return applyCurrencyToken(balance.code || 'USD', amount || '0');
 };
 
 const getInvoiceCurrency = (invoice: InvoiceListNode) => {

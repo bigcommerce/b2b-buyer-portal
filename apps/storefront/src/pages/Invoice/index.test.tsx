@@ -324,6 +324,174 @@ it('displays invoice amounts using the invoice currency when store default diffe
   expect(cells[8]).toHaveTextContent('€232.00');
 });
 
+it('renders the currency symbol on the right when token_location is right', async () => {
+  // given
+  const eurCurrency = {
+    id: '2',
+    is_default: false,
+    last_updated: '2024-01-01',
+    country_iso2: 'DE',
+    default_for_country_codes: [],
+    currency_code: 'EUR',
+    currency_exchange_rate: '1.0000000000',
+    name: 'Euro',
+    token: '€',
+    auto_update: false,
+    decimal_token: '.',
+    decimal_places: 2,
+    enabled: true,
+    is_transactional: true,
+    token_location: 'right' as const,
+    thousands_token: ',',
+  };
+
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    invoiceNumber: '7788',
+                    orderNumber: '5678',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyName: 'Monsters Inc.',
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  // when
+  renderWithProviders(<Invoice />, {
+    preloadedState: {
+      ...preloadedState,
+      storeConfigs: {
+        currencies: {
+          currencies: [defaultCurrenciesState.currencies[0], eurCurrency],
+          channelCurrencies: {
+            channel_id: 1,
+            enabled_currencies: ['USD', 'EUR'],
+            default_currency: 'USD',
+          },
+          enteredInclusiveTax: false,
+        },
+      },
+    },
+  });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  // then
+  const row = screen.getByRole('row', { name: /7788/ });
+  const cells = within(row).getAllByRole('cell');
+
+  expect(cells[7]).toHaveTextContent('444.00€');
+  expect(cells[8]).toHaveTextContent('232.00€');
+
+  const payAdornment = row.querySelector('.MuiInputAdornment-root');
+  expect(payAdornment).toHaveClass('MuiInputAdornment-positionEnd');
+  expect(payAdornment).toHaveTextContent('€');
+});
+
+it('keeps the symbol on the left when token_location arrives uppercase from the API', async () => {
+  // given — B2B-3876: BC can return "LEFT"; case-sensitive matching used to flip it to the right
+  const eurCurrency = {
+    id: '2',
+    is_default: false,
+    last_updated: '2024-01-01',
+    country_iso2: 'DE',
+    default_for_country_codes: [],
+    currency_code: 'EUR',
+    currency_exchange_rate: '1.0000000000',
+    name: 'Euro',
+    token: '€',
+    auto_update: false,
+    decimal_token: '.',
+    decimal_places: 2,
+    enabled: true,
+    is_transactional: true,
+    token_location: 'LEFT' as 'left',
+    thousands_token: ',',
+  };
+
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    invoiceNumber: '7788',
+                    orderNumber: '5678',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: 'EUR', value: 444 },
+                    openBalance: { code: 'EUR', value: 232 },
+                    companyInfo: {
+                      companyName: 'Monsters Inc.',
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  // when
+  renderWithProviders(<Invoice />, {
+    preloadedState: {
+      ...preloadedState,
+      storeConfigs: {
+        currencies: {
+          currencies: [defaultCurrenciesState.currencies[0], eurCurrency],
+          channelCurrencies: {
+            channel_id: 1,
+            enabled_currencies: ['USD', 'EUR'],
+            default_currency: 'USD',
+          },
+          enteredInclusiveTax: false,
+        },
+      },
+    },
+  });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  // then
+  const row = screen.getByRole('row', { name: /7788/ });
+  const cells = within(row).getAllByRole('cell');
+
+  expect(cells[7]).toHaveTextContent('€444.00');
+  expect(cells[8]).toHaveTextContent('€232.00');
+
+  const payAdornment = row.querySelector('.MuiInputAdornment-root');
+  expect(payAdornment).toHaveClass('MuiInputAdornment-positionStart');
+  expect(payAdornment).toHaveTextContent('€');
+});
+
 it('can pay for multiple invoices', async () => {
   const getCreateCartResponse = vi.fn().mockName('getCreateCartResponse');
   const getCheckoutLoginResponse = vi.fn().mockName('getCheckoutLoginResponse');

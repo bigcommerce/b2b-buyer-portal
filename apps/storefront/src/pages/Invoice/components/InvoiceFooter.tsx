@@ -6,7 +6,7 @@ import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice';
 import { snackbar } from '@/utils/b3Tip';
-import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
+import { applyCurrencyToken } from '@/utils/currencyUtils';
 
 import {
   formattingNumericValues,
@@ -24,7 +24,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0);
-  const [currentToken, setCurrentToken] = useState<string>('$');
+  const [currentCode, setCurrentCode] = useState<string>('USD');
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
@@ -108,8 +108,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         node: { openBalance },
       } = selectedPay[0];
 
-      const token = handleGetCorrespondingCurrencyToken(openBalance.code);
-      setCurrentToken(token);
+      setCurrentCode(openBalance.code || 'USD');
       handleStatisticsInvoiceAmount(selectedPay);
     }
   }, [decimalPlaces, selectedPay]);
@@ -193,7 +192,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
               {hasMixedCurrency
                 ? b3Lang('invoice.footer.differentCurrencyError')
                 : b3Lang('invoice.footer.totalPayment', {
-                    total: `${currentToken}${selectedAccount}`,
+                    total: applyCurrencyToken(currentCode, String(selectedAccount)),
                   })}
             </Typography>
             <Box
