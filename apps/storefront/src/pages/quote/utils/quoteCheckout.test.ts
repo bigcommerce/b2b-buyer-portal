@@ -104,7 +104,7 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
   it('writes the backorder flag when fulfillable quantity differs between snapshots', async () => {
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: true,
+      isBackorderEnabled: true,
       quoteStockSnapshot: stockSnapshot(10),
       fetchCurrentStockSnapshot: async () => stockSnapshot(2),
     });
@@ -115,7 +115,7 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
   it('does not write the flag when fulfillable quantity is unchanged', async () => {
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: true,
+      isBackorderEnabled: true,
       quoteStockSnapshot: stockSnapshot(10),
       fetchCurrentStockSnapshot: async () => stockSnapshot(10),
     });
@@ -123,12 +123,12 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
     expect(sessionStorage.getItem(QUOTE_BACKORDER_CHANGE_STORAGE_KEY)).toBeNull();
   });
 
-  it('does not refetch or write the flag when the feature flag is off', async () => {
+  it('does not refetch or write the flag when backorder is disabled', async () => {
     const fetcher = vi.fn(async () => stockSnapshot(2));
 
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: false,
+      isBackorderEnabled: false,
       quoteStockSnapshot: stockSnapshot(10),
       fetchCurrentStockSnapshot: fetcher,
     });
@@ -142,7 +142,7 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
 
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: true,
+      isBackorderEnabled: true,
       quoteStockSnapshot: [],
       fetchCurrentStockSnapshot: fetcher,
     });
@@ -156,7 +156,7 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
 
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: true,
+      isBackorderEnabled: true,
       quoteStockSnapshot: stockSnapshot(10),
       fetchCurrentStockSnapshot: async () => stockSnapshot(10),
     });
@@ -164,12 +164,12 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
     expect(sessionStorage.getItem(QUOTE_BACKORDER_CHANGE_STORAGE_KEY)).toBeNull();
   });
 
-  it('clears a stale flag even when the feature flag is off', async () => {
+  it('clears a stale flag even when backorder is disabled', async () => {
     sessionStorage.setItem(QUOTE_BACKORDER_CHANGE_STORAGE_KEY, 'true');
 
     await handleQuoteCheckout({
       ...baseArgs,
-      isBackorderMessagingEnabled: false,
+      isBackorderEnabled: false,
       quoteStockSnapshot: stockSnapshot(10),
       fetchCurrentStockSnapshot: async () => stockSnapshot(2),
     });
@@ -185,7 +185,7 @@ describe('handleQuoteCheckout backorder snapshot detection', () => {
     await expect(
       handleQuoteCheckout({
         ...baseArgs,
-        isBackorderMessagingEnabled: true,
+        isBackorderEnabled: true,
         quoteStockSnapshot: stockSnapshot(10),
         fetchCurrentStockSnapshot: fetcher,
       }),

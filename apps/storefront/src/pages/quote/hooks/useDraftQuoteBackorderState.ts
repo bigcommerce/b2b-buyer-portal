@@ -29,7 +29,7 @@ interface DraftQuoteBackorderState {
 
 interface DraftQuoteBackorderInput {
   items: QuoteItem[];
-  isBackorderMessagingEnabled: boolean;
+  isBackorderEnabled: boolean;
   draftQuoteBackorderContextEnabled: boolean;
 }
 
@@ -37,7 +37,7 @@ interface DraftQuoteBackorderInput {
 // summary so they can never disagree about whether an item is backordered.
 export function useDraftQuoteBackorderState({
   items,
-  isBackorderMessagingEnabled,
+  isBackorderEnabled,
   draftQuoteBackorderContextEnabled,
 }: DraftQuoteBackorderInput): DraftQuoteBackorderState {
   const { picklistRows, selectionsByRowId } = useMemo(() => {
@@ -72,7 +72,7 @@ export function useDraftQuoteBackorderState({
   const inventoryById = usePicklistInventory(inventoryProductIds);
 
   const hasBackorderedItems = useMemo(() => {
-    if (!isBackorderMessagingEnabled) {
+    if (!isBackorderEnabled) {
       return false;
     }
 
@@ -89,7 +89,7 @@ export function useDraftQuoteBackorderState({
       lineBackordered ||
       catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, inventoryById)
     );
-  }, [items, isBackorderMessagingEnabled, picklistRows, inventoryById]);
+  }, [items, isBackorderEnabled, picklistRows, inventoryById]);
 
   return { hasBackorderedItems, inventoryById, picklistRows, selectionsByRowId };
 }

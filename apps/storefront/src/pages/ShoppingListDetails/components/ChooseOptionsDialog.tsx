@@ -22,7 +22,6 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useCatalogChooseOptionsBackorderDisplay } from '@/hooks/useCatalogChooseOptionsBackorderDisplay';
 import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
-import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -153,10 +152,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [newPrice, setNewPrice] = useState<number>(0);
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const isBackorderEnabled = useIsBackorderEnabled();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
   const showQuoteAtsHelper = type === 'quote' && backorderUiEnabled && !isEnableProduct;
   const quoteInventorySku = getCatalogInventorySku(product, variantSku);
 

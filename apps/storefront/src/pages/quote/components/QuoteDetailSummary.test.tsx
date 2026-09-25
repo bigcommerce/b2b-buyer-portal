@@ -29,9 +29,6 @@ const withPromptEnabled = {
         showDefaultShippingExpectationPrompt: true,
         defaultShippingExpectationPrompt: expectationMessage,
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
   },
 };

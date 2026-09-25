@@ -31,9 +31,8 @@ export function useQuoteDetailBackorderState(
 ): QuoteDetailBackorderState {
   const isOrdered = Number(status) === QuoteStatus.ORDERED;
 
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderContextEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderContextEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   // Ordered quotes read picklist-child backorders from the frozen history on each row, so they
   // never fetch live inventory; only submitted quotes resolve children against current stock.

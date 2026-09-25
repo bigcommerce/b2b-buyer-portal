@@ -69,25 +69,6 @@ const withPromptEnabled = (draftQuoteList: QuoteItem[]) => ({
         showDefaultShippingExpectationPrompt: true,
         defaultShippingExpectationPrompt: expectationMessage,
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
-    }),
-    quoteInfo: buildQuoteInfoWithList(draftQuoteList),
-  },
-});
-
-const withMessagingFlagDisabled = (draftQuoteList: QuoteItem[]) => ({
-  preloadedState: {
-    global: buildGlobalStateWith({
-      backorderEnabled: true,
-      backorderDisplaySettings: {
-        showDefaultShippingExpectationPrompt: true,
-        defaultShippingExpectationPrompt: expectationMessage,
-      },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': false,
-      },
     }),
     quoteInfo: buildQuoteInfoWithList(draftQuoteList),
   },
@@ -101,9 +82,6 @@ const withBackorderDisabled = (draftQuoteList: QuoteItem[]) => ({
         showDefaultShippingExpectationPrompt: true,
         defaultShippingExpectationPrompt: expectationMessage,
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
     quoteInfo: buildQuoteInfoWithList(draftQuoteList),
   },
@@ -116,9 +94,6 @@ const withDefaultShippingExpectationPromptDisabled = (draftQuoteList: QuoteItem[
       backorderDisplaySettings: {
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: expectationMessage,
-      },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
       },
     }),
     quoteInfo: buildQuoteInfoWithList(draftQuoteList),
@@ -167,12 +142,6 @@ describe('QuoteSummary shipping expectation prompt', () => {
 
   it('hides the prompt when no item qualifies as backordered for display', () => {
     renderWithProviders(<QuoteSummary />, withPromptEnabled([lineItemInStock]));
-
-    expect(screen.queryByText(expectationMessage)).toBeNull();
-  });
-
-  it('hides the prompt when storefront messaging feature flag is off, even with backordered items', () => {
-    renderWithProviders(<QuoteSummary />, withMessagingFlagDisabled([lineItemWithBackorder]));
 
     expect(screen.queryByText(expectationMessage)).toBeNull();
   });

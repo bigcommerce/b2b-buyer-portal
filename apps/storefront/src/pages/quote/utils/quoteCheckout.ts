@@ -42,7 +42,7 @@ interface QuoteCheckout {
   navigate?: NavigateFunction;
   b3Lang: LangFormatFunction;
   formatValidationError: (err: ProductValidationError) => string;
-  isBackorderMessagingEnabled?: boolean;
+  isBackorderEnabled?: boolean;
   quoteStockSnapshot?: QuoteStockSnapshotItem[];
   fetchCurrentStockSnapshot?: () => Promise<QuoteStockSnapshotItem[]>;
 }
@@ -55,7 +55,7 @@ export const handleQuoteCheckout = async ({
   navigate,
   b3Lang,
   formatValidationError,
-  isBackorderMessagingEnabled = false,
+  isBackorderEnabled = false,
   quoteStockSnapshot,
   fetchCurrentStockSnapshot,
 }: QuoteCheckout) => {
@@ -104,7 +104,7 @@ export const handleQuoteCheckout = async ({
     const { checkoutUrl, cartId } = checkout;
 
     if (
-      isBackorderMessagingEnabled &&
+      isBackorderEnabled &&
       quoteStockSnapshot &&
       quoteStockSnapshot.length &&
       fetchCurrentStockSnapshot

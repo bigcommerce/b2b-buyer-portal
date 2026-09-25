@@ -5,7 +5,6 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
@@ -274,10 +273,6 @@ function QuoteDetail() {
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
-
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
@@ -763,7 +758,7 @@ function QuoteDetail() {
         navigate,
         b3Lang,
         formatValidationError: formatQuoteValidationError,
-        isBackorderMessagingEnabled,
+        isBackorderEnabled,
         quoteStockSnapshot: buildQuoteStockSnapshot(productList),
         fetchCurrentStockSnapshot,
       });
@@ -1022,7 +1017,7 @@ function QuoteDetail() {
                     navigate,
                     b3Lang,
                     formatValidationError: formatQuoteValidationError,
-                    isBackorderMessagingEnabled,
+                    isBackorderEnabled,
                     quoteStockSnapshot: buildQuoteStockSnapshot(productList),
                     fetchCurrentStockSnapshot,
                   });

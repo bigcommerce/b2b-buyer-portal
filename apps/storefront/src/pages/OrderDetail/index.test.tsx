@@ -1804,9 +1804,6 @@ describe('when a personal customer visits an order', () => {
       storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
       global: buildGlobalStateWith({
         backorderEnabled: true,
-        featureFlags: {
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-        },
       }),
     };
 
@@ -3179,7 +3176,7 @@ describe('when a personal customer visits an order', () => {
       isVisible: true,
     });
 
-    it('does not show ATS helper when backorder is enabled but BACK-134 is off', async () => {
+    it('does not show ATS helper when backorder is disabled', async () => {
       const product = buildVisibleReorderProduct();
 
       const variantInfo = buildVariantInfoWith({
@@ -3248,10 +3245,7 @@ describe('when a personal customer visits an order', () => {
         preloadedState: {
           ...basePreloadedState,
           global: buildGlobalStateWith({
-            backorderEnabled: true,
-            featureFlags: {
-              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': false,
-            },
+            backorderEnabled: false,
           }),
         },
       });
@@ -3281,7 +3275,7 @@ describe('when a personal customer visits an order', () => {
       expect(validateProductHandler).not.toHaveBeenCalled();
     });
 
-    it('shows ATS helper when backorder and BACK-134 are enabled', async () => {
+    it('shows ATS helper when backorder is enabled', async () => {
       const product = buildVisibleReorderProduct();
 
       const variantInfo = buildVariantInfoWith({
@@ -3325,9 +3319,6 @@ describe('when a personal customer visits an order', () => {
           ...basePreloadedState,
           global: buildGlobalStateWith({
             backorderEnabled: true,
-            featureFlags: {
-              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-            },
           }),
         },
       });
@@ -3369,9 +3360,6 @@ describe('when a personal customer visits an order', () => {
           showBackorderMessage: true,
           showDefaultShippingExpectationPrompt: false,
           defaultShippingExpectationPrompt: '',
-        },
-        featureFlags: {
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
         },
       }),
     };
@@ -3497,9 +3485,6 @@ describe('when a personal customer visits an order', () => {
           showBackorderMessage: true,
           showDefaultShippingExpectationPrompt: true,
           defaultShippingExpectationPrompt: '',
-        },
-        featureFlags: {
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
         },
       }),
     };
@@ -4259,9 +4244,6 @@ describe('when a personal customer visits an order', () => {
           showBackorderMessage: true,
           showDefaultShippingExpectationPrompt: false,
           defaultShippingExpectationPrompt: '',
-        },
-        featureFlags: {
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
         },
       }),
     };
