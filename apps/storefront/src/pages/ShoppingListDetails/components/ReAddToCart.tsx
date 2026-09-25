@@ -168,15 +168,14 @@ export default function ReAddToCart({
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
   const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const { qtyTextAlign, numericTextAlign, qtyStackItemsAlignment } =
     getProductListColumnAlignments(isMobile);
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
   const desktopQtyColumnStyle =
-    backorderUiEnabled && !isMobile ? { width: '22%', minWidth: '10rem' } : itemStyle.default;
+    shouldShowBackorderUI && !isMobile ? { width: '22%', minWidth: '10rem' } : itemStyle.default;
 
   const [internalProducts, setInternalProducts] = useState<ProductsProps[]>([]);
 
@@ -191,7 +190,7 @@ export default function ReAddToCart({
 
   const inventoryBySku = useCatalogInventoryBySku({
     isActive: isOpen,
-    enabled: backorderUiEnabled,
+    enabled: shouldShowBackorderUI,
     skuDependencyKey: variantSkuDependencyKey,
   });
 
@@ -400,7 +399,7 @@ export default function ReAddToCart({
                   (item) => item.valueText,
                 );
 
-                const backorderFields = backorderUiEnabled
+                const backorderFields = shouldShowBackorderUI
                   ? getCatalogBackorderFieldsForVariantSku({
                       quantity: Number(quantity) || 0,
                       variantSku,

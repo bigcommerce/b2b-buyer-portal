@@ -2041,9 +2041,6 @@ describe('when backend validation is enabled', () => {
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
   };
 
@@ -3421,9 +3418,6 @@ describe('when backorder messaging is enabled on shopping list products', () => 
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
   };
 
@@ -3679,9 +3673,6 @@ describe('when a shopping list product is a picklist with a backordered child', 
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
   };
 
@@ -3897,9 +3888,6 @@ describe('when backorder messaging is enabled in add to list search modal', () =
         showBackorderMessage: true,
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
-      },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
       },
     }),
   };
@@ -4507,9 +4495,6 @@ describe('when backorder messaging is enabled in choose options dialog', () => {
         showBackorderMessage: true,
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
-      },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
       },
     }),
   };

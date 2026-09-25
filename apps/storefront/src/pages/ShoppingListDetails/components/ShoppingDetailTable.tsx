@@ -220,12 +220,8 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
 
-  const {
-    isBackorderMessagingContextEnabled,
-    isBackorderMessagingEnabled,
-    hasAnyBackorderDisplay,
-  } = useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const [picklistProductIds, setPicklistProductIds] = useState<number[]>([]);
   const picklistProductsById = usePicklistInventory(picklistProductIds);
@@ -242,7 +238,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const fetchInventoryForSkus = useCallback(
     async (skus: string[]) => {
-      if (!backorderUiEnabled || skus.length === 0) return;
+      if (!shouldShowBackorderUI || skus.length === 0) return;
 
       const existingSkus = fetchedInventorySkusRef.current;
 
@@ -262,11 +258,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         // Inventory fetch failure should not block the product list
       }
     },
-    [backorderUiEnabled],
+    [shouldShowBackorderUI],
   );
 
   const hasBackorderedItems = useMemo(() => {
-    if (!isBackorderMessagingEnabled) {
+    if (!isBackorderEnabled) {
       return false;
     }
 
@@ -288,9 +284,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
     // tableDataVersion drives re-evaluation when list or qty changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inventoryBySku, picklistProductsById, isBackorderMessagingEnabled, tableDataVersion]);
+  }, [inventoryBySku, picklistProductsById, isBackorderEnabled, tableDataVersion]);
 
-  const showBackorderToggle = backorderUiEnabled && hasBackorderedItems;
+  const showBackorderToggle = shouldShowBackorderUI && hasBackorderedItems;
 
   const productCountTitle = priceHidden
     ? b3Lang('shoppingList.table.totalProductCount', {
@@ -306,7 +302,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       const result = await getShoppingListDetails(params);
       const listProducts = result?.edges as ListItemProps[] | undefined;
 
-      if (!backorderUiEnabled) {
+      if (!shouldShowBackorderUI) {
         setPicklistProductIds((prev) => (prev.length === 0 ? prev : []));
       } else if (listProducts?.length) {
         const skus = listProducts
@@ -331,7 +327,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
       return result;
     },
-    [backorderUiEnabled, fetchInventoryForSkus, getShoppingListDetails],
+    [shouldShowBackorderUI, fetchInventoryForSkus, getShoppingListDetails],
   );
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
@@ -692,7 +688,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
           qty: Number(row.quantity) || 0,
           showAvailableToSellHelper: false,
           inventoryRow,
-          backorderUiEnabled,
+          backorderUiEnabled: shouldShowBackorderUI,
           formatOnlyAvailable: () => '',
         });
 
@@ -746,14 +742,14 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                   picklistProductsById={picklistProductsById}
                   qty={Number(row.quantity) || 0}
                   visible={showBackorderDetails}
-                  backorderUiEnabled={backorderUiEnabled}
+                  backorderUiEnabled={shouldShowBackorderUI}
                 />
               </Box>
             )}
           </Box>
         );
       },
-      width: backorderUiEnabled ? '18%' : '15%',
+      width: shouldShowBackorderUI ? '18%' : '15%',
       style: {
         textAlign: 'left',
       },
@@ -980,7 +976,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             b2bAndBcShoppingListActionsPermissions={b2bAndBcShoppingListActionsPermissions}
             inventoryBySku={inventoryBySku}
             picklistProductsById={picklistProductsById}
-            backorderUiEnabled={backorderUiEnabled}
+            backorderUiEnabled={shouldShowBackorderUI}
             showBackorderDetails={showBackorderDetails}
           />
         )}

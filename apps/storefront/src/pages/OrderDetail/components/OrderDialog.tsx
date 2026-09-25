@@ -120,9 +120,9 @@ export default function OrderDialog({
   currencyCode,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const { isBackorderMessagingContextEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
+  const { isBackorderEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
-  const backorderUiEnabled =
+  const shouldShowBackorderUI =
     isReorderAtsEnabled &&
     hasAnyBackorderDisplay &&
     (type === 'reOrder' || type === 'shoppingList');
@@ -570,7 +570,7 @@ export default function OrderDialog({
         const { variantSku: nextVariantInfoList = [] } = await getVariantInfoBySkus(visibleSkus);
 
         const nextPicklistProductsById: Record<number, ProductSearch> = {};
-        if (backorderUiEnabled) {
+        if (shouldShowBackorderUI) {
           const variantRowsBySku = indexVariantRowsBySku(nextVariantInfoList);
 
           const picklistProductIds = [
@@ -623,7 +623,7 @@ export default function OrderDialog({
     activeCurrencyCode,
     companyInfoId,
     customerGroupId,
-    backorderUiEnabled,
+    shouldShowBackorderUI,
   ]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
@@ -672,7 +672,7 @@ export default function OrderDialog({
             setReturnArr={setReturnArr}
             type={type}
             catalogInventoryBySku={catalogInventoryBySku}
-            backorderUiEnabled={backorderUiEnabled}
+            backorderUiEnabled={shouldShowBackorderUI}
             showReorderAtsHelper={type === 'reOrder' && isReorderAtsEnabled}
             currencyCode={currencyCode}
             picklistProductsById={picklistProductsById}

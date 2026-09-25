@@ -43,20 +43,15 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] = useState<boolean>(false);
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
   const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
-  const {
-    isBackorderEnabled,
-    isBackorderMessagingEnabled,
-    isBackorderMessagingContextEnabled,
-    hasAnyBackorderDisplay,
-  } = useBackorderStorefrontMessaging();
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
 
   const { hasBackorderedItems } = useDraftQuoteBackorderState({
     items: draftQuoteList,
-    isBackorderMessagingEnabled,
-    draftQuoteBackorderContextEnabled: isBackorderMessagingContextEnabled && hasAnyBackorderDisplay,
+    isBackorderEnabled,
+    draftQuoteBackorderContextEnabled: isBackorderEnabled && hasAnyBackorderDisplay,
   });
 
   const priceCalc = (price: number) => parseFloat(String(price));
@@ -159,7 +154,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               </Typography>
             </Grid>
 
-            {isBackorderMessagingEnabled && (
+            {isBackorderEnabled && (
               <ShippingExpectationPrompt
                 backorderEnabled={isBackorderEnabled}
                 hasBackorderedItems={hasBackorderedItems}

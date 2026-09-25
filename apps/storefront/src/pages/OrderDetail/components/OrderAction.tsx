@@ -363,14 +363,12 @@ export function OrderAction(props: OrderActionProps) {
     shippingExpectationMessage: rawShippingExpectationMessage = '',
   } = detailsData;
 
-  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
+  const { isBackorderEnabled } = useBackorderStorefrontMessaging();
   const { showDefaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
   const shippingExpectationMessage =
-    isBackorderMessagingContextEnabled && showDefaultShippingExpectationPrompt
-      ? rawShippingExpectationMessage
-      : '';
+    isBackorderEnabled && showDefaultShippingExpectationPrompt ? rawShippingExpectationMessage : '';
 
   const getPaymentMessage = useCallback(() => {
     if (!createAt) return '';

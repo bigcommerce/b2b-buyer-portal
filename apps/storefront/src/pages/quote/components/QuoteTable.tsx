@@ -162,23 +162,17 @@ interface QuoteTableProps {
 function QuoteTable({ total, items, updateSummary }: QuoteTableProps) {
   const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
-  const {
-    isBackorderEnabled,
-    isBackorderMessagingEnabled,
-    isBackorderMessagingContextEnabled,
-    hasAnyBackorderDisplay,
-  } = useBackorderStorefrontMessaging();
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
 
   const [showBackorderDetails, setShowBackorderDetails] = useState(true);
 
-  const draftQuoteBackorderContextEnabled =
-    isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const draftQuoteBackorderContextEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const showBackorderMessageBase = draftQuoteBackorderContextEnabled && showBackorderDetails;
 
   const { hasBackorderedItems, inventoryById, selectionsByRowId } = useDraftQuoteBackorderState({
     items,
-    isBackorderMessagingEnabled,
+    isBackorderEnabled,
     draftQuoteBackorderContextEnabled,
   });
 

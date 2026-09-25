@@ -65,7 +65,7 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
-  const { isBackorderMessagingContextEnabled } = useBackorderStorefrontMessaging();
+  const { isBackorderEnabled } = useBackorderStorefrontMessaging();
 
   const {
     state: { addressConfig },
@@ -142,7 +142,7 @@ function OrderDetail() {
             ...data,
             shippingExpectationMessage: undefined,
           };
-          if (isBackorderMessagingContextEnabled) {
+          if (isBackorderEnabled) {
             try {
               const backorderHistory = await getOrderBackorderHistory({ entityId: id });
               payload = applyOrderBackorderHistory(data, backorderHistory);
@@ -187,7 +187,7 @@ function OrderDetail() {
     orderId,
     selectCompanyHierarchyId,
     currentCompanyId,
-    isBackorderMessagingContextEnabled,
+    isBackorderEnabled,
   ]);
 
   useEffect(() => {
