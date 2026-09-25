@@ -1,7 +1,6 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
 import ShippingExpectationPrompt from '@/components/ShippingExpectationPrompt';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { useAppSelector } from '@/store';
 import { DisplayCurrency } from '@/types/currency';
@@ -40,9 +39,6 @@ export default function QuoteDetailSummary({
   );
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
   const backorderEnabled = useAppSelector(({ global }) => global.backorderEnabled);
-  const isBackorderMessagingEnabled = useFeatureFlag(
-    'BACK-134.backorders_phase_1_1_control_messaging_on_storefront',
-  );
   const { showDefaultShippingExpectationPrompt, defaultShippingExpectationPrompt } = useAppSelector(
     ({ global }) => global.backorderDisplaySettings,
   );
@@ -204,7 +200,7 @@ export default function QuoteDetailSummary({
                   </Typography>
                   <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
                 </Grid>
-                {Number(status) !== 4 && isBackorderMessagingEnabled && (
+                {Number(status) !== 4 && backorderEnabled && (
                   <ShippingExpectationPrompt
                     backorderEnabled={backorderEnabled}
                     hasBackorderedItems={hasBackorderedItems}

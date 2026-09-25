@@ -112,9 +112,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   );
 
   const [isMobile] = useMobile();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
   const showQuoteAtsHelper = type === 'quote' && backorderUiEnabled && !isEnableProduct;
 
   const variantSkuDependencyKey = useMemo(

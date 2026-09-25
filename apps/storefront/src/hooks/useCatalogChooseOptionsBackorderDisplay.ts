@@ -40,9 +40,8 @@ export function useCatalogChooseOptionsBackorderDisplay({
   inventorySku,
 }: UseCatalogChooseOptionsBackorderDisplayOptions): CatalogChooseOptionsBackorderDisplay {
   const b3Lang = useB3Lang();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const defaultFormatOnlyAvailable = useCallback(
     (count: number) =>

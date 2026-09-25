@@ -126,26 +126,20 @@ const withPicklistMessagingEnabled = {
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
       },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-      },
     }),
   },
 };
 
-const withBackorderContextAndMessaging = (featureEnabled: boolean) => ({
+const withBackorderContextAndMessaging = (backorderEnabled: boolean) => ({
   preloadedState: {
     global: buildGlobalStateWith({
-      backorderEnabled: true,
+      backorderEnabled,
       backorderDisplaySettings: {
         showQuantityOnBackorder: true,
         showQuantityOnHand: false,
         showBackorderMessage: false,
         showDefaultShippingExpectationPrompt: false,
         defaultShippingExpectationPrompt: '',
-      },
-      featureFlags: {
-        'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': featureEnabled,
       },
     }),
   },
@@ -163,7 +157,7 @@ describe('QuoteTable backorder messaging', () => {
     expect(screen.getByRole('checkbox', { name: 'Backorder details' })).toBeChecked();
   });
 
-  it('hides the backorder details toggle when storefront backorder messaging is disabled, even with backordered items', () => {
+  it('hides the backorder details toggle when backorder is disabled, even with backordered items', () => {
     const updateSummary = vi.fn();
     renderWithProviders(
       <QuoteTable total={1} items={[lineItemWithBackorder]} updateSummary={updateSummary} />,

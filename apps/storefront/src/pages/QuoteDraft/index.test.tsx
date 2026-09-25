@@ -3167,9 +3167,6 @@ describe('when the user is a B2B customer', () => {
             showDefaultShippingExpectationPrompt: false,
             defaultShippingExpectationPrompt: '',
           },
-          featureFlags: {
-            'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
-          },
         });
 
         const setupSearchModalWithInventory = ({
@@ -3177,7 +3174,7 @@ describe('when the user is a B2B customer', () => {
           totalOnHand = 2,
           unlimitedBackorder = false,
           isEnableProduct = false,
-          isBackorderMessagingEnabled = true,
+          isBackorderEnabled = true,
           inventoryFetchFails = false,
           pendingInventoryFetch,
         }: {
@@ -3185,7 +3182,7 @@ describe('when the user is a B2B customer', () => {
           totalOnHand?: number;
           unlimitedBackorder?: boolean;
           isEnableProduct?: boolean;
-          isBackorderMessagingEnabled?: boolean;
+          isBackorderEnabled?: boolean;
           inventoryFetchFails?: boolean;
           pendingInventoryFetch?: Promise<HttpResponse<VariantInfoResponse>>;
         } = {}) => {
@@ -3315,11 +3312,8 @@ describe('when the user is a B2B customer', () => {
               quoteInfo,
               global: buildGlobalStateWith({
                 ...backorderMessagingGlobal,
+                backorderEnabled: isBackorderEnabled,
                 blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-                featureFlags: {
-                  'BACK-134.backorders_phase_1_1_control_messaging_on_storefront':
-                    isBackorderMessagingEnabled,
-                },
               }),
             },
           });
@@ -3344,7 +3338,7 @@ describe('when the user is a B2B customer', () => {
           totalOnHand = 2,
           unlimitedBackorder = false,
           isEnableProduct = false,
-          isBackorderMessagingEnabled = true,
+          isBackorderEnabled = true,
           inventoryFetchFails = false,
           pendingInventoryFetch,
           inventoryTracking = 'variant' as 'product' | 'variant',
@@ -3353,7 +3347,7 @@ describe('when the user is a B2B customer', () => {
           totalOnHand?: number;
           unlimitedBackorder?: boolean;
           isEnableProduct?: boolean;
-          isBackorderMessagingEnabled?: boolean;
+          isBackorderEnabled?: boolean;
           inventoryFetchFails?: boolean;
           pendingInventoryFetch?: Promise<HttpResponse<VariantInfoResponse>>;
           inventoryTracking?: 'product' | 'variant';
@@ -3537,11 +3531,8 @@ describe('when the user is a B2B customer', () => {
               quoteInfo,
               global: buildGlobalStateWith({
                 ...backorderMessagingGlobal,
+                backorderEnabled: isBackorderEnabled,
                 blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-                featureFlags: {
-                  'BACK-134.backorders_phase_1_1_control_messaging_on_storefront':
-                    isBackorderMessagingEnabled,
-                },
               }),
             },
           });
@@ -3651,8 +3642,8 @@ describe('when the user is a B2B customer', () => {
           expect(within(dialog).getByRole('button', { name: 'Add to quote' })).toBeEnabled();
         });
 
-        it('does not show ATS error when backorder messaging is disabled', async () => {
-          setupSearchModalWithInventory({ isBackorderMessagingEnabled: false });
+        it('does not show ATS error when backorder is disabled', async () => {
+          setupSearchModalWithInventory({ isBackorderEnabled: false });
 
           const dialog = await openSearchModal();
           const quantityInput = within(dialog).getByRole('spinbutton');
@@ -4043,9 +4034,9 @@ describe('when the user is a B2B customer', () => {
           ).toBeEnabled();
         });
 
-        it('does not show ATS error in choose options when backorder messaging is disabled', async () => {
+        it('does not show ATS error in choose options when backorder is disabled', async () => {
           const { variantSku } = setupComplexProductChooseOptionsWithInventory({
-            isBackorderMessagingEnabled: false,
+            isBackorderEnabled: false,
           });
 
           const chooseOptionsDialog = await openComplexChooseOptionsModal(variantSku);

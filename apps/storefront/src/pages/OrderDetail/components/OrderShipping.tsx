@@ -29,9 +29,8 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
 
   const b3Lang = useB3Lang();
 
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const showOrderBackorder = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const showOrderBackorder = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const backorderFieldsForProduct = (product: OrderProductItem): BackorderDisplayFields | null => {
     const { quantity = 0, quantity_shipped: quantityShipped = 0, backorderMessage } = product;

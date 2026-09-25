@@ -55,20 +55,17 @@ const sharedProps = {
   status: 1,
 } satisfies QuoteDetailTableProps;
 
-const renderTable = (messagingEnabled: boolean) =>
+const renderTable = (backorderEnabled: boolean) =>
   renderWithProviders(<QuoteDetailTable {...sharedProps} />, {
     preloadedState: {
       global: buildGlobalStateWith({
-        backorderEnabled: true,
+        backorderEnabled,
         backorderDisplaySettings: {
           showQuantityOnBackorder: true,
           showQuantityOnHand: true,
           showBackorderMessage: true,
           showDefaultShippingExpectationPrompt: false,
           defaultShippingExpectationPrompt: '',
-        },
-        featureFlags: {
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': messagingEnabled,
         },
       }),
     },
@@ -103,7 +100,7 @@ describe('QuoteDetailTable picklist backorders', () => {
     expect(screen.getByText('Ice Pick ships in 3 weeks')).toBeVisible();
   });
 
-  it('hides the backorder toggle when storefront messaging is disabled', async () => {
+  it('hides the backorder toggle when backorder is disabled', async () => {
     vi.mocked(searchProducts).mockResolvedValue({ productsSearch: [] });
 
     renderTable(false);
@@ -159,9 +156,6 @@ describe('QuoteDetailTable insufficient stock warning', () => {
               showBackorderMessage: true,
               showDefaultShippingExpectationPrompt: false,
               defaultShippingExpectationPrompt: '',
-            },
-            featureFlags: {
-              'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
             },
           }),
         },

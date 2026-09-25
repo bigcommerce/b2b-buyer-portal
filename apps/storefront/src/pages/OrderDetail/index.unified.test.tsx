@@ -2202,7 +2202,6 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         backorderEnabled: true,
         featureFlags: {
           'B2B-4613.buyer_portal_unified_sf_gql_orders': true,
-          'BACK-134.backorders_phase_1_1_control_messaging_on_storefront': true,
         },
       }),
       storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),

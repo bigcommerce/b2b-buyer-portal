@@ -103,9 +103,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   );
 
   const [isMobile] = useMobile();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const variantSkuDependencyKey = useMemo(
     () =>

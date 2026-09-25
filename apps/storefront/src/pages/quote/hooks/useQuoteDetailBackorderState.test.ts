@@ -7,7 +7,7 @@ import { QuoteStatus } from '@/shared/service/b2b/graphql/quote';
 import { useQuoteDetailBackorderState } from './useQuoteDetailBackorderState';
 
 const messaging = {
-  isBackorderMessagingContextEnabled: true,
+  isBackorderEnabled: true,
   hasAnyBackorderDisplay: true,
 };
 
@@ -54,7 +54,7 @@ const renderState = (...args: Parameters<typeof useQuoteDetailBackorderState>) =
 describe('useQuoteDetailBackorderState', () => {
   beforeEach(() => {
     vi.spyOn(b2bService, 'searchProducts').mockResolvedValue({ productsSearch: [] });
-    messaging.isBackorderMessagingContextEnabled = true;
+    messaging.isBackorderEnabled = true;
     messaging.hasAnyBackorderDisplay = true;
   });
 
@@ -88,8 +88,8 @@ describe('useQuoteDetailBackorderState', () => {
     expect(result.result.current.hasBackorderedItems).toBe(true);
   });
 
-  it('does not flag backorders or fetch inventory when the messaging context is disabled', () => {
-    messaging.isBackorderMessagingContextEnabled = false;
+  it('does not flag backorders or fetch inventory when backorder is disabled', () => {
+    messaging.isBackorderEnabled = false;
 
     const { result } = renderState([lineWithBackorderedPicklistChild], 1);
 

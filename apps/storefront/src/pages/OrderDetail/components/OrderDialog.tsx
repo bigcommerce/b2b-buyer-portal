@@ -120,7 +120,7 @@ export default function OrderDialog({
   currencyCode,
 }: OrderDialogProps) {
   const navigate = useNavigate();
-  const { isBackorderMessagingContextEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
+  const { isBackorderEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
   const backorderUiEnabled =
     isReorderAtsEnabled &&

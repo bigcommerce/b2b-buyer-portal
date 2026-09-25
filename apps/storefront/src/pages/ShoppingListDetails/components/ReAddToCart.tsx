@@ -168,9 +168,8 @@ export default function ReAddToCart({
   const [loading, setLoading] = useState<boolean>(false);
   const [isMobile] = useMobile();
   const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const { qtyTextAlign, numericTextAlign, qtyStackItemsAlignment } =
     getProductListColumnAlignments(isMobile);

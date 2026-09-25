@@ -154,12 +154,8 @@ function QuickOrderTable({
 
   const b3Lang = useB3Lang();
 
-  const {
-    isBackorderMessagingContextEnabled,
-    isBackorderMessagingEnabled,
-    hasAnyBackorderDisplay,
-  } = useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const backorderUiEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const [picklistProductIds, setPicklistProductIds] = useState<number[]>([]);
   const picklistProductsById = usePicklistInventory(picklistProductIds);
@@ -199,7 +195,7 @@ function QuickOrderTable({
   );
 
   const hasBackorderedItems = useMemo(() => {
-    if (!isBackorderMessagingEnabled) {
+    if (!isBackorderEnabled) {
       return false;
     }
 
@@ -221,7 +217,7 @@ function QuickOrderTable({
     return catalogListHasPicklistBackorderedItemsForDisplay(picklistRows, picklistProductsById);
     // tableDataVersion drives re-evaluation when list or qty changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inventoryBySku, picklistProductsById, isBackorderMessagingEnabled, tableDataVersion]);
+  }, [inventoryBySku, picklistProductsById, isBackorderEnabled, tableDataVersion]);
 
   const showBackorderToggle = backorderUiEnabled && hasBackorderedItems;
 

@@ -78,7 +78,7 @@ const lineWithoutProductId: QuoteItem = {
 
 const contextEnabled = {
   items: [] as QuoteItem[],
-  isBackorderMessagingEnabled: true,
+  isBackorderEnabled: true,
   draftQuoteBackorderContextEnabled: true,
 };
 
@@ -95,11 +95,11 @@ describe('useDraftQuoteBackorderState', () => {
     vi.mocked(searchProducts).mockResolvedValue({ productsSearch: [] });
   });
 
-  it('does not flag backordered items when messaging is disabled', () => {
+  it('does not flag backordered items when backorder is disabled', () => {
     const { result } = renderState({
       ...contextEnabled,
       items: [backorderedLine],
-      isBackorderMessagingEnabled: false,
+      isBackorderEnabled: false,
     });
 
     expect(result.result.current.hasBackorderedItems).toBe(false);
