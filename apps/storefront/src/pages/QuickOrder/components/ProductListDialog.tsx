@@ -103,9 +103,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
   );
 
   const [isMobile] = useMobile();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
 
   const variantSkuDependencyKey = useMemo(
     () =>
@@ -119,7 +118,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
 
   const inventoryBySku = useCatalogInventoryBySku({
     isActive: isOpen,
-    enabled: backorderUiEnabled,
+    enabled: shouldShowBackorderUI,
     skuDependencyKey: variantSkuDependencyKey,
   });
 
@@ -221,7 +220,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
               quantityEditable
               type="quickOrder"
               canToProduct
-              catalogBackorderUiEnabled={backorderUiEnabled}
+              catalogBackorderUiEnabled={shouldShowBackorderUI}
               catalogInventoryBySku={inventoryBySku}
               showAvailableToSellHelper
               formatOnlyAvailable={formatOnlyAvailable}

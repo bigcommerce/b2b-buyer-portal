@@ -22,7 +22,6 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useCatalogChooseOptionsBackorderDisplay } from '@/hooks/useCatalogChooseOptionsBackorderDisplay';
 import { useCatalogInventoryBySku } from '@/hooks/useCatalogInventoryBySku';
-import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useB3Lang } from '@/lib/lang';
 import { searchProducts } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -153,16 +152,14 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [newPrice, setNewPrice] = useState<number>(0);
   const [chooseOptionsProduct, setChooseOptionsProduct] = useState<ChooseOptionsProductProps[]>([]);
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const isBackorderEnabled = useIsBackorderEnabled();
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
-  const backorderUiEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
-  const showQuoteAtsHelper = type === 'quote' && backorderUiEnabled && !isEnableProduct;
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
+  const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
+  const showQuoteAtsHelper = type === 'quote' && shouldShowBackorderUI && !isEnableProduct;
   const quoteInventorySku = getCatalogInventorySku(product, variantSku);
 
   const inventoryBySku = useCatalogInventoryBySku({
     isActive: isOpen && showQuoteAtsHelper,
-    enabled: backorderUiEnabled,
+    enabled: shouldShowBackorderUI,
     skuDependencyKey: showQuoteAtsHelper ? quoteInventorySku : '',
   });
 
@@ -451,7 +448,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   );
 
   const picklistSelections =
-    backorderUiEnabled && product?.modifiers?.length
+    shouldShowBackorderUI && product?.modifiers?.length
       ? getProductDetailsForPicklistSelections({
           optionSelections: getPicklistOptionSelectionsFromForm(formFields, formValues),
           productsSearch: { modifiers: product.modifiers },
@@ -707,7 +704,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                             picklistProductsById={additionalProducts}
                             qty={Number(quantity) || 0}
                             visible
-                            backorderUiEnabled={backorderUiEnabled}
+                            backorderUiEnabled={shouldShowBackorderUI}
                           />
                         </Box>
                       )}

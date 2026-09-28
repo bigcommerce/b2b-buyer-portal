@@ -61,8 +61,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
   );
-  const { isBackorderMessagingContextEnabled, hasAnyBackorderDisplay } =
-    useBackorderStorefrontMessaging();
+  const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
 
   const stockAvailability = showInsufficientStockWarning
     ? getQuoteItemBackendAvailability(quoteTableItem)
@@ -86,7 +85,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem;
 
   const backorderFields = getQuoteBackorderDisplayFields(quoteTableItem, { useOrderSnapshot });
-  const backorderContextEnabled = isBackorderMessagingContextEnabled && hasAnyBackorderDisplay;
+  const backorderContextEnabled = isBackorderEnabled && hasAnyBackorderDisplay;
   const picklistSelections = backorderContextEnabled
     ? getPicklistSelectionsFromStoredOptions(quoteTableItem)
     : [];
@@ -191,7 +190,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               {insufficientStockWarning}
             </Box>
           )}
-          {isBackorderMessagingContextEnabled && hasAnyBackorderDisplay && backorderFields && (
+          {isBackorderEnabled && hasAnyBackorderDisplay && backorderFields && (
             <BackorderMessage
               totalOnHand={backorderFields.totalOnHand}
               quantityBackordered={backorderFields.quantityBackordered}
