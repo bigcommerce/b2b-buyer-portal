@@ -1,16 +1,16 @@
 import { ReactElement, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Box, Card, CardContent, InputAdornment, TextField, Typography } from '@mui/material';
+import { Box, Card, CardContent, TextField, Typography } from '@mui/material';
 
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import { displayFormat } from '@/utils/b3DateFormat';
-import { getCorrespondingCurrency } from '@/utils/currencyUtils';
 
 import B3Pulldown from './components/B3Pulldown';
 import InvoiceStatus from './components/InvoiceStatus';
+import { currencyAdornmentProps } from './utils/currencyAdornment';
 import { formatInvoiceBalanceAmount } from './utils/payment';
 
 interface InvoiceItemCardProps {
@@ -53,19 +53,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
 
-  const { id, status, dueDate, openBalance, companyInfo } = item;
-  const currentCode = openBalance.code || 'USD';
-  const currentCurrency = getCorrespondingCurrency(currentCode);
-  const currentCurrencyToken = currentCurrency?.token || '$';
-  const isTokenOnRight = currentCurrency?.token_location?.toLowerCase() === 'right';
-  const currencyAdornment = (
-    <InputAdornment
-      position={isTokenOnRight ? 'end' : 'start'}
-      sx={{ padding: '8px 0', marginTop: '0 !important' }}
-    >
-      {currentCurrencyToken}
-    </InputAdornment>
-  );
+  const { id, status, dueDate, companyInfo } = item;
 
   let statusCode = item.status;
   if (status === 0 && currentDate > dueDate * 1000) {
@@ -162,10 +150,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             disabled={disabled}
             variant="filled"
             value={valuePrice}
-            InputProps={{
-              startAdornment: isTokenOnRight ? undefined : currencyAdornment,
-              endAdornment: isTokenOnRight ? currencyAdornment : undefined,
-            }}
+            InputProps={currencyAdornmentProps(openBalance.code || 'USD')}
             sx={{
               '& input': {
                 paddingTop: '8px',
