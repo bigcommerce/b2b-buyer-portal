@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -22,7 +22,6 @@ import { currencyFormat, currencyFormatInfo } from '@/utils/b3CurrencyFormat';
 import { dateWithLocaleSupport, getUTCTimestamp } from '@/utils/b3DateFormat';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { handleGetCorrespondingCurrencyToken } from '@/utils/currencyUtils';
 
 import B3Filter from '../../components/filter/B3Filter';
 
@@ -39,6 +38,7 @@ import InvoiceListType, {
   filterFormConfigsTranslationVariables,
   sortIdArr,
 } from './utils/config';
+import { currencyAdornmentProps } from './utils/currencyAdornment';
 import { formatInvoiceBalanceAmount, formattingNumericValues } from './utils/payment';
 import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
@@ -659,7 +659,7 @@ function Invoice() {
       title: b3Lang('invoice.headers.amountToPay'),
       render: (item: InvoiceList) => {
         const { openBalance, id } = item;
-        const currentCode = openBalance.code || 'USD';
+        const currentCode = openBalance.code;
         let valuePrice = openBalance.value;
         let disabled = true;
 
@@ -691,16 +691,7 @@ function Invoice() {
             disabled={disabled}
             variant="filled"
             value={valuePrice || ''}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ padding: '8px 0', marginTop: '0 !important' }}
-                >
-                  {handleGetCorrespondingCurrencyToken(currentCode)}
-                </InputAdornment>
-              ),
-            }}
+            InputProps={currencyAdornmentProps(currentCode)}
             sx={{
               '& input': {
                 paddingTop: '8px',
@@ -958,7 +949,6 @@ function Invoice() {
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
-              handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               decimalPlaces={decimalPlaces}
               addBottom={list.length - 1 === index}
               isCurrentCompany={Number(currentCompanyId) === Number(row.companyInfo.companyId)}

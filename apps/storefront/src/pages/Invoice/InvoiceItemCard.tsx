@@ -1,7 +1,7 @@
 import { ReactElement, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Box, Card, CardContent, InputAdornment, TextField, Typography } from '@mui/material';
+import { Box, Card, CardContent, TextField, Typography } from '@mui/material';
 
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useB3Lang } from '@/lib/lang';
@@ -10,6 +10,7 @@ import { displayFormat } from '@/utils/b3DateFormat';
 
 import B3Pulldown from './components/B3Pulldown';
 import InvoiceStatus from './components/InvoiceStatus';
+import { currencyAdornmentProps } from './utils/currencyAdornment';
 import { formatInvoiceBalanceAmount } from './utils/payment';
 
 interface InvoiceItemCardProps {
@@ -21,7 +22,6 @@ interface InvoiceItemCardProps {
   setInvoiceId: (id: string) => void;
   handleOpenHistoryModal: (bool: boolean) => void;
   selectedPay: CustomFieldItems | InvoiceListNode[];
-  handleGetCorrespondingCurrency: (code: string) => string;
   decimalPlaces: number;
   addBottom: boolean;
   isCurrentCompany: boolean;
@@ -45,7 +45,6 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     setInvoiceId,
     handleOpenHistoryModal,
     selectedPay = [],
-    handleGetCorrespondingCurrency,
     decimalPlaces,
     addBottom,
     isCurrentCompany,
@@ -54,9 +53,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
 
-  const { id, status, dueDate, openBalance, companyInfo } = item;
-  const currentCode = openBalance.code || 'USD';
-  const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode);
+  const { id, status, dueDate, companyInfo } = item;
 
   let statusCode = item.status;
   if (status === 0 && currentDate > dueDate * 1000) {
@@ -153,16 +150,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             disabled={disabled}
             variant="filled"
             value={valuePrice}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ padding: '8px 0', marginTop: '0 !important' }}
-                >
-                  {currentCurrencyToken || '$'}
-                </InputAdornment>
-              ),
-            }}
+            InputProps={currencyAdornmentProps(openBalance.code)}
             sx={{
               '& input': {
                 paddingTop: '8px',

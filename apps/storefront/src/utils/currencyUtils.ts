@@ -1,19 +1,27 @@
-import { activeCurrencyInfoSelector, store } from '@/store';
+import { activeCurrencyInfoSelector, defaultCurrencyInfoSelector, store } from '@/store';
 import { Currency, DisplayCurrency } from '@/types';
 
 const getActiveCurrencyInfo = () => activeCurrencyInfoSelector(store.getState());
 
-const handleGetCorrespondingCurrencyToken = (code: string) => {
-  const correspondingCurrency = store
-    .getState()
-    .storeConfigs.currencies.currencies.find((currency) => currency.currency_code === code);
-  let token = '$';
+// Falls back to the store's default currency when no code is supplied (e.g. a balance without one).
+const getCorrespondingCurrency = (code?: string): Currency | undefined => {
+  const state = store.getState();
 
-  if (correspondingCurrency?.token) {
-    token = correspondingCurrency.token;
-  }
+  if (!code) return defaultCurrencyInfoSelector(state);
 
-  return token;
+  return state.storeConfigs.currencies.currencies.find(
+    (currency) => currency.currency_code === code,
+  );
+};
+
+// BC returns token_location as 'left'/'right', but casing varies ('LEFT'), so compare case-insensitively.
+const applyCurrencyToken = (code: string | undefined, formattedAmount: string): string => {
+  const currency = getCorrespondingCurrency(code);
+  const token = currency?.token || '$';
+
+  return currency?.token_location?.toLowerCase() === 'right'
+    ? `${formattedAmount}${token}`
+    : `${token}${formattedAmount}`;
 };
 
 const formatBcCurrencyToDisplayCurrency = (bcCurrency: Currency): DisplayCurrency => ({
@@ -34,7 +42,8 @@ const buildCurrenciesMap = (currencies: Currency[]): Record<string, DisplayCurre
 
 export {
   getActiveCurrencyInfo,
-  handleGetCorrespondingCurrencyToken,
+  getCorrespondingCurrency,
+  applyCurrencyToken,
   buildCurrenciesMap,
   formatBcCurrencyToDisplayCurrency,
 };
