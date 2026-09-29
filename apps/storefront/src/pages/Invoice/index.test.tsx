@@ -492,6 +492,86 @@ it('keeps the symbol on the left when token_location arrives uppercase from the 
   expect(payAdornment).toHaveTextContent('€');
 });
 
+it('falls back to the store default currency when a balance has no currency code', async () => {
+  // given
+  const eurDefault = {
+    id: '2',
+    is_default: true,
+    last_updated: '2024-01-01',
+    country_iso2: 'DE',
+    default_for_country_codes: [],
+    currency_code: 'EUR',
+    currency_exchange_rate: '1.0000000000',
+    name: 'Euro',
+    token: '€',
+    auto_update: false,
+    decimal_token: '.',
+    decimal_places: 2,
+    enabled: true,
+    is_transactional: true,
+    token_location: 'right' as const,
+    thousands_token: ',',
+  };
+
+  server.use(
+    graphql.query('GetInvoices', () =>
+      HttpResponse.json(
+        buildInvoicesResponseWith({
+          data: {
+            invoices: {
+              edges: [
+                buildInvoiceWith({
+                  node: {
+                    invoiceNumber: '7788',
+                    orderNumber: '5678',
+                    status: InvoiceStatusCode.PartiallyPaid,
+                    originalBalance: { code: '', value: 444 },
+                    openBalance: { code: '', value: 232 },
+                    companyInfo: {
+                      companyName: 'Monsters Inc.',
+                      companyId: preloadedState.company.companyInfo.id,
+                    },
+                  },
+                }),
+              ],
+            },
+          },
+        }),
+      ),
+    ),
+    graphql.query('GetInvoiceStats', () =>
+      HttpResponse.json(buildInvoiceStatsResponseWith('WHATEVER_VALUES')),
+    ),
+  );
+
+  // when
+  renderWithProviders(<Invoice />, {
+    preloadedState: {
+      ...preloadedState,
+      storeConfigs: {
+        currencies: {
+          currencies: [eurDefault],
+          channelCurrencies: {
+            channel_id: 1,
+            enabled_currencies: ['EUR'],
+            default_currency: 'EUR',
+          },
+          enteredInclusiveTax: false,
+        },
+      },
+    },
+  });
+
+  await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+  // then
+  const row = screen.getByRole('row', { name: /7788/ });
+  const cells = within(row).getAllByRole('cell');
+
+  expect(cells[7]).toHaveTextContent('444.00€');
+  expect(cells[8]).toHaveTextContent('232.00€');
+});
+
 it('can pay for multiple invoices', async () => {
   const getCreateCartResponse = vi.fn().mockName('getCreateCartResponse');
   const getCheckoutLoginResponse = vi.fn().mockName('getCheckoutLoginResponse');

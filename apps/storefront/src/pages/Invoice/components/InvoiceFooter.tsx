@@ -24,7 +24,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0);
-  const [currentCode, setCurrentCode] = useState<string>('USD');
+  const [currentCode, setCurrentCode] = useState<string>();
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
@@ -108,7 +108,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         node: { openBalance },
       } = selectedPay[0];
 
-      setCurrentCode(openBalance.code || 'USD');
+      setCurrentCode(openBalance.code);
       handleStatisticsInvoiceAmount(selectedPay);
     }
   }, [decimalPlaces, selectedPay]);

@@ -150,7 +150,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             disabled={disabled}
             variant="filled"
             value={valuePrice}
-            InputProps={currencyAdornmentProps(openBalance.code || 'USD')}
+            InputProps={currencyAdornmentProps(openBalance.code)}
             sx={{
               '& input': {
                 paddingTop: '8px',

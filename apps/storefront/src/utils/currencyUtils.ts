@@ -1,15 +1,21 @@
-import { activeCurrencyInfoSelector, store } from '@/store';
+import { activeCurrencyInfoSelector, defaultCurrencyInfoSelector, store } from '@/store';
 import { Currency, DisplayCurrency } from '@/types';
 
 const getActiveCurrencyInfo = () => activeCurrencyInfoSelector(store.getState());
 
-const getCorrespondingCurrency = (code: string): Currency | undefined =>
-  store
-    .getState()
-    .storeConfigs.currencies.currencies.find((currency) => currency.currency_code === code);
+// Falls back to the store's default currency when no code is supplied (e.g. a balance without one).
+const getCorrespondingCurrency = (code?: string): Currency | undefined => {
+  const state = store.getState();
+
+  if (!code) return defaultCurrencyInfoSelector(state);
+
+  return state.storeConfigs.currencies.currencies.find(
+    (currency) => currency.currency_code === code,
+  );
+};
 
 // BC returns token_location as 'left'/'right', but casing varies ('LEFT'), so compare case-insensitively.
-const applyCurrencyToken = (code: string, formattedAmount: string): string => {
+const applyCurrencyToken = (code: string | undefined, formattedAmount: string): string => {
   const currency = getCorrespondingCurrency(code);
   const token = currency?.token || '$';
 

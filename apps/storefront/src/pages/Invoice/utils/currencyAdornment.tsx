@@ -4,7 +4,7 @@ import { getCorrespondingCurrency } from '@/utils/currencyUtils';
 
 // InputProps adornment slots that place the currency symbol per the currency's token_location
 // (case-insensitive). Spread into a TextField's InputProps.
-export const currencyAdornmentProps = (code: string) => {
+export const currencyAdornmentProps = (code?: string) => {
   const currency = getCorrespondingCurrency(code);
   const token = currency?.token || '$';
   const isTokenOnRight = currency?.token_location?.toLowerCase() === 'right';

@@ -659,7 +659,7 @@ function Invoice() {
       title: b3Lang('invoice.headers.amountToPay'),
       render: (item: InvoiceList) => {
         const { openBalance, id } = item;
-        const currentCode = openBalance.code || 'USD';
+        const currentCode = openBalance.code;
         let valuePrice = openBalance.value;
         let disabled = true;
 

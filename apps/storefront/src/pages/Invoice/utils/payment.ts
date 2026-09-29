@@ -61,7 +61,7 @@ export const formatInvoiceBalanceAmount = (
 ) => {
   const amount = formattingNumericValues(Number(balance.value), decimalPlaces);
 
-  return applyCurrencyToken(balance.code || 'USD', amount || '0');
+  return applyCurrencyToken(balance.code, amount || '0');
 };
 
 const getInvoiceCurrency = (invoice: InvoiceListNode) => {
