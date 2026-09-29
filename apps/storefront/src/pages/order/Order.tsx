@@ -445,11 +445,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const listItems = useMemo(
     () =>
-      (data?.edges ?? []).map((edge) => ({
-        ...edge,
-        statusText: getOrderStatusText(edge.status, getOrderStatuses),
-      })),
-    [data?.edges, getOrderStatuses],
+      (data?.edges ?? []).map((edge) =>
+        isUnifiedOrders
+          ? edge
+          : { ...edge, statusText: getOrderStatusText(edge.status, getOrderStatuses) },
+      ),
+    [data?.edges, getOrderStatuses, isUnifiedOrders],
   );
 
   const navigateToOrderDetail = isUnifiedOrders
