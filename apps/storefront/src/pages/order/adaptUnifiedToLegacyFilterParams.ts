@@ -29,7 +29,7 @@ export const adaptUnifiedToLegacyFilterParams = ({
   orderBy: string;
 } => ({
   filterData: {
-    q: '',
+    q: filters.search ?? '',
     statusCode: filters.status ?? '',
     beginDateAt: filters.dateRange?.from ?? null,
     endDateAt: filters.dateRange?.to ?? null,

@@ -137,8 +137,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
 
-  const getSearchAndCompanyFilterState = () =>
-    isUnifiedCompanyPath ? companyFilterState : legacyFilterState;
+  const getSearchAndCompanyFilterState = () => {
+    if (isUnifiedCompanyPath) return companyFilterState;
+    if (isUnifiedCustomerPath) return customerFilterState;
+    return legacyFilterState;
+  };
 
   const { handleSearchChange, handleCompanyIdsChange } = getSearchAndCompanyFilterState();
 
@@ -395,7 +398,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const sfGqlCompanySortKeys = new Set(['orderId', 'createdAt']);
   const companyNeedsSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
   const companyNeedsSort = isUnifiedCompanyPath && !sfGqlCompanySortKeys.has(activeSort.key);
-  const customerNeedsSearch = isUnifiedCustomerPath && !!filterData?.q;
+  const customerNeedsSearch = isUnifiedCustomerPath && !!customerFilterState.filters.search;
   const customerNeedsSort = isUnifiedCustomerPath && activeSort.key !== 'orderId';
   const needsLegacyFallback =
     isUnifiedOrders &&
