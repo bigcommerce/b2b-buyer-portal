@@ -170,11 +170,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const initFilter = async () => {
       let createdByUsers: CreatedByUsersData = {};
       if (isB2BUser && isCompanyOrder) {
-        if (isUnifiedOrders) {
-          createdByUsers = { createdByUser: { results: companyFilterState.placedByUsers } };
-        } else {
-          createdByUsers = await getCreatedByUserForOrders(Number(companyId));
-        }
+        // Always use the legacy B2B API for the Placed By dropdown.
+        // The SF GQL customersWithOrders API was removed (Keelan, 2026-09-30).
+        // The replacement (activeCompany.users) is not yet on the schema.
+        // The legacy createdByUser query still works and returns the same data.
+        createdByUsers = await getCreatedByUserForOrders(Number(companyId));
       }
 
       if (!orderStatusesRef.current.length) {
@@ -199,16 +199,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [
-    b3Lang,
-    companyId,
-    isAgenting,
-    isB2BUser,
-    isCompanyOrder,
-    isUnifiedOrders,
-    companyFilterState.placedByUsers,
-    role,
-  ]);
+  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;
@@ -390,7 +381,20 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const unifiedState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
 
+  // Hybrid fallback: SF GQL doesn't support search or all sort columns yet.
+  // When the user searches or sorts by an unsupported column, fall back to the
+  // legacy GetAllOrders API which supports both. The adapter
+  // (adaptUnifiedToLegacyFilterParams) translates the unified filter/sort state
+  // to legacy params. Sort keys supported by SF GQL: orderId, createdAt.
+  const sfGqlSupportedSortKeys = new Set(['orderId', 'createdAt']);
+  const hasActiveSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
+  const hasUnsupportedSort = isUnifiedOrders && !sfGqlSupportedSortKeys.has(activeSort.key);
+  const needsLegacyFallback = isUnifiedOrders && (hasActiveSearch || hasUnsupportedSort);
+
   const getQueryKey = () => {
+    if (needsLegacyFallback) {
+      return ['orderList:legacyFallback', filterData, legacyPagination, orderBy];
+    }
     if (isUnifiedCompanyPath) {
       return [
         'orderList:unifiedCompany',
@@ -411,6 +415,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   };
 
   const getQueryFn = () => {
+    if (needsLegacyFallback) {
+      return fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy });
+    }
     if (isUnifiedCompanyPath) {
       return fetchUnifiedCompanyOrders({
         ...companyFilterState.paginationVariables,
@@ -452,9 +459,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     [data?.edges, getOrderStatuses],
   );
 
-  const navigateToOrderDetail = isUnifiedOrders
-    ? (item: ListItem) => goToDetail(item, listItems)
-    : legacyGoToDetail;
+  // Use legacy detail navigation when falling back to GetAllOrders (no cursors).
+  const navigateToOrderDetail =
+    isUnifiedOrders && !needsLegacyFallback
+      ? (item: ListItem) => goToDetail(item, listItems)
+      : legacyGoToDetail;
 
   const filterMoreInfoWithoutInertCompanyControl = filterMoreInfo.filter(
     (item) => item.name !== 'company',

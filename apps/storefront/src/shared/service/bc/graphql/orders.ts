@@ -555,7 +555,7 @@ const orderListNodeFields = `entityId
 /** Company-scoped order list (B2B). Entry: customer.activeCompany.orders. */
 const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
-  $sortBy: OrdersSortInput
+  $sortBy: CompanyOrdersSortInput
   $first: Int
   $after: String
   $last: Int
