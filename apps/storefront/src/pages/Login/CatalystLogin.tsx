@@ -2,17 +2,34 @@ import { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Loading } from '@/components/loading';
-import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
+import {
+  b2bLogout,
+  endUserMasqueradingCompany,
+  superAdminEndMasquerade,
+} from '@/shared/service/b2b';
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { isLoggedInSelector, store, useAppSelector } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
+import b2bLogger from '@/utils/b3Logger';
 
-const logout = () => {
-  return bcLogoutLogin().then((res) => {
-    if (res.data.logout.result !== 'success') {
-      throw new Error('Failed to logout');
-    }
-  });
+// B2B-5611: revoke the B2B token server-side while it is still attached to requests.
+const revokeB2BToken = async () => {
+  if (!store.getState().company.tokens.B2BToken) {
+    return;
+  }
+  try {
+    await b2bLogout();
+  } catch (e) {
+    b2bLogger.error(e);
+  }
+};
+
+const logout = async () => {
+  await revokeB2BToken();
+  const res = await bcLogoutLogin();
+  if (res.data.logout.result !== 'success') {
+    throw new Error('Failed to logout');
+  }
 };
 
 const useEndMasquerade = () => {
