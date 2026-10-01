@@ -8,13 +8,6 @@ import { currencyFormatConvert } from '@/utils/b3CurrencyFormat';
 
 interface Summary {
   originalSubtotal: string | number;
-  /**
-   * Sum of each line's `offeredPrice * quantity`, computed by the caller.
-   *
-   * Do NOT derive this as `originalSubtotal - discount`: when a sales rep quotes a line
-   * *above* its base price, the saved `discount` is clamped to 0, so that formula reports
-   * the original base-price total and hides the markup (B2B-5619).
-   */
   quotedSubtotal: string | number;
   discount: string | number;
   tax: string | number;

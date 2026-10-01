@@ -273,8 +273,6 @@ describe('when the user is a B2B customer', () => {
       data: {
         quote: {
           id: '272989',
-          // Quoted subtotal is summed from the line items, so these have to agree with the
-          // quote-level subtotal/discount below rather than being random faker values.
           productsList: [
             buildQuoteProductWith({ basePrice: '1000.00', offeredPrice: '975.00', quantity: 1 }),
           ],
@@ -327,6 +325,80 @@ describe('when the user is a B2B customer', () => {
     expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(
       /\$1,025\.00/,
     );
+  });
+
+  describe('when a line is quoted above its base price', () => {
+    const renderMarkedUpQuote = (useOfferedPriceForQuotedSubtotal: boolean) => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [
+              buildQuoteProductWith({ basePrice: '100.00', offeredPrice: '200.00', quantity: 1 }),
+            ],
+            currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
+            displayDiscount: true,
+            salesRepEmail: 'john@email.com',
+            subtotal: '100.00',
+            discount: '0.00',
+            shippingTotal: '0.00',
+            taxTotal: '0.00',
+            totalAmount: '200.00',
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: {
+              'B2B-5619.use_offered_price_for_quoted_subtotal': useOfferedPriceForQuotedSubtotal,
+            },
+          }),
+        },
+      });
+    };
+
+    it('sums the line items when the feature flag is enabled', async () => {
+      renderMarkedUpQuote(true);
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$200\.00/,
+      );
+      expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(
+        /\$200\.00/,
+      );
+    });
+
+    it('falls back to subtracting the discount when the feature flag is disabled', async () => {
+      renderMarkedUpQuote(false);
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$100\.00/,
+      );
+    });
   });
 
   it('displays snackbar error on load if a product in the quote has validation errors', async () => {

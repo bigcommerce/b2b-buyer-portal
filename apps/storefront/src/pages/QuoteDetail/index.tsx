@@ -5,6 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
@@ -193,17 +194,6 @@ function useData() {
   };
 }
 
-/**
- * Quoted subtotal is the sum of what each line is actually being quoted at.
- *
- * It is deliberately NOT derived as `subtotal - discount`. When a sales rep quotes a line
- * *above* its base price, the saved quote-level `discount` is clamped to 0, so that formula
- * falls back to the original base-price total and silently drops the markup (B2B-5619).
- * Summing `offeredPrice * quantity` matches what the line-item table, the PDF and the
- * quote email already show.
- *
- * Returned pre-tax, consistent with `originalSubtotal`; the caller applies `quoteDetailTax`.
- */
 const calculateQuotedSubtotal = (productsList: CustomFieldItems[] = []): number =>
   productsList.reduce(
     (total, { offeredPrice, quantity }) => total + Number(offeredPrice) * Number(quantity),
@@ -290,6 +280,10 @@ function QuoteDetail() {
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
+
+  const useOfferedPriceForQuotedSubtotal = useFeatureFlag(
+    'B2B-5619.use_offered_price_for_quoted_subtotal',
+  );
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
@@ -552,7 +546,9 @@ function QuoteDetail() {
       });
       setQuoteSummary({
         originalSubtotal: quote.subtotal,
-        quotedSubtotal: calculateQuotedSubtotal(quote.productsList),
+        quotedSubtotal: useOfferedPriceForQuotedSubtotal
+          ? calculateQuotedSubtotal(quote.productsList)
+          : Number(quote.subtotal) - Number(quote.discount),
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,

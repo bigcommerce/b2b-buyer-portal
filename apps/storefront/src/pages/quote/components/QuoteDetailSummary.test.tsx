@@ -50,8 +50,6 @@ describe('QuoteDetailSummary quoted subtotal', () => {
   });
 
   it('renders the quoted subtotal it is given rather than deriving it from the discount', () => {
-    // B2B-5619: a line quoted *above* base price saves discount as 0, so the old
-    // `originalSubtotal - discount` formula reported $100 here instead of $200.
     renderWithProviders(
       <QuoteDetailSummary
         {...withDiscountDisplayed({
