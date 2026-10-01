@@ -9,6 +9,7 @@
  * Once Order.tsx calls getCustomerOrders directly, delete this file.
  */
 
+import { orderStatusValueToSystemLabel } from './shared/orderStatusValue';
 import { FilterSearchProps, sortKeys } from './config';
 import type { UseCompanyOrdersStateResult } from './useCompanyOrdersState';
 import type { UseCustomerOrdersStateResult } from './useCustomerOrdersState';
@@ -30,7 +31,7 @@ export const adaptUnifiedToLegacyFilterParams = ({
 } => ({
   filterData: {
     q: filters.search ?? '',
-    statusCode: filters.status ?? '',
+    statusCode: filters.status ? orderStatusValueToSystemLabel(filters.status) : '',
     beginDateAt: filters.dateRange?.from ?? null,
     endDateAt: filters.dateRange?.to ?? null,
     companyName: '',
