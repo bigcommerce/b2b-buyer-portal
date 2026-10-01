@@ -60,6 +60,7 @@ export const adaptCompanyUnifiedToLegacyFilterParams = ({
     beginDateAt: filters.dateRange?.from ?? null,
     endDateAt: filters.dateRange?.to ?? null,
     companyName: '',
+    createdBy: filters.placedByLabel ?? '',
     companyIds: filters.companyIds?.map(Number) ?? [],
     isShowMy: 0,
   },

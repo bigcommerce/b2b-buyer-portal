@@ -266,6 +266,9 @@ export interface CompanyOrdersFiltersInput {
   status?: string[];
   customerId?: number[];
   companyIds?: string[];
+  /** Raw PlacedBy label for legacy fallback — not sent to SF GQL.
+   *  Stored so the adapter can map it to `createdBy` for GetAllOrders. */
+  placedByLabel?: string;
 }
 
 /**

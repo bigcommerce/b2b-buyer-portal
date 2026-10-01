@@ -111,6 +111,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  // Legacy users for Placed By filter resolution. The SF GQL usePlacedByUsers hook
+  // is disabled (customersWithOrders removed), so we store the legacy createdByUser
+  // results here and use them for filter lookup in handleFilterChange.
+  const [legacyPlacedByUsers, setLegacyPlacedByUsers] = useState<
+    Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
+  >([]);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -127,6 +133,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
     isEnabled: isUnifiedCompanyPath && role !== CustomerRole.GUEST,
+    externalPlacedByUsers: legacyPlacedByUsers,
   });
 
   const getActiveFilterState = () => {
@@ -135,7 +142,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return legacyFilterState;
   };
 
-  const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
+  const activeFilterState = getActiveFilterState();
+  const { activeSort, handleSetOrderBy } = activeFilterState;
+
+  const { handleFilterChange } = activeFilterState;
 
   const getSearchAndCompanyFilterState = () => {
     if (isUnifiedCompanyPath) return companyFilterState;
@@ -178,6 +188,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         // The replacement (activeCompany.users) is not yet on the schema.
         // The legacy createdByUser query still works and returns the same data.
         createdByUsers = await getCreatedByUserForOrders(Number(companyId));
+        setLegacyPlacedByUsers(createdByUsers?.createdByUser?.results ?? []);
       }
 
       if (!orderStatusesRef.current.length) {
@@ -399,7 +410,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyNeedsSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
   const companyNeedsSort = isUnifiedCompanyPath && !sfGqlCompanySortKeys.has(activeSort.key);
   const customerNeedsSearch = isUnifiedCustomerPath && !!customerFilterState.filters.search;
-  const customerNeedsSort = isUnifiedCustomerPath && activeSort.key !== 'orderId';
+  // GET_CUSTOMER_ORDERS has no sortBy — ANY sort other than the API default needs fallback.
+  const customerNeedsSort =
+    isUnifiedCustomerPath && (activeSort.key !== 'orderId' || activeSort.dir !== 'desc');
   const needsLegacyFallback =
     isUnifiedOrders &&
     (companyNeedsSearch || companyNeedsSort || customerNeedsSearch || customerNeedsSort);
