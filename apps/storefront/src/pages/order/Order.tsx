@@ -385,11 +385,21 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   // When the user searches or sorts by an unsupported column, fall back to the
   // legacy GetAllOrders API which supports both. The adapter
   // (adaptUnifiedToLegacyFilterParams) translates the unified filter/sort state
-  // to legacy params. Sort keys supported by SF GQL: orderId, createdAt.
-  const sfGqlSupportedSortKeys = new Set(['orderId', 'createdAt']);
-  const hasActiveSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
-  const hasUnsupportedSort = isUnifiedOrders && !sfGqlSupportedSortKeys.has(activeSort.key);
-  const needsLegacyFallback = isUnifiedOrders && (hasActiveSearch || hasUnsupportedSort);
+  // to legacy params.
+  //
+  // Company Orders: sortBy is in the query — orderId + createdAt work on SF GQL,
+  //   others fall back. Search always falls back.
+  // My Orders: GET_CUSTOMER_ORDERS has no sortBy param at all, so ANY non-default
+  //   sort falls back. Search goes through legacyFilterState (filterData.q),
+  //   not customerFilterState, so it also needs the legacy fetch path.
+  const sfGqlCompanySortKeys = new Set(['orderId', 'createdAt']);
+  const companyNeedsSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
+  const companyNeedsSort = isUnifiedCompanyPath && !sfGqlCompanySortKeys.has(activeSort.key);
+  const customerNeedsSearch = isUnifiedCustomerPath && !!filterData?.q;
+  const customerNeedsSort = isUnifiedCustomerPath && activeSort.key !== 'orderId';
+  const needsLegacyFallback =
+    isUnifiedOrders &&
+    (companyNeedsSearch || companyNeedsSort || customerNeedsSearch || customerNeedsSort);
 
   const getQueryKey = () => {
     if (needsLegacyFallback) {
