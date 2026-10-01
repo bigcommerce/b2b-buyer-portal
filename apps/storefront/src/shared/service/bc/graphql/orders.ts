@@ -266,6 +266,9 @@ export interface CompanyOrdersFiltersInput {
   status?: string[];
   customerId?: number[];
   companyIds?: string[];
+  /** Raw PlacedBy label for legacy fallback — not sent to SF GQL.
+   *  Stored so the adapter can map it to `createdBy` for GetAllOrders. */
+  placedByLabel?: string;
 }
 
 /**
@@ -279,6 +282,9 @@ export interface OrdersFiltersInput {
   /** An OrderStatusValue enum member, e.g. AWAITING_FULFILLMENT — not a display label. */
   status?: string;
   dateRange?: OrderDateRangeFilterInput;
+  /** Search term for hybrid fallback — not sent to SF GQL (no search on schema yet),
+   *  but carried in state so the legacy fallback adapter can map it to `q`. */
+  search?: string;
 }
 
 export interface CustomerWithOrdersFiltersInput {
@@ -555,7 +561,7 @@ const orderListNodeFields = `entityId
 /** Company-scoped order list (B2B). Entry: customer.activeCompany.orders. */
 const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
-  $sortBy: OrdersSortInput
+  $sortBy: CompanyOrdersSortInput
   $first: Int
   $after: String
   $last: Int

@@ -29,6 +29,14 @@ interface UseCompanyOrdersStateArgs {
   selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
   isEnabled: boolean;
+  /** Legacy users from createdByUser API for PlacedBy filter lookup.
+   *  usePlacedByUsers hook is disabled (customersWithOrders removed). */
+  externalPlacedByUsers?: Array<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    entityId?: number;
+  }>;
 }
 
 export interface UseCompanyOrdersStateResult
@@ -45,6 +53,7 @@ export const useCompanyOrdersState = ({
   selectedCompanyId,
   orderStatuses,
   isEnabled,
+  externalPlacedByUsers = [],
 }: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
   const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
     getCompanyOrdersInitFilter(selectedCompanyId),
@@ -81,8 +90,10 @@ export const useCompanyOrdersState = ({
     let resolvedCustomerId: number[] | undefined;
     const rawPlacedBy = normalizeString(value.PlacedBy);
     if (rawPlacedBy) {
-      const match = placedByUsers.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
-      resolvedCustomerId = match ? [match.entityId] : undefined;
+      // Use external legacy users first (from createdByUser API), fall back to hook users
+      const userList = externalPlacedByUsers.length > 0 ? externalPlacedByUsers : placedByUsers;
+      const match = userList.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
+      resolvedCustomerId = match?.entityId ? [match.entityId] : undefined;
     }
 
     pagination.resetPagination();
@@ -91,6 +102,7 @@ export const useCompanyOrdersState = ({
       status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
       customerId: resolvedCustomerId,
+      placedByLabel: rawPlacedBy || undefined,
     }));
   };
 

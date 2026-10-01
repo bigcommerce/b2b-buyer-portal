@@ -13,9 +13,14 @@ interface UsePlacedByUsersArgs {
 }
 
 export function usePlacedByUsers({ enabled, companyIds }: UsePlacedByUsersArgs): OrderPlacedBy[] {
+  // customersWithOrders API was removed by BE (2026-09-30, Keelan).
+  // Placed By dropdown now uses legacy createdByUser in Order.tsx.
+  // This hook is disabled until BE deploys activeCompany.users.
+  const queryDisabled = false;
+
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ['placedByUsers', companyIds],
-    enabled,
+    enabled: queryDisabled && enabled,
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       getCustomersWithOrders({
         filters: companyIds ? { companyIds } : undefined,
