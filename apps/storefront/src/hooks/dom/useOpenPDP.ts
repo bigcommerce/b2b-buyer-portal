@@ -13,6 +13,7 @@ import {
   TRANSLATION_SHOPPING_LIST_BTN_VARIABLE,
 } from '@/constants';
 import config from '@/lib/config';
+import { LangFormatFunction, useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -34,6 +35,7 @@ interface AddProductFromPageParams {
   saveFn: () => void;
   setOpenPage: SetOpenPage;
   registerEnabled: boolean;
+  b3Lang: LangFormatFunction;
 }
 
 export const addProductFromPage = ({
@@ -42,16 +44,17 @@ export const addProductFromPage = ({
   saveFn,
   setOpenPage,
   registerEnabled,
+  b3Lang,
 }: AddProductFromPageParams) => {
   if (role === 100) {
     storeDispatch(
       setGlobalCommonState({
         globalMessage: {
           open: true,
-          title: 'Registration',
-          message: 'Please create an account, or login to create a shopping list.',
-          cancelText: 'Cancel',
-          saveText: registerEnabled ? 'Register' : '',
+          title: b3Lang('global.dialog.registration'),
+          message: b3Lang('global.dialog.shoppingListRegisterPrompt'),
+          cancelText: b3Lang('global.dialog.cancel'),
+          saveText: registerEnabled ? b3Lang('global.dialog.register') : '',
           saveFn,
         },
       }),
@@ -65,6 +68,7 @@ export const addProductFromPage = ({
 };
 
 export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
+  const b3Lang = useB3Lang();
   const {
     state: { shoppingListBtn },
   } = useContext(CustomStyleContext);
@@ -103,11 +107,12 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         saveFn: jumpRegister,
         setOpenPage,
         registerEnabled,
+        b3Lang,
       });
     },
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [role, registerEnabled],
+    [role, registerEnabled, b3Lang],
   );
 
   const [openQuickView] = useDomVariation(config['dom.setToShoppingListParentEl']);

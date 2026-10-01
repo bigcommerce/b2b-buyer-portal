@@ -41,8 +41,8 @@ function GlobalDialog() {
       <B3Dialog
         isOpen={globalMessage?.open || false}
         title={globalMessage?.title || ''}
-        leftSizeBtn={globalMessage?.cancelText || 'cancel'}
-        rightSizeBtn={globalMessage?.saveText || 'save'}
+        leftSizeBtn={globalMessage?.cancelText}
+        rightSizeBtn={globalMessage?.saveText}
         handleLeftClick={globalMessage?.cancelFn || messageDialogClose}
         handRightClick={handleSaveMessage}
         showRightBtn={!!globalMessage?.saveText}
