@@ -194,11 +194,16 @@ function useData() {
   };
 }
 
-const calculateQuotedSubtotal = (productsList: CustomFieldItems[] = []): number =>
-  productsList.reduce(
+// Returns undefined when any line item has a malformed price or quantity,
+// so the caller can fall back to (subtotal - discount) instead.
+const calculateQuotedSubtotal = (productsList: ProductInfoProps[] = []): number | undefined => {
+  const subtotal = productsList.reduce(
     (total, { offeredPrice, quantity }) => total + Number(offeredPrice) * Number(quantity),
     0,
   );
+
+  return Number.isFinite(subtotal) ? subtotal : undefined;
+};
 
 const containerStyle = (isMobile: boolean) => {
   return isMobile
@@ -544,11 +549,12 @@ function QuoteDetail() {
         ...quote,
         extraFields: quoteExtraFieldInfos,
       });
+      const discountedSubtotal = Number(quote.subtotal) - Number(quote.discount);
       setQuoteSummary({
         originalSubtotal: quote.subtotal,
         quotedSubtotal: useOfferedPriceForQuotedSubtotal
-          ? calculateQuotedSubtotal(quote.productsList)
-          : Number(quote.subtotal) - Number(quote.discount),
+          ? (calculateQuotedSubtotal(quote.productsList) ?? discountedSubtotal)
+          : discountedSubtotal,
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,

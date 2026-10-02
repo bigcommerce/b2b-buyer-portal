@@ -399,6 +399,60 @@ describe('when the user is a B2B customer', () => {
         /\$100\.00/,
       );
     });
+
+    it('falls back to (subtotal - discount) when a line item has a malformed offered price', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [
+              buildQuoteProductWith({ basePrice: '100.00', offeredPrice: '200.00', quantity: 1 }),
+              buildQuoteProductWith({ basePrice: '50.00', offeredPrice: 'N/A', quantity: 2 }),
+            ],
+            currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
+            displayDiscount: true,
+            salesRepEmail: 'john@email.com',
+            subtotal: '300.00',
+            discount: '50.00',
+            shippingTotal: '0.00',
+            taxTotal: '0.00',
+            totalAmount: '250.00',
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: {
+              'B2B-5619.use_offered_price_for_quoted_subtotal': true,
+            },
+          }),
+        },
+      });
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$250\.00/,
+      );
+    });
   });
 
   it('displays snackbar error on load if a product in the quote has validation errors', async () => {
