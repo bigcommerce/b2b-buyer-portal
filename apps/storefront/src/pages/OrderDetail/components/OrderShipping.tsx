@@ -1,4 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
 import styled from '@emotion/styled';
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import { format } from 'date-fns/format';
@@ -6,6 +7,7 @@ import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components/B3ProductList';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
 
@@ -28,6 +30,8 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   } = useContext(OrderDetailsContext);
 
   const b3Lang = useB3Lang();
+  const intl = useIntl();
+  const isDateLocalizationEnabled = useFeatureFlag('LOCAL-3509.Translate_b2b_dates');
 
   const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const showOrderBackorder = isBackorderEnabled && hasAnyBackorderDisplay;
@@ -104,6 +108,14 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
       shipping_method: shippingMethod,
       shipping_provider_display_name: shippingProvider,
     } = shipment;
+
+    if (isDateLocalizationEnabled) {
+      return b3Lang('orderDetail.shipping.shippedOn', {
+        date: intl.formatDate(new Date(createdDate), { month: 'long', day: 'numeric' }),
+        provider: shippingProvider,
+        method: shippingMethod,
+      });
+    }
 
     const time = format(new Date(createdDate), 'LLLL, d');
 

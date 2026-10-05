@@ -211,8 +211,16 @@ class DateFormatter {
 
   // formatDate!: DateFormatterOptions['formatDate']
 
-  constructor(options?: Partial<DateFormatterOptions>) {
-    const config = $h.merge($h.defaults, options)
+  constructor(
+    options?: Partial<Omit<DateFormatterOptions, 'dateSettings'>> & {
+      dateSettings?: Partial<DateFormatterOptions['dateSettings']>
+    }
+  ) {
+    const config = {
+      ...$h.defaults,
+      ...options,
+      dateSettings: { ...$h.defaults.dateSettings, ...options?.dateSettings },
+    }
     this.dateSettings = config.dateSettings
     this.separators = config.separators
     this.validParts = config.validParts
