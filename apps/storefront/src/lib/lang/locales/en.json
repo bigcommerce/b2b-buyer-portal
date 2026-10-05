@@ -400,6 +400,7 @@
   "orderDetail.orderCard.errorMasquerade": "To re-order, return or add product to shopping list, please masquerade",
   "orderDetail.shipment.shipment": "Shipment",
   "orderDetail.shipment.notShippedYet": "Not shipped yet",
+  "orderDetail.shipping.shippedOn": "shipped on {date}, by {provider}, {method}",
   "orderDetail.billing.digitalProducts": "Digital products",
   "orderDetail.summary.subTotal": "Sub total",
   "orderDetail.summary.shipping": "Shipping",

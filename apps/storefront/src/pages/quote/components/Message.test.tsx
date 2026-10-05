@@ -132,3 +132,53 @@ describe('Message sender grouping (flag off / default)', () => {
     expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 });
+
+describe('Message relative time (LOCAL-3509.Translate_b2b_dates enabled, French storefront)', () => {
+  const originalLocation = window.location;
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, href: 'https://store.example.com/fr' },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+  });
+
+  const frenchStorefront = (dateLocalization: boolean) => ({
+    preloadedState: {
+      global: buildGlobalStateWith({
+        featureFlags: {
+          'LOCAL-3191.B2B_multi_language': true,
+          'LOCAL-3509.Translate_b2b_dates': dateLocalization,
+        },
+        locales: [
+          { code: 'en', isDefault: true, fullPath: 'https://store.example.com/' },
+          { code: 'fr', isDefault: false, fullPath: 'https://store.example.com/fr' },
+        ],
+      }),
+    },
+  });
+
+  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 5 * 60;
+
+  it('shows how long ago a message was sent in French', async () => {
+    await renderAndExpand(
+      { ...baseProps, msgs: [{ ...ownerMessage, date: fiveMinutesAgo }] },
+      frenchStorefront(true),
+    );
+
+    expect(await screen.findByText(/il y a 5 minutes/)).toBeVisible();
+  });
+
+  it('keeps the English relative time when the flag is off', async () => {
+    await renderAndExpand(
+      { ...baseProps, msgs: [{ ...ownerMessage, date: fiveMinutesAgo }] },
+      frenchStorefront(false),
+    );
+
+    expect(await screen.findByText(/5 minutes ago/)).toBeVisible();
+  });
+});

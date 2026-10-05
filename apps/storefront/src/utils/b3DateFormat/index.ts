@@ -1,15 +1,99 @@
 import dayjs from 'dayjs';
 import merge from 'lodash-es/merge';
 
+import { getActiveDateLocale } from '@/lib/lang/getActiveDateLocale';
 import { store } from '@/store';
 
+import { buildDateSettings } from './buildDateSettings';
 import DateFormatter from './php-date-format.js';
+import {
+  formatWithEnglishOrdinalDay,
+  hasEnglishOrdinalDay,
+  phpFormatToIntlOptions,
+} from './phpFormatToIntlOptions';
 
 type DisplayType = 'display' | 'extendedDisplay';
+type Handler = 'formatDate' | 'parseDate';
+
+interface Formatter {
+  formatDate(date: Date, format: string): string | null;
+  parseDate(date: Date, format: string): Date | string | number | null;
+}
 
 const fmt = new DateFormatter();
+const phpFormatters = new Map<string, DateFormatter>();
+const intlFormatters = new Map<string, Intl.DateTimeFormat | null>();
 
-type Handler = 'formatDate' | 'parseDate';
+const getPhpFormatter = (locale: string | undefined) => {
+  if (!locale) {
+    return fmt;
+  }
+
+  const cached = phpFormatters.get(locale);
+
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const formatter = new DateFormatter({ dateSettings: buildDateSettings(locale) });
+
+    phpFormatters.set(locale, formatter);
+
+    return formatter;
+  } catch {
+    return fmt;
+  }
+};
+
+const getIntlFormatter = (locale: string, format: string) => {
+  const key = `${locale}|${format}`;
+
+  if (intlFormatters.has(key)) {
+    return intlFormatters.get(key) ?? undefined;
+  }
+
+  let formatter: Intl.DateTimeFormat | null = null;
+  const options = phpFormatToIntlOptions(format);
+
+  if (options) {
+    try {
+      formatter = new Intl.DateTimeFormat(locale, options);
+    } catch {
+      formatter = null;
+    }
+  }
+
+  intlFormatters.set(key, formatter);
+
+  return formatter ?? undefined;
+};
+
+const getFormatter = (format: string): Formatter => {
+  const dateLocale = getActiveDateLocale();
+  const phpFormatter = getPhpFormatter(dateLocale?.code);
+
+  if (!dateLocale || dateLocale.isDefault) {
+    return phpFormatter;
+  }
+
+  const intlFormatter = getIntlFormatter(dateLocale.code, format);
+
+  if (!intlFormatter) {
+    return phpFormatter;
+  }
+
+  const withOrdinalDay = hasEnglishOrdinalDay(dateLocale.code, format);
+
+  // Intl formats (locale decides order and punctuation); parsing stays with the PHP formatter.
+  return {
+    formatDate: (date) =>
+      withOrdinalDay
+        ? formatWithEnglishOrdinalDay(intlFormatter, date)
+        : intlFormatter.format(date),
+    parseDate: (date, dateFormat) => phpFormatter.parseDate(date, dateFormat),
+  };
+};
 
 const formatCreator =
   (displayType: DisplayType, handler: Handler, useOffset = true) =>
@@ -36,11 +120,13 @@ const formatCreator =
     const utcTime = localTime + offset;
 
     const dateObject = new Date(utcTime);
+    const formatter = getFormatter(display);
+
     switch (handler) {
       case 'formatDate':
-        return fmt.formatDate(dateObject, display) || '';
+        return formatter.formatDate(dateObject, display) || '';
       case 'parseDate':
-        return fmt.parseDate(dateObject, display) || '';
+        return formatter.parseDate(dateObject, display) || '';
       default:
         throw new Error('Invalid value');
     }
