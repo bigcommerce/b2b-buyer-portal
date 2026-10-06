@@ -71,6 +71,10 @@ export const featureFlags = [
     key: 'B2B-5863.defer_non_critical_login_fetches',
     name: 'deferNonCriticalLoginFetches',
   },
+  {
+    key: 'LOCAL-3509.Translate_b2b_dates',
+    name: 'translateB2bDates',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

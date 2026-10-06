@@ -830,6 +830,98 @@ describe('when a personal customer visits an order', () => {
       expect(screen.getByText('21')).toBeVisible();
       expect(screen.getByText('€123,00')).toBeVisible();
     });
+
+    describe('with the date localization flag enabled', () => {
+      const originalLocation = window.location;
+
+      afterEach(() => {
+        Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+      });
+
+      const renderShippedOrderOnStorefront = async (code: string) => {
+        Object.defineProperty(window, 'location', {
+          value: { ...originalLocation, href: `https://store.example.com/${code}` },
+          writable: true,
+        });
+
+        const address = buildShippingAddressWith('WHATEVER_VALUES');
+        const laughCanister = buildProductWith({
+          id: 499,
+          order_address_id: address.id,
+          name: 'Laugh Canister',
+          quantity: 21,
+          quantity_shipped: 21,
+          product_options: [],
+          type: 'physical',
+        });
+        const dhlShipment = buildShipmentWith({
+          id: 1,
+          date_created: '21 May 2022',
+          shipping_method: 'Free Shipping',
+          shipping_provider_display_name: 'DHL',
+          order_address_id: address.id,
+          items: [
+            {
+              quantity: laughCanister.quantity_shipped,
+              order_product_id: laughCanister.id,
+            },
+          ],
+        });
+
+        server.use(
+          graphql.query('GetCustomerOrderStatuses', () =>
+            HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+          ),
+          graphql.query('AddressConfig', () =>
+            HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+          ),
+          graphql.query('GetCustomerOrder', () =>
+            HttpResponse.json(
+              buildCustomerOrderResponseWith({
+                data: {
+                  customerOrder: {
+                    money: euro,
+                    shipments: [dhlShipment],
+                    shippingAddress: [address],
+                    products: [laughCanister],
+                  },
+                },
+              }),
+            ),
+          ),
+        );
+
+        renderWithProviders(<OrderDetails />, {
+          preloadedState: {
+            ...preloadedState,
+            global: buildGlobalStateWith({
+              featureFlags: {
+                'LOCAL-3191.B2B_multi_language': true,
+                'LOCAL-3509.Translate_b2b_dates': true,
+              },
+              locales: [
+                { code: 'en', isDefault: true, fullPath: 'https://store.example.com/' },
+                { code, isDefault: false, fullPath: `https://store.example.com/${code}` },
+              ],
+            }),
+          },
+        });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+      };
+
+      it('renders the shipment sentence with a French month name', async () => {
+        await renderShippedOrderOnStorefront('fr');
+
+        expect(await screen.findByText('shipped on 21 mai, by DHL, Free Shipping')).toBeVisible();
+      });
+
+      it('keeps the English month name for a language the portal ships no translations for', async () => {
+        await renderShippedOrderOnStorefront('uk');
+
+        expect(await screen.findByText('shipped on May 21, by DHL, Free Shipping')).toBeVisible();
+      });
+    });
   });
 
   describe('when the order contains digital products', () => {
