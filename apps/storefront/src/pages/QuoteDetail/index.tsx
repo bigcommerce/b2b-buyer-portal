@@ -5,6 +5,7 @@ import copy from 'copy-to-clipboard';
 import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useMobile } from '@/hooks/useMobile';
 import { useScrollBar } from '@/hooks/useScrollBar';
@@ -193,6 +194,17 @@ function useData() {
   };
 }
 
+// Returns undefined when any line item has a malformed price or quantity,
+// so the caller can fall back to (subtotal - discount) instead.
+const calculateQuotedSubtotal = (productsList: ProductInfoProps[] = []): number | undefined => {
+  const subtotal = productsList.reduce(
+    (total, { offeredPrice, quantity }) => total + Number(offeredPrice) * Number(quantity),
+    0,
+  );
+
+  return Number.isFinite(subtotal) ? subtotal : undefined;
+};
+
 const containerStyle = (isMobile: boolean) => {
   return isMobile
     ? {
@@ -274,6 +286,10 @@ function QuoteDetail() {
 
   const b3Lang = useB3Lang();
 
+  const useOfferedPriceForQuotedSubtotal = useFeatureFlag(
+    'B2B-5619.use_offered_price_for_quoted_subtotal',
+  );
+
   const [quoteDetail, setQuoteDetail] = useState<any>({});
   const [productList, setProductList] = useState<ProductInfoProps[]>([]);
   const { hasBackorderedItems } = useQuoteDetailBackorderState(productList, quoteDetail.status);
@@ -286,6 +302,7 @@ function QuoteDetail() {
 
   const [quoteSummary, setQuoteSummary] = useState({
     originalSubtotal: 0,
+    quotedSubtotal: 0,
     discount: 0,
     tax: 0,
     shipping: 0,
@@ -532,8 +549,12 @@ function QuoteDetail() {
         ...quote,
         extraFields: quoteExtraFieldInfos,
       });
+      const discountedSubtotal = Number(quote.subtotal) - Number(quote.discount);
       setQuoteSummary({
         originalSubtotal: quote.subtotal,
+        quotedSubtotal: useOfferedPriceForQuotedSubtotal
+          ? (calculateQuotedSubtotal(quote.productsList) ?? discountedSubtotal)
+          : discountedSubtotal,
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,

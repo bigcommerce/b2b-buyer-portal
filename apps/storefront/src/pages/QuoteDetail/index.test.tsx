@@ -273,7 +273,9 @@ describe('when the user is a B2B customer', () => {
       data: {
         quote: {
           id: '272989',
-          productsList: [buildQuoteProductWith('WHATEVER_VALUES')],
+          productsList: [
+            buildQuoteProductWith({ basePrice: '1000.00', offeredPrice: '975.00', quantity: 1 }),
+          ],
           currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
           displayDiscount: true,
           discount: '25.00',
@@ -306,23 +308,151 @@ describe('when the user is a B2B customer', () => {
 
     expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
 
-    expect(await screen.findByText('Original subtotal')).toBeInTheDocument();
-    expect(await screen.findByText('$1,000.00')).toBeInTheDocument();
+    // Scoped to the summary card: these amounts also appear in the line-item table.
+    const withinSummary = within(screen.getByTestId('quote-summary'));
 
-    expect(screen.getByText('Discount amount')).toBeInTheDocument();
-    expect(screen.getByText('-$25.00')).toBeInTheDocument();
+    expect(withinSummary.getByRole('row', { name: /Original subtotal/ })).toHaveTextContent(
+      /\$1,000\.00/,
+    );
+    expect(withinSummary.getByRole('row', { name: /Discount amount/ })).toHaveTextContent(
+      /-\$25\.00/,
+    );
+    expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+      /\$975\.00/,
+    );
+    expect(withinSummary.getByRole('row', { name: /Shipping/ })).toHaveTextContent(/\$50\.00/);
+    expect(withinSummary.getByRole('row', { name: /Tax/ })).toHaveTextContent(/\$33\.00/);
+    expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(
+      /\$1,025\.00/,
+    );
+  });
 
-    expect(screen.getByText('Quoted subtotal')).toBeInTheDocument();
-    expect(screen.getByText('$975.00')).toBeInTheDocument();
+  describe('when a line is quoted above its base price', () => {
+    const renderMarkedUpQuote = (useOfferedPriceForQuotedSubtotal: boolean) => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [
+              buildQuoteProductWith({ basePrice: '100.00', offeredPrice: '200.00', quantity: 1 }),
+            ],
+            currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
+            displayDiscount: true,
+            salesRepEmail: 'john@email.com',
+            subtotal: '100.00',
+            discount: '0.00',
+            shippingTotal: '0.00',
+            taxTotal: '0.00',
+            totalAmount: '200.00',
+          },
+        },
+      });
 
-    expect(screen.getByText('Shipping')).toBeInTheDocument();
-    expect(screen.getByText('$50.00')).toBeInTheDocument();
+      server.use(
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+      );
 
-    expect(screen.getByText('Tax')).toBeInTheDocument();
-    expect(screen.getByText('$33.00')).toBeInTheDocument();
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
 
-    expect(screen.getByText('Grand total')).toBeInTheDocument();
-    expect(screen.getByText('$1,025.00')).toBeInTheDocument();
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: {
+              'B2B-5619.use_offered_price_for_quoted_subtotal': useOfferedPriceForQuotedSubtotal,
+            },
+          }),
+        },
+      });
+    };
+
+    it('sums the line items when the feature flag is enabled', async () => {
+      renderMarkedUpQuote(true);
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$200\.00/,
+      );
+      expect(withinSummary.getByRole('row', { name: /Grand total/ })).toHaveTextContent(
+        /\$200\.00/,
+      );
+    });
+
+    it('falls back to subtracting the discount when the feature flag is disabled', async () => {
+      renderMarkedUpQuote(false);
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$100\.00/,
+      );
+    });
+
+    it('falls back to (subtotal - discount) when a line item has a malformed offered price', async () => {
+      const quote = buildQuoteWith({
+        data: {
+          quote: {
+            id: '272989',
+            productsList: [
+              buildQuoteProductWith({ basePrice: '100.00', offeredPrice: '200.00', quantity: 1 }),
+              buildQuoteProductWith({ basePrice: '50.00', offeredPrice: 'N/A', quantity: 2 }),
+            ],
+            currency: { token: '$', location: 'left', decimalToken: '.', decimalPlaces: 2 },
+            displayDiscount: true,
+            salesRepEmail: 'john@email.com',
+            subtotal: '300.00',
+            discount: '50.00',
+            shippingTotal: '0.00',
+            taxTotal: '0.00',
+            totalAmount: '250.00',
+          },
+        },
+      });
+
+      server.use(
+        graphql.query('GetQuoteInfoB2B', () => HttpResponse.json(quote)),
+        graphql.query('SearchProducts', () =>
+          HttpResponse.json(buildProductSearchResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('getQuoteExtraFields', () =>
+          HttpResponse.json(buildQuoteExtraFieldsWith('WHATEVER_VALUES')),
+        ),
+      );
+
+      vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+
+      renderWithProviders(<QuoteDetail />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({
+            backorderEnabled: false,
+            featureFlags: {
+              'B2B-5619.use_offered_price_for_quoted_subtotal': true,
+            },
+          }),
+        },
+      });
+
+      expect(await screen.findByRole('heading', { name: 'Quote summary' })).toBeInTheDocument();
+
+      const withinSummary = within(screen.getByTestId('quote-summary'));
+
+      expect(withinSummary.getByRole('row', { name: /Quoted subtotal/ })).toHaveTextContent(
+        /\$250\.00/,
+      );
+    });
   });
 
   it('displays snackbar error on load if a product in the quote has validation errors', async () => {
@@ -817,6 +947,7 @@ describe('when the user is a B2B customer', () => {
               productId: '123',
               offeredPrice: '1000.00',
               basePrice: '1000.00',
+              quantity: 1,
             }),
           ],
         },
@@ -917,6 +1048,7 @@ describe('when the user is a B2B customer', () => {
               productId: '123',
               offeredPrice: '1000.00',
               basePrice: '1000.00',
+              quantity: 1,
             }),
           ],
           salesRep: 'john',
