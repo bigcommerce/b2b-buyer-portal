@@ -29,6 +29,12 @@ interface UseCompanyOrdersStateArgs {
   selectedCompanyId: number;
   orderStatuses: OrderStatusItem[];
   isEnabled: boolean;
+  externalPlacedByUsers?: Array<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    entityId?: number;
+  }>;
 }
 
 export interface UseCompanyOrdersStateResult
@@ -45,6 +51,7 @@ export const useCompanyOrdersState = ({
   selectedCompanyId,
   orderStatuses,
   isEnabled,
+  externalPlacedByUsers = [],
 }: UseCompanyOrdersStateArgs): UseCompanyOrdersStateResult => {
   const [filters, setFilters] = useState<CompanyOrdersFiltersInput>(() =>
     getCompanyOrdersInitFilter(selectedCompanyId),
@@ -81,8 +88,9 @@ export const useCompanyOrdersState = ({
     let resolvedCustomerId: number[] | undefined;
     const rawPlacedBy = normalizeString(value.PlacedBy);
     if (rawPlacedBy) {
-      const match = placedByUsers.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
-      resolvedCustomerId = match ? [match.entityId] : undefined;
+      const userList = externalPlacedByUsers.length > 0 ? externalPlacedByUsers : placedByUsers;
+      const match = userList.find((u) => formatPlacedByLabel(u) === rawPlacedBy);
+      resolvedCustomerId = match?.entityId ? [match.entityId] : undefined;
     }
 
     pagination.resetPagination();
@@ -91,6 +99,7 @@ export const useCompanyOrdersState = ({
       status: resolvedStatuses,
       dateRange: packDateRange(value.startValue, value.endValue),
       customerId: resolvedCustomerId,
+      placedByLabel: rawPlacedBy || undefined,
     }));
   };
 
@@ -101,6 +110,7 @@ export const useCompanyOrdersState = ({
       ...prev,
       companyIds: isAll ? undefined : companyIds.map(String),
       customerId: undefined,
+      placedByLabel: undefined,
     }));
   };
 

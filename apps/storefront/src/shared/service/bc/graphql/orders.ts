@@ -266,6 +266,7 @@ export interface CompanyOrdersFiltersInput {
   status?: string[];
   customerId?: number[];
   companyIds?: string[];
+  placedByLabel?: string;
 }
 
 /**
@@ -279,6 +280,7 @@ export interface OrdersFiltersInput {
   /** An OrderStatusValue enum member, e.g. AWAITING_FULFILLMENT — not a display label. */
   status?: string;
   dateRange?: OrderDateRangeFilterInput;
+  search?: string;
 }
 
 export interface CustomerWithOrdersFiltersInput {
@@ -555,7 +557,7 @@ const orderListNodeFields = `entityId
 /** Company-scoped order list (B2B). Entry: customer.activeCompany.orders. */
 const GET_COMPANY_ORDERS = `query GetCompanyOrders(
   $filters: CompanyOrdersFiltersInput
-  $sortBy: OrdersSortInput
+  $sortBy: CompanyOrdersSortInput
   $first: Int
   $after: String
   $last: Int
@@ -607,6 +609,7 @@ const GET_COMPANY_ORDERS = `query GetCompanyOrders(
  */
 const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   $filters: OrdersFiltersInput
+  $sortBy: CustomerOrdersSortInput
   $first: Int
   $after: String
   $last: Int
@@ -615,6 +618,7 @@ const GET_CUSTOMER_ORDERS = `query GetCustomerOrders(
   customer {
     orders(
       filters: $filters
+      sortBy: $sortBy
       first: $first
       after: $after
       last: $last
