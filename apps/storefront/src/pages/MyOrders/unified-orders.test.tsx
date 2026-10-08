@@ -360,7 +360,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(headerTexts).toContain('Company');
     });
 
-    it('renders My Orders column headers as non-sortable when unified orders is enabled', async () => {
+    it('renders My Orders column headers as sortable (hybrid fallback handles unsupported sorts)', async () => {
       server.use(
         graphql.query('GetCustomerOrders', () =>
           HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
@@ -370,19 +370,17 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
       expect(await screen.findByRole('columnheader', { name: 'Order' })).toBeInTheDocument();
-      screen.getAllByRole('columnheader').forEach((header) => {
-        expect(header).not.toHaveAttribute('aria-sort');
-        expect(header.querySelector('.MuiTableSortLabel-root')).toBeNull();
-      });
+      const sortableHeaders = screen
+        .getAllByRole('columnheader')
+        .filter((h) => h.querySelector('.MuiTableSortLabel-root'));
+      expect(sortableHeaders.length).toBeGreaterThan(0);
     });
 
-    it('does not send sortBy on the customer orders query', async () => {
-      let capturedQuery = '';
+    it('does not send sortBy on the default customer orders query (enum mismatch, BE default is correct)', async () => {
       let capturedVariables: Record<string, unknown> = {};
 
       server.use(
-        graphql.query('GetCustomerOrders', ({ query, variables }) => {
-          capturedQuery = query;
+        graphql.query('GetCustomerOrders', ({ variables }) => {
           capturedVariables = variables;
           return HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
         }),
@@ -390,8 +388,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
-      await waitFor(() => expect(capturedQuery).not.toBe(''));
-      expect(capturedQuery).not.toContain('sortBy');
+      await waitFor(() => expect(capturedVariables).toHaveProperty('first'));
       expect(capturedVariables).not.toHaveProperty('sortBy');
     });
 

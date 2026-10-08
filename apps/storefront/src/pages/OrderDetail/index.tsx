@@ -23,11 +23,11 @@ import { getOrderBackorderHistory, getOrderDetail } from '@/shared/service/bc/gr
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
+import { snackbar } from '@/utils/b3Tip';
 
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
-import { CursorDetailPagination } from './components/CursorDetailPagination';
 import { DetailPagination } from './components/DetailPagination';
 import { OrderAction } from './components/OrderAction';
 import { OrderBilling } from './components/OrderBilling';
@@ -197,6 +197,7 @@ function OrderDetail() {
     }
 
     let isCurrentRequest = true;
+    let redirectTimer: ReturnType<typeof setTimeout> | undefined;
 
     const fetchUnifiedOrderDetails = async () => {
       const id = parseInt(orderId, 10);
@@ -215,10 +216,17 @@ function OrderDetail() {
         if (order && isCurrentRequest) {
           setUnifiedOrder(order);
           setPreOrderId(orderId);
+        } else if (!order && isCurrentRequest) {
+          snackbar.error('order does not exist');
+          if (preOrderId) {
+            redirectTimer = setTimeout(() => {
+              window.location.hash = `/orderDetail/${preOrderId}`;
+            }, 1000);
+          }
         }
       } catch (err) {
         if (err === 'order does not exist' && isCurrentRequest) {
-          setTimeout(() => {
+          redirectTimer = setTimeout(() => {
             window.location.hash = `/orderDetail/${preOrderId}`;
           }, 1000);
         }
@@ -233,6 +241,7 @@ function OrderDetail() {
 
     return () => {
       isCurrentRequest = false;
+      clearTimeout(redirectTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- preOrderId is only used for failed navigation fallback
   }, [isUnifiedOrders, orderId]);
@@ -403,18 +412,9 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            {location?.state &&
-              (isUnifiedOrders ? (
-                // key={location.key} remounts when history changes
-                // so useCursorDetailPagination re-seeds from location.state on mount.
-                <CursorDetailPagination
-                  key={location.key}
-                  onChange={handlePageChange}
-                  color={customColor}
-                />
-              ) : (
-                <DetailPagination onChange={handlePageChange} color={customColor} />
-              ))}
+            {location?.state && !isUnifiedOrders && (
+              <DetailPagination onChange={handlePageChange} color={customColor} />
+            )}
           </Grid>
         </Grid>
         {orderId && !isCurrentCompany ? (

@@ -111,6 +111,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  const [legacyPlacedByUsers, setLegacyPlacedByUsers] = useState<
+    Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
+  >([]);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -127,6 +130,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     selectedCompanyId,
     orderStatuses: getOrderStatuses,
     isEnabled: isUnifiedCompanyPath && role !== CustomerRole.GUEST,
+    externalPlacedByUsers: legacyPlacedByUsers,
   });
 
   const getActiveFilterState = () => {
@@ -135,10 +139,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     return legacyFilterState;
   };
 
-  const { activeSort, handleFilterChange, handleSetOrderBy } = getActiveFilterState();
+  const activeFilterState = getActiveFilterState();
+  const { activeSort, handleSetOrderBy } = activeFilterState;
 
-  const getSearchAndCompanyFilterState = () =>
-    isUnifiedCompanyPath ? companyFilterState : legacyFilterState;
+  const { handleFilterChange } = activeFilterState;
+
+  const getSearchAndCompanyFilterState = () => {
+    if (isUnifiedCompanyPath) return companyFilterState;
+    if (isUnifiedCustomerPath) return customerFilterState;
+    return legacyFilterState;
+  };
 
   const { handleSearchChange, handleCompanyIdsChange } = getSearchAndCompanyFilterState();
 
@@ -170,11 +180,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const initFilter = async () => {
       let createdByUsers: CreatedByUsersData = {};
       if (isB2BUser && isCompanyOrder) {
-        if (isUnifiedOrders) {
-          createdByUsers = { createdByUser: { results: companyFilterState.placedByUsers } };
-        } else {
-          createdByUsers = await getCreatedByUserForOrders(Number(companyId));
-        }
+        createdByUsers = await getCreatedByUserForOrders(Number(companyId));
+        setLegacyPlacedByUsers(createdByUsers?.createdByUser?.results ?? []);
       }
 
       if (!orderStatusesRef.current.length) {
@@ -199,16 +206,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [
-    b3Lang,
-    companyId,
-    isAgenting,
-    isB2BUser,
-    isCompanyOrder,
-    isUnifiedOrders,
-    companyFilterState.placedByUsers,
-    role,
-  ]);
+  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;
@@ -216,6 +214,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     last?: number;
     before?: string;
     filters: OrdersFiltersInput;
+    sortBy?: string;
   }): Promise<{
     edges: ListItem[];
     totalCount: number;
@@ -294,7 +293,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const goToDetail = (item: ListItem, items: ListItem[]) => {
     const activeFilterState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
-    const orders = items.flatMap(({ orderId, cursor }) => (cursor ? [{ orderId, cursor }] : []));
+    const orders = items.map(({ orderId, cursor }) => ({ orderId, cursor: cursor || '' }));
     const currentIndex = orders.findIndex((o) => o.orderId === item.orderId);
 
     navigate(`/orderDetail/${item.orderId}`, {
@@ -321,7 +320,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         key: 'orderId',
         title: b3Lang('orders.order'),
         width: '10%',
-        isSortable: !isUnifiedCustomerPath,
+        isSortable: true,
         render: ({ orderId }) => orderId,
       },
       {
@@ -339,7 +338,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         title: b3Lang('orders.poReference'),
         render: ({ poNumber }) => <Box>{poNumber || '–'}</Box>,
         width: '10%',
-        isSortable: !isUnifiedCustomerPath,
+        isSortable: true,
       },
       {
         key: 'totalIncTax',
@@ -352,22 +351,21 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         },
         align: 'right',
         width: '8%',
-        isSortable: !isUnifiedCustomerPath,
+        isSortable: true,
       },
       {
         key: 'status',
         title: b3Lang('orders.orderStatus'),
         render: ({ status, statusText }) => <OrderStatus text={statusText} code={status} />,
         width: '10%',
-        isSortable: !isUnifiedCustomerPath,
+        isSortable: true,
       },
       {
         key: 'placedBy',
         title: b3Lang('orders.placedBy'),
         render: ({ firstName, lastName }) => `${firstName} ${lastName}`,
         width: '10%',
-        // Placed-by sort is disabled under the unified flag — backend support is incomplete.
-        isSortable: !isUnifiedOrders,
+        isSortable: true,
         hidden: !isB2BUser || isSuperAdminNotAgenting || !isCompanyOrder,
       },
       {
@@ -375,22 +373,43 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         title: b3Lang('orders.createdOn'),
         render: ({ createdAt }) => `${displayFormat(Number(createdAt))}`,
         width: '10%',
-        isSortable: !isUnifiedCustomerPath,
+        isSortable: true,
       },
     ],
-    [
-      b3Lang,
-      isB2BUser,
-      isSuperAdminNotAgenting,
-      isCompanyOrder,
-      isUnifiedCustomerPath,
-      isUnifiedOrders,
-    ],
+    [b3Lang, isB2BUser, isSuperAdminNotAgenting, isCompanyOrder],
   );
 
   const unifiedState = isUnifiedCompanyPath ? companyFilterState : customerFilterState;
 
+  // Fall back to legacy GetAllOrders when SF GQL doesn't support the requested operation.
+  const sfGqlCompanySortKeys = new Set(['orderId', 'createdAt']);
+  const companyNeedsSearch = isUnifiedCompanyPath && !!companyFilterState.filters.search;
+  const companyNeedsSort = isUnifiedCompanyPath && !sfGqlCompanySortKeys.has(activeSort.key);
+  const companyNeedsPlacedBy = isUnifiedCompanyPath && !!companyFilterState.filters.placedByLabel;
+  const companyNeedsAllHierarchy =
+    isUnifiedCompanyPath && isEnabledCompanyHierarchy && !companyFilterState.filters.companyIds;
+  const customerNeedsSearch = isUnifiedCustomerPath && !!customerFilterState.filters.search;
+  const customerNeedsSort =
+    isUnifiedCustomerPath && (activeSort.key !== 'orderId' || activeSort.dir !== 'desc');
+  const needsLegacyFallback =
+    isUnifiedOrders &&
+    (companyNeedsSearch ||
+      companyNeedsSort ||
+      companyNeedsPlacedBy ||
+      companyNeedsAllHierarchy ||
+      customerNeedsSearch ||
+      customerNeedsSort);
+
+  useEffect(() => {
+    if (needsLegacyFallback) {
+      setLegacyPagination((prev) => (prev.offset === 0 ? prev : { offset: 0, first: prev.first }));
+    }
+  }, [needsLegacyFallback]);
+
   const getQueryKey = () => {
+    if (needsLegacyFallback) {
+      return ['orderList:legacyFallback', filterData, legacyPagination, orderBy];
+    }
     if (isUnifiedCompanyPath) {
       return [
         'orderList:unifiedCompany',
@@ -411,6 +430,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   };
 
   const getQueryFn = () => {
+    if (needsLegacyFallback) {
+      return fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy });
+    }
     if (isUnifiedCompanyPath) {
       return fetchUnifiedCompanyOrders({
         ...companyFilterState.paginationVariables,
@@ -452,9 +474,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     [data?.edges, getOrderStatuses],
   );
 
-  const navigateToOrderDetail = isUnifiedOrders
-    ? (item: ListItem) => goToDetail(item, listItems)
-    : legacyGoToDetail;
+  const navigateToOrderDetail =
+    isUnifiedOrders && !needsLegacyFallback
+      ? (item: ListItem) => goToDetail(item, listItems)
+      : legacyGoToDetail;
 
   const filterMoreInfoWithoutInertCompanyControl = filterMoreInfo.filter(
     (item) => item.name !== 'company',
@@ -516,15 +539,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           columnItems={columnItems}
           listItems={listItems}
           pagination={
-            isUnifiedOrders
+            isUnifiedOrders && !needsLegacyFallback
               ? unifiedState.b3TablePaginationProps.pagination
               : { ...legacyPagination, count: data?.totalCount || 0 }
           }
           cursorPageInfo={
-            isUnifiedOrders ? unifiedState.b3TablePaginationProps.cursorPageInfo : undefined
+            isUnifiedOrders && !needsLegacyFallback
+              ? unifiedState.b3TablePaginationProps.cursorPageInfo
+              : undefined
           }
           onPaginationChange={
-            isUnifiedOrders
+            isUnifiedOrders && !needsLegacyFallback
               ? unifiedState.b3TablePaginationProps.onPaginationChange
               : setLegacyPagination
           }
@@ -539,7 +564,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           onClickRow={navigateToOrderDetail}
           sortDirection={activeSort.dir}
           sortByFn={handleSetOrderBy}
-          orderBy={isUnifiedCustomerPath ? undefined : activeSort.key}
+          orderBy={activeSort.key}
         />
       </Box>
     </B3Spin>
