@@ -400,6 +400,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       customerNeedsSearch ||
       customerNeedsSort);
 
+  useEffect(() => {
+    if (needsLegacyFallback) {
+      setLegacyPagination((prev) => (prev.offset === 0 ? prev : { offset: 0, first: prev.first }));
+    }
+  }, [needsLegacyFallback]);
+
   const getQueryKey = () => {
     if (needsLegacyFallback) {
       return ['orderList:legacyFallback', filterData, legacyPagination, orderBy];
