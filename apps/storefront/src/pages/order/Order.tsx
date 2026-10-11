@@ -410,10 +410,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   useEffect(() => {
     if (needsLegacyFallback) {
-      setLegacyPagination((prev) => (prev.offset === 0 ? prev : { offset: 0, first: prev.first }));
+      setLegacyPagination((prev) => {
+        const first = unifiedState.pageSize;
+        if (prev.offset === 0 && prev.first === first) return prev;
+        return { offset: 0, first };
+      });
     }
-    // Reset on any filter/sort change while in fallback, not just on entry.
-  }, [needsLegacyFallback, filterData, orderBy]);
+  }, [needsLegacyFallback, filterData, orderBy, unifiedState.pageSize]);
 
   const getQueryKey = () => {
     if (needsLegacyFallback) {
