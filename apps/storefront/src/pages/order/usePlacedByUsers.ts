@@ -12,13 +12,10 @@ interface UsePlacedByUsersArgs {
   companyIds?: string[];
 }
 
-export function usePlacedByUsers({ enabled, companyIds }: UsePlacedByUsersArgs): OrderPlacedBy[] {
-  // Disabled — customersWithOrders API removed, awaiting activeCompany.users.
-  const queryDisabled = false;
-
+export function usePlacedByUsers({ companyIds }: UsePlacedByUsersArgs): OrderPlacedBy[] {
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ['placedByUsers', companyIds],
-    enabled: queryDisabled && enabled,
+    enabled: false,
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       getCustomersWithOrders({
         filters: companyIds ? { companyIds } : undefined,
