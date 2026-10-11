@@ -152,7 +152,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const { handleSearchChange, handleCompanyIdsChange } = getSearchAndCompanyFilterState();
 
-  const getFilterDataAndOrderBy = () => {
+  const { filterData, orderBy } = useMemo(() => {
     if (isUnifiedCompanyPath) {
       return adaptCompanyUnifiedToLegacyFilterParams({
         filters: companyFilterState.filters,
@@ -167,9 +167,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       });
     }
     return { filterData: legacyFilterState.filterData, orderBy: legacyFilterState.orderBy };
-  };
-
-  const { filterData, orderBy } = getFilterDataAndOrderBy();
+  }, [
+    isUnifiedCompanyPath,
+    isUnifiedCustomerPath,
+    companyFilterState.filters,
+    companyFilterState.activeSort,
+    customerFilterState.filters,
+    customerFilterState.activeSort,
+    isB2BUser,
+    legacyFilterState.filterData,
+    legacyFilterState.orderBy,
+  ]);
 
   const orderStatusesRef = useRef<Array<any>>([]);
 
