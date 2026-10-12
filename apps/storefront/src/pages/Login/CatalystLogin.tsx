@@ -38,11 +38,12 @@ const useEndCompanyMasquerade = () => {
   }, [selectCompanyHierarchyId]);
 };
 
-// The Catalyst B2B token is pushed into the portal asynchronously, so the first
-// render here routinely has no session yet. Wait this long for the session to resolve
-// before giving up, rather than logging the shopper out on sight — which bounced a
-// valid-but-slow login back to /login. Covers normal slowness; a token that takes
-// longer than this (or never arrives) still falls through to logout.
+const WAIT_FOR_SESSION_FLAG = 'B2B-5408.catalyst_login_wait_for_session';
+
+// When wait-for-session is enabled: the Catalyst B2B token is pushed into the portal
+// asynchronously, so the first render here routinely has no session yet. Wait this
+// long for it to resolve before giving up, rather than logging the shopper out on
+// sight — which bounced a valid-but-slow login back to /login.
 const LOGIN_RESOLUTION_GRACE_MS = 3000;
 
 export function CatalystLogin() {
@@ -50,6 +51,10 @@ export function CatalystLogin() {
   const endMasquerade = useEndMasquerade();
   const endCompanyMasquerading = useEndCompanyMasquerade();
   const isLoggedIn = useAppSelector(isLoggedInSelector);
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
+  const waitForSession = useAppSelector(
+    ({ global }) => global.featureFlags[WAIT_FOR_SESSION_FLAG] ?? false,
+  );
   const [searchParams] = useSearchParams();
 
   const loginFlag = searchParams.get('loginFlag');
@@ -66,6 +71,20 @@ export function CatalystLogin() {
       });
   }, [endCompanyMasquerading, endMasquerade, navigate]);
 
+  // Legacy fallback redirect — kept only while wait-for-session is off, so toggling
+  // the flag reverts to the previous behaviour exactly.
+  useEffect(() => {
+    if (waitForSession) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => {
+      window.location.href = '/login';
+    }, LOGIN_RESOLUTION_GRACE_MS);
+
+    return () => clearTimeout(timeout);
+  }, [B2BToken, waitForSession]);
+
   useEffect(() => {
     // An explicit logout request should tear down immediately.
     if (loginFlag === 'loggedOutLogin') {
@@ -74,19 +93,42 @@ export function CatalystLogin() {
       return undefined;
     }
 
-    // Session resolved — enter the app.
+    if (!waitForSession) {
+      // Previous behaviour: log out on sight when the token isn't present.
+      if (!B2BToken) {
+        runLogout();
+      } else if (isLoggedIn) {
+        navigate('/orders');
+      }
+
+      return undefined;
+    }
+
+    // Session already resolved — enter the app.
     if (isLoggedIn) {
       navigate('/orders');
 
       return undefined;
     }
 
-    // Not resolved yet: give the pushed token / customer resolution a grace window,
-    // and only log out if it never completes.
-    const timer = setTimeout(runLogout, LOGIN_RESOLUTION_GRACE_MS);
+    // Wait for the asynchronously-pushed session to resolve. When the grace elapses,
+    // re-check live store state: if the token has since arrived (or the session
+    // resolved), enter the app instead of tearing down a valid, still-resolving login.
+    const timer = setTimeout(() => {
+      const state = store.getState();
+      const sessionArrived = Boolean(state.company.tokens.B2BToken) || isLoggedInSelector(state);
+
+      if (sessionArrived) {
+        navigate('/orders');
+
+        return;
+      }
+
+      runLogout();
+    }, LOGIN_RESOLUTION_GRACE_MS);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, loginFlag, navigate, runLogout]);
+  }, [B2BToken, isLoggedIn, loginFlag, navigate, runLogout, waitForSession]);
 
   return <Loading />;
 }
