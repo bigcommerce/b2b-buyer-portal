@@ -2,8 +2,6 @@ import {
   getClosestAnchorFromTarget,
   getNativeStorefrontPath,
   isBuyerPortalNativeHref,
-  isNativeLinkInterceptionCached,
-  setNativeLinkInterceptionEnabled,
   shouldOpenAllowedPageOnInit,
 } from './nativeStorefrontLinks';
 
@@ -100,26 +98,6 @@ describe('isBuyerPortalNativeHref', () => {
     expect(
       isBuyerPortalNativeHref('/search.php?search_query=account.php', 'https://store.example.com'),
     ).toBe(false);
-  });
-});
-
-describe('native link interception caching', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
-  it('defaults to false when nothing has been cached', () => {
-    expect(isNativeLinkInterceptionCached()).toBe(false);
-  });
-
-  it('reads back the last value set', () => {
-    setNativeLinkInterceptionEnabled(true);
-
-    expect(isNativeLinkInterceptionCached()).toBe(true);
-
-    setNativeLinkInterceptionEnabled(false);
-
-    expect(isNativeLinkInterceptionCached()).toBe(false);
   });
 });
 

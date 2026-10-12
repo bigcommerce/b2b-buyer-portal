@@ -25,9 +25,6 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1);
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
-  const isNativeLinkInterceptionEnabled = useAppSelector(
-    ({ global }) => global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
-  );
   const authorizedPages = initOpenState?.authorizedPages || '/orders';
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
@@ -101,8 +98,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
         registerArr.includes(target) ||
         allOtherArr.includes(target) ||
         (anchor ? registerArr.includes(anchor) || allOtherArr.includes(anchor) : false);
-      const isNativeBuyerPortalLink =
-        isNativeLinkInterceptionEnabled && anchor ? isBuyerPortalNativeHref(anchor.href) : false;
+      const isNativeBuyerPortalLink = anchor ? isBuyerPortalNativeHref(anchor.href) : false;
       const nativePath =
         isNativeBuyerPortalLink && anchor ? getNativeStorefrontPath(anchor.href) : null;
 
@@ -180,7 +176,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkoutRegisterNumber, initOpenState, isNativeLinkInterceptionEnabled, role]);
+  }, [checkoutRegisterNumber, initOpenState, role]);
 
   useMutationObservable(config['dom.checkoutRegisterParentElement'], callback);
 

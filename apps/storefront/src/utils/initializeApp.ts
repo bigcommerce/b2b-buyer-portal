@@ -109,16 +109,11 @@ export const initializeApp = async ({
       : PATH_ROUTES.ORDERS;
 
     // background login enter judgment and refresh
-    const nativeLinkInterceptionEnabled =
-      store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ??
-      false;
-    const shouldOpenAllowedPage = nativeLinkInterceptionEnabled
-      ? shouldOpenAllowedPageOnInit({
-          pathname,
-          hash: window.location.hash,
-          customerId: resolvedCustomerId,
-        })
-      : !pathname.includes('checkout') && !(!!resolvedCustomerId && !window.location.hash);
+    const shouldOpenAllowedPage = shouldOpenAllowedPageOnInit({
+      pathname,
+      hash: window.location.hash,
+      customerId: resolvedCustomerId,
+    });
     const isAccountPageWithoutHash = pathname.includes('account.php') && !window.location.hash;
 
     const initNavigation = resolveInitNavigation({

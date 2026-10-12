@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { buildCompanyStateWith, buildGlobalStateWith, userEvent } from 'tests/test-utils';
+import { buildCompanyStateWith, userEvent } from 'tests/test-utils';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
 import { CustomerRole } from '@/types';
@@ -12,13 +12,6 @@ const loggedInCompanyState = buildCompanyStateWith({
     role: CustomerRole.ADMIN,
   },
 });
-
-const withNativeLinkInterception = {
-  company: loggedInCompanyState,
-  global: buildGlobalStateWith({
-    featureFlags: { 'B2B-4912.buyer_portal_native_link_interception': true },
-  }),
-};
 
 describe('useB3AppOpen native storefront link interception', () => {
   beforeEach(() => {
@@ -41,7 +34,7 @@ describe('useB3AppOpen native storefront link interception', () => {
           handleEnterClick,
           authorizedPages: '/orders',
         }),
-      { preloadedState: withNativeLinkInterception },
+      { preloadedState: { company: loggedInCompanyState } },
     );
 
     await userEvent.click(screen.getByText('Account'));
@@ -66,7 +59,7 @@ describe('useB3AppOpen native storefront link interception', () => {
           handleEnterClick,
           authorizedPages: '/orders',
         }),
-      { preloadedState: withNativeLinkInterception },
+      { preloadedState: { company: loggedInCompanyState } },
     );
 
     await userEvent.click(screen.getByRole('link'));
@@ -96,33 +89,6 @@ describe('useB3AppOpen native storefront link interception', () => {
 
     await waitFor(() => {
       expect(handleEnterClick).toHaveBeenCalledWith(`${window.location.origin}/#/orders`, true);
-    });
-  });
-
-  it('keeps the full href for a configured account.php link when the native flag is off', async () => {
-    // #checkout-customer-login is matched by id (dom.registerElement), independent of
-    // its href, so isConfiguredTarget is true regardless of the flag. Its href still
-    // looks like a native account.php link, which is what triggered the bug: without
-    // the fix, isNativeBuyerPortalLink ignored the flag and rewrote the href anyway.
-    document.body.innerHTML = `
-      <a id="checkout-customer-login" href="${window.location.origin}/account.php">Account</a>
-    `;
-    const handleEnterClick = vi.fn();
-
-    renderHookWithProviders(
-      () =>
-        useB3AppOpen({
-          isOpen: false,
-          handleEnterClick,
-          authorizedPages: '/orders',
-        }),
-      { preloadedState: { company: loggedInCompanyState } },
-    );
-
-    await userEvent.click(screen.getByRole('link'));
-
-    await waitFor(() => {
-      expect(handleEnterClick).toHaveBeenCalledWith(`${window.location.origin}/account.php`, true);
     });
   });
 

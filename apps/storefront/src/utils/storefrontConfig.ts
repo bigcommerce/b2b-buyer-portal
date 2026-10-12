@@ -31,7 +31,6 @@ import { B3SStorage } from '@/utils/b3Storage';
 import { channelId } from '@/utils/basicConfig';
 import { FeatureFlagKey, featureFlags } from '@/utils/featureFlags';
 import { setMultiLanguageEnabledCache } from '@/utils/multiLanguageFlagCache';
-import { setNativeLinkInterceptionEnabled } from '@/utils/nativeStorefrontLinks';
 import { setDefaultLoginStylingEnabled } from '@/utils/preMountLoginMask';
 
 import { checkEveryPermissionsCode } from './b3CheckPermissions/check';
@@ -305,13 +304,6 @@ const getStoreConfigs = async (dispatch: any, dispatchGlobal: any) => {
   setDefaultLoginStylingEnabled(
     store.getState().global.featureFlags['B2B-4870.default_buyer_portal_styling_on_login_page'] ??
       false,
-  );
-
-  // Same rationale as above, for the native-link-interception flag read in main.ts.
-  // TODO(B2B-4912): remove this call once the flag is fully rolled out and deleted
-  // (see nativeStorefrontLinks.ts for the rest of the caching bridge to remove).
-  setNativeLinkInterceptionEnabled(
-    store.getState().global.featureFlags['B2B-4912.buyer_portal_native_link_interception'] ?? false,
   );
 
   // Same rationale, for the multi-language flag read by the translation thunks:
