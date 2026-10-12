@@ -37,6 +37,8 @@ export interface UseCustomerOrdersStateResult
     UseUnifiedOrderSortingResult<BaseSortableColumnKey> {
   filters: OrdersFiltersInput;
   handleFilterChange: (value: AppliedFilters) => void;
+  handleSearchChange: (key: string, value: string) => void;
+  handleCompanyIdsChange: (companyIds: number[]) => void;
 }
 
 export const useCustomerOrdersState = ({
@@ -46,6 +48,12 @@ export const useCustomerOrdersState = ({
 
   const pagination = useUnifiedOrdersPagination();
   const sorting = useUnifiedOrderSorting(BASE_SORT_MAP, pagination.resetPagination, 'orderId');
+
+  const handleSearchChange = (key: string, value: string) => {
+    if (key !== 'search') return;
+    pagination.resetPagination();
+    setFilters((prev) => ({ ...prev, search: value || undefined }));
+  };
 
   const handleFilterChange = (value: AppliedFilters) => {
     const selected = normalizeString(value.orderStatus);
@@ -67,10 +75,14 @@ export const useCustomerOrdersState = ({
     }));
   };
 
+  const handleCompanyIdsChange = () => {};
+
   return {
     ...pagination,
     ...sorting,
     filters,
     handleFilterChange,
+    handleSearchChange,
+    handleCompanyIdsChange,
   };
 };

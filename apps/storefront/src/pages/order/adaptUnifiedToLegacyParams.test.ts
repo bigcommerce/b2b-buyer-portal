@@ -29,7 +29,7 @@ describe('adaptUnifiedToLegacyFilterParams', () => {
 
       expect(filterData).toEqual({
         q: '',
-        statusCode: 'AWAITING_FULFILLMENT',
+        statusCode: 'Awaiting Fulfillment',
         beginDateAt: '2026-01-01',
         endDateAt: '2026-02-01',
         companyName: '',
@@ -57,7 +57,7 @@ describe('adaptUnifiedToLegacyFilterParams', () => {
       });
       const { filterData: noStatus } = adaptUnifiedToLegacyFilterParams(baseArgs);
 
-      expect(withStatus.statusCode).toBe('COMPLETED');
+      expect(withStatus.statusCode).toBe('Completed');
       expect(noStatus.statusCode).toBe('');
     });
 
