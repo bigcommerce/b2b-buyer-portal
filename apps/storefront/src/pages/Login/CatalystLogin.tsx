@@ -55,6 +55,10 @@ export function CatalystLogin() {
   const waitForSession = useAppSelector(
     ({ global }) => global.featureFlags[WAIT_FOR_SESSION_FLAG] ?? false,
   );
+  // Feature flags load asynchronously (store config), so an absent key means "not
+  // loaded yet", not "off". We must not make the irreversible logout decision until
+  // the flag is actually known.
+  const flagLoaded = useAppSelector(({ global }) => WAIT_FOR_SESSION_FLAG in global.featureFlags);
   const [searchParams] = useSearchParams();
 
   const loginFlag = searchParams.get('loginFlag');
@@ -71,8 +75,8 @@ export function CatalystLogin() {
       });
   }, [endCompanyMasquerading, endMasquerade, navigate]);
 
-  // Legacy fallback redirect — kept only while wait-for-session is off, so toggling
-  // the flag reverts to the previous behaviour exactly.
+  // Legacy fallback redirect — kept while wait-for-session is off (which includes the
+  // brief window before the flag has loaded), as a safety net so the screen never hangs.
   useEffect(() => {
     if (waitForSession) {
       return undefined;
@@ -93,32 +97,35 @@ export function CatalystLogin() {
       return undefined;
     }
 
-    if (!waitForSession) {
-      // Previous behaviour: log out on sight when the token isn't present.
-      if (!B2BToken) {
-        runLogout();
-      } else if (isLoggedIn) {
-        navigate('/orders');
-      }
-
-      return undefined;
-    }
-
-    // Session already resolved — enter the app.
+    // Session resolved — enter the app. Only navigate once fully resolved (role set),
+    // not on a bare token: B3Layout bounces anyone without a customer back to /login.
     if (isLoggedIn) {
       navigate('/orders');
 
       return undefined;
     }
 
-    // Wait for the asynchronously-pushed session to resolve. When the grace elapses,
-    // re-check live store state: if the token has since arrived (or the session
-    // resolved), enter the app instead of tearing down a valid, still-resolving login.
-    const timer = setTimeout(() => {
-      const state = store.getState();
-      const sessionArrived = Boolean(state.company.tokens.B2BToken) || isLoggedInSelector(state);
+    // Don't tear down the session until the flag is actually loaded — an unloaded flag
+    // reads as "off", and acting on it could log the shopper out irreversibly before
+    // the real value is known.
+    if (!flagLoaded) {
+      return undefined;
+    }
 
-      if (sessionArrived) {
+    if (!waitForSession) {
+      // Previous behaviour: log out on sight when the token isn't present.
+      if (!B2BToken) {
+        runLogout();
+      }
+
+      return undefined;
+    }
+
+    // Wait for the asynchronously-pushed session to resolve. The grace restarts when the
+    // token arrives (B2BToken dep), giving customer resolution time; at the end we
+    // navigate only if fully resolved, otherwise log out.
+    const timer = setTimeout(() => {
+      if (isLoggedInSelector(store.getState())) {
         navigate('/orders');
 
         return;
@@ -128,7 +135,7 @@ export function CatalystLogin() {
     }, LOGIN_RESOLUTION_GRACE_MS);
 
     return () => clearTimeout(timer);
-  }, [B2BToken, isLoggedIn, loginFlag, navigate, runLogout, waitForSession]);
+  }, [B2BToken, flagLoaded, isLoggedIn, loginFlag, navigate, runLogout, waitForSession]);
 
   return <Loading />;
 }

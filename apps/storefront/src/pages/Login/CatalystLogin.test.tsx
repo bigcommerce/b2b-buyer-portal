@@ -10,6 +10,7 @@ import {
 
 import { bcLogoutLogin } from '@/shared/service/bc';
 import { CustomerRole } from '@/types';
+import { FeatureFlags } from '@/utils/featureFlags';
 
 import { CatalystLogin } from './CatalystLogin';
 
@@ -31,14 +32,14 @@ const WAIT_FOR_SESSION_FLAG = 'B2B-5408.catalyst_login_wait_for_session';
 const GRACE_MS = 3000;
 
 interface RenderOptions {
-  flagOn?: boolean;
+  featureFlags?: FeatureFlags;
   b2bToken?: string;
   role?: CustomerRole;
   initialEntries?: string[];
 }
 
 const renderCatalystLogin = ({
-  flagOn = false,
+  featureFlags = {},
   b2bToken = '',
   role = CustomerRole.GUEST,
   initialEntries = ['/login'],
@@ -46,11 +47,16 @@ const renderCatalystLogin = ({
   renderWithProviders(<CatalystLogin />, {
     preloadedState: {
       company: buildCompanyStateWith({ customer: { role }, tokens: { B2BToken: b2bToken } }),
-      global: buildGlobalStateWith({ featureFlags: { [WAIT_FOR_SESSION_FLAG]: flagOn } }),
+      global: buildGlobalStateWith({ featureFlags }),
       b2bFeatures: buildB2BFeaturesStateWith({ masqueradeCompany: { isAgenting: false } }),
     },
     initialEntries,
   });
+
+const flagOn = { [WAIT_FOR_SESSION_FLAG]: true };
+const flagOff = { [WAIT_FOR_SESSION_FLAG]: false };
+
+const loggedOut = () => window.b2b.callbacks.dispatchEvent as ReturnType<typeof vi.fn>;
 
 describe('CatalystLogin', () => {
   beforeEach(() => {
@@ -65,55 +71,63 @@ describe('CatalystLogin', () => {
   });
 
   it('enters the app when the session is already resolved (flag on)', async () => {
-    renderCatalystLogin({ flagOn: true, b2bToken: 'token', role: CustomerRole.ADMIN });
+    renderCatalystLogin({ featureFlags: flagOn, b2bToken: 'token', role: CustomerRole.ADMIN });
 
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/orders'));
-    expect(window.b2b.callbacks.dispatchEvent).not.toHaveBeenCalled();
+    expect(loggedOut()).not.toHaveBeenCalled();
   });
 
   it('waits the grace window and then logs out when the session never resolves (flag on)', async () => {
     vi.useFakeTimers();
-    renderCatalystLogin({ flagOn: true, b2bToken: '', role: CustomerRole.GUEST });
+    renderCatalystLogin({ featureFlags: flagOn, b2bToken: '', role: CustomerRole.GUEST });
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(GRACE_MS);
     });
 
-    expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-logout');
+    expect(loggedOut()).toHaveBeenCalledWith('on-logout');
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('enters the app if the token arrives while waiting, instead of logging out (flag on)', async () => {
+  it('does not navigate on a bare token; logs out if the customer never resolves (flag on)', async () => {
     vi.useFakeTimers();
-    renderCatalystLogin({ flagOn: true, b2bToken: 'token', role: CustomerRole.GUEST });
+    renderCatalystLogin({ featureFlags: flagOn, b2bToken: 'token', role: CustomerRole.GUEST });
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(GRACE_MS);
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('/orders');
-    expect(window.b2b.callbacks.dispatchEvent).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalledWith('/orders');
+    expect(loggedOut()).toHaveBeenCalledWith('on-logout');
   });
 
   it('logs out immediately on an explicit logout request', async () => {
     renderCatalystLogin({
-      flagOn: true,
+      featureFlags: flagOn,
       role: CustomerRole.ADMIN,
       b2bToken: 'token',
       initialEntries: ['/login?loginFlag=loggedOutLogin'],
     });
 
-    await waitFor(() =>
-      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-logout'),
-    );
+    await waitFor(() => expect(loggedOut()).toHaveBeenCalledWith('on-logout'));
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('logs out on sight when no token is present and the flag is off (previous behaviour)', async () => {
-    renderCatalystLogin({ flagOn: false, b2bToken: '', role: CustomerRole.GUEST });
+    renderCatalystLogin({ featureFlags: flagOff, b2bToken: '', role: CustomerRole.GUEST });
 
-    await waitFor(() =>
-      expect(window.b2b.callbacks.dispatchEvent).toHaveBeenCalledWith('on-logout'),
-    );
+    await waitFor(() => expect(loggedOut()).toHaveBeenCalledWith('on-logout'));
+  });
+
+  it('does not log out before the feature flag has loaded', async () => {
+    // featureFlags is empty -> flag key absent -> "not loaded yet", not "off"
+    renderCatalystLogin({ featureFlags: {}, b2bToken: '', role: CustomerRole.GUEST });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loggedOut()).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
