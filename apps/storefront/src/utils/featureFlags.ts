@@ -63,6 +63,10 @@ export const featureFlags = [
     key: 'B2B-5619.use_offered_price_for_quoted_subtotal',
     name: 'useOfferedPriceForQuotedSubtotal',
   },
+  {
+    key: 'B2B-5408.optimise_bc_login_fetches',
+    name: 'optimiseBcLoginFetches',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];
