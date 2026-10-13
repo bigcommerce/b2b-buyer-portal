@@ -63,6 +63,10 @@ export const featureFlags = [
     key: 'B2B-5408.catalyst_login_wait_for_session',
     name: 'catalystLoginWaitForSession',
   },
+  {
+    key: 'B2B-5408.optimise_bc_login_fetches',
+    name: 'optimiseBcLoginFetches',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

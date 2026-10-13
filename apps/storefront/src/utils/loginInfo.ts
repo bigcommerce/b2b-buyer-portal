@@ -211,21 +211,29 @@ const loginWithCurrentCustomerJWT = async () => {
   if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
   /*
-   * The new BC-first login/authorisation flow sources loginType and permissions
-   * elsewhere, so only the legacy flow needs them from this mutation. We tell
-   * getB2BToken which fields to request and only read/dispatch them when the
-   * flag is off.
+   * loginType is a legacy-flow concept, so we only request/dispatch it when the
+   * BC-first flag is off. The legacy flow has always sourced permissions from this
+   * mutation; under optimise_bc_login_fetches we extend that to the BC-first flow so
+   * getCurrentCustomerInfo can reuse them instead of making a second b2bAuthorization
+   * call on the login path.
    */
+  const { featureFlags } = store.getState().global;
   const useBcLoginAndAuthorisation =
-    store.getState().global.featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+    featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
+  const optimiseLoginFetches = featureFlags['B2B-5408.optimise_bc_login_fetches'] ?? false;
 
-  const data = await getB2BToken(currentCustomerJWT, channelId, !useBcLoginAndAuthorisation).catch(
-    (error) => {
-      // eslint-disable-next-line no-console
-      console.error('Failed to get B2B token:', error);
-      throw error;
-    },
-  );
+  const includePermissions = !useBcLoginAndAuthorisation || optimiseLoginFetches;
+
+  const data = await getB2BToken(
+    currentCustomerJWT,
+    channelId,
+    !useBcLoginAndAuthorisation,
+    includePermissions,
+  ).catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error('Failed to get B2B token:', error);
+    throw error;
+  });
 
   const B2BToken = data.authorization.result.token as string;
 
@@ -234,9 +242,10 @@ const loginWithCurrentCustomerJWT = async () => {
   if (!useBcLoginAndAuthorisation) {
     newLoginType = data.authorization.result.loginType as LoginTypes;
     store.dispatch(setLoginType(newLoginType));
+  }
 
-    const B2BPermissions = data.authorization.result.permissions;
-    store.dispatch(setPermissionModules(B2BPermissions));
+  if (includePermissions) {
+    store.dispatch(setPermissionModules(data.authorization.result.permissions));
   }
 
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
@@ -244,7 +253,7 @@ const loginWithCurrentCustomerJWT = async () => {
 
   store.dispatch(clearMasqueradeCompany());
 
-  return { B2BToken, newLoginType };
+  return { B2BToken, newLoginType, permissionsLoaded: optimiseLoginFetches };
 };
 
 export interface CustomerInfo {
@@ -260,18 +269,33 @@ export const getCurrentCustomerInfo = async (
 
   let loginType = LoginTypes.GENERAL_LOGIN;
 
+  const optimiseLoginFetches =
+    store.getState().global.featureFlags['B2B-5408.optimise_bc_login_fetches'] ?? false;
+
+  // getCustomerInfo is a BC storefront call that doesn't depend on the B2B token, so
+  // under the optimisation flag we start it alongside the token exchange rather than
+  // after it, shortening the sequential chain on the login path.
+  const customerInfoPromise = optimiseLoginFetches ? getCustomerInfo() : null;
+
+  let loginPermissionsLoaded = false;
+
   if (!b2bToken && !B2BToken) {
     const data = await loginWithCurrentCustomerJWT().catch((error) => {
+      customerInfoPromise?.catch(() => undefined);
       // eslint-disable-next-line no-console
       console.error('Failed to login with current customer JWT:', error);
       throw error;
     });
-    if (!data) return undefined;
+    if (!data) {
+      await customerInfoPromise?.catch(() => undefined);
+      return undefined;
+    }
     /*
      * newLoginType is only populated in the legacy flow; under the BC-first flag
      * it's undefined, so we keep the GENERAL_LOGIN default.
      */
     loginType = data.newLoginType ?? loginType;
+    loginPermissionsLoaded = data.permissionsLoaded ?? false;
   }
 
   try {
@@ -279,11 +303,15 @@ export const getCurrentCustomerInfo = async (
     const useBcLoginAndAuthorisation =
       featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
 
-    const data = await getCustomerInfo();
+    const data = await (customerInfoPromise ?? getCustomerInfo());
 
     if (data?.detail) return undefined;
 
     const loginCustomer = data.data.customer;
+
+    // A guest / not-yet-authenticated BC session returns a null customer; treat
+    // that as "not logged in" and let init retry rather than dereferencing null.
+    if (!loginCustomer) return undefined;
 
     const {
       entityId: customerId = '',
@@ -382,21 +410,27 @@ export const getCurrentCustomerInfo = async (
         useBcLoginAndAuthorisation && isBigCommercePlatform();
 
       if (useBcAuthorizationForPermissions) {
-        let { currentCustomerJWT } = store.getState().company.tokens;
-        if (!currentCustomerJWT) {
-          currentCustomerJWT =
-            (await getCurrentCustomerJWT(getAppClientId()).catch(() => '')) ?? '';
-        }
-        if (currentCustomerJWT) {
-          const authorizationData = await b2bAuthorization({
-            bcToken: currentCustomerJWT,
-            channelId,
-          }).catch((error) => {
-            b2bLogger.error(error);
-            return undefined;
-          });
-          const b2bPermissions = authorizationData?.authorization?.result?.permissions ?? [];
-          store.dispatch(setPermissionModules(b2bPermissions));
+        // On a fresh login the permissions already came back with the token
+        // exchange (same authorization mutation), so only fetch them separately
+        // when login was skipped — e.g. an explicit Login submit or Headless
+        // re-entry that passes an existing token.
+        if (!loginPermissionsLoaded) {
+          let { currentCustomerJWT } = store.getState().company.tokens;
+          if (!currentCustomerJWT) {
+            currentCustomerJWT =
+              (await getCurrentCustomerJWT(getAppClientId()).catch(() => '')) ?? '';
+          }
+          if (currentCustomerJWT) {
+            const authorizationData = await b2bAuthorization({
+              bcToken: currentCustomerJWT,
+              channelId,
+            }).catch((error) => {
+              b2bLogger.error(error);
+              return undefined;
+            });
+            const b2bPermissions = authorizationData?.authorization?.result?.permissions ?? [];
+            store.dispatch(setPermissionModules(b2bPermissions));
+          }
         }
       } else {
         store.dispatch(setPermissionModules(permissions));
