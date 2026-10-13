@@ -235,17 +235,19 @@ describe('getCurrentCustomerInfo on a fresh login', () => {
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(BC_PERMISSIONS));
   });
 
-  it('starts the BC customer-info fetch before the token exchange begins when the optimisation flag is on', async () => {
-    // given
+  it('fetches customer info only after the token exchange so the request is authenticated', async () => {
+    // given a fresh login with the optimisation flag on
     mockFreshLoginState({
       [BC_AUTH_FLAG]: true,
       [COMBINED_QUERY_FLAG]: true,
       [OPTIMISE_FETCHES_FLAG]: true,
     });
     const callOrder: string[] = [];
-    vi.mocked(bcService.getCurrentCustomerJWT).mockImplementation(async () => {
-      callOrder.push('getCurrentCustomerJWT');
-      return 'new-jwt';
+    vi.mocked(b2bService.getB2BToken).mockImplementation(async () => {
+      callOrder.push('getB2BToken');
+      return {
+        authorization: { result: { token: 'fresh-b2b-token', permissions: TOKEN_PERMISSIONS } },
+      } as never;
     });
     vi.mocked(bcService.getCustomerInfo).mockImplementation(async () => {
       callOrder.push('getCustomerInfo');
@@ -266,41 +268,8 @@ describe('getCurrentCustomerInfo on a fresh login', () => {
     // when
     await getCurrentCustomerInfo();
 
-    // then
-    expect(callOrder[0]).toBe('getCustomerInfo');
-    expect(callOrder).toContain('getCurrentCustomerJWT');
-  });
-
-  it('fetches customer info after the token exchange when the optimisation flag is off', async () => {
-    // given
-    mockFreshLoginState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
-    const callOrder: string[] = [];
-    vi.mocked(bcService.getCurrentCustomerJWT).mockImplementation(async () => {
-      callOrder.push('getCurrentCustomerJWT');
-      return 'new-jwt';
-    });
-    vi.mocked(bcService.getCustomerInfo).mockImplementation(async () => {
-      callOrder.push('getCustomerInfo');
-      return {
-        data: {
-          customer: {
-            entityId: '123',
-            phone: '555-0100',
-            firstName: 'First name',
-            lastName: 'Last name',
-            email: 'first.last@example.com',
-            customerGroupId: 0,
-          },
-        },
-      } as never;
-    });
-
-    // when
-    await getCurrentCustomerInfo();
-
-    // then
-    expect(callOrder[0]).toBe('getCurrentCustomerJWT');
-    expect(callOrder[callOrder.length - 1]).toBe('getCustomerInfo');
+    // then getCustomerInfo needs the B2B token, so it must run after the token exchange
+    expect(callOrder.indexOf('getCustomerInfo')).toBeGreaterThan(callOrder.indexOf('getB2BToken'));
   });
 });
 

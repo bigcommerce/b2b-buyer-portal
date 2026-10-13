@@ -269,27 +269,15 @@ export const getCurrentCustomerInfo = async (
 
   let loginType = LoginTypes.GENERAL_LOGIN;
 
-  const optimiseLoginFetches =
-    store.getState().global.featureFlags['B2B-5408.optimise_bc_login_fetches'] ?? false;
-
-  // getCustomerInfo is a BC storefront call that doesn't depend on the B2B token, so
-  // under the optimisation flag we start it alongside the token exchange rather than
-  // after it, shortening the sequential chain on the login path.
-  const customerInfoPromise = optimiseLoginFetches ? getCustomerInfo() : null;
-
   let loginPermissionsLoaded = false;
 
   if (!b2bToken && !B2BToken) {
     const data = await loginWithCurrentCustomerJWT().catch((error) => {
-      customerInfoPromise?.catch(() => undefined);
       // eslint-disable-next-line no-console
       console.error('Failed to login with current customer JWT:', error);
       throw error;
     });
-    if (!data) {
-      await customerInfoPromise?.catch(() => undefined);
-      return undefined;
-    }
+    if (!data) return undefined;
     /*
      * newLoginType is only populated in the legacy flow; under the BC-first flag
      * it's undefined, so we keep the GENERAL_LOGIN default.
@@ -303,7 +291,7 @@ export const getCurrentCustomerInfo = async (
     const useBcLoginAndAuthorisation =
       featureFlags['PROJECT-7920.use_bc_login_and_authorisation'] ?? false;
 
-    const data = await (customerInfoPromise ?? getCustomerInfo());
+    const data = await getCustomerInfo();
 
     if (data?.detail) return undefined;
 
