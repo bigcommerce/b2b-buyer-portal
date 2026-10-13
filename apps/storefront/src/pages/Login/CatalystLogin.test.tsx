@@ -9,6 +9,7 @@ import {
 } from 'tests/test-utils';
 
 import { bcLogoutLogin } from '@/shared/service/bc';
+import { setB2BToken, setCustomerInfo } from '@/store/slices/company';
 import { CustomerRole } from '@/types';
 import { FeatureFlags } from '@/utils/featureFlags';
 
@@ -99,6 +100,34 @@ describe('CatalystLogin', () => {
 
     expect(mockNavigate).not.toHaveBeenCalledWith('/orders');
     expect(loggedOut()).toHaveBeenCalledWith('on-logout');
+  });
+
+  it('enters the app when the session resolves during the grace window (flag on)', async () => {
+    // given a flag-on load with no session yet
+    vi.useFakeTimers();
+    const { store } = renderCatalystLogin({
+      featureFlags: flagOn,
+      b2bToken: '',
+      role: CustomerRole.GUEST,
+    });
+
+    // when the asynchronously-pushed session resolves partway through the grace
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(GRACE_MS / 2);
+    });
+    act(() => {
+      store.dispatch(setB2BToken('token'));
+      store.dispatch(
+        setCustomerInfo(buildCompanyStateWith({ customer: { role: CustomerRole.ADMIN } }).customer),
+      );
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(GRACE_MS);
+    });
+
+    // then the shopper lands on /orders and is never logged out
+    expect(mockNavigate).toHaveBeenCalledWith('/orders');
+    expect(loggedOut()).not.toHaveBeenCalled();
   });
 
   it('logs out immediately on an explicit logout request', async () => {
