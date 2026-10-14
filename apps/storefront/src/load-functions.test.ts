@@ -11,7 +11,7 @@ describe('bindLinks', () => {
 
   afterEach(async () => {
     const { unbindLinks } = await importLoadFunctions();
-    unbindLinks(true);
+    unbindLinks();
   });
 
   it('intercepts account link child clicks and stores the resolved anchor element', async () => {
@@ -42,7 +42,7 @@ describe('bindLinks', () => {
     const anchor = document.querySelector('a[href]');
     const click = new MouseEvent('click', { bubbles: true, cancelable: true });
 
-    bindLinks(true);
+    bindLinks();
     anchor?.dispatchEvent(click);
 
     expect(click.defaultPrevented).toBe(true);

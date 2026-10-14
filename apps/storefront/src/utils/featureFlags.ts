@@ -48,10 +48,6 @@ export const featureFlags = [
     name: 'useTbdPriceOnQuotesList',
   },
   {
-    key: 'B2B-4912.buyer_portal_native_link_interception',
-    name: 'buyerPortalNativeLinkInterception',
-  },
-  {
     key: 'B2B-5309.dedupe_storefront_config_fetch_calls',
     name: 'dedupeStorefrontConfigFetchCalls',
   },

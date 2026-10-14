@@ -1,4 +1,3 @@
-import { isNativeLinkInterceptionCached } from './utils/nativeStorefrontLinks';
 import { injectPreMountLoginMask, shouldUseDefaultLoginStyling } from './utils/preMountLoginMask';
 import { bindLinks, initApp, requestIdleCallbackFunction, unbindLinks } from './load-functions';
 
@@ -53,16 +52,11 @@ window.b2b = {
     // load the app when the browser is free
     requestIdleCallbackFunction(initApp);
     // and bind links to load the app
-    // TODO(B2B-4912): once buyer_portal_native_link_interception is fully rolled
-    // out and the flag is removed, drop isNativeLinkInterceptionCached() and the
-    // nativeLinkInterceptionEnabled param from bindLinks/unbindLinks (see
-    // nativeStorefrontLinks.ts for the matching cache-write side to remove too).
-    const nativeLinkInterceptionEnabled = isNativeLinkInterceptionCached();
-    bindLinks(nativeLinkInterceptionEnabled);
-    window.addEventListener('beforeunload', () => unbindLinks(nativeLinkInterceptionEnabled));
+    bindLinks();
+    window.addEventListener('beforeunload', () => unbindLinks());
     // and observe global flag to simulate click
     window.b2b.initializationEnvironment.isInitListener = () => {
-      unbindLinks(nativeLinkInterceptionEnabled);
+      unbindLinks();
       setTimeout(() => {
         // consume once so later isInit assignments don't replay a stale click
         const { clickedLinkElement } = window.b2b.initializationEnvironment;
