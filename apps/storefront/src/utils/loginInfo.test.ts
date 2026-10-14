@@ -17,6 +17,7 @@ const { server } = startMockServer();
 const BC_AUTH_FLAG = 'PROJECT-7920.use_bc_login_and_authorisation';
 // keeps the account-hierarchy branch (and its extra requests) out of the path under test
 const COMBINED_QUERY_FLAG = 'B2B-3817.disable_masquerading_cleanup_on_login';
+const OPTIMISE_FETCHES_FLAG = 'B2B-5408.optimise_bc_login_fetches';
 
 const QUERY_PERMISSIONS = [{ code: 'get_orders', permissionLevel: 2 }];
 const BC_PERMISSIONS = [
@@ -162,6 +163,113 @@ describe('getCurrentCustomerInfo permissions source', () => {
     await getCurrentCustomerInfo();
 
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules([]));
+  });
+
+  it('returns undefined without throwing when the BC session has no customer', async () => {
+    // given a guest / not-yet-authenticated BC session (customer is null)
+    mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
+    vi.spyOn(bcService, 'getCustomerInfo').mockResolvedValue({
+      data: { customer: null },
+    } as never);
+
+    // when
+    const result = await getCurrentCustomerInfo();
+
+    // then
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('getCurrentCustomerInfo on a fresh login', () => {
+  const TOKEN_PERMISSIONS = [{ code: 'login_perm', permissionLevel: 2 }];
+
+  const mockFreshLoginState = (featureFlags: Record<string, boolean>) =>
+    vi.spyOn(store, 'getState').mockReturnValue({
+      company: { tokens: { B2BToken: '', currentCustomerJWT: 'old-jwt' } },
+      global: { featureFlags },
+    } as unknown as ReturnType<typeof store.getState>);
+
+  beforeEach(() => {
+    vi.spyOn(store, 'dispatch').mockImplementation(() => undefined as never);
+    vi.spyOn(b2bLogger, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(basicConfig, 'isBigCommercePlatform').mockReturnValue(true);
+    stubServices();
+    vi.spyOn(bcService, 'getCurrentCustomerJWT').mockResolvedValue('new-jwt');
+    vi.spyOn(b2bService, 'getB2BToken').mockResolvedValue({
+      authorization: { result: { token: 'fresh-b2b-token', permissions: TOKEN_PERMISSIONS } },
+    } as never);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('sources permissions from the token exchange and skips b2bAuthorization when the optimisation flag is on', async () => {
+    // given
+    mockFreshLoginState({
+      [BC_AUTH_FLAG]: true,
+      [COMBINED_QUERY_FLAG]: true,
+      [OPTIMISE_FETCHES_FLAG]: true,
+    });
+
+    // when
+    await getCurrentCustomerInfo();
+
+    // then
+    expect(b2bService.getB2BToken).toHaveBeenCalledWith('new-jwt', expect.anything(), false, true);
+    expect(b2bService.b2bAuthorization).not.toHaveBeenCalled();
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(TOKEN_PERMISSIONS));
+  });
+
+  it('keeps the b2bAuthorization fetch and omits token permissions when the optimisation flag is off', async () => {
+    // given
+    mockFreshLoginState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
+
+    // when
+    await getCurrentCustomerInfo();
+
+    // then
+    expect(b2bService.getB2BToken).toHaveBeenCalledWith('new-jwt', expect.anything(), false, false);
+    expect(b2bService.b2bAuthorization).toHaveBeenCalled();
+    expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules(BC_PERMISSIONS));
+  });
+
+  it('fetches customer info only after the token exchange so the request is authenticated', async () => {
+    // given a fresh login with the optimisation flag on
+    mockFreshLoginState({
+      [BC_AUTH_FLAG]: true,
+      [COMBINED_QUERY_FLAG]: true,
+      [OPTIMISE_FETCHES_FLAG]: true,
+    });
+    const callOrder: string[] = [];
+    vi.mocked(b2bService.getB2BToken).mockImplementation(async () => {
+      callOrder.push('getB2BToken');
+      return {
+        authorization: { result: { token: 'fresh-b2b-token', permissions: TOKEN_PERMISSIONS } },
+      } as never;
+    });
+    vi.mocked(bcService.getCustomerInfo).mockImplementation(async () => {
+      callOrder.push('getCustomerInfo');
+      return {
+        data: {
+          customer: {
+            entityId: '123',
+            phone: '555-0100',
+            firstName: 'First name',
+            lastName: 'Last name',
+            email: 'first.last@example.com',
+            customerGroupId: 0,
+          },
+        },
+      } as never;
+    });
+
+    // when
+    await getCurrentCustomerInfo();
+
+    // then getCustomerInfo needs the B2B token, so it must run after the token exchange
+    expect(callOrder.indexOf('getCustomerInfo')).toBeGreaterThan(callOrder.indexOf('getB2BToken'));
   });
 });
 
