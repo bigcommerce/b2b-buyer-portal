@@ -38,41 +38,104 @@ const useEndCompanyMasquerade = () => {
   }, [selectCompanyHierarchyId]);
 };
 
+const WAIT_FOR_SESSION_FLAG = 'B2B-5408.catalyst_login_wait_for_session';
+
+// When wait-for-session is enabled: the Catalyst B2B token is pushed into the portal
+// asynchronously, so the first render here routinely has no session yet. Wait this
+// long for it to resolve before giving up, rather than logging the shopper out on
+// sight — which bounced a valid-but-slow login back to /login.
+const LOGIN_RESOLUTION_GRACE_MS = 3000;
+
 export function CatalystLogin() {
   const navigate = useNavigate();
   const endMasquerade = useEndMasquerade();
   const endCompanyMasquerading = useEndCompanyMasquerade();
   const isLoggedIn = useAppSelector(isLoggedInSelector);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
+  const waitForSession = useAppSelector(
+    ({ global }) => global.featureFlags[WAIT_FOR_SESSION_FLAG] ?? false,
+  );
+  // Feature flags load asynchronously (store config), so an absent key means "not
+  // loaded yet", not "off". We must not make the irreversible logout decision until
+  // the flag is actually known.
+  const flagLoaded = useAppSelector(({ global }) => WAIT_FOR_SESSION_FLAG in global.featureFlags);
   const [searchParams] = useSearchParams();
 
   const loginFlag = searchParams.get('loginFlag');
 
+  const runLogout = useCallback(() => {
+    Promise.all([logout(), endMasquerade(), endCompanyMasquerading()])
+      .catch(() => {
+        navigate('/orders');
+      })
+      .then(() => {
+        window.sessionStorage.clear();
+        store.dispatch(clearCompanySlice());
+        window.b2b.callbacks.dispatchEvent('on-logout');
+      });
+  }, [endCompanyMasquerading, endMasquerade, navigate]);
+
+  // Legacy fallback redirect — kept while wait-for-session is off (which includes the
+  // brief window before the flag has loaded), as a safety net so the screen never hangs.
   useEffect(() => {
+    if (waitForSession) {
+      return undefined;
+    }
+
     const timeout = setTimeout(() => {
       window.location.href = '/login';
-    }, 3000);
+    }, LOGIN_RESOLUTION_GRACE_MS);
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [B2BToken]);
+    return () => clearTimeout(timeout);
+  }, [B2BToken, waitForSession]);
 
   useEffect(() => {
-    if (loginFlag === 'loggedOutLogin' || !B2BToken) {
-      Promise.all([logout(), endMasquerade(), endCompanyMasquerading()])
-        .catch(() => {
-          navigate('/orders');
-        })
-        .then(() => {
-          window.sessionStorage.clear();
-          store.dispatch(clearCompanySlice());
-          window.b2b.callbacks.dispatchEvent('on-logout');
-        });
-    } else if (isLoggedIn) {
-      navigate('/orders');
+    // An explicit logout request should tear down immediately.
+    if (loginFlag === 'loggedOutLogin') {
+      runLogout();
+
+      return undefined;
     }
-  }, [endCompanyMasquerading, endMasquerade, isLoggedIn, loginFlag, navigate, B2BToken]);
+
+    // Session resolved — enter the app. Only navigate once fully resolved (role set),
+    // not on a bare token: B3Layout bounces anyone without a customer back to /login.
+    if (isLoggedIn) {
+      navigate('/orders');
+
+      return undefined;
+    }
+
+    // Don't tear down the session until the flag is actually loaded — an unloaded flag
+    // reads as "off", and acting on it could log the shopper out irreversibly before
+    // the real value is known.
+    if (!flagLoaded) {
+      return undefined;
+    }
+
+    if (!waitForSession) {
+      // Previous behaviour: log out on sight when the token isn't present.
+      if (!B2BToken) {
+        runLogout();
+      }
+
+      return undefined;
+    }
+
+    // Wait for the asynchronously-pushed session to resolve. The grace restarts when the
+    // token arrives (B2BToken dep), giving customer resolution time; at the end we
+    // navigate only if fully resolved, otherwise log out.
+    const timer = setTimeout(() => {
+      if (isLoggedInSelector(store.getState())) {
+        navigate('/orders');
+
+        return;
+      }
+
+      runLogout();
+    }, LOGIN_RESOLUTION_GRACE_MS);
+
+    return () => clearTimeout(timer);
+  }, [B2BToken, flagLoaded, isLoggedIn, loginFlag, navigate, runLogout, waitForSession]);
 
   return <Loading />;
 }
