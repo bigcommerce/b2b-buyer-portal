@@ -34,7 +34,7 @@ import {
   superAdminCompanies,
   superAdminEndMasquerade,
 } from './graphql/global';
-import { b2bAuthorization, getBCGraphqlToken } from './graphql/login';
+import { b2bAuthorization, b2bLogout, getBCGraphqlToken } from './graphql/login';
 import {
   getB2BAllOrders,
   getB2BOrderDetails,
@@ -119,6 +119,7 @@ export {
   addProductToBcShoppingList,
   addProductToShoppingList,
   b2bAuthorization,
+  b2bLogout,
   B2BProductsBulkUploadCSV,
   quoteCheckout,
   BcProductsBulkUploadCSV,
