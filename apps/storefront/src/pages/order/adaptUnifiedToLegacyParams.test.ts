@@ -93,6 +93,26 @@ describe('adaptUnifiedToLegacyFilterParams', () => {
       expect(filterData.companyIds).toEqual([]);
     });
 
+    it('passes selectedCompanyId through companyIds for B2B users', () => {
+      const { filterData } = adaptUnifiedToLegacyFilterParams({
+        ...baseArgs,
+        isB2BUser: true,
+        selectedCompanyId: 776107,
+      });
+
+      expect(filterData.companyIds).toEqual([776107]);
+    });
+
+    it('ignores selectedCompanyId for non-B2B users', () => {
+      const { filterData } = adaptUnifiedToLegacyFilterParams({
+        ...baseArgs,
+        isB2BUser: false,
+        selectedCompanyId: 776107,
+      });
+
+      expect(filterData.companyIds).toBeUndefined();
+    });
+
     it('sets isShowMy to 1 for B2B users', () => {
       const { filterData } = adaptUnifiedToLegacyFilterParams({ ...baseArgs, isB2BUser: true });
 
