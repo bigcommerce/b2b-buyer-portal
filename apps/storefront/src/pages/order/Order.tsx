@@ -125,6 +125,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   });
   const customerFilterState = useCustomerOrdersState({
     orderStatuses: getOrderStatuses,
+    selectedCompanyId,
   });
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
@@ -164,6 +165,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         filters: customerFilterState.filters,
         activeSort: customerFilterState.activeSort,
         isB2BUser,
+        selectedCompanyIds: customerFilterState.selectedCompanyIds,
+        selectedCompanyId,
       });
     }
     return { filterData: legacyFilterState.filterData, orderBy: legacyFilterState.orderBy };
@@ -174,7 +177,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     companyFilterState.activeSort,
     customerFilterState.filters,
     customerFilterState.activeSort,
+    customerFilterState.selectedCompanyIds,
     isB2BUser,
+    selectedCompanyId,
     legacyFilterState.filterData,
     legacyFilterState.orderBy,
   ]);
@@ -396,6 +401,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyNeedsPlacedBy = isUnifiedCompanyPath && !!companyFilterState.filters.placedByLabel;
   const companyNeedsAllHierarchy =
     isUnifiedCompanyPath && isEnabledCompanyHierarchy && !companyFilterState.filters.companyIds;
+  // B2B My Orders always uses legacy — SF GQL customer.orders has no companyIds
+  // filter, so it returns orders without company association. Only B2C stays on SF GQL.
+  const customerNeedsCompanyScope = isUnifiedCustomerPath && isB2BUser;
   const customerNeedsSearch = isUnifiedCustomerPath && !!customerFilterState.filters.search;
   const customerNeedsSort =
     isUnifiedCustomerPath && (activeSort.key !== 'orderId' || activeSort.dir !== 'desc');
@@ -405,6 +413,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       companyNeedsSort ||
       companyNeedsPlacedBy ||
       companyNeedsAllHierarchy ||
+      customerNeedsCompanyScope ||
       customerNeedsSearch ||
       customerNeedsSort);
 
@@ -518,7 +527,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             },
           }}
         >
-          {isEnabledCompanyHierarchy && !isUnifiedCustomerPath && (
+          {isEnabledCompanyHierarchy && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleCompanyIdsChange} />
             </Box>

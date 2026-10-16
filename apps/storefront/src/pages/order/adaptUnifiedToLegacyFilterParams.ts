@@ -19,28 +19,47 @@ export type AdaptUnifiedToLegacyFilterParamsArgs = Pick<
   'filters' | 'activeSort'
 > & {
   isB2BUser: boolean;
+  selectedCompanyIds?: number[] | null;
+  selectedCompanyId?: number;
 };
 
 export const adaptUnifiedToLegacyFilterParams = ({
   filters,
   activeSort,
   isB2BUser,
+  selectedCompanyIds = null,
+  selectedCompanyId,
 }: AdaptUnifiedToLegacyFilterParamsArgs): {
   filterData: Partial<FilterSearchProps>;
   orderBy: string;
-} => ({
-  filterData: {
-    q: filters.search ?? '',
-    statusCode: filters.status ? orderStatusValueToSystemLabel(filters.status) : '',
-    beginDateAt: filters.dateRange?.from ?? null,
-    endDateAt: filters.dateRange?.to ?? null,
-    companyName: '',
-    // Legacy emits `companyIds: []` for "All"; restore that for B2B users.
-    companyIds: isB2BUser ? [] : undefined,
-    isShowMy: isB2BUser ? 1 : undefined,
-  },
-  orderBy: activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key],
-});
+} => {
+  let companyIds: number[] | undefined;
+  if (isB2BUser) {
+    if (selectedCompanyIds === null) {
+      // No dropdown interaction — scope to current company
+      companyIds = selectedCompanyId ? [selectedCompanyId] : [];
+    } else if (selectedCompanyIds.length > 0) {
+      // Specific companies selected
+      companyIds = selectedCompanyIds;
+    } else {
+      // "All" explicitly selected — empty array means all companies
+      companyIds = [];
+    }
+  }
+
+  return {
+    filterData: {
+      q: filters.search ?? '',
+      statusCode: filters.status ? orderStatusValueToSystemLabel(filters.status) : '',
+      beginDateAt: filters.dateRange?.from ?? null,
+      endDateAt: filters.dateRange?.to ?? null,
+      companyName: '',
+      companyIds,
+      isShowMy: isB2BUser ? 1 : undefined,
+    },
+    orderBy: activeSort.dir === 'desc' ? `-${sortKeys[activeSort.key]}` : sortKeys[activeSort.key],
+  };
+};
 
 type AdaptCompanyUnifiedToLegacyFilterParamsArgs = Pick<
   UseCompanyOrdersStateResult,
