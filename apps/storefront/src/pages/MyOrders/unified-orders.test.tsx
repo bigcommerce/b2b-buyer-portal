@@ -631,7 +631,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
               expect.objectContaining({
                 filters: expect.objectContaining({
                   status: 'PENDING',
-                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                  dateRange: { from: '2022-11-15T00:00:00.000Z', to: '2022-11-26T23:59:59.999Z' },
                 }),
               }),
             )
@@ -678,7 +678,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
             .calledWith(
               expect.objectContaining({
                 filters: expect.objectContaining({
-                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                  dateRange: { from: '2022-11-15T00:00:00.000Z', to: '2022-11-26T23:59:59.999Z' },
                 }),
               }),
             )

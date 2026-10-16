@@ -8,6 +8,7 @@ import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
 import { useB3Lang } from '@/lib/lang';
+import { toISODateRangeFilters } from '@/pages/order/unifiedApiFiltersHelper';
 import {
   CompanyOrdersFiltersInput,
   getCompanyOrders,
@@ -15,6 +16,7 @@ import {
   OrdersFiltersInput,
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
+import { useAppSelector } from '@/store';
 import { snackbar } from '@/utils/b3Tip';
 
 import {
@@ -63,6 +65,7 @@ async function fetchAdjacentPage(
   isCompanyOrder: boolean,
   filters: OrdersFiltersInput | CompanyOrdersFiltersInput,
   sortBy: OrdersSortInput,
+  storeOffsetSeconds: number,
 ): Promise<{ items: OrderCursorItem[]; pageInfo: CursorLocationState['pageInfo'] }> {
   const paginationArgs =
     mode === 'before' ? { last: pageSize, before: cursor } : { first: pageSize, after: cursor };
@@ -88,7 +91,7 @@ async function fetchAdjacentPage(
   if (isCompanyOrder) {
     const result = await getCompanyOrders({
       ...paginationArgs,
-      filters: filters as CompanyOrdersFiltersInput,
+      filters: toISODateRangeFilters(filters as CompanyOrdersFiltersInput, storeOffsetSeconds),
       sortBy,
     });
     const orders = result.data?.customer?.activeCompany?.orders;
@@ -98,7 +101,7 @@ async function fetchAdjacentPage(
 
   const result = await getCustomerOrders({
     ...paginationArgs,
-    filters: filters as OrdersFiltersInput,
+    filters: toISODateRangeFilters(filters as OrdersFiltersInput, storeOffsetSeconds),
   });
   const orders = result.data?.customer?.orders;
   if (!orders) throw new Error('Unexpected API response: orders missing');
@@ -125,6 +128,7 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
   const location = useLocation();
   const navigate = useNavigate();
   const init = location.state as CursorLocationState | null;
+  const storeOffsetSeconds = useAppSelector(({ storeInfo }) => storeInfo.timeFormat.offset);
 
   // Convert OrderPageItem[] → OrderCursorItem[] for the generic hook.
   const initialItems: OrderCursorItem[] = (init?.orders ?? []).map((o) => ({
@@ -143,13 +147,14 @@ export function CursorDetailPagination({ onChange, color }: CursorDetailPaginati
           init.isCompanyOrder,
           init.filters,
           init.sortBy,
+          storeOffsetSeconds,
         );
       } catch (error) {
         snackbar.error(b3Lang('orderDetail.pagination.fetchError'));
         throw error; // re-throw so the hook leaves pageInfo unchanged and the user can retry
       }
     },
-    [init, b3Lang],
+    [init, b3Lang, storeOffsetSeconds],
   );
 
   const buildHistoryState = useCallback(
