@@ -877,7 +877,58 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
           .calledWith(
             expect.objectContaining({
               filters: expect.objectContaining({
-                dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                dateRange: { from: '2022-11-15T00:00:00.000Z', to: '2022-11-26T23:59:59.999Z' },
+              }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('filters by whole days in the store timezone', async () => {
+        vi.setSystemTime(new Date('21 November 2022'));
+
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        renderWithProviders(<CompanyOrders />, {
+          preloadedState: {
+            ...b2bStateWithFlag(flagOn),
+            storeInfo: buildStoreInfoStateWith({
+              timeFormat: { display: 'j F Y', offset: -5 * 60 * 60 },
+            }),
+          },
+        });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                dateRange: { from: '2022-11-15T05:00:00.000Z', to: '2022-11-27T04:59:59.999Z' },
               }),
             }),
           )
@@ -936,7 +987,7 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
             expect.objectContaining({
               filters: expect.objectContaining({
                 status: ['Pending'],
-                dateRange: { from: '2022-11-15', to: '2022-11-26' },
+                dateRange: { from: '2022-11-15T00:00:00.000Z', to: '2022-11-26T23:59:59.999Z' },
               }),
             }),
           )
@@ -1452,8 +1503,8 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         expect(lastVars?.filters?.companyIds).toEqual(expect.arrayContaining(['200']));
         expect(lastVars?.filters?.status).toEqual(['Shipped']);
         expect(lastVars?.filters?.dateRange).toEqual({
-          from: '2022-11-15',
-          to: '2022-11-26',
+          from: '2022-11-15T00:00:00.000Z',
+          to: '2022-11-26T23:59:59.999Z',
         });
       });
     });

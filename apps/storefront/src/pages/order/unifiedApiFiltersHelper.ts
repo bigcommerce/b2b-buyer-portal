@@ -31,3 +31,28 @@ export const packDateRange = (
   if (!end) return { from: start };
   return { from: start, to: end };
 };
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const storeDayStartMs = (date: string, storeOffsetSeconds: number) => {
+  const [year, month, day] = date.split('-').map(Number);
+  return Date.UTC(year, month - 1, day) - storeOffsetSeconds * 1000;
+};
+
+export const toISODateRangeFilters = <T extends { dateRange?: OrderDateRangeFilterInput }>(
+  filters: T,
+  storeOffsetSeconds: number,
+): T => {
+  if (!filters.dateRange) return filters;
+
+  const { from, to } = filters.dateRange;
+  return {
+    ...filters,
+    dateRange: {
+      from: new Date(storeDayStartMs(from, storeOffsetSeconds)).toISOString(),
+      ...(to && {
+        to: new Date(storeDayStartMs(to, storeOffsetSeconds) + MS_PER_DAY - 1).toISOString(),
+      }),
+    },
+  };
+};
