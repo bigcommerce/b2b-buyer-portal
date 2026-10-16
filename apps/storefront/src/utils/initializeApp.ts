@@ -97,12 +97,25 @@ export const initializeApp = async ({
       }
     }
 
-    await Promise.allSettled([
-      getGlobalStoreTax(),
-      setStorefrontConfig(dispatch),
-      getStoreSettings(),
-      getCompanyInfo(role, b2bId),
-    ]);
+    const deferNonCriticalLoginFetches =
+      store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
+
+    if (deferNonCriticalLoginFetches) {
+      // Tax and settings feed only logged-in price/product pages, so they don't belong on the
+      // login/init critical path.
+      await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
+
+      if (resolvedCustomerId) {
+        Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]).catch(() => {});
+      }
+    } else {
+      await Promise.allSettled([
+        getGlobalStoreTax(),
+        setStorefrontConfig(dispatch),
+        getStoreSettings(),
+        getCompanyInfo(role, b2bId),
+      ]);
+    }
 
     const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
       ? b2bJumpPath(Number(userInfo.role))
