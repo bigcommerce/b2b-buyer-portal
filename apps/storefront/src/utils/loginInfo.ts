@@ -244,8 +244,14 @@ const loginWithCurrentCustomerJWT = async () => {
     store.dispatch(setLoginType(newLoginType));
   }
 
-  if (includePermissions) {
-    store.dispatch(setPermissionModules(data.authorization.result.permissions));
+  const { permissions } = data.authorization.result;
+  // A missing permissions field isn't a real result: don't dispatch it and don't
+  // mark permissions as loaded, so the b2bAuthorization follow-up still runs. An
+  // empty array is a real result and counts as loaded.
+  const permissionsLoaded = optimiseLoginFetches && Array.isArray(permissions);
+
+  if (includePermissions && Array.isArray(permissions)) {
+    store.dispatch(setPermissionModules(permissions));
   }
 
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
@@ -253,7 +259,7 @@ const loginWithCurrentCustomerJWT = async () => {
 
   store.dispatch(clearMasqueradeCompany());
 
-  return { B2BToken, newLoginType, permissionsLoaded: optimiseLoginFetches };
+  return { B2BToken, newLoginType, permissionsLoaded };
 };
 
 export interface CustomerInfo {
@@ -299,7 +305,12 @@ export const getCurrentCustomerInfo = async (
 
     // A guest / not-yet-authenticated BC session returns a null customer; treat
     // that as "not logged in" and let init retry rather than dereferencing null.
-    if (!loginCustomer) return undefined;
+    // Only reachable with a B2BToken already in the store (true guests return at
+    // the earlier token check), so clear it to drop a stale/invalid token.
+    if (!loginCustomer) {
+      clearCurrentCustomerInfo();
+      return undefined;
+    }
 
     const {
       entityId: customerId = '',
