@@ -9,6 +9,7 @@ import { B2BAutoCompleteCheckbox } from '@/components/ui/B2BAutoCompleteCheckbox
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
+import { getActiveLocale } from '@/lib/lang/getActiveLocale';
 import { PageInfo } from '@/shared/service/bc/graphql/base';
 import {
   CompanyOrdersFiltersInput,
@@ -25,6 +26,8 @@ import { displayFormat } from '@/utils/b3DateFormat';
 import { type CursorLocationState } from '../OrderDetail/components/CursorDetailPagination';
 
 import OrderStatus from './components/OrderStatus';
+import { systemLabelToOrderStatusValue } from './shared/orderStatusValue';
+import { resolveOrderStatusLabel } from './shared/resolveOrderStatusLabel';
 import { B3Table, PossibleNodeWrapper, TableColumnItem } from './table/B3Table';
 import {
   adaptCompanyUnifiedToLegacyFilterParams,
@@ -103,6 +106,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+  const isTranslatedOrderStatuses = useFeatureFlag(
+    'LOCAL-3680.B2B_display_translated_order_statuses',
+  );
+  const locales = useAppSelector(({ global }) => global.locales);
+  const translations = useAppSelector(({ lang }) => lang.translations);
+  const isDefaultLocale = getActiveLocale(locales)?.isDefault ?? true;
   const { role, isAgenting, companyId, isB2BUser, isEnabledCompanyHierarchy, selectedCompanyId } =
     useData();
 
@@ -116,6 +125,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   >([]);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
+  const shouldResolveStatusLabels = isUnifiedOrders && isTranslatedOrderStatuses;
 
   const legacyFilterState = useLegacyOrdersFilterState({
     isB2BUser,
@@ -481,9 +491,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     () =>
       (data?.edges ?? []).map((edge) => ({
         ...edge,
-        statusText: getOrderStatusText(edge.status, getOrderStatuses),
+        statusText: shouldResolveStatusLabels
+          ? resolveOrderStatusLabel({
+              isDefaultLocale,
+              translations,
+              label: edge.statusText ?? edge.status,
+              value: edge.statusValue ?? systemLabelToOrderStatusValue(edge.status),
+            })
+          : getOrderStatusText(edge.status, getOrderStatuses),
       })),
-    [data?.edges, getOrderStatuses],
+    [data?.edges, getOrderStatuses, shouldResolveStatusLabels, isDefaultLocale, translations],
   );
 
   const navigateToOrderDetail =

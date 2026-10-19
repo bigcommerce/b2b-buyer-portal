@@ -5,6 +5,7 @@ import { OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 // schema doesn't expose one yet, so we depend on the legacy type here.
 import { OrderStatusItem } from '@/types';
 
+import { findOrderStatus } from './shared/findOrderStatus';
 import { systemLabelToOrderStatusValue } from './shared/orderStatusValue';
 import {
   getCustomerOrdersInitFilter,
@@ -60,11 +61,7 @@ export const useCustomerOrdersState = ({
     // Resolve the display label to its systemLabel, then to the OrderStatusValue enum
     // member the schema requires. Drop the filter on either miss — sending a display
     // string into an enum argument is rejected at variable coercion.
-    const matched = selected
-      ? orderStatuses.find(
-          (status) => status.customLabel === selected || status.systemLabel === selected,
-        )
-      : undefined;
+    const matched = selected ? findOrderStatus(orderStatuses, selected) : undefined;
     const status = matched ? systemLabelToOrderStatusValue(matched.systemLabel) : undefined;
 
     pagination.resetPagination();

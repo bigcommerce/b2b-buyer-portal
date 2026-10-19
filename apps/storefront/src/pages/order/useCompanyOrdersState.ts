@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { CompanyOrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 import { OrderStatusItem } from '@/types';
 
+import { findOrderStatus } from './shared/findOrderStatus';
 import { formatPlacedByLabel } from './config';
 import {
   getCompanyOrdersInitFilter,
@@ -79,9 +80,7 @@ export const useCompanyOrdersState = ({
     let resolvedStatuses: string[] | undefined;
     const rawStatus = normalizeString(value.orderStatus);
     if (rawStatus) {
-      const originalStatus = orderStatuses.find(
-        (s) => s.customLabel === rawStatus || s.systemLabel === rawStatus,
-      );
+      const originalStatus = findOrderStatus(orderStatuses, rawStatus);
       resolvedStatuses = originalStatus?.systemLabel ? [originalStatus.systemLabel] : undefined;
     }
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { OrderStatusItem } from '@/types';
 
+import { findOrderStatus } from './shared/findOrderStatus';
 import {
   assertSortKey,
   FilterSearchProps,
@@ -75,9 +76,7 @@ export const useLegacyOrdersFilterState = ({
   const handleFilterChange = (value: LegacyAppliedFilters) => {
     let currentStatus = String(value?.orderStatus || '');
     if (currentStatus) {
-      const originalStatus = orderStatuses.find(
-        (status) => status.customLabel === currentStatus || status.systemLabel === currentStatus,
-      );
+      const originalStatus = findOrderStatus(orderStatuses, currentStatus);
       currentStatus = originalStatus?.systemLabel || currentStatus;
     }
 

@@ -176,5 +176,10 @@ export const translateFilterMoreData = (
       },
     );
 
-    return { ...element, label, options };
+    return {
+      ...element,
+      label,
+      options,
+      replaceOptions: { label: 'customLabel', value: 'systemLabel' },
+    };
   });
