@@ -105,7 +105,7 @@ export const initializeApp = async ({
       // They still run for every session (incl. guests) — just not awaited.
       await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
 
-      Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]).catch(() => {});
+      Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]);
     } else {
       await Promise.allSettled([
         getGlobalStoreTax(),

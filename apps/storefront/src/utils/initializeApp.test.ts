@@ -124,6 +124,19 @@ describe('initializeApp', () => {
     expect(getCompanyInfo).toHaveBeenCalled();
   });
 
+  it('does not block init on tax and settings when the defer flag is on', async () => {
+    mockState({ [DEFER_FLAG]: true });
+    // tax call that never settles during the test; init must still finish
+    vi.mocked(getGlobalStoreTax).mockReturnValue(new Promise<void>(() => {}));
+
+    const result = await initializeApp({ ...baseParams(), customerId: 123 });
+
+    // init completed while the tax call is still pending → it's off the critical path
+    expect(result.completed).toBe(true);
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
+  });
+
   it('calls getCurrentCustomerInfo before setStorefrontConfig on a fresh login', async () => {
     const callOrder: string[] = [];
     vi.mocked(getCurrentCustomerInfo).mockImplementation(async () => {
