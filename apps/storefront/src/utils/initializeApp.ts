@@ -101,13 +101,11 @@ export const initializeApp = async ({
       store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
 
     if (deferNonCriticalLoginFetches) {
-      // Tax and settings feed only logged-in price/product pages, so they don't belong on the
-      // login/init critical path.
+      // Tax and settings don't gate interactivity, so keep them off the blocking batch.
+      // They still run for every session (incl. guests) — just not awaited.
       await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
 
-      if (resolvedCustomerId) {
-        Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]).catch(() => {});
-      }
+      Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]).catch(() => {});
     } else {
       await Promise.allSettled([
         getGlobalStoreTax(),

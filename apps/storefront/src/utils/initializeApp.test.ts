@@ -110,15 +110,16 @@ describe('initializeApp', () => {
     expect(getCompanyInfo).toHaveBeenCalled();
   });
 
-  it('skips tax and settings on the guest login-page load when the defer flag is on', async () => {
+  it('still defers tax and settings for a guest when the defer flag is on', async () => {
     mockState({ [DEFER_FLAG]: true });
     vi.mocked(getCurrentCustomerInfo).mockResolvedValue(undefined);
 
     await initializeApp({ ...baseParams(), customerId: '' });
 
-    expect(getGlobalStoreTax).not.toHaveBeenCalled();
-    expect(getStoreSettings).not.toHaveBeenCalled();
-    // critical fetches still run for the guest page
+    // guests (e.g. guest quotes/shopping lists) read showInclusiveTaxPrice and
+    // backorderDisplaySettings, so these still run — just off the critical path
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
     expect(setStorefrontConfig).toHaveBeenCalled();
     expect(getCompanyInfo).toHaveBeenCalled();
   });
