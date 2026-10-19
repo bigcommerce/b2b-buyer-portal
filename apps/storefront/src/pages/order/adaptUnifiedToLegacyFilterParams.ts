@@ -19,7 +19,9 @@ export type AdaptUnifiedToLegacyFilterParamsArgs = Pick<
   'filters' | 'activeSort'
 > & {
   isB2BUser: boolean;
+  // Page-level company dropdown: null = untouched, [] = "All", [ids] = specific companies.
   selectedCompanyIds?: number[] | null;
+  // Default company (hierarchy/masquerade context), used only when the dropdown is untouched.
   selectedCompanyId?: number;
 };
 

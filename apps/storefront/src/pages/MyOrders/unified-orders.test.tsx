@@ -988,6 +988,8 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           expect(getOrders).toHaveBeenCalled();
           const lastCallQuery = getOrders.mock.calls[0][0] as string;
           expect(lastCallQuery).toContain('isShowMy');
+          // b2bStateWithFlag sets companyInfo.id to '123', so the request must be scoped to it
+          expect(lastCallQuery).toMatch(/companyIds:\s*\[\s*123\s*,?\s*\]/);
         });
       });
     });
