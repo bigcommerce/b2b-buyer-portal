@@ -46,6 +46,7 @@ import {
   getCreatedByUserForOrders,
   getOrderStatusType,
 } from './orders';
+import { toISODateRangeFilters } from './unifiedApiFiltersHelper';
 import { useCompanyOrdersState } from './useCompanyOrdersState';
 import { useCustomerOrdersState } from './useCustomerOrdersState';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
@@ -114,6 +115,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [legacyPlacedByUsers, setLegacyPlacedByUsers] = useState<
     Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
   >([]);
+  const storeOffsetSeconds = useAppSelector(({ storeInfo }) => storeInfo.timeFormat.offset);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -437,6 +439,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         companyFilterState.filters,
         companyFilterState.sortBy,
         companyFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     if (isUnifiedCustomerPath) {
@@ -445,6 +448,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         customerFilterState.filters,
         customerFilterState.sortBy,
         customerFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     return ['orderList:legacy', filterData, legacyPagination, orderBy];
@@ -457,14 +461,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (isUnifiedCompanyPath) {
       return fetchUnifiedCompanyOrders({
         ...companyFilterState.paginationVariables,
-        filters: companyFilterState.filters,
+        filters: toISODateRangeFilters(companyFilterState.filters, storeOffsetSeconds),
         sortBy: companyFilterState.sortBy,
       });
     }
     if (isUnifiedCustomerPath) {
       return fetchUnifiedOrders({
         ...customerFilterState.paginationVariables,
-        filters: customerFilterState.filters,
+        filters: toISODateRangeFilters(customerFilterState.filters, storeOffsetSeconds),
       });
     }
     return fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy });

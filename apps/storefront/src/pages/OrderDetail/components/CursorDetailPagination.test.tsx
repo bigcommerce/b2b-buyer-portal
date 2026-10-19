@@ -1,4 +1,5 @@
 import {
+  buildStoreInfoStateWith,
   graphql,
   HttpResponse,
   renderWithProviders,
@@ -79,9 +80,16 @@ const BASE_STATE: CursorLocationState = {
   pageSize: LIST_PAGE_SIZE,
 };
 
-function renderComponent(state: CursorLocationState | null, onChange = vi.fn()) {
+function renderComponent(
+  state: CursorLocationState | null,
+  onChange = vi.fn(),
+  storeOffsetSeconds = 0,
+) {
   return renderWithProviders(<CursorDetailPagination onChange={onChange} color="#000000" />, {
     initialEntries: state ? [{ pathname: '/orderDetail/101', state }] : ['/orderDetail/101'],
+    preloadedState: {
+      storeInfo: buildStoreInfoStateWith({ timeFormat: { offset: storeOffsetSeconds } }),
+    },
   });
 }
 
@@ -256,6 +264,36 @@ describe('CursorDetailPagination', () => {
             first: LIST_PAGE_SIZE,
             after: 'cursor-102',
           });
+        });
+      });
+
+      it('fetches the next page with the list date range as whole store-time days', async () => {
+        let capturedVariables: Record<string, unknown> = {};
+        server.use(
+          graphql.query('GetCustomerOrders', ({ variables }) => {
+            capturedVariables = variables;
+            return HttpResponse.json(makeCustomerPage([{ orderId: 103, cursor: 'cursor-103' }]));
+          }),
+        );
+        const onChange = vi.fn();
+        const { user } = renderComponent(
+          {
+            ...BASE_STATE,
+            currentIndex: 2,
+            pageInfo: { hasNextPage: true, hasPreviousPage: false },
+            filters: { dateRange: { from: '2026-10-01', to: '2026-10-05' } },
+          },
+          onChange,
+          -5 * 60 * 60,
+        );
+        await user.click(getNextButton());
+        await waitFor(() => {
+          expect(onChange).toHaveBeenCalledExactlyOnceWith('103');
+        });
+        expect(capturedVariables).toMatchObject({
+          filters: {
+            dateRange: { from: '2026-10-01T05:00:00.000Z', to: '2026-10-06T04:59:59.999Z' },
+          },
         });
       });
 
