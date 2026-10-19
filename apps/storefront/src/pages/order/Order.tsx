@@ -439,6 +439,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         companyFilterState.filters,
         companyFilterState.sortBy,
         companyFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     if (isUnifiedCustomerPath) {
@@ -447,6 +448,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         customerFilterState.filters,
         customerFilterState.sortBy,
         customerFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     return ['orderList:legacy', filterData, legacyPagination, orderBy];

@@ -1,4 +1,5 @@
 import {
+  act,
   buildB2BFeaturesStateWith,
   buildCompanyStateWith,
   builder,
@@ -27,6 +28,7 @@ import {
   type OrderPlacedBy,
   OrdersSortInput,
 } from '@/shared/service/bc/graphql/orders';
+import { setTimeFormat } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
 import { CompanyOrderStatuses, OrderStatus as LegacyOrderStatus } from '../order/orders';
@@ -945,6 +947,75 @@ describe('Company Orders — unified SF GQL orders (B2B-4616)', () => {
         await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
 
         await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(screen.getByText('66996').closest('tr')!).toBeVisible();
+        });
+      });
+
+      it('re-filters by store-timezone days once the store timezone loads', async () => {
+        vi.setSystemTime(new Date('21 November 2022'));
+        const newYorkStandardOffset = -5 * 60 * 60;
+
+        const getOrders = vi
+          .fn()
+          .mockReturnValue(buildCompanyOrdersResponseWith('WHATEVER_VALUES'));
+
+        server.use(
+          graphql.query('GetCompanyOrders', ({ variables }) =>
+            HttpResponse.json(getOrders(variables)),
+          ),
+        );
+
+        const { store } = renderWithProviders(<CompanyOrders />, {
+          preloadedState: {
+            ...b2bStateWithFlag(flagOn),
+            storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y', offset: 0 } }),
+          },
+        });
+
+        await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+        when(getOrders)
+          .calledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                dateRange: { from: '2022-11-15T05:00:00.000Z', to: '2022-11-27T04:59:59.999Z' },
+              }),
+            }),
+          )
+          .thenReturn(filteredCompanyOrdersResponse(66996));
+
+        await userEvent.click(screen.getByRole('button', { name: 'edit' }));
+
+        const dialog = await screen.findByRole('dialog', { name: 'Filters' });
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'From' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '15' }));
+
+        await userEvent.click(within(dialog).getByRole('textbox', { name: 'To' }));
+        await userEvent.click(screen.getByRole('gridcell', { name: '26' }));
+
+        await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() => {
+          expect(getOrders).toHaveBeenCalledWith(
+            expect.objectContaining({
+              filters: expect.objectContaining({
+                dateRange: { from: '2022-11-15T00:00:00.000Z', to: '2022-11-26T23:59:59.999Z' },
+              }),
+            }),
+          );
+        });
+
+        act(() => {
+          store.dispatch(
+            setTimeFormat({
+              ...store.getState().storeInfo.timeFormat,
+              offset: newYorkStandardOffset,
+            }),
+          );
+        });
 
         await waitFor(() => {
           expect(screen.getByText('66996').closest('tr')!).toBeVisible();
