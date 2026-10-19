@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { OrdersFiltersInput } from '@/shared/service/bc/graphql/orders';
 // Status list still comes from the legacy `orderStatuses` query — the unified
@@ -30,12 +30,14 @@ interface AppliedFilters {
 
 interface UseCustomerOrdersStateArgs {
   orderStatuses: OrderStatusItem[];
+  selectedCompanyId?: number;
 }
 
 export interface UseCustomerOrdersStateResult
   extends UseUnifiedOrdersPaginationResult,
     UseUnifiedOrderSortingResult<BaseSortableColumnKey> {
   filters: OrdersFiltersInput;
+  selectedCompanyIds: number[] | null;
   handleFilterChange: (value: AppliedFilters) => void;
   handleSearchChange: (key: string, value: string) => void;
   handleCompanyIdsChange: (companyIds: number[]) => void;
@@ -43,6 +45,7 @@ export interface UseCustomerOrdersStateResult
 
 export const useCustomerOrdersState = ({
   orderStatuses,
+  selectedCompanyId,
 }: UseCustomerOrdersStateArgs): UseCustomerOrdersStateResult => {
   const [filters, setFilters] = useState<OrdersFiltersInput>(() => getCustomerOrdersInitFilter());
 
@@ -75,12 +78,23 @@ export const useCustomerOrdersState = ({
     }));
   };
 
-  const handleCompanyIdsChange = () => {};
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<number[] | null>(null);
+
+  useEffect(() => {
+    setSelectedCompanyIds(null);
+  }, [selectedCompanyId]);
+
+  const handleCompanyIdsChange = (companyIds: number[]) => {
+    const isAll = companyIds.length === 0 || companyIds.includes(-1);
+    setSelectedCompanyIds(isAll ? [] : companyIds);
+    pagination.resetPagination();
+  };
 
   return {
     ...pagination,
     ...sorting,
     filters,
+    selectedCompanyIds,
     handleFilterChange,
     handleSearchChange,
     handleCompanyIdsChange,

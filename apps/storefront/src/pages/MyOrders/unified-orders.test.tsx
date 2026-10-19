@@ -6,11 +6,13 @@ import {
   buildStoreInfoStateWith,
   bulk,
   faker,
+  getUnixTime,
   graphql,
   HttpResponse,
   renderWithProviders,
   screen,
   startMockServer,
+  stringContainingAll,
   userEvent,
   waitFor,
   waitForElementToBeRemoved,
@@ -26,6 +28,7 @@ import type {
 } from '@/shared/service/bc/graphql/orders';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 
+import type { CompanyOrderNode, GetCompanyOrders } from '../order/orders';
 import {
   CompanyOrderStatuses,
   CustomerOrderStatues,
@@ -143,6 +146,29 @@ const buildLegacyB2BOrderStatusesResponseWith = builder<CompanyOrderStatuses>(()
   },
 }));
 
+const buildLegacyOrderNodeWith = builder<CompanyOrderNode>(() => ({
+  node: {
+    orderId: faker.number.int().toString(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    createdAt: getUnixTime(faker.date.past()),
+    totalIncTax: faker.number.float(),
+    poNumber: faker.number.int().toString(),
+    status: faker.word.noun(),
+    companyInfo: { companyName: faker.company.name() },
+  },
+}));
+
+const buildLegacyOrdersResponseWith = builder<GetCompanyOrders>(() => ({
+  data: {
+    allOrders: {
+      totalCount: 1,
+      pageInfo: { hasNextPage: false, hasPreviousPage: false },
+      edges: bulk(buildLegacyOrderNodeWith, 'WHATEVER_VALUES').times(1),
+    },
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Preloaded states
 // ---------------------------------------------------------------------------
@@ -245,33 +271,31 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
   describe('flag ON — unified SF GQL path', () => {
     it('renders B2B orders with all fields', async () => {
-      const order = buildSfGqlOrderWith({
-        entityId: 12345,
-        poNumber: 'PO-9876',
-        status: { value: 'COMPLETED', label: 'Completed' },
-        totalIncTax: buildSfGqlMoneyWith({ value: 250 }),
-        orderedAt: { utc: '2025-03-13T00:00:00Z' },
-        company: { entityId: 1, name: 'Acme Corp' },
-        placedBy: { entityId: 1, firstName: 'Jane', lastName: 'Doe', email: 'jane@acme.com' },
-      });
-
       server.use(
-        graphql.query('GetCustomerOrders', () =>
+        graphql.query('GetAllOrders', () =>
           HttpResponse.json({
             data: {
-              customer: {
-                orders: {
-                  edges: [{ node: order, cursor: 'abc' }],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: 'abc',
-                    endCursor: 'abc',
+              allOrders: {
+                totalCount: 1,
+                pageInfo: { hasNextPage: false, hasPreviousPage: false },
+                edges: [
+                  {
+                    node: {
+                      orderId: '12345',
+                      createdAt: Math.floor(new Date('2025-03-13T00:00:00Z').getTime() / 1000),
+                      totalIncTax: 250,
+                      money: null,
+                      poNumber: 'PO-9876',
+                      status: 'Completed',
+                      firstName: 'Jane',
+                      lastName: 'Doe',
+                      companyInfo: { companyName: 'Acme Corp' },
+                    },
                   },
-                },
+                ],
               },
             },
-          } satisfies GetCustomerOrdersResponse),
+          }),
         ),
       );
 
@@ -344,8 +368,8 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
     it('preserves column visibility — company visible for B2B', async () => {
       server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json(buildLegacyOrdersResponseWith('WHATEVER_VALUES')),
         ),
       );
 
@@ -362,8 +386,8 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
     it('renders My Orders column headers as sortable (hybrid fallback handles unsupported sorts)', async () => {
       server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json(buildLegacyOrdersResponseWith('WHATEVER_VALUES')),
         ),
       );
 
@@ -376,26 +400,47 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(sortableHeaders.length).toBeGreaterThan(0);
     });
 
-    it('does not send sortBy on the default customer orders query (enum mismatch, BE default is correct)', async () => {
-      let capturedVariables: Record<string, unknown> = {};
+    it('sends orderBy on the default legacy orders query (B2B uses GetAllOrders)', async () => {
+      let capturedQuery = '';
 
       server.use(
-        graphql.query('GetCustomerOrders', ({ variables }) => {
-          capturedVariables = variables;
-          return HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+        graphql.query('GetAllOrders', ({ query }) => {
+          capturedQuery = query;
+          return HttpResponse.json(buildLegacyOrdersResponseWith('WHATEVER_VALUES'));
         }),
       );
 
       renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
 
-      await waitFor(() => expect(capturedVariables).toHaveProperty('first'));
-      expect(capturedVariables).not.toHaveProperty('sortBy');
+      await waitFor(() => expect(capturedQuery).toContain('orderBy'));
+      expect(capturedQuery).not.toContain('sortBy');
     });
 
-    it('renders the search box but not the company selector on the unified customer path', async () => {
+    it('renders the search box and the company selector on the unified customer path when hierarchy is enabled', async () => {
       server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json({
+            data: {
+              allOrders: {
+                totalCount: 1,
+                edges: [
+                  {
+                    node: {
+                      orderId: '100',
+                      createdAt: Date.now() / 1000,
+                      totalIncTax: 100,
+                      money: null,
+                      poNumber: null,
+                      status: 'Pending',
+                      firstName: 'Gary',
+                      lastName: 'Admin',
+                      companyInfo: { companyName: 'Test Corp' },
+                    },
+                  },
+                ],
+              },
+            },
+          }),
         ),
       );
 
@@ -413,13 +458,13 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
       expect(await screen.findByRole('table')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
-      expect(screen.queryByRole('combobox', { name: /compan/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: /compan/i })).toBeInTheDocument();
     });
 
     it('renders no Company field in more filters for a super admin who is not agenting', async () => {
       server.use(
-        graphql.query('GetCustomerOrders', () =>
-          HttpResponse.json(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES')),
+        graphql.query('GetAllOrders', () =>
+          HttpResponse.json(buildLegacyOrdersResponseWith('WHATEVER_VALUES')),
         ),
       );
 
@@ -442,33 +487,41 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       expect(within(dialog).queryByRole('textbox', { name: /compan/i })).not.toBeInTheDocument();
     });
 
-    it("displays the order's own currency via formattedV2, ignoring the store's currency settings", async () => {
-      const order = buildSfGqlOrderWith({
-        entityId: 90909,
-        totalIncTax: buildSfGqlMoneyWith({
-          currencyCode: 'USD',
-          value: 319.95,
-          formattedV2: '319.95$$$',
-        }),
-      });
+    it("displays the order's own currency via legacy money field when available", async () => {
+      const moneyFormat = {
+        currency_location: 'left',
+        currency_token: '€',
+        decimal_token: '.',
+        decimal_places: 2,
+        thousands_token: ',',
+      };
+      const moneyValue = JSON.stringify(JSON.stringify(moneyFormat));
 
       server.use(
-        graphql.query('GetCustomerOrders', () =>
+        graphql.query('GetAllOrders', () =>
           HttpResponse.json({
             data: {
-              customer: {
-                orders: {
-                  edges: [{ node: order, cursor: 'fmt' }],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: null,
-                    endCursor: null,
+              allOrders: {
+                totalCount: 1,
+                pageInfo: { hasNextPage: false, hasPreviousPage: false },
+                edges: [
+                  {
+                    node: {
+                      orderId: '90909',
+                      createdAt: getUnixTime(new Date()),
+                      totalIncTax: 319.95,
+                      money: moneyValue,
+                      poNumber: null,
+                      status: 'Completed',
+                      firstName: 'Jane',
+                      lastName: 'Doe',
+                      companyInfo: { companyName: 'Acme Corp' },
+                    },
                   },
-                },
+                ],
               },
             },
-          } satisfies GetCustomerOrdersResponse),
+          }),
         ),
       );
 
@@ -479,32 +532,35 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
       await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
       const row = screen.getByRole('row', { name: /90909/ });
-      expect(within(row).getByText('319.95$$$')).toBeVisible();
+      expect(within(row).getByText('€319.95')).toBeVisible();
     });
 
     it('formats date correctly', async () => {
-      const order = buildSfGqlOrderWith({
-        entityId: 88888,
-        orderedAt: { utc: '2025-03-13T00:00:00Z' },
-      });
-
       server.use(
-        graphql.query('GetCustomerOrders', () =>
+        graphql.query('GetAllOrders', () =>
           HttpResponse.json({
             data: {
-              customer: {
-                orders: {
-                  edges: [{ node: order, cursor: 'dt' }],
-                  pageInfo: {
-                    hasNextPage: false,
-                    hasPreviousPage: false,
-                    startCursor: null,
-                    endCursor: null,
+              allOrders: {
+                totalCount: 1,
+                pageInfo: { hasNextPage: false, hasPreviousPage: false },
+                edges: [
+                  {
+                    node: {
+                      orderId: '88888',
+                      createdAt: Math.floor(new Date('2025-03-13T00:00:00Z').getTime() / 1000),
+                      totalIncTax: 100,
+                      money: null,
+                      poNumber: null,
+                      status: 'Pending',
+                      firstName: 'Jane',
+                      lastName: 'Doe',
+                      companyInfo: { companyName: 'Test Corp' },
+                    },
                   },
-                },
+                ],
               },
             },
-          } satisfies GetCustomerOrdersResponse),
+          }),
         ),
       );
 
@@ -754,7 +810,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
           const getOrders = vi
             .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+            .mockReturnValue(buildLegacyOrdersResponseWith('WHATEVER_VALUES'));
 
           server.use(
             graphql.query('GetOrderStatuses', () =>
@@ -771,9 +827,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
                 }),
               ),
             ),
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
+            graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))),
           );
 
           renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
@@ -782,14 +836,22 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
           when(getOrders)
             .calledWith(
-              expect.objectContaining({
-                filters: expect.objectContaining({
-                  status: 'PENDING',
-                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
-                }),
-              }),
+              stringContainingAll(
+                'status: "Pending"',
+                'beginDateAt: "2022-11-15"',
+                'endDateAt: "2022-11-26"',
+              ),
             )
-            .thenReturn(filteredOrderResponse(66996));
+            .thenReturn(
+              buildLegacyOrdersResponseWith({
+                data: {
+                  allOrders: {
+                    totalCount: 1,
+                    edges: [buildLegacyOrderNodeWith({ node: { orderId: '66996' } })],
+                  },
+                },
+              }),
+            );
 
           await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -816,12 +878,10 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
 
           const getOrders = vi
             .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+            .mockReturnValue(buildLegacyOrdersResponseWith('WHATEVER_VALUES'));
 
           server.use(
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
+            graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))),
           );
 
           renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
@@ -829,14 +889,17 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
           when(getOrders)
-            .calledWith(
-              expect.objectContaining({
-                filters: expect.objectContaining({
-                  dateRange: { from: '2022-11-15', to: '2022-11-26' },
-                }),
+            .calledWith(stringContainingAll('beginDateAt: "2022-11-15"', 'endDateAt: "2022-11-26"'))
+            .thenReturn(
+              buildLegacyOrdersResponseWith({
+                data: {
+                  allOrders: {
+                    totalCount: 1,
+                    edges: [buildLegacyOrderNodeWith({ node: { orderId: '66996' } })],
+                  },
+                },
               }),
-            )
-            .thenReturn(filteredOrderResponse(66996));
+            );
 
           await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -855,10 +918,10 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        it('resolves custom status label to the OrderStatusValue enum before sending', async () => {
+        it('resolves custom status label to the legacy status before sending', async () => {
           const getOrders = vi
             .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+            .mockReturnValue(buildLegacyOrdersResponseWith('WHATEVER_VALUES'));
 
           server.use(
             graphql.query('GetOrderStatuses', () =>
@@ -875,9 +938,7 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
                 }),
               ),
             ),
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
+            graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))),
           );
 
           renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
@@ -885,12 +946,17 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
           when(getOrders)
-            .calledWith(
-              expect.objectContaining({
-                filters: expect.objectContaining({ status: 'PENDING' }),
+            .calledWith(stringContainingAll('status: "Pending"'))
+            .thenReturn(
+              buildLegacyOrdersResponseWith({
+                data: {
+                  allOrders: {
+                    totalCount: 1,
+                    edges: [buildLegacyOrderNodeWith({ node: { orderId: '66996' } })],
+                  },
+                },
               }),
-            )
-            .thenReturn(filteredOrderResponse(66996));
+            );
 
           await userEvent.click(screen.getByRole('button', { name: /edit/ }));
 
@@ -906,15 +972,13 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           });
         });
 
-        it('never sends companyIds or companyName on the customer path', async () => {
+        it('sends companyIds and isShowMy on the legacy GetAllOrders path', async () => {
           const getOrders = vi
             .fn()
-            .mockReturnValue(buildSfGqlCustomerOrdersResponseWith('WHATEVER_VALUES'));
+            .mockReturnValue(buildLegacyOrdersResponseWith('WHATEVER_VALUES'));
 
           server.use(
-            graphql.query('GetCustomerOrders', ({ variables }) =>
-              HttpResponse.json(getOrders(variables)),
-            ),
+            graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))),
           );
 
           renderWithProviders(<MyOrders />, { preloadedState: b2bStateWithFlag(flagOn) });
@@ -922,11 +986,10 @@ describe('My Orders — unified SF GQL orders (B2B-4613)', () => {
           await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
 
           expect(getOrders).toHaveBeenCalled();
-          getOrders.mock.calls.forEach(([variables]) => {
-            const filters = (variables as { filters?: Record<string, unknown> }).filters ?? {};
-            expect(filters).not.toHaveProperty('companyIds');
-            expect(filters).not.toHaveProperty('companyName');
-          });
+          const lastCallQuery = getOrders.mock.calls[0][0] as string;
+          expect(lastCallQuery).toContain('isShowMy');
+          // b2bStateWithFlag sets companyInfo.id to '123', so the request must be scoped to it
+          expect(lastCallQuery).toMatch(/companyIds:\s*\[\s*123\s*,?\s*\]/);
         });
       });
     });
