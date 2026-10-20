@@ -3546,3 +3546,96 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     });
   });
 });
+
+describe('Order detail status labels with translated order statuses flag ON', () => {
+  const translatedPreloadedState = (translations: Record<string, string> = {}) => ({
+    ...preloadedState,
+    global: buildGlobalStateWith({
+      backorderEnabled: false,
+      featureFlags: {
+        'B2B-4613.buyer_portal_unified_sf_gql_orders': true,
+        'LOCAL-3680.B2B_display_translated_order_statuses': true,
+      },
+    }),
+    lang: {
+      translations,
+      fetchedPages: ['global'],
+      translationVersion: 1,
+      _persist: { version: -1, rehydrated: true },
+    },
+  });
+
+  const mockOrderWithHistory = (label: string) => {
+    server.use(
+      graphql.query('GetOrderDetail', () =>
+        HttpResponse.json(
+          buildOrderDetailResponseWith({
+            data: {
+              site: {
+                order: buildUnifiedOrderWith({
+                  entityId: 6696,
+                  status: { value: 'SHIPPED', label },
+                  history: [
+                    {
+                      id: '1',
+                      eventType: OrderHistoryEventType.ORDER_UPDATED,
+                      statusLabel: 'Shipped',
+                      source: null,
+                      createdAt: faker.date.past().toISOString(),
+                    },
+                  ],
+                }),
+              },
+            },
+          }),
+        ),
+      ),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+    );
+  };
+
+  const renderDetail = async (translations?: Record<string, string>) => {
+    vi.mocked(useParams).mockReturnValue({ id: '6696' });
+
+    renderWithProviders(<OrderDetails />, {
+      preloadedState: translatedPreloadedState(translations),
+      initialEntries: [{ state: { isCompanyOrder: false } }],
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+  };
+
+  it('shows the merchant CSV translation in the header and history without calling GetOrderStatuses', async () => {
+    const csvText = faker.lorem.words(3);
+    const legacyStatusesRequested = vi.fn();
+
+    mockOrderWithHistory(faker.lorem.words(2));
+    server.use(
+      graphql.query('GetCustomerOrderStatuses', () => {
+        legacyStatusesRequested();
+        return HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES'));
+      }),
+      graphql.query('GetOrderStatuses', () => {
+        legacyStatusesRequested();
+        return HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES'));
+      }),
+    );
+
+    await renderDetail({ 'orders.status.shipped': csvText });
+
+    expect(await screen.findAllByText(csvText)).toHaveLength(2);
+    expect(legacyStatusesRequested).not.toHaveBeenCalled();
+  });
+
+  it('shows the backend status label when there is no CSV translation', async () => {
+    const label = faker.lorem.words(2);
+
+    mockOrderWithHistory(label);
+
+    await renderDetail();
+
+    expect(await screen.findAllByText(label)).toHaveLength(2);
+  });
+});
