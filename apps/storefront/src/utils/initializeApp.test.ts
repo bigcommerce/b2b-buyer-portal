@@ -46,6 +46,8 @@ const mockState = (featureFlags: Record<string, boolean> = {}) =>
     global: { featureFlags },
   } as unknown as ReturnType<typeof store.getState>);
 
+const DEFER_FLAG = 'B2B-5863.defer_non_critical_login_fetches';
+
 const baseParams = () => ({
   customerId: '' as number | string,
   role: CustomerRole.GUEST,
@@ -87,6 +89,54 @@ describe('initializeApp', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+  });
+
+  it('still runs tax and settings on the login path when the defer flag is off', async () => {
+    mockState();
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
+  });
+
+  it('defers tax and settings for a resolved customer when the defer flag is on', async () => {
+    mockState({ [DEFER_FLAG]: true });
+
+    await initializeApp({ ...baseParams(), customerId: 123 });
+
+    // still fetched (off the critical path), and the critical fetches are untouched
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
+    expect(setStorefrontConfig).toHaveBeenCalled();
+    expect(getCompanyInfo).toHaveBeenCalled();
+  });
+
+  it('still defers tax and settings for a guest when the defer flag is on', async () => {
+    mockState({ [DEFER_FLAG]: true });
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue(undefined);
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    // guests (e.g. guest quotes/shopping lists) read showInclusiveTaxPrice and
+    // backorderDisplaySettings, so these still run — just off the critical path
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
+    expect(setStorefrontConfig).toHaveBeenCalled();
+    expect(getCompanyInfo).toHaveBeenCalled();
+  });
+
+  it('does not block init on tax and settings when the defer flag is on', async () => {
+    mockState({ [DEFER_FLAG]: true });
+    // tax call that never settles during the test; init must still finish
+    vi.mocked(getGlobalStoreTax).mockReturnValue(new Promise<void>(() => {}));
+
+    const result = await initializeApp({ ...baseParams(), customerId: 123 });
+
+    // init completed while the tax call is still pending → it's off the critical path
+    expect(result.completed).toBe(true);
+    expect(getGlobalStoreTax).toHaveBeenCalled();
+    expect(getStoreSettings).toHaveBeenCalled();
   });
 
   it('calls getCurrentCustomerInfo before setStorefrontConfig on a fresh login', async () => {

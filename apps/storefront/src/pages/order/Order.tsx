@@ -46,6 +46,7 @@ import {
   getCreatedByUserForOrders,
   getOrderStatusType,
 } from './orders';
+import { toISODateRangeFilters } from './unifiedApiFiltersHelper';
 import { useCompanyOrdersState } from './useCompanyOrdersState';
 import { useCustomerOrdersState } from './useCustomerOrdersState';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
@@ -114,6 +115,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [legacyPlacedByUsers, setLegacyPlacedByUsers] = useState<
     Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
   >([]);
+  const storeOffsetSeconds = useAppSelector(({ storeInfo }) => storeInfo.timeFormat.offset);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -125,6 +127,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   });
   const customerFilterState = useCustomerOrdersState({
     orderStatuses: getOrderStatuses,
+    selectedCompanyId,
   });
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
@@ -164,6 +167,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         filters: customerFilterState.filters,
         activeSort: customerFilterState.activeSort,
         isB2BUser,
+        selectedCompanyIds: customerFilterState.selectedCompanyIds,
+        selectedCompanyId,
       });
     }
     return { filterData: legacyFilterState.filterData, orderBy: legacyFilterState.orderBy };
@@ -174,7 +179,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     companyFilterState.activeSort,
     customerFilterState.filters,
     customerFilterState.activeSort,
+    customerFilterState.selectedCompanyIds,
     isB2BUser,
+    selectedCompanyId,
     legacyFilterState.filterData,
     legacyFilterState.orderBy,
   ]);
@@ -396,6 +403,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const companyNeedsPlacedBy = isUnifiedCompanyPath && !!companyFilterState.filters.placedByLabel;
   const companyNeedsAllHierarchy =
     isUnifiedCompanyPath && isEnabledCompanyHierarchy && !companyFilterState.filters.companyIds;
+  // B2B My Orders always uses legacy — SF GQL customer.orders has no companyIds
+  // filter, so it returns orders without company association. Only B2C stays on SF GQL.
+  const customerNeedsCompanyScope = isUnifiedCustomerPath && isB2BUser;
   const customerNeedsSearch = isUnifiedCustomerPath && !!customerFilterState.filters.search;
   const customerNeedsSort =
     isUnifiedCustomerPath && (activeSort.key !== 'orderId' || activeSort.dir !== 'desc');
@@ -405,6 +415,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       companyNeedsSort ||
       companyNeedsPlacedBy ||
       companyNeedsAllHierarchy ||
+      customerNeedsCompanyScope ||
       customerNeedsSearch ||
       customerNeedsSort);
 
@@ -428,6 +439,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         companyFilterState.filters,
         companyFilterState.sortBy,
         companyFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     if (isUnifiedCustomerPath) {
@@ -436,6 +448,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         customerFilterState.filters,
         customerFilterState.sortBy,
         customerFilterState.paginationVariables,
+        storeOffsetSeconds,
       ];
     }
     return ['orderList:legacy', filterData, legacyPagination, orderBy];
@@ -448,14 +461,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (isUnifiedCompanyPath) {
       return fetchUnifiedCompanyOrders({
         ...companyFilterState.paginationVariables,
-        filters: companyFilterState.filters,
+        filters: toISODateRangeFilters(companyFilterState.filters, storeOffsetSeconds),
         sortBy: companyFilterState.sortBy,
       });
     }
     if (isUnifiedCustomerPath) {
       return fetchUnifiedOrders({
         ...customerFilterState.paginationVariables,
-        filters: customerFilterState.filters,
+        filters: toISODateRangeFilters(customerFilterState.filters, storeOffsetSeconds),
       });
     }
     return fetchLegacyOrders({ ...filterData, ...legacyPagination, orderBy });
@@ -518,7 +531,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             },
           }}
         >
-          {isEnabledCompanyHierarchy && !isUnifiedCustomerPath && (
+          {isEnabledCompanyHierarchy && (
             <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleCompanyIdsChange} />
             </Box>

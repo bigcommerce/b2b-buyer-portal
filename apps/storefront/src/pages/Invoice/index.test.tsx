@@ -652,10 +652,10 @@ it('can pay for multiple invoices', async () => {
 
   const table = screen.getByRole('table');
 
-  const firstRow = within(table).getByRole('row', { name: /3322/ });
+  const firstRow = within(table).getByRole('row', { name: /\b3322\b/ });
   const firstRowCells = within(firstRow).getAllByRole('cell');
 
-  const secondRow = within(table).getByRole('row', { name: /3325/ });
+  const secondRow = within(table).getByRole('row', { name: /\b3325\b/ });
   const secondRowCells = within(secondRow).getAllByRole('cell');
 
   await userEvent.click(within(firstRowCells[0]).getByRole('checkbox'));
@@ -723,10 +723,10 @@ it('disables the Pay invoices button when selected invoices are in different cur
   await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
 
   const table = screen.getByRole('table');
-  const firstRow = within(table).getByRole('row', { name: /3344/ });
+  const firstRow = within(table).getByRole('row', { name: /\b3344\b/ });
   const firstRowCells = within(firstRow).getAllByRole('cell');
 
-  const secondRow = within(table).getByRole('row', { name: /3345/ });
+  const secondRow = within(table).getByRole('row', { name: /\b3345\b/ });
   const secondRowCells = within(secondRow).getAllByRole('cell');
 
   await userEvent.click(within(firstRowCells[0]).getByRole('checkbox'));
@@ -806,7 +806,7 @@ it('disables the Pay invoices button when selecting all invoices with different 
 
   const columnHeaders = within(table).getAllByRole('columnheader');
 
-  const secondRow = within(table).getByRole('row', { name: /3325/ });
+  const secondRow = within(table).getByRole('row', { name: /\b3325\b/ });
   const secondRowCells = within(secondRow).getAllByRole('cell');
 
   // click the "select all" checkbox in the header

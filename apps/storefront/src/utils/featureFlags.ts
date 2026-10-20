@@ -67,6 +67,10 @@ export const featureFlags = [
     key: 'B2B-5408.optimise_bc_login_fetches',
     name: 'optimiseBcLoginFetches',
   },
+  {
+    key: 'B2B-5863.defer_non_critical_login_fetches',
+    name: 'deferNonCriticalLoginFetches',
+  },
 ] as const;
 
 export type FeatureFlagKey = (typeof featureFlags)[number]['key'];

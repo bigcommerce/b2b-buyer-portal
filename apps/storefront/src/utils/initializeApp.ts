@@ -41,6 +41,10 @@ interface InitializeAppResult {
   resolvedCustomerId?: number | string;
 }
 
+const fireNonCriticalFetches = () => {
+  Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]);
+};
+
 export const initializeApp = async ({
   customerId,
   role,
@@ -101,16 +105,27 @@ export const initializeApp = async ({
 
     const optimiseLoginFetches =
       store.getState().global.featureFlags['B2B-5408.optimise_bc_login_fetches'] ?? false;
+    const deferNonCriticalLoginFetches =
+      store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
 
-    await Promise.allSettled([
-      getGlobalStoreTax(),
-      setStorefrontConfig(dispatch),
-      getStoreSettings(),
-      // A fresh login already resolved company info inside getCurrentCustomerInfo, so
-      // under the optimisation flag we skip the duplicate fetch here; the rehydrated
-      // path (no fresh login) always needs it.
-      ...(optimiseLoginFetches && resolvedFreshLogin ? [] : [getCompanyInfo(role, b2bId)]),
-    ]);
+    // A fresh login already resolved company info inside getCurrentCustomerInfo, so
+    // under the optimisation flag we skip the duplicate fetch here; the rehydrated
+    // path (no fresh login) always needs it.
+    const companyInfoFetch =
+      optimiseLoginFetches && resolvedFreshLogin ? [] : [getCompanyInfo(role, b2bId)];
+
+    if (deferNonCriticalLoginFetches) {
+      await Promise.allSettled([setStorefrontConfig(dispatch), ...companyInfoFetch]);
+
+      fireNonCriticalFetches();
+    } else {
+      await Promise.allSettled([
+        getGlobalStoreTax(),
+        setStorefrontConfig(dispatch),
+        getStoreSettings(),
+        ...companyInfoFetch,
+      ]);
+    }
 
     const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
       ? b2bJumpPath(Number(userInfo.role))
