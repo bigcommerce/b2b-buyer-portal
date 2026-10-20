@@ -72,6 +72,11 @@ export const rolePermissionSelector = createSelector(
   },
 );
 
+export const draftQuoteNotEmptySelector = createSelector(
+  quoteInfoSelector,
+  (quoteInfo) => quoteInfo.draftQuoteList.length > 0,
+);
+
 export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
   quoteInfo.draftQuoteList.map(
     ({ node: { optionList, calculatedValue, productsSearch, ...restItem } }) => {

@@ -1,7 +1,9 @@
 import Cookies from 'js-cookie';
 import {
   buildCompanyStateWith,
+  buildDraftQuoteItemWith,
   builder,
+  buildQuoteInfoStateWith,
   faker,
   graphql,
   HttpResponse,
@@ -198,7 +200,7 @@ describe('when switching to a different company', () => {
     expect(within(modal).getByRole('heading', { name: 'Switch company' })).toBeInTheDocument();
     expect(
       within(modal).getByText(
-        'Switching to a different company will refresh your shopping cart. Do you want to continue?',
+        'Switching to a different company will refresh your shopping cart and draft quote. Do you want to continue?',
       ),
     ).toBeInTheDocument();
   });
@@ -399,6 +401,124 @@ describe('when the user has a current cart and switches company', () => {
     await waitFor(() =>
       expect(deleteCart).toHaveBeenCalledWith({ deleteCartInput: { cartEntityId: '12345' } }),
     );
+  });
+});
+
+describe('when the user has a draft quote and switches company', () => {
+  it('empties the draft quote', async () => {
+    // given - a non-empty draft quote carrying a company name
+    const acme = buildSubsidiaryWith({ companyName: 'ACME', parentCompanyId: null });
+    const apple = buildSubsidiaryWith({
+      companyName: 'Apple',
+      parentCompanyId: acme.companyId,
+      channelFlag: true,
+    });
+
+    const beginMasquerading = vi.fn();
+
+    server.use(
+      graphql.query('CompanySubsidiaries', () =>
+        HttpResponse.json({ data: { companySubsidiaries: [acme, apple] } }),
+      ),
+      graphql.mutation('userMasqueradingCompanyBegin', ({ variables }) =>
+        HttpResponse.json(beginMasquerading(variables)),
+      ),
+    );
+
+    const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
+    const draftQuote = buildQuoteInfoStateWith({
+      draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      draftQuoteInfo: { contactInfo: { companyName: 'Company A' } },
+    });
+
+    const { store } = renderWithProviders(<CompanyHierarchy />, {
+      preloadedState: { company: companyState, quoteInfo: draftQuote },
+    });
+
+    const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
+
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    when(beginMasquerading)
+      .calledWith({ companyId: apple.companyId })
+      .thenReturn({
+        data: {
+          userMasqueradingCompanyBegin: {
+            userMasqueradingCompanyBegin: {
+              companyId: apple.companyId,
+              companyName: apple.companyName,
+              bcId: '0',
+            },
+          },
+        },
+      });
+
+    // when
+    await userEvent.click(within(modal).getByRole('button', { name: 'Continue' }));
+
+    // then
+    await waitFor(() => {
+      expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
+    });
+    expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
+  });
+
+  it('empties the draft quote when switching back to the current company', async () => {
+    // given - representing a subsidiary, with a non-empty draft quote
+    // channelFlag must be set on the clicked (own-company) row for its switch action to render
+    const acme = buildSubsidiaryWith({
+      companyName: 'ACME',
+      parentCompanyId: null,
+      channelFlag: true,
+    });
+    const apple = buildSubsidiaryWith({
+      companyName: 'Apple',
+      parentCompanyId: acme.companyId,
+      channelFlag: true,
+    });
+
+    const endMasquerading = vi.fn().mockReturnValue({
+      data: { userMasqueradingCompanyEnd: { message: 'ok' } },
+    });
+
+    server.use(
+      graphql.query('CompanySubsidiaries', () =>
+        HttpResponse.json({ data: { companySubsidiaries: [acme, apple] } }),
+      ),
+      graphql.mutation('userMasqueradingCompanyEnd', () => HttpResponse.json(endMasquerading())),
+    );
+
+    const companyState = buildCompanyStateWith({
+      companyInfo: { id: `${acme.companyId}` },
+      companyHierarchyInfo: { selectCompanyHierarchyId: `${apple.companyId}` },
+    });
+    const draftQuote = buildQuoteInfoStateWith({
+      draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      draftQuoteInfo: { contactInfo: { companyName: 'Company A' } },
+    });
+
+    const { store } = renderWithProviders(<CompanyHierarchy />, {
+      preloadedState: { company: companyState, quoteInfo: draftQuote },
+    });
+
+    const rowOfAcme = await screen.findByRole('row', { name: /ACME/ });
+
+    await userEvent.click(within(rowOfAcme).getByTestId('actions'));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    // when
+    await userEvent.click(within(modal).getByRole('button', { name: 'Continue' }));
+
+    // then
+    await waitFor(() => {
+      expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
+    });
+    expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
   });
 });
 

@@ -11,6 +11,7 @@ import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { store, useAppSelector } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import { setCartNumber } from '@/store/slices/global';
+import { resetDraftQuote } from '@/store/slices/quoteInfo';
 import {
   CompanyHierarchyListProps,
   CompanyHierarchyProps,
@@ -89,6 +90,8 @@ function HierarchyDialog({
 
         store.dispatch(setCartNumber(0));
       }
+
+      store.dispatch(resetDraftQuote());
 
       const selectCompanyHierarchyId = companyId === Number(currentCompanyId) ? '' : companyId;
 
