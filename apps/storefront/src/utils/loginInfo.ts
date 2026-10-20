@@ -305,10 +305,9 @@ export const getCurrentCustomerInfo = async (
 
     // A guest / not-yet-authenticated BC session returns a null customer; treat
     // that as "not logged in" and let init retry rather than dereferencing null.
-    // Only reachable with a B2BToken already in the store (true guests return at
-    // the earlier token check), so clear it to drop a stale/invalid token.
+    // Reached only after a token check/exchange, so clear any stale/invalid token.
     if (!loginCustomer) {
-      clearCurrentCustomerInfo();
+      await clearCurrentCustomerInfo();
       return undefined;
     }
 

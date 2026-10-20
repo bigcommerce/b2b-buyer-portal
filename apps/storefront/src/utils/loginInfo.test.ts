@@ -3,7 +3,7 @@ import { graphql, HttpResponse, startMockServer } from 'tests/test-utils';
 import * as b2bService from '@/shared/service/b2b';
 import * as bcService from '@/shared/service/bc';
 import { store } from '@/store';
-import { setBcGraphQLToken, setPermissionModules } from '@/store/slices/company';
+import { setB2BToken, setBcGraphQLToken, setPermissionModules } from '@/store/slices/company';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
 import * as basicConfig from '@/utils/basicConfig';
@@ -165,8 +165,8 @@ describe('getCurrentCustomerInfo permissions source', () => {
     expect(store.dispatch).toHaveBeenCalledWith(setPermissionModules([]));
   });
 
-  it('returns undefined without throwing when the BC session has no customer', async () => {
-    // given a guest / not-yet-authenticated BC session (customer is null)
+  it('returns undefined and clears the stale token when the BC session has no customer', async () => {
+    // given a stale B2BToken in the store (from mockState) and a null BC customer
     mockState({ [BC_AUTH_FLAG]: true, [COMBINED_QUERY_FLAG]: true });
     vi.spyOn(bcService, 'getCustomerInfo').mockResolvedValue({
       data: { customer: null },
@@ -177,6 +177,7 @@ describe('getCurrentCustomerInfo permissions source', () => {
 
     // then
     expect(result).toBeUndefined();
+    expect(store.dispatch).toHaveBeenCalledWith(setB2BToken(''));
   });
 });
 
