@@ -41,6 +41,10 @@ interface InitializeAppResult {
   resolvedCustomerId?: number | string;
 }
 
+const fireNonCriticalFetches = () => {
+  Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]);
+};
+
 export const initializeApp = async ({
   customerId,
   role,
@@ -101,11 +105,9 @@ export const initializeApp = async ({
       store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
 
     if (deferNonCriticalLoginFetches) {
-      // Tax and settings don't gate interactivity, so keep them off the blocking batch.
-      // They still run for every session (incl. guests) — just not awaited.
       await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
 
-      Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]);
+      fireNonCriticalFetches();
     } else {
       await Promise.allSettled([
         getGlobalStoreTax(),
