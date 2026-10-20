@@ -41,6 +41,10 @@ interface InitializeAppResult {
   resolvedCustomerId?: number | string;
 }
 
+const fireNonCriticalFetches = () => {
+  Promise.allSettled([getGlobalStoreTax(), getStoreSettings()]);
+};
+
 export const initializeApp = async ({
   customerId,
   role,
@@ -97,12 +101,21 @@ export const initializeApp = async ({
       }
     }
 
-    await Promise.allSettled([
-      getGlobalStoreTax(),
-      setStorefrontConfig(dispatch),
-      getStoreSettings(),
-      getCompanyInfo(role, b2bId),
-    ]);
+    const deferNonCriticalLoginFetches =
+      store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
+
+    if (deferNonCriticalLoginFetches) {
+      await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
+
+      fireNonCriticalFetches();
+    } else {
+      await Promise.allSettled([
+        getGlobalStoreTax(),
+        setStorefrontConfig(dispatch),
+        getStoreSettings(),
+        getCompanyInfo(role, b2bId),
+      ]);
+    }
 
     const resolvedAuthorizedPages = isB2BUserSelector(store.getState())
       ? b2bJumpPath(Number(userInfo.role))
