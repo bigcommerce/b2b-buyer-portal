@@ -1,4 +1,5 @@
 import {
+  act,
   buildCompanyStateWith,
   builder,
   buildStoreInfoStateWith,
@@ -30,6 +31,10 @@ import {
 import CompanyOrders from '.';
 
 const { server } = startMockServer();
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 const buildOrderStatusWith = builder<OrderStatus>(() => ({
   statusCode: faker.number.int().toString(),
@@ -526,6 +531,8 @@ describe('has placed orders', () => {
   });
 
   it('can search for orders', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
     const getOrders = vi.fn().mockReturnValue(buildCompanyOrdersWith('WHATEVER_VALUES'));
 
     server.use(graphql.query('GetAllOrders', ({ query }) => HttpResponse.json(getOrders(query))));
@@ -550,6 +557,8 @@ describe('has placed orders', () => {
     const searchBox = screen.getByPlaceholderText(/Search/);
 
     await userEvent.type(searchBox, '66996');
+
+    await act(() => vi.advanceTimersByTimeAsync(500));
 
     await waitFor(() => {
       expect(screen.getByRole('row', { name: /66996/ })).toBeInTheDocument();
