@@ -54,10 +54,7 @@ const getB2BTokenQl = (
   includeLoginType: boolean,
   includePermissions: boolean,
 ) => {
-  // loginType is a legacy-flow concept, so only the pre-BC-first login path asks
-  // for it. permissions, by contrast, are requested here by both flows so the
-  // login path gets them from this single authorization mutation rather than a
-  // second b2bAuthorization call.
+  // loginType is legacy-flow only; permissions fold in here to drop the follow-up b2bAuthorization call.
   const loginTypeField = includeLoginType ? ' loginType' : '';
   const permissionsField = includePermissions
     ? ` permissions {
