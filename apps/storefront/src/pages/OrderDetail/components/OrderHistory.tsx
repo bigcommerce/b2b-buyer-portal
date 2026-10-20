@@ -7,10 +7,10 @@ import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { displayExtendedFormat } from '@/utils/b3DateFormat';
 
-import { OrderHistoryItem, OrderStatusItem } from '../../../types';
+import { OrderHistoryItem } from '../../../types';
 import OrderStatus from '../../order/components/OrderStatus';
-import { orderStatusTranslationVariables } from '../../order/shared/getOrderStatus';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
+import { useOrderStatusLabel } from '../hooks/useOrderStatusLabel';
 
 const HistoryListContainer = styled('div')(() => ({
   '& > .MuiPaper-root': {
@@ -29,28 +29,10 @@ const HistoryListContainer = styled('div')(() => ({
 export function OrderHistory() {
   const b3Lang = useB3Lang();
   const {
-    state: { history = [], orderStatus: orderStatusLabel = [], customStatus },
+    state: { history = [] },
   } = useContext(OrderDetailsContext);
   const [isMobile] = useMobile();
-
-  const getOrderStatusLabel = (status: string) => {
-    const currentOrderStatus = orderStatusLabel.find(
-      (item: OrderStatusItem) => item.systemLabel === status,
-    );
-
-    let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
-
-    if (currentOrderStatus) {
-      const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
-
-      activeStatusLabel =
-        optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel
-          ? b3Lang(optionLabel)
-          : activeStatusLabel;
-    }
-
-    return activeStatusLabel;
-  };
+  const getOrderStatusLabel = useOrderStatusLabel();
 
   const columnItems: TableColumnItem<OrderHistoryItem>[] = [
     {

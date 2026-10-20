@@ -21,12 +21,11 @@ import {
 import type { Order as UnifiedOrder } from '@/shared/service/bc/graphql/orders';
 import { getOrderBackorderHistory, getOrderDetail } from '@/shared/service/bc/graphql/orders';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
+import { AddressConfigItem, CustomerRole, OrderProductItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
 
 import OrderStatus from '../order/components/OrderStatus';
-import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
 import { DetailPagination } from './components/DetailPagination';
 import { OrderAction } from './components/OrderAction';
@@ -34,6 +33,10 @@ import { OrderBilling } from './components/OrderBilling';
 import { OrderHistory } from './components/OrderHistory';
 import { OrderShipping } from './components/OrderShipping';
 import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
+import {
+  useOrderStatusLabel,
+  useShouldResolveOrderStatusLabels,
+} from './hooks/useOrderStatusLabel';
 import { applyOrderBackorderHistory } from './shared/applyOrderBackorderHistory';
 import convertB2BOrderDetails from './shared/B2BOrderData';
 import { convertOrderDetail } from './shared/convertOrderDetail';
@@ -65,6 +68,8 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+  const shouldResolveStatusLabels = useShouldResolveOrderStatusLabels();
+  const getOrderStatusLabel = useOrderStatusLabel();
   const { isBackorderEnabled } = useBackorderStorefrontMessaging();
 
   const {
@@ -73,7 +78,7 @@ function OrderDetail() {
   } = useContext(GlobalContext);
 
   const {
-    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [], digitalProducts },
+    state: { poNumber, status = '', orderSummary, digitalProducts },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext);
@@ -266,7 +271,7 @@ function OrderDetail() {
   }, [isUnifiedOrders, unifiedOrder, currentCompanyId]);
 
   useEffect(() => {
-    if (!orderId) {
+    if (!orderId || shouldResolveStatusLabels) {
       return;
     }
 
@@ -283,7 +288,7 @@ function OrderDetail() {
 
     fetchOrderStatusTypes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, orderId]);
+  }, [isB2BUser, orderId, shouldResolveStatusLabels]);
 
   const handlePageChange = useCallback((nextOrderId: string | number) => {
     setOrderId(nextOrderId.toString());
@@ -322,21 +327,6 @@ function OrderDetail() {
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getOrderStatusLabel = (status: string) => {
-    const currentOrderStatus = orderStatus.find(
-      (item: OrderStatusItem) => item.systemLabel === status,
-    );
-    let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
-    if (currentOrderStatus) {
-      const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
-      activeStatusLabel =
-        optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel
-          ? b3Lang(optionLabel)
-          : activeStatusLabel;
-    }
-    return activeStatusLabel;
-  };
 
   return (
     <B3Spin isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">
