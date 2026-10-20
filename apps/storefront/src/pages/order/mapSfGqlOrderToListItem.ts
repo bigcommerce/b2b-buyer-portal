@@ -14,6 +14,7 @@ export interface ListItem {
   totalIncTax: string;
   status: string;
   statusText?: string;
+  statusValue?: string;
   createdAt: string;
   companyInfo?: CompanyInfoTypes;
   /** Cursor from the SF GQL edge — populated for unified order paths only. */
@@ -27,6 +28,7 @@ export const mapSfGqlOrderToListItem = (order: SfGqlOrder, cursor?: string): Lis
   formattedTotalIncTax: order.totalIncTax.formattedV2,
   status: orderStatusValueToSystemLabel(order.status.value),
   statusText: order.status.label,
+  statusValue: order.status.value ?? undefined,
   createdAt: String(Math.floor(new Date(order.orderedAt.utc).getTime() / 1000)),
   firstName: order.placedBy?.firstName || '',
   lastName: order.placedBy?.lastName || '',

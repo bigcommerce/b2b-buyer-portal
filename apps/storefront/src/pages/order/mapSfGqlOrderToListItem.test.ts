@@ -89,4 +89,10 @@ describe('mapSfGqlOrderToListItem', () => {
 
     expect(result.statusText).toBe('Awaiting fulfillment');
   });
+
+  it('carries the raw status enum value for label resolution', () => {
+    const result = mapSfGqlOrderToListItem(baseOrder);
+
+    expect(result.statusValue).toBe('AWAITING_FULFILLMENT');
+  });
 });
