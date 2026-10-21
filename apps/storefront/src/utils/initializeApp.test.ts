@@ -35,6 +35,8 @@ vi.mock('@/shared/routes', () => ({ gotoAllowedAppPage: vi.fn() }));
 vi.mock('@/shared/service/b2b', () => ({ setChannelStoreType: vi.fn() }));
 vi.mock('@/utils/resolveInitNavigation', () => ({ resolveInitNavigation: vi.fn() }));
 
+const OPTIMISE_FETCHES_FLAG = 'B2B-5408.optimise_bc_login_fetches';
+
 const mockState = (featureFlags: Record<string, boolean> = {}) =>
   vi.spyOn(store, 'getState').mockReturnValue({
     company: {
@@ -214,6 +216,38 @@ describe('initializeApp', () => {
     expect(resolveInitNavigation).toHaveBeenCalledWith(
       expect.objectContaining({ shouldOpenAllowedPage: false }),
     );
+  });
+
+  it('does not fetch company info again when a fresh login already resolved it and the optimisation flag is on', async () => {
+    mockState({ [OPTIMISE_FETCHES_FLAG]: true });
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      role: CustomerRole.SENIOR_BUYER,
+      userType: UserTypes.MULTIPLE_B2C,
+    } as never);
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    expect(getCurrentCustomerInfo).toHaveBeenCalled();
+    expect(getCompanyInfo).not.toHaveBeenCalled();
+  });
+
+  it('still fetches company info after a fresh login when the optimisation flag is off', async () => {
+    vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+      role: CustomerRole.SENIOR_BUYER,
+      userType: UserTypes.MULTIPLE_B2C,
+    } as never);
+
+    await initializeApp({ ...baseParams(), customerId: '' });
+
+    expect(getCurrentCustomerInfo).toHaveBeenCalled();
+    expect(getCompanyInfo).toHaveBeenCalled();
+  });
+
+  it('fetches company info on the rehydrated path where no fresh login runs', async () => {
+    await initializeApp({ ...baseParams(), customerId: 123 });
+
+    expect(getCurrentCustomerInfo).not.toHaveBeenCalled();
+    expect(getCompanyInfo).toHaveBeenCalled();
   });
 
   it('does not resolve customer identity when a customerId is already present', async () => {

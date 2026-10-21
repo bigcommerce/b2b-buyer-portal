@@ -64,6 +64,10 @@ export const featureFlags = [
     name: 'catalystLoginWaitForSession',
   },
   {
+    key: 'B2B-5408.optimise_bc_login_fetches',
+    name: 'optimiseBcLoginFetches',
+  },
+  {
     key: 'B2B-5863.defer_non_critical_login_fetches',
     name: 'deferNonCriticalLoginFetches',
   },

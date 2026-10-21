@@ -88,6 +88,7 @@ export const initializeApp = async ({
     // Resolve identity before the permission-gated fetches below so they see this
     // login's permissions instead of stale/unset ones.
     let resolvedCustomerId = customerId;
+    let resolvedFreshLogin = false;
     if (!customerId) {
       const info = await getCurrentCustomerInfo().catch((error) => {
         if (isCompanyError(error)) {
@@ -98,14 +99,23 @@ export const initializeApp = async ({
         userInfo.role = info?.role;
         // getCurrentCustomerInfo dispatches the resolved id to redux rather than returning it
         resolvedCustomerId = store.getState().company.customer.id;
+        resolvedFreshLogin = true;
       }
     }
 
+    const optimiseLoginFetches =
+      store.getState().global.featureFlags['B2B-5408.optimise_bc_login_fetches'] ?? false;
     const deferNonCriticalLoginFetches =
       store.getState().global.featureFlags['B2B-5863.defer_non_critical_login_fetches'] ?? false;
 
+    // A fresh login already resolved company info inside getCurrentCustomerInfo, so
+    // under the optimisation flag we skip the duplicate fetch here; the rehydrated
+    // path (no fresh login) always needs it.
+    const companyInfoFetch =
+      optimiseLoginFetches && resolvedFreshLogin ? [] : [getCompanyInfo(role, b2bId)];
+
     if (deferNonCriticalLoginFetches) {
-      await Promise.allSettled([setStorefrontConfig(dispatch), getCompanyInfo(role, b2bId)]);
+      await Promise.allSettled([setStorefrontConfig(dispatch), ...companyInfoFetch]);
 
       fireNonCriticalFetches();
     } else {
@@ -113,7 +123,7 @@ export const initializeApp = async ({
         getGlobalStoreTax(),
         setStorefrontConfig(dispatch),
         getStoreSettings(),
-        getCompanyInfo(role, b2bId),
+        ...companyInfoFetch,
       ]);
     }
 
