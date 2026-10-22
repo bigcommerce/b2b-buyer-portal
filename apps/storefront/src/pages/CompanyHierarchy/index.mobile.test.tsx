@@ -171,7 +171,7 @@ describe('when switching to a different company', () => {
     expect(within(modal).getByRole('heading', { name: 'Switch company' })).toBeInTheDocument();
     expect(
       within(modal).getByText(
-        'Switching to a different company will refresh your shopping cart and draft quote. Do you want to continue?',
+        'This action will empty your shopping cart and draft quote. Do you want to continue?',
       ),
     ).toBeInTheDocument();
   });
