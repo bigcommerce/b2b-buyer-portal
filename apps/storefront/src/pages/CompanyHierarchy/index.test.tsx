@@ -3,6 +3,7 @@ import {
   buildCompanyStateWith,
   buildDraftQuoteItemWith,
   builder,
+  buildGlobalStateWith,
   buildQuoteInfoStateWith,
   faker,
   graphql,
@@ -113,7 +114,10 @@ describe('when collapsing the row of a parent company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -187,7 +191,10 @@ describe('when switching to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -222,7 +229,10 @@ describe('when cancelling a switch to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -260,7 +270,10 @@ describe('when continuing to switch to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -311,7 +324,10 @@ describe('when continuing to switch to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -366,7 +382,10 @@ describe('when the user has a current cart and switches company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -519,6 +538,59 @@ describe('when the user has a draft quote and switches company', () => {
       expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
     });
     expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
+  });
+});
+
+describe('when the cart and draft quote are both empty', () => {
+  it('switches company without showing a confirmation modal', async () => {
+    // given - empty cart and empty draft quote
+    const acme = buildSubsidiaryWith({ companyName: 'ACME', parentCompanyId: null });
+    const apple = buildSubsidiaryWith({
+      companyName: 'Apple',
+      parentCompanyId: acme.companyId,
+      channelFlag: true,
+    });
+
+    const beginMasquerading = vi.fn();
+
+    when(beginMasquerading)
+      .calledWith({ companyId: apple.companyId })
+      .thenReturn({
+        data: {
+          userMasqueradingCompanyBegin: {
+            userMasqueradingCompanyBegin: {
+              companyId: apple.companyId,
+              companyName: apple.companyName,
+              bcId: '0',
+            },
+          },
+        },
+      });
+
+    server.use(
+      graphql.query('CompanySubsidiaries', () =>
+        HttpResponse.json({ data: { companySubsidiaries: [acme, apple] } }),
+      ),
+      graphql.mutation('userMasqueradingCompanyBegin', ({ variables }) =>
+        HttpResponse.json(beginMasquerading(variables)),
+      ),
+    );
+
+    const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
+
+    renderWithProviders(<CompanyHierarchy />, { preloadedState: { company: companyState } });
+
+    const rowOfApple = await screen.findByRole('row', { name: /Apple/ });
+
+    // when
+    await userEvent.click(within(rowOfApple).getByTestId('actions'));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Switch company' }));
+
+    // then - the switch happens directly, with no confirmation dialog
+    await waitFor(() => {
+      expect(within(rowOfApple).getByText('Representing')).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
 
