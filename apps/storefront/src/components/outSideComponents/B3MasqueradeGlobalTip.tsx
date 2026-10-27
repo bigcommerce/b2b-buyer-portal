@@ -21,7 +21,14 @@ import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
-import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
+import {
+  clearMasqueradeCompany,
+  draftQuoteNotEmptySelector,
+  setCartNumber,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store';
+import { resetDraftQuote } from '@/store/slices/quoteInfo';
 
 import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
 
@@ -50,6 +57,7 @@ function useData() {
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
+  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext);
@@ -62,6 +70,7 @@ function useData() {
     isAgenting,
     masqueradeButton,
     cartNumber,
+    isDraftQuoteNotEmpty,
   };
 }
 
@@ -78,6 +87,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     isAgenting,
     masqueradeButton,
     cartNumber,
+    isDraftQuoteNotEmpty,
   } = useData();
   const { hash, href } = window.location;
 
@@ -120,6 +130,8 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       dispatch(setCartNumber(0));
     }
 
+    dispatch(resetDraftQuote());
+
     setIsLoading(false);
     dispatch(clearMasqueradeCompany());
     setOpenPage({
@@ -129,7 +141,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   };
 
   const onEndActing = async () => {
-    if (cartNumber > 0) {
+    if (cartNumber > 0 || isDraftQuoteNotEmpty) {
       setConfirmEndActing(true);
     } else {
       await endActing();
