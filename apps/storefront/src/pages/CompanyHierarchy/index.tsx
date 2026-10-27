@@ -3,12 +3,13 @@ import { Box } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { getCompanySubsidiaries } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { draftQuoteNotEmptySelector, useAppSelector } from '@/store';
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
 import { buildHierarchy } from '@/utils/b3Company';
 
 import HierarchyDialog from './components/HierarchyDialog';
 import CompanyHierarchyTableTree from './components/TableTree';
+import { useSwitchCompany } from './hooks/useSwitchCompany';
 
 function CompanyHierarchy() {
   const [data, setData] = useState<CompanyHierarchyProps[]>([]);
@@ -26,6 +27,12 @@ function CompanyHierarchy() {
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
+
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
+  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
+  const needsConfirmation = cartNumber > 0 || isDraftQuoteNotEmpty;
+
+  const { switchCompany, loading: isSwitching } = useSwitchCompany();
 
   const init = async () => {
     setLoading(true);
@@ -58,7 +65,11 @@ function CompanyHierarchy() {
 
   const handleRowClick = (row: CompanyHierarchyProps) => {
     setCurrentRow(row);
-    setOpen(true);
+    if (needsConfirmation) {
+      setOpen(true);
+    } else {
+      switchCompany(row, originDataRef?.current || []);
+    }
   };
 
   return (
@@ -81,8 +92,11 @@ function CompanyHierarchy() {
         <HierarchyDialog
           open={open}
           handleClose={handleClose}
-          currentRow={currentRow}
-          companyHierarchyAllList={originDataRef?.current || []}
+          isRequestLoading={isSwitching}
+          onConfirm={async () => {
+            await switchCompany(currentRow, originDataRef?.current || []);
+            handleClose();
+          }}
         />
       </Box>
     </B3Spin>

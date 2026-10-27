@@ -1,189 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
-import Cookies from 'js-cookie';
 
 import B3Dialog from '@/components/B3Dialog';
-import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
 import { useB3Lang } from '@/lib/lang';
-import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
-import { deleteCart } from '@/shared/service/bc/graphql/cart';
-import { draftQuoteNotEmptySelector, store, useAppSelector } from '@/store';
-import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
-import { setCartNumber } from '@/store/slices/global';
-import { resetDraftQuote } from '@/store/slices/quoteInfo';
-import {
-  CompanyHierarchyListProps,
-  CompanyHierarchyProps,
-  PagesSubsidiariesPermissionProps,
-} from '@/types';
-import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils/b3Company';
-import { snackbar } from '@/utils/b3Tip';
-import { deleteCartData } from '@/utils/cartUtils';
-import { CompanyStatusKey, isCompanyError } from '@/utils/companyUtils';
-
-const COMPANY_STATUS_MAPPINGS: Record<CompanyStatusKey, string> = {
-  pendingApprovalToViewPrices:
-    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
-  pendingApprovalToOrder:
-    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
-  pendingApprovalToAccessFeatures:
-    'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
-  accountInactive: 'global.statusNotifications.businessAccountInactive',
-};
 
 interface HierarchyDialogProps {
   open: boolean;
   handleClose: () => void;
-  currentRow: Partial<CompanyHierarchyProps> | null;
-  companyHierarchyAllList?: CompanyHierarchyListProps[] | [];
+  onConfirm: () => void;
+  isRequestLoading?: boolean;
   title?: string;
   context?: string;
   dialogParams?: { [key: string]: string };
 }
+
 function HierarchyDialog({
   open = false,
   handleClose,
-  currentRow,
-  companyHierarchyAllList,
+  onConfirm,
+  isRequestLoading = false,
   title,
   context,
   dialogParams = {},
 }: HierarchyDialogProps) {
   const b3Lang = useB3Lang();
-  const navigate = useNavigate();
-  const isMasquerading = useRef<boolean>(false);
-
-  const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
-
-  const { pagesSubsidiariesPermission } = useAppSelector(({ company }) => company);
-
-  const { isHasCurrentPagePermission, companyHierarchyAllList: allList } = useAppSelector(
-    ({ company }) => company.companyHierarchyInfo,
-  );
-
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
-  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
-  const needsConfirmation = cartNumber > 0 || isDraftQuoteNotEmpty;
-
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const autoSwitchedRef = useRef<boolean>(false);
-
-  const runPostSwitchNavigation = () => {
-    if (!currentRow) return;
-    const { companyId } = currentRow;
-    if (companyId === Number(currentCompanyId)) {
-      const { hash } = window.location;
-      if (hash.includes('/shoppingList/')) {
-        navigate('/shoppingLists');
-      }
-    }
-    if (!isMasquerading.current) return;
-    if (companyId !== Number(currentCompanyId) && !isHasCurrentPagePermission) {
-      const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
-        return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
-      });
-
-      const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
-
-      if (route) {
-        handleClose();
-        setLoading(false);
-        navigate(route.path);
-      }
-    }
-  };
-
-  const handleSwitchCompanyClick = async (navigateAfterSwitch = false) => {
-    if (!currentRow) return;
-    // Mark a switch in-flight so the auto-switch effect cannot re-enter when
-    // clearing the cart/draft flips needsConfirmation mid-switch.
-    autoSwitchedRef.current = true;
-    try {
-      setLoading(true);
-
-      const cartEntityId = Cookies.get('cartId');
-
-      const { companyId } = currentRow;
-
-      if (!companyId) return;
-
-      if (companyId === Number(currentCompanyId)) {
-        await endUserMasqueradingCompany();
-        isMasquerading.current = false;
-      } else if (companyId) {
-        await startUserMasqueradingCompany(Number(companyId));
-        isMasquerading.current = true;
-      }
-
-      if (cartEntityId) {
-        const deleteCartObject = deleteCartData(cartEntityId);
-
-        await deleteCart(deleteCartObject);
-
-        store.dispatch(setCartNumber(0));
-      }
-
-      store.dispatch(resetDraftQuote());
-
-      const selectCompanyHierarchyId = companyId === Number(currentCompanyId) ? '' : companyId;
-
-      const buildData = companyHierarchyAllList || allList;
-
-      store.dispatch(
-        setCompanyHierarchyInfoModules({
-          selectCompanyHierarchyId,
-          ...(companyHierarchyAllList && { companyHierarchyAllList }),
-          companyHierarchySelectSubsidiariesList: flattenBuildHierarchyCompanies(
-            buildHierarchy({
-              data: buildData,
-              companyId,
-            })[0],
-          ),
-        }),
-      );
-    } catch (error) {
-      if (isCompanyError(error)) {
-        snackbar.error(b3Lang(COMPANY_STATUS_MAPPINGS[error.reason]));
-      } else if (error instanceof Error) {
-        snackbar.error(error.message);
-      }
-      isMasquerading.current = false;
-    } finally {
-      setLoading(false);
-      handleClose();
-      // When the switch runs without the dialog there is no close transition to
-      // fire onExited, so run the post-switch navigation here instead.
-      if (navigateAfterSwitch) runPostSwitchNavigation();
-    }
-  };
-
-  const onExited = () => {
-    runPostSwitchNavigation();
-  };
-
-  useEffect(() => {
-    if (!open) {
-      autoSwitchedRef.current = false;
-      return;
-    }
-    if (!needsConfirmation && currentRow && !autoSwitchedRef.current) {
-      handleSwitchCompanyClick(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, needsConfirmation, currentRow]);
 
   return (
     <B3Dialog
-      isOpen={open && needsConfirmation}
+      isOpen={open}
       rightSizeBtn={b3Lang('global.button.next')}
       title={title || b3Lang('companyHierarchy.dialog.title')}
       fullWidth
-      loading={loading}
+      loading={isRequestLoading}
       handleLeftClick={handleClose}
-      handRightClick={() => handleSwitchCompanyClick(false)}
-      restDialogParams={{ TransitionProps: { onExited } }}
+      handRightClick={onConfirm}
       dialogSx={{
         '& .MuiDialogTitle-root': {
           border: 0,
