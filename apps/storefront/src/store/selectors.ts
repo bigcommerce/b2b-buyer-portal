@@ -13,6 +13,7 @@ const storeConfigSelector = (state: RootState) => state.storeConfigs;
 const companySelector = (state: RootState) => state.company;
 const quoteInfoSelector = (state: RootState) => state.quoteInfo;
 const b2bFeaturesSelector = (state: RootState) => state.b2bFeatures;
+const globalSelector = (state: RootState) => state.global;
 
 export const themeFrameSelector = createSelector(themeSelector, (theme) => theme.themeFrame);
 
@@ -75,6 +76,14 @@ export const rolePermissionSelector = createSelector(
 export const draftQuoteNotEmptySelector = createSelector(
   quoteInfoSelector,
   (quoteInfo) => quoteInfo.draftQuoteList.length > 0,
+);
+
+// Switching or ending a company context discards the cart and draft quote, so a
+// confirmation is only needed when either holds items.
+export const cartOrDraftNotEmptySelector = createSelector(
+  globalSelector,
+  draftQuoteNotEmptySelector,
+  (global, isDraftQuoteNotEmpty) => global.cartNumber > 0 || isDraftQuoteNotEmpty,
 );
 
 export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>

@@ -22,8 +22,8 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import {
+  cartOrDraftNotEmptySelector,
   clearMasqueradeCompany,
-  draftQuoteNotEmptySelector,
   setCartNumber,
   useAppDispatch,
   useAppSelector,
@@ -53,11 +53,10 @@ function useData() {
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
-  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
+  const needsEndConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext);
@@ -69,8 +68,7 @@ function useData() {
     salesRepCompanyName,
     isAgenting,
     masqueradeButton,
-    cartNumber,
-    isDraftQuoteNotEmpty,
+    needsEndConfirmation,
   };
 }
 
@@ -86,8 +84,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     salesRepCompanyName,
     isAgenting,
     masqueradeButton,
-    cartNumber,
-    isDraftQuoteNotEmpty,
+    needsEndConfirmation,
   } = useData();
   const { hash, href } = window.location;
 
@@ -141,7 +138,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   };
 
   const onEndActing = async () => {
-    if (cartNumber > 0 || isDraftQuoteNotEmpty) {
+    if (needsEndConfirmation) {
       setConfirmEndActing(true);
     } else {
       await endActing();

@@ -7,7 +7,7 @@ import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog
 import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
-  draftQuoteNotEmptySelector,
+  cartOrDraftNotEmptySelector,
   setOpenCompanyHierarchyDropDown,
   useAppDispatch,
   useAppSelector,
@@ -54,9 +54,7 @@ function B3CompanyHierarchy() {
 
   const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
 
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
-  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
-  const needsConfirmation = cartNumber > 0 || isDraftQuoteNotEmpty;
+  const needsConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
 
   const { switchCompany, loading: isSwitching } = useSwitchCompany();
 

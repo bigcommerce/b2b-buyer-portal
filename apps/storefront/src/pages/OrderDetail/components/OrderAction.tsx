@@ -11,7 +11,7 @@ import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog
 import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { GlobalContext } from '@/shared/global';
 import {
-  draftQuoteNotEmptySelector,
+  cartOrDraftNotEmptySelector,
   isB2BUserSelector,
   rolePermissionSelector,
   useAppSelector,
@@ -161,9 +161,7 @@ function OrderCard(props: OrderCardProps) {
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>();
   const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0;
 
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
-  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
-  const needsConfirmation = cartNumber > 0 || isDraftQuoteNotEmpty;
+  const needsConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
 
   const { switchCompany, loading: isSwitching } = useSwitchCompany();
 
