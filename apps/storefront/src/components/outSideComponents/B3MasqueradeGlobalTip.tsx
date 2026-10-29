@@ -17,17 +17,12 @@ import { useGetButtonText } from '@/hooks/useGetButtonText';
 import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
-import {
-  cartOrDraftNotEmptySelector,
-  clearMasqueradeCompany,
-  setCartNumber,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
+import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
 import { resetDraftQuote } from '@/store/slices/quoteInfo';
 
 import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
@@ -56,7 +51,7 @@ function useData() {
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
-  const needsEndConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
+  const needsEndConfirmation = useNeedsSwitchConfirmation();
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext);

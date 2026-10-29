@@ -4,14 +4,10 @@ import { Box, Chip, Grid } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
 import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import {
-  cartOrDraftNotEmptySelector,
-  setOpenCompanyHierarchyDropDown,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
+import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
 import { CompanyHierarchyProps, PagesSubsidiariesPermissionProps } from '@/types';
 
 import B3DropDown, { DropDownHandle, ListItemProps } from '../B3DropDown';
@@ -54,7 +50,7 @@ function B3CompanyHierarchy() {
 
   const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
 
-  const needsConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
+  const needsConfirmation = useNeedsSwitchConfirmation();
 
   const { switchCompany, loading: isSwitching } = useSwitchCompany();
 

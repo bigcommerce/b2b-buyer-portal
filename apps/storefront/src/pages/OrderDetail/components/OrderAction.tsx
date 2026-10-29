@@ -8,14 +8,10 @@ import CustomButton from '@/components/button/CustomButton';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
 import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { GlobalContext } from '@/shared/global';
-import {
-  cartOrDraftNotEmptySelector,
-  isB2BUserSelector,
-  rolePermissionSelector,
-  useAppSelector,
-} from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Address, MoneyFormat, OrderProductItem } from '@/types';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions/check';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
@@ -161,7 +157,7 @@ function OrderCard(props: OrderCardProps) {
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>();
   const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0;
 
-  const needsConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
+  const needsConfirmation = useNeedsSwitchConfirmation();
 
   const { switchCompany, loading: isSwitching } = useSwitchCompany();
 

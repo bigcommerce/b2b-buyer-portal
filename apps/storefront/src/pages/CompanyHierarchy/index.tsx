@@ -3,12 +3,13 @@ import { Box } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { getCompanySubsidiaries } from '@/shared/service/b2b';
-import { cartOrDraftNotEmptySelector, useAppSelector } from '@/store';
+import { useAppSelector } from '@/store';
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
 import { buildHierarchy } from '@/utils/b3Company';
 
 import HierarchyDialog from './components/HierarchyDialog';
 import CompanyHierarchyTableTree from './components/TableTree';
+import { useNeedsSwitchConfirmation } from './hooks/useNeedsSwitchConfirmation';
 import { useSwitchCompany } from './hooks/useSwitchCompany';
 
 function CompanyHierarchy() {
@@ -28,7 +29,7 @@ function CompanyHierarchy() {
     ({ company }) => company.companyHierarchyInfo,
   );
 
-  const needsConfirmation = useAppSelector(cartOrDraftNotEmptySelector);
+  const needsConfirmation = useNeedsSwitchConfirmation();
 
   const { switchCompany, loading: isSwitching } = useSwitchCompany();
 

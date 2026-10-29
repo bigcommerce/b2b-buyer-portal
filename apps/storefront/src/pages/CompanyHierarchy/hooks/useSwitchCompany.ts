@@ -88,8 +88,14 @@ export function useSwitchCompany() {
       }
 
       if (cartEntityId) {
-        await deleteCart(deleteCartData(cartEntityId));
-        store.dispatch(setCartNumber(0));
+        try {
+          await deleteCart(deleteCartData(cartEntityId));
+          store.dispatch(setCartNumber(0));
+        } catch (cartError) {
+          if (cartError instanceof Error) {
+            snackbar.error(cartError.message);
+          }
+        }
       }
 
       store.dispatch(resetDraftQuote());
