@@ -90,6 +90,7 @@ export function useSwitchCompany() {
       if (cartEntityId) {
         try {
           await deleteCart(deleteCartData(cartEntityId));
+          Cookies.remove('cartId');
           store.dispatch(setCartNumber(0));
         } catch (cartError) {
           if (cartError instanceof Error) {
