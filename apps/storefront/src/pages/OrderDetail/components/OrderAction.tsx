@@ -8,6 +8,8 @@ import CustomButton from '@/components/button/CustomButton';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
+import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Address, MoneyFormat, OrderProductItem } from '@/types';
@@ -155,6 +157,10 @@ function OrderCard(props: OrderCardProps) {
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>();
   const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0;
 
+  const needsConfirmation = useNeedsSwitchConfirmation();
+
+  const { switchCompany, loading: isSwitching } = useSwitchCompany();
+
   let infoKey: string[] = [];
   let infoValue: string[] = [];
   if (typeof infos !== 'string') {
@@ -166,7 +172,11 @@ function OrderCard(props: OrderCardProps) {
 
   const handleShowSwitchCompanyModal = () => {
     if (!isCurrentCompany && switchCompanyId) {
-      setOpenSwitchCompany(true);
+      if (needsConfirmation) {
+        setOpenSwitchCompany(true);
+      } else {
+        switchCompany({ companyId: Number(switchCompanyId) });
+      }
 
       return true;
     }
@@ -302,11 +312,12 @@ function OrderCard(props: OrderCardProps) {
 
       <HierarchyDialog
         open={openSwitchCompany}
-        currentRow={{
-          companyId: Number(switchCompanyId || 0),
-        }}
         handleClose={() => setOpenSwitchCompany(false)}
-        // loading
+        isRequestLoading={isSwitching}
+        onConfirm={async () => {
+          await switchCompany({ companyId: Number(switchCompanyId || 0) });
+          setOpenSwitchCompany(false);
+        }}
         title={b3Lang('orderDetail.switchCompany.title')}
         context={b3Lang('orderDetail.switchCompany.content.tipsText')}
         dialogParams={{

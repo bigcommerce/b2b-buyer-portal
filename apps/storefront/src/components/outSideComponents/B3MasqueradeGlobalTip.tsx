@@ -17,11 +17,13 @@ import { useGetButtonText } from '@/hooks/useGetButtonText';
 import { useMobile } from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
 import { useB3Lang } from '@/lib/lang';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { clearMasqueradeCompany, setCartNumber, useAppDispatch, useAppSelector } from '@/store';
+import { resetDraftQuote } from '@/store/slices/quoteInfo';
 
 import { ConfirmMasqueradeDialog } from '../ConfirmMasqueradeDialog';
 
@@ -46,10 +48,10 @@ function useData() {
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
+  const needsEndConfirmation = useNeedsSwitchConfirmation();
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext);
@@ -61,7 +63,7 @@ function useData() {
     salesRepCompanyName,
     isAgenting,
     masqueradeButton,
-    cartNumber,
+    needsEndConfirmation,
   };
 }
 
@@ -77,7 +79,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
     salesRepCompanyName,
     isAgenting,
     masqueradeButton,
-    cartNumber,
+    needsEndConfirmation,
   } = useData();
   const { hash, href } = window.location;
 
@@ -120,6 +122,8 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       dispatch(setCartNumber(0));
     }
 
+    dispatch(resetDraftQuote());
+
     setIsLoading(false);
     dispatch(clearMasqueradeCompany());
     setOpenPage({
@@ -129,7 +133,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   };
 
   const onEndActing = async () => {
-    if (cartNumber > 0) {
+    if (needsEndConfirmation) {
       setConfirmEndActing(true);
     } else {
       await endActing();
