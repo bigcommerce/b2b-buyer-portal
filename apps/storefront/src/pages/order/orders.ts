@@ -1,5 +1,4 @@
 import B3Request from '@/shared/service/request/b3Fetch';
-import { OrderStatusItem } from '@/types';
 import { convertArrayToGraphql } from '@/utils/graphqlDataConvert';
 
 export type CustomerOrderNode = {
@@ -103,15 +102,6 @@ export interface CompanyOrderStatuses {
   };
 }
 
-const getOrderStatusTypeQl = (fn: 'orderStatuses' | 'bcOrderStatuses') => `
-query ${fn === 'orderStatuses' ? 'GetOrderStatuses' : 'GetCustomerOrderStatuses'} {
-  ${fn} {
-    systemLabel,
-    customLabel,
-    statusCode,
-  }
-}`;
-
 const getCreatedByUser = (companyId: number) => `
   query GetOrdersCreatedByUser {
     createdByUser (
@@ -132,16 +122,6 @@ export const getBCAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'customerOrders'),
   }).then((res) => res.customerOrders);
-
-export const getOrderStatusType = (): Promise<OrderStatusItem[]> =>
-  B3Request.graphqlB2B({
-    query: getOrderStatusTypeQl('orderStatuses'),
-  }).then((res) => res.orderStatuses);
-
-export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
-  B3Request.graphqlB2B({
-    query: getOrderStatusTypeQl('bcOrderStatuses'),
-  }).then((res) => res.bcOrderStatuses);
 
 export const getCreatedByUserForOrders = (companyId: number) =>
   B3Request.graphqlB2B({

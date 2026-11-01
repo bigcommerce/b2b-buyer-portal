@@ -853,3 +853,40 @@ export async function getCustomersWithOrders(variables: {
     variables,
   });
 }
+
+export interface SiteOrderStatus {
+  origin: string;
+  translation: string;
+  value: string;
+}
+
+interface GetSiteOrderStatusesResponse {
+  data?: {
+    site?: {
+      settings?: {
+        orderStatuses?: SiteOrderStatus[] | null;
+      } | null;
+    };
+  };
+}
+
+const GET_SITE_ORDER_STATUSES = `query GetSiteOrderStatuses {
+  site {
+    settings {
+      orderStatuses {
+        origin
+        translation
+        value
+      }
+    }
+  }
+}`;
+
+/** Alpha storefront field (LOCAL-3693); not part of the generated schema types yet. */
+export async function getSiteOrderStatuses(): Promise<SiteOrderStatus[]> {
+  const response = await storefrontGQLRequest<GetSiteOrderStatusesResponse>({
+    query: GET_SITE_ORDER_STATUSES,
+  });
+
+  return response.data?.site?.settings?.orderStatuses ?? [];
+}
