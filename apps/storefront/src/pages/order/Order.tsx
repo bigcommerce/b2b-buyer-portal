@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -39,17 +39,12 @@ import {
 } from './config';
 import { type ListItem, mapSfGqlOrderToListItem } from './mapSfGqlOrderToListItem';
 import { OrderItemCard } from './OrderItemCard';
-import {
-  getB2BAllOrders,
-  getBCAllOrders,
-  getBcOrderStatusType,
-  getCreatedByUserForOrders,
-  getOrderStatusType,
-} from './orders';
+import { getB2BAllOrders, getBCAllOrders, getCreatedByUserForOrders } from './orders';
 import { toISODateRangeFilters } from './unifiedApiFiltersHelper';
 import { useCompanyOrdersState } from './useCompanyOrdersState';
 import { useCustomerOrdersState } from './useCustomerOrdersState';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
+import { useOrderStatuses } from './useOrderStatuses';
 
 interface OrderProps {
   isCompanyOrder?: boolean;
@@ -111,11 +106,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const [allTotal, setAllTotal] = useState(0);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
-  const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
   const [legacyPlacedByUsers, setLegacyPlacedByUsers] = useState<
     Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
   >([]);
   const storeOffsetSeconds = useAppSelector(({ storeInfo }) => storeInfo.timeFormat.offset);
+  const getOrderStatuses = useOrderStatuses(role !== CustomerRole.GUEST);
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -186,8 +181,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     legacyFilterState.orderBy,
   ]);
 
-  const orderStatusesRef = useRef<Array<any>>([]);
-
   useEffect(() => {
     // TODO: Guest customer should not be able to see the order list
     if (role === CustomerRole.GUEST) return;
@@ -199,12 +192,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         setLegacyPlacedByUsers(createdByUsers?.createdByUser?.results ?? []);
       }
 
-      if (!orderStatusesRef.current.length) {
-        const statuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
-        orderStatusesRef.current = statuses;
-        setOrderStatuses(statuses);
-      }
-
       setFilterMoreInfo(
         translateFilterMoreData(
           getFilterMoreData(
@@ -213,7 +200,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             isCompanyOrder,
             isAgenting,
             createdByUsers,
-            orderStatusesRef.current,
+            getOrderStatuses,
           ),
           b3Lang,
         ),
@@ -221,7 +208,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     };
 
     initFilter();
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
+  }, [b3Lang, companyId, getOrderStatuses, isAgenting, isB2BUser, isCompanyOrder, role]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;
