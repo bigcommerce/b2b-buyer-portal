@@ -27,6 +27,7 @@ import { snackbar } from '@/utils/b3Tip';
 
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
+import { useOrderStatuses } from '../order/useOrderStatuses';
 
 import { DetailPagination } from './components/DetailPagination';
 import { OrderAction } from './components/OrderAction';
@@ -65,6 +66,10 @@ function OrderDetail() {
   const b3Lang = useB3Lang();
 
   const isUnifiedOrders = useFeatureFlag('B2B-4613.buyer_portal_unified_sf_gql_orders');
+  const isTranslatedOrderStatuses = useFeatureFlag(
+    'LOCAL-3680.B2B_display_translated_order_statuses',
+  );
+  const translatedOrderStatuses = useOrderStatuses(isTranslatedOrderStatuses);
   const { isBackorderEnabled } = useBackorderStorefrontMessaging();
 
   const {
@@ -266,7 +271,20 @@ function OrderDetail() {
   }, [isUnifiedOrders, unifiedOrder, currentCompanyId]);
 
   useEffect(() => {
-    if (!orderId) {
+    if (!isTranslatedOrderStatuses) {
+      return;
+    }
+
+    dispatch({
+      type: 'statusType',
+      payload: {
+        orderStatus: translatedOrderStatuses,
+      },
+    });
+  }, [dispatch, isTranslatedOrderStatuses, translatedOrderStatuses]);
+
+  useEffect(() => {
+    if (!orderId || isTranslatedOrderStatuses) {
       return;
     }
 
@@ -283,7 +301,7 @@ function OrderDetail() {
 
     fetchOrderStatusTypes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, orderId]);
+  }, [isB2BUser, isTranslatedOrderStatuses, orderId]);
 
   const handlePageChange = useCallback((nextOrderId: string | number) => {
     setOrderId(nextOrderId.toString());
@@ -328,7 +346,7 @@ function OrderDetail() {
       (item: OrderStatusItem) => item.systemLabel === status,
     );
     let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
-    if (currentOrderStatus) {
+    if (currentOrderStatus && !isTranslatedOrderStatuses) {
       const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
       activeStatusLabel =
         optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel

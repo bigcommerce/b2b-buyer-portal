@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Card, CardContent, Typography } from '@mui/material';
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { displayExtendedFormat } from '@/utils/b3DateFormat';
@@ -32,6 +33,9 @@ export function OrderHistory() {
     state: { history = [], orderStatus: orderStatusLabel = [], customStatus },
   } = useContext(OrderDetailsContext);
   const [isMobile] = useMobile();
+  const isTranslatedOrderStatuses = useFeatureFlag(
+    'LOCAL-3680.B2B_display_translated_order_statuses',
+  );
 
   const getOrderStatusLabel = (status: string) => {
     const currentOrderStatus = orderStatusLabel.find(
@@ -40,7 +44,7 @@ export function OrderHistory() {
 
     let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
 
-    if (currentOrderStatus) {
+    if (currentOrderStatus && !isTranslatedOrderStatuses) {
       const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
 
       activeStatusLabel =

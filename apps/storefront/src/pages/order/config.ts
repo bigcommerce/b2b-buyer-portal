@@ -158,11 +158,12 @@ type FilterMoreItem = ReturnType<typeof getFilterMoreData>[number];
 export const translateFilterMoreData = (
   filterInfo: FilterMoreItem[],
   b3Lang: B3LangFn,
+  { translateOrderStatuses = true }: { translateOrderStatuses?: boolean } = {},
 ): FilterMoreItem[] =>
   filterInfo.map((element) => {
     const label = b3Lang(element.idLang);
 
-    if (element.name !== 'orderStatus') {
+    if (element.name !== 'orderStatus' || !translateOrderStatuses) {
       return { ...element, label };
     }
 

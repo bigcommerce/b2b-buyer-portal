@@ -50,6 +50,7 @@ import { toISODateRangeFilters } from './unifiedApiFiltersHelper';
 import { useCompanyOrdersState } from './useCompanyOrdersState';
 import { useCustomerOrdersState } from './useCustomerOrdersState';
 import { useLegacyOrdersFilterState } from './useLegacyOrdersFilterState';
+import { useOrderStatuses } from './useOrderStatuses';
 
 interface OrderProps {
   isCompanyOrder?: boolean;
@@ -116,6 +117,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     Array<{ firstName: string; lastName: string; email: string; entityId?: number }>
   >([]);
   const storeOffsetSeconds = useAppSelector(({ storeInfo }) => storeInfo.timeFormat.offset);
+  const isTranslatedOrderStatuses = useFeatureFlag(
+    'LOCAL-3680.B2B_display_translated_order_statuses',
+  );
+  const translatedOrderStatuses = useOrderStatuses(
+    isTranslatedOrderStatuses && role !== CustomerRole.GUEST,
+  );
+  const orderStatuses = isTranslatedOrderStatuses ? translatedOrderStatuses : getOrderStatuses;
   const isUnifiedCustomerPath = isUnifiedOrders && !isCompanyOrder;
   const isUnifiedCompanyPath = isUnifiedOrders && isCompanyOrder;
 
@@ -123,15 +131,15 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     isB2BUser,
     isCompanyOrder,
     selectedCompanyId,
-    orderStatuses: getOrderStatuses,
+    orderStatuses,
   });
   const customerFilterState = useCustomerOrdersState({
-    orderStatuses: getOrderStatuses,
+    orderStatuses,
     selectedCompanyId,
   });
   const companyFilterState = useCompanyOrdersState({
     selectedCompanyId,
-    orderStatuses: getOrderStatuses,
+    orderStatuses,
     isEnabled: isUnifiedCompanyPath && role !== CustomerRole.GUEST,
     externalPlacedByUsers: legacyPlacedByUsers,
   });
@@ -199,7 +207,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         setLegacyPlacedByUsers(createdByUsers?.createdByUser?.results ?? []);
       }
 
-      if (!orderStatusesRef.current.length) {
+      if (!isTranslatedOrderStatuses && !orderStatusesRef.current.length) {
         const statuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
         orderStatusesRef.current = statuses;
         setOrderStatuses(statuses);
@@ -213,15 +221,25 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             isCompanyOrder,
             isAgenting,
             createdByUsers,
-            orderStatusesRef.current,
+            isTranslatedOrderStatuses ? translatedOrderStatuses : orderStatusesRef.current,
           ),
           b3Lang,
+          { translateOrderStatuses: !isTranslatedOrderStatuses },
         ),
       );
     };
 
     initFilter();
-  }, [b3Lang, companyId, isAgenting, isB2BUser, isCompanyOrder, role]);
+  }, [
+    b3Lang,
+    companyId,
+    isAgenting,
+    isB2BUser,
+    isCompanyOrder,
+    isTranslatedOrderStatuses,
+    role,
+    translatedOrderStatuses,
+  ]);
 
   const fetchUnifiedOrders = async (args: {
     first?: number;
@@ -494,9 +512,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     () =>
       (data?.edges ?? []).map((edge) => ({
         ...edge,
-        statusText: getOrderStatusText(edge.status, getOrderStatuses),
+        statusText: getOrderStatusText(edge.status, orderStatuses),
       })),
-    [data?.edges, getOrderStatuses],
+    [data?.edges, orderStatuses],
   );
 
   const navigateToOrderDetail =
