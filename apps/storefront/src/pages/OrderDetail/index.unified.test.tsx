@@ -2,8 +2,10 @@ import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
+  buildDraftQuoteItemWith,
   builder,
   buildGlobalStateWith,
+  buildQuoteInfoStateWith,
   buildSfGqlMoneyWith,
   buildStoreInfoStateWith,
   bulk,
@@ -626,6 +628,135 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         'This order is related to another company. To reorder, add to a shopping list, or perform other actions, you need to switch to that company.',
       ),
     ).toBeVisible();
+  });
+
+  describe('switch-company prompt on a cross-company order', () => {
+    const buildCrossCompanyState = (overrides = {}) => ({
+      ...preloadedState,
+      company: buildCompanyStateWith({
+        customer: { role: CustomerRole.ADMIN },
+        companyInfo: { id: '100' },
+        companyHierarchyInfo: {
+          companyHierarchyAllList: [
+            {
+              companyId: 200,
+              companyName: 'Other Company',
+              parentCompanyId: null,
+              channelFlag: true,
+            },
+          ],
+        },
+      }),
+      global: buildGlobalStateWith({
+        backorderEnabled: false,
+        featureFlags: {
+          'B2B-4613.buyer_portal_unified_sf_gql_orders': true,
+        },
+        cartNumber: 0,
+      }),
+      ...overrides,
+    });
+
+    const mockCrossCompanyOrder = (beginMasquerading: ReturnType<typeof vi.fn>) => {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: {
+                site: {
+                  order: buildUnifiedOrderWith({
+                    entityId: 6696,
+                    // Active company is 100; this order belongs to 200.
+                    company: { entityId: 200, name: 'Other Company' },
+                  }),
+                },
+              },
+            }),
+          ),
+        ),
+        graphql.query('GetCustomerOrderStatuses', () =>
+          HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES')),
+        ),
+        graphql.query('AddressConfig', () =>
+          HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+        ),
+        graphql.mutation('userMasqueradingCompanyBegin', ({ variables }) =>
+          HttpResponse.json(beginMasquerading(variables)),
+        ),
+      );
+    };
+
+    const buildBeginMasqueradingMock = () =>
+      vi.fn().mockReturnValue({
+        data: {
+          userMasqueradingCompanyBegin: {
+            userMasqueradingCompanyBegin: {
+              companyId: 200,
+              companyName: 'Other Company',
+              bcId: '0',
+            },
+          },
+        },
+      });
+
+    it('empties the draft quote after confirming the switch', async () => {
+      // given - viewing a cross-company order with a non-empty draft quote
+      const beginMasquerading = buildBeginMasqueradingMock();
+      mockCrossCompanyOrder(beginMasquerading);
+
+      const draftQuote = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+        draftQuoteInfo: { contactInfo: { companyName: 'Company A' } },
+      });
+
+      const { store } = renderWithProviders(<OrderDetails />, {
+        preloadedState: buildCrossCompanyState({ quoteInfo: draftQuote }),
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      // when - a buyer action on another company's order prompts a switch, and they confirm
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        within(dialog).getByText(
+          'To continue you have to switch company. Switching to a different company will refresh your shopping cart and draft quote.',
+        ),
+      ).toBeVisible();
+
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Switch company' }));
+
+      // then
+      await waitFor(() => {
+        expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
+      });
+      expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
+      expect(beginMasquerading).toHaveBeenCalledWith({ companyId: 200 });
+    });
+
+    it('switches directly without a confirmation prompt when cart and draft are empty', async () => {
+      // given - viewing a cross-company order with empty cart and draft
+      const beginMasquerading = buildBeginMasqueradingMock();
+      mockCrossCompanyOrder(beginMasquerading);
+
+      renderWithProviders(<OrderDetails />, {
+        preloadedState: buildCrossCompanyState(),
+        initialEntries: [{ state: { isCompanyOrder: false } }],
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryAllByRole('progressbar'));
+
+      // when
+      await userEvent.click(screen.getByRole('button', { name: 'Re-Order' }));
+
+      // then - the switch runs directly, with no confirmation dialog
+      await waitFor(() => {
+        expect(beginMasquerading).toHaveBeenCalledWith({ companyId: 200 });
+      });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 
   it('renders customer message comments', async () => {

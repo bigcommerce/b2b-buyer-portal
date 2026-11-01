@@ -2,8 +2,10 @@ import Cookies from 'js-cookie';
 import { buildB2BFeaturesStateWith } from 'tests/storeStateBuilders/b2bFeaturesStateBuilder';
 import {
   buildCompanyStateWith,
+  buildDraftQuoteItemWith,
   builder,
   buildGlobalStateWith,
+  buildQuoteInfoStateWith,
   bulk,
   faker,
   graphql,
@@ -495,6 +497,256 @@ describe('when the user is associated with a company', () => {
       customerGroupId: 0,
       id: 0,
       isAgenting: false,
+    });
+  });
+
+  describe('when the cart is empty but the draft quote is not', () => {
+    const draftQuoteConfirmationMessage =
+      'This action will empty your shopping cart and draft quote. Do you want to continue?';
+
+    it('shows the confirmation dialog when starting masquerade', async () => {
+      // given - an empty cart and a draft quote containing an item
+      const acmeInc = buildCompanyEdgeWith({
+        node: { companyId: 123, companyName: 'Acme Inc' },
+      });
+
+      server.use(
+        graphql.query('SuperAdminCompanies', () =>
+          HttpResponse.json(
+            buildCompanyListWith({
+              data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+            }),
+          ),
+        ),
+      );
+
+      const draftQuote = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      });
+
+      renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({ cartNumber: 0 }),
+          quoteInfo: draftQuote,
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+      });
+
+      expect(screen.queryByText(draftQuoteConfirmationMessage)).not.toBeInTheDocument();
+
+      // when
+      const row = screen.getByRole('row', { name: /Acme Inc/ });
+      await userEvent.click(within(row).getByRole('button', { name: 'Masquerade' }));
+
+      // then
+      expect(await screen.findByText(draftQuoteConfirmationMessage)).toBeInTheDocument();
+    });
+
+    it('empties the draft quote after confirming masquerade start', async () => {
+      // given - a draft quote with a company name, confirmed via the dialog
+      const acmeInc = buildCompanyEdgeWith({
+        node: { companyId: 123, companyName: 'Acme Inc' },
+      });
+
+      const beginMasquerade = vi.fn().mockReturnValue({});
+      const getAgentInfo = vi.fn().mockReturnValue(
+        buildAgentInfoWith({
+          data: { superAdminMasquerading: { id: '123', customerGroupId: 42 } },
+        }),
+      );
+      const deleteCartReturn = vi.fn().mockReturnValue({});
+
+      server.use(
+        graphql.query('SuperAdminCompanies', () =>
+          HttpResponse.json(
+            buildCompanyListWith({
+              data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+            }),
+          ),
+        ),
+        graphql.mutation('BeginMasquerade', ({ query }) =>
+          HttpResponse.json(beginMasquerade(query)),
+        ),
+        graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
+        graphql.mutation('DeleteCart', ({ query }) => HttpResponse.json(deleteCartReturn(query))),
+      );
+
+      Cookies.set('cartId', '1');
+
+      const draftQuote = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+        draftQuoteInfo: { contactInfo: { companyName: 'Company A' } },
+      });
+
+      const { store } = renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({ cartNumber: 1 }),
+          quoteInfo: draftQuote,
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+      });
+
+      // when
+      const row = screen.getByRole('row', { name: /Acme Inc/ });
+      await userEvent.click(within(row).getByRole('button', { name: 'Masquerade' }));
+      await userEvent.click(await screen.findByRole('button', { name: /Continue/ }));
+
+      // then
+      await waitFor(() => {
+        expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
+      });
+      expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
+    });
+
+    it('empties the draft quote after confirming masquerade end', async () => {
+      // given - masquerading, with an empty cart and a non-empty draft quote
+      const acmeInc = buildCompanyEdgeWith({
+        node: { companyId: 996, companyName: 'Acme Inc' },
+      });
+
+      const endMasquerade = vi.fn().mockReturnValue({});
+
+      server.use(
+        graphql.query('SuperAdminCompanies', () =>
+          HttpResponse.json(
+            buildCompanyListWith({
+              data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+            }),
+          ),
+        ),
+        graphql.mutation('EndMasquerade', ({ query }) => HttpResponse.json(endMasquerade(query))),
+      );
+
+      const draftQuote = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+        draftQuoteInfo: { contactInfo: { companyName: 'Company A' } },
+      });
+
+      const { store } = renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          b2bFeatures: buildB2BFeaturesStateWith({ masqueradeCompany: { id: 996 } }),
+          global: buildGlobalStateWith({ cartNumber: 0 }),
+          quoteInfo: draftQuote,
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+      });
+
+      // when
+      const row = screen.getByRole('row', { name: /Acme Inc/ });
+      await userEvent.click(within(row).getByRole('button', { name: 'End Masquerade' }));
+      await userEvent.click(await screen.findByRole('button', { name: /Continue/ }));
+
+      // then
+      await waitFor(() => {
+        expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(0);
+      });
+      expect(store.getState().quoteInfo.draftQuoteInfo.contactInfo.companyName).toBe('');
+    });
+
+    it('does not masquerade or empty the draft quote when cancelling', async () => {
+      // given - an empty cart and a draft quote containing an item
+      const acmeInc = buildCompanyEdgeWith({
+        node: { companyId: 123, companyName: 'Acme Inc' },
+      });
+
+      server.use(
+        graphql.query('SuperAdminCompanies', () =>
+          HttpResponse.json(
+            buildCompanyListWith({
+              data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+            }),
+          ),
+        ),
+      );
+
+      const draftQuote = buildQuoteInfoStateWith({
+        draftQuoteList: [buildDraftQuoteItemWith('WHATEVER_VALUES')],
+      });
+
+      const { store } = renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({ cartNumber: 0 }),
+          quoteInfo: draftQuote,
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+      });
+
+      // when
+      const row = screen.getByRole('row', { name: /Acme Inc/ });
+      await userEvent.click(within(row).getByRole('button', { name: 'Masquerade' }));
+      await userEvent.click(await screen.findByRole('button', { name: /Cancel/ }));
+
+      // then
+      expect(within(row).queryByText(/Selected/)).not.toBeInTheDocument();
+      expect(store.getState().quoteInfo.draftQuoteList).toHaveLength(1);
+    });
+  });
+
+  describe('when both the cart and draft quote are empty', () => {
+    it('starts masquerade immediately without a confirmation dialog', async () => {
+      // given - an empty cart and an empty draft quote
+      const acmeInc = buildCompanyEdgeWith({
+        node: { companyId: 123, companyName: 'Acme Inc' },
+      });
+
+      const beginMasquerade = vi.fn().mockReturnValue({});
+      const getAgentInfo = vi.fn().mockReturnValue(
+        buildAgentInfoWith({
+          data: { superAdminMasquerading: { id: '123', customerGroupId: 42 } },
+        }),
+      );
+
+      server.use(
+        graphql.query('SuperAdminCompanies', () =>
+          HttpResponse.json(
+            buildCompanyListWith({
+              data: { superAdminCompanies: { edges: [acmeInc], totalCount: 1 } },
+            }),
+          ),
+        ),
+        graphql.mutation('BeginMasquerade', ({ query }) =>
+          HttpResponse.json(beginMasquerade(query)),
+        ),
+        graphql.query('AgentInfo', ({ query }) => HttpResponse.json(getAgentInfo(query))),
+      );
+
+      renderWithProviders(<Dashboard setOpenPage={vi.fn()} />, {
+        preloadedState: {
+          ...preloadedState,
+          global: buildGlobalStateWith({ cartNumber: 0 }),
+          quoteInfo: buildQuoteInfoStateWith({ draftQuoteList: [] }),
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
+      });
+
+      // when
+      const row = screen.getByRole('row', { name: /Acme Inc/ });
+      await userEvent.click(within(row).getByRole('button', { name: 'Masquerade' }));
+
+      // then
+      await waitFor(() => {
+        expect(beginMasquerade).toHaveBeenCalled();
+      });
+      expect(screen.queryByRole('button', { name: /Continue/ })).not.toBeInTheDocument();
     });
   });
 

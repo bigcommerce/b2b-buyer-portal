@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   faker,
   graphql,
   HttpResponse,
@@ -43,7 +44,7 @@ it('displays each company', async () => {
   );
 
   const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-  const preloadedState = { company: companyState };
+  const preloadedState = { company: companyState, global: buildGlobalStateWith({ cartNumber: 1 }) };
 
   renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -62,7 +63,7 @@ it("displays a tag of 'Your company' next to the user's assigned company", async
   );
 
   const companyState = buildCompanyStateWith({ companyInfo: { id: `${apple.companyId}` } });
-  const preloadedState = { company: companyState };
+  const preloadedState = { company: companyState, global: buildGlobalStateWith({ cartNumber: 1 }) };
 
   renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -87,7 +88,7 @@ it('displays a tag of "Representing" next to the currently selected company', as
     companyInfo: { id: `${acme.companyId}` },
     companyHierarchyInfo: { selectCompanyHierarchyId: `${acme.companyId}` },
   });
-  const preloadedState = { company: companyState };
+  const preloadedState = { company: companyState, global: buildGlobalStateWith({ cartNumber: 1 }) };
 
   renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -123,7 +124,7 @@ it('display an "Actions" button for all but the selected company, if they have a
   );
 
   const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-  const preloadedState = { company: companyState };
+  const preloadedState = { company: companyState, global: buildGlobalStateWith({ cartNumber: 1 }) };
 
   renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -154,7 +155,10 @@ describe('when switching to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -167,7 +171,7 @@ describe('when switching to a different company', () => {
     expect(within(modal).getByRole('heading', { name: 'Switch company' })).toBeInTheDocument();
     expect(
       within(modal).getByText(
-        'Switching to a different company will refresh your shopping cart. Do you want to continue?',
+        'This action will empty your shopping cart and draft quote. Do you want to continue?',
       ),
     ).toBeInTheDocument();
   });
@@ -189,7 +193,10 @@ describe('when cancelling a switch to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -227,7 +234,10 @@ describe('when continuing to switch to a different company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
@@ -284,7 +294,10 @@ describe('when the user has a current cart and switches company', () => {
     );
 
     const companyState = buildCompanyStateWith({ companyInfo: { id: `${acme.companyId}` } });
-    const preloadedState = { company: companyState };
+    const preloadedState = {
+      company: companyState,
+      global: buildGlobalStateWith({ cartNumber: 1 }),
+    };
 
     renderWithProviders(<CompanyHierarchy />, { preloadedState });
 
