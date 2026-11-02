@@ -3720,6 +3720,8 @@ describe('when the user is a B2B customer', () => {
               buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } }),
             ),
           );
+
+          expect(await within(dialog).findByText('Only 7 available')).toBeVisible();
         });
 
         it('does not show backorder lines for complex products before choosing options', async () => {
