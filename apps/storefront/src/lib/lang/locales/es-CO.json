@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Fin de la Mascarada",
   "dashboard.masqueradeModal.title.start": "Empieza a enmascararte",
   "dashboard.masqueradeModal.title.end": "Fin de la mascarada",
-  "dashboard.masqueradeModal.message": "Esta acción vaciará tu carrito de la compra. ¿Quieres continuar?",
+  "dashboard.masqueradeModal.message": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "dashboard.masqueradeModal.actions.cancel": "Cancelar",
   "dashboard.masqueradeModal.actions.continue": "Continúa",
   "orders.order": "Pedido",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Ver lista de la compra",
   "orderDetail.anotherCompany.tips": "Este pedido está relacionado con otra compañía. Para reordenar, agregar a una lista de la compra o realizar otras acciones, necesitas cambiar a esa compañía.",
   "orderDetail.switchCompany.title": "Compañía de conmutación",
-  "orderDetail.switchCompany.content.tipsText": "Para continuar tienes que cambiar de empresa. Cambiar de empresa actualizará tu carrito de la compra.",
+  "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart and draft quote.",
   "orderDetail.digitalProducts.download": "Descargar",
   "orderDetail.digitalProducts.filesToDownload": "Archivos para descargar",
   "orderDetail.digitalProducts.viewFiles": "Ver archivos",
@@ -768,7 +768,7 @@
   "payment.okButton": "De acuerdo",
   "companyHierarchy.table.name": "Nombre",
   "companyHierarchy.dialog.title": "Compañía de conmutación",
-  "companyHierarchy.dialog.content": "Cambiar de empresa actualizará tu carrito de la compra. ¿Quieres continuar?",
+  "companyHierarchy.dialog.content": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "Tu compañía",
   "companyHierarchy.chip.selectCompany": "Representación"
 }
