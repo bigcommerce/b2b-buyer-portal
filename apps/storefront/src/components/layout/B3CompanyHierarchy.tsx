@@ -4,6 +4,8 @@ import { Box, Chip, Grid } from '@mui/material';
 
 import { useB3Lang } from '@/lib/lang';
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { useNeedsSwitchConfirmation } from '@/pages/CompanyHierarchy/hooks/useNeedsSwitchConfirmation';
+import { useSwitchCompany } from '@/pages/CompanyHierarchy/hooks/useSwitchCompany';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
 import { CompanyHierarchyProps, PagesSubsidiariesPermissionProps } from '@/types';
@@ -48,6 +50,10 @@ function B3CompanyHierarchy() {
 
   const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
 
+  const needsConfirmation = useNeedsSwitchConfirmation();
+
+  const { switchCompany, loading: isSwitching } = useSwitchCompany();
+
   const isPagesSubsidiariesPermission = useMemo(() => {
     return Object.keys(pagesSubsidiariesPermission).some(
       (key) => pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps],
@@ -82,14 +88,21 @@ function B3CompanyHierarchy() {
     setOpen(false);
     dispatch(setOpenCompanyHierarchyDropDown(false));
   };
+
   const handleRowClick = (key: number) => {
     const item = info.list.find((list) => Number(list.key) === key);
     if (!item) return;
-    setCurrentRow({
+    const row = {
       companyId: Number(item.key),
       companyName: item.name,
-    });
-    setOpen(true);
+    };
+    setCurrentRow(row);
+    if (needsConfirmation) {
+      setOpen(true);
+    } else {
+      switchCompany(row);
+      handleClose();
+    }
   };
 
   const menuRenderItemName = (item: ListItemProps) => {
@@ -178,7 +191,15 @@ function B3CompanyHierarchy() {
         />
       </Box>
 
-      <HierarchyDialog open={open} handleClose={handleClose} currentRow={currentRow} />
+      <HierarchyDialog
+        open={open}
+        handleClose={handleClose}
+        isRequestLoading={isSwitching}
+        onConfirm={async () => {
+          await switchCompany(currentRow);
+          handleClose();
+        }}
+      />
     </>
   );
 }

@@ -14,7 +14,8 @@ import { useB3Lang } from '@/lib/lang';
 import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
-import { setCartNumber, useAppSelector, useAppStore } from '@/store';
+import { draftQuoteNotEmptySelector, setCartNumber, useAppSelector, useAppStore } from '@/store';
+import { resetDraftQuote } from '@/store/slices/quoteInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
 import { DashboardCard } from './components/DashboardCard';
@@ -47,18 +48,19 @@ function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const cartNumber = useAppSelector(({ global }) => global.cartNumber);
+  const isDraftQuoteNotEmpty = useAppSelector(draftQuoteNotEmptySelector);
   const salesRepCompanyId = Number(
     useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id),
   );
 
-  return { salesRepCompanyId, b2bId, customerId, cartNumber };
+  return { salesRepCompanyId, b2bId, customerId, cartNumber, isDraftQuoteNotEmpty };
 }
 
 function Dashboard(props: PageProps) {
   const showPageMask = usePageMask();
   const store = useAppStore();
 
-  const { salesRepCompanyId, b2bId, customerId, cartNumber } = useData();
+  const { salesRepCompanyId, b2bId, customerId, cartNumber, isDraftQuoteNotEmpty } = useData();
 
   const { setOpenPage } = props;
   const b3Lang = useB3Lang();
@@ -108,6 +110,8 @@ function Dashboard(props: PageProps) {
         await clearCart(cartEntityId);
       }
 
+      store.dispatch(resetDraftQuote());
+
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
@@ -132,6 +136,8 @@ function Dashboard(props: PageProps) {
       if (cartEntityId) {
         await clearCart(cartEntityId);
       }
+
+      store.dispatch(resetDraftQuote());
 
       setFilterData({
         ...filterData,
@@ -158,8 +164,10 @@ function Dashboard(props: PageProps) {
     });
   };
 
+  const needsConfirmation = cartNumber > 0 || isDraftQuoteNotEmpty;
+
   const onStartMasquerade = async (companyId: number) => {
-    if (cartNumber > 0) {
+    if (needsConfirmation) {
       setConfirmMasquerade({ type: 'start', companyId });
     } else {
       await startActing(companyId);
@@ -167,7 +175,7 @@ function Dashboard(props: PageProps) {
   };
 
   const onEndMasquerade = async () => {
-    if (cartNumber > 0) {
+    if (needsConfirmation) {
       setConfirmMasquerade({ type: 'end' });
     } else {
       await endActing();

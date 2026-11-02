@@ -93,6 +93,10 @@ const draftQuoteListSlice = createSlice({
     resetDraftQuoteInfo: (state) => {
       state.draftQuoteInfo = initialState.draftQuoteInfo;
     },
+    resetDraftQuote: (state) => {
+      state.draftQuoteList = initialState.draftQuoteList;
+      state.draftQuoteInfo = initialState.draftQuoteInfo;
+    },
     setDraftQuoteList: (state, { payload }: PayloadAction<QuoteItem[]>) => {
       state.draftQuoteList = payload;
     },
@@ -159,6 +163,7 @@ const draftQuoteListSlice = createSlice({
 export const {
   resetDraftQuoteList,
   resetDraftQuoteInfo,
+  resetDraftQuote,
   setDraftQuoteList,
   deleteProductFromDraftQuoteList,
   setDraftProductQuantity,
