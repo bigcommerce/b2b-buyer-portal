@@ -150,7 +150,9 @@ const getFieldOptions = (
     const { checkbox_label: label, checked_by_default: checked } = config || {};
 
     const checkedId: number | string =
-      optionValues.find((values) => values.label === 'Yes')?.id || optionValues[0]?.id || '';
+      optionValues.find((values) => values.value_data?.checked_value)?.id ||
+      optionValues[0]?.id ||
+      '';
 
     return {
       options: [
