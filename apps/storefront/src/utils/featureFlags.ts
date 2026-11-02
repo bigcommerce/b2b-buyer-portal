@@ -40,10 +40,6 @@ export const featureFlags = [
     name: 'useBcLoginAndAuthorisation',
   },
   {
-    key: 'B2B-4870.default_buyer_portal_styling_on_login_page',
-    name: 'defaultBuyerPortalStylingOnLoginPage',
-  },
-  {
     key: 'B2B-4089.use_tbd_price_on_quotes_list',
     name: 'useTbdPriceOnQuotesList',
   },

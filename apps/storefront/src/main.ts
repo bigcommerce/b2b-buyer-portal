@@ -44,8 +44,7 @@ window.b2b = {
 (async function bootstrap() {
   // check if the accessed url contains a hashtag, or if the buyer portal is
   // taking over the login page (eager init avoids the idle-callback delay while
-  // the masked BC native form is visible). The login-page branch is gated on the
-  // default-login-styling feature flag via shouldUseDefaultLoginStyling().
+  // the masked BC native form is visible).
   if (window.location.hash.startsWith('#/') || shouldUseDefaultLoginStyling()) {
     initApp();
   } else {
