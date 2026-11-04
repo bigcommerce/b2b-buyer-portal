@@ -3,6 +3,7 @@ import { set } from 'lodash-es';
 import {
   buildCompanyStateWith,
   builder,
+  buildGlobalStateWith,
   buildStoreInfoStateWith,
   bulk,
   faker,
@@ -17,8 +18,10 @@ import {
 import { when } from 'vitest-when';
 
 import { GetCart } from '@/shared/service/bc/graphql/cart';
+import type { Locales } from '@/store/slices/global';
 import { CompanyStatus, UserTypes } from '@/types';
 import { LineItem } from '@/utils/b3Product/b3Product';
+import type { FeatureFlags } from '@/utils/featureFlags';
 
 import QuickOrderPad from './components/QuickOrderPad';
 
@@ -233,6 +236,166 @@ it('adds the skus and the quantities to the cart when clicking on the -add to ca
 
   expect(skuInput).toHaveValue('');
   expect(qtyInput).toHaveValue(null);
+});
+
+describe('when creating or updating the cart', () => {
+  const mockVariantLookup = () => {
+    const variantInfo = buildVariantInfoWith({
+      variantSku: 'S-123',
+      minQuantity: 0,
+      maxQuantity: 0,
+      purchasingDisabled: '0',
+      isStock: '1',
+      stock: 50,
+    });
+
+    server.use(
+      graphql.query('GetVariantInfoBySkus', () =>
+        HttpResponse.json(buildVariantInfoResponseWith({ data: { variantSku: [variantInfo] } })),
+      ),
+    );
+  };
+
+  const addProductToCart = async () => {
+    const [skuInput] = screen.getAllByRole('textbox', { name: 'SKU#' });
+    const [qtyInput] = screen.getAllByRole('spinbutton', { name: 'Qty' });
+
+    await userEvent.type(skuInput, 'S-123');
+    await userEvent.type(qtyInput, '2');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add products to cart' }));
+
+    expect(await screen.findByText('Products were added to cart')).toBeInTheDocument();
+  };
+
+  const mockNoExistingCart = () => {
+    const createCartSimple = vi.fn();
+
+    server.use(
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>({ data: { site: { cart: null } } }),
+      ),
+      graphql.mutation('createCartSimple', ({ variables }) => {
+        createCartSimple(variables);
+
+        return HttpResponse.json({
+          data: { cart: { createCart: { cart: { entityId: faker.string.uuid() } } } },
+        });
+      }),
+    );
+
+    return createCartSimple;
+  };
+
+  const buildStateWithLocales = (
+    locales: Locales,
+    featureFlags: FeatureFlags = {
+      'LOCAL-3280.B2B_email_multi_language': true,
+      'LOCAL-3626.B2B_product_translation': true,
+    },
+  ) => ({
+    ...preloadedState,
+    global: buildGlobalStateWith({
+      blockPendingAccountViewPrice: false,
+      backorderEnabled: false,
+      featureFlags,
+      locales,
+    }),
+  });
+
+  it('sends the active storefront locale when creating a new cart', async () => {
+    const activeLocaleCode = faker.helpers.arrayElement(['fr', 'es', 'de']);
+
+    mockVariantLookup();
+    const createCartSimple = mockNoExistingCart();
+
+    renderWithProviders(<QuickOrderPad />, {
+      preloadedState: buildStateWithLocales([
+        { code: activeLocaleCode, isDefault: false, fullPath: window.location.href },
+      ]),
+    });
+
+    await addProductToCart();
+
+    expect(createCartSimple).toHaveBeenCalledWith(
+      expect.objectContaining({
+        createCartInput: expect.objectContaining({ locale: activeLocaleCode }),
+      }),
+    );
+  });
+
+  it('does not send a locale when creating a new cart and no storefront locale is active', async () => {
+    mockVariantLookup();
+    const createCartSimple = mockNoExistingCart();
+
+    renderWithProviders(<QuickOrderPad />, {
+      preloadedState: buildStateWithLocales([
+        { code: faker.string.alpha(2), isDefault: false, fullPath: 'https://other.example.com/' },
+      ]),
+    });
+
+    await addProductToCart();
+
+    expect(createCartSimple).toHaveBeenCalledTimes(1);
+    expect(createCartSimple.mock.calls[0][0].createCartInput).not.toHaveProperty('locale');
+  });
+
+  it('does not send a locale when creating a new cart and product translation is disabled', async () => {
+    const activeLocaleCode = faker.helpers.arrayElement(['fr', 'es', 'de']);
+
+    mockVariantLookup();
+    const createCartSimple = mockNoExistingCart();
+
+    renderWithProviders(<QuickOrderPad />, {
+      preloadedState: buildStateWithLocales(
+        [{ code: activeLocaleCode, isDefault: false, fullPath: window.location.href }],
+        { 'LOCAL-3280.B2B_email_multi_language': true },
+      ),
+    });
+
+    await addProductToCart();
+
+    expect(createCartSimple).toHaveBeenCalledTimes(1);
+    expect(createCartSimple.mock.calls[0][0].createCartInput).not.toHaveProperty('locale');
+  });
+
+  it('does not send a locale when adding products to an existing cart', async () => {
+    const activeLocaleCode = faker.helpers.arrayElement(['fr', 'es', 'de']);
+    const addCartLineItems = vi.fn();
+
+    mockVariantLookup();
+
+    server.use(
+      graphql.query('getCart', () =>
+        HttpResponse.json<GetCart>(
+          buildCartWith({
+            data: { site: { cart: { lineItems: { physicalItems: [] } } } },
+          }),
+        ),
+      ),
+      graphql.mutation('addCartLineItemsTwo', ({ variables }) => {
+        addCartLineItems(variables);
+
+        return HttpResponse.json({
+          data: { cart: { addCartLineItems: buildCartWith('WHATEVER_VALUES').data.site } },
+        });
+      }),
+    );
+
+    renderWithProviders(<QuickOrderPad />, {
+      preloadedState: buildStateWithLocales([
+        { code: activeLocaleCode, isDefault: false, fullPath: window.location.href },
+      ]),
+    });
+
+    await addProductToCart();
+
+    expect(addCartLineItems).toHaveBeenCalledTimes(1);
+    expect(addCartLineItems.mock.calls[0][0].addCartLineItemsInput).not.toHaveProperty('locale');
+    expect(addCartLineItems.mock.calls[0][0].addCartLineItemsInput.data).not.toHaveProperty(
+      'locale',
+    );
+  });
 });
 
 it('only clears inputs that are added to the cart, keeps the rest', async () => {
