@@ -17,16 +17,11 @@ import {
 } from 'tests/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
+import type { SiteOrderStatus } from '@/shared/service/bc/graphql/orders';
 import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 import Order from './Order';
-import {
-  CompanyOrderNode,
-  CompanyOrderStatuses,
-  CustomerOrderStatues,
-  GetCompanyOrders,
-  OrderStatus,
-} from './orders';
+import { CompanyOrderNode, GetCompanyOrders } from './orders';
 
 vi.mock('@/hooks/useMobile', () => ({
   useMobile: () => [false] as const,
@@ -49,11 +44,15 @@ function getBodyCellsForColumn(columnAccessibleName: string) {
 // Builders
 // ---------------------------------------------------------------------------
 
-const buildOrderStatusWith = builder<OrderStatus>(() => ({
-  statusCode: faker.number.int().toString(),
-  systemLabel: faker.word.noun(),
-  customLabel: faker.word.noun(),
+const buildOrderStatusWith = builder<SiteOrderStatus>(() => ({
+  origin: faker.word.noun(),
+  translation: faker.word.noun(),
+  value: 'SHIPPED',
 }));
+
+const buildSiteOrderStatusesResponse = (orderStatuses: SiteOrderStatus[]) => ({
+  data: { site: { settings: { orderStatuses } } },
+});
 
 const buildCompanyOrderNodeWith = builder<CompanyOrderNode>(() => ({
   node: {
@@ -75,18 +74,6 @@ const buildGetAllOrdersWith = builder<GetCompanyOrders>(() => ({
       totalCount: 3,
       edges: bulk(buildCompanyOrderNodeWith, 'WHATEVER_VALUES').times(3),
     },
-  },
-}));
-
-const buildCompanyOrderStatusesWith = builder<CompanyOrderStatuses>(() => ({
-  data: {
-    orderStatuses: bulk(buildOrderStatusWith, 'WHATEVER_VALUES').times(3),
-  },
-}));
-
-const buildBcOrderStatusesWith = builder<CustomerOrderStatues>(() => ({
-  data: {
-    bcOrderStatuses: bulk(buildOrderStatusWith, 'WHATEVER_VALUES').times(3),
   },
 }));
 
@@ -159,13 +146,10 @@ const agentingPreloaded = {
 describe('Orders list (UI)', () => {
   beforeEach(() => {
     server.use(
-      // B2B order statuses (used when isB2BUser = true)
-      graphql.query('GetOrderStatuses', () =>
-        HttpResponse.json(buildCompanyOrderStatusesWith('WHATEVER_VALUES')),
-      ),
-      // BC order statuses (used when isB2BUser = false)
-      graphql.query('GetCustomerOrderStatuses', () =>
-        HttpResponse.json(buildBcOrderStatusesWith('WHATEVER_VALUES')),
+      graphql.query('GetSiteOrderStatuses', () =>
+        HttpResponse.json(
+          buildSiteOrderStatusesResponse(bulk(buildOrderStatusWith, 'WHATEVER_VALUES').times(3)),
+        ),
       ),
       // B2B orders — legacy path (GetAllOrders operation name)
       graphql.query('GetAllOrders', () =>
@@ -193,19 +177,24 @@ describe('Orders list (UI)', () => {
   it('shows Company and Placed by columns on company orders for an approved B2B buyer', async () => {
     const orderStatuses = [
       buildOrderStatusWith({
-        systemLabel: 'Awaiting Fulfillment',
-        customLabel: 'Awaiting fulfillment',
+        origin: 'Awaiting Fulfillment',
+        translation: 'Awaiting Fulfillment',
+        value: 'AWAITING_FULFILLMENT',
       }),
-      buildOrderStatusWith({ systemLabel: 'Shipped', customLabel: 'Shipped' }),
-      buildOrderStatusWith({ systemLabel: 'Completed', customLabel: 'Completed' }),
-      buildOrderStatusWith({ systemLabel: 'Awaiting Payment', customLabel: 'Awaiting payment' }),
-      buildOrderStatusWith({ systemLabel: 'Cancelled', customLabel: 'Order cancelled' }),
-      buildOrderStatusWith({ systemLabel: 'Pending', customLabel: 'On hold pending review' }),
+      buildOrderStatusWith({ origin: 'Shipped', translation: 'Shipped', value: 'SHIPPED' }),
+      buildOrderStatusWith({ origin: 'Completed', translation: 'Completed', value: 'COMPLETED' }),
+      buildOrderStatusWith({
+        origin: 'Awaiting Payment',
+        translation: 'Awaiting Payment',
+        value: 'AWAITING_PAYMENT',
+      }),
+      buildOrderStatusWith({ origin: 'Cancelled', translation: 'Cancelled', value: 'CANCELLED' }),
+      buildOrderStatusWith({ origin: 'Pending', translation: 'Pending', value: 'PENDING' }),
     ];
 
     server.use(
-      graphql.query('GetOrderStatuses', () =>
-        HttpResponse.json({ data: { orderStatuses } } satisfies CompanyOrderStatuses),
+      graphql.query('GetSiteOrderStatuses', () =>
+        HttpResponse.json(buildSiteOrderStatusesResponse(orderStatuses)),
       ),
       graphql.query('GetAllOrders', () =>
         HttpResponse.json({
@@ -268,7 +257,22 @@ describe('Orders list (UI)', () => {
       ),
     );
 
-    renderWithProviders(<Order isCompanyOrder />, { preloadedState: basePreloaded });
+    renderWithProviders(<Order isCompanyOrder />, {
+      preloadedState: {
+        ...basePreloaded,
+        lang: {
+          translations: {
+            'orders.status.awaitingFulfillment': 'Awaiting fulfillment',
+            'orders.status.awaitingPayment': 'Awaiting payment',
+            'orders.status.cancelled': 'Order cancelled',
+            'orders.status.pending': 'On hold pending review',
+          },
+          fetchedPages: [],
+          translationVersion: 0,
+          _persist: { version: -1, rehydrated: true },
+        },
+      },
+    });
 
     await waitFor(() => {
       expect(screen.getByRole('columnheader', { name: 'Order' })).toBeVisible();

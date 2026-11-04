@@ -43,3 +43,22 @@ export const orderStatusValueToSystemLabel = (value: string | null | undefined):
 /** Title-case system label -> enum member. Undefined when unrecognised. */
 export const systemLabelToOrderStatusValue = (systemLabel: string): string | undefined =>
   SYSTEM_LABEL_TO_VALUE[systemLabel];
+
+/** Numeric code the legacy `orderStatuses` query reports as `statusCode`. */
+export const ORDER_STATUS_LEGACY_CODES: Record<keyof typeof ORDER_STATUS_SYSTEM_LABELS, string> = {
+  INCOMPLETE: '0',
+  PENDING: '1',
+  SHIPPED: '2',
+  PARTIALLY_SHIPPED: '3',
+  REFUNDED: '4',
+  CANCELLED: '5',
+  DECLINED: '6',
+  AWAITING_PAYMENT: '7',
+  AWAITING_PICKUP: '8',
+  AWAITING_SHIPMENT: '9',
+  COMPLETED: '10',
+  AWAITING_FULFILLMENT: '11',
+  MANUAL_VERIFICATION_REQUIRED: '12',
+  DISPUTED: '13',
+  PARTIALLY_REFUNDED: '14',
+};
