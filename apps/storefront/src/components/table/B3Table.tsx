@@ -16,6 +16,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
@@ -57,6 +58,7 @@ export interface TableColumnItem<Row> {
   render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
+  sortDisabledHint?: string;
 }
 
 interface TableProps<Row> {
@@ -455,14 +457,19 @@ export function B3Table<Row>({
                         data-testid={column?.key ? `tableHead-${column?.key}` : ''}
                       >
                         {column?.isSortable ? (
-                          <TableSortLabel
-                            active={column.key === orderBy}
-                            direction={column.key === orderBy ? sortDirection : 'desc'}
-                            hideSortIcon={column.key !== orderBy}
-                            onClick={() => sortByFn && sortByFn(column)}
-                          >
-                            {column.title}
-                          </TableSortLabel>
+                          <Tooltip title={column.sortDisabledHint ?? ''}>
+                            <span>
+                              <TableSortLabel
+                                active={column.key === orderBy}
+                                direction={column.key === orderBy ? sortDirection : 'desc'}
+                                hideSortIcon={column.key !== orderBy}
+                                disabled={Boolean(column.sortDisabledHint)}
+                                onClick={() => sortByFn && sortByFn(column)}
+                              >
+                                {column.title}
+                              </TableSortLabel>
+                            </span>
+                          </Tooltip>
                         ) : (
                           column.title
                         )}

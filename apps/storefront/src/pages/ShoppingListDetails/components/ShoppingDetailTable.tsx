@@ -24,10 +24,12 @@ import {
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useMobile } from '@/hooks/useMobile';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
+import { getActiveLocale } from '@/lib/lang/getActiveLocale';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
@@ -218,7 +220,26 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [showBackorderDetails, setShowBackorderDetails] = useState(true);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
-  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
+  const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch,
+  );
+
+  const isMultiLanguageEnabled = useFeatureFlag('LOCAL-3280.B2B_email_multi_language');
+  const locales = useAppSelector(({ global }) => global.locales);
+  const isProductTranslationEnabled = useFeatureFlag('LOCAL-3626.B2B_product_translation');
+  const isNameSortUnavailable =
+    isProductTranslationEnabled &&
+    isMultiLanguageEnabled &&
+    getActiveLocale(locales)?.isDefault === false;
+
+  useEffect(() => {
+    if (isNameSortUnavailable && orderBy === 'Product') {
+      resetSort();
+    }
+  }, [isNameSortUnavailable, orderBy, resetSort]);
 
   const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
@@ -656,6 +677,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       },
       width: '45%',
       isSortable: true,
+      sortDisabledHint: isNameSortUnavailable
+        ? b3Lang('shoppingList.table.sortByNameUnavailable')
+        : undefined,
     },
     {
       key: 'Price',
