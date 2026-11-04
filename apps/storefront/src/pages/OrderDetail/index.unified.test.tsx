@@ -657,8 +657,24 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       ...overrides,
     });
 
+    interface BeginMasqueradingVariables {
+      companyId: number;
+    }
+
+    interface BeginMasqueradingResponse {
+      data: {
+        userMasqueradingCompanyBegin: {
+          userMasqueradingCompanyBegin: {
+            companyId: number;
+            companyName: string;
+            bcId: string;
+          };
+        };
+      };
+    }
+
     const mockCrossCompanyOrder = (
-      beginMasquerading: (variables: unknown) => Record<string, unknown>,
+      beginMasquerading: (variables: BeginMasqueradingVariables) => BeginMasqueradingResponse,
     ) => {
       server.use(
         graphql.query('GetOrderDetail', () =>
@@ -682,24 +698,27 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         graphql.query('AddressConfig', () =>
           HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
         ),
-        graphql.mutation('userMasqueradingCompanyBegin', ({ variables }) =>
-          HttpResponse.json(beginMasquerading(variables)),
+        graphql.mutation<BeginMasqueradingResponse['data'], BeginMasqueradingVariables>(
+          'userMasqueradingCompanyBegin',
+          ({ variables }) => HttpResponse.json(beginMasquerading(variables)),
         ),
       );
     };
 
     const buildBeginMasqueradingMock = () =>
-      vi.fn<(variables: unknown) => Record<string, unknown>>().mockReturnValue({
-        data: {
-          userMasqueradingCompanyBegin: {
+      vi
+        .fn<(variables: BeginMasqueradingVariables) => BeginMasqueradingResponse>()
+        .mockReturnValue({
+          data: {
             userMasqueradingCompanyBegin: {
-              companyId: 200,
-              companyName: 'Other Company',
-              bcId: '0',
+              userMasqueradingCompanyBegin: {
+                companyId: 200,
+                companyName: 'Other Company',
+                bcId: '0',
+              },
             },
           },
-        },
-      });
+        });
 
     it('empties the draft quote after confirming the switch', async () => {
       // given - viewing a cross-company order with a non-empty draft quote
