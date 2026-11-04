@@ -169,8 +169,9 @@ const B3Request = {
    */
   graphqlBCProxy: function post<T = any>(data: GQLRequest): Promise<T> {
     const { B2BToken } = store.getState().company.tokens;
+    const locale = getStorefrontLanguageCode();
 
-    const config = B2BToken
+    const config: Record<string, string | number> = B2BToken
       ? {
           Authorization: `Bearer  ${B2BToken}`,
         }
@@ -178,6 +179,10 @@ const B3Request = {
           'Store-Hash': storeHash,
           'BC-Channel-Id': channelId,
         };
+
+    if (locale) {
+      config['Accept-Language'] = locale;
+    }
 
     return graphqlRequest(RequestType.BCProxyGraphql, data, config);
   },
