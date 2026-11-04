@@ -1,4 +1,8 @@
 import { CompanyHierarchyListProps, ConfigsSwitchStatusProps, LoginTypes } from '@/types';
+import type {
+  UserMasqueradingCompanyBeginResponse,
+  UserMasqueradingCompanyBeginVariables,
+} from '@/types/gql/masquerading';
 import { storeHash } from '@/utils/basicConfig';
 import { mapToCompanyError } from '@/utils/companyUtils';
 import {
@@ -591,14 +595,17 @@ export const getCompanySubsidiaries = (): Promise<CompanySubsidiariesProps> =>
     query: companySubsidiaries,
   });
 
-export const startUserMasqueradingCompany = (companyId: number) =>
-  B3Request.graphqlB2B(
+export const startUserMasqueradingCompany = (companyId: number) => {
+  const variables: UserMasqueradingCompanyBeginVariables = { companyId };
+
+  return B3Request.graphqlB2B<UserMasqueradingCompanyBeginResponse>(
     {
       query: userMasqueradingCompanyBegin,
-      variables: { companyId },
+      variables,
     },
     true,
   ).catch(mapToCompanyError);
+};
 
 export const endUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({

@@ -28,6 +28,10 @@ import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/
 import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import { Currency, CustomerRole } from '@/types';
+import type {
+  UserMasqueradingCompanyBeginResponse,
+  UserMasqueradingCompanyBeginVariables,
+} from '@/types/gql/masquerading';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
@@ -657,7 +661,11 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       ...overrides,
     });
 
-    const mockCrossCompanyOrder = (beginMasquerading: ReturnType<typeof vi.fn>) => {
+    const mockCrossCompanyOrder = (
+      beginMasquerading: (
+        variables: UserMasqueradingCompanyBeginVariables,
+      ) => UserMasqueradingCompanyBeginResponse,
+    ) => {
       server.use(
         graphql.query('GetOrderDetail', () =>
           HttpResponse.json(
@@ -680,24 +688,31 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         graphql.query('AddressConfig', () =>
           HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
         ),
-        graphql.mutation('userMasqueradingCompanyBegin', ({ variables }) =>
+        graphql.mutation<
+          UserMasqueradingCompanyBeginResponse['data'],
+          UserMasqueradingCompanyBeginVariables
+        >('userMasqueradingCompanyBegin', ({ variables }) =>
           HttpResponse.json(beginMasquerading(variables)),
         ),
       );
     };
 
     const buildBeginMasqueradingMock = () =>
-      vi.fn().mockReturnValue({
-        data: {
-          userMasqueradingCompanyBegin: {
+      vi
+        .fn<
+          (variables: UserMasqueradingCompanyBeginVariables) => UserMasqueradingCompanyBeginResponse
+        >()
+        .mockReturnValue({
+          data: {
             userMasqueradingCompanyBegin: {
-              companyId: 200,
-              companyName: 'Other Company',
-              bcId: '0',
+              userMasqueradingCompanyBegin: {
+                companyId: 200,
+                companyName: 'Other Company',
+                bcId: '0',
+              },
             },
           },
-        },
-      });
+        });
 
     it('empties the draft quote after confirming the switch', async () => {
       // given - viewing a cross-company order with a non-empty draft quote

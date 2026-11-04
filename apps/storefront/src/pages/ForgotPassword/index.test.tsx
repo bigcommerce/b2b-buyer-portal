@@ -294,7 +294,7 @@ describe('when captcha is disabled', () => {
       }),
     );
 
-    const { user } = renderWithProviders(
+    const { user, navigation } = renderWithProviders(
       <ForgotPassword
         isEnabledOnStorefront={false}
         storefrontSiteKey="foo-bar"
@@ -313,6 +313,10 @@ describe('when captcha is disabled', () => {
     });
 
     resolveRequest();
+
+    await waitFor(() => {
+      expect(navigation).toHaveBeenCalledWith('/login?loginFlag=receivePassword');
+    });
 
     expect(serverMock).toHaveBeenCalledTimes(1);
   });
