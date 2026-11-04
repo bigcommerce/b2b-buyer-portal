@@ -5048,11 +5048,17 @@ describe('when product translation is enabled and the store has several locales'
 
     await expect(userEvent.click(sortLabel)).rejects.toThrow(/pointer-events: none/);
 
-    await userEvent.hover(sortLabel.parentElement!);
+    const hint = 'Sorting by name is available only in the default language';
+    const wrapper = sortLabel.parentElement!;
 
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Sorting by name is available only in the default language',
-    );
+    act(() => wrapper.focus());
+
+    expect(wrapper).toHaveFocus();
+    expect(wrapper).toHaveAccessibleDescription(hint);
+
+    await userEvent.hover(wrapper);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(hint);
   });
 
   it('resets the sort to the default order when the user switches to a non-default locale', async () => {
