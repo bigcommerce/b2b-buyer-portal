@@ -27,6 +27,9 @@ describe('useLogout', () => {
     const freshToken = faker.string.uuid();
 
     server.use(
+      b2bGraphql.mutation('B2BLogout', () =>
+        HttpResponse.json({ data: { logout: { message: 'Success' } } }),
+      ),
       bcGraphql.mutation('Logout', () =>
         HttpResponse.json({ data: { logout: { result: 'success' } } }),
       ),
@@ -62,6 +65,9 @@ describe('useLogout', () => {
     set(window, 'b2b.callbacks.dispatchEvent', vi.fn().mockReturnValue(true));
 
     server.use(
+      b2bGraphql.mutation('B2BLogout', () =>
+        HttpResponse.json({ data: { logout: { message: 'Success' } } }),
+      ),
       bcGraphql.mutation('Logout', () =>
         HttpResponse.json({ data: { logout: { result: 'success' } } }),
       ),

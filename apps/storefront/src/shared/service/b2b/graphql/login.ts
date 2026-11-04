@@ -64,3 +64,18 @@ export async function b2bAuthorization(
     variables: { authData },
   });
 }
+
+interface B2BLogoutResponse {
+  logout?: {
+    message?: string;
+  };
+}
+
+const B2B_LOGOUT = `mutation B2BLogout {
+  logout {
+    message
+  }
+}`;
+
+export const b2bLogout = (): Promise<B2BLogoutResponse> =>
+  B3Request.graphqlB2B<B2BLogoutResponse>({ query: B2B_LOGOUT }, true);
