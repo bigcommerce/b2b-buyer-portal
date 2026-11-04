@@ -524,6 +524,7 @@
   "shoppingList.table.quantityUpdated": "Product quantity updated successfully",
   "shoppingList.table.productNotesUpdated": "Product notes updated successfully",
   "shoppingList.table.product": "Product",
+  "shoppingList.table.sortByNameUnavailable": "Sorting by name is available only in the default language",
   "shoppingList.table.price": "Price",
   "shoppingList.table.quantity": "Qty",
   "shoppingList.quantityTextField.outOfStock": "Out of stock",
