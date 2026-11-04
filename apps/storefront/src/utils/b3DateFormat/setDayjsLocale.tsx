@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { SUPPORT_LANGUAGE } from '@/constants';
@@ -10,7 +11,16 @@ import 'dayjs/locale/it';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/de';
 import 'dayjs/locale/es';
+import 'dayjs/locale/da';
+import 'dayjs/locale/ja';
+import 'dayjs/locale/nb';
+import 'dayjs/locale/pl';
+import 'dayjs/locale/pt';
+import 'dayjs/locale/pt-br';
+import 'dayjs/locale/sv';
+import 'dayjs/locale/es-mx';
 
+dayjs.extend(customParseFormat);
 dayjs.extend(localizedFormat);
 
 const setDayjsLocale = (localeKey: string) => {
