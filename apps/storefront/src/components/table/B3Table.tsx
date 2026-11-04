@@ -16,6 +16,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
@@ -57,6 +58,8 @@ export interface TableColumnItem<Row> {
   render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
+  isSortDisabled?: boolean;
+  sortDisabledHint?: string;
 }
 
 interface TableProps<Row> {
@@ -209,6 +212,38 @@ function Row<Row>({
         </TableRow>
       )}
     </>
+  );
+}
+
+function SortableHeaderLabel<Row>({
+  column,
+  orderBy,
+  sortDirection,
+  sortByFn,
+}: {
+  column: TableColumnItem<Row>;
+  orderBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  sortByFn?: (e: { key: string }) => void;
+}) {
+  const label = (
+    <TableSortLabel
+      active={column.key === orderBy}
+      direction={column.key === orderBy ? sortDirection : 'desc'}
+      hideSortIcon={column.key !== orderBy}
+      disabled={column.isSortDisabled}
+      onClick={() => sortByFn && sortByFn(column)}
+    >
+      {column.title}
+    </TableSortLabel>
+  );
+
+  if (!column.sortDisabledHint) return label;
+
+  return (
+    <Tooltip title={column.sortDisabledHint}>
+      <span>{label}</span>
+    </Tooltip>
   );
 }
 
@@ -455,14 +490,12 @@ export function B3Table<Row>({
                         data-testid={column?.key ? `tableHead-${column?.key}` : ''}
                       >
                         {column?.isSortable ? (
-                          <TableSortLabel
-                            active={column.key === orderBy}
-                            direction={column.key === orderBy ? sortDirection : 'desc'}
-                            hideSortIcon={column.key !== orderBy}
-                            onClick={() => sortByFn && sortByFn(column)}
-                          >
-                            {column.title}
-                          </TableSortLabel>
+                          <SortableHeaderLabel
+                            column={column}
+                            orderBy={orderBy}
+                            sortDirection={sortDirection}
+                            sortByFn={sortByFn}
+                          />
                         ) : (
                           column.title
                         )}

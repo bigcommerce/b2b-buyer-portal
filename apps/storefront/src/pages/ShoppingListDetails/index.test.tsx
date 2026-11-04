@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
 import {
+  act,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -22,6 +23,7 @@ import { when } from 'vitest-when';
 import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { setLocales } from '@/store/slices/global';
 import { CompanyStatus, CustomerRole, ShoppingListStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
@@ -4977,5 +4979,121 @@ describe('when backorder messaging is enabled in choose options dialog', () => {
     expect(
       within(chooseOptionsDialog).queryByText('6 will be backordered'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('when product translation is enabled and the store has several locales', () => {
+  const productTranslationState = buildGlobalStateWith({
+    featureFlags: {
+      'LOCAL-3280.B2B_email_multi_language': true,
+      'LOCAL-3626.B2B_product_translation': true,
+    },
+    locales: [
+      { code: 'en', isDefault: true, fullPath: 'https://store.example.com' },
+      { code: 'es', isDefault: false, fullPath: 'https://store.example.com/es' },
+    ],
+  });
+
+  const renderSortedList = async (href: string, global = productTranslationState) => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    window.location.href = href;
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: {
+            totalCount: 2,
+            edges: bulk(buildShoppingListProductEdgeWith, 'WHATEVER_VALUES').times(2),
+          },
+        },
+      },
+    });
+
+    const getShoppingList = vi.fn().mockReturnValue(shoppingListResponse);
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', ({ query }) =>
+        HttpResponse.json(getShoppingList(query)),
+      ),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+    );
+
+    const { store } = renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions, global },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    return { getShoppingList, store };
+  };
+
+  it('lets the user sort by product name on the default locale', async () => {
+    const { getShoppingList } = await renderSortedList('https://store.example.com/');
+
+    await userEvent.click(within(screen.getByTestId('tableHead-Product')).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        expect.stringMatching(/orderBy: "productName"/),
+      ),
+    );
+  });
+
+  it('disables sorting by product name and explains why on a non-default locale', async () => {
+    await renderSortedList('https://store.example.com/es');
+
+    const sortLabel = within(screen.getByTestId('tableHead-Product')).getByText('Product');
+
+    await expect(userEvent.click(sortLabel)).rejects.toThrow(/pointer-events: none/);
+
+    await userEvent.hover(sortLabel.parentElement!);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Sorting by name is available only in the default language',
+    );
+  });
+
+  it('resets the sort to the default order when the user switches to a non-default locale', async () => {
+    const { getShoppingList, store } = await renderSortedList('https://store.example.com/');
+
+    await userEvent.click(within(screen.getByTestId('tableHead-Product')).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        expect.stringMatching(/orderBy: "productName"/),
+      ),
+    );
+
+    window.location.href = 'https://store.example.com/es';
+    act(() => {
+      store.dispatch(setLocales([...productTranslationState.locales]));
+    });
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        expect.stringMatching(/orderBy: "-updatedAt"/),
+      ),
+    );
+  });
+
+  it('keeps sorting by product name enabled when product translation is off', async () => {
+    const { getShoppingList } = await renderSortedList(
+      'https://store.example.com/es',
+      buildGlobalStateWith({
+        featureFlags: { 'LOCAL-3280.B2B_email_multi_language': true },
+        locales: productTranslationState.locales,
+      }),
+    );
+
+    await userEvent.click(within(screen.getByTestId('tableHead-Product')).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        expect.stringMatching(/orderBy: "productName"/),
+      ),
+    );
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 });
