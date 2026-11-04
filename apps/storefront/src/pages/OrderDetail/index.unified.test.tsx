@@ -28,6 +28,10 @@ import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/
 import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
 import { Currency, CustomerRole } from '@/types';
+import type {
+  UserMasqueradingCompanyBeginResponse,
+  UserMasqueradingCompanyBeginVariables,
+} from '@/types/gql/masquerading';
 
 import { DigitalDownloadElementsResponse } from './components/getDigitalDownloadElements';
 import OrderDetails from '.';
@@ -657,24 +661,10 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       ...overrides,
     });
 
-    interface BeginMasqueradingVariables {
-      companyId: number;
-    }
-
-    interface BeginMasqueradingResponse {
-      data: {
-        userMasqueradingCompanyBegin: {
-          userMasqueradingCompanyBegin: {
-            companyId: number;
-            companyName: string;
-            bcId: string;
-          };
-        };
-      };
-    }
-
     const mockCrossCompanyOrder = (
-      beginMasquerading: (variables: BeginMasqueradingVariables) => BeginMasqueradingResponse,
+      beginMasquerading: (
+        variables: UserMasqueradingCompanyBeginVariables,
+      ) => UserMasqueradingCompanyBeginResponse,
     ) => {
       server.use(
         graphql.query('GetOrderDetail', () =>
@@ -698,16 +688,20 @@ describe('Order detail path with unified SF GQL flag ON', () => {
         graphql.query('AddressConfig', () =>
           HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
         ),
-        graphql.mutation<BeginMasqueradingResponse['data'], BeginMasqueradingVariables>(
-          'userMasqueradingCompanyBegin',
-          ({ variables }) => HttpResponse.json(beginMasquerading(variables)),
+        graphql.mutation<
+          UserMasqueradingCompanyBeginResponse['data'],
+          UserMasqueradingCompanyBeginVariables
+        >('userMasqueradingCompanyBegin', ({ variables }) =>
+          HttpResponse.json(beginMasquerading(variables)),
         ),
       );
     };
 
     const buildBeginMasqueradingMock = () =>
       vi
-        .fn<(variables: BeginMasqueradingVariables) => BeginMasqueradingResponse>()
+        .fn<
+          (variables: UserMasqueradingCompanyBeginVariables) => UserMasqueradingCompanyBeginResponse
+        >()
         .mockReturnValue({
           data: {
             userMasqueradingCompanyBegin: {
