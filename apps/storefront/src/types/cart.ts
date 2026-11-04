@@ -6,6 +6,7 @@ export interface CreateCartInput {
         productEntityId: number;
       },
     ];
+    locale?: string;
   };
 }
 

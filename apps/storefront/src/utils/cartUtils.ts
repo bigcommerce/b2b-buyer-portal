@@ -1,7 +1,9 @@
 import Cookies from 'js-cookie';
 
 import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { getStorefrontLanguageCode } from '@/lib/lang/getStorefrontLanguageCode';
 import { addNewLineToCart, createNewCart, getCart } from '@/shared/service/bc/graphql/cart';
+import { store } from '@/store';
 
 import { LineItem } from './b3Product/b3Product';
 
@@ -68,11 +70,19 @@ const cartLineItems = (products: any) => {
   return items;
 };
 
-const newDataCart = (productData: any) => ({
-  createCartInput: {
-    lineItems: cartLineItems(productData),
-  },
-});
+const newDataCart = (productData: any) => {
+  const isProductTranslationEnabled = Boolean(
+    store.getState().global.featureFlags['LOCAL-3626.B2B_product_translation'],
+  );
+  const locale = isProductTranslationEnabled ? getStorefrontLanguageCode() : undefined;
+
+  return {
+    createCartInput: {
+      lineItems: cartLineItems(productData),
+      ...(locale && { locale }),
+    },
+  };
+};
 
 export const deleteCartData = (entityId: any) => ({
   deleteCartInput: {
