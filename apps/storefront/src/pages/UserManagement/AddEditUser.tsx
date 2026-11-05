@@ -20,6 +20,7 @@ import {
   getUsersFiles,
   UsersFilesProps,
 } from './config';
+import { fromExtraFieldFormKey, toExtraFieldFormKey } from './extraFieldFormKey';
 import { getUser } from './getUser';
 import getB2BUserExtraFields from './getUserExtraFields';
 import { updateUser } from './updateUser';
@@ -93,7 +94,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
     userExtrafields.forEach((item: UsersFilesProps) => {
       if (keyValue.includes(item.name)) {
         const extraField = {
-          fieldName: item.name || '',
+          fieldName: fromExtraFieldFormKey(item.name),
           fieldValue: selectedData[item.name] || '',
         };
 
@@ -235,7 +236,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
         const extrafieldsData: CustomFieldItems = {};
 
         extrafieldsInfo.forEach((item) => {
-          extrafieldsData[item.fieldName] = item.fieldValue;
+          extrafieldsData[toExtraFieldFormKey(item.fieldName)] = item.fieldValue;
         });
 
         newData = {
