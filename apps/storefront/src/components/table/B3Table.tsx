@@ -238,7 +238,7 @@ function SortableHeaderLabel<Row>({
     </TableSortLabel>
   );
 
-  if (!column.sortDisabledHint) return label;
+  if (!column.isSortDisabled || !column.sortDisabledHint) return label;
 
   return (
     <Tooltip title={column.sortDisabledHint} describeChild>

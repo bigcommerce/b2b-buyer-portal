@@ -4994,6 +4994,12 @@ describe('when product translation is enabled and the store has several locales'
     ],
   });
 
+  const initialHref = window.location.href;
+
+  afterEach(() => {
+    window.location.href = initialHref;
+  });
+
   const renderSortedList = async (href: string, global = productTranslationState) => {
     vitest.mocked(useParams).mockReturnValue({ id: '272989' });
     window.location.href = href;
@@ -5046,7 +5052,7 @@ describe('when product translation is enabled and the store has several locales'
 
     const sortLabel = within(screen.getByTestId('tableHead-Product')).getByText('Product');
 
-    await expect(userEvent.click(sortLabel)).rejects.toThrow(/pointer-events: none/);
+    expect(sortLabel).toHaveAttribute('aria-disabled', 'true');
 
     const hint = 'Sorting by name is available only in the default language';
     const wrapper = sortLabel.parentElement!;

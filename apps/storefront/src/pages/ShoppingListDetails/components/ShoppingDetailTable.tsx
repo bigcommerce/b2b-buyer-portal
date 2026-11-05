@@ -24,12 +24,11 @@ import {
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useIsProductTranslationActive } from '@/hooks/useIsProductTranslationActive';
 import { useMobile } from '@/hooks/useMobile';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
-import { getActiveLocale } from '@/lib/lang/getActiveLocale';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import {
   type CatalogQuickVariantSku,
@@ -157,9 +156,10 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 const defaultSortKey = 'updatedAt';
+const productSortKey = 'Product';
 
 const sortKeys = {
-  Product: 'productName',
+  [productSortKey]: 'productName',
   updatedAt: 'updatedAt',
   Qty: 'quantity',
 };
@@ -227,16 +227,10 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setSearch,
   );
 
-  const isMultiLanguageEnabled = useFeatureFlag('LOCAL-3280.B2B_email_multi_language');
-  const locales = useAppSelector(({ global }) => global.locales);
-  const isProductTranslationEnabled = useFeatureFlag('LOCAL-3626.B2B_product_translation');
-  const isNameSortUnavailable =
-    isProductTranslationEnabled &&
-    isMultiLanguageEnabled &&
-    getActiveLocale(locales)?.isDefault === false;
+  const isNameSortUnavailable = useIsProductTranslationActive();
 
   useEffect(() => {
-    if (isNameSortUnavailable && orderBy === 'Product') {
+    if (isNameSortUnavailable && orderBy === productSortKey) {
       resetSort();
     }
   }, [isNameSortUnavailable, orderBy, resetSort]);
@@ -592,7 +586,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
-      key: 'Product',
+      key: productSortKey,
       title: b3Lang('shoppingList.table.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
