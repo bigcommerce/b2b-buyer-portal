@@ -7,7 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
 import { useB3Lang } from '@/lib/lang';
-import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
+import { usePickerLocale } from '@/lib/lang/usePickerLocale';
 
 import { PickerFormControl } from './styled';
 import Form from './ui';
@@ -33,7 +33,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const pickerRef = useRef<HTMLInputElement | null>(null);
 
   const b3Lang = useB3Lang();
-  const activeLang = getDayjsLocale();
+  const { isLocalized, adapterLocale, localeText } = usePickerLocale();
 
   const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 
@@ -54,6 +54,16 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
 
   const muixPickerProps = muiTextFieldProps || {};
 
+  const getDisplayValue = (storedValue?: string) => {
+    if (!isLocalized || !storedValue) {
+      return storedValue;
+    }
+
+    const parsed = dayjs(storedValue, inputFormat);
+
+    return parsed.isValid() ? parsed.locale(adapterLocale).format('L') : storedValue;
+  };
+
   const handleDatePickerChange = (value: Date) => {
     try {
       setValue(name, dayjs(value).format(inputFormat));
@@ -66,7 +76,11 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
     <>
       <Box ref={container} />
       <PickerFormControl>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale={adapterLocale}
+          localeText={localeText}
+        >
           <Controller
             key={fieldsProps.name}
             {...fieldsProps}
@@ -89,7 +103,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
                         pickerRef.current.blur();
                       }
                     }}
-                    value={getValues(name) || defaultValue}
+                    value={getDisplayValue(getValues(name) || defaultValue)}
                     error={!!errors[name]}
                     helperText={(errors as any)[name] ? (errors as any)[name].message : null}
                   />

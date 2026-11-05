@@ -5,7 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { getDayjsLocale } from '@/utils/b3DateFormat/setDayjsLocale';
+import { usePickerLocale } from '@/lib/lang/usePickerLocale';
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
@@ -29,7 +29,7 @@ export function B3Picker({
   const pickerRef = useRef<HTMLInputElement | null>(null);
   const container = useRef<HTMLInputElement | null>(null);
 
-  const activeLang = getDayjsLocale();
+  const { adapterLocale, localeText } = usePickerLocale();
 
   const [open, setOpen] = useState(false);
   const openPickerClick = () => {
@@ -50,7 +50,11 @@ export function B3Picker({
   return (
     <>
       <Box ref={container} />
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
+      <LocalizationProvider
+        dateAdapter={AdapterDayjs}
+        adapterLocale={adapterLocale}
+        localeText={localeText}
+      >
         <DatePicker
           label={label}
           DialogProps={{
