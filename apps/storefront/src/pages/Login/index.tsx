@@ -184,8 +184,12 @@ function Login(props: PageProps) {
     bcErrors: Awaited<ReturnType<typeof bcLogin>>['errors'],
   ) => {
     if (bcErrors?.[0]) {
-      b2bLogger.error('BC login error:', bcErrors[0]?.message);
-      setLoginFlag('accountIncorrect');
+      const bcErrorMessage = bcErrors[0]?.message;
+      b2bLogger.error('BC login error:', bcErrorMessage);
+      // TODO B2B-6089: drop this check once Storefront GraphQL returns 'Reset password' instead of an internal error.
+      const needsReset =
+        bcErrorMessage === 'Internal server error' && (await getBCForcePasswordReset(email));
+      setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
       return;
     }
 
@@ -237,6 +241,7 @@ function Login(props: PageProps) {
       const { errors: bcErrors } = await bcLogin({ email: data.email, password: data.password });
 
       if (bcErrors?.[0]?.message === 'Reset password') {
+        // TODO B2B-6089: BC's 'Reset password' is authoritative, so set resetPassword without this extra check.
         const needsReset = await getBCForcePasswordReset(data.email);
         setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
         return;
