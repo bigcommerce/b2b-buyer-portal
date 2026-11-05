@@ -15,10 +15,12 @@ import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import B3Spin from '@/components/spin/B3Spin';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
+import { getActiveDateLocale } from '@/lib/lang/getActiveDateLocale';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat } from '@/utils/b3DateFormat';
+import { getRelativeTimeParts } from '@/utils/b3DateFormat/getRelativeTimeParts';
 import { storeHash } from '@/utils/basicConfig';
 
 interface MessageProps {
@@ -47,6 +49,20 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+  const isDateLocalizationEnabled = useFeatureFlag('LOCAL-3509.Translate_b2b_dates');
+  const sentAtMs = (msg.sendTime || 0) * 1000;
+
+  const dateLocale = getActiveDateLocale() ?? 'en';
+
+  const sentTime = isDateLocalizationEnabled
+    ? new Intl.DateTimeFormat(dateLocale, { timeStyle: 'short' }).format(sentAtMs)
+    : format(sentAtMs, 'K:m aa');
+
+  const sentDistance = isDateLocalizationEnabled
+    ? new Intl.RelativeTimeFormat(dateLocale, { numeric: 'always' }).format(
+        ...getRelativeTimeParts(sentAtMs, Date.now()),
+      )
+    : formatDistanceStrict(new Date(sentAtMs), new Date(), { addSuffix: true });
 
   return (
     <Box
@@ -82,7 +98,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             m: '1px',
           }}
         >
-          <Tooltip title={format((msg.sendTime || 0) * 1000, 'K:m aa')} placement="top" arrow>
+          <Tooltip title={sentTime} placement="top" arrow>
             <Box
               sx={{
                 wordBreak: 'break-word',
@@ -102,13 +118,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
                 color: 'rgba(0, 0, 0, 0.38)',
               }}
             >
-              {`${b3Lang('quoteDetail.message.sent')} ${formatDistanceStrict(
-                new Date((msg.sendTime || 0) * 1000),
-                new Date(),
-                {
-                  addSuffix: true,
-                },
-              )}`}
+              {`${b3Lang('quoteDetail.message.sent')} ${sentDistance}`}
             </Box>
           )}
         </Box>

@@ -132,3 +132,68 @@ describe('Message sender grouping (flag off / default)', () => {
     expect(screen.queryByText('Customer: Jane Buyer')).toBeNull();
   });
 });
+
+describe('Message relative time (LOCAL-3509.Translate_b2b_dates enabled)', () => {
+  const originalLocation = window.location;
+
+  const visitStorefront = (code: string) => {
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, href: `https://store.example.com/${code}` },
+      writable: true,
+    });
+  };
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+  });
+
+  const storefront = (code: string, dateLocalization: boolean) => ({
+    preloadedState: {
+      global: buildGlobalStateWith({
+        featureFlags: {
+          'LOCAL-3191.B2B_multi_language': true,
+          'LOCAL-3509.Translate_b2b_dates': dateLocalization,
+        },
+        locales: [
+          { code: 'en', isDefault: true, fullPath: 'https://store.example.com/' },
+          { code, isDefault: false, fullPath: `https://store.example.com/${code}` },
+        ],
+      }),
+    },
+  });
+
+  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 5 * 60;
+
+  it('shows how long ago a message was sent in French', async () => {
+    visitStorefront('fr');
+    renderWithProviders(
+      <Message {...baseProps} msgs={[{ ...ownerMessage, date: fiveMinutesAgo }]} />,
+      storefront('fr', true),
+    );
+    await userEvent.click(await screen.findByText('Message'));
+
+    expect(await screen.findByText(/il y a 5 minutes/)).toBeVisible();
+  });
+
+  it('keeps the English relative time for a language the portal ships no translations for', async () => {
+    visitStorefront('uk');
+    renderWithProviders(
+      <Message {...baseProps} msgs={[{ ...ownerMessage, date: fiveMinutesAgo }]} />,
+      storefront('uk', true),
+    );
+    await userEvent.click(await screen.findByText('Message'));
+
+    expect(await screen.findByText(/5 minutes ago/)).toBeVisible();
+  });
+
+  it('keeps the English relative time when the flag is off', async () => {
+    visitStorefront('fr');
+    renderWithProviders(
+      <Message {...baseProps} msgs={[{ ...ownerMessage, date: fiveMinutesAgo }]} />,
+      storefront('fr', false),
+    );
+    await userEvent.click(await screen.findByText('Message'));
+
+    expect(await screen.findByText(/5 minutes ago/)).toBeVisible();
+  });
+});
