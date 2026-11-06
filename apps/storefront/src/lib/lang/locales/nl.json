@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Nabootsing beëindigen",
   "dashboard.masqueradeModal.title.start": "Begin met nabootsen",
   "dashboard.masqueradeModal.title.end": "Nabootsing voor verkoopmedewerkers beëindigen",
-  "dashboard.masqueradeModal.message": "Met deze actie wordt je winkelmandje geleegd. Wil je doorgaan?",
+  "dashboard.masqueradeModal.message": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "dashboard.masqueradeModal.actions.cancel": "Annuleren",
   "dashboard.masqueradeModal.actions.continue": "Doorgaan",
   "orders.order": "Bestelling",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Boodschappenlijstje bekijken",
   "orderDetail.anotherCompany.tips": "Deze bestelling is gekoppeld aan een ander bedrijf. Als je opnieuw wilt bestellen, iets aan een boodschappenlijstje wilt toevoegen of andere acties wilt uitvoeren, moet je naar dat bedrijf overschakelen.",
   "orderDetail.switchCompany.title": "Ander bedrijf",
-  "orderDetail.switchCompany.content.tipsText": "Om verder te gaan moet je van bedrijf wisselen. Overschakelen naar een ander bedrijf vernieuwt je winkelwagentje.",
+  "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart and draft quote.",
   "orderDetail.digitalProducts.download": "Downloaden",
   "orderDetail.digitalProducts.filesToDownload": "Bestanden om te downloaden",
   "orderDetail.digitalProducts.viewFiles": "Bestanden weergeven",
@@ -768,7 +768,7 @@
   "payment.okButton": "OK",
   "companyHierarchy.table.name": "Naam",
   "companyHierarchy.dialog.title": "Ander bedrijf",
-  "companyHierarchy.dialog.content": "Als je naar een ander bedrijf overschakelt, wordt je winkelmandje vernieuwd. Wil je doorgaan?",
+  "companyHierarchy.dialog.content": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "Je bedrijf",
   "companyHierarchy.chip.selectCompany": "Vertegenwoordigen"
 }

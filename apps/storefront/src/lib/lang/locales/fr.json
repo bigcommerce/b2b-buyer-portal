@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Mettre fin au masquage",
   "dashboard.masqueradeModal.title.start": "Commencer le masquage",
   "dashboard.masqueradeModal.title.end": "Mettre fin au masquage",
-  "dashboard.masqueradeModal.message": "Cette action videra votre panier. Voulez-vous continuer ?",
+  "dashboard.masqueradeModal.message": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "dashboard.masqueradeModal.actions.cancel": "Annuler",
   "dashboard.masqueradeModal.actions.continue": "Continuer",
   "orders.order": "Commande",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Afficher la liste d'achats",
   "orderDetail.anotherCompany.tips": "Cette commande est liée à une autre entreprise. Pour passer une nouvelle commande, ajouter un article à une liste d'achats ou effectuer d'autres actions, vous devez basculer vers cette entreprise.",
   "orderDetail.switchCompany.title": "Changer d'entreprise",
-  "orderDetail.switchCompany.content.tipsText": "Pour continuer, vous devez changer d'entreprise. Passer à une autre entreprise actualisera votre panier d'achat.",
+  "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart and draft quote.",
   "orderDetail.digitalProducts.download": "Télécharger",
   "orderDetail.digitalProducts.filesToDownload": "Fichiers à télécharger",
   "orderDetail.digitalProducts.viewFiles": "Afficher les fichiers",
@@ -768,7 +768,7 @@
   "payment.okButton": "Ok",
   "companyHierarchy.table.name": "Nom",
   "companyHierarchy.dialog.title": "Changer d'entreprise",
-  "companyHierarchy.dialog.content": "Passer à une autre entreprise actualisera votre panier d'achat. Voulez-vous continuer ?",
+  "companyHierarchy.dialog.content": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "Votre entreprise",
   "companyHierarchy.chip.selectCompany": "Représentant"
 }
