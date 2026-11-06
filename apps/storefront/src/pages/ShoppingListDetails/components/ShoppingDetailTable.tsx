@@ -24,6 +24,7 @@ import {
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useIsProductTranslationActive } from '@/hooks/useIsProductTranslationActive';
 import { useMobile } from '@/hooks/useMobile';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
@@ -155,9 +156,10 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 const defaultSortKey = 'updatedAt';
+const productSortKey = 'Product';
 
 const sortKeys = {
-  Product: 'productName',
+  [productSortKey]: 'productName',
   updatedAt: 'updatedAt',
   Qty: 'quantity',
 };
@@ -218,7 +220,20 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [showBackorderDetails, setShowBackorderDetails] = useState(true);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
-  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
+  const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch,
+  );
+
+  const isNameSortUnavailable = useIsProductTranslationActive();
+
+  useEffect(() => {
+    if (isNameSortUnavailable && orderBy === productSortKey) {
+      resetSort();
+    }
+  }, [isNameSortUnavailable, orderBy, resetSort]);
 
   const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
@@ -571,7 +586,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
-      key: 'Product',
+      key: productSortKey,
       title: b3Lang('shoppingList.table.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
@@ -656,6 +671,10 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       },
       width: '45%',
       isSortable: true,
+      isSortDisabled: isNameSortUnavailable,
+      sortDisabledHint: isNameSortUnavailable
+        ? b3Lang('shoppingList.table.sortByNameUnavailable')
+        : undefined,
     },
     {
       key: 'Price',
