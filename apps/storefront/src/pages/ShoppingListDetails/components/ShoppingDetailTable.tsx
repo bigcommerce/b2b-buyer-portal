@@ -230,7 +230,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const isNameSortUnavailable = useIsProductTranslationActive();
 
   useEffect(() => {
-    if (isNameSortUnavailable && orderBy === productSortKey) {
+    if (isNameSortUnavailable && orderBy === productSortKey && defaultSortKey !== productSortKey) {
       resetSort();
     }
   }, [isNameSortUnavailable, orderBy, resetSort]);
