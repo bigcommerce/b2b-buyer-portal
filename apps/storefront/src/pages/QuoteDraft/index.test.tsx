@@ -1,6 +1,7 @@
 import { set } from 'lodash-es';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 import {
+  act,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -27,7 +28,8 @@ import {
   SearchProductsResponse,
   ValidateProductResponse,
 } from '@/shared/service/b2b/graphql/product';
-import { QuoteInfoState } from '@/store/slices/quoteInfo';
+import { GlobalState } from '@/store/slices/global';
+import { QuoteInfoState, setDraftProduct, setDraftQuoteList } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { CreateQuoteResponse, QuoteInfo, QuoteItem } from '@/types/quotes';
 
@@ -6270,5 +6272,462 @@ describe('currency token placement', () => {
     const row = await screen.findByRole('row', { name: /Wool Socks/ });
     expect(within(row).getByRole('cell', { name: '49.00€' })).toBeInTheDocument();
     expect(within(row).getByRole('cell', { name: '147.00€' })).toBeInTheDocument();
+  });
+});
+
+describe('when the storefront locale differs from the one the draft products were added in', () => {
+  const frenchLocale = {
+    code: 'fr',
+    isDefault: false,
+    fullPath: 'https://store.example.com/fr',
+  };
+
+  beforeEach(() => {
+    vi.stubGlobal('location', { href: 'https://store.example.com/fr#/quoteDraft' });
+
+    server.use(
+      graphql.query('Countries', () => HttpResponse.json({ data: { countries: [fakeCountry] } })),
+      graphql.query('Addresses', () =>
+        HttpResponse.json({ data: { addresses: { totalCount: 0, edges: [] } } }),
+      ),
+      graphql.query('getQuoteExtraFields', () =>
+        HttpResponse.json({ data: { quoteExtraFieldsConfig: [] } }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const buildDraftWithProduct = (productName: string) => {
+    const productsSearch = buildProductWith({ name: productName });
+    const draftItem = buildDraftQuoteItemWith({
+      node: { productName, quantity: 3, optionList: '[]', productsSearch },
+    });
+
+    return {
+      productsSearch,
+      quoteInfo: buildQuoteInfoStateWith({
+        draftQuoteInfo: {
+          contactInfo: { email: customerEmail },
+          billingAddress: noAddress,
+          shippingAddress: noAddress,
+        },
+        draftQuoteList: [draftItem],
+      }),
+    };
+  };
+
+  const buildGlobalWithLocales = (
+    locales: (typeof frenchLocale)[],
+    overrides: Partial<GlobalState> = {},
+  ) =>
+    buildGlobalStateWith({
+      locales,
+      featureFlags: {
+        'LOCAL-3280.B2B_email_multi_language': true,
+        'LOCAL-3626.B2B_product_translation': true,
+      },
+      // With backorders enabled the page runs its own SearchProducts request for the draft
+      // products, which would mix its errors and timing into these tests.
+      backorderEnabled: false,
+      ...overrides,
+    });
+
+  const buildTextModifierWith = (
+    displayName: string,
+    overrides: { id?: number; config?: Record<string, unknown> } = {},
+  ) => ({
+    id: 7,
+    product_id: 1,
+    name: displayName,
+    display_name: displayName,
+    type: 'text',
+    required: false,
+    sort_order: 0,
+    option_values: [],
+    config: {},
+    ...overrides,
+  });
+
+  it('shows the product name in the active locale and keeps the quantity', async () => {
+    const { productsSearch, quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+
+    server.use(
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: Number(productsSearch.id),
+                name: 'Wool Socks',
+                variants: [],
+                optionsV3: [],
+                options: [],
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale]),
+      },
+    });
+
+    const row = await screen.findByRole('row', { name: /Wool Socks/ });
+
+    expect(within(row).getByDisplayValue('3')).toBeInTheDocument();
+    expect(screen.queryByText('Chaussettes en laine')).not.toBeInTheDocument();
+  });
+
+  it('translates option labels but keeps stock warnings and selected values from the stored product', async () => {
+    const productId = faker.number.int({ min: 1, max: 100000 });
+    const storedProduct = buildProductWith({
+      id: productId,
+      name: 'Chaussettes en laine',
+      inventoryLevel: 10,
+      inventoryTracking: 'product',
+      variants: [
+        buildVariantWith({ inventory_level: 10, purchasing_disabled: false, sku: 'LC-123' }),
+      ],
+      modifiers: [buildTextModifierWith('Gravure')],
+      allOptions: [buildTextModifierWith('Gravure')],
+    });
+    const draftItem = buildDraftQuoteItemWith({
+      node: {
+        quantity: 100,
+        variantSku: 'LC-123',
+        optionList: JSON.stringify([{ option_id: 'attribute[7]', option_value: 'Bonjour' }]),
+        productName: 'Chaussettes en laine',
+        productsSearch: storedProduct,
+      },
+    });
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+      draftQuoteList: [draftItem],
+    });
+
+    server.use(
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: productId,
+                name: 'Wool Socks',
+                // the refreshed product claims plenty of stock, which must not replace the stored data
+                inventoryLevel: 5000,
+                inventoryTracking: 'product',
+                variants: [
+                  buildVariantWith({
+                    inventory_level: 5000,
+                    purchasing_disabled: false,
+                    sku: 'LC-123',
+                  }),
+                ],
+                optionsV3: [],
+                options: [],
+                modifiers: [buildTextModifierWith('Engraving')],
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale], {
+          blockPendingQuoteNonPurchasableOOS: { isEnableProduct: false },
+          backorderEnabled: false,
+        }),
+      },
+    });
+
+    const row = await screen.findByRole('row', { name: /Wool Socks/ });
+
+    expect(within(row).getByText('Engraving: Bonjour')).toBeInTheDocument();
+    expect(within(row).queryByText(/Gravure/)).not.toBeInTheDocument();
+    expect(within(row).getByText('Insufficient stock')).toBeInTheDocument();
+  });
+
+  it('keeps the product name in the active locale when a line is saved from a copy taken before the refresh finished', async () => {
+    const { productsSearch, quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+
+    server.use(
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: Number(productsSearch.id),
+                name: 'Wool Socks',
+                variants: [],
+                optionsV3: [],
+                options: [],
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+
+    const { store } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale]),
+      },
+    });
+
+    await screen.findByRole('row', { name: /Wool Socks/ });
+
+    // The options editor and the quantity update write back the line as it was before the refresh.
+    const [{ node: refreshedNode }] = store.getState().quoteInfo.draftQuoteList;
+    const staleNode = {
+      ...refreshedNode,
+      quantity: 5,
+      productName: 'Chaussettes en laine',
+      productsSearch: { ...refreshedNode.productsSearch, name: 'Chaussettes en laine' },
+    };
+
+    act(() => {
+      store.dispatch(setDraftProduct({ id: refreshedNode.id, product: { node: staleNode } }));
+    });
+
+    const row = await screen.findByRole('row', { name: /Wool Socks/ });
+
+    expect(within(row).getByDisplayValue('5')).toBeInTheDocument();
+    expect(screen.queryByText('Chaussettes en laine')).not.toBeInTheDocument();
+  });
+
+  it('keeps the options of the stored product when the refreshed product has added or removed options', async () => {
+    const productId = faker.number.int({ min: 1, max: 100000 });
+    const storedModifiers = [
+      buildTextModifierWith('Gravure', { id: 7 }),
+      buildTextModifierWith('Taille', { id: 8 }),
+    ];
+    const storedProduct = buildProductWith({
+      id: productId,
+      name: 'Chaussettes en laine',
+      variants: [buildVariantWith({ sku: 'LC-123' })],
+      modifiers: storedModifiers,
+      allOptions: storedModifiers,
+    });
+    const draftItem = buildDraftQuoteItemWith({
+      node: {
+        variantSku: 'LC-123',
+        optionList: JSON.stringify([
+          { option_id: 'attribute[7]', option_value: 'Bonjour' },
+          { option_id: 'attribute[8]', option_value: 'M' },
+        ]),
+        productName: 'Chaussettes en laine',
+        productsSearch: storedProduct,
+      },
+    });
+    const quoteInfo = buildQuoteInfoStateWith({
+      draftQuoteInfo: {
+        contactInfo: { email: customerEmail },
+        billingAddress: noAddress,
+        shippingAddress: noAddress,
+      },
+      draftQuoteList: [draftItem],
+    });
+
+    server.use(
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: productId,
+                name: 'Wool Socks',
+                variants: [],
+                optionsV3: [],
+                options: [],
+                // the merchant renamed Gravure, dropped Taille and added a modifier with a default
+                modifiers: [
+                  buildTextModifierWith('Engraving', { id: 7 }),
+                  buildTextModifierWith('Surprise', {
+                    id: 9,
+                    config: { default_value: 'a gift' },
+                  }),
+                ],
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale]),
+      },
+    });
+
+    const row = await screen.findByRole('row', { name: /Wool Socks/ });
+
+    expect(within(row).getByText('Engraving: Bonjour')).toBeInTheDocument();
+    expect(within(row).getByText('Taille: M')).toBeInTheDocument();
+    expect(within(row).queryByText(/Surprise/)).not.toBeInTheDocument();
+  });
+
+  it('keeps showing the stored product name without an error message when the refresh request fails', async () => {
+    const { quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+    const searchProducts = vi.fn();
+
+    server.use(
+      graphql.query('SearchProducts', () => {
+        searchProducts();
+
+        return HttpResponse.json({ errors: [{ message: 'Search is down' }] }, { status: 500 });
+      }),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale]),
+      },
+    });
+
+    await waitFor(() => expect(searchProducts).toHaveBeenCalled());
+
+    expect(await screen.findByRole('row', { name: /Chaussettes en laine/ })).toBeInTheDocument();
+    expect(screen.queryByText('Search is down')).not.toBeInTheDocument();
+  });
+
+  it('shows the product name in the active locale on a line added later for a product that was already refreshed', async () => {
+    const { productsSearch, quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+    const searchProducts = vi.fn();
+
+    server.use(
+      graphql.query('SearchProducts', () => {
+        searchProducts();
+
+        return HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: Number(productsSearch.id),
+                name: 'Wool Socks',
+                variants: [],
+                optionsV3: [],
+                options: [],
+              }),
+            ],
+          },
+        });
+      }),
+    );
+
+    const { store } = renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale]),
+      },
+    });
+
+    await screen.findByRole('row', { name: /Wool Socks/ });
+
+    // A flow that keeps its own product name (CSV import, quick order, shopping list) adds a
+    // second line for the same product, with the name in another language.
+    const [firstLine] = store.getState().quoteInfo.draftQuoteList;
+    const secondLine = buildDraftQuoteItemWith({
+      node: {
+        productName: 'Imported wool socks',
+        quantity: 2,
+        variantSku: 'OTHER-SKU',
+        optionList: '[]',
+        productsSearch: { ...firstLine.node.productsSearch, name: 'Imported wool socks' },
+      },
+    });
+
+    act(() => {
+      store.dispatch(setDraftQuoteList([firstLine, secondLine]));
+    });
+
+    await waitFor(() => expect(screen.queryByText('Imported wool socks')).not.toBeInTheDocument());
+    expect(screen.getAllByRole('row', { name: /Wool Socks/ })).toHaveLength(2);
+    expect(searchProducts).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the stored product name and sends no refresh request when product translation is disabled', async () => {
+    const { quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+    const searchProducts = vi.fn();
+
+    server.use(
+      graphql.query('SearchProducts', () => {
+        searchProducts();
+
+        return HttpResponse.json({ data: { productsSearch: [] } });
+      }),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([frenchLocale], {
+          featureFlags: {
+            'LOCAL-3280.B2B_email_multi_language': true,
+            'LOCAL-3626.B2B_product_translation': false,
+          },
+        }),
+      },
+    });
+
+    expect(await screen.findByRole('row', { name: /Chaussettes en laine/ })).toBeInTheDocument();
+    expect(searchProducts).not.toHaveBeenCalled();
+  });
+
+  it('keeps the stored product name when the storefront locale is unknown', async () => {
+    const { productsSearch, quoteInfo } = buildDraftWithProduct('Chaussettes en laine');
+
+    server.use(
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json({
+          data: {
+            productsSearch: [
+              buildSearchProductWith({
+                id: Number(productsSearch.id),
+                name: 'Wool Socks',
+                variants: [],
+                optionsV3: [],
+                options: [],
+              }),
+            ],
+          },
+        }),
+      ),
+    );
+
+    renderWithProviders(<QuoteDraft setOpenPage={vi.fn()} />, {
+      preloadedState: {
+        ...preloadedState,
+        quoteInfo,
+        global: buildGlobalWithLocales([]),
+      },
+    });
+
+    expect(await screen.findByRole('row', { name: /Chaussettes en laine/ })).toBeInTheDocument();
+    expect(screen.queryByText('Wool Socks')).not.toBeInTheDocument();
   });
 });
