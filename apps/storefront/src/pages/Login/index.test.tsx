@@ -11,6 +11,7 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
+import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { setupStore } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
 import { CustomerRole } from '@/types';
@@ -26,6 +27,8 @@ vi.mock('./useLogout', () => ({
 }));
 
 vi.mock('@/utils/loginInfo');
+
+vi.mock('@/hooks/useB2BCallback');
 
 // The BC-first login flow logs failures via b2bLogger (console.error), which
 // fails the suite under CI's fail-on-console rule — mock it out.
@@ -54,8 +57,6 @@ describe('LoginPage', () => {
 
   describe('successful login and redirects', () => {
     it('should redirect junior buyer to /shoppingLists after successful login', async () => {
-      vi.mock('@/hooks/useB2BCallback');
-
       server.use(
         graphql.mutation('Login', () => {
           return HttpResponse.json({
@@ -94,8 +95,6 @@ describe('LoginPage', () => {
     });
 
     it('should redirect SuperAdmin to /dashboard after successful login', async () => {
-      vi.mock('@/hooks/useB2BCallback');
-
       server.use(
         graphql.mutation('Login', () => {
           return HttpResponse.json({
@@ -526,6 +525,124 @@ describe('LoginPage', () => {
 
       expect(store.getState().company.tokens.B2BToken).toBe('b2b-token');
       expect(store.getState().company.tokens.currentCustomerJWT).toBe('jwt-token');
+    });
+
+    it('fires on-login once without a storefront token after a successful login', async () => {
+      // given
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ data: { authorization: { result: { token: 'b2b-token' } } } }),
+        ),
+      );
+      vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+        userType: 5,
+        role: 2,
+        companyRoleName: 'Junior Buyer',
+      });
+
+      // when
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      // then
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+      });
+      expect(dispatchEvent).toHaveBeenCalledTimes(1);
+      expect(dispatchEvent).toHaveBeenCalledWith('on-login');
+    });
+
+    it('does not fire on-login when the BC login fails', async () => {
+      // given
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Invalid credentials' }],
+          }),
+        ),
+      );
+
+      // when
+      await renderBcFirstLoginAndSubmit();
+
+      // then
+      expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
+      expect(dispatchEvent).not.toHaveBeenCalled();
+    });
+
+    it('does not fire on-login when the B2B token exchange fails', async () => {
+      // given
+      server.use(
+        bcGraphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: { result: { token: 'bc', storefrontLoginToken: 'sf', permissions: [] } },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => HttpResponse.text('jwt-token')),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ errors: [{ message: 'Authorization failed' }] }),
+        ),
+      );
+
+      // when
+      await renderBcFirstLoginAndSubmit();
+
+      // then
+      await waitFor(() => {
+        expect(snackbar.error).toHaveBeenCalledWith(ACCOUNT_INCORRECT_MESSAGE);
+      });
+      expect(dispatchEvent).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('legacy login flow (flag off)', () => {
+    it('fires on-login with the storefront login token', async () => {
+      // given
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: {
+                result: {
+                  storefrontLoginToken: 'sf-login-token',
+                  token: 'b2b-token',
+                  permissions: [{ code: '1', permissionLevel: 1 }],
+                },
+              },
+            },
+          }),
+        ),
+      );
+      vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+        userType: 5,
+        role: 2,
+        companyRoleName: 'Junior Buyer',
+      });
+
+      // when
+      const { navigation } = renderLoginPage();
+      await userEvent.type(screen.getByLabelText('Email address *'), 'test@example.com');
+      await userEvent.type(screen.getByLabelText('Password *'), 'Password123');
+      await userEvent.keyboard('{Enter}');
+
+      // then
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+      });
+      expect(dispatchEvent).toHaveBeenCalledTimes(1);
+      expect(dispatchEvent).toHaveBeenCalledWith('on-login', {
+        storefrontToken: 'sf-login-token',
+      });
     });
   });
 

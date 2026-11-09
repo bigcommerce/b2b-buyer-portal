@@ -196,6 +196,7 @@ function Login(props: PageProps) {
     }
 
     storeDispatch(setB2BToken(B2BToken));
+    dispatchEvent('on-login');
     await finishLoginAndNavigate(B2BToken);
   };
 
