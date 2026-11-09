@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Afslut maskering",
   "dashboard.masqueradeModal.title.start": "Start maskering",
   "dashboard.masqueradeModal.title.end": "Afslut maskering",
-  "dashboard.masqueradeModal.message": "Denne handling vil tømme din indkøbskurv. Vil du fortsætte?",
+  "dashboard.masqueradeModal.message": "Denne handling vil tømme din indkøbskurv og dit tilbudsudkast. Vil du fortsætte?",
   "dashboard.masqueradeModal.actions.cancel": "Annuller",
   "dashboard.masqueradeModal.actions.continue": "Fortsæt",
   "orders.order": "Ordre",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Se indkøbsliste",
   "orderDetail.anotherCompany.tips": "Denne ordre er relateret til en anden virksomhed. For at genbestille, tilføje til en indkøbsliste eller udføre andre handlinger skal du skifte til den pågældende virksomhed.",
   "orderDetail.switchCompany.title": "Skift virksomhed",
-  "orderDetail.switchCompany.content.tipsText": "For at fortsætte skal du skifte virksomhed. Hvis du skifter til en anden virksomhed, opdateres din indkøbskurv.",
+  "orderDetail.switchCompany.content.tipsText": "For at fortsætte skal du skifte virksomhed. Hvis du skifter til en anden virksomhed, opdateres din indkøbskurv og dit tilbudsudkast.",
   "orderDetail.digitalProducts.download": "Download",
   "orderDetail.digitalProducts.filesToDownload": "Filer til download",
   "orderDetail.digitalProducts.viewFiles": "Se filer",
@@ -768,7 +768,7 @@
   "payment.okButton": "OK",
   "companyHierarchy.table.name": "Navn",
   "companyHierarchy.dialog.title": "Skift virksomhed",
-  "companyHierarchy.dialog.content": "Hvis du skifter til en anden virksomhed, opdateres din indkøbskurv. Vil du fortsætte?",
+  "companyHierarchy.dialog.content": "Denne handling vil tømme din indkøbskurv og dit tilbudsudkast. Vil du fortsætte?",
   "companyHierarchy.chip.currentCompany": "Din virksomhed",
   "companyHierarchy.chip.selectCompany": "Viser"
 }
