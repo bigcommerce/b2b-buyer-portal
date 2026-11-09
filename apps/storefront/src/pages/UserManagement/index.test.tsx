@@ -1022,3 +1022,231 @@ describe('when the "Edit user" modal is open and the user has a custom field val
     expect(customTextFieldLabel).not.toHaveValue('Some short amount of text');
   });
 });
+
+const buildCustomTextField = (fieldName: string) =>
+  buildUserExtraFieldWith({
+    fieldName,
+    labelName: fieldName,
+    fieldType: 0,
+    isRequired: false,
+    defaultValue: '',
+    // the builder's random limit would otherwise truncate the typed text
+    maximumLength: '255',
+    visibleToEnduser: true,
+  });
+
+const openEditUserModal = async (
+  customFields: ReturnType<typeof buildCustomTextField>[],
+  userOverrides: Partial<UserResponse['data']['user']> = {},
+) => {
+  const troyMcClureSummary = buildUserEdgeWith({
+    node: { id: '667668', firstName: 'Troy', lastName: 'McClure' },
+  });
+
+  const troyMcClureDetails = buildUserWith({
+    ...troyMcClureSummary.node,
+    extraFields: [],
+    ...userOverrides,
+  });
+
+  const updateUserVariablesSpy = vi.fn();
+
+  server.use(
+    graphql.mutation('UpdateUser', ({ variables }) => {
+      updateUserVariablesSpy(variables);
+
+      return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
+    }),
+    graphql.query('GetUserExtraFields', () =>
+      HttpResponse.json(
+        buildUserExtraFieldsResponseWith({ data: { userExtraFields: customFields } }),
+      ),
+    ),
+    graphql.query('GetUsers', () =>
+      HttpResponse.json(
+        buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
+      ),
+    ),
+    graphql.query('GetUser', () =>
+      HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
+    ),
+  );
+
+  renderWithProviders(<UserManagement />, { preloadedState });
+
+  expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+
+  // the 0th edit button is the search filter button
+  await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
+
+  return { modal: await screen.findByRole('dialog'), updateUserVariablesSpy };
+};
+
+describe.each([
+  { reason: 'square brackets', fieldName: '[Company User Extra Field] User ERP ID' },
+  { reason: 'a dot', fieldName: 'Dept. Code' },
+  { reason: 'an apostrophe', fieldName: "Employee's ID" },
+  { reason: 'only plain words', fieldName: 'Company department' },
+])('when a custom field name contains $reason', ({ fieldName }) => {
+  it('sends the value typed into the custom field when a user is updated', async () => {
+    const { modal, updateUserVariablesSpy } = await openEditUserModal([
+      buildCustomTextField(fieldName),
+    ]);
+
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: fieldName }),
+      'Updated by Gary',
+    );
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    expect(updateUserVariablesSpy).toHaveBeenCalledWith({
+      userData: expect.objectContaining({
+        extraFields: [{ fieldName, fieldValue: 'Updated by Gary' }],
+      }),
+    });
+  });
+
+  it('sends the value typed into the custom field when a user is added', async () => {
+    const customTextField = buildCustomTextField(fieldName);
+
+    const adminRole = buildCompanyRoleEdgeWith({ node: { name: 'Admin', id: '9979' } });
+
+    const createUserVariablesSpy = vi.fn();
+
+    server.use(
+      graphql.query('GetUserExtraFields', () =>
+        HttpResponse.json(
+          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customTextField] } }),
+        ),
+      ),
+      graphql.query('GetUsers', () => HttpResponse.json(buildUsersResponseWith('WHATEVER_VALUES'))),
+      graphql.query('CompanyRoles', () =>
+        HttpResponse.json(
+          buildCompanyRolesResponseWith({ data: { companyRoles: { edges: [adminRole] } } }),
+        ),
+      ),
+      graphql.query('UserEmailCheck', () =>
+        HttpResponse.json(
+          buildUserEmailCheckResponseWith({
+            data: { userEmailCheck: { userType: UserTypes.DOES_NOT_EXIST } },
+          }),
+        ),
+      ),
+      graphql.mutation('CreateUser', ({ variables }) => {
+        createUserVariablesSpy(variables);
+
+        return HttpResponse.json({ data: { userCreate: { user: { id: '11028125', bcId: 13 } } } });
+      }),
+    );
+
+    renderWithProviders(<UserManagement />, { preloadedState });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new user' }));
+
+    const modal = await screen.findByRole('dialog');
+
+    await userEvent.click(within(modal).getByRole('combobox', { name: 'User role' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'Admin' }));
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'First name' }), 'Gary');
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'Last name' }), 'McClure');
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Email' }),
+      'gary.mcclure@acme.com',
+    );
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: 'Phone number' }),
+      '04747665241',
+    );
+    await userEvent.type(within(modal).getByRole('textbox', { name: fieldName }), 'Added by Gary');
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    expect(createUserVariablesSpy).toHaveBeenCalledWith({
+      userData: expect.objectContaining({
+        extraFields: [{ fieldName, fieldValue: 'Added by Gary' }],
+      }),
+    });
+  });
+});
+
+describe('when the "Edit user" modal has custom fields whose names would clash in the form', () => {
+  it.each([
+    { reason: 'brackets', first: '[Region] ERP ID', second: 'Region ERP ID' },
+    { reason: 'an apostrophe', first: "Employee's ID", second: 'Employees ID' },
+    { reason: 'a dotted child of another field name', first: 'Dept', second: 'Dept. Code' },
+  ])('sends each value when two custom field names differ only by $reason', async (names) => {
+    const { modal, updateUserVariablesSpy } = await openEditUserModal([
+      buildCustomTextField(names.first),
+      buildCustomTextField(names.second),
+    ]);
+
+    await userEvent.type(within(modal).getByRole('textbox', { name: names.first }), 'First value');
+    await userEvent.type(
+      within(modal).getByRole('textbox', { name: names.second }),
+      'Second value',
+    );
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    expect(updateUserVariablesSpy).toHaveBeenCalledWith({
+      userData: expect.objectContaining({
+        extraFields: [
+          { fieldName: names.first, fieldValue: 'First value' },
+          { fieldName: names.second, fieldValue: 'Second value' },
+        ],
+      }),
+    });
+  });
+
+  it('does not change a built-in field when a custom field has the same name', async () => {
+    const { modal, updateUserVariablesSpy } = await openEditUserModal(
+      [buildCustomTextField('phone')],
+      { phone: '5550100' },
+    );
+
+    await userEvent.type(within(modal).getByRole('textbox', { name: 'phone' }), 'ext 42');
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    expect(updateUserVariablesSpy).toHaveBeenCalledWith({
+      userData: expect.objectContaining({
+        phone: '5550100',
+        extraFields: [{ fieldName: 'phone', fieldValue: 'ext 42' }],
+      }),
+    });
+  });
+
+  it("keeps a custom field's existing value when only another field is edited", async () => {
+    const { modal, updateUserVariablesSpy } = await openEditUserModal(
+      [buildCustomTextField('[Region] ERP ID')],
+      { extraFields: [{ fieldName: '[Region] ERP ID', fieldValue: 'ERP-1' }] },
+    );
+
+    expect(within(modal).getByRole('textbox', { name: '[Region] ERP ID' })).toHaveValue('ERP-1');
+
+    const firstNameField = within(modal).getByRole('textbox', { name: 'First name' });
+
+    await userEvent.clear(firstNameField);
+    await userEvent.type(firstNameField, 'Gary');
+
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save user' }));
+
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+    expect(updateUserVariablesSpy).toHaveBeenCalledWith({
+      userData: expect.objectContaining({
+        firstName: 'Gary',
+        extraFields: [{ fieldName: '[Region] ERP ID', fieldValue: 'ERP-1' }],
+      }),
+    });
+  });
+});

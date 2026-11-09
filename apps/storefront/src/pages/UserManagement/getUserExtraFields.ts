@@ -1,5 +1,6 @@
 import b2bLogger from '@/utils/b3Logger';
 
+import { encodeExtraFieldFormKey } from './extraFieldFormKey';
 import { getUsersExtraFieldsInfo, UserExtraFieldsInfoResponse } from './getUsersExtraFieldsInfo';
 
 interface FieldsOptionProps {
@@ -28,7 +29,7 @@ const handleConversionExtraItemFormat = (userExtraFields: UserExtraFields) => {
 
     const currentItems: FormattedItemsProps = {
       isExtraFields: true,
-      name: item.fieldName,
+      name: encodeExtraFieldFormKey(item.fieldName),
       label: item.labelName,
       required: item.isRequired,
       default: item.defaultValue || '',
