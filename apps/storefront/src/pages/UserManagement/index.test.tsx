@@ -1023,66 +1023,75 @@ describe('when the "Edit user" modal is open and the user has a custom field val
   });
 });
 
-// B2B-6091: custom field names are merchant-defined, so they can contain characters that
-// react-hook-form treats as path syntax (".", "[", "]", quotes), which used to drop the value.
+const buildCustomTextField = (fieldName: string) =>
+  buildUserExtraFieldWith({
+    fieldName,
+    labelName: fieldName,
+    fieldType: 0,
+    isRequired: false,
+    defaultValue: '',
+    // the builder's random limit would otherwise truncate the typed text
+    maximumLength: '255',
+    visibleToEnduser: true,
+  });
+
+const openEditUserModal = async (
+  customFields: ReturnType<typeof buildCustomTextField>[],
+  userOverrides: Partial<UserResponse['data']['user']> = {},
+) => {
+  const troyMcClureSummary = buildUserEdgeWith({
+    node: { id: '667668', firstName: 'Troy', lastName: 'McClure' },
+  });
+
+  const troyMcClureDetails = buildUserWith({
+    ...troyMcClureSummary.node,
+    extraFields: [],
+    ...userOverrides,
+  });
+
+  const updateUserVariablesSpy = vi.fn();
+
+  server.use(
+    graphql.mutation('UpdateUser', ({ variables }) => {
+      updateUserVariablesSpy(variables);
+
+      return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
+    }),
+    graphql.query('GetUserExtraFields', () =>
+      HttpResponse.json(
+        buildUserExtraFieldsResponseWith({ data: { userExtraFields: customFields } }),
+      ),
+    ),
+    graphql.query('GetUsers', () =>
+      HttpResponse.json(
+        buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
+      ),
+    ),
+    graphql.query('GetUser', () =>
+      HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
+    ),
+  );
+
+  renderWithProviders(<UserManagement />, { preloadedState });
+
+  expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
+
+  // the 0th edit button is the search filter button
+  await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
+
+  return { modal: await screen.findByRole('dialog'), updateUserVariablesSpy };
+};
+
 describe.each([
   { reason: 'square brackets', fieldName: '[Company User Extra Field] User ERP ID' },
   { reason: 'a dot', fieldName: 'Dept. Code' },
   { reason: 'an apostrophe', fieldName: "Employee's ID" },
   { reason: 'only plain words', fieldName: 'Company department' },
 ])('when a custom field name contains $reason', ({ fieldName }) => {
-  const buildCustomTextField = () =>
-    buildUserExtraFieldWith({
-      fieldName,
-      labelName: fieldName,
-      fieldType: 0,
-      isRequired: false,
-      defaultValue: '',
-      // the builder's random limit would otherwise truncate the typed text
-      maximumLength: '255',
-      visibleToEnduser: true,
-    });
-
   it('sends the value typed into the custom field when a user is updated', async () => {
-    const customTextField = buildCustomTextField();
-
-    const troyMcClureSummary = buildUserEdgeWith({
-      node: { id: '667668', firstName: 'Troy', lastName: 'McClure' },
-    });
-
-    const troyMcClureDetails = buildUserWith({ ...troyMcClureSummary.node, extraFields: [] });
-
-    const updateUserVariablesSpy = vi.fn();
-
-    server.use(
-      graphql.mutation('UpdateUser', ({ variables }) => {
-        updateUserVariablesSpy(variables);
-
-        return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
-      }),
-      graphql.query('GetUserExtraFields', () =>
-        HttpResponse.json(
-          buildUserExtraFieldsResponseWith({ data: { userExtraFields: [customTextField] } }),
-        ),
-      ),
-      graphql.query('GetUsers', () =>
-        HttpResponse.json(
-          buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
-        ),
-      ),
-      graphql.query('GetUser', () =>
-        HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
-      ),
-    );
-
-    renderWithProviders(<UserManagement />, { preloadedState });
-
-    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
-
-    // the 0th edit button is the search filter button
-    await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
-
-    const modal = await screen.findByRole('dialog');
+    const { modal, updateUserVariablesSpy } = await openEditUserModal([
+      buildCustomTextField(fieldName),
+    ]);
 
     await userEvent.type(
       within(modal).getByRole('textbox', { name: fieldName }),
@@ -1101,7 +1110,7 @@ describe.each([
   });
 
   it('sends the value typed into the custom field when a user is added', async () => {
-    const customTextField = buildCustomTextField();
+    const customTextField = buildCustomTextField(fieldName);
 
     const adminRole = buildCompanyRoleEdgeWith({ node: { name: 'Admin', id: '9979' } });
 
@@ -1166,65 +1175,6 @@ describe.each([
 });
 
 describe('when the "Edit user" modal has custom fields whose names would clash in the form', () => {
-  const buildCustomTextField = (fieldName: string) =>
-    buildUserExtraFieldWith({
-      fieldName,
-      labelName: fieldName,
-      fieldType: 0,
-      isRequired: false,
-      defaultValue: '',
-      // the builder's random limit would otherwise truncate the typed text
-      maximumLength: '255',
-      visibleToEnduser: true,
-    });
-
-  const openEditUserModal = async (
-    customFields: ReturnType<typeof buildCustomTextField>[],
-    userOverrides: Partial<UserResponse['data']['user']> = {},
-  ) => {
-    const troyMcClureSummary = buildUserEdgeWith({
-      node: { id: '667668', firstName: 'Troy', lastName: 'McClure' },
-    });
-
-    const troyMcClureDetails = buildUserWith({
-      ...troyMcClureSummary.node,
-      extraFields: [],
-      ...userOverrides,
-    });
-
-    const updateUserVariablesSpy = vi.fn();
-
-    server.use(
-      graphql.mutation('UpdateUser', ({ variables }) => {
-        updateUserVariablesSpy(variables);
-
-        return HttpResponse.json({ data: { userUpdate: { user: { id: '667668', bcId: 12 } } } });
-      }),
-      graphql.query('GetUserExtraFields', () =>
-        HttpResponse.json(
-          buildUserExtraFieldsResponseWith({ data: { userExtraFields: customFields } }),
-        ),
-      ),
-      graphql.query('GetUsers', () =>
-        HttpResponse.json(
-          buildUsersResponseWith({ data: { users: { edges: [troyMcClureSummary] } } }),
-        ),
-      ),
-      graphql.query('GetUser', () =>
-        HttpResponse.json(buildUserResponseWith({ data: { user: troyMcClureDetails } })),
-      ),
-    );
-
-    renderWithProviders(<UserManagement />, { preloadedState });
-
-    expect(await screen.findByRole('heading', { name: 'Troy McClure' })).toBeInTheDocument();
-
-    // the 0th edit button is the search filter button
-    await userEvent.click(screen.getAllByRole('button', { name: 'edit' })[1]);
-
-    return { modal: await screen.findByRole('dialog'), updateUserVariablesSpy };
-  };
-
   it.each([
     { reason: 'brackets', first: '[Region] ERP ID', second: 'Region ERP ID' },
     { reason: 'an apostrophe', first: "Employee's ID", second: 'Employees ID' },

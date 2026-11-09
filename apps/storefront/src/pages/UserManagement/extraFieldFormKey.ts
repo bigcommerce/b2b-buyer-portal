@@ -7,8 +7,8 @@ import { Base64 } from '@/utils/base64';
 // The prefix keeps it from ever matching a built-in field key such as "phone" or "email".
 const EXTRA_FIELD_FORM_KEY_PREFIX = 'extraField_';
 
-export const toExtraFieldFormKey = (fieldName: string) =>
+export const encodeExtraFieldFormKey = (fieldName: string) =>
   `${EXTRA_FIELD_FORM_KEY_PREFIX}${Base64.encode(fieldName)}`;
 
-export const fromExtraFieldFormKey = (formKey: string) =>
+export const decodeExtraFieldFormKey = (formKey: string) =>
   Base64.decode(formKey.slice(EXTRA_FIELD_FORM_KEY_PREFIX.length));

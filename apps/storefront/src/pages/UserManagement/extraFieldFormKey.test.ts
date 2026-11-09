@@ -1,6 +1,6 @@
 import { faker } from 'tests/test-utils';
 
-import { fromExtraFieldFormKey, toExtraFieldFormKey } from './extraFieldFormKey';
+import { decodeExtraFieldFormKey, encodeExtraFieldFormKey } from './extraFieldFormKey';
 
 // react-hook-form reads "." "[" "]" quotes and "|" in a field name as path syntax.
 const awkwardFieldNames = [
@@ -16,21 +16,21 @@ const awkwardFieldNames = [
   'email',
 ];
 
-describe('toExtraFieldFormKey', () => {
+describe('encodeExtraFieldFormKey', () => {
   it.each(awkwardFieldNames)('round-trips %j back to the original field name', (fieldName) => {
-    expect(fromExtraFieldFormKey(toExtraFieldFormKey(fieldName))).toBe(fieldName);
+    expect(decodeExtraFieldFormKey(encodeExtraFieldFormKey(fieldName))).toBe(fieldName);
   });
 
   it('round-trips arbitrary field names', () => {
     const fieldName = faker.string.sample({ min: 1, max: 60 });
 
-    expect(fromExtraFieldFormKey(toExtraFieldFormKey(fieldName))).toBe(fieldName);
+    expect(decodeExtraFieldFormKey(encodeExtraFieldFormKey(fieldName))).toBe(fieldName);
   });
 
   it.each([...awkwardFieldNames, faker.string.sample({ min: 1, max: 60 })])(
     'produces a key without path syntax for %j',
     (fieldName) => {
-      expect(toExtraFieldFormKey(fieldName)).not.toMatch(/[.[\]"'|]/);
+      expect(encodeExtraFieldFormKey(fieldName)).not.toMatch(/[.[\]"'|]/);
     },
   );
 
@@ -39,13 +39,13 @@ describe('toExtraFieldFormKey', () => {
     ["Employee's ID", 'Employees ID'],
     ['Dept', 'Dept. Code'],
   ])('gives %j and %j different keys', (first, second) => {
-    expect(toExtraFieldFormKey(first)).not.toBe(toExtraFieldFormKey(second));
+    expect(encodeExtraFieldFormKey(first)).not.toBe(encodeExtraFieldFormKey(second));
   });
 
   it.each(['companyRoleId', 'email', 'firstName', 'lastName', 'phone'])(
     'never produces the built-in field key %j',
     (builtInKey) => {
-      expect(toExtraFieldFormKey(builtInKey)).not.toBe(builtInKey);
+      expect(encodeExtraFieldFormKey(builtInKey)).not.toBe(builtInKey);
     },
   );
 });
