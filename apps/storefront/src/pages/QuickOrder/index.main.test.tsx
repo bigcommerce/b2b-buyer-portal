@@ -5820,6 +5820,8 @@ describe('when product translation is enabled and the store has several locales'
     locales,
   });
 
+  const hint = 'Sorting by name is available only in the default language';
+
   const initialHref = window.location.href;
 
   afterEach(() => {
@@ -5860,7 +5862,7 @@ describe('when product translation is enabled and the store has several locales'
     const { getRecentlyOrderedProducts } = await renderQuickOrder('https://store.example.com/');
 
     const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
-    await userEvent.click(within(productHeader).getByText('Product'));
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
 
     await waitFor(() =>
       expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
@@ -5870,27 +5872,34 @@ describe('when product translation is enabled and the store has several locales'
   });
 
   it('disables sorting by product name and explains why on a non-default locale', async () => {
-    await renderQuickOrder('https://store.example.com/es');
+    const { getRecentlyOrderedProducts } = await renderQuickOrder('https://store.example.com/es');
 
     const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
-    const wrapper = within(productHeader).getByText('Product').parentElement!;
 
-    expect(wrapper).toHaveAttribute('aria-disabled', 'true');
+    expect(within(productHeader).getByRole('button', { name: 'Product' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
 
-    await userEvent.hover(wrapper);
+    const sortLabel = within(productHeader).getByTitle(hint);
+    await userEvent.click(sortLabel);
 
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Sorting by name is available only in the default language',
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(hint);
+    expect(sortLabel).toHaveFocus();
+    expect(sortLabel).toHaveAccessibleDescription(hint);
+    expect(getRecentlyOrderedProducts).not.toHaveBeenCalledWith(
+      stringContainingAll('orderBy: "productName"'),
     );
   });
 
-  it('resets the sort to the default order when the user switches to a non-default locale', async () => {
+  it('resets the name sort once locales load on a non-default locale', async () => {
     const { getRecentlyOrderedProducts, store } = await renderQuickOrder(
-      'https://store.example.com/',
+      'https://store.example.com/es',
+      buildGlobalStateWith({ featureFlags: { 'LOCAL-3626.B2B_product_translation': true } }),
     );
 
     const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
-    await userEvent.click(within(productHeader).getByText('Product'));
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
 
     await waitFor(() =>
       expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
@@ -5898,9 +5907,8 @@ describe('when product translation is enabled and the store has several locales'
       ),
     );
 
-    window.location.href = 'https://store.example.com/es';
     act(() => {
-      store.dispatch(setLocales([...locales]));
+      store.dispatch(setLocales(locales));
     });
 
     await waitFor(() =>
@@ -5917,13 +5925,13 @@ describe('when product translation is enabled and the store has several locales'
     );
 
     const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
-    await userEvent.click(within(productHeader).getByText('Product'));
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
 
     await waitFor(() =>
       expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
         stringContainingAll('orderBy: "productName"'),
       ),
     );
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(within(productHeader).queryByTitle(hint)).not.toBeInTheDocument();
   });
 });

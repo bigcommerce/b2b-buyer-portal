@@ -671,7 +671,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       },
       width: '45%',
       isSortable: true,
-      sortDisabledHint: isNameSortUnavailable
+      sortDisabledReason: isNameSortUnavailable
         ? b3Lang('shoppingList.table.sortByNameUnavailable')
         : undefined,
     },

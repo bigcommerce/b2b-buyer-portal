@@ -477,8 +477,8 @@ function QuickOrderTable({
       },
       width: '40%',
       isSortable: true,
-      sortDisabledHint: isNameSortUnavailable
-        ? b3Lang('shoppingList.table.sortByNameUnavailable')
+      sortDisabledReason: isNameSortUnavailable
+        ? b3Lang('purchasedProducts.sortByNameUnavailable')
         : undefined,
     },
     {

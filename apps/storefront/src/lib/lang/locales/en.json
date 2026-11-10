@@ -277,6 +277,7 @@
   "shoppingLists.card.view": "View",
   "shoppingLists.viewShoppingList": "View shopping list",
   "purchasedProducts.product": "Product",
+  "purchasedProducts.sortByNameUnavailable": "Sorting by name is available only in the default language",
   "purchasedProducts.price": "Price",
   "purchasedProducts.qty": "Qty",
   "purchasedProducts.total": "Total",

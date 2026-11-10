@@ -1,5 +1,8 @@
 import { useCallback, useState } from 'react';
 
+const toOrderBy = (direction: 'asc' | 'desc', field: string) =>
+  `${direction === 'asc' ? '' : '-'}${field}`;
+
 const useSort = <T>(
   sortKeys: { [key: string]: string },
   initKey: string,
@@ -16,17 +19,15 @@ const useSort = <T>(
     setOrderBy(e.key);
     setFilterData({
       ...filterData,
-      orderBy: order === 'desc' ? sortKeys[e.key] : `-${sortKeys[e.key]}`,
+      orderBy: toOrderBy(sortDirection, sortKeys[e.key]),
     });
   };
 
   const resetSort = useCallback(() => {
-    setOrder(sortDirection || 'desc');
+    const initDirection = sortDirection || 'desc';
+    setOrder(initDirection);
     setOrderBy(initKey);
-    setFilterData((prev) => ({
-      ...prev,
-      orderBy: `${sortDirection === 'asc' ? '' : '-'}${sortKeys[initKey]}`,
-    }));
+    setFilterData((prev) => ({ ...prev, orderBy: toOrderBy(initDirection, sortKeys[initKey]) }));
   }, [sortKeys, initKey, sortDirection, setFilterData]);
 
   return [handleSetOrderBy, order, orderBy, resetSort];

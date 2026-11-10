@@ -58,7 +58,7 @@ export interface TableColumnItem<Row> {
   render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
-  sortDisabledHint?: string;
+  sortDisabledReason?: string;
 }
 
 interface TableProps<Row> {
@@ -225,25 +225,27 @@ function SortableHeaderLabel<Row>({
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
 }) {
+  const { sortDisabledReason } = column;
+
+  // Not using `disabled`: it sets pointer-events: none and drops focus, so the tooltip could not explain why.
   const label = (
     <TableSortLabel
       active={column.key === orderBy}
       direction={column.key === orderBy ? sortDirection : 'desc'}
       hideSortIcon={column.key !== orderBy}
-      disabled={!!column.sortDisabledHint}
-      onClick={() => sortByFn && sortByFn(column)}
+      aria-disabled={sortDisabledReason ? true : undefined}
+      sx={sortDisabledReason ? { cursor: 'not-allowed' } : undefined}
+      onClick={() => !sortDisabledReason && sortByFn && sortByFn(column)}
     >
       {column.title}
     </TableSortLabel>
   );
 
-  if (!column.sortDisabledHint) return label;
+  if (!sortDisabledReason) return label;
 
   return (
-    <Tooltip title={column.sortDisabledHint} describeChild>
-      <span role="button" tabIndex={0} aria-disabled>
-        {label}
-      </span>
+    <Tooltip title={sortDisabledReason} describeChild>
+      {label}
     </Tooltip>
   );
 }

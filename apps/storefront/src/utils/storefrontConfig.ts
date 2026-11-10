@@ -334,7 +334,8 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
 
   if (
     featureFlags['LOCAL-3191.B2B_multi_language'] ||
-    featureFlags['LOCAL-3280.B2B_email_multi_language']
+    featureFlags['LOCAL-3280.B2B_email_multi_language'] ||
+    featureFlags['LOCAL-3626.B2B_product_translation']
   ) {
     getLocales()
       .then((res) => store.dispatch(setLocales(res.data.site.settings.locales)))
