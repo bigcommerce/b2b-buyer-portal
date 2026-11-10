@@ -3,6 +3,7 @@
 import Cookies from 'js-cookie';
 import { set } from 'lodash-es';
 import {
+  act,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -35,6 +36,7 @@ import {
   RecentlyOrderedProductsResponse,
 } from '@/shared/service/b2b/graphql/quickOrder';
 import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { setLocales } from '@/store/slices/global';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { LineItem } from '@/utils/b3Product/b3Product';
 
@@ -5804,5 +5806,124 @@ describe('when backorder messaging is enabled on purchased products', () => {
       expect(screen.getByText('2 will be backordered')).toBeVisible();
       expect(screen.getByText('Lead time: 2-4 weeks')).toBeVisible();
     });
+  });
+});
+
+describe('when product translation is enabled and the store has several locales', () => {
+  const locales = [
+    { code: 'en', isDefault: true, fullPath: 'https://store.example.com' },
+    { code: 'es', isDefault: false, fullPath: 'https://store.example.com/es' },
+  ];
+
+  const translationEnabledState = buildGlobalStateWith({
+    featureFlags: { 'LOCAL-3626.B2B_product_translation': true },
+    locales,
+  });
+
+  const initialHref = window.location.href;
+
+  afterEach(() => {
+    window.location.href = initialHref;
+  });
+
+  const renderQuickOrder = async (href: string, global = translationEnabledState) => {
+    window.location.href = href;
+
+    const getRecentlyOrderedProducts = vi.fn().mockReturnValue(
+      buildGetRecentlyOrderedProductsWith({
+        data: {
+          orderedProducts: {
+            totalCount: 2,
+            edges: bulk(buildRecentlyOrderedProductNodeWith, 'WHATEVER_VALUES').times(2),
+          },
+        },
+      }),
+    );
+
+    server.use(
+      graphql.query('RecentlyOrderedProducts', ({ query }) =>
+        HttpResponse.json(getRecentlyOrderedProducts(query)),
+      ),
+      graphql.query('SearchProducts', () => HttpResponse.json({ data: { productsSearch: [] } })),
+    );
+
+    const { store } = renderWithProviders(<QuickOrder />, {
+      preloadedState: { ...preloadedState, global },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    return { getRecentlyOrderedProducts, store };
+  };
+
+  it('lets the user sort by product name on the default locale', async () => {
+    const { getRecentlyOrderedProducts } = await renderQuickOrder('https://store.example.com/');
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+  });
+
+  it('disables sorting by product name and explains why on a non-default locale', async () => {
+    await renderQuickOrder('https://store.example.com/es');
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    const wrapper = within(productHeader).getByText('Product').parentElement!;
+
+    expect(wrapper).toHaveAttribute('aria-disabled', 'true');
+
+    await userEvent.hover(wrapper);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Sorting by name is available only in the default language',
+    );
+  });
+
+  it('resets the sort to the default order when the user switches to a non-default locale', async () => {
+    const { getRecentlyOrderedProducts, store } = await renderQuickOrder(
+      'https://store.example.com/',
+    );
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+
+    window.location.href = 'https://store.example.com/es';
+    act(() => {
+      store.dispatch(setLocales([...locales]));
+    });
+
+    await waitFor(() =>
+      expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "-lastOrderedAt"'),
+      ),
+    );
+  });
+
+  it('keeps sorting by product name enabled when product translation is off', async () => {
+    const { getRecentlyOrderedProducts } = await renderQuickOrder(
+      'https://store.example.com/es',
+      buildGlobalStateWith({ locales }),
+    );
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByText('Product'));
+
+    await waitFor(() =>
+      expect(getRecentlyOrderedProducts).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 });

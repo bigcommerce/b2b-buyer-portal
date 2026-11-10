@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
@@ -8,6 +8,7 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useIsProductTranslationActive } from '@/hooks/useIsProductTranslationActive';
 import { useMobile } from '@/hooks/useMobile';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
 import { useSort } from '@/hooks/useSort';
@@ -120,9 +121,10 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 const defaultSortKey = 'lastOrderedAt';
+const productSortKey = 'product';
 
 const sortKeys = {
-  product: 'productName',
+  [productSortKey]: 'productName',
   lastOrderedAt: 'lastOrderedAt',
 };
 
@@ -143,7 +145,20 @@ function QuickOrderTable({
     orderBy: `-${sortKeys[defaultSortKey]}`,
   });
 
-  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
+  const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch,
+  );
+
+  const isNameSortUnavailable = useIsProductTranslationActive();
+
+  useEffect(() => {
+    if (isNameSortUnavailable && orderBy === productSortKey) {
+      resetSort();
+    }
+  }, [isNameSortUnavailable, orderBy, resetSort]);
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
@@ -413,7 +428,7 @@ function QuickOrderTable({
 
   const columnItems: TableColumnItem<ProductInfoProps>[] = [
     {
-      key: 'product',
+      key: productSortKey,
       title: b3Lang('purchasedProducts.product'),
       render: (row: CustomFieldItems) => {
         const { optionList, productsSearch, variantId } = row;
@@ -462,6 +477,9 @@ function QuickOrderTable({
       },
       width: '40%',
       isSortable: true,
+      sortDisabledHint: isNameSortUnavailable
+        ? b3Lang('shoppingList.table.sortByNameUnavailable')
+        : undefined,
     },
     {
       key: 'price',
