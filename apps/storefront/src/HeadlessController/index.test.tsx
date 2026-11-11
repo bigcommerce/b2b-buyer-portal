@@ -173,7 +173,8 @@ describe('HeadlessController shopping list registration prompt', () => {
       },
     );
 
-    // The store is updated from outside React's event handlers, so it has to be flushed explicitly
+    // Both the translations and the headless call update the store from outside React's event
+    // handlers, so each has to be flushed explicitly
     act(() => {
       store.dispatch(
         getGlobalTranslations.fulfilled(
@@ -184,9 +185,11 @@ describe('HeadlessController shopping list registration prompt', () => {
       );
     });
 
-    window.b2b.utils.shoppingList.addProductFromPage({
-      productEntityId: faker.number.int(),
-      quantity: faker.number.int({ min: 1, max: 10 }),
+    act(() => {
+      window.b2b.utils.shoppingList.addProductFromPage({
+        productEntityId: faker.number.int(),
+        quantity: faker.number.int({ min: 1, max: 10 }),
+      });
     });
 
     const dialog = await screen.findByRole('dialog');
