@@ -16,6 +16,7 @@ import { setupStore } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils/b3Tip';
+import * as basicConfig from '@/utils/basicConfig';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import LoginPage from './index';
@@ -602,6 +603,47 @@ describe('LoginPage', () => {
         expect(snackbar.error).toHaveBeenCalledWith(ACCOUNT_INCORRECT_MESSAGE);
       });
       expect(dispatchEvent).not.toHaveBeenCalled();
+    });
+
+    it('uses the legacy B2B login and fires on-login with the storefront token when the platform is not bigcommerce', async () => {
+      // given
+      vi.spyOn(basicConfig, 'isBigCommercePlatform').mockReturnValue(false);
+      const currentJwtRequested = vi.fn();
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: {
+              login: {
+                result: {
+                  token: 'legacy-b2b-token',
+                  storefrontLoginToken: 'sf-token',
+                  permissions: [],
+                },
+              },
+            },
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => {
+          currentJwtRequested();
+          return HttpResponse.text('jwt-token');
+        }),
+      );
+      vi.mocked(getCurrentCustomerInfo).mockResolvedValue({
+        userType: 5,
+        role: 2,
+        companyRoleName: 'Junior Buyer',
+      });
+
+      // when
+      const { navigation, store } = await renderBcFirstLoginAndSubmit();
+
+      // then
+      await waitFor(() => {
+        expect(navigation).toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+      });
+      expect(store.getState().company.tokens.B2BToken).toBe('legacy-b2b-token');
+      expect(dispatchEvent).toHaveBeenCalledWith('on-login', { storefrontToken: 'sf-token' });
+      expect(currentJwtRequested).not.toHaveBeenCalled();
     });
   });
 

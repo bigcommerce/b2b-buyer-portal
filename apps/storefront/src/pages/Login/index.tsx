@@ -19,7 +19,7 @@ import { setB2BToken, setCurrentCustomerJWT } from '@/store/slices/company';
 import { LoginFlagType } from '@/types/login';
 import b2bLogger from '@/utils/b3Logger';
 import { snackbar } from '@/utils/b3Tip';
-import { channelId, isCatalystPlatform } from '@/utils/basicConfig';
+import { channelId, isBigCommercePlatform, isCatalystPlatform } from '@/utils/basicConfig';
 import { isCompanyError } from '@/utils/companyUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -51,7 +51,9 @@ function Login(props: PageProps) {
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
 
-  const useBcLoginAndAuthorisation = useFeatureFlag('PROJECT-7920.use_bc_login_and_authorisation');
+  // BC-first login needs a customer JWT, which only Stencil provides; other platforms keep the legacy login.
+  const useBcLoginAndAuthorisation =
+    useFeatureFlag('PROJECT-7920.use_bc_login_and_authorisation') && isBigCommercePlatform();
 
   const quoteDetailToCheckoutUrl = useAppSelector(
     ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
