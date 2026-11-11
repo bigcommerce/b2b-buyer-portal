@@ -90,6 +90,9 @@ export const addProductFromPage = ({
 
 export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const registrationPromptText = useShoppingListRegistrationPromptText();
+  // Click listeners are attached once per button, so they read the latest text through a ref
+  const registrationPromptTextRef = useRef(registrationPromptText);
+  registrationPromptTextRef.current = registrationPromptText;
   const {
     state: { shoppingListBtn },
   } = useContext(CustomStyleContext);
@@ -128,12 +131,12 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         saveFn: jumpRegister,
         setOpenPage,
         registerEnabled,
-        registrationPromptText,
+        registrationPromptText: registrationPromptTextRef.current,
       });
     },
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [role, registerEnabled, registrationPromptText],
+    [role, registerEnabled],
   );
 
   const [openQuickView] = useDomVariation(config['dom.setToShoppingListParentEl']);

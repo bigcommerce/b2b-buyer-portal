@@ -1,16 +1,21 @@
 import {
+  act,
   buildCompanyStateWith,
   builder,
   faker,
   graphql,
   HttpResponse,
   renderWithProviders,
+  screen,
   startMockServer,
   stringContainingAll,
+  within,
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
+import GlobalDialog from '@/components/extraTip/GlobalDialog';
 import { ShoppingListsItemsProps } from '@/pages/ShoppingLists/config';
+import { getGlobalTranslations } from '@/store/appAsyncThunks';
 import { CustomerRole } from '@/types';
 
 import HeadlessController from '.';
@@ -145,5 +150,52 @@ describe('HeadlessController shopping lists utils', () => {
         }),
       ]),
     );
+  });
+});
+
+describe('HeadlessController shopping list registration prompt', () => {
+  it('shows translations that arrive after the headless API was registered', async () => {
+    const translations = {
+      'global.dialog.registration': faker.lorem.words(2),
+      'global.dialog.shoppingListRegisterPrompt': faker.lorem.sentence(),
+    };
+    const newVersion = faker.number.int({ min: 1 });
+
+    const { store } = renderWithProviders(
+      <>
+        <HeadlessController setOpenPage={vi.fn()} />
+        <GlobalDialog />
+      </>,
+      {
+        preloadedState: {
+          company: buildCompanyStateWith({ customer: { role: CustomerRole.GUEST } }),
+        },
+      },
+    );
+
+    // The store is updated from outside React's event handlers, so it has to be flushed explicitly
+    act(() => {
+      store.dispatch(
+        getGlobalTranslations.fulfilled(
+          { globalTranslations: translations, newVersion, multiLanguageEnabled: false },
+          faker.string.uuid(),
+          { channelId: faker.number.int(), newVersion },
+        ),
+      );
+    });
+
+    window.b2b.utils.shoppingList.addProductFromPage({
+      productEntityId: faker.number.int(),
+      quantity: faker.number.int({ min: 1, max: 10 }),
+    });
+
+    const dialog = await screen.findByRole('dialog');
+
+    expect(
+      within(dialog).getByText(translations['global.dialog.registration']),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(translations['global.dialog.shoppingListRegisterPrompt']),
+    ).toBeInTheDocument();
   });
 });

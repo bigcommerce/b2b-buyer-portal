@@ -129,6 +129,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const addQuoteBtnRef = useRef(addQuoteBtn);
   const shoppingListBtnRef = useRef(shoppingListBtn);
   const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn);
+  const registrationPromptTextRef = useRef(registrationPromptText);
 
   salesRepCompanyIdRef.current = Number(salesRepCompanyId);
   customerIdRef.current = customerId;
@@ -141,6 +142,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   addQuoteBtnRef.current = addQuoteBtn;
   shoppingListBtnRef.current = shoppingListBtn;
   addToAllQuoteBtnRef.current = addToAllQuoteBtn;
+  registrationPromptTextRef.current = registrationPromptText;
 
   useEffect(() => {
     window.b2b = {
@@ -265,7 +267,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               saveFn,
               setOpenPage,
               registerEnabled,
-              registrationPromptText,
+              registrationPromptText: registrationPromptTextRef.current,
             });
           },
           addProducts: (shoppingListId, items) =>
