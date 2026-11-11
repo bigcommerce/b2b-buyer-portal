@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 import { Box, FormControlLabel, styled, Switch, TextField, Typography } from '@mui/material';
 
 import BackorderMessage from '@/components/BackorderMessage';
@@ -8,10 +8,10 @@ import { B3PaginationTable, GetRequestList } from '@/components/table/B3Paginati
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useIsProductTranslationActive } from '@/hooks/useIsProductTranslationActive';
 import { useMobile } from '@/hooks/useMobile';
+import { useNameSortDisabledReason } from '@/hooks/useNameSortDisabledReason';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
-import { useSort } from '@/hooks/useSort';
+import { toOrderBy, useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import {
@@ -142,7 +142,7 @@ function QuickOrderTable({
     q: '',
     beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
-    orderBy: `-${sortKeys[defaultSortKey]}`,
+    orderBy: toOrderBy('desc', sortKeys[defaultSortKey]),
   });
 
   const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
@@ -152,13 +152,7 @@ function QuickOrderTable({
     setSearch,
   );
 
-  const isNameSortUnavailable = useIsProductTranslationActive();
-
-  useEffect(() => {
-    if (isNameSortUnavailable && orderBy === productSortKey) {
-      resetSort();
-    }
-  }, [isNameSortUnavailable, orderBy, resetSort]);
+  const nameSortDisabledReason = useNameSortDisabledReason(orderBy, productSortKey, resetSort);
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
@@ -477,9 +471,7 @@ function QuickOrderTable({
       },
       width: '40%',
       isSortable: true,
-      sortDisabledReason: isNameSortUnavailable
-        ? b3Lang('purchasedProducts.sortByNameUnavailable')
-        : undefined,
+      sortDisabledReason: nameSortDisabledReason,
     },
     {
       key: 'price',

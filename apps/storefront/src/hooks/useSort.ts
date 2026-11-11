@@ -33,4 +33,4 @@ const useSort = <T>(
   return [handleSetOrderBy, order, orderBy, resetSort];
 };
 
-export { useSort };
+export { toOrderBy, useSort };
