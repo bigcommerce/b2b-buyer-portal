@@ -25,8 +25,9 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
+import { useNameSortDisabledReason } from '@/hooks/useNameSortDisabledReason';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
-import { useSort } from '@/hooks/useSort';
+import { toOrderBy, useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import {
@@ -155,9 +156,10 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 const defaultSortKey = 'updatedAt';
+const productSortKey = 'Product';
 
 const sortKeys = {
-  Product: 'productName',
+  [productSortKey]: 'productName',
   updatedAt: 'updatedAt',
   Qty: 'quantity',
 };
@@ -201,7 +203,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [optionsProduct, setOptionsProduct] = useState<any>(null);
   const [editProductItemId, setEditProductItemId] = useState<number | string | null>(null);
   const [search, setSearch] = useState<SearchProps>({
-    orderBy: `-${sortKeys[defaultSortKey]}`,
+    orderBy: toOrderBy('desc', sortKeys[defaultSortKey]),
   });
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true);
   const [originProducts, setOriginProducts] = useState<ListItemProps[]>([]);
@@ -218,7 +220,14 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [showBackorderDetails, setShowBackorderDetails] = useState(true);
   const [tableDataVersion, setTableDataVersion] = useState(0);
 
-  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
+  const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch,
+  );
+
+  const nameSortDisabledReason = useNameSortDisabledReason(orderBy, productSortKey, resetSort);
 
   const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const shouldShowBackorderUI = isBackorderEnabled && hasAnyBackorderDisplay;
@@ -571,7 +580,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
-      key: 'Product',
+      key: productSortKey,
       title: b3Lang('shoppingList.table.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
@@ -656,6 +665,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       },
       width: '45%',
       isSortable: true,
+      sortDisabledReason: nameSortDisabledReason,
     },
     {
       key: 'Price',

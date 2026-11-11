@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { set } from 'lodash-es';
 import {
+  act,
   buildCompanyStateWith,
   builder,
   buildGlobalStateWith,
@@ -22,6 +23,7 @@ import { when } from 'vitest-when';
 import { SearchProductsResponse } from '@/shared/service/b2b/graphql/product';
 import { CustomerShoppingListB2B } from '@/shared/service/b2b/graphql/shoppingList';
 import { GetCart } from '@/shared/service/bc/graphql/cart';
+import { setLocales } from '@/store/slices/global';
 import { CompanyStatus, CustomerRole, ShoppingListStatus, UserTypes } from '@/types';
 
 import ShoppingListDetailsContent from '.';
@@ -4977,5 +4979,135 @@ describe('when backorder messaging is enabled in choose options dialog', () => {
     expect(
       within(chooseOptionsDialog).queryByText('6 will be backordered'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('when product translation is enabled and the store has several locales', () => {
+  const locales = [
+    { code: 'en', isDefault: true, fullPath: 'https://store.example.com' },
+    { code: 'es', isDefault: false, fullPath: 'https://store.example.com/es' },
+  ];
+
+  const productTranslationState = buildGlobalStateWith({
+    featureFlags: { 'LOCAL-3626.B2B_product_translation': true },
+    locales,
+  });
+
+  const hint = 'Sorting by name is available only in the default language';
+
+  const initialHref = window.location.href;
+
+  afterEach(() => {
+    window.location.href = initialHref;
+  });
+
+  const renderSortedList = async (href: string, global = productTranslationState) => {
+    vitest.mocked(useParams).mockReturnValue({ id: '272989' });
+    window.location.href = href;
+
+    const shoppingListResponse = buildShoppingListGraphQLResponseWith({
+      data: {
+        shoppingList: {
+          products: {
+            totalCount: 2,
+            edges: bulk(buildShoppingListProductEdgeWith, 'WHATEVER_VALUES').times(2),
+          },
+        },
+      },
+    });
+
+    const getShoppingList = vi.fn().mockReturnValue(shoppingListResponse);
+
+    server.use(
+      graphql.query('B2BShoppingListDetails', ({ query }) =>
+        HttpResponse.json(getShoppingList(query)),
+      ),
+      graphql.query('SearchProducts', () =>
+        HttpResponse.json(buildSearchProductsResponseWith({ data: { productsSearch: [] } })),
+      ),
+    );
+
+    const { store } = renderWithProviders(<ShoppingListDetailsContent setOpenPage={() => {}} />, {
+      preloadedState: { company: b2bCompanyWithShoppingListPermissions, global },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+
+    return { getShoppingList, store };
+  };
+
+  it('lets the user sort by product name on the default locale', async () => {
+    const { getShoppingList } = await renderSortedList('https://store.example.com/');
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+  });
+
+  it('disables sorting by product name and explains why on a non-default locale', async () => {
+    const { getShoppingList } = await renderSortedList('https://store.example.com/es');
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+
+    expect(within(productHeader).getByRole('button', { name: 'Product' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+
+    const sortLabel = within(productHeader).getByTitle(hint);
+    await userEvent.click(sortLabel);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(hint);
+    expect(sortLabel).toHaveFocus();
+    expect(sortLabel).toHaveAccessibleDescription(hint);
+    expect(getShoppingList).not.toHaveBeenCalledWith(stringContainingAll('orderBy: "productName"'));
+  });
+
+  it('resets the name sort once locales load on a non-default locale', async () => {
+    const { getShoppingList, store } = await renderSortedList(
+      'https://store.example.com/es',
+      buildGlobalStateWith({ featureFlags: { 'LOCAL-3626.B2B_product_translation': true } }),
+    );
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+
+    act(() => {
+      store.dispatch(setLocales(locales));
+    });
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "-updatedAt"'),
+      ),
+    );
+  });
+
+  it('keeps sorting by product name enabled when product translation is off', async () => {
+    const { getShoppingList } = await renderSortedList(
+      'https://store.example.com/es',
+      buildGlobalStateWith({ locales }),
+    );
+
+    const productHeader = await screen.findByRole('columnheader', { name: /Product/ });
+    await userEvent.click(within(productHeader).getByRole('button', { name: 'Product' }));
+
+    await waitFor(() =>
+      expect(getShoppingList).toHaveBeenLastCalledWith(
+        stringContainingAll('orderBy: "productName"'),
+      ),
+    );
+    expect(within(productHeader).queryByTitle(hint)).not.toBeInTheDocument();
   });
 });

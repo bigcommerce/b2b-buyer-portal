@@ -16,6 +16,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
@@ -57,6 +58,7 @@ export interface TableColumnItem<Row> {
   render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
+  sortDisabledReason?: string;
 }
 
 interface TableProps<Row> {
@@ -209,6 +211,42 @@ function Row<Row>({
         </TableRow>
       )}
     </>
+  );
+}
+
+function SortableHeaderLabel<Row>({
+  column,
+  orderBy,
+  sortDirection,
+  sortByFn,
+}: {
+  column: TableColumnItem<Row>;
+  orderBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  sortByFn?: (e: { key: string }) => void;
+}) {
+  const { sortDisabledReason } = column;
+
+  // Not using `disabled`: it sets pointer-events: none and drops focus, so the tooltip could not explain why.
+  const label = (
+    <TableSortLabel
+      active={column.key === orderBy}
+      direction={column.key === orderBy ? sortDirection : 'desc'}
+      hideSortIcon={column.key !== orderBy}
+      aria-disabled={sortDisabledReason ? true : undefined}
+      sx={sortDisabledReason ? { cursor: 'not-allowed' } : undefined}
+      onClick={() => !sortDisabledReason && sortByFn && sortByFn(column)}
+    >
+      {column.title}
+    </TableSortLabel>
+  );
+
+  if (!sortDisabledReason) return label;
+
+  return (
+    <Tooltip title={sortDisabledReason} describeChild>
+      {label}
+    </Tooltip>
   );
 }
 
@@ -455,14 +493,12 @@ export function B3Table<Row>({
                         data-testid={column?.key ? `tableHead-${column?.key}` : ''}
                       >
                         {column?.isSortable ? (
-                          <TableSortLabel
-                            active={column.key === orderBy}
-                            direction={column.key === orderBy ? sortDirection : 'desc'}
-                            hideSortIcon={column.key !== orderBy}
-                            onClick={() => sortByFn && sortByFn(column)}
-                          >
-                            {column.title}
-                          </TableSortLabel>
+                          <SortableHeaderLabel
+                            column={column}
+                            orderBy={orderBy}
+                            sortDirection={sortDirection}
+                            sortByFn={sortByFn}
+                          />
                         ) : (
                           column.title
                         )}

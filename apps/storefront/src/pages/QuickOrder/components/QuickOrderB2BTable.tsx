@@ -9,8 +9,9 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
 import { useMobile } from '@/hooks/useMobile';
+import { useNameSortDisabledReason } from '@/hooks/useNameSortDisabledReason';
 import { usePicklistInventory } from '@/hooks/usePicklistInventory';
-import { useSort } from '@/hooks/useSort';
+import { toOrderBy, useSort } from '@/hooks/useSort';
 import { useB3Lang } from '@/lib/lang';
 import { getOrderedProducts, searchProducts } from '@/shared/service/b2b';
 import {
@@ -120,9 +121,10 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 const defaultSortKey = 'lastOrderedAt';
+const productSortKey = 'product';
 
 const sortKeys = {
-  product: 'productName',
+  [productSortKey]: 'productName',
   lastOrderedAt: 'lastOrderedAt',
 };
 
@@ -140,10 +142,17 @@ function QuickOrderTable({
     q: '',
     beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
-    orderBy: `-${sortKeys[defaultSortKey]}`,
+    orderBy: toOrderBy('desc', sortKeys[defaultSortKey]),
   });
 
-  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
+  const [handleSetOrderBy, order, orderBy, resetSort] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch,
+  );
+
+  const nameSortDisabledReason = useNameSortDisabledReason(orderBy, productSortKey, resetSort);
 
   const [total, setTotalCount] = useState<number>(0);
   const [variantInfoList, setVariantInfoList] = useState<CatalogQuickVariantSku[]>([]);
@@ -413,7 +422,7 @@ function QuickOrderTable({
 
   const columnItems: TableColumnItem<ProductInfoProps>[] = [
     {
-      key: 'product',
+      key: productSortKey,
       title: b3Lang('purchasedProducts.product'),
       render: (row: CustomFieldItems) => {
         const { optionList, productsSearch, variantId } = row;
@@ -462,6 +471,7 @@ function QuickOrderTable({
       },
       width: '40%',
       isSortable: true,
+      sortDisabledReason: nameSortDisabledReason,
     },
     {
       key: 'price',

@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+
+const toOrderBy = (direction: 'asc' | 'desc', field: string) =>
+  `${direction === 'asc' ? '' : '-'}${field}`;
 
 const useSort = <T>(
   sortKeys: { [key: string]: string },
@@ -6,7 +9,7 @@ const useSort = <T>(
   filterData: T,
   setFilterData: React.Dispatch<React.SetStateAction<T>>,
   sortDirection?: 'asc' | 'desc',
-): [(e: { key: string }) => void, 'asc' | 'desc', string] => {
+): [(e: { key: string }) => void, 'asc' | 'desc', string, () => void] => {
   const [order, setOrder] = useState<'asc' | 'desc'>(sortDirection || 'desc');
   const [orderBy, setOrderBy] = useState<string>(initKey);
 
@@ -16,11 +19,18 @@ const useSort = <T>(
     setOrderBy(e.key);
     setFilterData({
       ...filterData,
-      orderBy: order === 'desc' ? sortKeys[e.key] : `-${sortKeys[e.key]}`,
+      orderBy: toOrderBy(sortDirection, sortKeys[e.key]),
     });
   };
 
-  return [handleSetOrderBy, order, orderBy];
+  const resetSort = useCallback(() => {
+    const initDirection = sortDirection || 'desc';
+    setOrder(initDirection);
+    setOrderBy(initKey);
+    setFilterData((prev) => ({ ...prev, orderBy: toOrderBy(initDirection, sortKeys[initKey]) }));
+  }, [sortKeys, initKey, sortDirection, setFilterData]);
+
+  return [handleSetOrderBy, order, orderBy, resetSort];
 };
 
-export { useSort };
+export { toOrderBy, useSort };
