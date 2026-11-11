@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { isEqual, pick } from 'lodash-es';
 import type { PersistConfig, PersistedState } from 'redux-persist';
 import { getStoredState, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -12,6 +13,10 @@ import {
   ShippingAddress,
 } from '@/types/quotes';
 import b2bLogger from '@/utils/b3Logger';
+import {
+  mergeLegacyOptionsText,
+  mergeOptionsText,
+} from '@/utils/b3Product/shared/mergeOptionsText';
 
 interface SetDraftProductQuantityParams {
   id: string;
@@ -27,6 +32,8 @@ interface SetDraftProductCalculatedValueParams {
   index: number;
   calculatedValue: CalculatedValue;
 }
+
+type LocalizedDraftProduct = QuoteItem['node']['productsSearch'];
 
 export interface QuoteInfoState {
   draftQuoteList: QuoteItem[];
@@ -117,6 +124,39 @@ const draftQuoteListSlice = createSlice({
         }
       });
     },
+    refreshDraftProductsLocalization: (
+      state,
+      { payload }: PayloadAction<LocalizedDraftProduct[]>,
+    ) => {
+      state.draftQuoteList.forEach(({ node }) => {
+        const localized = payload.find(({ id }) => Number(id) === Number(node.productsSearch?.id));
+
+        if (!localized) return;
+
+        const stored = node.productsSearch;
+
+        // Only translated text is taken from the new search result. Which options exist, their
+        // defaults, inventory, availability and price visibility stay as stored, so the options
+        // that are submitted and the draft warnings don't change on a language refresh.
+        const translated = {
+          name: localized.name,
+          options: mergeLegacyOptionsText(stored.options, localized.options),
+          optionsV3: mergeOptionsText(stored.optionsV3, localized.optionsV3),
+          modifiers: mergeOptionsText(stored.modifiers, localized.modifiers),
+          allOptions: mergeOptionsText(stored.allOptions, localized.allOptions),
+        };
+
+        // Nothing is written when the text is already up to date, so the state keeps its identity
+        // and the refresh can run after every draft change without causing another one.
+        if (node.productName !== localized.name) {
+          node.productName = localized.name;
+        }
+
+        if (!isEqual(pick(stored, Object.keys(translated)), translated)) {
+          node.productsSearch = { ...stored, ...translated };
+        }
+      });
+    },
     setDraftProductCalculatedValue: (
       state,
       { payload }: PayloadAction<SetDraftProductCalculatedValueParams>,
@@ -168,6 +208,7 @@ export const {
   deleteProductFromDraftQuoteList,
   setDraftProductQuantity,
   setDraftProduct,
+  refreshDraftProductsLocalization,
   setDraftProductCalculatedValue,
   setDraftQuoteCalculatedPrices,
   setQuoteUserId,

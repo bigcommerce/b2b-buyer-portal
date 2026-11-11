@@ -484,7 +484,7 @@ interface ValidateProductsResponse {
   };
 }
 
-export const searchProducts = (data: CustomFieldItems = {}) => {
+export const searchProducts = (data: CustomFieldItems = {}, suppressSnackbar = false) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
   const { featureFlags } = store.getState().global;
@@ -495,34 +495,40 @@ export const searchProducts = (data: CustomFieldItems = {}) => {
     featureFlags['B2B-3705.increase_graphql_limits_inline_with_platform_api'];
 
   if (separateQueryAndVariablesForProductSearches) {
-    return B3Request.graphqlB2B({
-      query: getSearchProductsQuery(data, true),
-      variables: {
-        search: data?.search || '',
-        // One of the calls to this API uses productId values that have been returned from the
-        // backend as strings.
-        // This is incorrect for the datatype, but in sending the values back as variables rather
-        // than interpolated into the query, we need to force-cast until proper types are enforced
-        // in the model.
-        productIds: data?.productIds ? data?.productIds.map(Number) : [],
-        currencyCode: data?.currencyCode || currencyCode || '',
-        companyId: `${data?.companyId || ''}`,
-        storeHash,
-        channelId,
-        customerGroupId: data?.customerGroupId || 0,
-        ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
-      },
-    });
-  }
-  return B3Request.graphqlB2B({
-    query: getSearchProductsQuery(
+    return B3Request.graphqlB2B(
       {
-        ...data,
-        currencyCode: data?.currencyCode || currencyCode,
+        query: getSearchProductsQuery(data, true),
+        variables: {
+          search: data?.search || '',
+          // One of the calls to this API uses productId values that have been returned from the
+          // backend as strings.
+          // This is incorrect for the datatype, but in sending the values back as variables rather
+          // than interpolated into the query, we need to force-cast until proper types are enforced
+          // in the model.
+          productIds: data?.productIds ? data?.productIds.map(Number) : [],
+          currencyCode: data?.currencyCode || currencyCode || '',
+          companyId: `${data?.companyId || ''}`,
+          storeHash,
+          channelId,
+          customerGroupId: data?.customerGroupId || 0,
+          ...(data?.categoryFilter ? { categoryFilter: data?.categoryFilter } : {}),
+        },
       },
-      false,
-    ),
-  });
+      suppressSnackbar,
+    );
+  }
+  return B3Request.graphqlB2B(
+    {
+      query: getSearchProductsQuery(
+        {
+          ...data,
+          currencyCode: data?.currencyCode || currencyCode,
+        },
+        false,
+      ),
+    },
+    suppressSnackbar,
+  );
 };
 
 export type ValidationTarget = 'QUOTE' | 'CART';

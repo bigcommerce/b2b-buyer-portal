@@ -78,6 +78,8 @@ import {
 import Container from '../quote/style';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
+import { useRefreshDraftProductsLocalization } from './hooks/useRefreshDraftProductsLocalization';
+
 type BCAddress = {
   node: BCAddressItemType;
 };
@@ -221,6 +223,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   });
 
   useSetCountry();
+
+  useRefreshDraftProductsLocalization(draftQuoteList);
 
   const contactInfoRef = useRef<InfoRefProps | null>(null);
   const billingRef = useRef<InfoRefProps | null>(null);
