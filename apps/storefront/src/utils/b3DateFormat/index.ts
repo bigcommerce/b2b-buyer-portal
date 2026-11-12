@@ -12,10 +12,23 @@ type Handler = 'formatDate' | 'parseDate';
 
 const fmt = new DateFormatter();
 
+const localizedFormatters = new Map<string, DateFormatter>();
+
 const getFormatter = (): DateFormatter => {
   const locale = getActiveDateLocale();
 
-  return locale ? new DateFormatter({ dateSettings: buildDateSettings(locale) }) : fmt;
+  if (!locale) {
+    return fmt;
+  }
+
+  let formatter = localizedFormatters.get(locale);
+
+  if (!formatter) {
+    formatter = new DateFormatter({ dateSettings: buildDateSettings(locale) });
+    localizedFormatters.set(locale, formatter);
+  }
+
+  return formatter;
 };
 
 const formatCreator =

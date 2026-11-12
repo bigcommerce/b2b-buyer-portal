@@ -919,7 +919,13 @@ describe('when a personal customer visits an order', () => {
       it('keeps the English month name for a language the portal ships no translations for', async () => {
         await renderShippedOrderOnStorefront('uk');
 
-        expect(await screen.findByText('shipped on May 21, by DHL, Free Shipping')).toBeVisible();
+        expect(await screen.findByText('shipped on May, 21, by DHL, Free Shipping')).toBeVisible();
+      });
+
+      it('keeps the legacy shipment sentence on an English storefront', async () => {
+        await renderShippedOrderOnStorefront('en');
+
+        expect(await screen.findByText('shipped on May, 21, by DHL, Free Shipping')).toBeVisible();
       });
     });
   });

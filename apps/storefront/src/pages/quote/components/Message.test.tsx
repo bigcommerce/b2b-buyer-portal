@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { buildGlobalStateWith, renderWithProviders, screen, userEvent } from 'tests/test-utils';
 import { vi } from 'vitest';
 
@@ -195,5 +196,19 @@ describe('Message relative time (LOCAL-3509.Translate_b2b_dates enabled)', () =>
     await userEvent.click(await screen.findByText('Message'));
 
     expect(await screen.findByText(/5 minutes ago/)).toBeVisible();
+  });
+
+  it('keeps the legacy sent time on an English storefront when the flag is on', async () => {
+    visitStorefront('en');
+    const sentAt = new Date(fiveMinutesAgo * 1000);
+    renderWithProviders(
+      <Message {...baseProps} msgs={[{ ...ownerMessage, date: fiveMinutesAgo }]} />,
+      storefront('en', true),
+    );
+    await userEvent.click(await screen.findByText('Message'));
+
+    await userEvent.hover(await screen.findByText(ownerMessage.message));
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(format(sentAt, 'K:m aa'));
   });
 });

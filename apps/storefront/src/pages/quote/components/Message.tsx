@@ -49,16 +49,15 @@ interface CustomerMessageProps {
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
-  const isDateLocalizationEnabled = useFeatureFlag('LOCAL-3509.Translate_b2b_dates');
   const sentAtMs = (msg.sendTime || 0) * 1000;
 
-  const dateLocale = getActiveDateLocale() ?? 'en';
+  const dateLocale = getActiveDateLocale();
 
-  const sentTime = isDateLocalizationEnabled
+  const sentTime = dateLocale
     ? new Intl.DateTimeFormat(dateLocale, { timeStyle: 'short' }).format(sentAtMs)
     : format(sentAtMs, 'K:m aa');
 
-  const sentDistance = isDateLocalizationEnabled
+  const sentDistance = dateLocale
     ? new Intl.RelativeTimeFormat(dateLocale, { numeric: 'always' }).format(
         ...getRelativeTimeParts(sentAtMs, Date.now()),
       )

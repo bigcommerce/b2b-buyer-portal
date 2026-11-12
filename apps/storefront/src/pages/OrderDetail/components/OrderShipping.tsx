@@ -6,7 +6,6 @@ import { getTracking } from 'ts-tracking-number';
 
 import { B3ProductList } from '@/components/B3ProductList';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
-import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
 import { getActiveDateLocale } from '@/lib/lang/getActiveDateLocale';
 import type { BackorderDisplayFields } from '@/utils/backorderDisplayFromInventory';
@@ -30,7 +29,6 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   } = useContext(OrderDetailsContext);
 
   const b3Lang = useB3Lang();
-  const isDateLocalizationEnabled = useFeatureFlag('LOCAL-3509.Translate_b2b_dates');
 
   const { isBackorderEnabled, hasAnyBackorderDisplay } = useBackorderStorefrontMessaging();
   const showOrderBackorder = isBackorderEnabled && hasAnyBackorderDisplay;
@@ -108,20 +106,18 @@ export function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
       shipping_provider_display_name: shippingProvider,
     } = shipment;
 
-    if (isDateLocalizationEnabled) {
-      return b3Lang('orderDetail.shipping.shippedOn', {
-        date: new Intl.DateTimeFormat(getActiveDateLocale() ?? 'en', {
-          month: 'long',
-          day: 'numeric',
-        }).format(new Date(createdDate)),
-        provider: shippingProvider,
-        method: shippingMethod,
-      });
-    }
+    const dateLocale = getActiveDateLocale();
 
-    const time = format(new Date(createdDate), 'LLLL, d');
-
-    return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`;
+    return b3Lang('orderDetail.shipping.shippedOn', {
+      date: dateLocale
+        ? new Intl.DateTimeFormat(dateLocale, {
+            month: 'long',
+            day: 'numeric',
+          }).format(new Date(createdDate))
+        : format(new Date(createdDate), 'LLLL, d'),
+      provider: shippingProvider,
+      method: shippingMethod,
+    });
   };
 
   const getCompanyName = (company: string) => {
