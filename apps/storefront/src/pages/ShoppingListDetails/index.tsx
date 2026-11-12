@@ -6,6 +6,7 @@ import { v1 as uuid } from 'uuid';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
+import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { GlobalContext } from '@/shared/global';
@@ -200,6 +201,7 @@ const partialAddToCart = async (checkedArr: ProductsProps[]) => {
 };
 
 function ShoppingListDetails({ setOpenPage }: PageProps) {
+  const cartUrl = useLocalizedUrl(CART_URL);
   const {
     id,
     openAPPParams,
@@ -476,7 +478,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           label: b3Lang('shoppingList.footer.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
+              window.location.href = cartUrl;
             }
           },
         },
@@ -722,7 +724,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           label: b3Lang('shoppingList.footer.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
+              window.location.href = cartUrl;
             }
           },
         },
