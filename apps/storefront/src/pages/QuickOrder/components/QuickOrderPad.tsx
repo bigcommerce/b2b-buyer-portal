@@ -8,6 +8,7 @@ import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
+import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { validateProducts } from '@/shared/service/b2b/graphql/product';
@@ -24,6 +25,7 @@ import SearchProduct from './SearchProduct';
 import { ValidProductItem } from './ValidProduct';
 
 export default function QuickOrderPad() {
+  const cartUrl = useLocalizedUrl(CART_URL);
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
@@ -46,7 +48,7 @@ export default function QuickOrderPad() {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
+              window.location.href = cartUrl;
             }
           },
         },
@@ -67,7 +69,7 @@ export default function QuickOrderPad() {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
+              window.location.href = cartUrl;
             }
           },
         },

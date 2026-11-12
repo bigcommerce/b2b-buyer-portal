@@ -4,6 +4,7 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
+import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import { getHomeUrl } from '@/lib/lang/getHomeUrl';
@@ -19,6 +20,7 @@ import B3LocaleSwitcher from './B3LocaleSwitcher';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function MainHeader({ title }: { title: string }) {
+  const cartUrl = useLocalizedUrl(CART_URL);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
@@ -52,7 +54,7 @@ export default function MainHeader({ title }: { title: string }) {
       return;
     }
 
-    window.location.href = CART_URL;
+    window.location.href = cartUrl;
   };
 
   useEffect(() => {

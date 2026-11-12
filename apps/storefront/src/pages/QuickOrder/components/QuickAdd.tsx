@@ -8,6 +8,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
+import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useB3Lang } from '@/lib/lang';
 import { getVariantInfoBySkus } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
@@ -34,6 +35,7 @@ import {
 const INITIAL_NUM_ROWS = 3;
 
 export default function QuickAdd() {
+  const cartUrl = useLocalizedUrl(CART_URL);
   const b3Lang = useB3Lang();
   const buttonText = b3Lang('purchasedProducts.quickOrderPad.addProductsToCart');
   const isBackorderEnabled = useIsBackorderEnabled();
@@ -359,7 +361,7 @@ export default function QuickAdd() {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = CART_URL;
+              window.location.href = cartUrl;
             }
           },
         },
