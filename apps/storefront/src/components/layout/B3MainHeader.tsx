@@ -2,7 +2,6 @@ import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
-import { CART_URL } from '@/constants';
 import { dispatchEvent } from '@/hooks/useB2BCallback';
 import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
@@ -20,7 +19,7 @@ import B3LocaleSwitcher from './B3LocaleSwitcher';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function MainHeader({ title }: { title: string }) {
-  const cartUrl = useLocalizedUrl(CART_URL);
+  const { getCartUrl } = useLocalizedUrl();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
@@ -54,7 +53,7 @@ export default function MainHeader({ title }: { title: string }) {
       return;
     }
 
-    window.location.href = cartUrl;
+    window.location.href = getCartUrl();
   };
 
   useEffect(() => {

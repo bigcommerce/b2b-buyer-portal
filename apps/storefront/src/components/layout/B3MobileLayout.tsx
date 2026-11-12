@@ -2,7 +2,6 @@ import { ReactNode, useContext, useState } from 'react';
 import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material';
 import { Badge, Box } from '@mui/material';
 
-import { CART_URL } from '@/constants';
 import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
@@ -23,7 +22,7 @@ export default function B3MobileLayout({
   title: string;
 }) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const cartUrl = useLocalizedUrl(CART_URL);
+  const { getCartUrl } = useLocalizedUrl();
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false);
   const cartNumber = useAppSelector(({ global }) => global.cartNumber);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
@@ -98,7 +97,7 @@ export default function B3MobileLayout({
               <ShoppingBagOutlined
                 sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
-                  window.location.href = cartUrl;
+                  window.location.href = getCartUrl();
                 }}
               />
             </Badge>

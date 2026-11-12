@@ -5,7 +5,6 @@ import { Box, Grid, Typography } from '@mui/material';
 import CustomButton from '@/components/button/CustomButton';
 import { B3ControlTextField } from '@/components/form/B3ControlTextField';
 import B3Spin from '@/components/spin/B3Spin';
-import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks/useBlockPendingAccountViewPrice';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
@@ -35,7 +34,7 @@ import {
 const INITIAL_NUM_ROWS = 3;
 
 export default function QuickAdd() {
-  const cartUrl = useLocalizedUrl(CART_URL);
+  const { getCartUrl } = useLocalizedUrl();
   const b3Lang = useB3Lang();
   const buttonText = b3Lang('purchasedProducts.quickOrderPad.addProductsToCart');
   const isBackorderEnabled = useIsBackorderEnabled();
@@ -361,7 +360,7 @@ export default function QuickAdd() {
           label: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           onClick: () => {
             if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-              window.location.href = cartUrl;
+              window.location.href = getCartUrl();
             }
           },
         },

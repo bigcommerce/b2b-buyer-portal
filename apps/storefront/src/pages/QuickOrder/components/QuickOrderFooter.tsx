@@ -7,7 +7,7 @@ import uniq from 'lodash-es/uniq';
 import { v1 as uuid } from 'uuid';
 
 import CustomButton from '@/components/button/CustomButton';
-import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useIsBackorderEnabled } from '@/hooks/useIsBackorderEnabled';
 import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
@@ -139,7 +139,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobalContext);
   const b3Lang = useB3Lang();
-  const cartUrl = useLocalizedUrl(CART_URL);
+  const { getCartUrl } = useLocalizedUrl();
 
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
@@ -188,7 +188,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         label: b3Lang('purchasedProducts.footer.viewCart'),
         onClick: () => {
           if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-            window.location.href = cartUrl;
+            window.location.href = getCartUrl();
           }
         },
       },
