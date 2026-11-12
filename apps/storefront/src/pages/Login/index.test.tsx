@@ -356,6 +356,62 @@ describe('LoginPage', () => {
       expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
     });
 
+    it('shows the reset-password prompt when BC login fails and the customer must reset their password', async () => {
+      // given
+      // Storefront GraphQL currently returns a generic error for a customer who must reset.
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Internal server error' }],
+          }),
+        ),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ data: { userLoginState: { forcePasswordReset: true } } }),
+        ),
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt should not be requested after a BC login error');
+        }),
+      );
+
+      // when
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      // then
+      expect(
+        await screen.findByText(
+          'You must reset your password before you may log in again. Please check your email at test@example.com to reset your password',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(ACCOUNT_INCORRECT_MESSAGE)).not.toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the incorrect-account error when BC login fails unexpectedly and no password reset is required', async () => {
+      // given
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Internal server error' }],
+          }),
+        ),
+        b2bGraphql.operation(() =>
+          HttpResponse.json({ data: { userLoginState: { forcePasswordReset: false } } }),
+        ),
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt should not be requested after a BC login error');
+        }),
+      );
+
+      // when
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      // then
+      expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
     it('shows the incorrect-account error when the customer JWT cannot be retrieved', async () => {
       server.use(
         graphql.mutation('Login', () =>
