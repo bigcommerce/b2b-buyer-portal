@@ -52,6 +52,18 @@ describe('getLocalizedUrl', () => {
     );
   });
 
+  it('keeps a protocol-relative url unchanged', () => {
+    setHref('https://store.example.com/fr-ca/orders');
+
+    expect(getLocalizedUrl('//cart.example.com/cart', LOCALES)).toBe('//cart.example.com/cart');
+  });
+
+  it('joins a relative path without a leading slash with a single slash', () => {
+    setHref('https://store.example.com/fr-ca/orders');
+
+    expect(getLocalizedUrl('cart.php', LOCALES)).toBe('https://store.example.com/fr-ca/cart.php');
+  });
+
   it('prefixes the url when the default locale lives in a subdirectory', () => {
     setHref('https://store.example.com/de/orders');
 
