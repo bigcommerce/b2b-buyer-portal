@@ -47,21 +47,46 @@ interface CustomerMessageProps {
   isCustomer?: boolean;
 }
 
+const timeFormatters = new Map<string, Intl.DateTimeFormat>();
+const relativeTimeFormatters = new Map<string, Intl.RelativeTimeFormat>();
+
+const formatSentTime = (sentAtMs: number, dateLocale?: string) => {
+  if (!dateLocale) {
+    return format(sentAtMs, 'K:m aa');
+  }
+
+  let formatter = timeFormatters.get(dateLocale);
+
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(dateLocale, { timeStyle: 'short' });
+    timeFormatters.set(dateLocale, formatter);
+  }
+
+  return formatter.format(sentAtMs);
+};
+
+const formatSentDistance = (sentAtMs: number, dateLocale?: string) => {
+  if (!dateLocale) {
+    return formatDistanceStrict(new Date(sentAtMs), new Date(), { addSuffix: true });
+  }
+
+  let formatter = relativeTimeFormatters.get(dateLocale);
+
+  if (!formatter) {
+    formatter = new Intl.RelativeTimeFormat(dateLocale, { numeric: 'always' });
+    relativeTimeFormatters.set(dateLocale, formatter);
+  }
+
+  return formatter.format(...getRelativeTimeParts(sentAtMs, Date.now()));
+};
+
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
-  const sentAtMs = (msg.sendTime || 0) * 1000;
-
   const dateLocale = getActiveDateLocale();
-
-  const sentTime = dateLocale
-    ? new Intl.DateTimeFormat(dateLocale, { timeStyle: 'short' }).format(sentAtMs)
-    : format(sentAtMs, 'K:m aa');
-
-  const sentDistance = dateLocale
-    ? new Intl.RelativeTimeFormat(dateLocale, { numeric: 'always' }).format(
-        ...getRelativeTimeParts(sentAtMs, Date.now()),
-      )
-    : formatDistanceStrict(new Date(sentAtMs), new Date(), { addSuffix: true });
+  const hasMessage = Boolean(msg.message);
+  const sentAtMs = (msg.sendTime || 0) * 1000;
+  const sentTime = hasMessage ? formatSentTime(sentAtMs, dateLocale) : '';
+  const sentDistance = isEndMessage && hasMessage ? formatSentDistance(sentAtMs, dateLocale) : '';
 
   return (
     <Box

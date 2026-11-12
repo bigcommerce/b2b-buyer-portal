@@ -52,4 +52,22 @@ describe('getRelativeTimeParts', () => {
   it('returns a positive amount for messages dated in the future', () => {
     expect(getRelativeTimeParts(NOW + 3 * HOUR, NOW)).toStrictEqual([3, 'hour']);
   });
+
+  it('keeps calendar days across a DST change like date-fns', () => {
+    const originalTz = process.env.TZ;
+
+    process.env.TZ = 'Europe/Paris';
+
+    try {
+      const now = new Date(2026, 2, 31, 12).getTime();
+      const sentAt = new Date(2026, 2, 1, 12).getTime();
+
+      expect(toDistance(getRelativeTimeParts(sentAt, now))).toBe(
+        formatDistanceStrict(new Date(sentAt), new Date(now)),
+      );
+      expect(getRelativeTimeParts(sentAt, now)).toStrictEqual([-1, 'month']);
+    } finally {
+      process.env.TZ = originalTz;
+    }
+  });
 });
