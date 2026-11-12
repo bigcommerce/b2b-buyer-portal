@@ -26,19 +26,25 @@ describe('getStorefrontLanguageCode', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns undefined when the multi-language feature flag is disabled', () => {
+  it('returns undefined when the multi-language feature flags are disabled', () => {
     setHref('https://store.example.com/fr');
-    mockState({ 'LOCAL-3280.B2B_email_multi_language': false });
+    mockState({
+      'LOCAL-3280.B2B_email_multi_language': false,
+      'LOCAL-3626.B2B_product_translation': false,
+    });
 
     expect(getStorefrontLanguageCode()).toBeUndefined();
   });
 
-  it('returns the active locale code when the flag is enabled and the URL matches a locale', () => {
-    setHref('https://store.example.com/fr/some-page');
-    mockState({ 'LOCAL-3280.B2B_email_multi_language': true });
+  it.each(['LOCAL-3280.B2B_email_multi_language', 'LOCAL-3626.B2B_product_translation'])(
+    'returns the active locale code when %s is enabled and the URL matches a locale',
+    (flag) => {
+      setHref('https://store.example.com/fr/some-page');
+      mockState({ [flag]: true });
 
-    expect(getStorefrontLanguageCode()).toBe('fr');
-  });
+      expect(getStorefrontLanguageCode()).toBe('fr');
+    },
+  );
 
   it('returns undefined when the flag is enabled but no locale matches the URL', () => {
     setHref('https://other-store.example.com/');
