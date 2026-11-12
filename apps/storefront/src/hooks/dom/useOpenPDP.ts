@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
 import cloneDeep from 'lodash-es/cloneDeep';
 
@@ -13,6 +13,7 @@ import {
   TRANSLATION_SHOPPING_LIST_BTN_VARIABLE,
 } from '@/constants';
 import config from '@/lib/config';
+import { useB3Lang } from '@/lib/lang';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -28,13 +29,35 @@ interface MutationObserverProps {
   setOpenPage: SetOpenPage;
   role: number | string;
 }
+interface RegistrationPromptText {
+  title: string;
+  message: string;
+  cancelText: string;
+  registerText: string;
+}
+
 interface AddProductFromPageParams {
   role: number;
   storeDispatch: DispatchRedux<AnyAction>;
   saveFn: () => void;
   setOpenPage: SetOpenPage;
   registerEnabled: boolean;
+  registrationPromptText: RegistrationPromptText;
 }
+
+export const useShoppingListRegistrationPromptText = (): RegistrationPromptText => {
+  const b3Lang = useB3Lang();
+
+  return useMemo(
+    () => ({
+      title: b3Lang('global.dialog.registration'),
+      message: b3Lang('global.dialog.shoppingListRegisterPrompt'),
+      cancelText: b3Lang('global.dialog.cancel'),
+      registerText: b3Lang('global.dialog.register'),
+    }),
+    [b3Lang],
+  );
+};
 
 export const addProductFromPage = ({
   role,
@@ -42,16 +65,17 @@ export const addProductFromPage = ({
   saveFn,
   setOpenPage,
   registerEnabled,
+  registrationPromptText,
 }: AddProductFromPageParams) => {
   if (role === 100) {
     storeDispatch(
       setGlobalCommonState({
         globalMessage: {
           open: true,
-          title: 'Registration',
-          message: 'Please create an account, or login to create a shopping list.',
-          cancelText: 'Cancel',
-          saveText: registerEnabled ? 'Register' : '',
+          title: registrationPromptText.title,
+          message: registrationPromptText.message,
+          cancelText: registrationPromptText.cancelText,
+          saveText: registerEnabled ? registrationPromptText.registerText : '',
           saveFn,
         },
       }),
@@ -65,6 +89,10 @@ export const addProductFromPage = ({
 };
 
 export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
+  const registrationPromptText = useShoppingListRegistrationPromptText();
+  // Click listeners are attached once per button, so they read the latest text through a ref
+  const registrationPromptTextRef = useRef(registrationPromptText);
+  registrationPromptTextRef.current = registrationPromptText;
   const {
     state: { shoppingListBtn },
   } = useContext(CustomStyleContext);
@@ -103,6 +131,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         saveFn: jumpRegister,
         setOpenPage,
         registerEnabled,
+        registrationPromptText: registrationPromptTextRef.current,
       });
     },
     // Disabling the next line as dispatch is not required to be in the dependency array

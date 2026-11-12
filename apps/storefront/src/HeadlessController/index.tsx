@@ -2,7 +2,10 @@ import { useContext, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoute, HeadlessRoutes } from '@/constants';
-import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
+import {
+  addProductFromPage as addProductFromPageToShoppingList,
+  useShoppingListRegistrationPromptText,
+} from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
 import { setElementsListenersConfig } from '@/lib/config';
 import { useB3Lang } from '@/lib/lang';
@@ -77,6 +80,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const storeDispatch = useAppDispatch();
   const store = useAppStore();
   const b3Lang = useB3Lang();
+  const registrationPromptText = useShoppingListRegistrationPromptText();
 
   const { state: globalState } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -125,6 +129,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const addQuoteBtnRef = useRef(addQuoteBtn);
   const shoppingListBtnRef = useRef(shoppingListBtn);
   const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn);
+  const registrationPromptTextRef = useRef(registrationPromptText);
 
   salesRepCompanyIdRef.current = Number(salesRepCompanyId);
   customerIdRef.current = customerId;
@@ -137,6 +142,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   addQuoteBtnRef.current = addQuoteBtn;
   shoppingListBtnRef.current = shoppingListBtn;
   addToAllQuoteBtnRef.current = addToAllQuoteBtn;
+  registrationPromptTextRef.current = registrationPromptText;
 
   useEffect(() => {
     window.b2b = {
@@ -261,6 +267,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               saveFn,
               setOpenPage,
               registerEnabled,
+              registrationPromptText: registrationPromptTextRef.current,
             });
           },
           addProducts: (shoppingListId, items) =>
