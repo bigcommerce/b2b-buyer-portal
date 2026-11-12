@@ -1,3 +1,4 @@
+import { act } from '@testing-library/react';
 import { buildGlobalStateWith } from 'tests/storeStateBuilders';
 import { renderHookWithProviders } from 'tests/utils/hook-test-utils';
 
@@ -68,7 +69,9 @@ describe('useLocalizedUrl', () => {
 
     expect(getCartUrl()).toBe(CART_URL);
 
-    store.dispatch(setLocales(LOCALES));
+    act(() => {
+      store.dispatch(setLocales(LOCALES));
+    });
 
     expect(getCartUrl()).toBe(`https://store.example.com/fr-ca${CART_URL}`);
   });
