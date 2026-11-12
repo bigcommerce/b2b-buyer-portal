@@ -20,7 +20,7 @@ describe('displayFormat', () => {
     timeFormat: { display?: string; extendedDisplay?: string } = {},
   ) =>
     vi.spyOn(store, 'getState').mockReturnValue({
-      global: { featureFlags, locales: buildLocales('fr', 'de', 'es', 'uk') },
+      global: { featureFlags, locales: buildLocales('fr', 'de', 'es', 'uk', 'ja') },
       storeInfo: { timeFormat: { offset: 0, ...timeFormat } },
     } as unknown as ReturnType<typeof store.getState>);
 
@@ -57,11 +57,32 @@ describe('displayFormat', () => {
     expect(displayExtendedFormat(timestamp)).toBe('sept. 12 2026 @ 15:30');
   });
 
+  it('keeps the month unit in long month names (F) for languages that write months as numbers', () => {
+    visit('/ja');
+    mockState({ [FLAG]: true }, { display: 'j F Y' });
+
+    expect(displayFormat(timestamp)).toBe('12 9月 2026');
+  });
+
+  it('keeps the month unit in short month names (M) for languages that write months as numbers', () => {
+    visit('/ja');
+    mockState({ [FLAG]: true }, { display: 'j M Y' });
+
+    expect(displayFormat(timestamp)).toBe('12 9月 2026');
+  });
+
   it('translates weekday names in the merchant format', () => {
     visit('/de');
     mockState({ [FLAG]: true }, { display: 'l, j F Y' });
 
     expect(displayFormat(timestamp)).toBe('Samstag, 12 September 2026');
+  });
+
+  it('renders a numeric day.month.year merchant format the same in a translated language', () => {
+    visit('/de');
+    mockState({ [FLAG]: true }, { display: 'd.m.Y' });
+
+    expect(displayFormat(firstOfSeptember)).toBe('01.09.2026');
   });
 
   it('keeps English output on the English storefront when the flag is on', () => {

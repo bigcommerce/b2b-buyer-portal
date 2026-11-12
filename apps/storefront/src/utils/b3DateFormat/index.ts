@@ -11,7 +11,6 @@ type DisplayType = 'display' | 'extendedDisplay';
 type Handler = 'formatDate' | 'parseDate';
 
 const fmt = new DateFormatter();
-
 const localizedFormatters = new Map<string, DateFormatter>();
 
 const getFormatter = (): DateFormatter => {

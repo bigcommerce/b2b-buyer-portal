@@ -10,6 +10,17 @@ const getPart = (
   type: Intl.DateTimeFormatPartTypes,
 ) => formatter.formatToParts(date).find((part) => part.type === type)?.value ?? '';
 
+// Some locales (e.g. ja) expose the month as a bare number part, with the unit (月) in a literal.
+const getMonthName = (
+  formatter: Intl.DateTimeFormat,
+  monthOnlyFormatter: Intl.DateTimeFormat,
+  date: number,
+) => {
+  const month = getPart(formatter, date, 'month');
+
+  return /^\d+$/.test(month) ? monthOnlyFormatter.format(date) : month;
+};
+
 export const buildDateSettings = (locale: string) => {
   const longMonth = new Intl.DateTimeFormat(locale, {
     day: 'numeric',
@@ -21,6 +32,8 @@ export const buildDateSettings = (locale: string) => {
     month: 'short',
     timeZone: 'UTC',
   });
+  const longMonthOnly = new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' });
+  const shortMonthOnly = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' });
   const longWeekday = new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' });
   const shortWeekday = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
   const dayPeriod = new Intl.DateTimeFormat(locale, {
@@ -32,8 +45,10 @@ export const buildDateSettings = (locale: string) => {
   return {
     days: range(7).map((i) => getPart(longWeekday, SUNDAY + i * DAY, 'weekday')),
     daysShort: range(7).map((i) => getPart(shortWeekday, SUNDAY + i * DAY, 'weekday')),
-    months: range(12).map((i) => getPart(longMonth, Date.UTC(2021, i, 1), 'month')),
-    monthsShort: range(12).map((i) => getPart(shortMonth, Date.UTC(2021, i, 1), 'month')),
+    months: range(12).map((i) => getMonthName(longMonth, longMonthOnly, Date.UTC(2021, i, 1))),
+    monthsShort: range(12).map((i) =>
+      getMonthName(shortMonth, shortMonthOnly, Date.UTC(2021, i, 1)),
+    ),
     meridiem: [
       getPart(dayPeriod, Date.UTC(2021, 0, 1, 1), 'dayPeriod') || 'AM',
       getPart(dayPeriod, Date.UTC(2021, 0, 1, 13), 'dayPeriod') || 'PM',
