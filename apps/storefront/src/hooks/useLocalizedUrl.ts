@@ -1,11 +1,19 @@
+import { useCallback } from 'react';
+
+import { CART_URL } from '@/constants';
 import { getLocalizedUrl } from '@/lib/lang/getLocalizedUrl';
-import { useAppSelector } from '@/store';
+import { useAppStore } from '@/store';
 
-import { useFeatureFlag } from './useFeatureFlag';
+export const useLocalizedUrl = () => {
+  const store = useAppStore();
 
-export const useLocalizedUrl = (path: string): string => {
-  const locales = useAppSelector(({ global }) => global.locales);
-  const isProductTranslationEnabled = useFeatureFlag('LOCAL-3626.B2B_product_translation');
+  const getCartUrl = useCallback(() => {
+    const { locales, featureFlags } = store.getState().global;
 
-  return isProductTranslationEnabled ? getLocalizedUrl(path, locales) : path;
+    return featureFlags['LOCAL-3626.B2B_product_translation']
+      ? getLocalizedUrl(CART_URL, locales)
+      : CART_URL;
+  }, [store]);
+
+  return { getCartUrl };
 };
