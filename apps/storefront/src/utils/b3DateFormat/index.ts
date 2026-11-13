@@ -1,15 +1,34 @@
 import dayjs from 'dayjs';
 import merge from 'lodash-es/merge';
 
+import { getActiveDateLocale } from '@/lib/lang/getActiveDateLocale';
 import { store } from '@/store';
 
+import { buildDateSettings } from './buildDateSettings';
 import DateFormatter from './php-date-format.js';
 
 type DisplayType = 'display' | 'extendedDisplay';
+type Handler = 'formatDate' | 'parseDate';
 
 const fmt = new DateFormatter();
+const localizedFormatters = new Map<string, DateFormatter>();
 
-type Handler = 'formatDate' | 'parseDate';
+const getFormatter = (): DateFormatter => {
+  const locale = getActiveDateLocale();
+
+  if (!locale) {
+    return fmt;
+  }
+
+  let formatter = localizedFormatters.get(locale);
+
+  if (!formatter) {
+    formatter = new DateFormatter({ dateSettings: buildDateSettings(locale) });
+    localizedFormatters.set(locale, formatter);
+  }
+
+  return formatter;
+};
 
 const formatCreator =
   (displayType: DisplayType, handler: Handler, useOffset = true) =>
@@ -36,11 +55,13 @@ const formatCreator =
     const utcTime = localTime + offset;
 
     const dateObject = new Date(utcTime);
+    const formatter = getFormatter();
+
     switch (handler) {
       case 'formatDate':
-        return fmt.formatDate(dateObject, display) || '';
+        return formatter.formatDate(dateObject, display) || '';
       case 'parseDate':
-        return fmt.parseDate(dateObject, display) || '';
+        return formatter.parseDate(dateObject, display) || '';
       default:
         throw new Error('Invalid value');
     }

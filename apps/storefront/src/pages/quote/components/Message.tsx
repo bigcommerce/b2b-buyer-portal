@@ -15,10 +15,12 @@ import { B3CollapseContainer } from '@/components/B3CollapseContainer';
 import B3Spin from '@/components/spin/B3Spin';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useB3Lang } from '@/lib/lang';
+import { getActiveDateLocale } from '@/lib/lang/getActiveDateLocale';
 import { GlobalContext } from '@/shared/global';
 import { updateQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat } from '@/utils/b3DateFormat';
+import { getRelativeTimeParts } from '@/utils/b3DateFormat/getRelativeTimeParts';
 import { storeHash } from '@/utils/basicConfig';
 
 interface MessageProps {
@@ -45,8 +47,46 @@ interface CustomerMessageProps {
   isCustomer?: boolean;
 }
 
+const timeFormatters = new Map<string, Intl.DateTimeFormat>();
+const relativeTimeFormatters = new Map<string, Intl.RelativeTimeFormat>();
+
+const formatSentTime = (sentAtMs: number, dateLocale?: string) => {
+  if (!dateLocale) {
+    return format(sentAtMs, 'K:m aa');
+  }
+
+  let formatter = timeFormatters.get(dateLocale);
+
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(dateLocale, { timeStyle: 'short' });
+    timeFormatters.set(dateLocale, formatter);
+  }
+
+  return formatter.format(sentAtMs);
+};
+
+const formatSentDistance = (sentAtMs: number, dateLocale?: string) => {
+  if (!dateLocale) {
+    return formatDistanceStrict(new Date(sentAtMs), new Date(), { addSuffix: true });
+  }
+
+  let formatter = relativeTimeFormatters.get(dateLocale);
+
+  if (!formatter) {
+    formatter = new Intl.RelativeTimeFormat(dateLocale, { numeric: 'always' });
+    relativeTimeFormatters.set(dateLocale, formatter);
+  }
+
+  return formatter.format(...getRelativeTimeParts(sentAtMs, Date.now()));
+};
+
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
   const b3Lang = useB3Lang();
+  const dateLocale = getActiveDateLocale();
+  const hasMessage = Boolean(msg.message);
+  const sentAtMs = (msg.sendTime || 0) * 1000;
+  const sentTime = hasMessage ? formatSentTime(sentAtMs, dateLocale) : '';
+  const sentDistance = isEndMessage && hasMessage ? formatSentDistance(sentAtMs, dateLocale) : '';
 
   return (
     <Box
@@ -82,7 +122,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             m: '1px',
           }}
         >
-          <Tooltip title={format((msg.sendTime || 0) * 1000, 'K:m aa')} placement="top" arrow>
+          <Tooltip title={sentTime} placement="top" arrow>
             <Box
               sx={{
                 wordBreak: 'break-word',
@@ -102,13 +142,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
                 color: 'rgba(0, 0, 0, 0.38)',
               }}
             >
-              {`${b3Lang('quoteDetail.message.sent')} ${formatDistanceStrict(
-                new Date((msg.sendTime || 0) * 1000),
-                new Date(),
-                {
-                  addSuffix: true,
-                },
-              )}`}
+              {`${b3Lang('quoteDetail.message.sent')} ${sentDistance}`}
             </Box>
           )}
         </Box>
