@@ -6,8 +6,8 @@ import Cookies from 'js-cookie';
 
 import { B3CustomForm } from '@/components/B3CustomForm';
 import B3Dialog from '@/components/B3Dialog';
-import { CART_URL } from '@/constants';
 import { useBackorderStorefrontMessaging } from '@/hooks/useBackorderStorefrontMessaging';
+import { useLocalizedUrl } from '@/hooks/useLocalizedUrl';
 import { useMobile } from '@/hooks/useMobile';
 import { useB3Lang } from '@/lib/lang';
 import {
@@ -120,6 +120,7 @@ export default function OrderDialog({
   currencyCode,
 }: OrderDialogProps) {
   const navigate = useNavigate();
+  const { getCartUrl } = useLocalizedUrl();
   const { isBackorderEnabled: isReorderAtsEnabled, hasAnyBackorderDisplay } =
     useBackorderStorefrontMessaging();
   const shouldShowBackorderUI =
@@ -167,7 +168,7 @@ export default function OrderDialog({
         label: b3Lang('orderDetail.viewCart'),
         onClick: () => {
           if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-            window.location.href = CART_URL;
+            window.location.href = getCartUrl();
           }
         },
       },
@@ -307,7 +308,7 @@ export default function OrderDialog({
         label: b3Lang('orderDetail.viewCart'),
         onClick: () => {
           if (window.b2b.callbacks.dispatchEvent('on-click-cart-button')) {
-            window.location.href = CART_URL;
+            window.location.href = getCartUrl();
           }
         },
       },

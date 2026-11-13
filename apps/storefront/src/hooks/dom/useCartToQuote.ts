@@ -73,7 +73,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
   useEffect(() => {
     const showPendingAccountTip = () => {
-      if (![CART_URL, CHECKOUT_URL].includes(pathname)) return;
+      if (![CART_URL, CHECKOUT_URL].some((url) => pathname.endsWith(url))) return;
 
       if (companyStatus || !blockPendingAccountOrderCreation) return;
 
