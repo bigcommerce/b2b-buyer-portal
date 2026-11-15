@@ -43,3 +43,26 @@ export const orderStatusValueToSystemLabel = (value: string | null | undefined):
 /** Title-case system label -> enum member. Undefined when unrecognised. */
 export const systemLabelToOrderStatusValue = (systemLabel: string): string | undefined =>
   SYSTEM_LABEL_TO_VALUE[systemLabel];
+
+/** Numeric status id (`site.settings.orderStatuses` `value`, legacy `statusCode`) -> enum member. */
+const ORDER_STATUS_ID_TO_VALUE: Record<number, OrderStatusValueKey> = {
+  0: 'INCOMPLETE',
+  1: 'PENDING',
+  2: 'SHIPPED',
+  3: 'PARTIALLY_SHIPPED',
+  4: 'REFUNDED',
+  5: 'CANCELLED',
+  6: 'DECLINED',
+  7: 'AWAITING_PAYMENT',
+  8: 'AWAITING_PICKUP',
+  9: 'AWAITING_SHIPMENT',
+  10: 'COMPLETED',
+  11: 'AWAITING_FULFILLMENT',
+  12: 'MANUAL_VERIFICATION_REQUIRED',
+  13: 'DISPUTED',
+  14: 'PARTIALLY_REFUNDED',
+};
+
+/** Numeric status id -> title-case system label. Empty string when unrecognised. */
+export const orderStatusIdToSystemLabel = (id: number): string =>
+  orderStatusValueToSystemLabel(ORDER_STATUS_ID_TO_VALUE[id]);
