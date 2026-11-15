@@ -289,3 +289,70 @@ describe('when the user is on checkout page and the company status is PENDING', 
     });
   });
 });
+
+describe('when the user is on the cart page and the company status is PENDING', () => {
+  const originalLocation = window.location;
+
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it.each([
+    ['the cart page', CART_URL],
+    ['a locale-prefixed cart page', `/de${CART_URL}`],
+  ])('shows the pending approval warning on %s', (_, pathname) => {
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: `http://localhost${pathname}`,
+        pathname,
+        search: '',
+        hash: '',
+        assign: vi.fn(),
+        replace: vi.fn(),
+        reload: vi.fn(),
+        ancestorOrigins: {} as DOMStringList,
+        host: 'localhost',
+        hostname: 'localhost',
+        origin: 'http://localhost',
+        port: '',
+        protocol: 'http:',
+      },
+      writable: true,
+    });
+    window.globalTipDispatch = vi.fn();
+
+    vi.spyOn(B3SStorage, 'get').mockImplementation((key: string) =>
+      key === 'blockPendingAccountOrderCreation' ? true : undefined,
+    );
+
+    renderHookWithProviders(
+      () => useCartToQuote({ setOpenPage: vi.fn(), cartQuoteEnabled: true }),
+      {
+        preloadedState: {
+          company: buildCompanyStateWith({ companyInfo: { status: CompanyStatus.PENDING } }),
+        },
+      },
+    );
+
+    expect(window.globalTipDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          globalTipMessage: expect.objectContaining({
+            msgs: [
+              expect.objectContaining({
+                msg: 'Your account is pending approval. Ordering will be enabled after account approval',
+              }),
+            ],
+          }),
+        }),
+      }),
+    );
+  });
+});
