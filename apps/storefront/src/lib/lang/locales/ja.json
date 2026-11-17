@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "仮面舞踏会終了",
   "dashboard.masqueradeModal.title.start": "仮装を始めよう",
   "dashboard.masqueradeModal.title.end": "仮装をやめよう",
-  "dashboard.masqueradeModal.message": "この操作を行うと、ショッピングカートの中身が空になります。。続けますか？",
+  "dashboard.masqueradeModal.message": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "dashboard.masqueradeModal.actions.cancel": "キャンセル",
   "dashboard.masqueradeModal.actions.continue": "続ける",
   "orders.order": "注文",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "買い物リストを見る",
   "orderDetail.anotherCompany.tips": "この注文は別の会社に関連するものです。再注文、買い物リストへの追加、その他の操作を行うには、その会社に切り替える必要があります。",
   "orderDetail.switchCompany.title": "会社を切り替える",
-  "orderDetail.switchCompany.content.tipsText": "続けるには会社を変える必要があります。別の会社に切り替えると、ショッピングカートが更新されます。",
+  "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart and draft quote.",
   "orderDetail.digitalProducts.download": "ダウンロード",
   "orderDetail.digitalProducts.filesToDownload": "ダウンロードするファイル",
   "orderDetail.digitalProducts.viewFiles": "ファイルを表示する",
@@ -768,7 +768,7 @@
   "payment.okButton": "OK",
   "companyHierarchy.table.name": "名前",
   "companyHierarchy.dialog.title": "会社を切り替える",
-  "companyHierarchy.dialog.content": "別の会社に切り替えると、ショッピングカートが更新されます。。続けますか？",
+  "companyHierarchy.dialog.content": "This action will empty your shopping cart and draft quote. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "あなたの会社",
   "companyHierarchy.chip.selectCompany": "代表する"
 }
