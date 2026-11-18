@@ -1,6 +1,20 @@
 import { PLATFORM } from './platform';
 
-export const SUPPORT_LANGUAGE = ['en', 'zh', 'fr', 'nl', 'de', 'it', 'es'];
+export const SUPPORT_LANGUAGE = [
+  'da',
+  'de',
+  'en',
+  'es',
+  'fr',
+  'it',
+  'ja',
+  'nb',
+  'nl',
+  'pl',
+  'pt',
+  'sv',
+  'zh',
+];
 
 // cspell:disable
 export const FILE_UPLOAD_ACCEPT_TYPE = [
