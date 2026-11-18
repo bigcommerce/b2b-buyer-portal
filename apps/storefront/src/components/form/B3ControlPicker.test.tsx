@@ -140,4 +140,16 @@ describe('B3ControlPicker', () => {
     expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
     expect(screen.getByText('March 2024')).toBeInTheDocument();
   });
+
+  it('keeps the stored date format for a buyer on the default language with the flag on', () => {
+    setHref(`${STORE_URL}/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(
+      <DateForm label={label} name="birthday" defaultValue="2024-03-15" onSubmit={vi.fn()} />,
+      { preloadedState: { global: buildGlobalState(true, 'de') } },
+    );
+
+    expect(screen.getByRole('textbox', { name: label })).toHaveValue('2024-03-15');
+  });
 });

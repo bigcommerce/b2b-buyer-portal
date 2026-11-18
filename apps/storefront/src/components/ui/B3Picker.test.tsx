@@ -101,4 +101,15 @@ describe('B3Picker', () => {
       'S',
     ]);
   });
+
+  it('keeps the English date format for a buyer on the default language with the flag on', () => {
+    setHref(`${STORE_URL}/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    expect(screen.getByRole('textbox', { name: label })).toHaveValue('03/15/2024');
+  });
 });
