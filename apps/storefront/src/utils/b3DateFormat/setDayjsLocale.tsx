@@ -3,7 +3,6 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { SUPPORT_LANGUAGE } from '@/constants';
-import { STOREFRONT_TO_DAYJS_LANGUAGE } from '@/lib/lang/storefrontToDayjsLanguage';
 
 import 'dayjs/locale/da';
 import 'dayjs/locale/de';
@@ -24,9 +23,12 @@ import 'dayjs/locale/zh';
 dayjs.extend(customParseFormat);
 dayjs.extend(localizedFormat);
 
+// The global dayjs locale is limited to SUPPORT_LANGUAGE. The other dayjs locales imported
+// above are only registered for the date pickers, which pick them by name.
+// TODO: once the LOCAL-3509.Translate_b2b_dates experiment is removed, extend SUPPORT_LANGUAGE
+// with the remaining imported locales (da, ja, nb, pl, pt, sv).
 const toSupportedLanguage = (localeKey: string): string => {
-  const baseLanguage = (localeKey || 'en').toLowerCase().split('-')[0];
-  const language = STOREFRONT_TO_DAYJS_LANGUAGE[baseLanguage] ?? baseLanguage;
+  const [language] = (localeKey || 'en').toLowerCase().split('-');
 
   return SUPPORT_LANGUAGE.includes(language) ? language : 'en';
 };

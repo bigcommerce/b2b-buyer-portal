@@ -2,7 +2,10 @@ import type { Locales } from '@/store/slices/global';
 
 import { getActiveLocale } from './getActiveLocale';
 import { isSupportedLocale } from './locales';
-import { STOREFRONT_TO_DAYJS_LANGUAGE } from './storefrontToDayjsLanguage';
+import {
+  DAYJS_TO_STOREFRONT_LANGUAGE,
+  STOREFRONT_TO_DAYJS_LANGUAGE,
+} from './storefrontToDayjsLanguage';
 
 interface ResolvePickerLocaleParams {
   isEnabled: boolean;
@@ -29,15 +32,18 @@ const DAYJS_LOCALE_KEYS = [
 ];
 
 const toDayjsLocale = (code: string, fallbackLocale: string): string => {
-  if (!isSupportedLocale(code)) {
+  const lowerCode = code.toLowerCase();
+  const [language] = lowerCode.split('-');
+
+  if (!isSupportedLocale(DAYJS_TO_STOREFRONT_LANGUAGE[language] ?? language)) {
     return fallbackLocale;
   }
 
-  const lowerCode = code.toLowerCase();
-  const [language] = lowerCode.split('-');
-  const baseLanguage = STOREFRONT_TO_DAYJS_LANGUAGE[language] ?? language;
+  const dayjsLanguage = STOREFRONT_TO_DAYJS_LANGUAGE[language] ?? language;
 
-  return [lowerCode, baseLanguage].find((key) => DAYJS_LOCALE_KEYS.includes(key)) ?? fallbackLocale;
+  return (
+    [lowerCode, dayjsLanguage].find((key) => DAYJS_LOCALE_KEYS.includes(key)) ?? fallbackLocale
+  );
 };
 
 export const resolvePickerLocale = ({

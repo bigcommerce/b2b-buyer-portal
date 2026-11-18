@@ -19,7 +19,6 @@ describe('setDayjsLocale', () => {
 
   it.each([
     ['es-MX', 'es'],
-    ['pt-BR', 'pt'],
     ['fr-CA', 'fr'],
     ['en-GB', 'en'],
   ])('resolves the regional code %s to its base language %s', (code, expected) => {
@@ -32,10 +31,13 @@ describe('setDayjsLocale', () => {
     expect(dayjs.locale()).toBe('de');
   });
 
-  it('maps Norwegian no to the dayjs nb locale', () => {
-    expect(setDayjsLocale('no')).toBe('nb');
-    expect(dayjs.locale()).toBe('nb');
-  });
+  it.each(['da', 'ja', 'nb', 'no', 'pl', 'pt', 'sv'])(
+    'keeps the global dayjs locale English for %s, which is only registered for the pickers',
+    (code) => {
+      expect(setDayjsLocale(code)).toBe('en');
+      expect(dayjs.locale()).toBe('en');
+    },
+  );
 
   it.each(['ko', 'xx-YY'])('falls back to English for the unsupported language %s', (code) => {
     dayjs.locale('fr');
@@ -62,9 +64,15 @@ describe('getDayjsLocale', () => {
   });
 
   it('returns the language the global dayjs locale was set to', () => {
-    setDayjsLocale('ja');
+    setDayjsLocale('de');
 
-    expect(getDayjsLocale()).toBe('ja');
+    expect(getDayjsLocale()).toBe('de');
+  });
+
+  it('returns English when the global dayjs locale is a picker-only language', () => {
+    dayjs.locale('ja');
+
+    expect(getDayjsLocale()).toBe('en');
   });
 
   it('returns the base language when the global dayjs locale is regional', () => {
