@@ -31,19 +31,17 @@ const DAYJS_LOCALE_KEYS = [
   'zh',
 ];
 
-const toDayjsLocale = (code: string, fallbackLocale: string): string => {
+const toDayjsLocale = (code: string): string | undefined => {
   const lowerCode = code.toLowerCase();
   const [language] = lowerCode.split('-');
 
   if (!isSupportedLocale(DAYJS_TO_STOREFRONT_LANGUAGE[language] ?? language)) {
-    return fallbackLocale;
+    return undefined;
   }
 
   const dayjsLanguage = STOREFRONT_TO_DAYJS_LANGUAGE[language] ?? language;
 
-  return (
-    [lowerCode, dayjsLanguage].find((key) => DAYJS_LOCALE_KEYS.includes(key)) ?? fallbackLocale
-  );
+  return [lowerCode, dayjsLanguage].find((key) => DAYJS_LOCALE_KEYS.includes(key));
 };
 
 export const resolvePickerLocale = ({
@@ -56,6 +54,11 @@ export const resolvePickerLocale = ({
   }
 
   const activeCode = getActiveLocale(locales)?.code;
+  const defaultCode = locales.find(({ isDefault }) => isDefault)?.code;
 
-  return activeCode ? toDayjsLocale(activeCode, fallbackLocale) : fallbackLocale;
+  return (
+    (activeCode && toDayjsLocale(activeCode)) ||
+    (defaultCode && toDayjsLocale(defaultCode)) ||
+    fallbackLocale
+  );
 };

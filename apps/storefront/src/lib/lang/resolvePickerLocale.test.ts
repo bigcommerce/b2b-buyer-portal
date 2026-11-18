@@ -78,19 +78,43 @@ describe('resolvePickerLocale', () => {
   });
 
   it.each(['xx', 'uk'])(
-    'returns the fallback locale for the unsupported active locale %s',
+    'falls back to the store default locale for the unsupported active locale %s',
     (code) => {
       setHref(`${STORE_URL}/${code}`);
 
       expect(
         resolvePickerLocale({
           isEnabled: true,
-          locales: buildLocales('en', [code]),
+          locales: buildLocales('de', [code]),
           fallbackLocale: 'fr',
         }),
-      ).toBe('fr');
+      ).toBe('de');
     },
   );
+
+  it('falls back to a picker-only store default for an unsupported active locale', () => {
+    setHref(`${STORE_URL}/xx`);
+
+    expect(
+      resolvePickerLocale({
+        isEnabled: true,
+        locales: buildLocales('pt-BR', ['xx']),
+        fallbackLocale: 'en',
+      }),
+    ).toBe('pt-br');
+  });
+
+  it('returns the fallback locale when the store default locale is unsupported too', () => {
+    setHref(`${STORE_URL}/xx`);
+
+    expect(
+      resolvePickerLocale({
+        isEnabled: true,
+        locales: buildLocales('uk', ['xx']),
+        fallbackLocale: 'fr',
+      }),
+    ).toBe('fr');
+  });
 
   it('returns the English fallback for a Chinese locale on an English-default store', () => {
     setHref(`${STORE_URL}/zh-CN`);
