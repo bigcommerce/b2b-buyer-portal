@@ -47,9 +47,7 @@ export default function CompleteStep(props: CompleteStepProps) {
   const b3Lang = useB3Lang();
   const isRegisterCompanyFlowEnabled = useFeatureFlag('B2B-4466.use_register_company_flow');
   const { handleBack, handleNext } = props;
-  const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [enterEmail, setEnterEmail] = useState<string>('');
 
   const [captchaKey, setCaptchaKey] = useState('');
   const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
@@ -57,14 +55,19 @@ export default function CompleteStep(props: CompleteStepProps) {
 
   const [isCaptchaMissing, setIsCaptchaMissing] = useState(false);
 
-  const handleGetCaptchaKey = (key: string) => setCaptchaKey(key);
+  const handleGetCaptchaKey = (key: string) => {
+    setCaptchaKey(key);
+    if (key) setIsCaptchaMissing(false);
+  };
 
   useEffect(() => {
+    let ignore = false;
+
     const getIsEnabledOnStorefront = async () => {
       try {
         const response = await getStorefrontToken();
 
-        if (response) {
+        if (response && !ignore) {
           setIsEnabledOnStorefront(response.isEnabledOnStorefront);
           setStorefrontSiteKey(response.siteKey);
         }
@@ -74,11 +77,11 @@ export default function CompleteStep(props: CompleteStepProps) {
     };
 
     getIsEnabledOnStorefront();
-  }, []);
 
-  useEffect(() => {
-    if (captchaKey) setIsCaptchaMissing(false);
-  }, [captchaKey]);
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const {
     control,
@@ -123,6 +126,11 @@ export default function CompleteStep(props: CompleteStepProps) {
 
   const passwordName = passwordInfo[0]?.groupName || '';
 
+  const personalInfo: Array<CustomFieldItems> = accountType ? passwordInfo : [];
+  const enterEmail = accountType
+    ? String(list?.find((item: RegisterFields) => item.name === 'email')?.default ?? '')
+    : '';
+
   const additionalInfo: CompleteStepList =
     accountType === RegisterAccountType.BUSINESS ? additionalInformation : bcAdditionalInformation;
 
@@ -146,18 +154,6 @@ export default function CompleteStep(props: CompleteStepProps) {
       'global.registerComplete.companyRegistrationGenericError',
     ),
   };
-
-  useEffect(() => {
-    if (!accountType) return;
-    if (list && list.length) {
-      const emailFields: CustomFieldItems =
-        list.find((item: RegisterFields) => item.name === 'email') || {};
-
-      setEnterEmail(emailFields?.default || '');
-    }
-
-    setPersonalInfo(passwordInfo);
-  }, [contactInformation, bcContactInformation, accountType, list, passwordInfo]);
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
     let attachments: File[] = [];

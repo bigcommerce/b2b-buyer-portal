@@ -29,6 +29,17 @@ import * as storefrontConfigModule from '@/utils/storefrontConfig';
 import { RegisteredProvider } from './Context';
 import Registered from '.';
 
+// The real Captcha renders into a theme-frame iframe and listens for `postMessage` with a
+// runtime-generated widget id, which is impractical to drive in jsdom. Replace it with a button
+// that fires the same `handleGetKey` callback the real widget calls on solve.
+vi.mock('@/components/captcha/Captcha', () => ({
+  Captcha: ({ handleGetKey }: { handleGetKey: (key: string) => void }) => (
+    <button type="button" onClick={() => handleGetKey('captcha-key')}>
+      solve captcha
+    </button>
+  ),
+}));
+
 const { server } = startMockServer();
 
 const buildUploadedCompanyFileWith = builder<UploadedCompanyFile>(() => ({
@@ -1188,6 +1199,42 @@ describe('Registered Page', () => {
     expect(
       screen.queryByRole('heading', { name: 'Registration complete!' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('clears the missing-captcha message and allows submission once the captcha is solved', async () => {
+    vi.spyOn(recaptchaModule, 'getStorefrontToken').mockResolvedValue({
+      isEnabledOnStorefront: true,
+      siteKey: 'test-site-key',
+    });
+
+    const { user } = renderWithProviders(
+      <RegisteredProvider>
+        <Registered setOpenPage={vi.fn()} />
+      </RegisteredProvider>,
+      { preloadedState: preloadedStateB2bCompanyCreate },
+    );
+
+    await completeRegistration(user, { ...mockRegistrationData.b2c, businessDetails: undefined });
+
+    expect(
+      await screen.findByText('The captcha you entered is incorrect. Please try again.'),
+    ).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'solve captcha' }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('The captcha you entered is incorrect. Please try again.'),
+      ).not.toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /Submit/i }));
+
+    expect(await screen.findByRole('heading', { name: 'Registration complete!' })).toBeVisible();
+    expect(b2bService.createBCCompanyUser).toHaveBeenCalledWith(
+      expectedPayloadType1,
+      'captcha-key',
+    );
   });
 
   it('renders and completes Business (B2B) registration flow with auto approval', async () => {
