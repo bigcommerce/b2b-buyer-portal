@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Termina azione per conto del venditore",
   "dashboard.masqueradeModal.title.start": "Avvia l'azione per conto del venditore",
   "dashboard.masqueradeModal.title.end": "Termina l'azione per conto del venditore",
-  "dashboard.masqueradeModal.message": "Questa azione svuoterà il carrello. Continuare?",
+  "dashboard.masqueradeModal.message": "Questa azione svuoterà il carrello e la bozza di preventivo. Continuare?",
   "dashboard.masqueradeModal.actions.cancel": "Annulla",
   "dashboard.masqueradeModal.actions.continue": "Continua",
   "orders.order": "Ordine",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Visualizza shopping list",
   "orderDetail.anotherCompany.tips": "Questo ordine è correlato a un'altra azienda. Per ripetere un ordine, aggiungerlo a una shopping list da acquistare o eseguire altre azioni, devi passare a quell'azienda.",
   "orderDetail.switchCompany.title": "Cambia azienda",
-  "orderDetail.switchCompany.content.tipsText": "Per continuare devi passare a un'altra azienda. Passando a un'altra azienda, il tuo carrello verrà aggiornato.",
+  "orderDetail.switchCompany.content.tipsText": "Per continuare devi passare a un'altra azienda. Passando a un'altra azienda, il tuo carrello e il preventivo in bozza verranno aggiornati.",
   "orderDetail.digitalProducts.download": "Scarica",
   "orderDetail.digitalProducts.filesToDownload": "File da scaricare",
   "orderDetail.digitalProducts.viewFiles": "Visualizza file",
@@ -768,7 +768,7 @@
   "payment.okButton": "Ok",
   "companyHierarchy.table.name": "Nome",
   "companyHierarchy.dialog.title": "Cambia azienda",
-  "companyHierarchy.dialog.content": "Se passi a un'azienda diversa, il tuo carrello verrà aggiornato. Continuare?",
+  "companyHierarchy.dialog.content": "Questa azione svuoterà il carrello e la bozza di preventivo. Continuare?",
   "companyHierarchy.chip.currentCompany": "La tua azienda",
   "companyHierarchy.chip.selectCompany": "Rappresentare"
 }

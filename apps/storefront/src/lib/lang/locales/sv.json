@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Avsluta maskerad",
   "dashboard.masqueradeModal.title.start": "Starta maskering",
   "dashboard.masqueradeModal.title.end": "Avsluta maskering",
-  "dashboard.masqueradeModal.message": "Den här åtgärden kommer att tömma din kundvagn. Vill du fortsätta?",
+  "dashboard.masqueradeModal.message": "Den här åtgärden kommer att tömma din kundvagn och ditt offertutkast. Vill du fortsätta?",
   "dashboard.masqueradeModal.actions.cancel": "Annullera",
   "dashboard.masqueradeModal.actions.continue": "Fortsätt",
   "orders.order": "Beställning",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Visa inköpslista",
   "orderDetail.anotherCompany.tips": "Den här beställningen är kopplad till ett annat företag. För att ombeställa, lägga till i en inköpslista eller utföra andra åtgärder måste du byta till det företaget.",
   "orderDetail.switchCompany.title": "Byt företag",
-  "orderDetail.switchCompany.content.tipsText": "För att fortsätta måste du byta företag. Om du byter till ett annat företag uppdateras din kundvagn.",
+  "orderDetail.switchCompany.content.tipsText": "För att fortsätta måste du byta företag. Om du byter till ett annat företag uppdateras din kundvagn och ditt utkast till offert.",
   "orderDetail.digitalProducts.download": "Ladda ner",
   "orderDetail.digitalProducts.filesToDownload": "Filer att ladda ned",
   "orderDetail.digitalProducts.viewFiles": "Visa filer",
@@ -768,7 +768,7 @@
   "payment.okButton": "Ok",
   "companyHierarchy.table.name": "Namn",
   "companyHierarchy.dialog.title": "Byt företag",
-  "companyHierarchy.dialog.content": "Om du byter till ett annat företag uppdateras din kundvagn. Vill du fortsätta?",
+  "companyHierarchy.dialog.content": "Den här åtgärden kommer att tömma din kundvagn och ditt offertutkast. Vill du fortsätta?",
   "companyHierarchy.chip.currentCompany": "Ditt företag",
   "companyHierarchy.chip.selectCompany": "Representerar"
 }

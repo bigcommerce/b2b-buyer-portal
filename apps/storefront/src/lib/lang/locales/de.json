@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Maskerade beenden",
   "dashboard.masqueradeModal.title.start": "Maskerade starten",
   "dashboard.masqueradeModal.title.end": "Maskerade beenden",
-  "dashboard.masqueradeModal.message": "Durch diese Aktion wird Ihr Warenkorb geleert. Möchten Sie fortfahren?",
+  "dashboard.masqueradeModal.message": "Durch diese Aktion werden Ihr Warenkorb und Ihr Angebotsentwurf geleert. Möchten Sie fortfahren?",
   "dashboard.masqueradeModal.actions.cancel": "Abbrechen",
   "dashboard.masqueradeModal.actions.continue": "Fortfahren",
   "orders.order": "Bestellung",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Einkaufsliste anzeigen",
   "orderDetail.anotherCompany.tips": "Diese Bestellung ist einem anderen Unternehmen zugeordnet. Um eine Bestellung zu wiederholen, zu einer Einkaufsliste hinzuzufügen oder andere Aktionen durchzuführen, müssen Sie zu diesem Unternehmen wechseln.",
   "orderDetail.switchCompany.title": "Unternehmen wechseln",
-  "orderDetail.switchCompany.content.tipsText": "Um fortzufahren, müssen Sie das Unternehmen wechseln. Wenn Sie zu einem anderen Unternehmen wechseln, wird Ihr Warenkorb aktualisiert.",
+  "orderDetail.switchCompany.content.tipsText": "Um fortzufahren, müssen Sie das Unternehmen wechseln. Wenn Sie zu einem anderen Unternehmen wechseln, werden Ihr Warenkorb und Ihr Angebotsentwurf aktualisiert.",
   "orderDetail.digitalProducts.download": "Herunterladen",
   "orderDetail.digitalProducts.filesToDownload": "Dateien zum Herunterladen",
   "orderDetail.digitalProducts.viewFiles": "Dateien anzeigen",
@@ -768,7 +768,7 @@
   "payment.okButton": "Ok",
   "companyHierarchy.table.name": "Name",
   "companyHierarchy.dialog.title": "Unternehmen wechseln",
-  "companyHierarchy.dialog.content": "Wenn Sie zu einem anderen Unternehmen wechseln, wird Ihr Warenkorb aktualisiert. Möchten Sie fortfahren?",
+  "companyHierarchy.dialog.content": "Durch diese Aktion werden Ihr Warenkorb und Ihr Angebotsentwurf geleert. Möchten Sie fortfahren?",
   "companyHierarchy.chip.currentCompany": "Ihr Unternehmen",
   "companyHierarchy.chip.selectCompany": "Vertretung"
 }

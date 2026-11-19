@@ -153,7 +153,7 @@
   "dashboard.endMasqueradeAction": "Avslutt maskerade",
   "dashboard.masqueradeModal.title.start": "Start maskerade",
   "dashboard.masqueradeModal.title.end": "Avslutt maskerade",
-  "dashboard.masqueradeModal.message": "Denne handlingen vil tømme handlekurven din. Vil du fortsette?",
+  "dashboard.masqueradeModal.message": "Denne handlingen vil tømme handlekurven og tilbudsutkastet ditt. Vil du fortsette?",
   "dashboard.masqueradeModal.actions.cancel": "Avbryt",
   "dashboard.masqueradeModal.actions.continue": "Fortsett",
   "orders.order": "Bestilling",
@@ -412,7 +412,7 @@
   "orderDetail.viewShoppingList": "Se handleliste",
   "orderDetail.anotherCompany.tips": "Denne bestillingen er knyttet til et annet selskap. For å bestille på nytt, legge til i en handleliste eller utføre andre handlinger må du bytte til det selskapet.",
   "orderDetail.switchCompany.title": "Bytt firma",
-  "orderDetail.switchCompany.content.tipsText": "For å fortsette, må du bytte bedrift. Hvis du bytter til en annen bedrift, oppdateres handlekurven din.",
+  "orderDetail.switchCompany.content.tipsText": "For å fortsette, må du bytte bedrift. Hvis du bytter til en annen bedrift, oppdateres handlekurven din og tilbudsutkastet.",
   "orderDetail.digitalProducts.download": "Last ned",
   "orderDetail.digitalProducts.filesToDownload": "Filer til nedlasting",
   "orderDetail.digitalProducts.viewFiles": "Vis filer",
@@ -768,7 +768,7 @@
   "payment.okButton": "Ok",
   "companyHierarchy.table.name": "Navn",
   "companyHierarchy.dialog.title": "Bytt firma",
-  "companyHierarchy.dialog.content": "Hvis du bytter til en annen bedrift, oppdateres handlekurven din. Vil du fortsette?",
+  "companyHierarchy.dialog.content": "Denne handlingen vil tømme handlekurven og tilbudsutkastet ditt. Vil du fortsette?",
   "companyHierarchy.chip.currentCompany": "Bedriften din",
   "companyHierarchy.chip.selectCompany": "Representerer"
 }
