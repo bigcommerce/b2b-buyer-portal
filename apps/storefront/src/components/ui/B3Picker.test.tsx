@@ -7,7 +7,15 @@ import {
   waitFor,
 } from 'tests/test-utils';
 
+import * as loadPickerLocaleModule from '@/lib/lang/loadPickerLocale';
+
 import { B3Picker } from './B3Picker';
+
+vi.mock('@/lib/lang/loadPickerLocale', async (importOriginal) => {
+  const actual = await importOriginal<typeof loadPickerLocaleModule>();
+
+  return { ...actual, loadPickerLocale: vi.fn(actual.loadPickerLocale) };
+});
 
 const FLAG = 'LOCAL-3509.Translate_b2b_dates';
 const STORE_URL = faker.internet.url({ appendSlash: false });
@@ -43,7 +51,7 @@ describe('B3Picker', () => {
 
     const input = screen.getByRole('textbox', { name: label });
 
-    expect(input).toHaveValue('15.03.2024');
+    await waitFor(() => expect(input).toHaveValue('15.03.2024'));
 
     await userEvent.click(input);
 
@@ -111,5 +119,26 @@ describe('B3Picker', () => {
     });
 
     expect(screen.getByRole('textbox', { name: label })).toHaveValue('03/15/2024');
+  });
+
+  it('keeps the English calendar when the locale files fail to load', async () => {
+    vi.mocked(loadPickerLocaleModule.loadPickerLocale).mockRejectedValue(new Error('chunk failed'));
+    setHref(`${STORE_URL}/de/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await waitFor(() =>
+      expect(vi.mocked(loadPickerLocaleModule.loadPickerLocale)).toHaveBeenCalledWith('de'),
+    );
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(input).toHaveValue('03/15/2024');
   });
 });

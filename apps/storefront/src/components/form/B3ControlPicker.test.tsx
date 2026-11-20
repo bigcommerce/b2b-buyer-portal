@@ -63,7 +63,7 @@ describe('B3ControlPicker', () => {
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
   });
 
-  it('shows the stored date in the German format on a German storefront path', () => {
+  it('shows the stored date in the German format on a German storefront path', async () => {
     setHref(`${STORE_URL}/de/register`);
     const label = faker.lorem.word();
 
@@ -72,7 +72,9 @@ describe('B3ControlPicker', () => {
       { preloadedState: { global: buildGlobalState(true, 'de') } },
     );
 
-    expect(screen.getByRole('textbox', { name: label })).toHaveValue('15.03.2024');
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: label })).toHaveValue('15.03.2024'),
+    );
   });
 
   it('shows a German calendar and submits the date as YYYY-MM-DD', async () => {

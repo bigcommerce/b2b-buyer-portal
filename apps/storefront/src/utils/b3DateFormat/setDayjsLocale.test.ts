@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 
 import { SUPPORT_LANGUAGE } from '@/constants';
+import { loadPickerLocale } from '@/lib/lang/loadPickerLocale';
 
 import setDayjsLocale, { getDayjsLocale } from './setDayjsLocale';
 
@@ -75,7 +76,8 @@ describe('getDayjsLocale', () => {
     expect(getDayjsLocale()).toBe('en');
   });
 
-  it('returns the base language when the global dayjs locale is regional', () => {
+  it('returns the base language when the global dayjs locale is regional', async () => {
+    await loadPickerLocale('es-mx');
     dayjs.locale('es-mx');
 
     expect(getDayjsLocale()).toBe('es');
