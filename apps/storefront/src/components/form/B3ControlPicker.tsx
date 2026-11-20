@@ -59,7 +59,7 @@ export function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
       return storedValue;
     }
 
-    const parsed = dayjs(storedValue, inputFormat);
+    const parsed = dayjs(storedValue, inputFormat, true);
 
     return parsed.isValid() ? parsed.locale(adapterLocale).format('L') : storedValue;
   };

@@ -113,6 +113,24 @@ describe('B3ControlPicker', () => {
     expect(onSubmit.mock.calls[0][0]).toStrictEqual({ birthday: '2024-03-20' });
   });
 
+  it('keeps the stored value when it does not match the date format, such as an ISO timestamp', async () => {
+    setHref(`${STORE_URL}/de/register`);
+    const label = faker.lorem.word();
+    const timestamp = '2024-03-15T23:00:00Z';
+
+    renderWithProviders(
+      <DateForm label={label} name="birthday" defaultValue={timestamp} onSubmit={vi.fn()} />,
+      { preloadedState: { global: buildGlobalState(true, 'de') } },
+    );
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Letzter Monat' })).toBeInTheDocument();
+    expect(input).toHaveValue(timestamp);
+  });
+
   it('leaves the field empty when no date is set', () => {
     setHref(`${STORE_URL}/de/register`);
     const label = faker.lorem.word();
