@@ -40,6 +40,9 @@ const { server } = startMockServer();
 const ACCOUNT_INCORRECT_MESSAGE =
   "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.";
 
+const RESET_PASSWORD_MESSAGE =
+  'You must reset your password before you may log in again. Please check your email at test@example.com to reset your password';
+
 // The login page gates its content on `isLogoLoaded` (set true once the merchant
 // login config resolves during app init). That flow doesn't run in these unit
 // tests, so default it to true — otherwise the page would stay stuck on the
@@ -173,6 +176,27 @@ describe('LoginPage', () => {
           "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
         );
       });
+    });
+
+    it('shows the reset-password prompt without the B2B login when BC login reports that the customer must reset their password', async () => {
+      // given
+      const loginRequested = vi.fn();
+      server.use(
+        graphql.mutation('Login', () => {
+          loginRequested();
+          return HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Reset password' }],
+          });
+        }),
+      );
+
+      // when
+      await renderLoginAndSubmit();
+
+      // then
+      expect(await screen.findByText(RESET_PASSWORD_MESSAGE)).toBeInTheDocument();
+      expect(loginRequested).toHaveBeenCalledOnce();
     });
 
     it('should show pending approval message for features/products/pricing and logout silently', async () => {
@@ -352,6 +376,57 @@ describe('LoginPage', () => {
 
       const { navigation } = await renderBcFirstLoginAndSubmit();
 
+      expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the reset-password prompt when BC login reports that the customer must reset their password', async () => {
+      // given
+      const b2bRequested = vi.fn();
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Reset password' }],
+          }),
+        ),
+        b2bGraphql.operation(() => {
+          b2bRequested();
+          return HttpResponse.json({ data: {} });
+        }),
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt should not be requested after a BC login error');
+        }),
+      );
+
+      // when
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      // then
+      expect(await screen.findByText(RESET_PASSWORD_MESSAGE)).toBeInTheDocument();
+      expect(screen.queryByText(ACCOUNT_INCORRECT_MESSAGE)).not.toBeInTheDocument();
+      expect(b2bRequested).not.toHaveBeenCalled();
+      expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
+    });
+
+    it('shows the incorrect-account error when BC login fails with an internal error', async () => {
+      // given
+      server.use(
+        graphql.mutation('Login', () =>
+          HttpResponse.json({
+            data: { login: null },
+            errors: [{ message: 'Internal server error' }],
+          }),
+        ),
+        http.get(CURRENT_JWT_URL, () => {
+          throw new Error('current.jwt should not be requested after a BC login error');
+        }),
+      );
+
+      // when
+      const { navigation } = await renderBcFirstLoginAndSubmit();
+
+      // then
       expect(await screen.findByText(ACCOUNT_INCORRECT_MESSAGE)).toBeInTheDocument();
       expect(navigation).not.toHaveBeenCalledWith(expect.stringContaining('/shoppingLists'));
     });
