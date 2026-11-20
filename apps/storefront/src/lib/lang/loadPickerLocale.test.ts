@@ -25,6 +25,13 @@ describe('loadPickerLocale', () => {
     expect(dayjs('2024-03-15').locale('ja').format('MMMM')).toBe('3月');
   });
 
+  it('enables strict date parsing for the date pickers', async () => {
+    await loadPickerLocale('de');
+
+    expect(dayjs('2024-03-15T23:00:00Z', 'YYYY-MM-DD', true).isValid()).toBe(false);
+    expect(dayjs('2024-03-15', 'YYYY-MM-DD', true).isValid()).toBe(true);
+  });
+
   describe('when a locale file fails to load', () => {
     afterEach(() => {
       vi.doUnmock('dayjs/locale/ja');

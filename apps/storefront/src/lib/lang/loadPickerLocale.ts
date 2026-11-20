@@ -1,4 +1,5 @@
 import type { deDE } from '@mui/x-date-pickers/locales';
+import dayjs from 'dayjs';
 
 type PickerLocale = typeof deDE;
 
@@ -9,8 +10,6 @@ type PickerLocaleText = NonNullable<
 const getLocaleText = (locale: PickerLocale): PickerLocaleText =>
   locale.components.MuiLocalizationProvider.defaultProps.localeText;
 
-// The picker locales are loaded on demand: they are only needed when the date localization
-// experiment is on and the buyer browses a non-default storefront language.
 const dayjsLocaleLoaders: Record<string, () => Promise<unknown>> = {
   da: () => import('dayjs/locale/da'),
   'es-mx': () => import('dayjs/locale/es-mx'),
@@ -38,13 +37,12 @@ const localeTextLoaders: Record<string, () => Promise<PickerLocaleText>> = {
   zh: () => import('@mui/x-date-pickers/locales/zhCN').then((m) => getLocaleText(m.zhCN)),
 };
 
-// Registers the dayjs locale and resolves the MUI picker labels for a dayjs locale key.
-// Both load in parallel and the result is all or nothing: if either fails, the promise rejects and
-// the caller keeps the non-localized picker. A dayjs locale that registered before the other load
-// failed is harmless, because it is only used once a picker selects it.
-// English has no MUI labels (the picker default is used), and Danish has none in the installed MUI.
+const registerCustomParseFormat = () =>
+  import('dayjs/plugin/customParseFormat').then((m) => dayjs.extend(m.default));
+
 export const loadPickerLocale = async (locale: string): Promise<PickerLocaleText | undefined> => {
-  const [, localeText] = await Promise.all([
+  const [, , localeText] = await Promise.all([
+    registerCustomParseFormat(),
     dayjsLocaleLoaders[locale]?.(),
     localeTextLoaders[locale]?.(),
   ]);
