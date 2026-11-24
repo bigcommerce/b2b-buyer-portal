@@ -240,8 +240,7 @@ function Login(props: PageProps) {
       const { errors: bcErrors } = await bcLogin({ email: data.email, password: data.password });
 
       if (bcErrors?.[0]?.message === 'Reset password') {
-        const needsReset = await getBCForcePasswordReset(data.email);
-        setLoginFlag(needsReset ? 'resetPassword' : 'accountIncorrect');
+        setLoginFlag('resetPassword');
         return;
       }
 
