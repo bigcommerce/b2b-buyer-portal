@@ -131,6 +131,57 @@ describe('B3ControlPicker', () => {
     expect(input).toHaveValue(timestamp);
   });
 
+  it('shows the stored date in the French format on a French default storefront', async () => {
+    setHref(`${STORE_URL}/register`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(
+      <DateForm label={label} name="birthday" defaultValue="2024-03-15" onSubmit={vi.fn()} />,
+      {
+        preloadedState: {
+          global: buildGlobalStateWith({
+            featureFlags: { [FLAG]: true },
+            locales: [
+              { code: 'fr', isDefault: true, fullPath: `${STORE_URL}/` },
+              { code: 'de', isDefault: false, fullPath: `${STORE_URL}/de` },
+            ],
+          }),
+        },
+      },
+    );
+
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: label })).toHaveValue('15/03/2024'),
+    );
+  });
+
+  it('keeps the stored date format on a non-default English locale', async () => {
+    setHref(`${STORE_URL}/en/register`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(
+      <DateForm label={label} name="birthday" defaultValue="2024-03-15" onSubmit={vi.fn()} />,
+      {
+        preloadedState: {
+          global: buildGlobalStateWith({
+            featureFlags: { [FLAG]: true },
+            locales: [
+              { code: 'fr', isDefault: true, fullPath: `${STORE_URL}/` },
+              { code: 'en', isDefault: false, fullPath: `${STORE_URL}/en` },
+            ],
+          }),
+        },
+      },
+    );
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(input).toHaveValue('2024-03-15');
+  });
+
   it('leaves the field empty when no date is set', () => {
     setHref(`${STORE_URL}/de/register`);
     const label = faker.lorem.word();

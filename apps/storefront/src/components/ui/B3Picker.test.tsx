@@ -141,4 +141,29 @@ describe('B3Picker', () => {
     expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
     expect(input).toHaveValue('03/15/2024');
   });
+
+  it('translates the calendar on a non-English default storefront language', async () => {
+    setHref(`${STORE_URL}/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: {
+        global: buildGlobalStateWith({
+          featureFlags: { [FLAG]: true },
+          locales: [
+            { code: 'fr', isDefault: true, fullPath: `${STORE_URL}/` },
+            { code: 'de', isDefault: false, fullPath: `${STORE_URL}/de` },
+          ],
+        }),
+      },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Mois précédent' })).toBeInTheDocument();
+    expect(screen.getByText('mars 2024')).toBeInTheDocument();
+    expect(input).toHaveValue('15/03/2024');
+  });
 });

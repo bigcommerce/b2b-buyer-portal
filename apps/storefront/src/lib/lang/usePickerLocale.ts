@@ -13,13 +13,13 @@ export const usePickerLocale = () => {
   const locales = useAppSelector(({ global }) => global.locales);
 
   const fallbackLocale = getDayjsLocale();
-  const isEnabled = isFlagEnabled && getActiveLocale(locales)?.isDefault === false;
+  const isEnabled = isFlagEnabled && Boolean(getActiveLocale(locales));
   const pickerLocale = resolvePickerLocale({ isEnabled, locales, fallbackLocale });
 
   const { data } = useQuery({
     queryKey: ['pickerLocale', pickerLocale],
     queryFn: async () => ({ localeText: await loadPickerLocale(pickerLocale) }),
-    enabled: isEnabled,
+    enabled: isEnabled && pickerLocale !== 'en',
     staleTime: Infinity,
   });
 
