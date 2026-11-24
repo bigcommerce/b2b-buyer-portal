@@ -510,7 +510,7 @@ export function convertOrderDetail(
     canReturn: false,
     orderIsDigital: digitalProducts.length > 0,
     ipStatus: order.invoice ? 1 : 0,
-    invoiceId: order.invoice ? Number(order.invoice.id) : 0,
+    invoiceId: order.invoice ? order.invoice.entityId : 0,
     createdEmail: order.placedBy?.email ?? '',
     companyInfo,
     customerId: order.placedBy?.entityId,

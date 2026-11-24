@@ -164,7 +164,7 @@ export interface OrderHistoryEvent {
 }
 
 export interface OrderInvoice {
-  id: string;
+  entityId: number;
 }
 
 export interface OrderPaymentInfo {
@@ -526,7 +526,7 @@ const orderB2BFields = `reference
     createdAt
   }
   invoice {
-    id
+    entityId
   }`;
 
 /** Lightweight fields for order list views. */
