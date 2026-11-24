@@ -3714,6 +3714,24 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       }),
     };
 
+    function buildPlacedByWith(email: string) {
+      return {
+        entityId: faker.number.int({ min: 1, max: 99999 }),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email,
+      };
+    }
+
+    function buildBuyerOrderWith(overrides: Partial<Order>) {
+      return buildUnifiedOrderWith({
+        entityId: 6696,
+        company: { entityId: companyId, name: faker.company.name() },
+        placedBy: buildPlacedByWith(faker.internet.email()),
+        ...overrides,
+      });
+    }
+
     function serveOrder(order: Order) {
       server.use(
         graphql.query('GetOrderDetail', () =>
@@ -3743,25 +3761,59 @@ describe('Order detail path with unified SF GQL flag ON', () => {
 
     it('opens the invoice page with the invoice entityId', async () => {
       const entityId = faker.number.int({ min: 1, max: 99999 });
-      serveOrder(
-        buildUnifiedOrderWith({
-          entityId: 6696,
-          company: { entityId: companyId, name: faker.company.name() },
-          placedBy: {
-            entityId: faker.number.int({ min: 1, max: 99999 }),
-            firstName: faker.person.firstName(),
-            lastName: faker.person.lastName(),
-            email: faker.internet.email(),
-          },
-          invoice: { entityId },
-        }),
-      );
+      serveOrder(buildBuyerOrderWith({ invoice: { entityId } }));
 
       const view = await renderOrderDetails(b2bBuyerState);
 
       await userEvent.click(await screen.findByRole('button', { name: /view invoice/i }));
 
       expect(view.navigation).toHaveBeenCalledWith(`/invoice?invoiceId=${entityId}`);
+    });
+
+    it('hides view invoice on an order without an invoice that the user did not place', async () => {
+      serveOrder(buildBuyerOrderWith({ invoice: null }));
+
+      await renderOrderDetails(b2bBuyerState);
+
+      expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+    });
+
+    it('hides view invoice when the user cannot view invoices', async () => {
+      serveOrder(
+        buildBuyerOrderWith({ invoice: { entityId: faker.number.int({ min: 1, max: 99999 }) } }),
+      );
+
+      await renderOrderDetails({
+        ...b2bBuyerState,
+        company: { ...b2bBuyerState.company, permissions: [] },
+      });
+
+      expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+    });
+
+    it('offers print invoice instead of view invoice to a non-B2B user', async () => {
+      serveOrder(
+        buildBuyerOrderWith({ invoice: { entityId: faker.number.int({ min: 1, max: 99999 }) } }),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByRole('button', { name: /print invoice/i })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+    });
+
+    it('does not open the invoice page for an order without an invoice that the user placed', async () => {
+      serveOrder(buildBuyerOrderWith({ invoice: null, placedBy: buildPlacedByWith(buyerEmail) }));
+
+      const view = await renderOrderDetails(b2bBuyerState);
+
+      await userEvent.click(await screen.findByRole('button', { name: /view invoice/i }));
+
+      expect(view.navigation).not.toHaveBeenCalledWith(
+        expect.stringContaining('/invoice?invoiceId='),
+      );
     });
   });
 });
