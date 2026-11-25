@@ -92,7 +92,7 @@ interface OrderCardProps {
   orderId: string;
   role: number | string;
   ipStatus: number;
-  invoiceId?: number | string | undefined | null;
+  invoiceId?: number;
   isCurrentCompany: boolean;
   switchCompanyId: number | string | undefined;
   currencyCode?: string;
