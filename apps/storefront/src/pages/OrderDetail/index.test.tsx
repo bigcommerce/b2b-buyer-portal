@@ -4536,3 +4536,76 @@ describe('when a personal customer visits an order', () => {
     });
   });
 });
+
+describe('when the display translated order statuses experiment is on', () => {
+  const preloadedState = {
+    company: buildCompanyStateWith({ customer: { role: CustomerRole.B2C } }),
+    global: buildGlobalStateWith({
+      featureFlags: { 'LOCAL-3680.B2B_display_translated_order_statuses': true },
+    }),
+    storeInfo: buildStoreInfoStateWith({ timeFormat: { display: 'j F Y' } }),
+  };
+
+  it('labels the order status and history with the site order statuses', async () => {
+    vi.mocked(useParams).mockReturnValue({ id: '6696' });
+    const getLegacyStatuses = vi.fn();
+
+    server.use(
+      graphql.query('GetSiteOrderStatuses', () =>
+        HttpResponse.json({
+          data: {
+            site: {
+              settings: {
+                orders: {
+                  statuses: [
+                    { id: 2, origin: 'Sent out', translation: '' },
+                    { id: 11, origin: 'Being packed', translation: '' },
+                  ],
+                },
+              },
+            },
+          },
+        }),
+      ),
+      graphql.query('GetCustomerOrderStatuses', () => {
+        getLegacyStatuses();
+        return HttpResponse.json(buildCustomerOrderStatusesWith('WHATEVER_VALUES'));
+      }),
+      graphql.query('AddressConfig', () =>
+        HttpResponse.json(buildAddressConfigResponseWith('WHATEVER_VALUES')),
+      ),
+      graphql.query('GetCustomerOrder', () =>
+        HttpResponse.json(
+          buildCustomerOrderResponseWith({
+            data: {
+              customerOrder: {
+                status: 'Shipped',
+                poNumber: '',
+                orderHistoryEvent: [
+                  {
+                    id: 1,
+                    eventType: 1,
+                    status: 'Awaiting Fulfillment',
+                    createdAt: getUnixTime(new Date('1 May 2025 03:44')),
+                  },
+                ],
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    renderWithProviders(<OrderDetails />, { preloadedState });
+
+    expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+
+    const table = await screen.findByRole('table');
+
+    await waitFor(() => {
+      expect(within(table).getByRole('cell', { name: 'Being packed' })).toBeVisible();
+    });
+    expect(screen.getByText('Sent out')).toBeVisible();
+    expect(getLegacyStatuses).not.toHaveBeenCalled();
+  });
+});

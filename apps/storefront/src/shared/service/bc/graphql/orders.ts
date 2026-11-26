@@ -853,3 +853,43 @@ export async function getCustomersWithOrders(variables: {
     variables,
   });
 }
+
+export interface SiteOrderStatus {
+  id: number;
+  origin: string;
+  translation: string;
+}
+
+interface GetSiteOrderStatusesResponse {
+  data?: {
+    site?: {
+      settings?: {
+        orders?: {
+          statuses?: SiteOrderStatus[] | null;
+        } | null;
+      } | null;
+    };
+  };
+}
+
+const GET_SITE_ORDER_STATUSES = `query GetSiteOrderStatuses {
+  site {
+    settings {
+      orders {
+        statuses {
+          id
+          origin
+          translation
+        }
+      }
+    }
+  }
+}`;
+
+export async function getSiteOrderStatuses(): Promise<SiteOrderStatus[]> {
+  const response = await storefrontGQLRequest<GetSiteOrderStatusesResponse>({
+    query: GET_SITE_ORDER_STATUSES,
+  });
+
+  return response.data?.site?.settings?.orders?.statuses ?? [];
+}

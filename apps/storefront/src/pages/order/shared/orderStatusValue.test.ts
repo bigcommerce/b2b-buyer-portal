@@ -1,6 +1,7 @@
 import getOrderStatus, { orderStatusTranslationVariables } from './getOrderStatus';
 import {
   ORDER_STATUS_SYSTEM_LABELS,
+  orderStatusIdToSystemLabel,
   orderStatusValueToSystemLabel,
   systemLabelToOrderStatusValue,
 } from './orderStatusValue';
@@ -43,5 +44,16 @@ describe('orderStatusValue', () => {
   it('returns undefined when a system label has no enum member', () => {
     expect(systemLabelToOrderStatusValue('Awaiting fulfillment')).toBeUndefined();
     expect(systemLabelToOrderStatusValue('Backordered')).toBeUndefined();
+  });
+
+  it('maps every numeric status id onto a system label', () => {
+    const systemLabels = Array.from({ length: 15 }, (_, id) => orderStatusIdToSystemLabel(id));
+
+    expect(new Set(systemLabels)).toEqual(new Set(Object.values(ORDER_STATUS_SYSTEM_LABELS)));
+    expect(orderStatusIdToSystemLabel(11)).toBe('Awaiting Fulfillment');
+  });
+
+  it('returns an empty string for an unknown status id', () => {
+    expect(orderStatusIdToSystemLabel(99)).toBe('');
   });
 });
