@@ -3776,7 +3776,9 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       await renderOrderDetails(b2bBuyerState);
 
       expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
-      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /(view|print) invoice/i }),
+      ).not.toBeInTheDocument();
     });
 
     it('hides view invoice when the user cannot view invoices', async () => {
@@ -3790,7 +3792,9 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       });
 
       expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
-      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /(view|print) invoice/i }),
+      ).not.toBeInTheDocument();
     });
 
     it('offers print invoice instead of view invoice to a non-B2B user', async () => {
