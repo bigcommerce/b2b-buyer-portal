@@ -1,8 +1,16 @@
-import { describe, expect, it, vi } from 'vitest';
+import { faker, graphql, HttpResponse, startMockServer } from 'tests/test-utils';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { store } from '@/store';
+import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { ProductsProps } from '@/utils/b3Product/shared/config';
 
-import { calculateSubTotal, mapToProductsFailedArray, verifyInventory } from './b3ShoppingList';
+import createShoppingList, {
+  calculateSubTotal,
+  mapToProductsFailedArray,
+  verifyInventory,
+} from './b3ShoppingList';
 
 vi.mock('@/utils/b3Product/b3Product', async (importOriginal) => {
   const original = await importOriginal<typeof import('@/utils/b3Product/b3Product')>();
@@ -194,5 +202,85 @@ describe('verifyInventory', () => {
 
     expect(validateSuccessArr).toHaveLength(1);
     expect(validateFailureArr).toHaveLength(1);
+  });
+});
+
+describe('createShoppingList', () => {
+  const { server } = startMockServer();
+
+  const selectCompany = (selectCompanyHierarchyId: string | number) =>
+    store.dispatch(setCompanyHierarchyInfoModules({ selectCompanyHierarchyId }));
+
+  const captureCreateShoppingListVariables = () => {
+    const createShoppingListSpy = vi.fn();
+
+    server.use(
+      graphql.mutation('CreateShoppingList', ({ variables }) => {
+        createShoppingListSpy(variables);
+
+        return HttpResponse.json({
+          data: { shoppingListsCreate: { shoppingList: { id: faker.number.int().toString() } } },
+        });
+      }),
+    );
+
+    return createShoppingListSpy;
+  };
+
+  const createListAsB2BUser = () =>
+    createShoppingList({
+      data: { name: faker.lorem.word(), description: faker.lorem.sentence() },
+      isB2BUser: true,
+    });
+
+  afterEach(() => {
+    selectCompany('');
+  });
+
+  it('sends a numeric companyId when the selected company id is a numeric string', async () => {
+    const companyId = faker.number.int({ min: 1, max: 2147483647 });
+    const createShoppingListSpy = captureCreateShoppingListVariables();
+    selectCompany(companyId.toString());
+
+    await createListAsB2BUser();
+
+    expect(createShoppingListSpy).toHaveBeenCalledWith({
+      shoppingListData: expect.objectContaining({
+        companyId,
+        status: ShoppingListStatus.Approved,
+      }),
+    });
+  });
+
+  it('keeps a numeric company id numeric', async () => {
+    const companyId = faker.number.int({ min: 1, max: 2147483647 });
+    const createShoppingListSpy = captureCreateShoppingListVariables();
+    selectCompany(companyId);
+
+    await createListAsB2BUser();
+
+    expect(createShoppingListSpy).toHaveBeenCalledWith({
+      shoppingListData: expect.objectContaining({ companyId }),
+    });
+  });
+
+  it('omits companyId when no company is selected', async () => {
+    const createShoppingListSpy = captureCreateShoppingListVariables();
+    selectCompany('');
+
+    await createListAsB2BUser();
+
+    expect(createShoppingListSpy).toHaveBeenCalledOnce();
+    expect(createShoppingListSpy.mock.calls[0][0].shoppingListData).not.toHaveProperty('companyId');
+  });
+
+  it('omits companyId when the selected value is not numeric', async () => {
+    const createShoppingListSpy = captureCreateShoppingListVariables();
+    selectCompany('abc');
+
+    await createListAsB2BUser();
+
+    expect(createShoppingListSpy).toHaveBeenCalledOnce();
+    expect(createShoppingListSpy.mock.calls[0][0].shoppingListData).not.toHaveProperty('companyId');
   });
 });

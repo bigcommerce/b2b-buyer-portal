@@ -27,8 +27,10 @@ CreateShoppingListParams) => {
       containOrEqual: 'contain',
       code: b2bPermissionsMap.submitShoppingListPermission,
     });
-    const selectCompanyHierarchyId =
-      store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
+    // The stored id is a string after a page load, but the API expects an Int.
+    const selectCompanyHierarchyId = Number(
+      store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0,
+    );
     createShoppingData.status = submitShoppingListPermission
       ? ShoppingListStatus.Draft
       : ShoppingListStatus.Approved;
