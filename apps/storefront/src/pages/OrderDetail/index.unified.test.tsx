@@ -23,11 +23,12 @@ import {
 } from 'tests/test-utils';
 import { when } from 'vitest-when';
 
+import { permissionLevels } from '@/constants';
 import { AddressConfig } from '@/shared/service/b2b/graphql/address';
 import { CustomerOrderStatues, CustomerOrderStatus } from '@/shared/service/b2b/graphql/orders';
 import type { GetOrderDetailResponse, Money, Order } from '@/shared/service/bc/graphql/orders';
 import { OrderHistoryEventType } from '@/shared/service/bc/graphql/orders';
-import { Currency, CustomerRole } from '@/types';
+import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 import type {
   UserMasqueradingCompanyBeginResponse,
   UserMasqueradingCompanyBeginVariables,
@@ -251,9 +252,9 @@ describe('Order detail path with unified SF GQL flag ON', () => {
     );
   });
 
-  async function renderOrderDetails() {
+  async function renderOrderDetails(state: typeof preloadedState = preloadedState) {
     const view = renderWithProviders(<OrderDetails />, {
-      preloadedState,
+      preloadedState: state,
       initialEntries: [
         {
           state: {
@@ -3689,6 +3690,134 @@ describe('Order detail path with unified SF GQL flag ON', () => {
       await waitFor(() => {
         expect(screen.getByText('Please select at least one item')).toBeVisible();
       });
+    });
+  });
+
+  describe('B2B-6193: view invoice', () => {
+    const companyId = faker.number.int({ min: 1, max: 99999 });
+    const buyerEmail = faker.internet.email();
+
+    const b2bBuyerState = {
+      ...preloadedState,
+      company: buildCompanyStateWith({
+        companyInfo: {
+          id: String(companyId),
+          status: CompanyStatus.APPROVED,
+          companyName: faker.company.name(),
+        },
+        customer: {
+          userType: UserTypes.MULTIPLE_B2C,
+          role: CustomerRole.SENIOR_BUYER,
+          emailAddress: buyerEmail,
+        },
+        permissions: [{ code: 'get_invoices', permissionLevel: permissionLevels.COMPANY }],
+      }),
+    };
+
+    function buildPlacedByWith(email: string) {
+      return {
+        entityId: faker.number.int({ min: 1, max: 99999 }),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email,
+      };
+    }
+
+    function buildBuyerOrderWith(overrides: Partial<Order>) {
+      return buildUnifiedOrderWith({
+        entityId: 6696,
+        company: { entityId: companyId, name: faker.company.name() },
+        placedBy: buildPlacedByWith(faker.internet.email()),
+        ...overrides,
+      });
+    }
+
+    function serveOrder(order: Order) {
+      server.use(
+        graphql.query('GetOrderDetail', () =>
+          HttpResponse.json(buildOrderDetailResponseWith({ data: { site: { order } } })),
+        ),
+      );
+    }
+
+    it('requests invoice entityId and never invoice id', async () => {
+      let capturedQuery = '';
+      server.use(
+        graphql.query('GetOrderDetail', ({ query }) => {
+          capturedQuery = query;
+          return HttpResponse.json(
+            buildOrderDetailResponseWith({
+              data: { site: { order: buildUnifiedOrderWith({ entityId: 6696 }) } },
+            }),
+          );
+        }),
+      );
+
+      await renderOrderDetails();
+
+      expect(capturedQuery).toMatch(/invoice\s*\{\s*entityId\s*\}/);
+      expect(capturedQuery).not.toMatch(/invoice\s*\{\s*id\s*\}/);
+    });
+
+    it('opens the invoice page with the invoice entityId', async () => {
+      const entityId = faker.number.int({ min: 1, max: 99999 });
+      serveOrder(buildBuyerOrderWith({ invoice: { entityId } }));
+
+      const view = await renderOrderDetails(b2bBuyerState);
+
+      await userEvent.click(await screen.findByRole('button', { name: /view invoice/i }));
+
+      expect(view.navigation).toHaveBeenCalledWith(`/invoice?invoiceId=${entityId}`);
+    });
+
+    it('hides view invoice on an order without an invoice that the user did not place', async () => {
+      serveOrder(buildBuyerOrderWith({ invoice: null }));
+
+      await renderOrderDetails(b2bBuyerState);
+
+      expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: /(view|print) invoice/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides view invoice when the user cannot view invoices', async () => {
+      serveOrder(
+        buildBuyerOrderWith({ invoice: { entityId: faker.number.int({ min: 1, max: 99999 }) } }),
+      );
+
+      await renderOrderDetails({
+        ...b2bBuyerState,
+        company: { ...b2bBuyerState.company, permissions: [] },
+      });
+
+      expect(await screen.findByRole('heading', { name: /Order #6696/ })).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: /(view|print) invoice/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('offers print invoice instead of view invoice to a non-B2B user', async () => {
+      serveOrder(
+        buildBuyerOrderWith({ invoice: { entityId: faker.number.int({ min: 1, max: 99999 }) } }),
+      );
+
+      await renderOrderDetails();
+
+      expect(await screen.findByRole('button', { name: /print invoice/i })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /view invoice/i })).not.toBeInTheDocument();
+    });
+
+    it('does not open the invoice page for an order without an invoice that the user placed', async () => {
+      serveOrder(buildBuyerOrderWith({ invoice: null, placedBy: buildPlacedByWith(buyerEmail) }));
+
+      const view = await renderOrderDetails(b2bBuyerState);
+
+      await userEvent.click(await screen.findByRole('button', { name: /view invoice/i }));
+
+      expect(view.navigation).not.toHaveBeenCalledWith(
+        expect.stringContaining('/invoice?invoiceId='),
+      );
     });
   });
 });
