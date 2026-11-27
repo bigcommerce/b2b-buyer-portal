@@ -1,0 +1,169 @@
+import { faker } from '@faker-js/faker';
+import {
+  buildGlobalStateWith,
+  renderWithProviders,
+  screen,
+  userEvent,
+  waitFor,
+} from 'tests/test-utils';
+
+import * as loadPickerLocaleModule from '@/lib/lang/loadPickerLocale';
+
+import { B3Picker } from './B3Picker';
+
+vi.mock('@/lib/lang/loadPickerLocale', async (importOriginal) => {
+  const actual = await importOriginal<typeof loadPickerLocaleModule>();
+
+  return { ...actual, loadPickerLocale: vi.fn(actual.loadPickerLocale) };
+});
+
+const FLAG = 'LOCAL-3509.Translate_b2b_dates';
+const STORE_URL = faker.internet.url({ appendSlash: false });
+
+const buildGlobalState = (isEnabled: boolean, code: string) =>
+  buildGlobalStateWith({
+    featureFlags: { [FLAG]: isEnabled },
+    locales: [
+      { code: 'en', isDefault: true, fullPath: `${STORE_URL}/` },
+      { code, isDefault: false, fullPath: `${STORE_URL}/${code}` },
+    ],
+  });
+
+const setHref = (href: string) => {
+  Object.defineProperty(window, 'location', { value: { href }, writable: true });
+};
+
+describe('B3Picker', () => {
+  const originalLocation = window.location;
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+  });
+
+  it('shows a German calendar and date format on a German storefront path', async () => {
+    setHref(`${STORE_URL}/de/orders`);
+    const label = faker.lorem.word();
+    const onChange = vi.fn();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={onChange} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await waitFor(() => expect(input).toHaveValue('15.03.2024'));
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Letzter Monat' })).toBeInTheDocument();
+    expect(screen.getByText('März 2024')).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toStrictEqual([
+      'M',
+      'D',
+      'M',
+      'D',
+      'F',
+      'S',
+      'S',
+    ]);
+  });
+
+  it('emits the unchanged YYYY-MM-DD value when the user picks a day in German', async () => {
+    setHref(`${STORE_URL}/de/orders`);
+    const label = faker.lorem.word();
+    const onChange = vi.fn();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={onChange} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    await userEvent.click(screen.getByRole('textbox', { name: label }));
+    await userEvent.click(await screen.findByRole('gridcell', { name: '20' }));
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith('2024-03-20'));
+  });
+
+  it('keeps the English calendar when the date localization flag is off', async () => {
+    setHref(`${STORE_URL}/de/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: { global: buildGlobalState(false, 'de') },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    expect(input).toHaveValue('03/15/2024');
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(screen.getByText('March 2024')).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toStrictEqual([
+      'S',
+      'M',
+      'T',
+      'W',
+      'T',
+      'F',
+      'S',
+    ]);
+  });
+
+  it('keeps the English date format for a buyer on the default language with the flag on', () => {
+    setHref(`${STORE_URL}/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    expect(screen.getByRole('textbox', { name: label })).toHaveValue('03/15/2024');
+  });
+
+  it('keeps the English calendar when the locale files fail to load', async () => {
+    vi.mocked(loadPickerLocaleModule.loadPickerLocale).mockRejectedValue(new Error('chunk failed'));
+    setHref(`${STORE_URL}/de/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: { global: buildGlobalState(true, 'de') },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await waitFor(() =>
+      expect(vi.mocked(loadPickerLocaleModule.loadPickerLocale)).toHaveBeenCalledWith('de'),
+    );
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(input).toHaveValue('03/15/2024');
+  });
+
+  it('translates the calendar on a non-English default storefront language', async () => {
+    setHref(`${STORE_URL}/orders`);
+    const label = faker.lorem.word();
+
+    renderWithProviders(<B3Picker label={label} value="2024-03-15" onChange={vi.fn()} />, {
+      preloadedState: {
+        global: buildGlobalStateWith({
+          featureFlags: { [FLAG]: true },
+          locales: [
+            { code: 'fr', isDefault: true, fullPath: `${STORE_URL}/` },
+            { code: 'de', isDefault: false, fullPath: `${STORE_URL}/de` },
+          ],
+        }),
+      },
+    });
+
+    const input = screen.getByRole('textbox', { name: label });
+
+    await userEvent.click(input);
+
+    expect(await screen.findByRole('button', { name: 'Mois précédent' })).toBeInTheDocument();
+    expect(screen.getByText('mars 2024')).toBeInTheDocument();
+    expect(input).toHaveValue('15/03/2024');
+  });
+});
